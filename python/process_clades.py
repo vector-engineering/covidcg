@@ -10,7 +10,7 @@ import numpy as np
 import networkx as nx
 import re
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from fasta import read_fasta_file
 
@@ -89,11 +89,14 @@ def build_clade_sequences(clades_df, clade_tree):
         ref_seq = list(ref.values())[0]
     # print(len(ref_seq))
 
-    clade_seqs = {
+    clade_seqs = OrderedDict({
         'root': ref_seq
-    }
+    })
     # Track positions that are changing
-    changing_positions = set()
+    clade_positions = OrderedDict({
+        'root': []
+    })
+
     for clade in clade_tree.nodes: # These should be sorted by length
         # Skip the root node
         if clade == 'root':
@@ -103,7 +106,9 @@ def build_clade_sequences(clades_df, clade_tree):
         # If not, use the reference sequence
         ancestor = list(clade_tree.edges(clade))[0][1]
         seq = clade_seqs[ancestor]
+        changing_pos = set(clade_positions[ancestor])
         # print(clade, ancestor)
+        # print(clade)
 
         # Get the mutations from the original clades_df
         muts = clades_df.loc[clades_df['Clade'] == clade, :].reset_index(drop=True)
@@ -114,8 +119,8 @@ def build_clade_sequences(clades_df, clade_tree):
             ref = muts.at[i, 'Ref']
             alt = muts.at[i, 'Alt']
 
-            # Add position to the master list
-            changing_positions.add(pos)
+            # Add position to the list of positions for this clade
+            changing_pos.add(pos)
 
             # Check to see if the clade reference matches the loaded reference
             # print(ref_seq[pos - 1], ref)
@@ -142,17 +147,28 @@ def build_clade_sequences(clades_df, clade_tree):
             seq = ''.join(seq)
 
         clade_seqs[clade] = seq
+        clade_positions[clade] = list(changing_pos)
 
     # print(clade_seqs)
-    # print(changing_positions)
+    # print(clade_positions)
 
-    return clade_seqs, changing_positions
+    return clade_seqs, clade_positions
 
 
 def main():
     clades_df = load_clades()
     clade_tree = build_clade_tree(clades_df)
-    clade_seqs, changing_positions = build_clade_sequences(clades_df, clade_tree)
+    clade_seqs, clade_positions = build_clade_sequences(clades_df, clade_tree)
+
+    # Save the sequences and positions as one dataframe
+    clade_data_df = pd.DataFrame({
+        'clade': list(clade_positions.keys()),
+        'seq': list(clade_seqs.values()),
+        'pos': list(clade_positions.values())
+    }).reset_index()
+    
+    clade_data_df.to_csv('processed_data/clade_data.csv', index=False)
+    clade_data_df.to_json('processed_data/clade_data.json', orient='records')
 
 
 if __name__ == '__main__':

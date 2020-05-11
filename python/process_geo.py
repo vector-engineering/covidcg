@@ -37,7 +37,8 @@ def load_geo_data():
         .fillna(-1) 
         .groupby(loc_keys)
         .count()
-        .reset_index()
+        .reset_index() # Unset the groupby keys
+        .reset_index() # Produce an index column
     )
     # print(location_df)
 
@@ -173,7 +174,7 @@ def build_select_tree(loc_tree):
     # print(json.dumps(select_tree, indent=2))
 
     # Save tree as json file
-    with open('processed_data/geography.json', 'w') as fp:
+    with open('processed_data/geo_select_tree.json', 'w') as fp:
         fp.write(json.dumps(select_tree))
 
     return select_tree
@@ -181,6 +182,11 @@ def build_select_tree(loc_tree):
 
 def main():
     location_df = load_geo_data()
+
+    # Save location_df
+    location_df.to_csv('processed_data/locations.csv', index=False)
+    location_df.to_json('processed_data/locations.json', orient='records')
+
     loc_tree = build_geo_graph(location_df)
 
     build_select_tree(loc_tree)
