@@ -45,50 +45,7 @@ def load_geo_data():
     return location_df
 
 
-def build_geo_graph(location_df):
-    '''Build Directed Graph of Geographies
-
-    Tree structure:
-    Region <-- Country <-- Division <-- Location
-    '''
-
-    loc_tree = nx.DiGraph()
-    loc_tree.add_node('All') # Root node
-    for i, loc in location_df.iterrows():
-        # Add region node
-        if loc['region'] == -1:
-            continue
-
-        loc_tree.add_node(loc['region'])
-        loc_tree.add_edge(loc['region'], 'All')
-
-        # Add country --> region
-        if loc['country'] == -1:
-            continue
-
-        loc_tree.add_node(loc['country'])
-        loc_tree.add_edge(loc['country'], loc['region'])
-        
-        # Add division --> country
-        if loc['division'] == -1:
-            continue
-
-        loc_tree.add_node(loc['division'])
-        loc_tree.add_edge(loc['division'], loc['country'])
-
-        # Add location --> division
-        if loc['location'] == -1:
-            continue
-        
-        loc_tree.add_node(loc['location'])
-        loc_tree.add_edge(loc['location'], loc['division'])
-
-    # print(loc_tree.nodes)
-    # print(loc_tree.in_edges('New York'))
-    return loc_tree
-
-
-def build_select_tree(loc_tree):
+def build_select_tree(location_df):
     '''Build tree for ReactDropdownTreeSelect
 
     data
@@ -140,44 +97,92 @@ def build_select_tree(loc_tree):
     }
     '''
 
-    # Transform names into more programmatic values
-    def geo_label_to_value(label):
-        # Lowercase
-        label = label.lower()
-        # Replace spaces with '_'
-        label = re.sub(r'\s', '_', label)
-        return label
-    # print(geo_label_to_value('New York City'))
+    # Root node
+    select_tree = {
+        'label': 'All',
+        'value': 'All',
+        'children': []
+    }
 
-
-    # Traverse tree with recursion
-    def build_select_tree_recurse(node):
-        # Build self
-        node_obj = {
-            'label': node,
-            'value': node
-        }
-
-        # Get all child nodes
-        child_nodes = [n[0] for n in loc_tree.in_edges(node) if n[0] != node]
-        child_objs = []
-        if child_nodes:
-            node_obj['children'] = [
-                build_select_tree_recurse(child_node)
-                for child_node in child_nodes
-            ]
-            
+    for i, loc in location_df.iterrows():
+        # Add region node
+        if loc['region'] == -1:
+            continue
         
-        return node_obj
+        region_node = [c for c in select_tree['children'] if c['value'] == loc['region']]
+        if region_node:
+            region_node = region_node[0]
+        else:
+            region_node = {
+                'label': loc['region'],
+                'value': loc['region'],
+                'level': 'region',
+                'children': []
+            }
+            select_tree['children'].append(region_node)
 
-    select_tree = build_select_tree_recurse('All')
-    # print(json.dumps(select_tree, indent=2))
+        # Add country --> region
+        if loc['country'] == -1:
+            continue
+
+        country_node = [c for c in region_node['children'] if c['value'] == loc['country']]
+        if country_node:
+            country_node = country_node[0]
+        else:
+            country_node = {
+                'label': loc['country'],
+                'value': loc['country'],
+                'region': loc['region'],
+                'level': 'country',
+                'children': []
+            }
+            region_node['children'].append(country_node)
+        
+        # Add division --> country
+        if loc['division'] == -1:
+            continue
+
+        division_node = [c for c in country_node['children'] if c['value'] == loc['division']]
+        if division_node:
+            division_node = division_node[0]
+        else:
+            division_node = {
+                'label': loc['division'],
+                'value': loc['division'],
+                'region': loc['region'],
+                'country': loc['country'],
+                'level': 'division',
+                'children': []
+            }
+            country_node['children'].append(division_node)
+
+        # Add location --> division
+        if loc['location'] == -1:
+            continue
+        
+        location_node = [c for c in division_node['children'] if c['value'] == loc['location']]
+        if location_node:
+            location_node = location_node[0]
+        else:
+            location_node = {
+                'label': loc['location'],
+                'value': loc['location'],
+                'region': loc['region'],
+                'country': loc['country'],
+                'division': loc['division'],
+                'level': 'location',
+                'children': []
+            }
+            division_node['children'].append(location_node)
 
     # Save tree as json file
     with open('processed_data/geo_select_tree.json', 'w') as fp:
         fp.write(json.dumps(select_tree))
 
+    # print(loc_tree.nodes)
+    # print(loc_tree.in_edges('New York'))
     return select_tree
+
 
 
 def main():
@@ -187,9 +192,8 @@ def main():
     location_df.to_csv('processed_data/locations.csv', index=False)
     location_df.to_json('processed_data/locations.json', orient='records')
 
-    loc_tree = build_geo_graph(location_df)
-
-    build_select_tree(loc_tree)
+    select_tree = build_select_tree(location_df)
+    # print(select_tree)
 
 
 if __name__ == '__main__':
