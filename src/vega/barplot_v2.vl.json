@@ -1,0 +1,73 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "description": "Google's stock price over time.",
+  "data": {
+    "url": "https://ve-public.storage.googleapis.com/entropy_data.json",
+    "format": {
+      "type": "json",
+      "parse": {"date": "date"}
+    }
+  },
+  "transform": [{
+    "aggregate": [{
+      "op": "sum",
+      "field": "cases",
+      "as": "cases_sum"
+    }],
+    "groupby": [
+      "position"
+    ]
+  }],
+  "vconcat": [
+    {
+      "width": 800,
+      "height": 100,
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "position",
+          "type": "quantitative",
+          "axis": {
+            "title": "Position",
+            "values": [0, 10000, 20000],
+            "labelExpr": "'asdf'",
+            "tickBand": "extent"
+          }
+        },
+        "y": {
+          "field": "cases_sum",
+          "type": "quantitative"
+        }
+      },
+      "selection": {
+        "brush": {
+          "type": "interval",
+          "encodings": [
+            "x"
+          ]
+        }
+      }
+    },
+    {
+      "width": 800,
+      "height": 100,
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "position",
+          "scale": {
+            "domain": {
+              "selection": "brush"
+            }
+          },
+          "type": "quantitative"
+        },
+        "y": {
+          "field": "cases_sum",
+          "type": "quantitative"
+        }
+      }
+    }
+  ],
+  "config": {}
+}
