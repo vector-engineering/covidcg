@@ -1,7 +1,26 @@
 # COVID-UI
 (working title)
 
-## Development
+## Installation
+
+`git clone --recursive https://github.com/vector-engineering/covid-ui.git`
+
+### Python
+
+1. Get a conda distribution of python, we recommend [miniconda3](https://docs.conda.io/en/latest/miniconda.html).
+   
+2. Install dependencies
+    ```sh
+    conda env create -f environment.yml
+    ```
+
+3. Install pangolin
+    ```sh
+    cd pangolin
+    pip install --editable .
+    ```
+
+### Javascript
 
 This app was built from the [react-slingshot](https://github.com/coryhouse/react-slingshot) example app.
 

@@ -1,0 +1,22 @@
+name: covid-ui
+channels:
+  - conda-forge
+  - defaults
+  - bioconda
+dependencies:
+  - python=3.6.10
+  - pip=19.3.1
+  - numpy=1.18.4
+  - networkx=2.4
+  - pandas=1.0.3
+  - tqdm=4.7.2
+  # Taken from pangolin (https://github.com/hCoV-2019/pangolin)
+  - biopython=1.74
+  - mafft=7.464
+  - iqtree=1.6.12
+  - snakemake-minimal=5.13
+  - pip:
+    - pytools==2020.1
+    - dendropy>=4.4.0
+    - git+https://github.com/hCoV-2019/lineages.git
+
