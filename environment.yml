@@ -10,6 +10,7 @@ dependencies:
   - networkx=2.4
   - pandas=1.0.3
   - tqdm=4.7.2
+  - xlrd=1.2.0
   # Taken from pangolin (https://github.com/hCoV-2019/pangolin)
   - biopython=1.74
   - mafft=7.464
