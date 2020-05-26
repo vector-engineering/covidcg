@@ -44,17 +44,6 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
         `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
 
-    ### Windows
-    
-    * **Install [Python 2.7](https://www.python.org/downloads/)**. Some node modules may rely on node-gyp, which requires Python on Windows.
-    * **Install C++ Compiler**. Browser-sync requires a C++ compiler on Windows.
-    
-      [Visual Studio Express](https://www.visualstudio.com/en-US/products/visual-studio-express-vs) comes bundled with a free C++ compiler.
-      
-      If you already have Visual Studio installed:
-      Open Visual Studio and go to File -> New -> Project -> Visual C++ -> Install Visual C++ Tools for Windows Desktop.
-      The C++ compiler is used to compile browser-sync (and perhaps other Node modules).
-
 5. **Run the example app**
 
     `npm start -s`
@@ -70,6 +59,8 @@ This project was developed by ...
 The paper for this project ...
 
 Contact the authors by email: ...
+
+Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM) and Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM)
 
 ## Acknowledgements
 
