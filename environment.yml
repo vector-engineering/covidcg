@@ -11,11 +11,16 @@ dependencies:
   - pandas=1.0.3
   - tqdm=4.7.2
   - xlrd=1.2.0
+  - bowtie2=2.5.3.1
+  - pysam=0.15.3
   # Taken from pangolin (https://github.com/hCoV-2019/pangolin)
   - biopython=1.74
   - mafft=7.464
   - iqtree=1.6.12
   - snakemake-minimal=5.13
+  # If you want to run the notebooks:
+  - jupyter=1.0.0
+  - jupyter_contrib_nbextensions=0.5.1
   - pip:
     - pytools==2020.1
     - dendropy>=4.4.0
