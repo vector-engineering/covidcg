@@ -387,12 +387,24 @@ class ReadExtractor():
         self.dna_snps = []
         i = 0
         while i < len(self.mutation_str):
-            mut = self.mutation_str[i]
+            (query_name, pos, ref, alt) = self.mutation_str[i]
             # mut is a tuple: (Position, Ref, Alt)
+
+            # Offset the position back to 1-indexed, starting at the genome start
+            pos = pos - gene_offset + 1
+
             # If it's a SNP, then add and continue
-            if mut[2] and mut[3]:
-                self.dna_snps.append(mut)
+            if ref and alt:
                 i += 1
+
+                # Actually, skip adding it if either the ref or the alt
+                # is an ambiguous base (N)
+                # This is useless data bloat and should be removed as
+                # early as possible
+                if ref == 'N' or alt == 'N':
+                    continue
+
+                self.dna_snps.append((query_name, pos, ref, alt))
                 continue
             
             # Check ahead for adjacent positions and the same indel type
@@ -400,8 +412,8 @@ class ReadExtractor():
             while (
                     j < len(self.mutation_str) and 
                     (
-                        (not self.mutation_str[j][2] and not mut[2]) or # Both insertions
-                        (not self.mutation_str[j][3] and not mut[3])    # Both deletions
+                        (not self.mutation_str[j][2] and not ref) or # Both insertions
+                        (not self.mutation_str[j][3] and not alt)    # Both deletions
                     )
                 ):
                 j += 1
@@ -410,8 +422,7 @@ class ReadExtractor():
             adj_muts = self.mutation_str[i:j]
             # Combine bases, but keep first position and type
             self.dna_snps.append((
-                self.read.query_name,
-                mut[1],
+                query_name, pos,
                 ''.join([m[2] for m in adj_muts]),
                 ''.join([m[3] for m in adj_muts])
             ))
