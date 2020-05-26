@@ -1,2 +1,4 @@
 *.csv binary
 *.tsv binary
+
+*.ipynb binary linguist-detectable=false
