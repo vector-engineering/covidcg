@@ -9,11 +9,8 @@ import multiprocessing as mp
 import os
 import pysam
 import re
-import sqlite3
 import subprocess
-import tqdm
 
-from Bio import pairwise2
 from pathlib import Path
 from functools import partial
 
@@ -59,6 +56,9 @@ def preprocess_sequences():
     animal_env_tags = ['/{}/'.format(t) for t in animal_env_tags]
     
     fasta_files = [f for f in sorted((data_dir / 'fasta_raw').iterdir()) if f.suffix == '.fasta' or f.suffix == '.fa']
+
+    # Make output directory
+    (data_dir / 'fasta_processed').mkdir(exist_ok=True)
 
     for ff in fasta_files:
         # Skip if the sam file already exists
@@ -144,6 +144,9 @@ def align_sequences():
     fasta_files = [f for f in sorted((data_dir / 'fasta_processed').iterdir()) if f.suffix == '.fasta' or f.suffix == '.fa']
     # sam_files = [f for f in sorted((data_dir / 'sam').iterdir()) if f.suffix == '.sam']
 
+    # Make output directory
+    (data_dir / 'sam').mkdir(exist_ok=True)
+
     # Align sequences to reference with bowtie2
     for ff in fasta_files:
 
@@ -226,11 +229,7 @@ def process_snps_from_reads(sam_file_path, start, end):
     return (all_dna_snps, all_aa_snps)
 
 
-def main():
-
-    preprocess_sequences()
-    align_sequences()
-
+def process_snps(num_processes=0):
     print('\nGetting SNPs/indels')
     sam_files = [f for f in sorted((data_dir / 'sam').iterdir()) if f.suffix == '.sam']
 
@@ -252,6 +251,7 @@ def main():
             print('{} and {} already exist, skipping'.format(dna_snp_path.name, aa_snp_path.name))
             continue
 
+        # Testing
         # if i > 0:
         #     break
         
@@ -261,14 +261,10 @@ def main():
         num_reads = samfile.count(until_eof=True)
         samfile.close()
 
-        # pbar = tqdm.tqdm(total=num_reads, desc=sam_file_path.name, unit='read')
-
-        # samfile = pysam.AlignmentFile(str(sam_file_path), 'r') # pylint: disable=no-member
-        # reads = []
-        # for read in samfile.fetch(until_eof=True):
-        #     reads.append(read)
-
-        pool = mp.Pool(processes=8)
+        # TODO: make this a CLI arg
+        if num_processes == 0:
+            num_processes = os.cpu_count()
+        pool = mp.Pool(processes=num_processes)
 
         all_dna_snps = []
         all_aa_snps = []
@@ -321,6 +317,51 @@ def main():
         fp_aa.close()
 
         print('done')
+
+
+def assign_seqs_to_clades():
+    '''Assign sequences to clades using pangolin'''
+
+    print('\nAssigning sequences to clades')
+    # Get all fasta files from data/
+    fasta_files = sorted((data_dir / 'fasta_processed').glob('*.fasta'))
+    # print('Found {} fasta files: \n  - {}'.format(len(fasta_files), '\n  - '.join([f.name for f in fasta_files])))
+
+    # Create output directory
+    (data_dir / 'lineage_meta').mkdir(exist_ok=True)
+
+    # Run pangolin
+    for i, ff in enumerate(fasta_files):
+
+        # Output file is the same as input, but chop off "gisaid" from the beginning
+        # And it'll start with "lineage_report"
+        outfile = ff.stem + '_lineage.csv'
+
+        # Skip if the lineage report already exists
+        if (data_dir / 'lineage_meta' / outfile).exists():
+            print('{} already exists. Skipping'.format(outfile))
+            continue
+
+        print('Processing {} / {}: {}'.format(i + 1, len(fasta_files), ff.name))
+
+        subprocess.run([
+            'pangolin', str(ff),
+            '-o', str(data_dir / 'lineage_meta'),
+            '--outfile', outfile,
+            '--threads', str(os.cpu_count())
+        ])
+
+
+
+def main():
+
+    preprocess_sequences()
+
+    align_sequences()
+
+    process_snps()
+
+    assign_seqs_to_clades()
 
 
 if __name__ == '__main__':
