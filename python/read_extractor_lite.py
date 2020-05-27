@@ -51,13 +51,9 @@ genes_path = (data_dir / 'genes.csv')
 genes_df = pd.read_csv(genes_path)
 
 # Dict of gene: (start, end) nucleotide positions
-# Reference has 33 'X' bases added to the start and end,
-# so these are going to be offset by 33 from the
-# positions in the Wuhan-Hu-1, NCBI: NC_045512.2 genome
 # Positions are 1-indexed and inclusive, and ranges 
 # are inclusive [start, end]
 _genes = {}
-gene_offset = 33
 for i, gene in genes_df.iterrows():
     # Skip non-protein-coding
     if gene['protein_coding'] == 0:
@@ -65,10 +61,6 @@ for i, gene in genes_df.iterrows():
     
     start = gene['start']
     end = gene['end']
-
-    # Offset
-    start += gene_offset
-    end += gene_offset
 
     _genes[gene['gene']] = (start, end)
 
@@ -391,7 +383,7 @@ class ReadExtractor():
             # mut is a tuple: (Position, Ref, Alt)
 
             # Offset the position back to 1-indexed, starting at the genome start
-            pos = pos - gene_offset + 1
+            pos = pos + 1
 
             # If it's a SNP, then add and continue
             if ref and alt:

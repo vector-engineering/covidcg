@@ -134,11 +134,12 @@ def align_sequences():
     print('\nAligning sequences')
 
     # Build bowtie2 index, but skip if already built
-    bt2_index_dir = (data_dir / 'reference_index')
+    bt2_index_dir = data_dir / 'reference_index'
+    bt2_index_name_path = bt2_index_dir / 'reference'
+    ref_fasta_path = data_dir / 'reference.fasta'
+
     if not (bt2_index_dir.exists() and bt2_index_dir.is_dir() and bt2_index_dir.glob('*.bt2')):
         bt2_index_dir.mkdir(exist_ok=True)
-        bt2_index_name_path = data_dir / 'reference_index' / 'reference'
-        ref_fasta_path = (data_dir / 'reference.fasta')
         subprocess.run(['bowtie2-build', str(ref_fasta_path), str(bt2_index_name_path)], stdout=subprocess.DEVNULL) # hide stdout
 
     fasta_files = [f for f in sorted((data_dir / 'fasta_processed').iterdir()) if f.suffix == '.fasta' or f.suffix == '.fa']
@@ -148,7 +149,11 @@ def align_sequences():
     (data_dir / 'sam').mkdir(exist_ok=True)
 
     # Align sequences to reference with bowtie2
-    for ff in fasta_files:
+    for i, ff in enumerate(fasta_files):
+
+        # Testing
+        # if i > 0:
+        #     break
 
         # Skip if the sam file already exists
         sam_file_path = (data_dir / 'sam' / (ff.stem + '.sam'))
@@ -159,41 +164,17 @@ def align_sequences():
         print('Aligning {}. This will take a while, and will benefit from multiprocessing with multiple CPUs/threads. Note that each thread will require ~7.5GB of RAM to run, so please do not specify too many CPUs or else bowtie2 will crash.'.format(ff.name))
         subprocess.run([
             'bowtie2',
-            '--end-to-end', '--fast', # Global alignment, no overhangs
-            '--np', '0', # Remove penalty for Ns in the ref/query
+            '--end-to-end', '--very-fast', # Global alignment, no overhangs
             '--xeq', # Track SNPs
-            '-x', str(bt2_index_path), # Path to index we just built
+            '--reorder', # Same order as input fasta file
+            '--sam-no-qname-trunc', # Don't truncate entry names
+            '-x', str(bt2_index_name_path), # Path to index we just built
             '-f', # FASTA input
             '-U', str(ff),
             '-S', str(sam_file_path), # Output path
             # '--threads', str(os.cpu_count()) # Blast it
             '--threads', '1' # TODO: add this to CLI args
         ])
-
-
-# def filter_samfiles():
-#     '''Only do this if you aligned prior to preprocessing
-#     '''
-#     # Get all valid taxon names
-#     valid_taxons = []
-#     fasta_files = [f for f in sorted((data_dir / 'fasta_processed').iterdir()) if f.suffix == '.fasta' or f.suffix == '.fa']
-#     for ff in fasta_files:
-#         fp = ff.open('r')
-#         for line in fp:
-#             if line[0] == '>':
-#                 valid_taxons.append(line[1:].split()[0])
-#         fp.close()
-
-#     sam_files = [f for f in sorted((data_dir / 'sam' / 'unfiltered_renamed').iterdir()) if f.suffix == '.sam']
-#     for sam_file_path in sam_files:
-#         print(sam_file_path.name)
-#         new_sam_file_path = sam_file_path.parent.parent / (sam_file_path.name)
-#         samfile = pysam.AlignmentFile(str(sam_file_path), 'r') # pylint: disable=no-member
-#         new_samfile = pysam.AlignmentFile(str(new_sam_file_path), 'w', template=samfile) # pylint: disable=no-member
-
-#         for read in samfile.fetch(until_eof=True):
-#             if read.query_name in valid_taxons:
-#                 new_samfile.write(read)
 
 
 def process_snps_from_reads(sam_file_path, start, end):
@@ -231,7 +212,7 @@ def process_snps_from_reads(sam_file_path, start, end):
 
 def process_snps(num_processes=0):
     print('\nGetting SNPs/indels')
-    sam_files = [f for f in sorted((data_dir / 'sam').iterdir()) if f.suffix == '.sam']
+    sam_files = sorted((data_dir / 'sam').glob('*.sam'))
 
     dna_snp_folder_path = data_dir / 'dna_snp'
     aa_snp_folder_path = data_dir / 'aa_snp'
@@ -241,7 +222,6 @@ def process_snps(num_processes=0):
 
     # Get SNPs from each sam file
     for i, sam_file_path in enumerate(sam_files):
-
         # Output paths
         dna_snp_path = dna_snp_folder_path / (sam_file_path.stem + '_dna_snp.csv')
         aa_snp_path = aa_snp_folder_path / (sam_file_path.stem + '_aa_snp.csv')
@@ -276,7 +256,7 @@ def process_snps(num_processes=0):
         def handle_error(e):
             raise e
 
-        chunk_size = math.ceil(num_reads / 8)
+        chunk_size = math.ceil(num_reads / num_processes)
         for chunk_start in range(0, num_reads, chunk_size):
             pool.apply_async(
                 partial(process_snps_from_reads, 
