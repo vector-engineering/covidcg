@@ -15,6 +15,14 @@
     "width": 1000, 
     "height": 300,
     "mark": "area",
+    "selection": {
+      "highlight": {
+        "type": "single",
+        "empty": "all",
+        "on": "mouseover",
+        "encodings": ["color"]
+      }
+    },
     "encoding": {
       "x": {
         "field": "date",
@@ -33,7 +41,7 @@
         "field": "cases_sum", 
         "type": "quantitative",
         "axis": {
-          "title": "Cases by Haplotype"
+          "title": "Cases by Lineage"
         }
       },
       "color": {
@@ -54,6 +62,14 @@
           "offset": 10,
           "cornerRadius": 5
         }
+      },
+      "opacity": {
+        "condition": {"selection": "highlight", "value": 1},
+        "value": 0.8
+      },
+      "tooltip": {
+        "field": "lineage",
+        "type": "nominal"
       }
     }
   }, {

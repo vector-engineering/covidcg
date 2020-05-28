@@ -20,14 +20,17 @@ import 'react-dropdown-tree-select/dist/styles.css'
 import { VegaLite } from 'react-vega';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
-import initial_area_stack_spec from '../vega/area_stack.vl.json';
+import area_stack_absolute_spec from '../vega/area_stack.vl.json';
+import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
 
 export class HomePage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      area_stack_mode: 'counts'
+    };
     //this.processEntropyData.bind(this);
     
     this.handleBrush = this.handleBrush.bind(this);
@@ -38,6 +41,8 @@ export class HomePage extends React.Component {
     this.treeSelectOnChange = this.treeSelectOnChange.bind(this);
     this.treeSelectOnAction = this.treeSelectOnAction.bind(this);
     this.treeSelectOnNodeToggleCurrentNode = this.treeSelectOnNodeToggleCurrentNode.bind(this)
+
+    this.onChangeAreaStackMode = this.onChangeAreaStackMode.bind(this);
   }
 
   
@@ -67,6 +72,12 @@ export class HomePage extends React.Component {
   }
   treeSelectOnNodeToggleCurrentNode(currentNode) {
     console.log('onNodeToggle::', currentNode);
+  }
+
+  onChangeAreaStackMode(e) {
+    this.setState({
+      area_stack_mode: e.target.value
+    });
   }
 
   render() {
@@ -104,7 +115,9 @@ export class HomePage extends React.Component {
     let maxCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.max(memo, lineage.cases_percent), 0);
     let minCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.min(memo, lineage.cases_percent), 0);
 
-    console.log(this.props.covid);
+    //console.log(this.props.covid);
+
+    let area_stack_spec = this.state.area_stack_mode === 'percentages' ? area_stack_norm_spec : area_stack_absolute_spec;
 
     return(
       <div className='home-page'>
@@ -152,11 +165,21 @@ export class HomePage extends React.Component {
             spec={entropy_spec}
           /> */}
 
+          <div className='plot-options'>
+            <label>
+              Display mode
+              <select value={this.state.area_stack_mode} onChange={this.onChangeAreaStackMode}>
+                <option value='counts'>Counts</option>
+                <option value='percentages'>Percentages</option>
+              </select>
+            </label>
+          </div>
+
           <VegaLite
             data={{
               case_data: this.props.covid.caseData
             }}
-            spec={initial_area_stack_spec}
+            spec={area_stack_spec}
             signalListeners={this.handlers}
           />
 
