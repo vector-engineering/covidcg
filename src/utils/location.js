@@ -1,5 +1,5 @@
-import locations from '../../processed_data/locations.json';
-import select_tree from '../../processed_data/geo_select_tree.json';
+import locations from '../../data/location_map.json';
+import select_tree from '../../data/geo_select_tree.json';
 
 export function loadSelectTree() {
   return select_tree;

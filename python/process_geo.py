@@ -11,41 +11,93 @@ import networkx as nx
 import pandas as pd
 import re
 
+from pathlib import Path
 
-def load_ns_metadata():
-    '''Load NextStrain metadata
-    '''
-
-    ns_meta_df = pd.read_csv('nextstrain_metadata.tsv', sep='\t')
-    # print(ns_meta_df)
-    # print(ns_meta_df.columns)
-    return ns_meta_df
-
+project_root_path = Path(__file__).resolve().parent.parent
+data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path
 
 def load_geo_data():
     '''Load location data
     '''
 
-    ns_meta_df = load_ns_metadata()
+    patient_meta_files = sorted((data_dir / 'patient_meta').glob('*.tsv'))
+    print('Collecting {} patient metadata files...'.format(len(patient_meta_files)), end='', flush=True)
+    patient_meta_df = pd.DataFrame()
+    for f in patient_meta_files:
+        _df = pd.read_csv(f, sep='\t', skiprows=2)
+        patient_meta_df = pd.concat([patient_meta_df, _df], ignore_index=True)
 
-    loc_keys = ['region', 'country', 'division', 'location']
+    # Save dataframe
+    patient_meta_df.to_csv('processed_data/patient_meta.csv', index=False)
+    print('done', flush=True)
+
+    # Location data is stored in one column, "region / country / division / location"
     location_df = (
-        ns_meta_df
-        .loc[:, loc_keys]
+        patient_meta_df['Location'].str.split('/', expand=True)
+        .iloc[:, :4] # Only take 4 columns
+        # Rename columns
+        .rename(columns={0: 'region', 1: 'country', 2: 'division', 3: 'location'})
+        .applymap(lambda x: x.strip() if x else x)
         # Placeholder for missing values, so that it will still 
-        # be caught by groupby()
-        .fillna(-1) 
-        .groupby(loc_keys)
-        .count()
-        .reset_index() # Unset the groupby keys
+        # be caught by groupby() later on
+        .fillna(-1)
+    )
+    # Re-add metadata columns
+    location_df['name'] = patient_meta_df['Virus name']
+    location_df['gisaid_id'] = patient_meta_df['Accession ID']
+    location_df['sample_date'] = patient_meta_df['Collection date']
+
+    # Convert sample_date to datetime
+    location_df['sample_date'] = pd.to_datetime(location_df['sample_date'], yearfirst=True)
+
+    # Create complete location column from the separate parts
+    # This time with no padding
+    location_df['loc_str'] = location_df['region'].str.cat(
+        [location_df['country'].astype(str), location_df['division'].astype(str), location_df['location'].astype(str)],
+        sep='/'
+    )
+
+    unique_location_df = (
+        location_df['loc_str']
+        .drop_duplicates()
+        .sort_values(ignore_index=True)
         .reset_index() # Produce an index column
     )
+    # Location data is stored in one column, "region/country/division/location"
+    unique_location_df = pd.concat([unique_location_df, (
+        unique_location_df['loc_str'].str.split('/', expand=True)
+        .iloc[:, :4] # Only take 4 columns
+        # Rename columns
+        .rename(columns={0: 'region', 1: 'country', 2: 'division', 3: 'location'})
+    )], axis=1)
+
+    # Map location IDs back to taxon_locations dataframe
+    location_df['location_id'] = location_df['loc_str'].map(pd.Series(
+        unique_location_df['index'].values, index=unique_location_df['loc_str'].values
+    ))
+
+    # Take subset of columns, re-index
+    location_df = (
+        location_df
+        [['name', 'gisaid_id', 'sample_date', 'location_id']]
+        .sort_values('location_id')
+        .reset_index(drop=True)
+    )
+
     # print(location_df)
 
-    return location_df
+    print('Saving taxon locations')
+    location_df.to_csv(data_dir / 'taxon_locations.csv', index=False)
+    # location_df.to_json(data_dir / 'taxon_locations.json', orient='records')
+
+    print('Saving unique locations')
+    unique_location_df.drop(columns=['loc_str']).to_csv(data_dir / 'location_map.csv', index=False)
+    unique_location_df.drop(columns=['loc_str']).to_json(data_dir / 'location_map.json', orient='records')
+
+    return location_df, unique_location_df
 
 
-def build_select_tree(location_df):
+def build_select_tree(unique_location_df):
     '''Build tree for ReactDropdownTreeSelect
 
     data
@@ -104,9 +156,9 @@ def build_select_tree(location_df):
         'children': []
     }
 
-    for i, loc in location_df.iterrows():
+    for i, loc in unique_location_df.iterrows():
         # Add region node
-        if loc['region'] == -1:
+        if loc['region'] == '-1':
             continue
         
         region_node = [c for c in select_tree['children'] if c['value'] == loc['region']]
@@ -122,7 +174,7 @@ def build_select_tree(location_df):
             select_tree['children'].append(region_node)
 
         # Add country --> region
-        if loc['country'] == -1:
+        if loc['country'] == '-1':
             continue
 
         country_node = [c for c in region_node['children'] if c['value'] == loc['country']]
@@ -139,7 +191,7 @@ def build_select_tree(location_df):
             region_node['children'].append(country_node)
         
         # Add division --> country
-        if loc['division'] == -1:
+        if loc['division'] == '-1':
             continue
 
         division_node = [c for c in country_node['children'] if c['value'] == loc['division']]
@@ -157,7 +209,7 @@ def build_select_tree(location_df):
             country_node['children'].append(division_node)
 
         # Add location --> division
-        if loc['location'] == -1:
+        if loc['location'] == '-1':
             continue
         
         location_node = [c for c in division_node['children'] if c['value'] == loc['location']]
@@ -176,7 +228,9 @@ def build_select_tree(location_df):
             division_node['children'].append(location_node)
 
     # Save tree as json file
-    with open('processed_data/geo_select_tree.json', 'w') as fp:
+    print('Saving geo select tree')
+    select_tree_path = data_dir / 'geo_select_tree.json'
+    with select_tree_path.open('w') as fp:
         fp.write(json.dumps(select_tree))
 
     # print(loc_tree.nodes)
@@ -184,15 +238,9 @@ def build_select_tree(location_df):
     return select_tree
 
 
-
 def main():
-    location_df = load_geo_data()
-
-    # Save location_df
-    location_df.to_csv('processed_data/locations.csv', index=False)
-    location_df.to_json('processed_data/locations.json', orient='records')
-
-    select_tree = build_select_tree(location_df)
+    location_df, unique_location_df = load_geo_data()
+    select_tree = build_select_tree(unique_location_df)
     # print(select_tree)
 
 

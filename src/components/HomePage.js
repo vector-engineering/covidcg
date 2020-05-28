@@ -8,12 +8,13 @@ import * as actions from '../actions/covidActions';
 
 import {
   getReferenceSequence
-} from '../utils/cladeData';
+} from '../utils/lineageData';
 
 import GeneSelect from './GeneSelect';
 import DropdownContainer from './DropdownContainer';
 import HeatmapCell from './HeatmapCell';
 import DataTable from 'react-data-table-component';
+
 import 'react-dropdown-tree-select/dist/styles.css'
 
 import { VegaLite } from 'react-vega';
@@ -22,10 +23,6 @@ import { VegaLite } from 'react-vega';
 import initial_area_stack_spec from '../vega/area_stack.vl.json';
 
 import '../styles/home-page.scss';
-
-//<li>Review the <Link to="/fuel-savings">demo app</Link></li>
-
-
 
 export class HomePage extends React.Component {
   constructor(props) {
@@ -43,6 +40,7 @@ export class HomePage extends React.Component {
     this.treeSelectOnNodeToggleCurrentNode = this.treeSelectOnNodeToggleCurrentNode.bind(this)
   }
 
+  
   handleGeneChange(gene) {
     console.log('Gene change:', gene);
 
@@ -101,10 +99,12 @@ export class HomePage extends React.Component {
       });
     });
 
-    let maxCasesSum = _.reduce(this.props.covid.caseDataAggCladeList, (memo, clade) => Math.max(memo, clade.cases_sum), 0);
-    let minCasesSum = _.reduce(this.props.covid.caseDataAggCladeList, (memo, clade) => Math.min(memo, clade.cases_sum), 0);
-    let maxCasesPercent = _.reduce(this.props.covid.caseDataAggCladeList, (memo, clade) => Math.max(memo, clade.cases_percent), 0);
-    let minCasesPercent = _.reduce(this.props.covid.caseDataAggCladeList, (memo, clade) => Math.min(memo, clade.cases_percent), 0);
+    let maxCasesSum = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.max(memo, lineage.cases_sum), 0);
+    let minCasesSum = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.min(memo, lineage.cases_sum), 0);
+    let maxCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.max(memo, lineage.cases_percent), 0);
+    let minCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.min(memo, lineage.cases_percent), 0);
+
+    console.log(this.props.covid);
 
     return(
       <div className='home-page'>
@@ -156,17 +156,17 @@ export class HomePage extends React.Component {
             data={{
               case_data: this.props.covid.caseData
             }}
-            signalListeners={this.handlers}
             spec={initial_area_stack_spec}
+            signalListeners={this.handlers}
           />
 
           <DataTable
             className='data-table'
-            data={this.props.covid.caseDataAggCladeList}
+            data={this.props.covid.caseDataAggLineageList}
             columns={[
               {
-                name: 'Clade',
-                selector: 'clade_name',
+                name: 'Lineage',
+                selector: 'lineage',
                 sortable: true,
                 width: '100px',
                 style: {
@@ -214,17 +214,17 @@ export class HomePage extends React.Component {
             // fixedHeaderScrollHeight={'400px'}
 
             pagination={false}
-            defaultSortField={'clade_name'}
+            defaultSortField={'lineage'}
             defaultSortAsc={true}
 
             conditionalRowStyles={[{
-              when: row => row.clade_name == 'Reference',
+              when: row => row.lineage == 'Reference',
               style: 'background-color: #dff3fe !important;'
             }]}
             sortFunction={(rows, field, direction) => {
               // Set aside the reference, and remove it from the rows list
-              let refRow = _.findWhere(rows, { clade_name: 'Reference' });
-              rows = _.reject(rows, row => row.clade_name == 'Reference');
+              let refRow = _.findWhere(rows, { lineage: 'Reference' });
+              rows = _.reject(rows, row => row.lineage == 'Reference');
 
               // Normal sorting...
               rows = _.sortBy(rows, row => {

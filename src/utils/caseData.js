@@ -1,45 +1,48 @@
-import initialCaseData from '../../processed_data/simulated_case_data.json';
+import initialCaseData from '../../data/case_data.json';
+import refSeq from '../../data/reference.json';
 import _ from 'underscore';
+
+const reference_seq = refSeq['ref_seq'];
 
 export function loadCaseData() {
   return initialCaseData;
 }
 
-export function processCaseData(caseData, cladeData, locationIds) {
+export function processCaseData(caseData, locationIds) {
   // Filter by location
   let filteredCaseData = caseData;
   if(locationIds.length > 0) {
     filteredCaseData = _.filter(filteredCaseData, row => {
-      return locationIds.includes(row.location_id)
+      return locationIds.includes(row.loc_id)
     });
   }
 
-  // Group by clade_id and date, and sum up all cases
+  // Group by lineage and date, and sum up all cases
   let aggCaseData = {};
   let row = {};
   for(let i = 0; i < filteredCaseData.length; i++) {
     row = filteredCaseData[i];
-    // Create a clade group, if it doesn't already exist
-    if(!Object.prototype.hasOwnProperty.call(aggCaseData, row.clade_id)) {
-      aggCaseData[row.clade_id] = {}
+    // Create a lineage group, if it doesn't already exist
+    if(!Object.prototype.hasOwnProperty.call(aggCaseData, row.lineage)) {
+      aggCaseData[row.lineage] = {}
     }
 
     // Create a date key, if it doesn't already exist
-    if(!Object.prototype.hasOwnProperty.call(aggCaseData[row.clade_id], row.date)) {
-      aggCaseData[row.clade_id][row.date] = 0;
+    if(!Object.prototype.hasOwnProperty.call(aggCaseData[row.lineage], row.date)) {
+      aggCaseData[row.lineage][row.date] = 0;
     } 
     // Add case count
-    aggCaseData[row.clade_id][row.date] += row.cases;
+    aggCaseData[row.lineage][row.date] += row.cases;
   }
   // Expand obj of objs back into a list of objects
   let aggCaseDataList = [];
-  Object.keys(aggCaseData).forEach(cladeId => {
-    let dates = Object.keys(aggCaseData[cladeId]);
+  Object.keys(aggCaseData).forEach(lineage => {
+    let dates = Object.keys(aggCaseData[lineage]);
     dates.forEach(date => {
       aggCaseDataList.push({
-        clade_name: _.findWhere(cladeData, { index: parseInt(cladeId) }).clade,
+        lineage: lineage,
         date: date,
-        cases_sum: aggCaseData[cladeId][date]
+        cases_sum: aggCaseData[lineage][date]
       });
     });
   });
@@ -50,9 +53,9 @@ export function processCaseData(caseData, cladeData, locationIds) {
 }
 
 // Collapse case data by clade
-export function aggCaseDataByClade(caseData, cladeData, start_pos, end_pos, dateRange) {
+export function aggCaseDataByLineage(caseData, lineageData, start_pos, end_pos, dateRange) {
   // Aggregate case data by clade only (no dates)
-  let caseDataAggClade = {};
+  let caseDataAggLineage = {};
   let totalCaseCount = 0;
 
   // Filter by date
@@ -63,27 +66,29 @@ export function aggCaseDataByClade(caseData, cladeData, start_pos, end_pos, date
   }
 
   caseData.forEach(row => {
-    if(!Object.prototype.hasOwnProperty.call(caseDataAggClade, row.clade_name)) {
-      caseDataAggClade[row.clade_name] = 0;
+    if(!Object.prototype.hasOwnProperty.call(caseDataAggLineage, row.lineage)) {
+      caseDataAggLineage[row.lineage] = 0;
     }
-    caseDataAggClade[row.clade_name] += row.cases_sum;
+    caseDataAggLineage[row.lineage] += row.cases_sum;
     // Add to total case count
     totalCaseCount += row.cases_sum;
   });
 
   // Add the reference sequence, if it hasn't been added yet
-  if(!Object.prototype.hasOwnProperty.call(caseDataAggClade, 'root')) {
-    caseDataAggClade['root'] = 0;
+  if(!Object.prototype.hasOwnProperty.call(caseDataAggLineage, 'root')) {
+    caseDataAggLineage['root'] = 0;
   }
 
   // Get all changing positions
   let changingPositions = new Set();
-  Object.keys(caseDataAggClade).forEach(clade_name => {
-    let clade = _.findWhere(cladeData, { clade: clade_name });
-    clade.pos.forEach(pos => {
-      if(pos > start_pos && pos < end_pos) {
+  Object.keys(caseDataAggLineage).forEach(lineage => {
+    
+    let lineage_dat = _.filter(lineageData, row => row.lineage == lineage);
+
+    lineage_dat.forEach(row => {
+      if(row.pos > start_pos && row.pos < end_pos) {
         // positions are 1-indexed in the input file
-        changingPositions.add(pos - 1);
+        changingPositions.add(row.pos - 1);
       }
     });
   });
@@ -91,29 +96,35 @@ export function aggCaseDataByClade(caseData, cladeData, start_pos, end_pos, date
   changingPositions = Array.from(changingPositions).sort((a, b) => a - b);
 
   // Obj to list of rows
-  let caseDataAggCladeList = [];
-  Object.keys(caseDataAggClade).forEach(clade_name => {
-
-    let cladeObj = {
-      clade_name: clade_name === 'root' ? 'Reference' : clade_name,
-      cases_sum: caseDataAggClade[clade_name],
-      cases_percent: caseDataAggClade[clade_name] / totalCaseCount
+  let caseDataAggLineageList = [];
+  Object.keys(caseDataAggLineage).forEach(lineage => {
+    let lineageObj = {
+      lineage: lineage === 'root' ? 'Reference' : lineage,
+      cases_sum: caseDataAggLineage[lineage],
+      cases_percent: caseDataAggLineage[lineage] / totalCaseCount
     };
 
-    // Get the bases for this clade's sequence at each position 
-    // in changingPositions
-    let cladeSeq = _.findWhere(cladeData, { clade: clade_name })['seq'];
-    // For each position, add a key to the table object
+    let lineage_dat = _.filter(lineageData, row => row.lineage == lineage);
+
     changingPositions.forEach(pos => {
-      cladeObj['pos_' + pos.toString()] = cladeSeq[pos];
+      let ref_base = reference_seq[pos];
+      let alt_base = ref_base;
+
+      // Find the position in the SNPs for this lineage
+      let row = _.findWhere(lineage_dat, { pos: (pos + 1) });
+      if(row !== undefined) {
+        alt_base = row.alt;
+      }
+
+      lineageObj['pos_' + pos.toString()] = alt_base;
     });
 
-    caseDataAggCladeList.push(cladeObj);
+    caseDataAggLineageList.push(lineageObj);
   });
-  //console.log(caseDataAggCladeList);
+  //console.log(caseDataAggLineageList);
 
   return {
-    caseDataAggCladeList: caseDataAggCladeList,
+    caseDataAggLineageList: caseDataAggLineageList,
     changingPositions: changingPositions
   };
 }

@@ -1,11 +1,11 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
   "data": {
-    "test_url": "https://ve-public.storage.googleapis.com/simulated_case_data.csv",
     "name": "case_data",
     "format": {
       "type": "json",
       "parse": {
+        "loc_id": "number",
         "date": "number",
         "cases_sum": "number"
       }
@@ -37,7 +37,7 @@
         }
       },
       "color": {
-        "field": "clade_name",
+        "field": "lineage",
         "type": "nominal",
         "scale": {"scheme": "tableau20"},
         "legend": {

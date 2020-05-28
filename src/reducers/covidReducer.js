@@ -5,7 +5,6 @@ import {
 } from '../constants/actionTypes';
 import objectAssign from 'object-assign';
 import initialState from './initialState';
-import _ from 'underscore';
 
 import {
   getGene
@@ -17,12 +16,12 @@ import {
 
 import {
   processCaseData,
-  aggCaseDataByClade
+  aggCaseDataByLineage
 } from '../utils/caseData';
 
 import {
-  getCladesFromGene,
-} from '../utils/cladeData';
+  getLineagesFromGene,
+} from '../utils/lineageData';
 
 // IMPORTANT: Note that with Redux, state should NEVER be changed.
 // State is considered immutable. Instead,
@@ -33,22 +32,6 @@ export default function covidReducer(state = initialState.covid, action) {
   let newState = objectAssign({}, state);
 
   switch (action.type) {
-    // case SAVE_FUEL_SAVINGS:
-    //   // For this example, just simulating a save by changing date modified.
-    //   // In a real app using Redux, you might use redux-thunk and handle the async call in fuelSavingsActions.js
-    //   return objectAssign({}, state, {dateModified: action.dateModified});
-
-    // case CALCULATE_FUEL_SAVINGS:
-    //   newState = objectAssign({}, state);
-    //   newState[action.fieldName] = action.value;
-    //   newState.necessaryDataIsProvidedToCalculateSavings = necessaryDataIsProvidedToCalculateSavings(newState);
-    //   newState.dateModified = action.dateModified;
-
-    //   if (newState.necessaryDataIsProvidedToCalculateSavings) {
-    //     newState.savings = calculateSavings(newState);
-    //   }
-
-    //   return newState;
 
     case SELECT_GENE:
       console.log('SELECT_GENE', action);
@@ -60,11 +43,8 @@ export default function covidReducer(state = initialState.covid, action) {
       newState.endPos = selectedGene.end;
 
       // Get matching clade_ids
-      let clades = getCladesFromGene(selectedGene);
-      newState.selectedClades = clades;
-      //let clade_ids = _.map(clades, clade => clade.index);
-      //newState.selectedCladeIds = clade_ids;
-      //console.log('Clade IDs:', clade_ids);
+      let lineages = getLineagesFromGene(selectedGene);
+      newState.selectedLineages = lineages;
 
       break;
 
@@ -91,16 +71,16 @@ export default function covidReducer(state = initialState.covid, action) {
   switch (action.type) {
     case SELECT_GENE:
     case SELECT_LOCATIONS:
-      newState.caseData = processCaseData(newState.initialCaseData, newState.initialCladeData, newState.selectedLocationIds);
+      newState.caseData = processCaseData(newState.initialCaseData, newState.selectedLocationIds);
 
     case SELECT_DATE_RANGE:
 
-      let { caseDataAggCladeList, changingPositions } = aggCaseDataByClade(
-        newState.caseData, newState.initialCladeData, 
+      let { caseDataAggLineageList, changingPositions } = aggCaseDataByLineage(
+        newState.caseData, newState.initialLineageData, 
         newState.startPos, newState.endPos, newState.dateRange
       );
 
-      newState.caseDataAggCladeList = caseDataAggCladeList;
+      newState.caseDataAggLineageList = caseDataAggLineageList;
       newState.changingPositions = changingPositions;
 
       break;

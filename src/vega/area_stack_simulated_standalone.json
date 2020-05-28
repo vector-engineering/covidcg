@@ -1,0 +1,130 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+    "data": {
+      "url": "https://ve-public.storage.googleapis.com/simulated_case_data.csv",
+      "format": {
+        "type": "csv",
+        "parse": {
+          "location_id": "number",
+          "date": "date",
+          "clade_id": "number",
+          "cases": "number"
+        }
+      }
+    },
+    "transform": [{
+        "filter": {
+          "field": "location_id",
+          "equal": 0
+        }
+      },
+      {
+      "aggregate": [{
+        "op": "sum",
+        "field": "cases",
+        "as": "cases_sum"
+      }],
+      "groupby": [
+        "date",
+        "clade_id"
+      ]
+    }],
+    "vconcat": [{
+      "width": 1000, 
+      "height": 300,
+      "mark": "area",
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "scale": {
+            "domain": {
+              "selection": "brush"
+            }
+          },
+          "axis": {
+            "title": null,
+            "grid": true
+          }
+        },
+        "y": {
+          "aggregate": "sum",
+          "field": "cases_sum", 
+          "type": "quantitative",
+          "axis": {
+            "title": "Cases by Haplotype"
+          }
+        },
+        "color": {
+          "field": "clade_id",
+          "type": "nominal",
+          "scale": {"scheme": "tableau20"},
+          "legend": {
+            "direction": "vertical",
+            "columns": 3,
+            "clipHeight": 15,
+            "rowPadding": 2,
+            "columnPadding": 10,
+            "title": "Haplotype",
+            "orient": "top-left",
+            "fillColor": "#FFF",
+            "strokeColor": "#AAA",
+            "padding": 10,
+            "offset": 10,
+            "cornerRadius": 5
+          }
+        }
+      }
+    }, {
+      "width": 1000,
+      "height": 50,
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "axis": {
+            "tickCount": "week",
+            "title": "Date",
+            "labelAlign": "left",
+            "labelExpr": "[timeFormat(datum.value, '%b'), timeFormat(datum.value, '%d')]",
+            "labelOffset": 4,
+            "labelPadding": -24,
+            "tickSize": 30
+          }
+        },
+        "y": {
+          "aggregate": "sum",
+          "field": "cases_sum",
+          "type": "quantitative",
+          "axis": {
+            "title": "All Cases"
+          }
+        },
+        "fill": {
+          "condition": {
+            "selection": "brush",
+            "value": "blue"
+          },
+          "value": "red"
+        }
+      },
+      "selection": {
+        "brush": {
+          "type": "interval",
+          "encodings": [
+            "x"
+          ]
+        }
+      }
+    }],
+    "config": {
+      "concat": {
+        "spacing": 0
+      },
+      "bar": {
+        "continuousBandSize": 5
+      }
+    }
+  }
+    
