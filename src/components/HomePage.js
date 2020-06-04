@@ -29,7 +29,7 @@ export class HomePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      area_stack_mode: 'counts'
+      area_stack_mode: 'percentages'
     };
     //this.processEntropyData.bind(this);
     

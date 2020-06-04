@@ -1,4 +1,4 @@
-import lineageData from '../../data/lineage_snp.json';
+import lineageData from '../../data/lineage_dna_snp.json';
 import refSeq from '../../data/reference.json';
 import _ from 'underscore';
 
