@@ -6,16 +6,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../actions/covidActions';
 
-import {
-  getReferenceSequence
-} from '../utils/lineageData';
+import { getReferenceSequence } from '../utils/lineageData';
 
 import GeneSelect from './GeneSelect';
 import DropdownContainer from './DropdownContainer';
 import HeatmapCell from './HeatmapCell';
 import DataTable from 'react-data-table-component';
 
-import 'react-dropdown-tree-select/dist/styles.css'
+import 'react-dropdown-tree-select/dist/styles.css';
 
 import { VegaLite } from 'react-vega';
 
@@ -24,28 +22,30 @@ import area_stack_absolute_spec from '../vega/area_stack.vl.json';
 import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
+import LiteMolCell from './Cells/LiteMolCell';
 
 export class HomePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      area_stack_mode: 'percentages'
+      area_stack_mode: 'percentages',
     };
     //this.processEntropyData.bind(this);
-    
+
     this.handleBrush = this.handleBrush.bind(this);
     this.handlers = { brush: _.debounce(this.handleBrush, 500) };
 
     this.handleGeneChange = this.handleGeneChange.bind(this);
-    
+
     this.treeSelectOnChange = this.treeSelectOnChange.bind(this);
     this.treeSelectOnAction = this.treeSelectOnAction.bind(this);
-    this.treeSelectOnNodeToggleCurrentNode = this.treeSelectOnNodeToggleCurrentNode.bind(this)
+    this.treeSelectOnNodeToggleCurrentNode = this.treeSelectOnNodeToggleCurrentNode.bind(
+      this
+    );
 
     this.onChangeAreaStackMode = this.onChangeAreaStackMode.bind(this);
   }
 
-  
   handleGeneChange(gene) {
     console.log('Gene change:', gene);
 
@@ -58,14 +58,15 @@ export class HomePage extends React.Component {
     //   info: JSON.stringify(args),
     // });
     this.props.actions.selectDateRange(
-      Object.prototype.hasOwnProperty.call(args[1], 'date') ? 
-      args[1].date : [-1, -1]
+      Object.prototype.hasOwnProperty.call(args[1], 'date')
+        ? args[1].date
+        : [-1, -1]
     );
   }
 
   treeSelectOnChange(currentNode, selectedNodes) {
     console.log('onChange::', currentNode, selectedNodes);
-    this.props.actions.selectLocations(selectedNodes)
+    this.props.actions.selectLocations(selectedNodes);
   }
   treeSelectOnAction(node, action) {
     console.log('onAction::', action, node);
@@ -76,7 +77,7 @@ export class HomePage extends React.Component {
 
   onChangeAreaStackMode(e) {
     this.setState({
-      area_stack_mode: e.target.value
+      area_stack_mode: e.target.value,
     });
   }
 
@@ -88,10 +89,10 @@ export class HomePage extends React.Component {
 
     // Build a column for each changing position
     let pos_cols = [];
-    this.props.covid.changingPositions.forEach(pos => {
+    this.props.covid.changingPositions.forEach((pos) => {
       pos_cols.push({
         name: pos.toString(),
-        selector: ('pos_' + pos.toString()),
+        selector: 'pos_' + pos.toString(),
         sortable: false,
         width: '40px',
         center: true,
@@ -99,65 +100,96 @@ export class HomePage extends React.Component {
         style: {
           fontFamily: 'monospace',
           fontWeight: '500',
-          fontSize: '1.25em'
+          fontSize: '1.25em',
         },
-        conditionalCellStyles: [{
-          when: row => row['pos_' + pos.toString()] != ref_seq[pos],
-          style: {
-            backgroundColor: '#FFFF00'
-          }
-        }]
+        conditionalCellStyles: [
+          {
+            when: (row) => row['pos_' + pos.toString()] != ref_seq[pos],
+            style: {
+              backgroundColor: '#FFFF00',
+            },
+          },
+        ],
       });
     });
 
-    let maxCasesSum = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.max(memo, lineage.cases_sum), 0);
-    let minCasesSum = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.min(memo, lineage.cases_sum), 0);
-    let maxCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.max(memo, lineage.cases_percent), 0);
-    let minCasesPercent = _.reduce(this.props.covid.caseDataAggLineageList, (memo, lineage) => Math.min(memo, lineage.cases_percent), 0);
+    let maxCasesSum = _.reduce(
+      this.props.covid.caseDataAggLineageList,
+      (memo, lineage) => Math.max(memo, lineage.cases_sum),
+      0
+    );
+    let minCasesSum = _.reduce(
+      this.props.covid.caseDataAggLineageList,
+      (memo, lineage) => Math.min(memo, lineage.cases_sum),
+      0
+    );
+    let maxCasesPercent = _.reduce(
+      this.props.covid.caseDataAggLineageList,
+      (memo, lineage) => Math.max(memo, lineage.cases_percent),
+      0
+    );
+    let minCasesPercent = _.reduce(
+      this.props.covid.caseDataAggLineageList,
+      (memo, lineage) => Math.min(memo, lineage.cases_percent),
+      0
+    );
 
     //console.log(this.props.covid);
 
-    let area_stack_spec = this.state.area_stack_mode === 'percentages' ? area_stack_norm_spec : area_stack_absolute_spec;
+    let area_stack_spec =
+      this.state.area_stack_mode === 'percentages'
+        ? area_stack_norm_spec
+        : area_stack_absolute_spec;
 
-    return(
-      <div className='home-page'>
-        <div className='filter-sidebar'>
-          <GeneSelect 
+    return (
+      <div className="home-page">
+        <div className="filter-sidebar">
+          <GeneSelect
             genes={this.props.covid.genes}
             value={this.props.covid.selectedGene}
             startPos={this.props.covid.startPos}
             endPos={this.props.covid.endPos}
             onChange={this.handleGeneChange}
           />
-          <DropdownContainer 
-            data={this.props.covid.selectTree.children} 
-            onChange={this.treeSelectOnChange} 
-            onAction={this.treeSelectOnAction} 
+          <DropdownContainer
+            data={this.props.covid.selectTree.children}
+            onChange={this.treeSelectOnChange}
+            onAction={this.treeSelectOnAction}
             onNodeToggle={this.treeSelectOnNodeToggleCurrentNode}
-            className='geo-dropdown-tree-select'
+            className="geo-dropdown-tree-select"
             clearSearchOnChange={false}
             keepTreeOnSearch={true}
             keepChildrenOnSearch={true}
             showPartiallySelected={true}
-            showDropdown='always'
+            showDropdown="always"
             inlineSearchInput={true}
             texts={{
               placeholder: 'Choose...',
-              noMatches: 'No matches found'
+              noMatches: 'No matches found',
             }}
           />
         </div>
-        <div className='header'>
-          <div className='title-container'>
+        <div className="header">
+          <div className="title-container">
             <h1>COVID-UI</h1>
           </div>
-          <div className='nav-links'>
-            <NavLink exact to="/" activeStyle={activeStyle}>Home</NavLink>
-            <NavLink to="/about" activeStyle={activeStyle}>About</NavLink>
-            <a href='https://github.com/vector-engineering/covid_ui' target='_blank' rel='noopener noreferrer'>View on GitHub</a>
+          <div className="nav-links">
+            <NavLink exact to="/" activeStyle={activeStyle}>
+              Home
+            </NavLink>
+            <NavLink to="/about" activeStyle={activeStyle}>
+              About
+            </NavLink>
+            <a
+              href="https://github.com/vector-engineering/covid_ui"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View on GitHub
+            </a>
           </div>
         </div>
-        <div className='plot-container'>
+        <div className="plot-container">
           {/* <VegaLite
             data={{
               entropy_data: entropy_data
@@ -165,26 +197,31 @@ export class HomePage extends React.Component {
             spec={entropy_spec}
           /> */}
 
-          <div className='plot-options'>
+          <div className="plot-options">
             <label>
               Display mode
-              <select value={this.state.area_stack_mode} onChange={this.onChangeAreaStackMode}>
-                <option value='counts'>Counts</option>
-                <option value='percentages'>Percentages</option>
+              <select
+                value={this.state.area_stack_mode}
+                onChange={this.onChangeAreaStackMode}
+              >
+                <option value="counts">Counts</option>
+                <option value="percentages">Percentages</option>
               </select>
             </label>
           </div>
 
+          <LiteMolCell />
+          {/*
           <VegaLite
             data={{
-              case_data: this.props.covid.caseData
+              case_data: this.props.covid.caseData,
             }}
             spec={area_stack_spec}
             signalListeners={this.handlers}
           />
 
           <DataTable
-            className='data-table'
+            className="data-table"
             data={this.props.covid.caseDataAggLineageList}
             columns={[
               {
@@ -193,68 +230,77 @@ export class HomePage extends React.Component {
                 sortable: true,
                 width: '100px',
                 style: {
-                  fontWeight: '700'
-                }
+                  fontWeight: '700',
+                },
               },
               {
                 name: 'Cases',
                 selector: 'cases_sum',
                 sortable: true,
                 width: '85px',
-                cell: row => {
-                  return(
-                    <HeatmapCell 
-                      value={row.cases_sum} 
+                cell: (row) => {
+                  return (
+                    <HeatmapCell
+                      value={row.cases_sum}
                       min={minCasesSum}
                       max={maxCasesSum}
                       percent={false}
                     />
                   );
-                }
+                },
               },
               {
                 name: '% Cases',
                 selector: 'cases_percent',
                 sortable: true,
                 width: '85px',
-                cell: row => {
-                  return(
-                    <HeatmapCell 
-                      value={row.cases_percent} 
+                cell: (row) => {
+                  return (
+                    <HeatmapCell
+                      value={row.cases_percent}
                       min={minCasesPercent}
                       max={maxCasesPercent}
                       percent={true}
                     />
                   );
-                }
-              }
+                },
+              },
+              {
+                name: 'jmol',
+                selector: 'jmol',
+                sortable: false,
+                width: '100%',
+                cell: () => {
+                  return <div />;
+                },
+              },
             ].concat(pos_cols)}
             striped={true}
             highlightOnHover={true}
             dense={true}
-
             // fixedHeader={true}
             // fixedHeaderScrollHeight={'400px'}
 
             pagination={false}
             defaultSortField={'lineage'}
             defaultSortAsc={true}
-
-            conditionalRowStyles={[{
-              when: row => row.lineage == 'Reference',
-              style: 'background-color: #dff3fe !important;'
-            }]}
+            conditionalRowStyles={[
+              {
+                when: (row) => row.lineage == 'Reference',
+                style: 'background-color: #dff3fe !important;',
+              },
+            ]}
             sortFunction={(rows, field, direction) => {
               // Set aside the reference, and remove it from the rows list
               let refRow = _.findWhere(rows, { lineage: 'Reference' });
-              rows = _.reject(rows, row => row.lineage == 'Reference');
+              rows = _.reject(rows, (row) => row.lineage == 'Reference');
 
               // Normal sorting...
-              rows = _.sortBy(rows, row => {
+              rows = _.sortBy(rows, (row) => {
                 return row[field];
               });
               // Reverse if descending
-              if(direction == 'desc') {
+              if (direction == 'desc') {
                 rows.reverse();
               }
               // Add the reference row to the beginning
@@ -274,13 +320,10 @@ export class HomePage extends React.Component {
                   paddingLeft: '8px', // override the cell padding for data cells
                   paddingRight: '8px',
                 },
-              }
+              },
             }}
-            
-          />
-
+        />*/}
         </div>
-
       </div>
     );
   }
@@ -288,22 +331,19 @@ export class HomePage extends React.Component {
 
 HomePage.propTypes = {
   actions: PropTypes.object.isRequired,
-  covid: PropTypes.object.isRequired
+  covid: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    covid: state.covid
+    covid: state.covid,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch)
+    actions: bindActionCreators(actions, dispatch),
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HomePage);
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

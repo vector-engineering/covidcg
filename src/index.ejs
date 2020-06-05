@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--
+  <!--
   **NOTE:** This is a template for index.html. It uses ejs and htmlWebpackPlugin to generate a different index.html for each environment. htmlWebpackPlugin will dynamically add references to the scripts and styles that it bundles to this file. The generated bundles have hash-based filenames, so it's necessary to add the references dynamically.
   For more info on ejs, see http://www.embeddedjs.com/. For examples of using it with htmlWebpackPlugin, see https://github.com/jaketrent/html-webpack-template/blob/master/index.ejs
   -->
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta charset="utf-8"/>
-  <title>React Slingshot</title>
-</head>
-<body>
-<div id="app"></div>
-</body>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <title>Covid UI</title>
+
+    <!-- litemol -->
+    <link rel="stylesheet" type="text/css" href="litemol/pdb.litemol.min.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.4-build.3588/angular.min.js"
+      integrity="sha256-UYxsBli+wc8cHs1SVw0hYf3llQlUwLuKnRii303Ivk0="
+      crossorigin="anonymous"
+    ></script>
+    <script src="litemol/pdb.litemol.min.js"></script>
+    <!-- litemol -->
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
 </html>

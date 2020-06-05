@@ -1,27 +1,18 @@
 import {
-    SELECT_GENE,
-    SELECT_LOCATIONS,
-    SELECT_DATE_RANGE
+  SELECT_GENE,
+  SELECT_LOCATIONS,
+  SELECT_DATE_RANGE,
 } from '../constants/actionTypes';
 import objectAssign from 'object-assign';
 import initialState from './initialState';
 
-import {
-  getGene
-} from '../utils/gene';
+import { getGene } from '../utils/gene';
 
-import {
-  getLocationIds
-} from '../utils/location';
+import { getLocationIds } from '../utils/location';
 
-import {
-  processCaseData,
-  aggCaseDataByLineage
-} from '../utils/caseData';
+import { processCaseData, aggCaseDataByLineage } from '../utils/caseData';
 
-import {
-  getLineagesFromGene,
-} from '../utils/lineageData';
+import { getLineagesFromGene } from '../utils/lineageData';
 
 // IMPORTANT: Note that with Redux, state should NEVER be changed.
 // State is considered immutable. Instead,
@@ -32,7 +23,6 @@ export default function covidReducer(state = initialState.covid, action) {
   let newState = objectAssign({}, state);
 
   switch (action.type) {
-
     case SELECT_GENE:
       console.log('SELECT_GENE', action);
 
@@ -71,13 +61,18 @@ export default function covidReducer(state = initialState.covid, action) {
   switch (action.type) {
     case SELECT_GENE:
     case SELECT_LOCATIONS:
-      newState.caseData = processCaseData(newState.initialCaseData, newState.selectedLocationIds);
+      newState.caseData = processCaseData(
+        newState.initialCaseData,
+        newState.selectedLocationIds
+      );
 
     case SELECT_DATE_RANGE:
-
       let { caseDataAggLineageList, changingPositions } = aggCaseDataByLineage(
-        newState.caseData, newState.initialLineageData, 
-        newState.startPos, newState.endPos, newState.dateRange
+        newState.caseData,
+        newState.initialLineageData,
+        newState.startPos,
+        newState.endPos,
+        newState.dateRange
       );
 
       newState.caseDataAggLineageList = caseDataAggLineageList;
@@ -92,4 +87,3 @@ export default function covidReducer(state = initialState.covid, action) {
   // Recalculate case data
   return newState;
 }
-
