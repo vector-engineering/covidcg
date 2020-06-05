@@ -20,6 +20,22 @@
     pip install --editable .
     ```
 
+#### Data Requirements
+
+The python scripts require a `data` folder inside the root folder of the project in order to run. In accordance with the [GISAID](https://www.gisaid.org/) terms of service, we cannot distribute data to those who have not registered with their service. We are happy to share our data folder via. Google Drive, with raw as well as processed data, if you contact us and send proof of registration with GISAID.
+
+You can also download the data from GISAID yourself and run the python scripts from scratch. The `data` folder requires four folders to be populated with raw data from GISAID, prior to processing:
+
+1. `fasta_raw`: FASTA sequences. These files can be downloaded by selecting "Sequences" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
+
+2. `patient_meta`: Patient metadata. These files can be downloaded by selecting "Patient status metadata" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
+
+3. `seq_meta`: Sequencing technology metadata. These files can be downloaded by selecting "Sequencing technology metadata" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
+
+4. `acknowledgements`: Author acknowledgements. These files can be downloaded by selecting "Acknowledgement Table" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
+
+Note that as of 2020-06-05 only 10,000 sequences can be downloaded from the EpiCov™ Browse Tab at one time. Please filter your searches in a way that you select and download no more than 10,000 sequences at one time. We select data daily by filtering by "Submission date".
+
 ### Javascript
 
 This app was built from the [react-slingshot](https://github.com/coryhouse/react-slingshot) example app.
@@ -44,7 +60,11 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
         `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
 
-5. **Run the example app**
+5. Install NPM packages
+
+    `npm install`
+
+6. **Run the example app**
 
     `npm start -s`
 
