@@ -39,6 +39,7 @@
     "react": "16.11.0",
     "react-data-table-component": "6.9.2",
     "react-dom": "16.11.0",
+    "react-draggable": "4.4.2",
     "react-dropdown-tree-select": "2.3.2",
     "react-vega": "7.3.0",
     "styled-components": "5.1.1",
