@@ -2,14 +2,17 @@ import React from 'react';
 import '../styles/about-page.scss';
 import { Link } from 'mobx-router';
 import routes from '../routes';
+import { connect } from '../stores/connect';
 
 // Since this component is simple and static, there's no parent container for it.
-const AboutPage = () => {
+const AboutPage = (props) => {
   return (
     <div className="about-page">
       <div className="header">
         <h1>About</h1>
-        <Link view={routes.home}>Back to Home</Link>
+        <Link route={routes.home} router={props.router}>
+          Back to Home
+        </Link>
       </div>
 
       <div className="content">
@@ -124,4 +127,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage;
+export default connect(AboutPage);

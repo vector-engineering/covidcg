@@ -16,6 +16,4 @@ export const storesContext = React.createContext(rootStore);
 
 export const StoreProvider = storesContext.Provider;
 
-export const useStores = () => React.useContext(storesContext);
-
 startRouter(routes, rootStore);

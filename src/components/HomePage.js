@@ -23,7 +23,6 @@ import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 import '../styles/home-page.scss';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 import routes from '../routes';
-import { storesContext } from '../stores/rootStore';
 import { connect } from '../stores/connect';
 
 @observer
@@ -145,8 +144,6 @@ class HomePage extends React.PureComponent {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(routes.home);
-
     return (
       <div className="home-page">
         <div className="filter-sidebar">
@@ -180,18 +177,10 @@ class HomePage extends React.PureComponent {
             <h1>COVID-UI</h1>
           </div>
           <div className="nav-links">
-            <Link
-              store={this.props}
-              router={this.props.router}
-              route={routes.home}
-            >
+            <Link router={this.props.router} route={routes.home}>
               Home
             </Link>
-            <Link
-              store={this.props}
-              router={this.props.router}
-              route={routes.about}
-            >
+            <Link router={this.props.router} route={routes.about}>
               About
             </Link>
             <a
@@ -342,6 +331,7 @@ class HomePage extends React.PureComponent {
 
 HomePage.propTypes = {
   covidStore: PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 };
 
 // eslint-disable-next-line react/display-name
