@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 
-import { NavLink } from 'react-router-dom';
+import { Link } from 'mobx-router';
 import _ from 'underscore';
-import { connectCovidStore } from '../stores/covidStore';
 
 import { getReferenceSequence } from '../utils/lineageData';
 
@@ -23,9 +22,12 @@ import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
+import routes from '../routes';
+import { storesContext } from '../stores/rootStore';
+import { connect } from '../stores/connect';
 
 @observer
-class HomePage extends React.Component {
+class HomePage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -142,8 +144,7 @@ class HomePage extends React.Component {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(this.props.covidStore.selectedLocationIds);
-    console.log(this.props.covidStore.caseData);
+    console.log(this.props);
 
     return (
       <div className="home-page">
@@ -178,12 +179,10 @@ class HomePage extends React.Component {
             <h1>COVID-UI</h1>
           </div>
           <div className="nav-links">
-            <NavLink exact to="/" activeStyle={activeStyle}>
-              Home
-            </NavLink>
-            <NavLink to="/about" activeStyle={activeStyle}>
+            <Link view={routes.home}>Home</Link>
+            <Link view={routes.about} activeStyle={activeStyle}>
               About
-            </NavLink>
+            </Link>
             <a
               href="https://github.com/vector-engineering/covid_ui"
               target="_blank"
@@ -334,10 +333,5 @@ HomePage.propTypes = {
   covidStore: PropTypes.object.isRequired,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     actions: bindActionCreators(actions, dispatch),
-//   };
-// }
-
-export default connectCovidStore(HomePage);
+// eslint-disable-next-line react/display-name
+export default connect(HomePage);
