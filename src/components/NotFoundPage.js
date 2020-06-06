@@ -7,7 +7,7 @@ const NotFoundPage = (props) => {
   return (
     <div>
       <h4>404 Page Not Found</h4>
-      <Link router={props.router} view={routes.home}>
+      <Link router={props.router} route={routes.home}>
         Go back to homepage
       </Link>
     </div>

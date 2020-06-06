@@ -145,7 +145,7 @@ class HomePage extends React.PureComponent {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(this.props);
+    console.log(routes.home);
 
     return (
       <div className="home-page">
@@ -180,10 +180,18 @@ class HomePage extends React.PureComponent {
             <h1>COVID-UI</h1>
           </div>
           <div className="nav-links">
-            <Link store={this.props} view={routes.home}>
+            <Link
+              store={this.props}
+              router={this.props.router}
+              route={routes.home}
+            >
               Home
             </Link>
-            <Link store={this.props} view={routes.about}>
+            <Link
+              store={this.props}
+              router={this.props.router}
+              route={routes.about}
+            >
               About
             </Link>
             <a
