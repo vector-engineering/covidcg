@@ -1,6 +1,4 @@
-import { observable, computed, action } from 'mobx';
-import React from 'react';
-import { useLocalStore } from 'mobx-react'; // 6.x or mobx-react-lite@1.4.0
+import { observable, action } from 'mobx';
 
 import _ from 'underscore';
 
@@ -142,32 +140,4 @@ class ObservableCovidStore {
   }
 }
 
-export const CovidStoreContext = React.createContext(null);
-
-// eslint-disable-next-line react/prop-types
-export const CovidStoreProvider = ({ children }) => {
-  const store = useLocalStore(() => {
-    return new ObservableCovidStore();
-  });
-  return (
-    <CovidStoreContext.Provider value={store}>
-      {children}
-    </CovidStoreContext.Provider>
-  );
-};
-
-export const useCovidStore = () => {
-  const store = React.useContext(CovidStoreContext);
-  if (!store) {
-    throw new Error('useStore must be used within a StoreProvider.');
-  }
-  return store;
-};
-
-export const connectCovidStore = (Component) => {
-  // eslint-disable-next-line react/display-name
-  return (props) => {
-    const covidStore = useCovidStore();
-    return <Component covidStore={covidStore} {...props} />;
-  };
-};
+export default ObservableCovidStore;

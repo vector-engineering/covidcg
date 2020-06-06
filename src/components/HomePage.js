@@ -2,16 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 
-import { NavLink } from 'react-router-dom';
 import _ from 'underscore';
-import { connectCovidStore } from '../stores/covidStore';
-
-import { getReferenceSequence } from '../utils/lineageData';
 
 import GeneSelect from './GeneSelect';
 import DropdownContainer from './DropdownContainer';
-import HeatmapCell from './Cells/HeatmapCell';
-import DataTable from 'react-data-table-component';
 
 import 'react-dropdown-tree-select/dist/styles.css';
 
@@ -22,10 +16,12 @@ import area_stack_absolute_spec from '../vega/area_stack.vl.json';
 import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
-import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
+import { connect } from '../stores/connect';
+import LineageDataTable from './LineageDataTable';
+import Header from './Header';
 
 @observer
-class HomePage extends React.Component {
+class HomePage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -54,11 +50,12 @@ class HomePage extends React.Component {
   }
 
   handleBrush(...args) {
+    const { covidStore } = this.props;
     //console.log(args);
     // this.setState({
     //   info: JSON.stringify(args),
     // });
-    this.props.covidStore.selectDateRange(
+    covidStore.selectDateRange(
       Object.prototype.hasOwnProperty.call(args[1], 'date')
         ? args[1].date
         : [-1, -1]
@@ -83,80 +80,28 @@ class HomePage extends React.Component {
   }
 
   render() {
+    const { covidStore } = this.props;
     const activeStyle = { color: 'blue' };
 
-    // Get the bases at the positions, for the reference sequence
-    let ref_seq = getReferenceSequence();
-
-    // Build a column for each changing position
-    let pos_cols = [];
-    this.props.covidStore.changingPositions.forEach((pos) => {
-      pos_cols.push({
-        name: pos.toString(),
-        selector: 'pos_' + pos.toString(),
-        sortable: false,
-        width: '40px',
-        center: true,
-        compact: true,
-        style: {
-          fontFamily: 'monospace',
-          fontWeight: '500',
-          fontSize: '1.25em',
-        },
-        conditionalCellStyles: [
-          {
-            when: (row) => row['pos_' + pos.toString()] != ref_seq[pos],
-            style: {
-              backgroundColor: '#FFFF00',
-            },
-          },
-        ],
-      });
-    });
-
-    let maxCasesSum = _.reduce(
-      this.props.covidStore.caseDataAggLineageList,
-      (memo, lineage) => Math.max(memo, lineage.cases_sum),
-      0
-    );
-    let minCasesSum = _.reduce(
-      this.props.covidStore.caseDataAggLineageList,
-      (memo, lineage) => Math.min(memo, lineage.cases_sum),
-      0
-    );
-    let maxCasesPercent = _.reduce(
-      this.props.covidStore.caseDataAggLineageList,
-      (memo, lineage) => Math.max(memo, lineage.cases_percent),
-      0
-    );
-    let minCasesPercent = _.reduce(
-      this.props.covidStore.caseDataAggLineageList,
-      (memo, lineage) => Math.min(memo, lineage.cases_percent),
-      0
-    );
-
-    //console.log(this.props.covid);
+    //console.log(.covid);
 
     let area_stack_spec =
       this.state.area_stack_mode === 'percentages'
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(this.props.covidStore.selectedLocationIds);
-    console.log(this.props.covidStore.caseData);
-
     return (
       <div className="home-page">
         <div className="filter-sidebar">
           <GeneSelect
-            genes={this.props.covidStore.genes}
-            value={this.props.covidStore.selectedGene}
-            startPos={this.props.covidStore.startPos}
-            endPos={this.props.covidStore.endPos}
+            genes={covidStore.genes}
+            value={covidStore.selectedGene}
+            startPos={covidStore.startPos}
+            endPos={covidStore.endPos}
             onChange={this.handleGeneChange}
           />
           <DropdownContainer
-            data={this.props.covidStore.selectTree.children}
+            data={covidStore.selectTree.children}
             onChange={this.treeSelectOnChange}
             onAction={this.treeSelectOnAction}
             onNodeToggle={this.treeSelectOnNodeToggleCurrentNode}
@@ -173,26 +118,7 @@ class HomePage extends React.Component {
             }}
           />
         </div>
-        <div className="header">
-          <div className="title-container">
-            <h1>COVID-UI</h1>
-          </div>
-          <div className="nav-links">
-            <NavLink exact to="/" activeStyle={activeStyle}>
-              Home
-            </NavLink>
-            <NavLink to="/about" activeStyle={activeStyle}>
-              About
-            </NavLink>
-            <a
-              href="https://github.com/vector-engineering/covid_ui"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on GitHub
-            </a>
-          </div>
-        </div>
+        <Header />
         <div className="plot-container">
           {/* <VegaLite
             data={{
@@ -216,114 +142,13 @@ class HomePage extends React.Component {
 
           <VegaLite
             data={{
-              case_data: this.props.covidStore.caseData,
+              case_data: covidStore.caseData,
             }}
             spec={area_stack_spec}
             signalListeners={this.handlers}
           />
 
-          <DataTable
-            className="data-table"
-            data={this.props.covidStore.caseDataAggLineageList}
-            columns={[
-              {
-                name: 'Lineage',
-                selector: 'lineage',
-                sortable: true,
-                width: '100px',
-                style: {
-                  fontWeight: '700',
-                },
-              },
-              {
-                name: 'Cases',
-                selector: 'cases_sum',
-                sortable: true,
-                width: '85px',
-                cell: (row) => {
-                  return (
-                    <HeatmapCell
-                      value={row.cases_sum}
-                      min={minCasesSum}
-                      max={maxCasesSum}
-                      percent={false}
-                    />
-                  );
-                },
-              },
-              {
-                selector: 'cases_percent',
-                sortable: true,
-                width: '85px',
-                cell: (row) => {
-                  return (
-                    <HeatmapCell
-                      value={row.cases_percent}
-                      min={minCasesPercent}
-                      max={maxCasesPercent}
-                      percent={true}
-                    />
-                  );
-                },
-              },
-              {
-                name: 'is in sidepanel',
-                selector: null,
-                sortable: false,
-                width: '100%',
-                cell: () => {
-                  return <AddToSidepanelCheckbox />;
-                },
-              },
-            ].concat(pos_cols)}
-            striped={true}
-            highlightOnHover={true}
-            dense={true}
-            // fixedHeader={true}
-            // fixedHeaderScrollHeight={'400px'}
-
-            pagination={false}
-            defaultSortField={'lineage'}
-            defaultSortAsc={true}
-            conditionalRowStyles={[
-              {
-                when: (row) => row.lineage == 'Reference',
-                style: 'background-color: #dff3fe !important;',
-              },
-            ]}
-            sortFunction={(rows, field, direction) => {
-              // Set aside the reference, and remove it from the rows list
-              let refRow = _.findWhere(rows, { lineage: 'Reference' });
-              rows = _.reject(rows, (row) => row.lineage == 'Reference');
-
-              // Normal sorting...
-              rows = _.sortBy(rows, (row) => {
-                return row[field];
-              });
-              // Reverse if descending
-              if (direction == 'desc') {
-                rows.reverse();
-              }
-              // Add the reference row to the beginning
-              rows.unshift(refRow);
-
-              return rows;
-            }}
-            customStyles={{
-              headCells: {
-                style: {
-                  paddingLeft: '8px', // override the cell padding for head cells
-                  paddingRight: '8px',
-                },
-              },
-              cells: {
-                style: {
-                  paddingLeft: '8px', // override the cell padding for data cells
-                  paddingRight: '8px',
-                },
-              },
-            }}
-          />
+          <LineageDataTable />
         </div>
       </div>
     );
@@ -332,12 +157,8 @@ class HomePage extends React.Component {
 
 HomePage.propTypes = {
   covidStore: PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     actions: bindActionCreators(actions, dispatch),
-//   };
-// }
-
-export default connectCovidStore(HomePage);
+// eslint-disable-next-line react/display-name
+export default connect(HomePage);
