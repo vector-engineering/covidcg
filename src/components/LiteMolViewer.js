@@ -6,7 +6,7 @@ const CellContainer = styled.div`
   flex-direction: row;
 `;
 
-const LiteMolCell = () => {
+const LiteMolViewer = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const uniqueId = useRef(`litemolcell-${new Date().getTime()}`);
@@ -44,4 +44,4 @@ const LiteMolCell = () => {
   );
 };
 
-export default LiteMolCell;
+export default LiteMolViewer;
