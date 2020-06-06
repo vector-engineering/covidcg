@@ -90,6 +90,7 @@ class ObservableCovidStore {
     this.dateRange = initialDateRange;
   }
 
+  @action
   selectGene(_selectedGene) {
     // im not sure what this var actually is
     console.log('SELECT_GENE', _selectedGene);
@@ -108,11 +109,11 @@ class ObservableCovidStore {
 
   @action
   selectLocations(selectedNodes) {
-    //console.log('SELECT_LOCATIONS');
+    console.log('SELECT_LOCATIONS');
 
     this.selectedLocationIds = getLocationIds(selectedNodes);
 
-    //console.log('Location IDs:', this.selectedLocationIds);
+    console.log('Location IDs:', this.selectedLocationIds);
 
     this.updateCaseData();
   }
@@ -141,10 +142,32 @@ class ObservableCovidStore {
   }
 }
 
-const covidStore = new ObservableCovidStore();
+export const CovidStoreContext = React.createContext(null);
 
-export const connectCovidStore = (Component) => {
-  return (props) => <Component covidStore={covidStore} {...props} />;
+// eslint-disable-next-line react/prop-types
+export const CovidStoreProvider = ({ children }) => {
+  const store = useLocalStore(() => {
+    return new ObservableCovidStore();
+  });
+  return (
+    <CovidStoreContext.Provider value={store}>
+      {children}
+    </CovidStoreContext.Provider>
+  );
 };
 
-export default covidStore;
+export const useCovidStore = () => {
+  const store = React.useContext(CovidStoreContext);
+  if (!store) {
+    throw new Error('useStore must be used within a StoreProvider.');
+  }
+  return store;
+};
+
+export const connectCovidStore = (Component) => {
+  // eslint-disable-next-line react/display-name
+  return (props) => {
+    const covidStore = useCovidStore();
+    return <Component covidStore={covidStore} {...props} />;
+  };
+};
