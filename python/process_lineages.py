@@ -12,44 +12,11 @@ import re
 from pathlib import Path
 
 from fasta import read_fasta_file
+from process_snps import load_dna_snps, load_aa_snps
 from util import translate
 
 project_root_path = Path(__file__).resolve().parent.parent
 data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path
-
-
-def load_dna_snps():
-    # Load all DNA SNP files
-    dna_snp_files = sorted((data_dir / 'dna_snp').glob('*.csv'))
-    print('Loading {} DNA SNP files...'.format(len(dna_snp_files)), end='', flush=True)
-    # Load into dataframe
-    dna_snp_df = pd.DataFrame()
-    for f in dna_snp_files:
-        dna_snp_df = pd.concat([dna_snp_df, pd.read_csv(f)], ignore_index=True)
-    # Extract the GISAID ID
-    dna_snp_df['gisaid_id'] = dna_snp_df['taxon'].str.split('|', expand=True)[1]
-    dna_snp_df = dna_snp_df.reset_index(drop=True)
-    print('done. Loaded {} DNA SNPs'.format(len(dna_snp_df)), flush=True)
-    # dna_snp_df.to_csv('dna_snp.csv', index=False)
-
-    return dna_snp_df
-
-
-def load_aa_snps():
-    # Load all AA SNP files
-    aa_snp_files = sorted((data_dir / 'aa_snp').glob('*.csv'))
-    print('Loading {} AA SNP files...'.format(len(aa_snp_files)), end='', flush=True)
-    # Load into dataframe
-    aa_snp_df = pd.DataFrame()
-    for f in aa_snp_files:
-        aa_snp_df = pd.concat([aa_snp_df, pd.read_csv(f)], ignore_index=True)
-    # Extract the GISAID ID
-    aa_snp_df['gisaid_id'] = aa_snp_df['taxon'].str.split('|', expand=True)[1]
-    aa_snp_df = aa_snp_df.reset_index(drop=True)
-    print('done. Loaded {} AA SNPs'.format(len(aa_snp_df)), flush=True)
-
-    return aa_snp_df
-
 
 def load_taxon_lineages():
     # Load lineage files
