@@ -1,40 +1,18 @@
 /* eslint-disable import/no-named-as-default */
-import { Route, Switch } from 'react-router-dom';
-
-import AboutPage from './AboutPage';
-import HomePage from './HomePage';
-import NotFoundPage from './NotFoundPage';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { hot } from 'react-hot-loader';
 
-// This is a class-based component because the current
-// version of hot reloading won't hot reload a stateless
-// component at the top-level.
+import { MobxRouter } from 'mobx-router';
+import { StoreProvider, rootStore } from '../stores/rootStore';
 
-/*
-  <div>
-    <NavLink exact to="/" activeStyle={activeStyle}>Home</NavLink>
-    {' | '}
-    <NavLink to="/fuel-savings" activeStyle={activeStyle}>Demo App</NavLink>
-    {' | '}
-    <NavLink to="/about" activeStyle={activeStyle}>About</NavLink>
-  </div>
-*/
-
-class App extends React.Component {
-  render() {
-    return (
-      <div>
-        <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/about" component={AboutPage} />
-          <Route component={NotFoundPage} />
-        </Switch>
-      </div>
-    );
-  }
-}
+const App = () => {
+  return (
+    <StoreProvider value={rootStore}>
+      <MobxRouter store={rootStore} />
+    </StoreProvider>
+  );
+};
 
 App.propTypes = {
   children: PropTypes.element,

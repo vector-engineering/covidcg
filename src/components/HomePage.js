@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 
-import { NavLink } from 'react-router-dom';
+import { Link } from 'mobx-router';
 import _ from 'underscore';
-import { connectCovidStore } from '../stores/covidStore';
 
 import { getReferenceSequence } from '../utils/lineageData';
 
@@ -23,9 +22,11 @@ import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
+import routes from '../routes';
+import { connect } from '../stores/connect';
 
 @observer
-class HomePage extends React.Component {
+class HomePage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -83,6 +84,7 @@ class HomePage extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     const activeStyle = { color: 'blue' };
 
     // Get the bases at the positions, for the reference sequence
@@ -142,9 +144,6 @@ class HomePage extends React.Component {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(this.props.covidStore.selectedLocationIds);
-    console.log(this.props.covidStore.caseData);
-
     return (
       <div className="home-page">
         <div className="filter-sidebar">
@@ -178,12 +177,12 @@ class HomePage extends React.Component {
             <h1>COVID-UI</h1>
           </div>
           <div className="nav-links">
-            <NavLink exact to="/" activeStyle={activeStyle}>
+            <Link router={this.props.router} route={routes.home}>
               Home
-            </NavLink>
-            <NavLink to="/about" activeStyle={activeStyle}>
+            </Link>
+            <Link router={this.props.router} route={routes.about}>
               About
-            </NavLink>
+            </Link>
             <a
               href="https://github.com/vector-engineering/covid_ui"
               target="_blank"
@@ -332,12 +331,8 @@ class HomePage extends React.Component {
 
 HomePage.propTypes = {
   covidStore: PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     actions: bindActionCreators(actions, dispatch),
-//   };
-// }
-
-export default connectCovidStore(HomePage);
+// eslint-disable-next-line react/display-name
+export default connect(HomePage);
