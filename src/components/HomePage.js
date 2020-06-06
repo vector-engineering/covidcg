@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
+
 import { NavLink } from 'react-router-dom';
 import _ from 'underscore';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actions from '../actions/covidActions';
+import { connectCovidStore } from '../stores/covidStore';
 
 import { getReferenceSequence } from '../utils/lineageData';
 
@@ -22,10 +22,10 @@ import area_stack_absolute_spec from '../vega/area_stack.vl.json';
 import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
-import LiteMolViewer from './LiteMolViewer';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 
-export class HomePage extends React.Component {
+@observer
+class HomePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -50,7 +50,7 @@ export class HomePage extends React.Component {
   handleGeneChange(gene) {
     console.log('Gene change:', gene);
 
-    this.props.actions.selectGene(event.target.value);
+    this.props.covidStore.selectGene(event.target.value);
   }
 
   handleBrush(...args) {
@@ -58,7 +58,7 @@ export class HomePage extends React.Component {
     // this.setState({
     //   info: JSON.stringify(args),
     // });
-    this.props.actions.selectDateRange(
+    this.props.covidStore.selectDateRange(
       Object.prototype.hasOwnProperty.call(args[1], 'date')
         ? args[1].date
         : [-1, -1]
@@ -67,7 +67,7 @@ export class HomePage extends React.Component {
 
   treeSelectOnChange(currentNode, selectedNodes) {
     console.log('onChange::', currentNode, selectedNodes);
-    this.props.actions.selectLocations(selectedNodes);
+    this.props.covidStore.selectLocations(selectedNodes);
   }
   treeSelectOnAction(node, action) {
     console.log('onAction::', action, node);
@@ -90,7 +90,7 @@ export class HomePage extends React.Component {
 
     // Build a column for each changing position
     let pos_cols = [];
-    this.props.covid.changingPositions.forEach((pos) => {
+    this.props.covidStore.changingPositions.forEach((pos) => {
       pos_cols.push({
         name: pos.toString(),
         selector: 'pos_' + pos.toString(),
@@ -115,22 +115,22 @@ export class HomePage extends React.Component {
     });
 
     let maxCasesSum = _.reduce(
-      this.props.covid.caseDataAggLineageList,
+      this.props.covidStore.caseDataAggLineageList,
       (memo, lineage) => Math.max(memo, lineage.cases_sum),
       0
     );
     let minCasesSum = _.reduce(
-      this.props.covid.caseDataAggLineageList,
+      this.props.covidStore.caseDataAggLineageList,
       (memo, lineage) => Math.min(memo, lineage.cases_sum),
       0
     );
     let maxCasesPercent = _.reduce(
-      this.props.covid.caseDataAggLineageList,
+      this.props.covidStore.caseDataAggLineageList,
       (memo, lineage) => Math.max(memo, lineage.cases_percent),
       0
     );
     let minCasesPercent = _.reduce(
-      this.props.covid.caseDataAggLineageList,
+      this.props.covidStore.caseDataAggLineageList,
       (memo, lineage) => Math.min(memo, lineage.cases_percent),
       0
     );
@@ -142,20 +142,21 @@ export class HomePage extends React.Component {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
-    console.log(this.props.covid.caseDataAggLineageList);
+    console.log(this.props.covidStore.selectedLocationIds);
+    console.log(this.props.covidStore.caseData);
 
     return (
       <div className="home-page">
         <div className="filter-sidebar">
           <GeneSelect
-            genes={this.props.covid.genes}
-            value={this.props.covid.selectedGene}
-            startPos={this.props.covid.startPos}
-            endPos={this.props.covid.endPos}
+            genes={this.props.covidStore.genes}
+            value={this.props.covidStore.selectedGene}
+            startPos={this.props.covidStore.startPos}
+            endPos={this.props.covidStore.endPos}
             onChange={this.handleGeneChange}
           />
           <DropdownContainer
-            data={this.props.covid.selectTree.children}
+            data={this.props.covidStore.selectTree.children}
             onChange={this.treeSelectOnChange}
             onAction={this.treeSelectOnAction}
             onNodeToggle={this.treeSelectOnNodeToggleCurrentNode}
@@ -215,7 +216,7 @@ export class HomePage extends React.Component {
 
           <VegaLite
             data={{
-              case_data: this.props.covid.caseData,
+              case_data: this.props.covidStore.caseData,
             }}
             spec={area_stack_spec}
             signalListeners={this.handlers}
@@ -223,7 +224,7 @@ export class HomePage extends React.Component {
 
           <DataTable
             className="data-table"
-            data={this.props.covid.caseDataAggLineageList}
+            data={this.props.covidStore.caseDataAggLineageList}
             columns={[
               {
                 name: 'Lineage',
@@ -330,20 +331,13 @@ export class HomePage extends React.Component {
 }
 
 HomePage.propTypes = {
-  actions: PropTypes.object.isRequired,
-  covid: PropTypes.object.isRequired,
+  covidStore: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    covid: state.covid,
-  };
-}
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     actions: bindActionCreators(actions, dispatch),
+//   };
+// }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
+export default connectCovidStore(HomePage);
