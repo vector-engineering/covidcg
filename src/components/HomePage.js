@@ -85,6 +85,7 @@ class HomePage extends React.PureComponent {
   }
 
   render() {
+    console.log(this.props);
     const activeStyle = { color: 'blue' };
 
     // Get the bases at the positions, for the reference sequence
@@ -179,8 +180,10 @@ class HomePage extends React.PureComponent {
             <h1>COVID-UI</h1>
           </div>
           <div className="nav-links">
-            <Link view={routes.home}>Home</Link>
-            <Link view={routes.about} activeStyle={activeStyle}>
+            <Link store={this.props} view={routes.home}>
+              Home
+            </Link>
+            <Link store={this.props} view={routes.about}>
               About
             </Link>
             <a
