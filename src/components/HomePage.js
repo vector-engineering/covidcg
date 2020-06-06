@@ -10,7 +10,7 @@ import { getReferenceSequence } from '../utils/lineageData';
 
 import GeneSelect from './GeneSelect';
 import DropdownContainer from './DropdownContainer';
-import HeatmapCell from './HeatmapCell';
+import HeatmapCell from './Cells/HeatmapCell';
 import DataTable from 'react-data-table-component';
 
 import 'react-dropdown-tree-select/dist/styles.css';
@@ -22,7 +22,8 @@ import area_stack_absolute_spec from '../vega/area_stack.vl.json';
 import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
 import '../styles/home-page.scss';
-import LiteMolCell from './Cells/LiteMolCell';
+import LiteMolViewer from './LiteMolViewer';
+import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 
 export class HomePage extends React.Component {
   constructor(props) {
@@ -141,6 +142,8 @@ export class HomePage extends React.Component {
         ? area_stack_norm_spec
         : area_stack_absolute_spec;
 
+    console.log(this.props.covid.caseDataAggLineageList);
+
     return (
       <div className="home-page">
         <div className="filter-sidebar">
@@ -248,7 +251,6 @@ export class HomePage extends React.Component {
                 },
               },
               {
-                name: '% Cases',
                 selector: 'cases_percent',
                 sortable: true,
                 width: '85px',
@@ -263,15 +265,15 @@ export class HomePage extends React.Component {
                   );
                 },
               },
-              //   {
-              //     name: 'jmol',
-              //     selector: 'jmol',
-              //     sortable: false,
-              //     width: '100%',
-              //     cell: () => {
-              //       return <LiteMolCell />;
-              //     },
-              //   },
+              {
+                name: 'is in sidepanel',
+                selector: null,
+                sortable: false,
+                width: '100%',
+                cell: () => {
+                  return <AddToSidepanelCheckbox />;
+                },
+              },
             ].concat(pos_cols)}
             striped={true}
             highlightOnHover={true}
