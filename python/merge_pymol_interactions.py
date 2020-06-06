@@ -23,4 +23,4 @@ df['interacting_residues'] = df['PDB ID'].map(
     )
 )
 
-df.to_csv(data_dir / 'spike_structures2.csv', index=False)
+df.to_csv(data_dir / 'spike_structures.csv', index=False)
