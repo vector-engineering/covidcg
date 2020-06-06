@@ -210,8 +210,6 @@ export class HomePage extends React.Component {
             </label>
           </div>
 
-          <LiteMolCell />
-          {/*
           <VegaLite
             data={{
               case_data: this.props.covid.caseData,
@@ -265,15 +263,15 @@ export class HomePage extends React.Component {
                   );
                 },
               },
-              {
-                name: 'jmol',
-                selector: 'jmol',
-                sortable: false,
-                width: '100%',
-                cell: () => {
-                  return <div />;
-                },
-              },
+              //   {
+              //     name: 'jmol',
+              //     selector: 'jmol',
+              //     sortable: false,
+              //     width: '100%',
+              //     cell: () => {
+              //       return <LiteMolCell />;
+              //     },
+              //   },
             ].concat(pos_cols)}
             striped={true}
             highlightOnHover={true}
@@ -322,7 +320,7 @@ export class HomePage extends React.Component {
                 },
               },
             }}
-        />*/}
+          />
         </div>
       </div>
     );
