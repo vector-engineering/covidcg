@@ -72,8 +72,7 @@ const LineageDataTable = () => {
     0
   );
 
-  console.log(maxCasesPercent, minCasesPercent);
-
+  //console.log(maxCasesPercent, minCasesPercent);
   // console.log(covidStore.caseDataAggGroup)
 
   return (
@@ -120,6 +119,15 @@ const LineageDataTable = () => {
                 percent={true}
               />
             );
+          },
+        },
+        {
+          name: 'is in sidepanel',
+          selector: null,
+          sortable: false,
+          width: '80px',
+          cell: (row) => {
+            return <AddToSidepanelCheckbox groupKey={Math.random()} />;
           },
         },
       ].concat(posCols)}

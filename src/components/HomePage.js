@@ -20,6 +20,7 @@ import '../styles/home-page.scss';
 import { connect } from '../stores/connect';
 import LineageDataTable from './LineageDataTable';
 import Header from './Header';
+import SideBar from './Sidebar';
 
 @observer
 class HomePage extends React.PureComponent {
@@ -96,6 +97,7 @@ class HomePage extends React.PureComponent {
 
     return (
       <div className="home-page">
+        <SideBar />
         <div className="filter-sidebar">
           <GroupBySelect
             groupKey={covidStore.groupKey}
