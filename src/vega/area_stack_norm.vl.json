@@ -1,18 +1,19 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
-    "data": {
-      "name": "case_data",
-      "format": {
-        "type": "json",
-        "parse": {
-          "loc_id": "number",
-          "date": "number",
-          "cases_sum": "number"
-        }
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "data": {
+    "name": "case_data",
+    "format": {
+      "type": "json",
+      "parse": {
+        "loc_id": "number",
+        "date": "number",
+        "cases_sum": "number"
       }
-    },
-    "vconcat": [{
-      "width": 1000, 
+    }
+  },
+  "vconcat": [
+    {
+      "width": 1000,
       "height": 300,
       "mark": "area",
       "selection": {
@@ -38,17 +39,17 @@
           }
         },
         "y": {
-          "field": "cases_sum", 
+          "field": "cases_sum",
           "type": "quantitative",
           "axis": {
-            "title": "Cases by Lineage"
+            "title": "Cases by Group"
           },
           "stack": "normalize"
         },
         "color": {
-          "field": "lineage",
+          "field": "group",
           "type": "nominal",
-          "scale": {"scheme": "tableau20"},
+          "scale": { "scheme": "tableau20" },
           "legend": {
             "direction": "vertical",
             "columns": 3,
@@ -65,15 +66,16 @@
           }
         },
         "opacity": {
-          "condition": {"selection": "highlight", "value": 1},
+          "condition": { "selection": "highlight", "value": 1 },
           "value": 0.8
         },
         "tooltip": {
-          "field": "lineage",
+          "field": "group",
           "type": "nominal"
         }
       }
-    }, {
+    },
+    {
       "width": 1000,
       "height": 50,
       "mark": "bar",
@@ -110,19 +112,17 @@
       "selection": {
         "brush": {
           "type": "interval",
-          "encodings": [
-            "x"
-          ]
+          "encodings": ["x"]
         }
       }
-    }],
-    "config": {
-      "concat": {
-        "spacing": 0
-      },
-      "bar": {
-        "continuousBandSize": 5
-      }
+    }
+  ],
+  "config": {
+    "concat": {
+      "spacing": 0
+    },
+    "bar": {
+      "continuousBandSize": 5
     }
   }
-    
+}

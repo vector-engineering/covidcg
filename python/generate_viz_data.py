@@ -14,11 +14,13 @@ from fasta import read_fasta_file
 from process_geo import load_geo_data
 from process_lineages import load_taxon_lineages
 from process_snps import load_dna_snps, load_aa_snps, generate_snp_signatures
+from reference import ref_seq, genes, gene_aa
 
 project_root_path = Path(__file__).resolve().parent.parent
 data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path
 
 def main():
+    
     # ------------------------
     # Start with location data
     # ------------------------
@@ -148,18 +150,19 @@ def main():
     print('Saving case data...', end='', flush=True)
     taxon_df.to_csv(data_dir / 'case_data2.csv', index=False)
     taxon_df.to_json(data_dir / 'case_data2.json', orient='records')
+    
 
     # Write the reference fasta file to json
-    # Load the reference sequence
-    ref_fasta_path = (data_dir / 'reference.fasta')
-    with ref_fasta_path.open('r') as fp:
-        lines = fp.readlines()
-        ref = read_fasta_file(lines)
-        _ref_seq = list(ref.values())[0]
 
     ref_json_path = data_dir / 'reference.json'
+
+    ref_obj = {
+        'ref_seq': ref_seq,
+        'gene_aa': gene_aa
+    }
+
     with ref_json_path.open('w') as fp:
-        fp.write(json.dumps({'ref_seq': _ref_seq}))
+        fp.write(json.dumps(ref_obj))
 
     print('done')
 

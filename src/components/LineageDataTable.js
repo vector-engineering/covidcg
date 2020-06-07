@@ -7,20 +7,28 @@ import DataTable from 'react-data-table-component';
 import HeatmapCell from './Cells/HeatmapCell';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 import { useStores } from '../stores/connect';
-import { getReferenceSequence } from '../utils/lineageData';
+import { nanmin, nanmax } from '../utils/math';
 
 const LineageDataTable = () => {
   const { covidStore } = useStores();
 
-  // Get the bases at the positions, for the reference sequence
-  let ref_seq = getReferenceSequence();
-
   // Build a column for each changing position
-  let pos_cols = [];
-  covidStore.changingPositions.forEach((pos) => {
-    pos_cols.push({
+  let posCols = [];
+  let refRow = _.findWhere(covidStore.caseDataAggGroup, {
+    group: 'Reference',
+  });
+  Object.keys(refRow).forEach((col) => {
+    // Only process columns starting with "pos_"
+    if (!col.startsWith('pos_')) {
+      return;
+    }
+
+    // 0-indexed to 1-indexed
+    let pos = parseInt(col.substring(4)) + 1;
+
+    posCols.push({
       name: pos.toString(),
-      selector: 'pos_' + pos.toString(),
+      selector: col,
       sortable: false,
       width: '40px',
       center: true,
@@ -32,7 +40,7 @@ const LineageDataTable = () => {
       },
       conditionalCellStyles: [
         {
-          when: (row) => row['pos_' + pos.toString()] != ref_seq[pos],
+          when: (row) => row[col] != refRow[col],
           style: {
             backgroundColor: '#FFFF00',
           },
@@ -41,37 +49,41 @@ const LineageDataTable = () => {
     });
   });
 
+  // Get the maximum and minimum cases_sum and cases_percent for the colormaps
+  // Ignore those values for the reference row (which are NaN)
   let maxCasesSum = _.reduce(
-    covidStore.caseDataAggLineageList,
-    (memo, lineage) => Math.max(memo, lineage.cases_sum),
+    covidStore.caseDataAggGroup,
+    (memo, group) => nanmax(memo, group.cases_sum),
     0
   );
   let minCasesSum = _.reduce(
-    covidStore.caseDataAggLineageList,
-    (memo, lineage) => Math.min(memo, lineage.cases_sum),
+    covidStore.caseDataAggGroup,
+    (memo, group) => nanmin(memo, group.cases_sum),
     0
   );
   let maxCasesPercent = _.reduce(
-    covidStore.caseDataAggLineageList,
-    (memo, lineage) => Math.max(memo, lineage.cases_percent),
+    covidStore.caseDataAggGroup,
+    (memo, group) => nanmax(memo, group.cases_percent),
     0
   );
   let minCasesPercent = _.reduce(
-    covidStore.caseDataAggLineageList,
-    (memo, lineage) => Math.min(memo, lineage.cases_percent),
+    covidStore.caseDataAggGroup,
+    (memo, group) => nanmin(memo, group.cases_percent),
     0
   );
 
-  console.log(covidStore);
+  console.log(maxCasesPercent, minCasesPercent);
+
+  // console.log(covidStore.caseDataAggGroup)
 
   return (
     <DataTable
       className="data-table"
-      data={covidStore.caseDataAggLineageList}
+      data={covidStore.caseDataAggGroup}
       columns={[
         {
           name: 'Lineage',
-          selector: 'lineage',
+          selector: 'group',
           sortable: true,
           width: '100px',
           style: {
@@ -95,6 +107,7 @@ const LineageDataTable = () => {
           },
         },
         {
+          name: '% Cases',
           selector: 'cases_percent',
           sortable: true,
           width: '85px',
@@ -109,16 +122,7 @@ const LineageDataTable = () => {
             );
           },
         },
-        {
-          name: 'is in sidepanel',
-          selector: null,
-          sortable: false,
-          width: '100%',
-          cell: () => {
-            return <AddToSidepanelCheckbox />;
-          },
-        },
-      ].concat(pos_cols)}
+      ].concat(posCols)}
       striped={true}
       highlightOnHover={true}
       dense={true}
@@ -126,18 +130,18 @@ const LineageDataTable = () => {
       // fixedHeaderScrollHeight={'400px'}
 
       pagination={false}
-      defaultSortField={'lineage'}
+      defaultSortField={'group'}
       defaultSortAsc={true}
       conditionalRowStyles={[
         {
-          when: (row) => row.lineage == 'Reference',
+          when: (row) => row.group == 'Reference',
           style: 'background-color: #dff3fe !important;',
         },
       ]}
       sortFunction={(rows, field, direction) => {
         // Set aside the reference, and remove it from the rows list
-        let refRow = _.findWhere(rows, { lineage: 'Reference' });
-        rows = _.reject(rows, (row) => row.lineage == 'Reference');
+        let refRow = _.findWhere(rows, { group: 'Reference' });
+        rows = _.reject(rows, (row) => row.group == 'Reference');
 
         // Normal sorting...
         rows = _.sortBy(rows, (row) => {

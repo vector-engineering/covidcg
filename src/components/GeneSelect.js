@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 class GeneSelect extends Component {
   constructor(props) {
@@ -12,29 +12,31 @@ class GeneSelect extends Component {
   }
 
   render() {
-    const { genes, value, startPos, endPos } = this.props; 
+    const { genes, selectedGene } = this.props;
 
     // Create option elements
-    let option_elements = [];
-    genes.forEach(opt => {
-      option_elements.push(
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
+    let optionElements = [];
+    genes.forEach((opt) => {
+      optionElements.push(
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
       );
     });
 
     return (
-      <div className='gene-select'>
+      <div className="gene-select">
         <form onSubmit={this.handleSubmit}>
           <label>
             Select a gene to analyze
-            <select value={value} onChange={this.handleChange}>
-              {option_elements}
+            <select value={selectedGene.gene} onChange={this.handleChange}>
+              {optionElements}
             </select>
           </label>
         </form>
-        <div className='position-container'>
-          <div className='pos-from'>From: {startPos}</div>
-          <div className='pos-to'>To: {endPos}</div>
+        <div className="position-container">
+          <div className="pos-from">From: {selectedGene.start}</div>
+          <div className="pos-to">To: {selectedGene.end}</div>
         </div>
       </div>
     );
@@ -43,14 +45,12 @@ class GeneSelect extends Component {
 
 GeneSelect.propTypes = {
   genes: PropTypes.array.isRequired,
-  value: PropTypes.string.isRequired,
-  startPos: PropTypes.number.isRequired,
-  endPos: PropTypes.number.isRequired,
-  onChange: PropTypes.func
+  selectedGene: PropTypes.object.isRequired,
+  onChange: PropTypes.func,
 };
 
 GeneSelect.defaultProps = {
-  onChange: () => {}
+  onChange: () => {},
 };
 
 export default GeneSelect;

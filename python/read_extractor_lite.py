@@ -16,7 +16,7 @@ from Bio import pairwise2
 from collections import defaultdict
 from pathlib import Path
 
-from fasta import read_fasta_file
+from reference import ref_seq, genes, gene_aa
 from util import translate
 
 project_root_path = Path(__file__).resolve().parent.parent
@@ -39,49 +39,13 @@ def reverse_complement(seq):
     
     return rev_comp_seq
 
-# Load the reference sequence
-ref_fasta_path = (data_dir / 'reference.fasta')
-with ref_fasta_path.open('r') as fp:
-    lines = fp.readlines()
-    ref = read_fasta_file(lines)
-    _ref_seq = list(ref.values())[0]
-
-# Load genes
-genes_path = (data_dir / 'genes.csv')
-genes_df = pd.read_csv(genes_path)
-
-# Dict of gene: (start, end) nucleotide positions
-# Positions are 1-indexed and inclusive, and ranges 
-# are inclusive [start, end]
-_genes = {}
-for i, gene in genes_df.iterrows():
-    # Skip non-protein-coding
-    if gene['protein_coding'] == 0:
-        continue
-    
-    start = gene['start']
-    end = gene['end']
-
-    _genes[gene['gene']] = (start, end)
-
-# Reference translated genes
-# From Wuhan-Hu-1, NCBI: NC_045512.2
-# With stop codons added onto the ends
-_gene_aa = {}
-for gene, rnge in _genes.items():
-    # [start, end], so end = end + 1
-    # and because ranges are 1-indexed,
-    # start = start - 1 and end = end - 1
-    # so the range is [start - 1, end)
-    _gene_aa[gene] = translate(_ref_seq[(rnge[0] - 1):rnge[1]])
-
 class ReadExtractor():
     '''Extract variable regions from a pysam AlignedSegment
     '''
 
-    RefSeq = _ref_seq
-    Genes = _genes
-    Gene_AA = _gene_aa
+    RefSeq = ref_seq
+    Genes = genes
+    Gene_AA = gene_aa
 
     def __init__(self, read):
         '''Build the extactor object for a read (pysam.AlignedSegment)
