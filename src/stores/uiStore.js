@@ -17,13 +17,12 @@ class UiStore {
   @observable sidebarSelectedGroupKeys = [];
 
   @action
-  openSidebar = () => {
-    console.log('yo');
+  setSidebarOpen = () => {
     this.sidebarOpen = true;
   };
 
   @action
-  closeSidebar = () => {
+  setSidebarClosed = () => {
     this.sidebarOpen = false;
   };
 

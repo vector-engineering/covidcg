@@ -18,6 +18,7 @@ const LiteMolViewer = () => {
         id={uniqueId.current}
         className="pdb-lite-mol"
         pdb-id="'1cbs'"
+        hide-controls="true"
       ></div>
     </div>
   );

@@ -13,15 +13,20 @@ function clamp(num, min, max) {
 const ClickDragBorder = styled.div`
   width: 10px;
   height: 100%;
-  background-color: gray;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
   cursor: col-resize;
   position: fixed;
   right: 400px;
   top: 0;
   z-index: 2001;
   box-shadow: 0px 0px 63px -13px rgba(0, 0, 0, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: black;
+  background-color: white;
 `;
 
 const SidebarContainer = styled.div`
@@ -58,14 +63,40 @@ const ViewersContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+const CloseOpenButton = styled.button.attrs((props) => ({
+  style: {
+    right: `${props.right}px`,
+  },
+}))`
+  position: absolute;
+  top: 5px;
+  border: 0px;
+  background-color: #eee;
+  font-size: 32px;
+  &:hover {
+    background-color: #bbb;
+  }
+`;
+
 const SideBar = observer(() => {
   const [widthDelta, setWidthDelta] = useState(400);
   const { uiStore } = useStores();
 
+  const onOpenSidebar = () => {
+    setWidthDelta(400);
+    uiStore.setSidebarOpen();
+  };
+  const onCloseSidebar = () => {
+    setWidthDelta(400);
+    uiStore.setSidebarClosed();
+  };
+
   if (!uiStore.sidebarOpen) {
     return (
       <SideBarClosedContainer>
-        <button onClick={uiStore.openSidebar}>open</button>
+        <CloseOpenButton right={0} onClick={onOpenSidebar}>
+          {'<'}
+        </CloseOpenButton>
         {uiStore.sidebarSelectedGroupKeys.map((groupKey) => (
           <div key={groupKey}>{groupKey}</div>
         ))}
@@ -84,11 +115,13 @@ const SideBar = observer(() => {
           setWidthDelta(clamp(widthDelta - data.deltaX, 400, 1000));
         }}
       >
-        <ClickDragBorder />
+        <ClickDragBorder>⫶</ClickDragBorder>
       </Draggable>
       <SidebarContainer>
         <SidebarContent width={widthDelta}>
-          <button onClick={uiStore.closeSidebar}>close</button>
+          <CloseOpenButton right={widthDelta + 20} onClick={onCloseSidebar}>
+            &gt;
+          </CloseOpenButton>
           <ViewersContainer>
             {uiStore.sidebarSelectedGroupKeys.map((groupKey) => (
               <div key={groupKey}>
