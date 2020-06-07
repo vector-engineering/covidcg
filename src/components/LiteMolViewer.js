@@ -37,7 +37,7 @@ const LiteMolViewer = () => {
         width: '100%',
       }}
     >
-      <button onClick={highlight}>button</button>
+      <button onClick={highlight}>test highlight</button>
       <div
         style={{
           position: 'relative',
