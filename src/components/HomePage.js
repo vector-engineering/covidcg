@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import _ from 'underscore';
 
 import GeneSelect from './GeneSelect';
+import GroupBySelect from './GroupBySelect';
 import DropdownContainer from './DropdownContainer';
 
 import 'react-dropdown-tree-select/dist/styles.css';
@@ -33,6 +34,7 @@ class HomePage extends React.PureComponent {
     this.handleBrush = this.handleBrush.bind(this);
     this.handlers = { brush: _.debounce(this.handleBrush, 500) };
 
+    this.handleGroupingChange = this.handleGroupingChange.bind(this);
     this.handleGeneChange = this.handleGeneChange.bind(this);
 
     this.treeSelectOnChange = this.treeSelectOnChange.bind(this);
@@ -44,10 +46,12 @@ class HomePage extends React.PureComponent {
     this.onChangeAreaStackMode = this.onChangeAreaStackMode.bind(this);
   }
 
-  handleGeneChange(gene) {
-    console.log('Gene change:', gene);
+  handleGroupingChange(groupKey, dnaOrAa) {
+    this.props.covidStore.changeGrouping(groupKey, dnaOrAa);
+  }
 
-    this.props.covidStore.selectGene(event.target.value);
+  handleGeneChange(gene) {
+    this.props.covidStore.selectGene(gene);
   }
 
   handleBrush(...args) {
@@ -95,11 +99,14 @@ class HomePage extends React.PureComponent {
       <div className="home-page">
         <SideBar />
         <div className="filter-sidebar">
+          <GroupBySelect
+            groupKey={covidStore.groupKey}
+            dnaOrAa={covidStore.dnaOrAa}
+            onChange={this.handleGroupingChange}
+          />
           <GeneSelect
             genes={covidStore.genes}
-            value={covidStore.selectedGene}
-            startPos={covidStore.startPos}
-            endPos={covidStore.endPos}
+            selectedGene={covidStore.selectedGene}
             onChange={this.handleGeneChange}
           />
           <DropdownContainer

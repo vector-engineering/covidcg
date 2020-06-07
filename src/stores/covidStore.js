@@ -1,49 +1,29 @@
 import { observable, action } from 'mobx';
 
-import _ from 'underscore';
-
+import { processCaseData, aggCaseDataByGroup } from '../utils/caseData';
 import { getGene, loadGeneOptions } from '../utils/gene';
-
+//import { getLineagesFromGene } from '../utils/lineageData';
 import {
   loadSelectTree,
   getLocationByNameAndLevel,
   getLocationIds,
 } from '../utils/location';
 
-import {
-  loadCaseData,
-  processCaseData,
-  aggCaseDataByLineage,
-} from '../utils/caseData';
-
-import { loadLineageData, getLineagesFromGene } from '../utils/lineageData';
-
 class ObservableCovidStore {
+  @observable groupKey = null;
+  @observable dnaOrAa = null;
   @observable genes = [];
-  @observable selectedGene = null;
+  @observable selectedGene = {};
   @observable startPos = null;
   @observable endPos = null;
   @observable selectTree = [];
-  @observable selectedLocationIds = []; // TODO: select NYC by default
-  @observable selectedLineages = [];
-  @observable initialLineageData = {};
-  @observable initialCaseData = {};
-  @observable caseData = {};
-  @observable changingPositions = [];
-  @observable caseDataAggLineageList = [];
+  @observable selectedLocationIds = [];
+  @observable caseData = [];
+  @observable changingPositions = {};
+  @observable caseDataAggGroup = [];
   @observable dateRange = [];
 
   constructor() {
-    // Load data
-    let initialCaseData = loadCaseData();
-    let initialLineageData = loadLineageData();
-
-    // Process case data - turn date strings into date objects
-    let processedCaseData = _.map(initialCaseData, (row) => {
-      row.date = new Date(row.date).getTime();
-      return row;
-    });
-
     // Select the Spike gene by default
     let defaultGene = getGene('S');
 
@@ -57,35 +37,52 @@ class ObservableCovidStore {
     NYCNode[0].checked = true;
     let NYCLocationId = getLocationIds(NYCNode);
 
+    let initialGroupKey = 'lineage';
+    let initialDnaOrAa = 'dna';
     let initialLocationIds = NYCLocationId;
-    let initialLineages = getLineagesFromGene(defaultGene);
 
     // No initial date range
     let initialDateRange = [-1, -1];
 
     // Load case data
-    let caseData = processCaseData(processedCaseData, initialLocationIds);
-    let { caseDataAggLineageList, changingPositions } = aggCaseDataByLineage(
+    let caseData = processCaseData(
+      initialLocationIds,
+      defaultGene,
+      initialGroupKey,
+      initialDnaOrAa
+    );
+    let { caseDataAggGroup, changingPositions } = aggCaseDataByGroup(
       caseData,
-      initialLineageData,
-      defaultGene.start,
-      defaultGene.end,
+      defaultGene,
+      initialGroupKey,
+      initialDnaOrAa,
       initialDateRange
     );
 
+    this.groupKey = initialGroupKey;
+    this.dnaOrAa = initialDnaOrAa;
     this.genes = loadGeneOptions();
-    this.selectedGene = defaultGene.gene;
-    this.startPos = defaultGene.start;
-    this.endPos = defaultGene.end;
+    this.selectedGene = defaultGene;
     this.selectTree = selectTree;
     this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
-    this.selectedLineages = initialLineages;
-    this.initialLineageData = initialLineageData;
-    this.initialCaseData = processedCaseData;
     this.caseData = caseData;
     this.changingPositions = changingPositions;
-    this.caseDataAggLineageList = caseDataAggLineageList;
+    this.caseDataAggGroup = caseDataAggGroup;
     this.dateRange = initialDateRange;
+  }
+
+  @action
+  changeGrouping(_groupKey, _dnaOrAa) {
+    console.log(
+      'CHANGE GROUPING. GROUP KEY:',
+      _groupKey,
+      'DNA OR AA:',
+      _dnaOrAa
+    );
+    this.groupKey = _groupKey;
+    this.dnaOrAa = _dnaOrAa;
+
+    this.updateCaseData();
   }
 
   @action
@@ -93,14 +90,11 @@ class ObservableCovidStore {
     // im not sure what this var actually is
     console.log('SELECT_GENE', _selectedGene);
 
-    let selectedGene = getGene(_selectedGene);
-
-    this.startPos = selectedGene.start;
-    this.endPos = selectedGene.end;
+    this.selectedGene = getGene(_selectedGene);
 
     // Get matching clade_ids
-    let lineages = getLineagesFromGene(selectedGene);
-    this.selectedLineages = lineages;
+    //let lineages = getLineagesFromGene(this.selectedGene);
+    //this.selectedLineages = lineages;
 
     this.updateCaseData();
   }
@@ -119,24 +113,32 @@ class ObservableCovidStore {
   @action
   selectDateRange(_dateRange) {
     this.dateRange = _dateRange;
-    let { caseDataAggLineageList, changingPositions } = aggCaseDataByLineage(
+    this.updateAggCaseDataByGroup();
+  }
+
+  @action
+  updateAggCaseDataByGroup() {
+    let { caseDataAggGroup, changingPositions } = aggCaseDataByGroup(
       this.caseData,
-      this.initialLineageData,
-      this.startPos,
-      this.endPos,
+      this.selectedGene,
+      this.groupKey,
+      this.dnaOrAa,
       this.dateRange
     );
 
-    this.caseDataAggLineageList = caseDataAggLineageList;
+    this.caseDataAggGroup = caseDataAggGroup;
     this.changingPositions = changingPositions;
   }
 
   @action
   updateCaseData() {
     this.caseData = processCaseData(
-      this.initialCaseData,
-      this.selectedLocationIds
+      this.selectedLocationIds,
+      this.selectedGene,
+      this.groupKey,
+      this.dnaOrAa
     );
+    this.updateAggCaseDataByGroup();
   }
 }
 
