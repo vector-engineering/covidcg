@@ -114,8 +114,8 @@ const LineageDataTable = () => {
           selector: null,
           sortable: false,
           width: '100%',
-          cell: () => {
-            return <AddToSidepanelCheckbox />;
+          cell: (row) => {
+            return <AddToSidepanelCheckbox groupKey={Math.random()} />;
           },
         },
       ].concat(pos_cols)}
