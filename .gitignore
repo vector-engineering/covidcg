@@ -72,3 +72,6 @@ ipython_config.py
 
 # Ignore PDBs
 python/pdbs/**/*
+
+# Ignore data generated from notebooks
+notebooks/*.csv
