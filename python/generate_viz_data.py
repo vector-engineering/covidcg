@@ -148,8 +148,8 @@ def main():
     # ------------
 
     print('Saving case data...', end='', flush=True)
-    taxon_df.to_csv(data_dir / 'case_data2.csv', index=False)
-    taxon_df.to_json(data_dir / 'case_data2.json', orient='records')
+    taxon_df.to_csv(data_dir / 'case_data.csv', index=False)
+    taxon_df.to_json(data_dir / 'case_data.json', orient='records')
     
 
     # Write the reference fasta file to json
