@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 const reds = [
   '#FFF5F0',
@@ -27,45 +28,42 @@ const reds = [
 
 const numColors = reds.length;
 
-class HeatmapCell extends React.Component {
-  constructor(props) {
-    super(props);
+const HeatmapCellDiv = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+const HeatmapCell = ({ value, min, max, percent }) => {
+  // Find the color for this value
+  let color = '#FFFFFF';
+  // Add a bit extra since sometimes rounding errors can exclude the max value
+  let interval = (max - min) / numColors + 0.00001;
+
+  for (let i = 0; i < numColors; i++) {
+    if (value >= min + i * interval && value <= min + (i + 1) * interval) {
+      color = reds[i];
+      break;
+    }
   }
 
-  render() {
-    const { min, max, percent } = this.props;
-    let { value } = this.props;
-
-    // Find the color for this value
-    let color = '#FFFFFF';
-    // Add a bit extra since sometimes rounding errors can exclude the max value
-    let interval = (max - min) / numColors + 0.00001;
-
-    for (let i = 0; i < numColors; i++) {
-      if (value >= min + i * interval && value <= min + (i + 1) * interval) {
-        color = reds[i];
-        break;
-      }
-    }
-
-    // Format percentages
-    if (percent === true) {
-      value = (value * 100).toFixed(2) + '%';
-    }
-
-    return (
-      <div className="heatmap-cell" style={{ backgroundColor: color }}>
-        {value}
-      </div>
-    );
+  // Format percentages
+  if (percent === true) {
+    value = (value * 100).toFixed(2) + '%';
   }
-}
+
+  return (
+    <HeatmapCellDiv style={{ backgroundColor: color }}>{value}</HeatmapCellDiv>
+  );
+};
 
 HeatmapCell.propTypes = {
   value: PropTypes.number,
   min: PropTypes.number,
   max: PropTypes.number,
-  numColors: PropTypes.number,
   percent: PropTypes.bool,
 };
 

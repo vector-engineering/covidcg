@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React from 'react';
-
+import styled from 'styled-components';
 import _ from 'underscore';
 
 import DataTable from 'react-data-table-component';
@@ -8,6 +8,13 @@ import HeatmapCell from './Cells/HeatmapCell';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 import { useStores } from '../stores/connect';
 import { nanmin, nanmax } from '../utils/math';
+
+const StyledDataTable = styled(DataTable)`
+  // hide the header
+  header {
+    display: none;
+  }
+`;
 
 const LineageDataTable = () => {
   const { covidStore } = useStores();
@@ -76,7 +83,7 @@ const LineageDataTable = () => {
   // console.log(covidStore.caseDataAggGroup)
 
   return (
-    <DataTable
+    <StyledDataTable
       className="data-table"
       data={covidStore.caseDataAggGroup}
       columns={[
