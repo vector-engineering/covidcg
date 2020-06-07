@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-
+import styled from 'styled-components';
 import _ from 'underscore';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
 import DropdownContainer from './DropdownContainer';
-
-import 'react-dropdown-tree-select/dist/styles.css';
 
 import { VegaLite } from 'react-vega';
 
@@ -16,11 +14,37 @@ import { VegaLite } from 'react-vega';
 import area_stack_absolute_spec from '../vega/area_stack.vl.json';
 import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
 
-import '../styles/home-page.scss';
 import { connect } from '../stores/connect';
 import LineageDataTable from './LineageDataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
+
+const HomePageDiv = styled.div`
+  display: grid;
+  grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
+  grid-template-rows: [row1] 50px [row2] auto [row3];
+
+  height: 100vh;
+  width: 100vw;
+`;
+const FilterSidebar = styled.div`
+  grid-column: col1 / col2;
+  grid-row: row1 / row3;
+
+  background-color: #f8f8f8;
+  //padding-right: 10px;
+  padding-bottom: 15px;
+  border-right: 1px solid #aaa;
+  box-shadow: 0px 0px 5px #aaa;
+  display: block;
+`;
+const PlotContainer = styled.div`
+  grid-column: col2 / col3;
+  grid-row: row2 / row3;
+
+  padding-left: 10px;
+  padding-top: 10px;
+`;
 
 @observer
 class HomePage extends React.PureComponent {
@@ -96,9 +120,9 @@ class HomePage extends React.PureComponent {
         : area_stack_absolute_spec;
 
     return (
-      <div className="home-page">
+      <HomePageDiv>
         <SideBar />
-        <div className="filter-sidebar">
+        <FilterSidebar>
           <GroupBySelect
             groupKey={covidStore.groupKey}
             dnaOrAa={covidStore.dnaOrAa}
@@ -126,9 +150,9 @@ class HomePage extends React.PureComponent {
               noMatches: 'No matches found',
             }}
           />
-        </div>
+        </FilterSidebar>
         <Header />
-        <div className="plot-container">
+        <PlotContainer>
           {/* <VegaLite
             data={{
               entropy_data: entropy_data
@@ -158,8 +182,8 @@ class HomePage extends React.PureComponent {
           />
 
           <LineageDataTable />
-        </div>
-      </div>
+        </PlotContainer>
+      </HomePageDiv>
     );
   }
 }

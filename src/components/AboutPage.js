@@ -1,26 +1,63 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import '../styles/about-page.scss';
+import styled from 'styled-components';
 import { Link } from 'mobx-router';
 import routes from '../routes';
 import { connect } from '../stores/connect';
 
+const AboutPageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+`;
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 20px;
+  border-bottom: 1px solid #aaa;
+  width: 100%;
+`;
+const Title = styled.h1`
+  margin: 0px;
+  margin-right: 20px;
+  font-weight: 700;
+  font-size: 2em;
+  border-right: 1px solid #aaa;
+  padding-right: 20px;
+`;
+const Content = styled.div`
+  max-width: 1000px;
+  padding: 20px;
+`;
+const ImageRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  a {
+    margin-right: 30px;
+  }
+`;
+
 // Since this component is simple and static, there's no parent container for it.
 const AboutPage = (props) => {
   return (
-    <div className="about-page">
-      <div className="header">
-        <h1>About</h1>
+    <AboutPageContainer>
+      <Header>
+        <Title>About</Title>
         <Link route={routes.home} router={props.router}>
           Back to Home
         </Link>
-      </div>
+      </Header>
 
-      <div className="content">
+      <Content>
         <p>
           This app was made by....
           <br />
-          <div className="image-row">
+          <ImageRow>
             <a
               href="https://www.broadinstitute.org/stanley-center-psychiatric-research/vector-engineering"
               target="_blank"
@@ -51,7 +88,7 @@ const AboutPage = (props) => {
                 height="60"
               ></img>
             </a>
-          </div>
+          </ImageRow>
           <a
             href="https://www.broadinstitute.org/stanley-center-psychiatric-research/vector-engineering"
             target="_blank"
@@ -87,7 +124,7 @@ const AboutPage = (props) => {
 
         <h3>Data</h3>
 
-        <div className="image-row">
+        <ImageRow>
           <a
             href="https://www.gisaid.org/"
             target="_blank"
@@ -98,7 +135,7 @@ const AboutPage = (props) => {
               height="60"
             ></img>
           </a>
-        </div>
+        </ImageRow>
         <p>
           <a
             href="https://www.gisaid.org/"
@@ -123,8 +160,8 @@ const AboutPage = (props) => {
           </a>
           .
         </p>
-      </div>
-    </div>
+      </Content>
+    </AboutPageContainer>
   );
 };
 
