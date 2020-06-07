@@ -39,11 +39,13 @@ const SidebarContainer = styled.div`
 
 const SidebarContent = styled.div.attrs((props) => ({
   style: {
-    width: `${props.width}px`,
+    width: `${props.width - 40}px`,
   },
 }))`
   background-color: white;
   height: 100%;
+  padding-right: 20px;
+  padding-left: 20px;
 `;
 
 const SideBarClosedContainer = styled.div`
@@ -61,6 +63,7 @@ const ViewersContainer = styled.div`
   display: flex;
   width: 100%;
   flex-wrap: wrap;
+  overflow-y: scroll;
 `;
 
 const CloseOpenButton = styled.button.attrs((props) => ({
@@ -76,6 +79,12 @@ const CloseOpenButton = styled.button.attrs((props) => ({
   &:hover {
     background-color: #bbb;
   }
+`;
+
+const LiteMolBlock = styled.div`
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
 `;
 
 const SideBar = observer(() => {
@@ -124,7 +133,7 @@ const SideBar = observer(() => {
           </CloseOpenButton>
           <ViewersContainer>
             {uiStore.sidebarSelectedGroupKeys.map((groupKey) => (
-              <div key={groupKey}>
+              <LiteMolBlock key={groupKey}>
                 <LiteMolBlockHeader>
                   {groupKey}
                   <button
@@ -134,7 +143,7 @@ const SideBar = observer(() => {
                   </button>
                 </LiteMolBlockHeader>
                 <LiteMolViewer />
-              </div>
+              </LiteMolBlock>
             ))}
           </ViewersContainer>
         </SidebarContent>
