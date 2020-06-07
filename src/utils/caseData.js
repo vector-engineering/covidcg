@@ -1,5 +1,4 @@
-import initialCaseData from '../../data/case_data2.json';
-import reference from '../../data/reference.json';
+import initialCaseData from '../../data/case_data.json';
 import {
   int_to_dna_snp,
   int_to_aa_snp,
@@ -9,8 +8,6 @@ import {
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
 import _ from 'underscore';
 
-const reference_seq = reference['ref_seq'];
-const ref_gene_aa = reference['gene_aa'];
 const processedCaseData = _.map(initialCaseData, (row) => {
   row.date = new Date(row.date).getTime();
   return row;

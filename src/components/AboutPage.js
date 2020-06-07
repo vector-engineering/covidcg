@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import '../styles/about-page.scss';
 import { Link } from 'mobx-router';
 import routes from '../routes';
@@ -125,6 +126,10 @@ const AboutPage = (props) => {
       </div>
     </div>
   );
+};
+
+AboutPage.propTypes = {
+  router: PropTypes.object.isRequired,
 };
 
 export default connect(AboutPage);
