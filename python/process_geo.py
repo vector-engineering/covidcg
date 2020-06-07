@@ -83,7 +83,7 @@ def load_geo_data():
     # Take subset of columns, re-index
     location_df = (
         location_df
-        [['name', 'gisaid_id', 'sample_date', 'location_id']]
+        [['name', 'gisaid_id', 'sample_date', 'location_id', 'region', 'country', 'division', 'location']]
         .sort_values('location_id')
         .reset_index(drop=True)
     )
@@ -438,7 +438,8 @@ def clean_location_data(location_df):
         # Milan -> Lombardy
         ({'country': 'Italy', 'division': 'Milan'}, {'division': 'Lombardy', 'location': 'Milan'}),
         # Rename Trento
-        ({'country': 'Italy', 'division': 'PA Trento'}, {'division': 'Trentino-Alto Adige/Südtirol'}),
+        # NVM, can't have that separator in the name...
+        # ({'country': 'Italy', 'division': 'PA Trento'}, {'division': 'Trentino-Alto Adige/Südtirol'}),
         # Palermo -> Silicy
         ({'country': 'Italy', 'division': 'Palermo'}, {'division': 'Sicily', 'location': 'Palermo'}),
         # Rome -> Lazio
@@ -535,6 +536,20 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'division': ['LaRioja', 'La_Rioja']}, {'division': 'La Rioja'}),
         # Barcelona -> Catalonia
         ({'country': 'Spain', 'division': 'Barcelona'}, {'division': 'Catalonia'}),
+        # Fix more typos
+        ({'country': 'Spain', 'location': 'Alhaurin_de_la_Torre'}, {'location': 'Alhaurin de la Torre'}),
+        ({'country': 'Spain', 'location': 'Jerez_de_la_Frontera'}, {'location': 'Jerez de la Frontera'}),
+        ({'country': 'Spain', 'location': 'La_Linea'}, {'location': 'La Linea'}),
+        ({'country': 'Spain', 'location': 'Mairena_Aljarafe'}, {'location': 'Mairena Aljarafe'}),
+        ({'country': 'Spain', 'location': 'Puerto_Santa_Maria'}, {'location': 'Puerto Santa Maria'}),
+        ({'country': 'Spain', 'location': 'Rincon_de_la_Victoria'}, {'location': 'Rincon de la Victoria'}),
+        ({'country': 'Spain', 'location': 'San_Fernando'}, {'location': 'San Fernando'}),
+        ({'country': 'Spain', 'location': 'San_Roque'}, {'location': 'San Roque'}),
+        ({'country': 'Spain', 'location': 'Vitoria_h'}, {'location': 'Vitoria'}),
+        ({'country': 'Spain', 'location': 'Donostia-San_Sebastian'}, {'location': 'Donostia-San Sebastian'}),
+        ({'country': 'Spain', 'location': 'Simat_de_la_Valldigna'}, {'location': 'Simat de la Valldigna'}),
+        ({'country': 'Spain', 'location': 'Torres_de_Elorz'}, {'location': 'Torres de Elorz'}),
+        
 
         # SWEDEN
         # ------
@@ -877,6 +892,11 @@ def build_select_tree(unique_location_df):
                 'label': loc['region'],
                 'value': loc['region'],
                 'level': 'region',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': 'title',
+                    'text': 'text'
+                }],
                 'children': []
             }
             select_tree['children'].append(region_node)
