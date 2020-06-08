@@ -1,5 +1,20 @@
-# COVID-UI
-(working title)
+## COVID-19 CoV Genetics (CG)
+
+Table of Contents
+
+- [COVID-19 CoV Genetics (CG)](#covid-19-cov-genetics-cg)
+- [Installation](#installation)
+  - [Python](#python)
+    - [Data Requirements](#data-requirements)
+  - [Javascript](#javascript)
+    - [macOS](#macos)
+    - [Linux](#linux)
+- [Analysis Pipeline](#analysis-pipeline)
+  - [Scripts](#scripts)
+- [About the project](#about-the-project)
+  - [Acknowledgements](#acknowledgements)
+  - [License](#license)
+  - [Contributing](#contributing)
 
 ## Installation
 
@@ -8,17 +23,18 @@
 ### Python
 
 1. Get a conda distribution of python, we recommend [miniconda3](https://docs.conda.io/en/latest/miniconda.html).
-   
+
 2. Install dependencies
-    ```sh
-    conda env create -f environment.yml
-    ```
+
+   ```sh
+   conda env create -n covid-cg -f environment.yml
+   ```
 
 3. Install pangolin
-    ```sh
-    cd pangolin
-    pip install --editable .
-    ```
+   ```sh
+   cd pangolin
+   pip install --editable .
+   ```
 
 #### Data Requirements
 
@@ -42,7 +58,7 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
 1. **Install [Node 8.0.0 or greater](https://nodejs.org)**
 
-    Need to run multiple versions of Node? Use [nvm](https://github.com/creationix/nvm).
+   Need to run multiple versions of Node? Use [nvm](https://github.com/creationix/nvm).
 
 2. **Install [Git](https://git-scm.com/downloads)**.
 
@@ -50,25 +66,57 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
 4. Complete the steps below for your operating system:
 
-    ### macOS
+   #### macOS
 
-    * Install [watchman](https://facebook.github.io/watchman/) via `brew install watchman` to avoid [this issue](https://github.com/facebook/create-react-app/issues/871) which occurs if your macOS has no appropriate file watching service installed.
+   - Install [watchman](https://facebook.github.io/watchman/) via `brew install watchman` to avoid [this issue](https://github.com/facebook/create-react-app/issues/871) which occurs if your macOS has no appropriate file watching service installed.
 
-    ### Linux
+   #### Linux
 
-    * Run this to [increase the limit](http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc) on the number of files Linux will watch. [Here's why](https://github.com/coryhouse/react-slingshot/issues/6).
+   - Run this to [increase the limit](http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc) on the number of files Linux will watch. [Here's why](https://github.com/coryhouse/react-slingshot/issues/6).
 
-        `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
+     `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
 
 5. Install NPM packages
 
-    `npm install`
+   `npm install`
 
 6. **Run the example app**
 
-    `npm start -s`
+   `npm start -s`
 
-    This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development with this kit, this command will continue watching all your files. Every time you hit save the code is rebuilt, linting runs, and tests run automatically. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
+   This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development with this kit, this command will continue watching all your files. Every time you hit save the code is rebuilt, linting runs, and tests run automatically. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
+
+---
+
+## Analysis Pipeline
+
+Data analysis is run with Python scripts and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Python](#Python)) and that all [data files](#Data-Requirements) are present and linked correctly to the `data/` folder.
+
+### Scripts
+
+- `process_seqs.py`
+
+This script takes raw FASTA files (`data/fasta_raw`) and metadata (`data/patient_meta`) and processes sequences to filter sequences, assign sequences to lineages, and find SNPs/indels in sequences. More detail on this processing pipeline can be found in ...
+
+Assigned lineages are mapped to GISAID IDs and will be deposited in `data/lineage_meta`
+
+bowtie2-aligned sequences will be deposited in `data/sam`. Extracted SNPs and SNP signatures will be deposited in `data/aa_snp` and `data/dna_snp`.
+
+- `process_geo.py`
+
+This script combines all patient metadata from `data/patient_meta`, and cleans the location/geographic data in those files. Each unique geography is assigned an ID, and each taxon/GISAID ID is mapped to locations using this ID. This script also builds the hierarchical selection tree found in the app.
+
+- `process_lineages.py`
+
+This script finds consensus SNPs for each lineage, where consensus is defined as a SNP/indel present in at least 90% of all sequences within a lineage.
+
+- `process_snps.py`
+
+This script loads all extracted SNPs from `data/aa_snp` and `data/dna_snp`, and filters out spurious SNPs (those with a global frequency < 10). The script will also build "SNP signatures", which are consistently observed groupings of SNPs.
+
+- `generate_viz_data.py`
+
+This script calls and collects all data from the previous scripts, and compiles all sequence data, as well as its relations to locations, lineages, and SNPs, into one `case_data` file. This is the main file that the app loads and uses to analyze and visualize data.
 
 ---
 
@@ -82,7 +130,7 @@ Contact the authors by email: ...
 
 Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM) and Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM)
 
-## Acknowledgements
+### Acknowledgements
 
 This project is powered by many open-source software projects.
 
@@ -90,7 +138,7 @@ Find all acknowledgements at ...
 
 ### License
 
-... is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE.txt).
+... is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE).
 
 ### Contributing
 
