@@ -14,7 +14,51 @@ const StyledDataTable = styled(DataTable)`
   header {
     display: none;
   }
+
+  .rdt_TableHeadRow {
+    padding-top: 10px;
+
+    .rdt_TableCol {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
+
+  .rdt_TableCol_Sortable[id^='column-pos'] {
+    // color: red;
+    & > div {
+      margin-left: 15px;
+      margin-bottom: 10px;
+      transform: rotate(-45deg);
+    }
+  }
+
+  .rdt_TableRow {
+    .rdt_TableCell {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
 `;
+
+const sortFn = (rows, field, direction) => {
+  // Set aside the reference, and remove it from the rows list
+  let refRow = _.findWhere(rows, { group: 'Reference' });
+  rows = _.reject(rows, (row) => row.group == 'Reference');
+
+  // Normal sorting...
+  rows = _.sortBy(rows, (row) => {
+    return row[field];
+  });
+  // Reverse if descending
+  if (direction == 'desc') {
+    rows.reverse();
+  }
+  // Add the reference row to the beginning
+  rows.unshift(refRow);
+
+  return rows;
+};
 
 const LineageDataTable = () => {
   const { covidStore } = useStores();
@@ -37,7 +81,7 @@ const LineageDataTable = () => {
       name: pos.toString(),
       selector: col,
       sortable: false,
-      width: '40px',
+      width: '24px',
       center: true,
       compact: true,
       style: {
@@ -100,7 +144,7 @@ const LineageDataTable = () => {
           name: 'Cases',
           selector: 'cases_sum',
           sortable: true,
-          width: '85px',
+          width: '60px',
           cell: (row) => {
             return (
               <HeatmapCell
@@ -116,7 +160,7 @@ const LineageDataTable = () => {
           name: '% Cases',
           selector: 'cases_percent',
           sortable: true,
-          width: '85px',
+          width: '75px',
           cell: (row) => {
             return (
               <HeatmapCell
@@ -143,7 +187,6 @@ const LineageDataTable = () => {
       dense={true}
       // fixedHeader={true}
       // fixedHeaderScrollHeight={'400px'}
-
       pagination={false}
       defaultSortField={'group'}
       defaultSortAsc={true}
@@ -153,38 +196,7 @@ const LineageDataTable = () => {
           style: 'background-color: #dff3fe !important;',
         },
       ]}
-      sortFunction={(rows, field, direction) => {
-        // Set aside the reference, and remove it from the rows list
-        let refRow = _.findWhere(rows, { group: 'Reference' });
-        rows = _.reject(rows, (row) => row.group == 'Reference');
-
-        // Normal sorting...
-        rows = _.sortBy(rows, (row) => {
-          return row[field];
-        });
-        // Reverse if descending
-        if (direction == 'desc') {
-          rows.reverse();
-        }
-        // Add the reference row to the beginning
-        rows.unshift(refRow);
-
-        return rows;
-      }}
-      customStyles={{
-        headCells: {
-          style: {
-            paddingLeft: '8px', // override the cell padding for head cells
-            paddingRight: '8px',
-          },
-        },
-        cells: {
-          style: {
-            paddingLeft: '8px', // override the cell padding for data cells
-            paddingRight: '8px',
-          },
-        },
-      }}
+      sortFunction={sortFn}
     />
   );
 };
