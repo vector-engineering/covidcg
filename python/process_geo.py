@@ -113,6 +113,22 @@ def clean_location_data(location_df):
     # (what fields to change)
 
     rules = [
+        
+        # DRC
+        # ---
+        # Abbreviate name to save space
+        ({'country': 'Democratic Republic of the Congo'}, {'country': 'DRC'}),
+
+        # MOROCCO
+        # -------
+
+        # Move to Africa
+        ({'country': 'Morocco'}, {'region': 'Africa'}),
+        # Move Cadiz to Andalusia, Spain
+        ({'country': 'Morocco', 'location': 'Cadiz_h'}, {'region': 'Europe', 'country': 'Spain', 'division': 'Andalusia', 'location': 'Cadiz'}),
+        # Fix typos
+        ({'country': 'Marocco'}, {'country': 'Morocco'}),
+
         # SOUTH AFRICA
         # ------------
 
@@ -227,56 +243,70 @@ def clean_location_data(location_df):
         # And merge towns into parent municipalities
 
         # Antwerp
-        ({'country': 'Belgium', 'division': 'Antwerp'}, {'division': 'Antwerp', 'location': 'Antwerp'}),
+        ({'country': 'Belgium', 'division': ['Antwerp', 'Wilrijk']}, {'division': 'Antwerp', 'location': 'Antwerp'}),
         ({'country': 'Belgium', 'division': 'Bonheiden'}, {'division': 'Antwerp', 'location': 'Bonheiden'}),
         ({'country': 'Belgium', 'division': ['Gierle', 'Lille']}, {'division': 'Antwerp', 'location': 'Lille'}),
         ({'country': 'Belgium', 'division': 'Hemisem'}, {'division': 'Antwerp', 'location': 'Hemiksem'}),
-        ({'country': 'Belgium', 'division': 'Herselt'}, {'division': 'Antwerp', 'location': 'Herselt'}),
+        ({'country': 'Belgium', 'division': ['Herselt', 'Ramsel']}, {'division': 'Antwerp', 'location': 'Herselt'}),
         ({'country': 'Belgium', 'division': 'Kalmthout'}, {'division': 'Antwerp', 'location': 'Kalmthout'}),
         ({'country': 'Belgium', 'division': 'Kasterlee'}, {'division': 'Antwerp', 'location': 'Kasterlee'}),
+        ({'country': 'Belgium', 'division': 'Malle'}, {'division': 'Antwerp', 'location': 'Malle'}),
         ({'country': 'Belgium', 'division': 'Oevel'}, {'division': 'Antwerp', 'location': 'Westerlo'}),
         ({'country': 'Belgium', 'division': 'Poppel'}, {'division': 'Antwerp', 'location': 'Ravels'}),
         ({'country': 'Belgium', 'division': 'Schoten'}, {'division': 'Antwerp', 'location': 'Schoten'}),
         ({'country': 'Belgium', 'division': 'Schoten'}, {'division': 'Antwerp', 'location': 'Schoten'}),
 
         # East Flanders
+        ({'country': 'Belgium', 'division': ['Aalter', 'Lotenhulle']}, {'division': 'East Flanders', 'location': 'Aalter'}),
         ({'country': 'Belgium', 'division': 'Deinze'}, {'division': 'East Flanders', 'location': 'Deinze'}),
         ({'country': 'Belgium', 'division': 'Dendermonde'}, {'division': 'East Flanders', 'location': 'Dendermonde'}),
         ({'country': 'Belgium', 'division': ['Gent', 'Ghent']}, {'division': 'East Flanders', 'location': 'Ghent'}),
         ({'country': 'Belgium', 'division': 'Geraardsbergen'}, {'division': 'East Flanders', 'location': 'Geraardsbergen'}),
+        ({'country': 'Belgium', 'division': 'Madegem'}, {'division': 'East Flanders', 'location': 'Madegem'}),
         ({'country': 'Belgium', 'division': 'Merelbeke'}, {'division': 'East Flanders', 'location': 'Merelbeke'}),
         ({'country': 'Belgium', 'division': 'Nevele'}, {'division': 'East Flanders', 'location': 'Nevele'}),
         ({'country': 'Belgium', 'division': 'Ronse'}, {'division': 'East Flanders', 'location': 'Ronse'}),
         ({'country': 'Belgium', 'division': 'Sint-Gillis-Waas'}, {'division': 'East Flanders', 'location': 'Sint-Gillis-Waas'}),
         ({'country': 'Belgium', 'division': 'Sint-Niklaas'}, {'division': 'East Flanders', 'location': 'Sint-Niklaas'}),
         ({'country': 'Belgium', 'division': 'Stekene'}, {'division': 'East Flanders', 'location': 'Stekene'}),
+        ({'country': 'Belgium', 'division': 'Temse'}, {'division': 'East Flanders', 'location': 'Temse'}),
         ({'country': 'Belgium', 'division': 'Waasmunster'}, {'division': 'East Flanders', 'location': 'Waasmunster'}),
 
         # Flemish Brabant
+        ({'country': 'Belgium', 'division': 'Aarschot'}, {'division': 'Flemish Brabant', 'location': 'Aarschot'}),
         ({'country': 'Belgium', 'division': 'Asse'}, {'division': 'Flemish Brabant', 'location': 'Asse'}),
         ({'country': 'Belgium', 'division': 'Beersel'}, {'division': 'Flemish Brabant', 'location': 'Beersel'}),
         ({'country': 'Belgium', 'division': 'Bierbeek'}, {'division': 'Flemish Brabant', 'location': 'Bierbeek'}),
-        ({'country': 'Belgium', 'division': 'Boutersem'}, {'division': 'Flemish Brabant', 'location': 'Boutersem'}),
+        ({'country': 'Belgium', 'division': 'Boutersem'}, {'division': 'Flemish Brabant', 
+        'location': 'Boutersem'}),
+        ({'country': 'Belgium', 'division': ['Diest', 'Kaggevinne', 'Molenstede']}, {'division': 'Flemish Brabant', 
+        'location': 'Diest'}),
         ({'country': 'Belgium', 'division': 'Dilbeek'}, {'division': 'Flemish Brabant', 'location': 'Dilbeek'}),
+        ({'country': 'Belgium', 'division': 'Geetbets'}, {'division': 'Flemish Brabant', 'location': 'Geetbets'}),
         ({'country': 'Belgium', 'division': 'Grimbergen'}, {'division': 'Flemish Brabant', 'location': 'Grimbergen'}),
+        ({'country': 'Belgium', 'division': ['Haacht', 'Wespelaar']}, {'division': 'Flemish Brabant', 'location': 'Haacht'}),
         ({'country': 'Belgium', 'division': 'Hoegaarden'}, {'division': 'Flemish Brabant', 'location': 'Hoegaarden'}),
         ({'country': 'Belgium', 'division': 'Holsbeek'}, {'division': 'Flemish Brabant', 'location': 'Holsbeek'}),
         ({'country': 'Belgium', 'division': 'Huldenberg'}, {'division': 'Flemish Brabant', 'location': 'Huldenberg'}),
         ({'country': 'Belgium', 'division': 'Kraainem'}, {'division': 'Flemish Brabant', 'location': 'Kraainem'}),
-        ({'country': 'Belgium', 'division': ['Leuven', 'Heverlee', 'Kessel-Lo', 'Ladeuze']}, {'division': 'Flemish Brabant', 'location': 'Leuven'}),
+        ({'country': 'Belgium', 'division': ['Leuven', 'Heverlee', 'Kessel-Lo', 'Ladeuze', 'Wilsele']}, {'division': 'Flemish Brabant', 'location': 'Leuven'}),
         ({'country': 'Belgium', 'division': 'Linter'}, {'division': 'Flemish Brabant', 'location': 'Linter'}),
         ({'country': 'Belgium', 'division': 'Lubbeek'}, {'division': 'Flemish Brabant', 'location': 'Lubbeek'}),
+        ({'country': 'Belgium', 'division': ['Overijse']}, {'division': 'Flemish Brabant', 'location': 'Overijse'}),
+        ({'country': 'Belgium', 'division': 'Machelen'}, {'division': 'Flemish Brabant', 'location': 'Machelen'}),
+        ({'country': 'Belgium', 'division': 'Scherpenheuvel-Zichem'}, {'division': 'Flemish Brabant', 'location': 'Scherpenheuvel-Zichem'}),
         ({'country': 'Belgium', 'division': 'Sint-Genesius-Rode'}, {'division': 'Flemish Brabant', 'location': 'Sint-Genesius-Rode'}),
         ({'country': 'Belgium', 'division': 'Tervuren'}, {'division': 'Flemish Brabant', 'location': 'Tervuren'}),
         ({'country': 'Belgium', 'division': 'Tielt-Winge'}, {'division': 'Flemish Brabant', 'location': 'Tielt-Winge'}),
         ({'country': 'Belgium', 'division': 'Tienen'}, {'division': 'Flemish Brabant', 'location': 'Tienen'}),
         ({'country': 'Belgium', 'division': 'Vilvoorde'}, {'division': 'Flemish Brabant', 'location': 'Vilvoorde'}),
-        ({'country': 'Belgium', 'division': 'Winksele'}, {'division': 'Flemish Brabant', 'location': 'Herent'}),
+        ({'country': 'Belgium', 'division': ['Winksele', 'Veltem-beisem', 'Veltem-Beisem']}, {'division': 'Flemish Brabant', 'location': 'Herent'}),
+        ({'country': 'Belgium', 'division': ['Zaventem', 'Sterrebeek']}, {'division': 'Flemish Brabant', 'location': 'Zaventem'}),
         ({'country': 'Belgium', 'division': 'Zoutleeuw'}, {'division': 'Flemish Brabant', 'location': 'Zoutleeuw'}),
-
+        
         # Limburg
         ({'country': 'Belgium', 'division': 'Alken'}, {'division': 'Limburg', 'location': 'Alken'}),
-        ({'country': 'Belgium', 'division': ['Beringen', 'Koersel']}, {'division': 'Limburg', 'location': 'Beringen'}),
+        ({'country': 'Belgium', 'division': ['Beringen', 'Koersel', 'Paal']}, {'division': 'Limburg', 'location': 'Beringen'}),
         ({'country': 'Belgium', 'division': 'Bree'}, {'division': 'Limburg', 'location': 'Bree'}),
         ({'country': 'Belgium', 'division': 'Hasselt'}, {'division': 'Limburg', 'location': 'Hasselt'}),
         ({'country': 'Belgium', 'division': 'Houthalen-Helchteren'}, {'division': 'Limburg', 'location': 'Houthalen-Helchteren'}),
@@ -287,6 +317,7 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Nieuwerkerken'}, {'division': 'Limburg', 'location': 'Nieuwerkerken'}),
         ({'country': 'Belgium', 'division': 'Riemst'}, {'division': 'Limburg', 'location': 'Riemst'}),
         ({'country': 'Belgium', 'division': 'Sint-Truiden'}, {'division': 'Limburg', 'location': 'Sint-Truiden'}),
+        ({'country': 'Belgium', 'division': 'Tessenderlo'}, {'division': 'Limburg', 'location': 'Tessenderlo'}),
         ({'country': 'Belgium', 'division': 'Zolder'}, {'division': 'Limburg', 'location': 'Heusden-Zolder'}),
         ({'country': 'Belgium', 'division': 'Zonhoven'}, {'division': 'Limburg', 'location': 'Zonhoven'}),
 
@@ -301,24 +332,34 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Bassilly'}, {'division': 'Hainaut', 'location': 'Silly'}),
         ({'country': 'Belgium', 'division': ['Blandain', 'Doornik', 'Kain', 'Tournai']}, {'division': 'Hainaut', 'location': 'Tournai'}),
         ({'country': 'Belgium', 'division': 'Boussu'}, {'division': 'Hainaut', 'location': 'Boussu'}),
+        ({'country': 'Belgium', 'division': 'Bury'}, {'division': 'Hainaut', 'location': 'Péruwelz'}),
         ({'country': 'Belgium', 'division': ['Charleroi', 'Montignies-Sur-Sambre', 'Couillet', 'Jumet']}, {'division': 'Hainaut', 'location': 'Charleroi'}),
         ({'country': 'Belgium', 'division': ['Colfontaine', 'Confontaine']}, {'division': 'Hainaut', 'location': 'Colfontaine'}),
         ({'country': 'Belgium', 'division': 'Cuesmes'}, {'division': 'Hainaut', 'location': 'Cuesmes'}),
+        ({'country': 'Belgium', 'division': 'Dour'}, {'division': 'Hainaut', 'location': 'Dour'}),
+        ({'country': 'Belgium', 'division': 'Edingen'}, {'division': 'Hainaut', 'location': 'Edingen'}),
         ({'country': 'Belgium', 'division': 'Ellezelles'}, {'division': 'Hainaut', 'location': 'Ellezelles'}),
         ({'country': 'Belgium', 'division': ['Fontaine-l Eveque', 'Forchies-la-marche']}, {'division': 'Hainaut', 'location': 'Fontaine-l\'Évêque'}),
         ({'country': 'Belgium', 'division': 'Frameries'}, {'division': 'Hainaut', 'location': 'Frameries'}),
         ({'country': 'Belgium', 'division': 'Haulchin'}, {'division': 'Hainaut', 'location': 'Haulchin'}),
+        ({'country': 'Belgium', 'division': ['Hensies', 'Thulin']}, {'division': 'Hainaut', 'location': 'Hensies'}),
         ({'country': 'Belgium', 'division': 'Honnelles'}, {'division': 'Hainaut', 'location': 'Honnelles'}),
+        ({'country': 'Belgium', 'division': 'Jurbise'}, {'division': 'Hainaut', 'location': 'Jurbise'}),
         ({'country': 'Belgium', 'division': 'Komen'}, {'division': 'Hainaut', 'location': 'Comines-Warneton'}),
-        ({'country': 'Belgium', 'division': ['La Louvriere', 'La Louviere']}, {'division': 'Hainaut', 'location': 'La Louvière'}),
-        ({'country': 'Belgium', 'division': ['Mons', 'Courcelles', 'Havre', 'Jemappes', 'Trazegnies']}, {'division': 'Hainaut', 'location': 'Mons'}),
+        ({'country': 'Belgium', 'division': ['La Louvriere', 'La Louviere', 'La louvière']}, {'division': 'Hainaut', 'location': 'La Louvière'}),
+        ({'country': 'Belgium', 'division': 'Le roeulx'}, {'division': 'Hainaut', 'location': 'Le Rœulx'}),
+        ({'country': 'Belgium', 'division': ['Mons', 'Mon', 'Courcelles', 'Havre', 'Jemappes', 'Trazegnies', 'Flénu', 'Ghlin', 'Shape']}, {'division': 'Hainaut', 'location': 'Mons'}),
         ({'country': 'Belgium', 'division': 'Montigny-le-Tilleul'}, {'division': 'Hainaut', 'location': 'Montigny-le-Tilleul'}),
+        ({'country': 'Belgium', 'division': 'Morlanwelz'}, {'division': 'Hainaut', 'location': 'Morlanwelz'}),
         ({'country': 'Belgium', 'division': 'Mouscron'}, {'division': 'Hainaut', 'location': 'Mouscron'}),
+        ({'country': 'Belgium', 'division': ['Pont-à-Celles', 'Luttre']}, {'division': 'Hainaut', 'location': 'Pont-à-Celles'}),
         ({'country': 'Belgium', 'division': 'Quaregnon'}, {'division': 'Hainaut', 'location': 'Quaregnon'}),
-        ({'country': 'Belgium', 'division': 'Quevaucamps'}, {'division': 'Hainaut', 'location': 'Belœil'}),
-        ({'country': 'Belgium', 'division': 'Quevy'}, {'division': 'Hainaut', 'location': 'Quevy'}),
-        ({'country': 'Belgium', 'division': ['Saint-Ghislain', 'Tertre', 'Villerot']}, {'division': 'Hainaut', 'location': 'Saint-Ghislain'}),
+        ({'country': 'Belgium', 'division': ['Quevaucamps', 'Wadelincourt']}, {'division': 'Hainaut', 'location': 'Belœil'}),
+        ({'country': 'Belgium', 'division': ['Quevy', 'Givry', 'Quévy']}, {'division': 'Hainaut', 'location': 'Quevy'}),
+        ({'country': 'Belgium', 'division': ['Saint-Ghislain', 'Tertre', 'Villerot', 'Baudour', 'Neufmaison']}, {'division': 'Hainaut', 'location': 'Saint-Ghislain'}),
         ({'country': 'Belgium', 'division': ['Saisinne', 'Soignies', 'Zinnik']}, {'division': 'Hainaut', 'location': 'Soignies'}),
+        ({'country': 'Belgium', 'division': 'Seneffe'}, {'division': 'Hainaut', 'location': 'Seneffe'}),
+        
 
         # Liege
         ({'country': 'Belgium', 'division': 'Berloz'}, {'division': 'Liege', 'location': 'Berloz'}),
@@ -345,11 +386,12 @@ def clean_location_data(location_df):
         # Namur
         ({'country': 'Belgium', 'division': 'Andenne'}, {'division': 'Namur', 'location': 'Andenne'}),
         ({'country': 'Belgium', 'division': 'Couvin'}, {'division': 'Namur', 'location': 'Couvin'}),
+        ({'country': 'Belgium', 'division': ['Gembloux', 'Grand-Leez']}, {'division': 'Namur', 'location': 'Gembloux'}),
         ({'country': 'Belgium', 'division': 'Havelange'}, {'division': 'Namur', 'location': 'Havelange'}),
         ({'country': 'Belgium', 'division': 'Temploux'}, {'division': 'Namur', 'location': 'Namur'}),
 
         # Walloon Brabant
-        ({'country': 'Belgium', 'division': 'Braine-l alleud'}, {'division': 'Walloon Brabant', 'location': 'Braine-l\'Alleud'}),
+        ({'country': 'Belgium', 'division': ['Braine-l alleud', 'Braine-l\'alleud']}, {'division': 'Walloon Brabant', 'location': 'Braine-l\'Alleud'}),
         ({'country': 'Belgium', 'division': 'Braine-le-Chateau'}, {'division': 'Walloon Brabant', 'location': 'Braine-le-Château'}),
         ({'country': 'Belgium', 'division': 'Genappe'}, {'division': 'Walloon Brabant', 'location': 'Genappe'}),
         ({'country': 'Belgium', 'division': 'Lasne'}, {'division': 'Walloon Brabant', 'location': 'Lasne'}),
@@ -359,16 +401,20 @@ def clean_location_data(location_df):
 
         # Brussels-Capital Region
         ({'country': 'Belgium', 'division': 'Anderlecht'}, {'division': 'Brussels-Capital Region', 'location': 'Anderlecht'}),
-        ({'country': 'Belgium', 'division': ['Brussel', 'Brussels']}, {'division': 'Brussels-Capital Region', 'location': 'Brussels'}),
+        ({'country': 'Belgium', 'division': ['Brussel', 'Brussels', 'Laken']}, {'division': 'Brussels-Capital Region', 'location': 'Brussels'}),
         ({'country': 'Belgium', 'division': 'Elsene'}, {'division': 'Brussels-Capital Region', 'location': 'Ixelles'}),
         ({'country': 'Belgium', 'division': 'Etterbeek'}, {'division': 'Brussels-Capital Region', 'location': 'Etterbeek'}),
         ({'country': 'Belgium', 'division': 'Ganshoren'}, {'division': 'Brussels-Capital Region', 'location': 'Ganshoren'}),
+        ({'country': 'Belgium', 'division': 'Jette'}, {'division': 'Brussels-Capital Region', 'location': 'Jette'}),
         ({'country': 'Belgium', 'division': 'Oudergem'}, {'division': 'Brussels-Capital Region', 'location': 'Auderghem'}),
         ({'country': 'Belgium', 'division': 'Sint-Agatha-Berchem'}, {'division': 'Brussels-Capital Region', 'location': 'Sint-Agatha-Berchem'}),
-        ({'country': 'Belgium', 'division': ['Sint-Pieter-Woluwe', 'Sint-Pieters-Woluwe']}, {'division': 'Brussels-Capital Region', 'location': 'Woluwe-Saint-Pierre'}),
+        ({'country': 'Belgium', 'division': ['Sint-Pieter-Woluwe', 'Sint-Pieters-Woluwe', 'Sint-pieters-woluwe']}, {'division': 'Brussels-Capital Region', 'location': 'Woluwe-Saint-Pierre'}),
         ({'country': 'Belgium', 'division': 'Ukkel'}, {'division': 'Brussels-Capital Region', 'location': 'Uccle'}),
         ({'country': 'Belgium', 'division': 'Vorst'}, {'division': 'Brussels-Capital Region', 'location': 'Forest'}),
         ({'country': 'Belgium', 'division': 'Watermaal-Bosvoorde'}, {'division': 'Brussels-Capital Region', 'location': 'Watermael-Boitsfort'}),
+
+        # Can't find a division for this location
+        ({'country': 'Belgium', 'division': 'Mepel'}, {'division': -1}),
 
         # CROATIA
         # -------
@@ -428,7 +474,7 @@ def clean_location_data(location_df):
         # -----
         
         # Fix typos
-        ({'country': 'Italy', 'division': ['Lombarida', 'Lombarida']}, {'division': 'Lombardy'}),
+        ({'country': 'Italy', 'division': ['Lombarida', 'Lombardia']}, {'division': 'Lombardy'}),
         # Castel di Sangro -> Abruzzo
         ({'country': 'Italy', 'division': 'Castel di Sangro'}, {'division': 'Abruzzo', 'location': 'Castel di Sangro'}),
         # Teramo -> Abruzzo
@@ -444,14 +490,6 @@ def clean_location_data(location_df):
         ({'country': 'Italy', 'division': 'Palermo'}, {'division': 'Sicily', 'location': 'Palermo'}),
         # Rome -> Lazio
         ({'country': 'Italy', 'division': 'Rome'}, {'division': 'Lazio', 'location': 'Rome'}),
-
-        # MOROCCO
-        # -------
-        # Move to Africa
-        # Move Cadiz to Andalusia, Spain
-
-        ({'country': 'Morocco'}, {'region': 'Africa'}),
-        ({'country': 'Morocco', 'location': 'Cadiz_h'}, {'region': 'Europe', 'country': 'Spain', 'division': 'Andalusia', 'location': 'Cadiz'}),
 
         # NETHERLANDS
         # -----------
@@ -506,6 +544,11 @@ def clean_location_data(location_df):
         # Zielonogorskie -> Lubusz
         ({'country': 'Poland', 'division': 'Zielonogorskie'}, {'division': 'Lubusz'}),
 
+        # ROMANIA
+        # -------
+        # Fix weird encoding issue
+        ({'country': ['ÄéRomania', '\u200eRomania']}, {'country': 'Romania'}),
+        
         # RUSSIA
         # ------
         # Fix typos
