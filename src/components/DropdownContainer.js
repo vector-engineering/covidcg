@@ -227,7 +227,23 @@ class DropdownContainer extends Component {
   render() {
     const { data, ...rest } = this.props;
     data;
-    return <StyledDropdownTreeSelect data={this.state.data} {...rest} />;
+    return (
+      <StyledDropdownTreeSelect
+        data={this.state.data}
+        className="geo-dropdown-tree-select"
+        clearSearchOnChange={false}
+        keepTreeOnSearch={true}
+        keepChildrenOnSearch={true}
+        showPartiallySelected={true}
+        showDropdown="always"
+        inlineSearchInput={true}
+        texts={{
+          placeholder: 'Search...',
+          noMatches: 'No matches found',
+        }}
+        {...rest}
+      />
+    );
   }
 }
 

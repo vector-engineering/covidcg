@@ -372,7 +372,7 @@ const LineageDataTable = observer(() => {
         conditionalRowStyles={[
           {
             when: (row) => row.group == 'Reference',
-            style: 'background-color: #dff3fe !important;',
+            style: { backgroundColor: '#dff3fe !important;' },
           },
         ]}
         sortFunction={sortFn}

@@ -5,7 +5,6 @@
     "format": {
       "type": "json",
       "parse": {
-        "loc_id": "number",
         "date": "number",
         "cases_sum": "number"
       }
@@ -13,7 +12,7 @@
   },
   "vconcat": [
     {
-      "width": 1000,
+      "width": "container",
       "height": 300,
       "mark": "area",
       "selection": {
@@ -49,33 +48,34 @@
           "field": "group",
           "type": "nominal",
           "scale": { "scheme": "tableau20" },
-          "legend": {
-            "direction": "vertical",
-            "columns": 3,
-            "clipHeight": 15,
-            "rowPadding": 2,
-            "columnPadding": 10,
-            "title": "Haplotype",
-            "orient": "top-left",
-            "fillColor": "#FFF",
-            "strokeColor": "#AAA",
-            "padding": 10,
-            "offset": 10,
-            "cornerRadius": 5
-          }
+          "legend": null
         },
         "opacity": {
           "condition": { "selection": "highlight", "value": 1 },
           "value": 0.8
         },
-        "tooltip": {
-          "field": "group",
-          "type": "nominal"
-        }
+        "tooltip": [
+          {
+            "field": "group",
+            "title": "Group",
+            "type": "nominal"
+          },
+          {
+            "field": "date",
+            "title": "Sample Date",
+            "type": "temporal",
+            "timeUnit": "monthdate"
+          },
+          {
+            "field": "cases_sum",
+            "title": "Cases",
+            "type": "quantitative"
+          }
+        ]
       }
     },
     {
-      "width": 1000,
+      "width": "container",
       "height": 50,
       "mark": "bar",
       "encoding": {
@@ -84,7 +84,7 @@
           "type": "temporal",
           "axis": {
             "tickCount": "week",
-            "title": "Date",
+            "title": "Sample Date",
             "labelAlign": "left",
             "labelExpr": "[timeFormat(datum.value, '%b'), timeFormat(datum.value, '%d')]",
             "labelOffset": 4,
@@ -121,7 +121,7 @@
       "spacing": 0
     },
     "bar": {
-      "continuousBandSize": 5
+      "continuousBandSize": 8
     }
   }
 }

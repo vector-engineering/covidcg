@@ -1,21 +1,42 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
   "data": {
-    "name": "case_data",
+    "url": "https://ve-public.storage.googleapis.com/case_data.csv",
     "format": {
-      "type": "json",
+      "type": "csv",
       "parse": {
-        "loc_id": "number",
-        "date": "number",
-        "cases_sum": "number"
+        "location_id": "number",
+        "sample_date": "date",
+        "cases": "number"
       }
     }
   },
+  "transform": [
+    {
+      "filter": {
+        "field": "location_id",
+        "lt": 120
+      }
+    },
+    {
+      "aggregate": [
+        {
+          "op": "count",
+          "field": "gisaid_id",
+          "as": "cases_sum"
+        }
+      ],
+      "groupby": ["sample_date", "lineage"]
+    }
+  ],
   "vconcat": [
     {
-      "width": 1000,
+      "width": "container",
       "height": 300,
-      "mark": "area",
+      "mark": {
+        "type": "area",
+        "interpolate": "basis"
+      },
       "selection": {
         "highlight": {
           "type": "single",
@@ -26,7 +47,7 @@
       },
       "encoding": {
         "x": {
-          "field": "date",
+          "field": "sample_date",
           "type": "temporal",
           "scale": {
             "domain": {
@@ -42,22 +63,22 @@
           "field": "cases_sum",
           "type": "quantitative",
           "axis": {
-            "title": "Cases by Group"
+            "title": "Cases by Lineage"
           },
           "stack": "normalize"
         },
         "color": {
-          "field": "group",
+          "field": "lineage",
           "type": "nominal",
           "scale": { "scheme": "tableau20" },
           "legend": {
             "direction": "vertical",
-            "columns": 3,
+            "columns": 2,
             "clipHeight": 15,
             "rowPadding": 2,
             "columnPadding": 10,
             "title": "Haplotype",
-            "orient": "top-left",
+            "orient": "right",
             "fillColor": "#FFF",
             "strokeColor": "#AAA",
             "padding": 10,
@@ -70,18 +91,18 @@
           "value": 0.8
         },
         "tooltip": {
-          "field": "group",
+          "field": "lineage",
           "type": "nominal"
         }
       }
     },
     {
-      "width": 1000,
+      "width": "container",
       "height": 50,
       "mark": "bar",
       "encoding": {
         "x": {
-          "field": "date",
+          "field": "sample_date",
           "type": "temporal",
           "axis": {
             "tickCount": "week",
