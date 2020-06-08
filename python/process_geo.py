@@ -820,7 +820,17 @@ def clean_location_data(location_df):
     return location_df
 
 
-def build_select_tree(unique_location_df):
+# Thanks to user "rtaft" from https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python
+def human_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '({}{})'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+
+def build_select_tree(location_df, unique_location_df):
     '''Build tree for ReactDropdownTreeSelect
 
     data
@@ -872,6 +882,19 @@ def build_select_tree(unique_location_df):
     }
     '''
 
+    # Set unspecified locations to None so that they don't get
+    # caught up in the groupby
+    location_df.loc[location_df['region'] == '-1', 'region'] = None
+    location_df.loc[location_df['country'] == '-1', 'country'] = None
+    location_df.loc[location_df['division'] == '-1', 'division'] = None
+    location_df.loc[location_df['location'] == '-1', 'location'] = None
+
+    # Count sequences per grouping level
+    region_counts = dict(location_df.groupby('region')['gisaid_id'].count())
+    country_counts = dict(location_df.groupby(['region', 'country'])['gisaid_id'].count())
+    division_counts = dict(location_df.groupby(['region', 'country', 'division'])['gisaid_id'].count())
+    location_counts = dict(location_df.groupby(['region', 'country', 'division', 'location'])['gisaid_id'].count())
+
     # Root node
     select_tree = {
         'label': 'All',
@@ -894,8 +917,8 @@ def build_select_tree(unique_location_df):
                 'level': 'region',
                 'actions': [{
                     'className': 'fa fa-info',
-                    'title': 'title',
-                    'text': 'text'
+                    'title': str(region_counts[loc['region']]) + ' sequences',
+                    'text': human_format(region_counts[loc['region']])
                 }],
                 'children': []
             }
@@ -914,6 +937,11 @@ def build_select_tree(unique_location_df):
                 'value': loc['country'],
                 'region': loc['region'],
                 'level': 'country',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(country_counts[(loc['region'], loc['country'])]) + ' sequences',
+                    'text': human_format(country_counts[(loc['region'], loc['country'])])
+                }],
                 'children': []
             }
             region_node['children'].append(country_node)
@@ -932,6 +960,11 @@ def build_select_tree(unique_location_df):
                 'region': loc['region'],
                 'country': loc['country'],
                 'level': 'division',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(division_counts[(loc['region'], loc['country'], loc['division'])]) + ' sequences',
+                    'text': human_format(division_counts[(loc['region'], loc['country'], loc['division'])])
+                }],
                 'children': []
             }
             country_node['children'].append(division_node)
@@ -951,9 +984,15 @@ def build_select_tree(unique_location_df):
                 'country': loc['country'],
                 'division': loc['division'],
                 'level': 'location',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(location_counts[(loc['region'], loc['country'], loc['division'], loc['location'])]) + ' sequences',
+                    'text': human_format(location_counts[(loc['region'], loc['country'], loc['division'], loc['location'])])
+                }],
                 'children': []
             }
             division_node['children'].append(location_node)
+
 
     # Save tree as json file
     print('Saving geo select tree')
@@ -968,7 +1007,7 @@ def build_select_tree(unique_location_df):
 
 def main():
     location_df, unique_location_df = load_geo_data()
-    select_tree = build_select_tree(unique_location_df)
+    select_tree = build_select_tree(location_df, unique_location_df)
     # print(select_tree)
 
 
