@@ -378,45 +378,6 @@ export function aggCaseDataByGroup(
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
   };
-
-  /*
-
-  // Obj to list of rows
-  let caseDataAggGroupList = [];
-  Object.keys(caseDataAggGroup).forEach((lineage) => {
-    let lineageObj = {
-      lineage: lineage === 'root' ? 'Reference' : lineage,
-      cases_sum: caseDataAggGroup[lineage],
-      cases_percent: caseDataAggGroup[lineage] / totalCaseCount,
-      jmol: Math.random(),
-    };
-
-    let lineage_dat = _.filter(
-      initialLineageData,
-      (row) => row.lineage == lineage
-    );
-
-    changingPositions.forEach((pos) => {
-      let ref_base = reference_seq[pos];
-      let alt_base = ref_base;
-
-      // Find the position in the SNPs for this lineage
-      let row = _.findWhere(lineage_dat, { pos: pos + 1 });
-      if (row !== undefined) {
-        alt_base = row.alt;
-      }
-
-      lineageObj['pos_' + pos.toString()] = alt_base;
-    });
-
-    caseDataAggGroupList.push(lineageObj);
-  });
-  //console.log(caseDataAggGroupList);
-
-  return {
-    caseDataAggGroupList: caseDataAggGroupList,
-    changingPositions: changingPositions,
-  };*/
 }
 
 /*
