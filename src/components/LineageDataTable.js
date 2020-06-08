@@ -204,6 +204,18 @@ const LineageDataTable = observer(() => {
   const handleCompareColorChange = (event) =>
     setCompareColor(event.target.value);
 
+  // Better column names
+  let groupKeyName = '';
+  if (covidStore.groupKey === 'lineage') {
+    groupKeyName = 'Lineage';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      groupKeyName = 'NT SNP';
+    } else {
+      groupKeyName = 'AA SNP';
+    }
+  }
+
   // Get the maximum and minimum cases_sum and cases_percent for the colormaps
   // Ignore those values for the reference row (which are NaN)
   let maxCasesSum = _.reduce(
@@ -323,18 +335,6 @@ const LineageDataTable = observer(() => {
       compact: true,
     });
   });
-
-  // Better column names
-  let groupKeyName = '';
-  if (covidStore.groupKey === 'lineage') {
-    groupKeyName = 'Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      groupKeyName = 'NT SNP';
-    } else {
-      groupKeyName = 'AA SNP';
-    }
-  }
 
   return (
     <DataTableContainer>
