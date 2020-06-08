@@ -5,7 +5,6 @@
     "format": {
       "type": "json",
       "parse": {
-        "loc_id": "number",
         "date": "number",
         "cases_sum": "number"
       }
@@ -108,7 +107,7 @@
       "spacing": 0
     },
     "bar": {
-      "continuousBandSize": 5
+      "continuousBandSize": 8
     }
   }
 }

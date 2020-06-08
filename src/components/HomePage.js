@@ -52,7 +52,7 @@ const PlotContainer = styled.div`
   padding-top: 10px;
 
   .vega-embed {
-    width: calc(100% - 100px);
+    width: calc(100% - 110px);
   }
 `;
 const PlotOptions = styled.div``;
