@@ -8,7 +8,6 @@
   },
   "scripts": {
     "preinstall": "node tools/nodeVersionCheck.js",
-    "remove-demo": "babel-node tools/removeDemo.js",
     "start-message": "babel-node tools/startMessage.js",
     "prestart": "npm run start-message",
     "start": "concurrently -k -r -s first \"npm run open:src\" \"npm run lint:watch\"",
@@ -20,11 +19,6 @@
     "remove-dist": "rimraf ./dist",
     "prebuild": "npm run clean-dist",
     "build": "babel-node tools/build.js && npm run open:dist",
-    "test": "jest",
-    "test:CI": "jest",
-    "test:cover": "npm run test -- --coverage ",
-    "test:cover:CI": "npm run test:CI -- --coverage && cat ./coverage/lcov.info | node_modules/coveralls/bin/coveralls.js",
-    "test:watch": "jest --watchAll",
     "open:cover": "npm run test:cover && open-cli ./coverage/lcov-report/index.html",
     "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
   },
@@ -53,8 +47,8 @@
     "@babel/core": "7.6.4",
     "@babel/node": "7.6.3",
     "@babel/plugin-proposal-class-properties": "7.5.5",
-    "@babel/plugin-transform-react-constant-elements": "7.6.3",
     "@babel/plugin-proposal-decorators": "7.10.1",
+    "@babel/plugin-transform-react-constant-elements": "7.6.3",
     "@babel/plugin-transform-runtime": "7.6.2",
     "@babel/polyfill": "7.6.0",
     "@babel/preset-env": "7.6.3",
@@ -64,7 +58,6 @@
     "autoprefixer": "9.7.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.3",
-    "babel-jest": "24.9.0",
     "babel-loader": "8.0.6",
     "babel-plugin-transform-react-remove-prop-types": "0.4.24",
     "browser-sync": "2.26.7",
@@ -74,8 +67,6 @@
     "coveralls": "3.0.7",
     "css-loader": "3.2.0",
     "cssnano": "4.1.10",
-    "enzyme": "3.10.0",
-    "enzyme-adapter-react-16": "1.15.1",
     "eslint": "6.6.0",
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-react": "7.16.0",
@@ -85,8 +76,6 @@
     "history": "4.10.1",
     "html-webpack-plugin": "3.2.0",
     "identity-obj-proxy": "3.0.0",
-    "jest": "24.9.0",
-    "jest-cli": "24.9.0",
     "json-loader": "0.5.7",
     "mini-css-extract-plugin": "0.8.0",
     "mockdate": "2.0.5",
@@ -112,16 +101,6 @@
   "repository": {
     "type": "git",
     "url": ""
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/tools/assetsTransformer.js",
-      "\\.(css)$": "<rootDir>/tools/assetsTransformer.js"
-    },
-    "setupFiles": [
-      "raf/polyfill",
-      "./tools/enzymeTestAdapterSetup.js"
-    ]
   },
   "babel": {
     "env": {

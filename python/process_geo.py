@@ -83,7 +83,7 @@ def load_geo_data():
     # Take subset of columns, re-index
     location_df = (
         location_df
-        [['name', 'gisaid_id', 'sample_date', 'location_id']]
+        [['name', 'gisaid_id', 'sample_date', 'location_id', 'region', 'country', 'division', 'location']]
         .sort_values('location_id')
         .reset_index(drop=True)
     )
@@ -438,7 +438,8 @@ def clean_location_data(location_df):
         # Milan -> Lombardy
         ({'country': 'Italy', 'division': 'Milan'}, {'division': 'Lombardy', 'location': 'Milan'}),
         # Rename Trento
-        ({'country': 'Italy', 'division': 'PA Trento'}, {'division': 'Trentino-Alto Adige/Südtirol'}),
+        # NVM, can't have that separator in the name...
+        # ({'country': 'Italy', 'division': 'PA Trento'}, {'division': 'Trentino-Alto Adige/Südtirol'}),
         # Palermo -> Silicy
         ({'country': 'Italy', 'division': 'Palermo'}, {'division': 'Sicily', 'location': 'Palermo'}),
         # Rome -> Lazio
@@ -535,6 +536,20 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'division': ['LaRioja', 'La_Rioja']}, {'division': 'La Rioja'}),
         # Barcelona -> Catalonia
         ({'country': 'Spain', 'division': 'Barcelona'}, {'division': 'Catalonia'}),
+        # Fix more typos
+        ({'country': 'Spain', 'location': 'Alhaurin_de_la_Torre'}, {'location': 'Alhaurin de la Torre'}),
+        ({'country': 'Spain', 'location': 'Jerez_de_la_Frontera'}, {'location': 'Jerez de la Frontera'}),
+        ({'country': 'Spain', 'location': 'La_Linea'}, {'location': 'La Linea'}),
+        ({'country': 'Spain', 'location': 'Mairena_Aljarafe'}, {'location': 'Mairena Aljarafe'}),
+        ({'country': 'Spain', 'location': 'Puerto_Santa_Maria'}, {'location': 'Puerto Santa Maria'}),
+        ({'country': 'Spain', 'location': 'Rincon_de_la_Victoria'}, {'location': 'Rincon de la Victoria'}),
+        ({'country': 'Spain', 'location': 'San_Fernando'}, {'location': 'San Fernando'}),
+        ({'country': 'Spain', 'location': 'San_Roque'}, {'location': 'San Roque'}),
+        ({'country': 'Spain', 'location': 'Vitoria_h'}, {'location': 'Vitoria'}),
+        ({'country': 'Spain', 'location': 'Donostia-San_Sebastian'}, {'location': 'Donostia-San Sebastian'}),
+        ({'country': 'Spain', 'location': 'Simat_de_la_Valldigna'}, {'location': 'Simat de la Valldigna'}),
+        ({'country': 'Spain', 'location': 'Torres_de_Elorz'}, {'location': 'Torres de Elorz'}),
+        
 
         # SWEDEN
         # ------
@@ -805,7 +820,17 @@ def clean_location_data(location_df):
     return location_df
 
 
-def build_select_tree(unique_location_df):
+# Thanks to user "rtaft" from https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python
+def human_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '({}{})'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+
+def build_select_tree(location_df, unique_location_df):
     '''Build tree for ReactDropdownTreeSelect
 
     data
@@ -857,6 +882,19 @@ def build_select_tree(unique_location_df):
     }
     '''
 
+    # Set unspecified locations to None so that they don't get
+    # caught up in the groupby
+    location_df.loc[location_df['region'] == '-1', 'region'] = None
+    location_df.loc[location_df['country'] == '-1', 'country'] = None
+    location_df.loc[location_df['division'] == '-1', 'division'] = None
+    location_df.loc[location_df['location'] == '-1', 'location'] = None
+
+    # Count sequences per grouping level
+    region_counts = dict(location_df.groupby('region')['gisaid_id'].count())
+    country_counts = dict(location_df.groupby(['region', 'country'])['gisaid_id'].count())
+    division_counts = dict(location_df.groupby(['region', 'country', 'division'])['gisaid_id'].count())
+    location_counts = dict(location_df.groupby(['region', 'country', 'division', 'location'])['gisaid_id'].count())
+
     # Root node
     select_tree = {
         'label': 'All',
@@ -877,6 +915,11 @@ def build_select_tree(unique_location_df):
                 'label': loc['region'],
                 'value': loc['region'],
                 'level': 'region',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(region_counts[loc['region']]) + ' sequences',
+                    'text': human_format(region_counts[loc['region']])
+                }],
                 'children': []
             }
             select_tree['children'].append(region_node)
@@ -894,6 +937,11 @@ def build_select_tree(unique_location_df):
                 'value': loc['country'],
                 'region': loc['region'],
                 'level': 'country',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(country_counts[(loc['region'], loc['country'])]) + ' sequences',
+                    'text': human_format(country_counts[(loc['region'], loc['country'])])
+                }],
                 'children': []
             }
             region_node['children'].append(country_node)
@@ -912,6 +960,11 @@ def build_select_tree(unique_location_df):
                 'region': loc['region'],
                 'country': loc['country'],
                 'level': 'division',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(division_counts[(loc['region'], loc['country'], loc['division'])]) + ' sequences',
+                    'text': human_format(division_counts[(loc['region'], loc['country'], loc['division'])])
+                }],
                 'children': []
             }
             country_node['children'].append(division_node)
@@ -931,9 +984,15 @@ def build_select_tree(unique_location_df):
                 'country': loc['country'],
                 'division': loc['division'],
                 'level': 'location',
+                'actions': [{
+                    'className': 'fa fa-info',
+                    'title': str(location_counts[(loc['region'], loc['country'], loc['division'], loc['location'])]) + ' sequences',
+                    'text': human_format(location_counts[(loc['region'], loc['country'], loc['division'], loc['location'])])
+                }],
                 'children': []
             }
             division_node['children'].append(location_node)
+
 
     # Save tree as json file
     print('Saving geo select tree')
@@ -948,7 +1007,7 @@ def build_select_tree(unique_location_df):
 
 def main():
     location_df, unique_location_df = load_geo_data()
-    select_tree = build_select_tree(unique_location_df)
+    select_tree = build_select_tree(location_df, unique_location_df)
     # print(select_tree)
 
 

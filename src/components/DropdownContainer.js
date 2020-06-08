@@ -214,6 +214,13 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       }
     }
   }
+
+  // Custom node styling
+  .fa.fa-info {
+    margin-left: 0.5em;
+    font-weight: normal;
+    font-style: normal;
+  }
 `;
 
 class DropdownContainer extends Component {
