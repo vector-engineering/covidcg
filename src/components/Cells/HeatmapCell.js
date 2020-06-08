@@ -50,8 +50,13 @@ const HeatmapCell = ({ value, min, max, percent }) => {
     }
   }
 
+  // Don't show NaNs
+  if (Number.isNaN(value)) {
+    value = '';
+    color = 'transparent';
+  }
   // Format percentages
-  if (percent === true) {
+  else if (percent === true) {
     value = (value * 100).toFixed(2) + '%';
   }
 
