@@ -13,7 +13,7 @@
   },
   "vconcat": [
     {
-      "width": 1000,
+      "width": "container",
       "height": 300,
       "mark": "area",
       "selection": {
@@ -50,20 +50,7 @@
           "field": "group",
           "type": "nominal",
           "scale": { "scheme": "tableau20" },
-          "legend": {
-            "direction": "vertical",
-            "columns": 3,
-            "clipHeight": 15,
-            "rowPadding": 2,
-            "columnPadding": 10,
-            "title": "Haplotype",
-            "orient": "top-left",
-            "fillColor": "#FFF",
-            "strokeColor": "#AAA",
-            "padding": 10,
-            "offset": 10,
-            "cornerRadius": 5
-          }
+          "legend": null
         },
         "opacity": {
           "condition": { "selection": "highlight", "value": 1 },
@@ -76,7 +63,7 @@
       }
     },
     {
-      "width": 1000,
+      "width": "container",
       "height": 50,
       "mark": "bar",
       "encoding": {

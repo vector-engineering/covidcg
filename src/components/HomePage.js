@@ -46,8 +46,15 @@ const PlotContainer = styled.div`
   grid-column: col2 / col3;
   grid-row: row2 / row3;
 
+  width: 100%;
+  box-sizing: border-box;
+
   padding-left: 10px;
   padding-top: 10px;
+
+  .vega-embed {
+    width: calc(100% - 100px);
+  }
 `;
 const PlotOptions = styled.div`
   .display-mode-container {
