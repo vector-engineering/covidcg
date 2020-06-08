@@ -40,7 +40,7 @@ function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
     return caseData;
   }
 
-  console.log('selected gene:', selectedGene);
+  console.log('selected gene:', selectedGene.gene);
 
   let newCaseData = [];
 
@@ -295,7 +295,7 @@ export function aggCaseDataByGroup(
     });
   changingPositions = changingPositionsOrdered;
 
-  console.log('Changing positions:', changingPositions);
+  console.log(Object.keys(changingPositions).length, 'changing positions');
   //console.log(caseDataAggGroup);
 
   // Add each changing position as a new field for each row in caseDataAggGroup

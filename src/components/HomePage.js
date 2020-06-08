@@ -135,7 +135,7 @@ const HomePage = observer(({ covidStore }) => {
       'Cases by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
-  console.log(areaStackSpec);
+  //console.log(areaStackSpec);
 
   return (
     <HomePageDiv>
