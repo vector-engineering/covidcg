@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
@@ -56,49 +56,46 @@ const PlotContainer = styled.div`
     width: calc(100% - 100px);
   }
 `;
-const PlotOptions = styled.div`
-  .display-mode-container {
-    select {
-      margin-left: 0.65em;
-      padding: 1px 4px;
-    }
+const PlotOptions = styled.div``;
+
+const AreaStackSelectContainer = styled.div`
+  select {
+    margin-left: 0.65em;
+    padding: 1px 4px;
   }
 `;
 
-@observer
-class HomePage extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      area_stack_mode: 'percentages',
-    };
-    //this.processEntropyData.bind(this);
+const AreaStackModeSelect = ({ mode, onChange }) => {
+  return (
+    <AreaStackSelectContainer>
+      <label>
+        Display mode:
+        <select value={mode} onChange={onChange}>
+          <option value="counts">Counts</option>
+          <option value="percentages">Percentages</option>
+        </select>
+      </label>
+    </AreaStackSelectContainer>
+  );
+};
+AreaStackModeSelect.propTypes = {
+  mode: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 
-    this.handleBrush = this.handleBrush.bind(this);
-    this.handlers = { brush: _.debounce(this.handleBrush, 500) };
+const HomePage = observer(({ covidStore }) => {
+  // 'percentages' or 'counts'
+  const [areaStackMode, setAreaStackMode] = useState('percentages');
 
-    this.handleGroupingChange = this.handleGroupingChange.bind(this);
-    this.handleGeneChange = this.handleGeneChange.bind(this);
-
-    this.treeSelectOnChange = this.treeSelectOnChange.bind(this);
-    this.treeSelectOnAction = this.treeSelectOnAction.bind(this);
-    this.treeSelectOnNodeToggleCurrentNode = this.treeSelectOnNodeToggleCurrentNode.bind(
-      this
-    );
-
-    this.onChangeAreaStackMode = this.onChangeAreaStackMode.bind(this);
-  }
-
-  handleGroupingChange(groupKey, dnaOrAa) {
+  const handleGroupingChange = (groupKey, dnaOrAa) => {
     this.props.covidStore.changeGrouping(groupKey, dnaOrAa);
-  }
+  };
 
-  handleGeneChange(gene) {
+  const handleGeneChange = (gene) => {
     this.props.covidStore.selectGene(gene);
-  }
+  };
 
-  handleBrush(...args) {
-    const { covidStore } = this.props;
+  const handleBrush = (...args) => {
     //console.log(args);
     // this.setState({
     //   info: JSON.stringify(args),
@@ -108,104 +105,90 @@ class HomePage extends React.PureComponent {
         ? args[1].date
         : [-1, -1]
     );
-  }
+  };
 
-  treeSelectOnChange(currentNode, selectedNodes) {
+  const treeSelectOnChange = (currentNode, selectedNodes) => {
     console.log('onChange::', currentNode, selectedNodes);
     this.props.covidStore.selectLocations(selectedNodes);
-  }
-  treeSelectOnAction(node, action) {
+  };
+  const treeSelectOnAction = (node, action) => {
     console.log('onAction::', action, node);
-  }
-  treeSelectOnNodeToggleCurrentNode(currentNode) {
+  };
+  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
     console.log('onNodeToggle::', currentNode);
-  }
+  };
 
-  onChangeAreaStackMode(e) {
-    this.setState({
-      area_stack_mode: e.target.value,
-    });
-  }
+  const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
 
-  render() {
-    const { covidStore } = this.props;
+  let areaStackSpec =
+    areaStackMode === 'percentages'
+      ? area_stack_norm_spec
+      : area_stack_absolute_spec;
 
-    let area_stack_spec =
-      this.state.area_stack_mode === 'percentages'
-        ? area_stack_norm_spec
-        : area_stack_absolute_spec;
+  return (
+    <HomePageDiv>
+      <SideBar />
+      <FilterSidebar>
+        <GroupBySelect
+          groupKey={covidStore.groupKey}
+          dnaOrAa={covidStore.dnaOrAa}
+          onChange={handleGroupingChange}
+        />
+        <GeneSelect
+          genes={covidStore.genes}
+          selectedGene={covidStore.selectedGene}
+          onChange={handleGeneChange}
+        />
+        <span className="location-tree-title">Selected Locations:</span>
+        <DropdownContainer
+          data={covidStore.selectTree.children}
+          onChange={treeSelectOnChange}
+          onAction={treeSelectOnAction}
+          onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+          className="geo-dropdown-tree-select"
+          clearSearchOnChange={false}
+          keepTreeOnSearch={true}
+          keepChildrenOnSearch={true}
+          showPartiallySelected={true}
+          showDropdown="always"
+          inlineSearchInput={true}
+          texts={{
+            placeholder: 'Search...',
+            noMatches: 'No matches found',
+          }}
+        />
+      </FilterSidebar>
+      <Header />
+      <PlotContainer>
+        {/* <VegaLite
+          data={{
+            entropy_data: entropy_data
+          }} 
+          spec={entropy_spec}
+        /> */}
 
-    return (
-      <HomePageDiv>
-        <SideBar />
-        <FilterSidebar>
-          <GroupBySelect
-            groupKey={covidStore.groupKey}
-            dnaOrAa={covidStore.dnaOrAa}
-            onChange={this.handleGroupingChange}
+        <PlotOptions>
+          <AreaStackModeSelect
+            mode={areaStackMode}
+            onChange={onChangeAreaStackMode}
           />
-          <GeneSelect
-            genes={covidStore.genes}
-            selectedGene={covidStore.selectedGene}
-            onChange={this.handleGeneChange}
-          />
-          <span className="location-tree-title">Selected Locations:</span>
-          <DropdownContainer
-            data={covidStore.selectTree.children}
-            onChange={this.treeSelectOnChange}
-            onAction={this.treeSelectOnAction}
-            onNodeToggle={this.treeSelectOnNodeToggleCurrentNode}
-            className="geo-dropdown-tree-select"
-            clearSearchOnChange={false}
-            keepTreeOnSearch={true}
-            keepChildrenOnSearch={true}
-            showPartiallySelected={true}
-            showDropdown="always"
-            inlineSearchInput={true}
-            texts={{
-              placeholder: 'Search...',
-              noMatches: 'No matches found',
-            }}
-          />
-        </FilterSidebar>
-        <Header />
-        <PlotContainer>
-          {/* <VegaLite
-            data={{
-              entropy_data: entropy_data
-            }} 
-            spec={entropy_spec}
-          /> */}
+        </PlotOptions>
 
-          <PlotOptions>
-            <div className="display-mode-container">
-              <label>
-                Display mode:
-                <select
-                  value={this.state.area_stack_mode}
-                  onChange={this.onChangeAreaStackMode}
-                >
-                  <option value="counts">Counts</option>
-                  <option value="percentages">Percentages</option>
-                </select>
-              </label>
-            </div>
-          </PlotOptions>
+        <VegaLite
+          data={{
+            case_data: covidStore.caseData,
+          }}
+          spec={areaStackSpec}
+          signalListeners={{
+            brush: _.debounce(handleBrush, 500),
+          }}
+        />
 
-          <VegaLite
-            data={{
-              case_data: covidStore.caseData,
-            }}
-            spec={area_stack_spec}
-            signalListeners={this.handlers}
-          />
-
-          <LineageDataTable />
-        </PlotContainer>
-      </HomePageDiv>
-    );
-  }
-}
+        <LineageDataTable />
+      </PlotContainer>
+    </HomePageDiv>
+  );
+});
 
 HomePage.propTypes = {
   covidStore: PropTypes.object.isRequired,
