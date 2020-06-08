@@ -126,6 +126,34 @@ export default {
           },
         ],
       },
+      {
+        test: /(\.css|\.scss|\.sass)$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: () => [require('cssnano'), require('autoprefixer')],
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, 'src')],
+              },
+              sourceMap: true,
+            },
+          },
+        ],
+      },
     ],
   },
 };

@@ -1,61 +1,44 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
+import styled from 'styled-components';
+import LiteMol from 'litemol';
+import './../styles/litemol.min.css';
 
-const LiteMolViewer = () => {
-  const uniqueId = useRef(`litemolcell-${new Date().getTime()}`);
-  const liteMolScope = useRef();
+const Container = styled.div`
+  padding-top: 20px;
+  width: 100%;
+  height: 100%;
+`;
 
-  const bindPdbComponentScope = function (element) {
-    return window.angular.element(element).isolateScope();
-  };
+const LiteMolViewer = React.memo(() => {
+  const target = useRef();
+  const plugin = useRef();
 
-  const highlight = () => {
-    //hightlighting
-
-    let selectionDetails = {
-      entity_id: '1',
-      struct_asym_id: 'A',
-      start_residue_number: 100,
-      end_residue_number: 300,
-    };
-    liteMolScope.current.LiteMolComponent.highlightOn(selectionDetails);
-  };
-
-  useEffect(() => {
-    const litemoldiv = document.querySelector(`#${uniqueId.current}`);
-
-    window.angular.element(litemoldiv).ready(function () {
-      window.angular.bootstrap(litemoldiv, ['pdb.litemol']);
-      liteMolScope.current = bindPdbComponentScope(litemoldiv);
+  useLayoutEffect(() => {
+    plugin.current = LiteMol.Plugin.create({
+      target: target.current,
+      layoutState: {
+        hideControls: true,
+        collapsedControlsLayout:
+          LiteMol.Bootstrap.Components.CollapsedControlsLayout.Landscape,
+      },
+      viewportBackground: '#F1F1F1',
+    });
+    plugin.current.loadMolecule({
+      id: '1tqn',
+      url: 'https://www.ebi.ac.uk/pdbe/static/entry/1tqn_updated.cif',
+      format: 'cif', // default
     });
   });
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        height: '100%',
-        width: '100%',
-      }}
-    >
-      <button onClick={highlight}>test highlight</button>
+    <Container>
       <div
-        style={{
-          position: 'relative',
-          height: '100%',
-          width: '100%',
-        }}
-      >
-        <div
-          source-format="pdb"
-          source-url="https://files.rcsb.org/download/6X2A.pdb"
-          id={uniqueId.current}
-          className="pdb-lite-mol"
-          pdb-id="'6x2a'"
-          hide-controls="true"
-        ></div>
-      </div>
-    </div>
+        style={{ width: '100%', height: '100%' }}
+        id={`${Math.random()}-litemolViewer`}
+        ref={target}
+      />
+    </Container>
   );
-};
+});
 
 export default LiteMolViewer;

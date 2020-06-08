@@ -46,6 +46,7 @@ const SidebarContent = styled.div.attrs((props) => ({
   height: 100%;
   padding-right: 20px;
   padding-left: 20px;
+  overflow-x: hidden;
 `;
 
 const SideBarClosedContainer = styled.div`
@@ -61,8 +62,9 @@ const LiteMolBlockHeader = styled.div`
 
 const ViewersContainer = styled.div`
   display: flex;
+  flex-direction: column;
   width: 100%;
-  flex-wrap: wrap;
+  height: 100%;
   overflow-y: scroll;
 `;
 
@@ -76,6 +78,7 @@ const CloseOpenButton = styled.button.attrs((props) => ({
   border: 0px;
   background-color: #eee;
   font-size: 32px;
+  cursor: pointer;
   &:hover {
     background-color: #bbb;
   }
@@ -83,8 +86,7 @@ const CloseOpenButton = styled.button.attrs((props) => ({
 
 const LiteMolBlock = styled.div`
   width: 100%;
-  height: 300px;
-  margin-bottom: 20px;
+  height: 100%;
 `;
 
 const SideBar = observer(() => {
@@ -142,7 +144,7 @@ const SideBar = observer(() => {
                     x
                   </button>
                 </LiteMolBlockHeader>
-                <LiteMolViewer />
+                <LiteMolViewer key={Math.random()} />
               </LiteMolBlock>
             ))}
           </ViewersContainer>

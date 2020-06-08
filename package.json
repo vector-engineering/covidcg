@@ -18,7 +18,7 @@
     "lint:watch": "npm run lint -- --watch",
     "clean-dist": "npm run remove-dist && mkdir dist",
     "remove-dist": "rimraf ./dist",
-    "prebuild": "npm run lint && npm run clean-dist",
+    "prebuild": "npm run clean-dist",
     "build": "babel-node tools/build.js && npm run open:dist",
     "test": "jest",
     "test:CI": "jest",
@@ -32,6 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "@hot-loader/react-dom": "16.10.2",
+    "litemol": "2.4.2",
     "mobx": "5.15.4",
     "mobx-react": "6.2.2",
     "mobx-router": "0.2.9",

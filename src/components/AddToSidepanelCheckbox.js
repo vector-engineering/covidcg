@@ -7,8 +7,6 @@ const AddToSidepanelCheckbox = observer(({ groupKey }) => {
 
   const isSelected = uiStore.sidebarSelectedGroupKeys.includes(groupKey);
 
-  console.log('HELLO', uiStore.sidebarSelectedGroupKeys);
-
   return (
     <input
       type="checkbox"
