@@ -56,14 +56,14 @@ Object.keys(aa_snp_map).forEach((snp) => {
 
 export function int_to_dna_snp(dna_snp_id) {
   if (dna_snp_id === -1) {
-    return { snp_str: 'None' };
+    return { snp_str: 'Reference' };
   }
 
   return int_to_dna_snp_map[dna_snp_id];
 }
 export function int_to_aa_snp(aa_snp_id) {
   if (aa_snp_id === -1) {
-    return { snp_str: 'None' };
+    return { snp_str: 'Reference' };
   }
 
   return int_to_aa_snp_map[aa_snp_id];

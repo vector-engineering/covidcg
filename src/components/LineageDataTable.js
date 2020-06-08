@@ -139,6 +139,7 @@ const LineageDataTable = () => {
     <StyledDataTable
       className="data-table"
       data={covidStore.caseDataAggGroup}
+      keyField="group"
       columns={[
         {
           name: groupKeyName,

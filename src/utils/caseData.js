@@ -143,8 +143,6 @@ export function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     });
   }
 
-  //console.log(aggCaseData);
-
   // Expand obj of objs back into a list of objects
   let aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((group) => {
@@ -200,9 +198,6 @@ export function aggCaseDataByGroup(
     caseDataAggGroup[row]['cases_percent'] =
       caseDataAggGroup[row]['cases_sum'] / totalCaseCount;
   });
-
-  //console.log(caseData);
-  //console.log(caseDataAggGroup);
 
   // We need a list of 0-indexed positions for the data table
   let changingPositions = {};
@@ -309,7 +304,7 @@ export function aggCaseDataByGroup(
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, 'reference')) {
+  if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, 'Reference')) {
     caseDataAggGroup['Reference'] = {
       cases_sum: NaN,
       cases_percent: NaN,
@@ -323,7 +318,7 @@ export function aggCaseDataByGroup(
       pos = parseInt(pos);
 
       // Ignore finding alternate bases for the ref sequence
-      if (row === 'reference') {
+      if (row === 'Reference') {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
