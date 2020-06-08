@@ -145,17 +145,6 @@ const HomePage = observer(({ covidStore }) => {
           onChange={treeSelectOnChange}
           onAction={treeSelectOnAction}
           onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-          className="geo-dropdown-tree-select"
-          clearSearchOnChange={false}
-          keepTreeOnSearch={true}
-          keepChildrenOnSearch={true}
-          showPartiallySelected={true}
-          showDropdown="always"
-          inlineSearchInput={true}
-          texts={{
-            placeholder: 'Search...',
-            noMatches: 'No matches found',
-          }}
         />
       </FilterSidebar>
       <Header />
