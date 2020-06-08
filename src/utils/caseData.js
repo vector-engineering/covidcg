@@ -212,7 +212,7 @@ export function aggCaseDataByGroup(
     Object.keys(caseDataAggGroup).forEach((lineage) => {
       let lineageSnps = _.filter(
         lineageSnpData,
-        (row) => row.lineage == lineage
+        (row) => row.lineage == lineage && row.group != 'Reference'
       );
 
       if (dnaOrAa === 'dna') {
@@ -253,8 +253,8 @@ export function aggCaseDataByGroup(
       // For DNA SNPs, the position is the first chunk (pos|ref|alt)
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(caseDataAggGroup).forEach((snp_str) => {
-        // Skip if the snp_str is None
-        if (snp_str === 'None') {
+        // Skip if the snp_str is Reference
+        if (snp_str === 'Reference') {
           return;
         }
         snp_str_split = snp_str.split('|');
@@ -269,8 +269,8 @@ export function aggCaseDataByGroup(
       // For AA SNPs, the position is the second chunk (gene|pos|ref|alt)
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(caseDataAggGroup).forEach((snp_str) => {
-        // Skip if the snp_str is None
-        if (snp_str === 'None') {
+        // Skip if the snp_str is Reference
+        if (snp_str === 'Reference') {
           return;
         }
 
