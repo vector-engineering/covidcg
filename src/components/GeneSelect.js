@@ -5,13 +5,25 @@ import styled from 'styled-components';
 const SelectContainer = styled.div`
   margin: 5px;
   padding: 5px 8px;
+  margin-top: 0px;
+  padding-top: 0px;
 `;
-const GeneSelectLabel = styled.label`
+const GeneSelectForm = styled.form`
   font-weight: 700;
-`;
-const GeneSelectSelect = styled.select`
-  width: 100%;
-  background-color: white;
+
+  label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  select {
+    background-color: white;
+    flex-grow: 1;
+    margin-left: 0.65em;
+    padding: 1px 5px;
+  }
 `;
 const PositionContainer = styled.div`
   display: grid;
@@ -50,14 +62,14 @@ const GeneSelect = ({ genes, selectedGene, onChange }) => {
 
   return (
     <SelectContainer>
-      <form>
-        <GeneSelectLabel>
-          Select a gene to analyze
-          <GeneSelectSelect value={selectedGene.gene} onChange={handleChange}>
+      <GeneSelectForm>
+        <label>
+          Gene:
+          <select value={selectedGene.gene} onChange={handleChange}>
             {optionElements}
-          </GeneSelectSelect>
-        </GeneSelectLabel>
-      </form>
+          </select>
+        </label>
+      </GeneSelectForm>
       <PositionContainer>
         <PosFrom>From: {selectedGene.start}</PosFrom>
         <PosTo>To: {selectedGene.end}</PosTo>

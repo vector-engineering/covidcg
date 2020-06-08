@@ -45,6 +45,14 @@ const PlotContainer = styled.div`
   padding-left: 10px;
   padding-top: 10px;
 `;
+const PlotOptions = styled.div`
+  .display-mode-container {
+    select {
+      margin-left: 0.65em;
+      padding: 1px 4px;
+    }
+  }
+`;
 
 @observer
 class HomePage extends React.PureComponent {
@@ -146,7 +154,7 @@ class HomePage extends React.PureComponent {
             showDropdown="always"
             inlineSearchInput={true}
             texts={{
-              placeholder: 'Choose...',
+              placeholder: 'Search...',
               noMatches: 'No matches found',
             }}
           />
@@ -160,18 +168,20 @@ class HomePage extends React.PureComponent {
             spec={entropy_spec}
           /> */}
 
-          <div className="plot-options">
-            <label>
-              Display mode
-              <select
-                value={this.state.area_stack_mode}
-                onChange={this.onChangeAreaStackMode}
-              >
-                <option value="counts">Counts</option>
-                <option value="percentages">Percentages</option>
-              </select>
-            </label>
-          </div>
+          <PlotOptions>
+            <div className="display-mode-container">
+              <label>
+                Display mode:
+                <select
+                  value={this.state.area_stack_mode}
+                  onChange={this.onChangeAreaStackMode}
+                >
+                  <option value="counts">Counts</option>
+                  <option value="percentages">Percentages</option>
+                </select>
+              </label>
+            </div>
+          </PlotOptions>
 
           <VegaLite
             data={{

@@ -5,31 +5,47 @@ import styled from 'styled-components';
 import _ from 'underscore';
 
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
+  ul.tag-list {
+    margin-left: 5px;
+    li:first-child {
+      span.placeholder:after {
+        content: 'Viewing all sequences';
+        font-size: 0.9rem;
+        font-weight: normal;
+      }
+    }
+  }
   .tag {
     background-color: #f4f4f4;
     border: 1px solid #e9e9e9;
-    padding: 2px 0 2px 2px;
+    padding: 3px 6px;
     border-radius: 2px;
     display: inline-block;
+    font-weight: normal;
     &:focus-within {
       background-color: #e9e9e9;
       border-color: #a0a0a0;
     }
   }
+  span.placeholder {
+    background-color: #ffffff;
+    font-size: 0em;
+  }
   .tag-remove {
     color: #a0a0a0;
-    font-size: 75%;
+    font-size: 1.25em;
     line-height: 100%;
     cursor: pointer;
     background-color: transparent;
     border: none;
     outline: none;
+    &:hover,
+    &:focus {
+      color: #ff5555;
+    }
     &.disabled,
     &.readOnly {
       cursor: not-allowed;
-    }
-    &:focus {
-      color: #3c3c3c;
     }
   }
 
@@ -122,64 +138,20 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     position: relative;
 
     a.dropdown-trigger {
-      width: 100%;
+      width: calc(100% - 16px);
       background-color: #ffffff;
       border: none;
       border-top: 1px solid #aaa;
       border-bottom: 1px solid #aaa;
-      box-shadow: 0px 0px 3px #aaa;
-      padding: 8px 0px;
+      box-shadow: 0px 0px 2px #aaa;
+      padding: 8px;
       line-height: 20px;
       max-height: 200px;
       display: inline-block;
       overflow: auto;
 
       &:focus {
-        //outline: none;
-      }
-      &.arrow {
-        cursor: pointer;
-        &.bottom:after {
-          content: '\\25BC';
-          vertical-align: middle;
-          color: #3c3c3c;
-          margin-right: 2px;
-        }
-        &.top:after {
-          content: '\\25B2';
-          vertical-align: middle;
-          color: #3c3c3c;
-          margin-right: 2px;
-        }
-        &.disabled {
-          cursor: not-allowed;
-        }
-        &.disabled.bottom:after {
-          color: #b9b9b9;
-        }
-      }
-      . ul {
-        margin-left: 5px;
-
-        li.tag-item {
-          span {
-            padding: 2px 5px;
-            background-color: #ffffff;
-            border: 1px solid #aaaaaa;
-            box-shadow: 0px 0px 1px 2px #eee;
-            border-radius: 5px;
-
-            button.tag-remove {
-              font-size: 1em;
-              color: #e67272;
-              font-weight: 800;
-            }
-
-            &.placeholder {
-              padding: 5px 5px;
-            }
-          }
-        }
+        outline: none;
       }
     }
 
@@ -210,6 +182,12 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
           font-size: 1.25em;
           font-style: normal;
           font-weight: 800;
+          &:hover {
+            color: #888888;
+          }
+          &:focus {
+            outline: none;
+          }
         }
       }
     }

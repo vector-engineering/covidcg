@@ -7,6 +7,53 @@ const SelectContainer = styled.div`
   padding: 5px 8px;
 `;
 
+const GroupKeySelectForm = styled.form`
+  label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  select {
+    padding: 1px 5px;
+    margin-left: 0.75em;
+    flex-grow: 1;
+  }
+`;
+
+const RadioForm = styled.form`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0.85em;
+
+  p {
+    // margin-right: 0.1em;
+    margin: 0px;
+  }
+
+  .radio-row {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .radio-item {
+    margin-left: 0.65em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    input {
+      margin: 0px;
+      margin-right: 0.5em;
+    }
+  }
+`;
+
 const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
   let handleGroupKeyChange = (event) => {
     onChange(event.target.value, dnaOrAa);
@@ -35,37 +82,41 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
 
   return (
     <SelectContainer>
-      <form>
+      <GroupKeySelectForm>
         <label>
-          Select a grouping key
+          Group sequences by:
           <select value={groupKey} onChange={handleGroupKeyChange}>
             {optionElements}
           </select>
         </label>
-      </form>
-      <form>
-        <p>Select Mutation Format</p>
-        <div>
-          <input
-            type="radio"
-            id="dnaChoice"
-            name="dnaOrAa"
-            value="dna"
-            checked={dnaOrAa === 'dna'}
-            onChange={handleDnaOrAaChange}
-          ></input>
-          <label htmlFor="dnaChoice">NT</label>
-          <input
-            type="radio"
-            id="aaChoice"
-            name="dnaOrAa"
-            value="aa"
-            checked={dnaOrAa === 'aa'}
-            onChange={handleDnaOrAaChange}
-          ></input>
-          <label htmlFor="aaChoice">AA</label>
+      </GroupKeySelectForm>
+      <RadioForm>
+        <p>Mutation format:</p>
+        <div className="radio-row">
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="dnaChoice"
+              name="dnaOrAa"
+              value="dna"
+              checked={dnaOrAa === 'dna'}
+              onChange={handleDnaOrAaChange}
+            ></input>
+            <label htmlFor="dnaChoice">NT</label>
+          </div>
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="aaChoice"
+              name="dnaOrAa"
+              value="aa"
+              checked={dnaOrAa === 'aa'}
+              onChange={handleDnaOrAaChange}
+            ></input>
+            <label htmlFor="aaChoice">AA</label>
+          </div>
         </div>
-      </form>
+      </RadioForm>
     </SelectContainer>
   );
 };
