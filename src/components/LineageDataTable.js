@@ -250,7 +250,7 @@ const LineageDataTable = observer(() => {
       },
     },
     {
-      name: 'Cases',
+      name: 'Seqs',
       selector: 'cases_sum',
       sortable: true,
       width: '60px',
@@ -266,7 +266,7 @@ const LineageDataTable = observer(() => {
       },
     },
     {
-      name: '% Cases',
+      name: '% Seqs',
       selector: 'cases_percent',
       sortable: true,
       width: '75px',

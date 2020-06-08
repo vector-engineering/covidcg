@@ -130,13 +130,13 @@ const HomePage = observer(({ covidStore }) => {
   if (covidStore.groupKey === 'lineage') {
     // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
-      'Cases by Lineage';
+      'Sequences by Lineage';
     // Tooltip title
     areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] = 'Lineage';
   } else if (covidStore.groupKey === 'snp') {
     // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
-      'Cases by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
     // Tooltip title
     areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] =
       (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';

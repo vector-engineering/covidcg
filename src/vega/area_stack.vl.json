@@ -41,7 +41,7 @@
           "field": "cases_sum",
           "type": "quantitative",
           "axis": {
-            "title": "Cases by Group"
+            "title": "Sequences by Group"
           }
         },
         "color": {
@@ -68,7 +68,7 @@
           },
           {
             "field": "cases_sum",
-            "title": "Cases",
+            "title": "Sequences",
             "type": "quantitative"
           }
         ]
@@ -97,7 +97,7 @@
           "field": "cases_sum",
           "type": "quantitative",
           "axis": {
-            "title": "All Cases"
+            "title": "All Seqs"
           }
         },
         "fill": {
