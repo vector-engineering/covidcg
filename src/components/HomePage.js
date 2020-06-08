@@ -118,9 +118,6 @@ class HomePage extends React.PureComponent {
 
   render() {
     const { covidStore } = this.props;
-    const activeStyle = { color: 'blue' };
-
-    //console.log(.covid);
 
     let area_stack_spec =
       this.state.area_stack_mode === 'percentages'

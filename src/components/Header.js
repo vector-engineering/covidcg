@@ -10,7 +10,7 @@ const HeaderDiv = styled.div`
   grid-row: row1 / row2;
 
   display: grid;
-  grid-template-columns: [col1] 250px [col2] auto [col3];
+  grid-template-columns: [col1] 450px [col2] auto [col3];
   grid-template-rows: [row1] auto [row2];
 
   border-bottom: 1px solid #aaa;
@@ -49,7 +49,7 @@ const Header = () => {
   return (
     <HeaderDiv>
       <TitleContainer>
-        <h1>COVID-UI</h1>
+        <h1>COVID-19 CoV Genetics (CG)</h1>
       </TitleContainer>
       <NavLinks>
         <Link router={router} route={routes.home}>

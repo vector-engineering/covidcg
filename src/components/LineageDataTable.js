@@ -275,7 +275,7 @@ const LineageDataTable = observer(() => {
       sortable: false,
       width: '80px',
       cell: (row) => {
-        return <AddToSidepanelCheckbox groupKey={Math.random()} />;
+        return <AddToSidepanelCheckbox groupKey={row.group} />;
       },
     },
   ];
