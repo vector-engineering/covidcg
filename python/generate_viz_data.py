@@ -11,7 +11,7 @@ import numpy as np
 from pathlib import Path
 
 from fasta import read_fasta_file
-from process_geo import load_geo_data
+from process_geo import load_geo_data, build_select_tree
 from process_lineages import load_taxon_lineages
 from process_snps import load_dna_snps, load_aa_snps, generate_snp_signatures
 from reference import ref_seq, genes, gene_aa
@@ -26,6 +26,7 @@ def main():
     # ------------------------
 
     location_df, unique_location_df = load_geo_data()
+    select_tree = build_select_tree(location_df, unique_location_df)
 
     # Drop duplicate GISAID entries
     location_df.drop_duplicates('gisaid_id', inplace=True)
