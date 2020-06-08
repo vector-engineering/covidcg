@@ -18,13 +18,21 @@ import {
 } from '../utils/colors';
 import { capitalize } from '../utils/string';
 
-const DataTableContainer = styled.div``;
+const DataTableContainer = styled.div`
+  span.position-title {
+    margin-left: 315px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+`;
 
 const DataTableOptions = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+
+  margin-bottom: 10px;
 
   select {
     padding: 1px 4px;
@@ -45,7 +53,7 @@ const CompareModeSelectLabel = styled.label`
 `;
 
 const StyledDataTable = styled(DataTable)`
-  margin-top: 5px;
+  margin-top: 3px;
 
   // hide the header
   header {
@@ -345,6 +353,9 @@ const LineageDataTable = observer(() => {
           handleColorChange={handleCompareColorChange}
         />
       </DataTableOptions>
+      <span className="position-title">
+        {covidStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
+      </span>
       <StyledDataTable
         className="data-table"
         data={covidStore.caseDataAggGroup}
