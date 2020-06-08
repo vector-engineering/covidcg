@@ -123,8 +123,17 @@ const LineageDataTable = () => {
     0
   );
 
-  //console.log(maxCasesPercent, minCasesPercent);
-  // console.log(covidStore.caseDataAggGroup)
+  // Better column names
+  let groupKeyName = '';
+  if (covidStore.groupKey === 'lineage') {
+    groupKeyName = 'Lineage';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      groupKeyName = 'NT SNP';
+    } else {
+      groupKeyName = 'AA SNP';
+    }
+  }
 
   return (
     <StyledDataTable
@@ -132,7 +141,7 @@ const LineageDataTable = () => {
       data={covidStore.caseDataAggGroup}
       columns={[
         {
-          name: 'Lineage',
+          name: groupKeyName,
           selector: 'group',
           sortable: true,
           width: '100px',
