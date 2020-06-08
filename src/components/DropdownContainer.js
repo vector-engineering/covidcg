@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import _ from 'underscore';
 
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
+  margin-top: 3px;
+
   ul.tag-list {
     margin-left: 5px;
     li:first-child {

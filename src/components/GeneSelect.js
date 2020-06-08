@@ -29,7 +29,7 @@ const PositionContainer = styled.div`
   display: grid;
   grid-template-columns: [col1] 50% [col2] 50% [col3];
   grid-template-rows: [row1] auto [row2];
-  font-weight: 500;
+  font-weight: normal;
   font-size: 0.9em;
   margin-top: 3px;
 `;

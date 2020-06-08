@@ -37,6 +37,10 @@ const FilterSidebar = styled.div`
   border-right: 1px solid #aaa;
   box-shadow: 0px 0px 5px #aaa;
   display: block;
+
+  .location-tree-title {
+    margin-left: 12px;
+  }
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -138,6 +142,7 @@ class HomePage extends React.PureComponent {
             selectedGene={covidStore.selectedGene}
             onChange={this.handleGeneChange}
           />
+          <span className="location-tree-title">Selected Locations:</span>
           <DropdownContainer
             data={covidStore.selectTree.children}
             onChange={this.treeSelectOnChange}
