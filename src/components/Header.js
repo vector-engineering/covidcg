@@ -6,22 +6,18 @@ import routes from '../routes';
 import { useStores } from '../stores/connect';
 
 const HeaderDiv = styled.div`
-  grid-column: col2 / col3;
-  grid-row: row1 / row2;
-
-  display: grid;
-  grid-template-columns: [col1] 450px [col2] auto [col3];
-  grid-template-rows: [row1] auto [row2];
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 
   border-bottom: 1px solid #aaa;
 `;
 const TitleContainer = styled.div`
-  grid-column: col1 / col2;
-  grid-row: row1 / row2;
-
   display: flex;
   flex-direction: row;
   align-items: center;
+  width: 425px;
 
   padding-left: 30px;
 
@@ -32,15 +28,39 @@ const TitleContainer = styled.div`
   }
 `;
 const NavLinks = styled.div`
-  grid-column: col2 / col3;
-  grid-row: row1 / row2;
-
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-right: 30px;
 
   a {
     margin-right: 15px;
+  }
+`;
+
+const VersionDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  height: 100%;
+  padding-left: 10px;
+  border-left: 1px solid #aaa;
+
+  font-weight: normal;
+  font-size: 0.75em;
+  color: #888888;
+
+  span.version {
+    span.version-num {
+      font-weight: bold;
+    }
+  }
+  span.data-date {
+    span.date {
+      font-weight: bold;
+    }
   }
 `;
 
@@ -66,6 +86,14 @@ const Header = () => {
           View on GitHub
         </a>
       </NavLinks>
+      <VersionDiv>
+        <span className="version">
+          Version: <span className="version-num">0.0.1</span>
+        </span>
+        <span className="data-date">
+          Sequences Analyzed: Up to <span className="date">2020-06-06</span>
+        </span>
+      </VersionDiv>
     </HeaderDiv>
   );
 };
