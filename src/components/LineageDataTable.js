@@ -15,12 +15,12 @@ import {
   snapGeneHighlightColors,
   snapGeneNTColors,
   shingAAColors,
+  // clustalXAAColors,
 } from '../utils/colors';
 import { capitalize } from '../utils/string';
 
 const DataTableContainer = styled.div`
   span.position-title {
-    margin-left: 315px;
     font-size: 12px;
     font-weight: 500;
   }
@@ -69,7 +69,7 @@ const StyledDataTable = styled(DataTable)`
     }
   }
 
-  .rdt_TableCol_Sortable[id^='column-pos'] {
+  .rdt_TableCol_Sortable[id^='column-pos_'] {
     // color: red;
     & > div {
       margin-left: 15px;
@@ -82,6 +82,10 @@ const StyledDataTable = styled(DataTable)`
     .rdt_TableCell {
       padding-left: 4px;
       padding-right: 4px;
+
+      & > div {
+        overflow: visible;
+      }
     }
   }
 `;
@@ -186,6 +190,7 @@ const sortFn = (rows, field, direction) => {
 
   return rows;
 };
+
 const conditionCompare = (base, refBase, matchOrMismatch) => {
   // Flip the XOR (XNOR)
   return !((base === refBase) ^ (matchOrMismatch === 'match' ? true : false));
@@ -203,18 +208,6 @@ const LineageDataTable = observer(() => {
   const handleCompareModeChange = (event) => setCompareMode(event.target.value);
   const handleCompareColorChange = (event) =>
     setCompareColor(event.target.value);
-
-  // Better column names
-  let groupKeyName = '';
-  if (covidStore.groupKey === 'lineage') {
-    groupKeyName = 'Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      groupKeyName = 'NT SNP';
-    } else {
-      groupKeyName = 'AA SNP';
-    }
-  }
 
   // Get the maximum and minimum cases_sum and cases_percent for the colormaps
   // Ignore those values for the reference row (which are NaN)
@@ -239,58 +232,114 @@ const LineageDataTable = observer(() => {
     0
   );
 
-  let columns = [
-    {
-      name: groupKeyName,
+  // The offset of the position title will depend on what columns
+  // are present
+  let positionTitleOffset = 0;
+
+  // Build initial columns
+  const columns = [];
+
+  // For lineage grouping, add lineage column
+  if (covidStore.groupKey === 'lineage') {
+    columns.push({
+      name: 'Lineage',
       selector: 'group',
       sortable: true,
       width: '100px',
-      style: {
-        fontWeight: '700',
-      },
-    },
-    {
-      name: 'Seqs',
-      selector: 'cases_sum',
+      style: { fontWeight: '700' },
+    });
+    positionTitleOffset += 100;
+  }
+
+  // For SNP grouping, add each SNP chunk as its own column
+  if (covidStore.groupKey === 'snp') {
+    // Add the gene column, if we're in AA mode
+    if (covidStore.dnaOrAa === 'aa') {
+      columns.push({
+        name: 'Gene',
+        selector: 'gene',
+        sortable: true,
+        width: '50px',
+        style: { fontWeight: '700' },
+      });
+      positionTitleOffset += 50;
+    }
+    // Add the position column
+    // We don't need as much space for this, for AA mode
+    columns.push({
+      name: covidStore.dnaOrAa === 'dna' ? 'Position' : 'Index',
+      selector: 'pos',
       sortable: true,
-      width: '60px',
-      cell: (row) => {
-        return (
-          <HeatmapCell
-            value={row.cases_sum}
-            min={minCasesSum}
-            max={maxCasesSum}
-            percent={false}
-          />
-        );
-      },
-    },
-    {
-      name: '% Seqs',
-      selector: 'cases_percent',
+      width: covidStore.dnaOrAa === 'dna' ? '60px' : '45px',
+      style: { fontWeight: '700' },
+    });
+    positionTitleOffset += covidStore.dnaOrAa === 'dna' ? 60 : 45;
+    // Add the Ref and Alt columns
+    columns.push({
+      name: 'Ref',
+      selector: 'ref',
       sortable: true,
-      width: '75px',
-      cell: (row) => {
-        return (
-          <HeatmapCell
-            value={row.cases_percent}
-            min={minCasesPercent}
-            max={maxCasesPercent}
-            percent={true}
-          />
-        );
-      },
+      width: '24px',
+      cell: (row) => <LetterCell value={row['ref']} />,
+    });
+    columns.push({
+      name: 'Alt',
+      selector: 'alt',
+      sortable: true,
+      width: '24px',
+      cell: (row) => <LetterCell value={row['alt']} />,
+    });
+    positionTitleOffset += 48;
+  }
+
+  // Push the quantitative columns
+  columns.push({
+    name: 'Seqs',
+    selector: 'cases_sum',
+    sortable: true,
+    width: '60px',
+    cell: (row) => {
+      return (
+        <HeatmapCell
+          value={row.cases_sum}
+          min={minCasesSum}
+          max={maxCasesSum}
+          percent={false}
+        />
+      );
     },
-    {
-      name: 'is in sidepanel',
-      selector: null,
-      sortable: false,
-      width: '80px',
-      cell: (row) => {
-        return <AddToSidepanelCheckbox groupKey={row.group} />;
-      },
+  });
+  positionTitleOffset += 60;
+  columns.push({
+    name: '% Seqs',
+    selector: 'cases_percent',
+    sortable: true,
+    width: '75px',
+    cell: (row) => {
+      return (
+        <HeatmapCell
+          value={row.cases_percent}
+          min={minCasesPercent}
+          max={maxCasesPercent}
+          percent={true}
+        />
+      );
     },
-  ];
+  });
+  positionTitleOffset += 75;
+
+  // Push sidepanel column
+  columns.push({
+    name: 'Show structure',
+    selector: null,
+    sortable: false,
+    width: '80px',
+    cell: (row) => {
+      return <AddToSidepanelCheckbox groupKey={row.group} />;
+    },
+  });
+  positionTitleOffset += 80;
+
   // Build a column for each changing position
   let refRow = _.findWhere(covidStore.caseDataAggGroup, {
     group: 'Reference',
@@ -336,6 +385,17 @@ const LineageDataTable = observer(() => {
     });
   });
 
+  // Default sorting behavior
+  let defaultSortBy;
+  // For lineage, sort by lineage
+  if (covidStore.groupKey === 'lineage') {
+    defaultSortBy = 'group';
+  }
+  // For SNPs, sort by position
+  else if (covidStore.groupKey === 'snp') {
+    defaultSortBy = 'pos';
+  }
+
   return (
     <DataTableContainer>
       <DataTableOptions>
@@ -353,7 +413,10 @@ const LineageDataTable = observer(() => {
           handleColorChange={handleCompareColorChange}
         />
       </DataTableOptions>
-      <span className="position-title">
+      <span
+        className="position-title"
+        style={{ marginLeft: positionTitleOffset }}
+      >
         {covidStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
       </span>
       <StyledDataTable
@@ -367,7 +430,7 @@ const LineageDataTable = observer(() => {
         // fixedHeader={true}
         // fixedHeaderScrollHeight={'400px'}
         pagination={false}
-        defaultSortField={'group'}
+        defaultSortField={defaultSortBy}
         defaultSortAsc={true}
         conditionalRowStyles={[
           {

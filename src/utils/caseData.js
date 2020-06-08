@@ -68,6 +68,18 @@ function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
   return newCaseData;
 }
 
+// dateRange is an array, [start, end]
+function filterByDate(caseData, dateRange) {
+  // Filter by date
+  if (dateRange[0] > -1 && dateRange[1] > -1) {
+    return _.filter(caseData, (row) => {
+      return row.date >= dateRange[0] && row.date <= dateRange[1];
+    });
+  }
+
+  return caseData;
+}
+
 export function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
@@ -176,11 +188,8 @@ export function aggCaseDataByGroup(
   let totalCaseCount = 0;
 
   // Filter by date
-  if (dateRange[0] > -1 && dateRange[1] > -1) {
-    caseData = _.filter(caseData, (row) => {
-      return row.date >= dateRange[0] && row.date <= dateRange[1];
-    });
-  }
+  caseData = filterByDate(caseData, dateRange);
+  console.log(caseData.length, 'rows remaining after date filtering');
 
   caseData.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, row.group)) {
@@ -311,6 +320,39 @@ export function aggCaseDataByGroup(
     };
   }
 
+  // For SNP data, break out the (gene), position, ref, and alt
+  if (groupKey === 'snp') {
+    let row_split;
+    Object.keys(caseDataAggGroup).forEach((row) => {
+      // Skip reference
+      if (row === 'Reference') {
+        // Since we're going to display the gene or pos later
+        // in the data table, put these here so the reference
+        // row renders correctly
+        if (dnaOrAa == 'dna') {
+          caseDataAggGroup[row]['pos'] = 'Reference';
+        } else {
+          caseDataAggGroup[row]['gene'] = 'Reference';
+        }
+        return;
+      }
+
+      row_split = row.split('|');
+      if (dnaOrAa === 'dna') {
+        // DNA SNP string: pos|ref|alt
+        caseDataAggGroup[row]['pos'] = parseInt(row_split[0]);
+        caseDataAggGroup[row]['ref'] = row_split[1];
+        caseDataAggGroup[row]['alt'] = row_split[2];
+      } else {
+        // AA SNP string: gene|pos|ref|alt
+        caseDataAggGroup[row]['gene'] = row_split[0];
+        caseDataAggGroup[row]['pos'] = parseInt(row_split[1]);
+        caseDataAggGroup[row]['ref'] = row_split[2];
+        caseDataAggGroup[row]['alt'] = row_split[3];
+      }
+    });
+  }
+
   Object.keys(caseDataAggGroup).forEach((row) => {
     Object.keys(changingPositions).forEach((pos) => {
       ref_base = changingPositions[pos]['ref'];
@@ -327,13 +369,13 @@ export function aggCaseDataByGroup(
         lineageSnpData =
           dnaOrAa === 'dna' ? loadLineageDnaSnp() : loadLineageAaSnp();
         if (dnaOrAa === 'dna') {
-          // The DNA SNPs are 1-indexed, so +1 to make it 1-indexed
+          // The DNA SNPs are 0-indexed, so +1 to make it 1-indexed
           snpRow = _.findWhere(lineageSnpData, { lineage: row, pos: pos + 1 });
           if (snpRow !== undefined) {
             alt_base = snpRow.alt;
           }
         } else {
-          // The AA SNPs are 0-indexed
+          // The AA SNPs are already 0-indexed
           snpRow = _.findWhere(lineageSnpData, { lineage: row, pos: pos });
           if (snpRow !== undefined) {
             alt_base = snpRow.alt;
@@ -345,14 +387,14 @@ export function aggCaseDataByGroup(
       else if (groupKey === 'snp') {
         // DNA SNP string: pos|ref|alt
         if (dnaOrAa === 'dna') {
-          if (pos === parseInt(row.split('|')[0]) - 1) {
-            alt_base = row.split('|')[2];
+          if (pos === caseDataAggGroup[row]['pos'] - 1) {
+            alt_base = caseDataAggGroup[row]['alt'];
           }
         }
         // AA SNP string: gene|pos|ref|alt
         else {
-          if (pos === parseInt(row.split('|')[1]) - 1) {
-            alt_base = row.split('|')[3];
+          if (pos === caseDataAggGroup[row]['pos'] - 1) {
+            alt_base = caseDataAggGroup[row]['alt'];
           }
         }
       }
@@ -360,6 +402,8 @@ export function aggCaseDataByGroup(
       caseDataAggGroup[row]['pos_' + pos.toString()] = alt_base;
     });
   });
+
+  console.log(caseDataAggGroup);
 
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {
