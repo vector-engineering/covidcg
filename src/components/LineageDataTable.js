@@ -1,5 +1,6 @@
 /* eslint-disable react/display-name */
 import React from 'react';
+import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
 
@@ -60,7 +61,7 @@ const sortFn = (rows, field, direction) => {
   return rows;
 };
 
-const LineageDataTable = () => {
+const LineageDataTable = observer(() => {
   const { covidStore } = useStores();
 
   // Build a column for each changing position
@@ -209,7 +210,7 @@ const LineageDataTable = () => {
       sortFunction={sortFn}
     />
   );
-};
+});
 
 LineageDataTable.displayName = 'LineageDataTable';
 
