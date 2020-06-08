@@ -11,8 +11,7 @@ import DropdownContainer from './DropdownContainer';
 import { VegaLite } from 'react-vega';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
-import area_stack_absolute_spec from '../vega/area_stack.vl.json';
-import area_stack_norm_spec from '../vega/area_stack_norm.vl.json';
+import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
 import LineageDataTable from './LineageDataTable';
@@ -88,11 +87,11 @@ const HomePage = observer(({ covidStore }) => {
   const [areaStackMode, setAreaStackMode] = useState('percentages');
 
   const handleGroupingChange = (groupKey, dnaOrAa) => {
-    this.props.covidStore.changeGrouping(groupKey, dnaOrAa);
+    covidStore.changeGrouping(groupKey, dnaOrAa);
   };
 
   const handleGeneChange = (gene) => {
-    this.props.covidStore.selectGene(gene);
+    covidStore.selectGene(gene);
   };
 
   const handleBrush = (...args) => {
@@ -109,7 +108,7 @@ const HomePage = observer(({ covidStore }) => {
 
   const treeSelectOnChange = (currentNode, selectedNodes) => {
     console.log('onChange::', currentNode, selectedNodes);
-    this.props.covidStore.selectLocations(selectedNodes);
+    covidStore.selectLocations(selectedNodes);
   };
   const treeSelectOnAction = (node, action) => {
     console.log('onAction::', action, node);
@@ -120,10 +119,23 @@ const HomePage = observer(({ covidStore }) => {
 
   const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
 
-  let areaStackSpec =
-    areaStackMode === 'percentages'
-      ? area_stack_norm_spec
-      : area_stack_absolute_spec;
+  // Make a deep copy of the Vega spec so we can edit it
+  const areaStackSpec = JSON.parse(JSON.stringify(areaStackSpecInitial));
+
+  if (areaStackMode === 'percentages') {
+    areaStackSpec['vconcat'][0]['encoding']['y']['stack'] = 'normalize';
+  }
+
+  // Adapt axis labels to groupings
+  if (covidStore.groupKey === 'lineage') {
+    areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
+      'Cases by Lineage';
+  } else if (covidStore.groupKey === 'snp') {
+    areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
+      'Cases by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+  }
+
+  console.log(areaStackSpec);
 
   return (
     <HomePageDiv>
