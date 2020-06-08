@@ -1,30 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
-const reds = [
-  '#FFF5F0',
-  '#FEF1EB',
-  '#FEEEE6',
-  '#FEEAE1',
-  '#FEE7DC',
-  '#FEE3D7',
-  '#FEE0D2',
-  '#FDDACB',
-  '#FDD4C3',
-  '#FDCEBB',
-  '#FCC8B3',
-  '#FCC2AB',
-  '#FCBCA3',
-  '#FCB59B',
-  '#FCAF93',
-  '#FCA88B',
-  '#FCA184',
-  '#FC9B7C',
-  '#FC9474',
-  '#FB8D6D',
-  '#FB8767',
-];
+import { reds } from '../../utils/colors';
 
 const numColors = reds.length;
 
@@ -50,8 +27,13 @@ const HeatmapCell = ({ value, min, max, percent }) => {
     }
   }
 
+  // Don't show NaNs
+  if (Number.isNaN(value)) {
+    value = '';
+    color = 'transparent';
+  }
   // Format percentages
-  if (percent === true) {
+  else if (percent === true) {
     value = (value * 100).toFixed(2) + '%';
   }
 

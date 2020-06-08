@@ -143,8 +143,6 @@ export function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     });
   }
 
-  //console.log(aggCaseData);
-
   // Expand obj of objs back into a list of objects
   let aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((group) => {
@@ -201,9 +199,6 @@ export function aggCaseDataByGroup(
       caseDataAggGroup[row]['cases_sum'] / totalCaseCount;
   });
 
-  //console.log(caseData);
-  //console.log(caseDataAggGroup);
-
   // We need a list of 0-indexed positions for the data table
   let changingPositions = {};
   // If we grouped by lineages, then we need to find what SNPs
@@ -217,7 +212,7 @@ export function aggCaseDataByGroup(
     Object.keys(caseDataAggGroup).forEach((lineage) => {
       let lineageSnps = _.filter(
         lineageSnpData,
-        (row) => row.lineage == lineage
+        (row) => row.lineage == lineage && row.group != 'Reference'
       );
 
       if (dnaOrAa === 'dna') {
@@ -258,8 +253,8 @@ export function aggCaseDataByGroup(
       // For DNA SNPs, the position is the first chunk (pos|ref|alt)
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(caseDataAggGroup).forEach((snp_str) => {
-        // Skip if the snp_str is None
-        if (snp_str === 'None') {
+        // Skip if the snp_str is Reference
+        if (snp_str === 'Reference') {
           return;
         }
         snp_str_split = snp_str.split('|');
@@ -274,8 +269,8 @@ export function aggCaseDataByGroup(
       // For AA SNPs, the position is the second chunk (gene|pos|ref|alt)
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(caseDataAggGroup).forEach((snp_str) => {
-        // Skip if the snp_str is None
-        if (snp_str === 'None') {
+        // Skip if the snp_str is Reference
+        if (snp_str === 'Reference') {
           return;
         }
 
@@ -309,7 +304,7 @@ export function aggCaseDataByGroup(
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, 'reference')) {
+  if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, 'Reference')) {
     caseDataAggGroup['Reference'] = {
       cases_sum: NaN,
       cases_percent: NaN,
@@ -323,7 +318,7 @@ export function aggCaseDataByGroup(
       pos = parseInt(pos);
 
       // Ignore finding alternate bases for the ref sequence
-      if (row === 'reference') {
+      if (row === 'Reference') {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
@@ -372,51 +367,10 @@ export function aggCaseDataByGroup(
   });
   caseDataAggGroup = Object.values(caseDataAggGroup);
 
-  console.log(caseDataAggGroup);
-
   return {
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
   };
-
-  /*
-
-  // Obj to list of rows
-  let caseDataAggGroupList = [];
-  Object.keys(caseDataAggGroup).forEach((lineage) => {
-    let lineageObj = {
-      lineage: lineage === 'root' ? 'Reference' : lineage,
-      cases_sum: caseDataAggGroup[lineage],
-      cases_percent: caseDataAggGroup[lineage] / totalCaseCount,
-      jmol: Math.random(),
-    };
-
-    let lineage_dat = _.filter(
-      initialLineageData,
-      (row) => row.lineage == lineage
-    );
-
-    changingPositions.forEach((pos) => {
-      let ref_base = reference_seq[pos];
-      let alt_base = ref_base;
-
-      // Find the position in the SNPs for this lineage
-      let row = _.findWhere(lineage_dat, { pos: pos + 1 });
-      if (row !== undefined) {
-        alt_base = row.alt;
-      }
-
-      lineageObj['pos_' + pos.toString()] = alt_base;
-    });
-
-    caseDataAggGroupList.push(lineageObj);
-  });
-  //console.log(caseDataAggGroupList);
-
-  return {
-    caseDataAggGroupList: caseDataAggGroupList,
-    changingPositions: changingPositions,
-  };*/
 }
 
 /*
