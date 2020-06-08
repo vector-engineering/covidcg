@@ -98,7 +98,7 @@ allGenes.forEach((gene_obj) => {
   });
 });
 
-console.log(gene_to_dna_snp);
+// console.log(gene_to_dna_snp);
 // console.log(gene_to_aa_snp);
 
 // Is this SNP ID within this gene?

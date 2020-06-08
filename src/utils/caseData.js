@@ -372,7 +372,7 @@ export function aggCaseDataByGroup(
   });
   caseDataAggGroup = Object.values(caseDataAggGroup);
 
-  console.log(caseDataAggGroup);
+  // console.log(caseDataAggGroup);
 
   return {
     caseDataAggGroup: caseDataAggGroup,
