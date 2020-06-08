@@ -54,10 +54,24 @@
           "condition": { "selection": "highlight", "value": 1 },
           "value": 0.8
         },
-        "tooltip": {
-          "field": "group",
-          "type": "nominal"
-        }
+        "tooltip": [
+          {
+            "field": "group",
+            "title": "Group",
+            "type": "nominal"
+          },
+          {
+            "field": "date",
+            "title": "Sample Date",
+            "type": "temporal",
+            "timeUnit": "monthdate"
+          },
+          {
+            "field": "cases_sum",
+            "title": "Cases",
+            "type": "quantitative"
+          }
+        ]
       }
     },
     {

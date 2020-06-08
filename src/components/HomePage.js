@@ -126,13 +126,20 @@ const HomePage = observer(({ covidStore }) => {
     areaStackSpec['vconcat'][0]['encoding']['y']['stack'] = 'normalize';
   }
 
-  // Adapt axis labels to groupings
+  // Adapt labels to groupings
   if (covidStore.groupKey === 'lineage') {
+    // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
       'Cases by Lineage';
+    // Tooltip title
+    areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] = 'Lineage';
   } else if (covidStore.groupKey === 'snp') {
+    // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
       'Cases by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+    // Tooltip title
+    areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] =
+      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
   //console.log(areaStackSpec);
