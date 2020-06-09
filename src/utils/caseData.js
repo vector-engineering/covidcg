@@ -12,10 +12,17 @@ const processedCaseData = _.map(initialCaseData, (row) => {
   row.date = new Date(row.date).getTime();
   return row;
 });
-// const initialLineageData = loadLineageData();
 
 export function loadCaseData() {
   return processedCaseData;
+}
+
+function convertToObj(list) {
+  const obj = {};
+  list.forEach((item) => {
+    obj[item] = 1;
+  });
+  return obj;
 }
 
 function filterByLocation(caseData, locationIds) {
@@ -24,8 +31,10 @@ function filterByLocation(caseData, locationIds) {
     return caseData;
   }
 
-  return _.filter(caseData, (row) => {
-    return locationIds.includes(row.location_id);
+  const locationObj = convertToObj(locationIds);
+
+  return caseData.filter((row) => {
+    return locationObj[row.location_id] === 1;
   });
 }
 
@@ -403,7 +412,7 @@ export function aggCaseDataByGroup(
     });
   });
 
-  console.log(caseDataAggGroup);
+  // console.log(caseDataAggGroup);
 
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {
