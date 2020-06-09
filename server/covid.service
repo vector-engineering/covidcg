@@ -1,0 +1,12 @@
+[Unit]
+Description=COVID-19 CG Server
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python2 /home/chena/covid_ui/server/server.py 80 SZ0BBMtXTzll9nzQ:8OVOF0Lh1Rw1y8KB --dir /home/chena/covid_ui/dist
+WorkingDirectory=/home/chena/covid_ui
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=sysinit.target
