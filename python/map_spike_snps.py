@@ -50,25 +50,34 @@ aa_snp_pos_df = pd.DataFrame.from_dict(count_dict, orient='index', columns=['cou
 aa_snp_pos_df['count_log'] = np.log10(aa_snp_pos_df['count'])
 
 # Normalize counts by max
-aa_snp_pos_df['count_norm'] = aa_snp_pos_df['count'] / aa_snp_pos_df['count'].max()
-aa_snp_pos_df['count_log_norm'] = aa_snp_pos_df['count_log'] / aa_snp_pos_df['count_log'].max()
+min_val = 0.1
+max_val = 1.0
+aa_snp_pos_df['count_norm'] = min_val + ((aa_snp_pos_df['count'] / aa_snp_pos_df['count'].max()) / (max_val - min_val))
+aa_snp_pos_df['count_log_norm'] = min_val + ((aa_snp_pos_df['count_log'] / aa_snp_pos_df['count_log'].max()) / (max_val - min_val))
 
 # Get colormap
-cmap = cm.get_cmap('viridis')
+cmap = cm.get_cmap('cool')
 
 # Map normalized counts to colormap
 aa_snp_pos_df['color_rgb'] = aa_snp_pos_df['count_norm'].apply(cmap)
 aa_snp_pos_df['color_log_rgb'] = aa_snp_pos_df['count_log_norm'].apply(cmap)
 
+# Set 0 or neg inf counts to gray
+for i, row in aa_snp_pos_df.iterrows():
+    if row['count'] == 0 or row['count'] == 1:
+        aa_snp_pos_df.loc[i, 'color_rgb'] = pd.Series([1]).apply(lambda x: (0.7, 0.7, 0.7, 1.0)).values
+    if np.isinf(row['count_log']) or row['count_log'] == 0:
+        aa_snp_pos_df.loc[i, 'color_log_rgb'] = pd.Series([1]).apply(lambda x: (0.7, 0.7, 0.7, 1.0)).values
+
 # Convert to hex
 def rgb_to_hex(rgb):
     out = 0
     # Red channel
-    out += (int(rgb[0] * 256) * (256 ** 2))
+    out += (int(rgb[0] * 255) * (256 ** 2))
     # Blue channel
-    out += (int(rgb[1] * 256) * (256))
+    out += (int(rgb[1] * 255) * (256))
     # Green channel
-    out += (int(rgb[2] * 256))
+    out += (int(rgb[2] * 255))
     return hex(out)
 aa_snp_pos_df['color_hex'] = aa_snp_pos_df['color_rgb'].apply(rgb_to_hex)
 aa_snp_pos_df['color_log_hex'] = aa_snp_pos_df['color_log_rgb'].apply(rgb_to_hex)
