@@ -143,8 +143,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   }
 
   const renderContent = () => {
-    console.log(uiStore.dataState);
-    console.log(uiStore.dataState !== asyncStates.SUCCEEDED);
+    //console.log(uiStore.dataState);
+    //console.log(uiStore.dataState !== asyncStates.SUCCEEDED);
     if (uiStore.dataState !== asyncStates.SUCCEEDED) {
       return (
         <div

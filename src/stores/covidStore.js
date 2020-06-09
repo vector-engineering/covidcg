@@ -104,7 +104,6 @@ class ObservableCovidStore {
   selectGene(_selectedGene) {
     // im not sure what this var actually is
     console.log('SELECT_GENE', _selectedGene);
-
     this.selectedGene = getGene(_selectedGene);
 
     // Get matching clade_ids
@@ -118,8 +117,7 @@ class ObservableCovidStore {
   selectLocations(selectedNodes) {
     console.log('SELECT_LOCATIONS STARTED');
     uiStoreInstance.onDataChangeStarted();
-
-    console.log(selectedNodes);
+    // console.log(selectedNodes);
 
     this.selectedLocationIds = getLocationIds(selectedNodes);
 
@@ -143,6 +141,7 @@ class ObservableCovidStore {
         dateRange: toJS(this.dateRange),
       },
       ({ caseDataAggGroup, changingPositions }) => {
+        // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
       }

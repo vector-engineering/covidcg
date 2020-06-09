@@ -93,11 +93,10 @@ function filterByDate(caseData, dateRange) {
 function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
-
   //console.log('filtering by locationIds', locationIds);
 
   // Filter by location
-  console.log('yo: ', locationIds);
+  // console.log('yo: ', locationIds);
   caseData = filterByLocation(caseData, locationIds);
   console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by gene
@@ -413,8 +412,6 @@ function aggCaseDataByGroup({
       caseDataAggGroup[row]['pos_' + pos.toString()] = alt_base;
     });
   });
-
-  //console.log(caseDataAggGroup);
 
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {
