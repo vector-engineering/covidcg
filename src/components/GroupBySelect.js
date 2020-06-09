@@ -122,8 +122,8 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
 };
 
 GroupBySelect.propTypes = {
-  groupKey: PropTypes.string.isRequired,
-  dnaOrAa: PropTypes.string.isRequired,
+  groupKey: PropTypes.string,
+  dnaOrAa: PropTypes.string,
   onChange: PropTypes.func,
 };
 

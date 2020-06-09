@@ -95,7 +95,9 @@
     "webpack": "4.41.2",
     "webpack-bundle-analyzer": "3.6.0",
     "webpack-dev-middleware": "3.7.2",
-    "webpack-hot-middleware": "2.25.0"
+    "webpack-hot-middleware": "2.25.0",
+    "worker-loader": "2.0.0",
+    "worker-plugin": "4.0.3"
   },
   "keywords": [],
   "repository": {

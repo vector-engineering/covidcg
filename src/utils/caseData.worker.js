@@ -14,8 +14,16 @@ const processedCaseData = _.map(initialCaseData, (row) => {
 });
 // const initialLineageData = loadLineageData();
 
-export function loadCaseData() {
+function loadCaseData() {
   return processedCaseData;
+}
+
+function convertToObj(list) {
+  const obj = {};
+  list.forEach((item) => {
+    obj[item] = 1;
+  });
+  return obj;
 }
 
 function filterByLocation(caseData, locationIds) {
@@ -24,8 +32,10 @@ function filterByLocation(caseData, locationIds) {
     return caseData;
   }
 
-  return _.filter(caseData, (row) => {
-    return locationIds.includes(row.location_id);
+  const locationObj = convertToObj(locationIds);
+
+  return caseData.filter((row) => {
+    return locationObj[row.location_id] === 1;
   });
 }
 
@@ -80,13 +90,14 @@ function filterByDate(caseData, dateRange) {
   return caseData;
 }
 
-export function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
+function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
 
-  console.log('filtering by locationIds', locationIds);
+  //console.log('filtering by locationIds', locationIds);
 
   // Filter by location
+  console.log('yo: ', locationIds);
   caseData = filterByLocation(caseData, locationIds);
   console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by gene
@@ -176,13 +187,13 @@ export function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
 // Collapse case data by the grouping key
 // i.e., collapse the date field for cases, so we can display group-wise stats
 // in the data table
-export function aggCaseDataByGroup(
+function aggCaseDataByGroup({
   caseData,
   selectedGene,
   groupKey,
   dnaOrAa,
-  dateRange
-) {
+  dateRange,
+}) {
   // Aggregate case data by clade only (no dates)
   let caseDataAggGroup = {};
   let totalCaseCount = 0;
@@ -403,7 +414,7 @@ export function aggCaseDataByGroup(
     });
   });
 
-  console.log(caseDataAggGroup);
+  //console.log(caseDataAggGroup);
 
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {
@@ -442,3 +453,26 @@ export function aggCaseDataByGroup(
     return entropy_data
   }
   */
+
+self.addEventListener(
+  'message',
+  function (e) {
+    const data = JSON.parse(e.data);
+
+    let result;
+    if (data.type === 'aggCaseDataByGroup') {
+      console.log('into casedata for agg', data);
+      result = aggCaseDataByGroup(data);
+    } else if (data.type === 'processCaseData') {
+      console.log('into casedata for process', data);
+      result = processCaseData(
+        data.selectedLocationIds,
+        data.selectedGene,
+        data.groupKey,
+        data.dnaOrAa
+      );
+    }
+    self.postMessage(JSON.stringify(result));
+  },
+  false
+);

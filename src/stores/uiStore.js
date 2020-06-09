@@ -1,5 +1,15 @@
 import { observable, action } from 'mobx';
 
+const STARTED = 'STARTED';
+const SUCCEEDED = 'SUCCEEDED';
+const FAILED = 'FAILED';
+
+export const asyncStates = {
+  STARTED,
+  SUCCEEDED,
+  FAILED,
+};
+
 function removeItemAll(arr, value) {
   var i = 0;
   while (i < arr.length) {
@@ -15,6 +25,22 @@ function removeItemAll(arr, value) {
 class UiStore {
   @observable sidebarOpen = false;
   @observable sidebarSelectedGroupKeys = [];
+  @observable dataState = STARTED;
+
+  @action
+  onDataChangeStarted = () => {
+    this.dataState = STARTED;
+  };
+
+  @action
+  onDataChangeFinished = () => {
+    this.dataState = SUCCEEDED;
+  };
+
+  @action
+  onDataChangeErr = () => {
+    this.dataState = FAILED;
+  };
 
   @action
   setSidebarOpen = () => {

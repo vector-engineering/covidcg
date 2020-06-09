@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
@@ -17,6 +17,7 @@ import { connect } from '../stores/connect';
 import LineageDataTable from './LineageDataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
+import { asyncStates } from '../stores/uiStore';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -82,7 +83,7 @@ AreaStackModeSelect.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-const HomePage = observer(({ covidStore }) => {
+const HomePage = observer(({ covidStore, uiStore }) => {
   // 'percentages' or 'counts'
   const [areaStackMode, setAreaStackMode] = useState('percentages');
 
@@ -107,7 +108,6 @@ const HomePage = observer(({ covidStore }) => {
   };
 
   const treeSelectOnChange = (currentNode, selectedNodes) => {
-    console.log('onChange::', currentNode, selectedNodes);
     covidStore.selectLocations(selectedNodes);
   };
   const treeSelectOnAction = (node, action) => {
@@ -142,7 +142,39 @@ const HomePage = observer(({ covidStore }) => {
       (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
-  //console.log(areaStackSpec);
+  const renderContent = () => {
+    console.log(uiStore.dataState);
+    console.log(uiStore.dataState !== asyncStates.SUCCEEDED);
+    if (uiStore.dataState !== asyncStates.SUCCEEDED) {
+      return (
+        <div
+          style={{
+            width: '100%',
+            height: '300px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          loading...
+        </div>
+      );
+    }
+    return (
+      <>
+        <VegaLite
+          data={{
+            case_data: covidStore.caseData,
+          }}
+          spec={areaStackSpec}
+          signalListeners={{
+            brush: _.debounce(handleBrush, 500),
+          }}
+        />
+        <LineageDataTable />
+      </>
+    );
+  };
 
   return (
     <HomePageDiv>
@@ -161,7 +193,10 @@ const HomePage = observer(({ covidStore }) => {
         <span className="location-tree-title">Selected Locations:</span>
         <DropdownContainer
           data={covidStore.selectTree.children}
-          onChange={treeSelectOnChange}
+          onChange={(currentNode, selectedNodes) => {
+            treeSelectOnChange(currentNode, selectedNodes);
+            console.log('done in the homepage');
+          }}
           onAction={treeSelectOnAction}
           onNodeToggle={treeSelectOnNodeToggleCurrentNode}
         />
@@ -174,25 +209,13 @@ const HomePage = observer(({ covidStore }) => {
           }} 
           spec={entropy_spec}
         /> */}
-
         <PlotOptions>
           <AreaStackModeSelect
             mode={areaStackMode}
             onChange={onChangeAreaStackMode}
           />
         </PlotOptions>
-
-        <VegaLite
-          data={{
-            case_data: covidStore.caseData,
-          }}
-          spec={areaStackSpec}
-          signalListeners={{
-            brush: _.debounce(handleBrush, 500),
-          }}
-        />
-
-        <LineageDataTable />
+        {renderContent()}
       </PlotContainer>
     </HomePageDiv>
   );

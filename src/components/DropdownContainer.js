@@ -247,6 +247,10 @@ class DropdownContainer extends Component {
   }
 }
 
+DropdownContainer.defaultProps = {
+  data: {},
+};
+
 DropdownContainer.propTypes = {
   data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
 };
