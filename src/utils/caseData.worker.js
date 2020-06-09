@@ -14,9 +14,9 @@ const processedCaseData = _.map(initialCaseData, (row) => {
 });
 // const initialLineageData = loadLineageData();
 
-function loadCaseData() {
-  return processedCaseData;
-}
+// function loadCaseData() {
+//   return processedCaseData;
+// }
 
 function convertToObj(list) {
   const obj = {};
