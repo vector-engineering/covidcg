@@ -71,7 +71,7 @@ ipython_config.py
 # End of https://www.gitignore.io/api/jupyternotebooks
 
 # Ignore PDBs
-python/pdbs/**/*
+pymol/pdbs/**/*
 
 # Ignore data generated from notebooks
 notebooks/*.csv
