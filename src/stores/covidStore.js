@@ -116,7 +116,7 @@ class ObservableCovidStore {
 
   @action
   selectLocations(selectedNodes) {
-    console.log(selectedNodes);
+    //console.log(selectedNodes);
 
     this.selectedLocationIds = getLocationIds(selectedNodes);
 

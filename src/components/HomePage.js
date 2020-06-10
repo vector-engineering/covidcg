@@ -143,8 +143,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   }
 
   const renderContent = () => {
-    console.log(uiStore.dataState);
-    console.log(uiStore.dataState !== asyncStates.SUCCEEDED);
     if (uiStore.dataState !== asyncStates.SUCCEEDED) {
       return (
         <div
@@ -195,7 +193,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           data={covidStore.selectTree.children}
           onChange={(currentNode, selectedNodes) => {
             treeSelectOnChange(currentNode, selectedNodes);
-            console.log('done in the homepage');
           }}
           onAction={treeSelectOnAction}
           onNodeToggle={treeSelectOnNodeToggleCurrentNode}

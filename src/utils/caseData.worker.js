@@ -96,7 +96,7 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   //console.log('filtering by locationIds', locationIds);
 
   // Filter by location
-  console.log('yo: ', locationIds);
+
   caseData = filterByLocation(caseData, locationIds);
   console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by gene
