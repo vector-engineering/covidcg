@@ -28,7 +28,7 @@ const HeatmapCell = ({ value, min, max, percent }) => {
   }
 
   // Don't show NaNs
-  if (Number.isNaN(value)) {
+  if (Number.isNaN(value) || value === null) {
     value = '';
     color = 'transparent';
   }
