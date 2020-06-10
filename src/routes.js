@@ -10,6 +10,10 @@ const routes = {
     path: '/',
     component: <HomePage />,
   }),
+  home_index: new Route({
+    path: '/index.html',
+    component: <HomePage />,
+  }),
   about: new Route({
     path: '/about',
     component: <AboutPage />,

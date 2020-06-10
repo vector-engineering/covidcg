@@ -28,7 +28,7 @@ data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> abs
 spike_pos_colors = {}
 
 with (data_dir / 'spike_snp_freq_by_pos.csv').open('r') as fp:
-    # Columns: pos, count, count_log, count_norm, count_log_norm, color_hex, color_log_hex
+    # Columns: pos, count, count_log, count_norm, count_log_norm, color_rgb, color_log_rgb, color_hex, color_log_hex
     i = 0
     for line in fp:
         i += 1
@@ -65,6 +65,7 @@ def load_spike_structure():
 
 def color_residues():
     for resi, color in spike_pos_colors.items():
+        # print(color)
         cmd.color(color, 'resi {}'.format(resi))
 
 load_spike_structure()

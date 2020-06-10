@@ -116,9 +116,6 @@ class ObservableCovidStore {
 
   @action
   selectLocations(selectedNodes) {
-    console.log('SELECT_LOCATIONS STARTED');
-    uiStoreInstance.onDataChangeStarted();
-
     console.log(selectedNodes);
 
     this.selectedLocationIds = getLocationIds(selectedNodes);
@@ -134,6 +131,7 @@ class ObservableCovidStore {
 
   @action
   updateAggCaseDataByGroup() {
+    uiStoreInstance.onDataChangeStarted();
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -145,12 +143,15 @@ class ObservableCovidStore {
       ({ caseDataAggGroup, changingPositions }) => {
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
+        uiStoreInstance.onDataChangeFinished();
       }
     );
   }
 
   @action
   updateCaseData() {
+    uiStoreInstance.onDataChangeStarted();
+
     processCaseData(
       {
         selectedLocationIds: toJS(this.selectedLocationIds),

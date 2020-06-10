@@ -12,7 +12,6 @@ const processedCaseData = _.map(initialCaseData, (row) => {
   row.date = new Date(row.date).getTime();
   return row;
 });
-// const initialLineageData = loadLineageData();
 
 function loadCaseData() {
   return processedCaseData;
@@ -414,7 +413,7 @@ function aggCaseDataByGroup({
     });
   });
 
-  //console.log(caseDataAggGroup);
+  // console.log(caseDataAggGroup);
 
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {

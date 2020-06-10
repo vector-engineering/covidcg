@@ -1,4 +1,4 @@
-import Worker from './test.worker.js';
+import Worker from './example.worker.js';
 
 const worker = new Worker();
 

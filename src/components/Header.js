@@ -4,6 +4,7 @@ import { Link } from 'mobx-router';
 
 import routes from '../routes';
 import { useStores } from '../stores/connect';
+import { version, dataDate } from '../utils/version';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -88,10 +89,10 @@ const Header = () => {
       </NavLinks>
       <VersionDiv>
         <span className="version">
-          Version: <span className="version-num">0.0.1</span>
+          Version: <span className="version-num">{version}</span>
         </span>
         <span className="data-date">
-          Sequences Analyzed: Up to <span className="date">2020-06-06</span>
+          Sequences Analyzed: Up to <span className="date">{dataDate}</span>
         </span>
       </VersionDiv>
     </HeaderDiv>

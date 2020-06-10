@@ -25,8 +25,8 @@ const LiteMolViewer = React.memo(() => {
     });
     plugin.current.loadMolecule({
       id: '1tqn',
-      url: 'https://www.ebi.ac.uk/pdbe/static/entry/1tqn_updated.cif',
-      format: 'cif', // default
+      url: 'https://files.rcsb.org/download/6X2A.pdb',
+      format: 'pdb', // default
     });
   });
 
