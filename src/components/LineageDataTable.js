@@ -15,7 +15,6 @@ import {
   snapGeneHighlightColors,
   snapGeneNTColors,
   shingAAColors,
-  // clustalXAAColors,
 } from '../utils/colors';
 import { capitalize } from '../utils/string';
 
@@ -344,6 +343,9 @@ const LineageDataTable = observer(() => {
   let refRow = _.findWhere(covidStore.caseDataAggGroup, {
     group: 'Reference',
   });
+  if (!refRow) {
+    return null;
+  }
   Object.keys(refRow).forEach((col) => {
     // Only process columns starting with "pos_"
     if (!col.startsWith('pos_')) {

@@ -14,6 +14,7 @@ export const connect = (Component) => {
           <Component
             covidStore={value.covidStore}
             router={value.router}
+            uiStore={value.uiStore}
             {...props}
           />
         )}

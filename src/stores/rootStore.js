@@ -5,14 +5,14 @@ import routes from '../routes';
 import ObservableCovidStore from './covidStore';
 import UiStore from './uiStore';
 
-const covidStore = new ObservableCovidStore();
-const router = new RouterStore();
-const uiStore = new UiStore();
+export const uiStoreInstance = new UiStore();
+export const covidStoreInstance = new ObservableCovidStore();
+export const routerInstance = new RouterStore();
 
 export const rootStore = {
-  covidStore,
-  router,
-  uiStore,
+  covidStore: covidStoreInstance,
+  router: routerInstance,
+  uiStore: uiStoreInstance,
 };
 
 export const storesContext = React.createContext(rootStore);

@@ -154,6 +154,10 @@ export default {
           },
         ],
       },
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' },
+      },
     ],
   },
 };

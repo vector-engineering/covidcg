@@ -1,6 +1,9 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 
-import { processCaseData, aggCaseDataByGroup } from '../utils/caseData';
+import {
+  processCaseData,
+  aggCaseDataByGroup,
+} from '../utils/caseDataWorkerWrapper';
 import { getGene, loadGeneOptions } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
@@ -8,6 +11,7 @@ import {
   getLocationByNameAndLevel,
   getLocationIds,
 } from '../utils/location';
+import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
   @observable groupKey = null;
@@ -44,31 +48,42 @@ class ObservableCovidStore {
     // No initial date range
     let initialDateRange = [-1, -1];
 
-    // Load case data
-    let caseData = processCaseData(
-      initialLocationIds,
-      defaultGene,
-      initialGroupKey,
-      initialDnaOrAa
-    );
-    let { caseDataAggGroup, changingPositions } = aggCaseDataByGroup(
-      caseData,
-      defaultGene,
-      initialGroupKey,
-      initialDnaOrAa,
-      initialDateRange
-    );
+    processCaseData(
+      {
+        selectedLocationIds: toJS(initialLocationIds),
+        selectedGene: toJS(defaultGene),
+        groupKey: toJS(initialGroupKey),
+        dnaOrAa: toJS(initialDnaOrAa),
+      },
+      (caseData) => {
+        uiStoreInstance.onDataChangeFinished();
+        this.updateAggCaseDataByGroup();
 
-    this.groupKey = initialGroupKey;
-    this.dnaOrAa = initialDnaOrAa;
-    this.genes = loadGeneOptions();
-    this.selectedGene = defaultGene;
-    this.selectTree = selectTree;
-    this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
-    this.caseData = caseData;
-    this.changingPositions = changingPositions;
-    this.caseDataAggGroup = caseDataAggGroup;
-    this.dateRange = initialDateRange;
+        aggCaseDataByGroup(
+          {
+            caseData: toJS(caseData),
+            selectedGene: toJS(defaultGene),
+            groupKey: toJS(initialGroupKey),
+            dnaOrAa: toJS(initialDnaOrAa),
+            dateRange: toJS(initialDateRange),
+          },
+          ({ changingPositions, caseDataAggGroup }) => {
+            this.groupKey = initialGroupKey;
+            this.dnaOrAa = initialDnaOrAa;
+            this.genes = loadGeneOptions();
+            this.selectedGene = defaultGene;
+            this.selectTree = selectTree;
+            this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
+            this.caseData = caseData;
+            this.changingPositions = changingPositions;
+            this.caseDataAggGroup = caseDataAggGroup;
+            this.dateRange = initialDateRange;
+
+            uiStoreInstance.onDataChangeFinished();
+          }
+        );
+      }
+    );
   }
 
   @action
@@ -89,7 +104,6 @@ class ObservableCovidStore {
   selectGene(_selectedGene) {
     // im not sure what this var actually is
     console.log('SELECT_GENE', _selectedGene);
-
     this.selectedGene = getGene(_selectedGene);
 
     // Get matching clade_ids
@@ -101,11 +115,7 @@ class ObservableCovidStore {
 
   @action
   selectLocations(selectedNodes) {
-    console.log('SELECT_LOCATIONS');
-
     this.selectedLocationIds = getLocationIds(selectedNodes);
-
-    console.log('Location IDs:', this.selectedLocationIds);
 
     this.updateCaseData();
   }
@@ -118,27 +128,43 @@ class ObservableCovidStore {
 
   @action
   updateAggCaseDataByGroup() {
-    let { caseDataAggGroup, changingPositions } = aggCaseDataByGroup(
-      this.caseData,
-      this.selectedGene,
-      this.groupKey,
-      this.dnaOrAa,
-      this.dateRange
+    uiStoreInstance.onDataChangeStarted();
+    aggCaseDataByGroup(
+      {
+        caseData: toJS(this.caseData),
+        selectedGene: toJS(this.selectedGene),
+        groupKey: toJS(this.groupKey),
+        dnaOrAa: toJS(this.dnaOrAa),
+        dateRange: toJS(this.dateRange),
+      },
+      ({ caseDataAggGroup, changingPositions }) => {
+        // console.log(caseDataAggGroup);
+        this.caseDataAggGroup = caseDataAggGroup;
+        this.changingPositions = changingPositions;
+        uiStoreInstance.onDataChangeFinished();
+      }
     );
-
-    this.caseDataAggGroup = caseDataAggGroup;
-    this.changingPositions = changingPositions;
   }
 
   @action
   updateCaseData() {
-    this.caseData = processCaseData(
-      this.selectedLocationIds,
-      this.selectedGene,
-      this.groupKey,
-      this.dnaOrAa
+    uiStoreInstance.onDataChangeStarted();
+
+    processCaseData(
+      {
+        selectedLocationIds: toJS(this.selectedLocationIds),
+        selectedGene: toJS(this.selectedGene),
+        groupKey: toJS(this.groupKey),
+        dnaOrAa: toJS(this.dnaOrAa),
+      },
+      (data) => {
+        this.caseData = data;
+        console.log('SELECT_LOCATIONS FINISHED');
+
+        uiStoreInstance.onDataChangeFinished();
+        this.updateAggCaseDataByGroup();
+      }
     );
-    this.updateAggCaseDataByGroup();
   }
 }
 
