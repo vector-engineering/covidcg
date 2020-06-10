@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/default
 import Worker from './caseData.worker.js';
 
 const caseDataWorker = new Worker();
