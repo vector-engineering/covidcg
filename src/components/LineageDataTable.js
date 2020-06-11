@@ -8,6 +8,7 @@ import _ from 'underscore';
 import DataTable from 'react-data-table-component';
 import HeatmapCell from './Cells/HeatmapCell';
 import LetterCell from './Cells/LetterCell';
+import Button from './Button';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 import { useStores } from '../stores/connect';
 import { nanmin, nanmax } from '../utils/math';
@@ -33,6 +34,9 @@ const DataTableOptions = styled.div`
 
   margin-bottom: 10px;
 
+  padding-left: 10px;
+  padding-right: 10px;
+
   select {
     padding: 1px 4px;
   }
@@ -49,6 +53,10 @@ const CompareModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
   }
+`;
+
+const Spacer = styled.div`
+  flex-grow: 1;
 `;
 
 const StyledDataTable = styled(DataTable)`
@@ -207,6 +215,8 @@ const LineageDataTable = observer(() => {
   const handleCompareModeChange = (event) => setCompareMode(event.target.value);
   const handleCompareColorChange = (event) =>
     setCompareColor(event.target.value);
+
+  const downloadAcknowledgements = () => covidStore.downloadAcknowledgements();
 
   // Get the maximum and minimum cases_sum and cases_percent for the colormaps
   // Ignore those values for the reference row (which are NaN)
@@ -414,6 +424,10 @@ const LineageDataTable = observer(() => {
           handleModeChange={handleCompareModeChange}
           handleColorChange={handleCompareColorChange}
         />
+        <Spacer />
+        <Button onClick={downloadAcknowledgements}>
+          Download Acknowledgements
+        </Button>
       </DataTableOptions>
       <span
         className="position-title"

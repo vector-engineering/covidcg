@@ -102,6 +102,10 @@ Assigned lineages are mapped to GISAID IDs and will be deposited in `data/lineag
 
 bowtie2-aligned sequences will be deposited in `data/sam`. Extracted SNPs and SNP signatures will be deposited in `data/aa_snp` and `data/dna_snp`.
 
+- `process_ack.py`
+
+This script finds all unique contributor values (Originating lab, Submitting lab, Authors), assigns them an ID, and maps them back to taxons. The ID to contributor map is saved as `acknowledgement_map` in the data folder, and the ID to taxon map is saved as `taxon_acknowledgements` in the data folder.
+
 - `process_geo.py`
 
 This script combines all patient metadata from `data/patient_meta`, and cleans the location/geographic data in those files. Each unique geography is assigned an ID, and each taxon/GISAID ID is mapped to locations using this ID. This script also builds the hierarchical selection tree found in the app.
