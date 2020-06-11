@@ -48,6 +48,8 @@ class ObservableCovidStore {
     // No initial date range
     let initialDateRange = [-1, -1];
 
+    uiStoreInstance.onCaseDataStateStarted();
+
     processCaseData(
       {
         selectedLocationIds: toJS(initialLocationIds),
@@ -56,8 +58,8 @@ class ObservableCovidStore {
         dnaOrAa: toJS(initialDnaOrAa),
       },
       (caseData) => {
-        uiStoreInstance.onDataChangeFinished();
         this.updateAggCaseDataByGroup();
+        uiStoreInstance.onAggCaseDataStarted();
 
         aggCaseDataByGroup(
           {
@@ -79,7 +81,10 @@ class ObservableCovidStore {
             this.caseDataAggGroup = caseDataAggGroup;
             this.dateRange = initialDateRange;
 
-            uiStoreInstance.onDataChangeFinished();
+            console.log('DATA INIT FINISHED');
+
+            uiStoreInstance.onAggCaseDataFinished();
+            uiStoreInstance.onCaseDataStateFinished();
           }
         );
       }
@@ -128,7 +133,7 @@ class ObservableCovidStore {
 
   @action
   updateAggCaseDataByGroup() {
-    uiStoreInstance.onDataChangeStarted();
+    uiStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -141,14 +146,17 @@ class ObservableCovidStore {
         // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
-        uiStoreInstance.onDataChangeFinished();
+        console.log('AGG_CASE_DATA FINISHED');
+
+        uiStoreInstance.onAggCaseDataFinished();
+        uiStoreInstance.onCaseDataStateFinished();
       }
     );
   }
 
   @action
   updateCaseData() {
-    uiStoreInstance.onDataChangeStarted();
+    uiStoreInstance.onCaseDataStateStarted();
 
     processCaseData(
       {
@@ -159,9 +167,8 @@ class ObservableCovidStore {
       },
       (data) => {
         this.caseData = data;
-        console.log('SELECT_LOCATIONS FINISHED');
+        console.log('CASE_DATA FINISHED');
 
-        uiStoreInstance.onDataChangeFinished();
         this.updateAggCaseDataByGroup();
       }
     );

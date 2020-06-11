@@ -25,21 +25,37 @@ function removeItemAll(arr, value) {
 class UiStore {
   @observable sidebarOpen = false;
   @observable sidebarSelectedGroupKeys = [];
-  @observable dataState = STARTED;
+  @observable caseDataState = STARTED;
+  @observable aggCaseDataState = STARTED;
 
   @action
-  onDataChangeStarted = () => {
-    this.dataState = STARTED;
+  onCaseDataStateStarted = () => {
+    this.caseDataState = STARTED;
   };
 
   @action
-  onDataChangeFinished = () => {
-    this.dataState = SUCCEEDED;
+  onCaseDataStateFinished = () => {
+    this.caseDataState = SUCCEEDED;
   };
 
   @action
-  onDataChangeErr = () => {
-    this.dataState = FAILED;
+  onCaseDataStateErr = () => {
+    this.caseDataState = FAILED;
+  };
+
+  @action
+  onAggCaseDataStarted = () => {
+    this.aggCaseDataState = STARTED;
+  };
+
+  @action
+  onAggCaseDataFinished = () => {
+    this.aggCaseDataState = SUCCEEDED;
+  };
+
+  @action
+  onAggCaseDataErr = () => {
+    this.aggCaseDataState = FAILED;
   };
 
   @action
