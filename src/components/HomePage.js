@@ -18,6 +18,7 @@ import LineageDataTable from './LineageDataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
+import SkeletonElement from './SkeletonElement';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -143,18 +144,23 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   }
 
   const renderContent = () => {
-    if (uiStore.dataState !== asyncStates.SUCCEEDED) {
+    if (
+      uiStore.caseDataState === asyncStates.STARTED ||
+      uiStore.aggCaseDataState === asyncStates.STARTED
+    ) {
       return (
         <div
           style={{
-            width: '100%',
-            height: '300px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            paddingTop: '24px',
+            paddingRight: '24px',
+            paddingLeft: '12px',
           }}
         >
-          loading...
+          <SkeletonElement delay={1} height={'436px'} />
+          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+            <SkeletonElement delay={2} height={'50px'} />
+          </div>
+          <SkeletonElement delay={4} height={'400px'} />
         </div>
       );
     }
