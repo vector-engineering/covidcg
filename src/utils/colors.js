@@ -39,6 +39,96 @@ export const shingAAColors = {
   _: '#FF0000',
 };
 
+// ClustalX AA Colors
+// (by properties + conservation)
+// http://www.jalview.org/help/html/colourSchemes/clustal.html
+export const clustalXAAColors = {
+  // Hydrophobic (Blue)
+  A: '#809df0',
+  I: '#809df0',
+  L: '#809df0',
+  M: '#809df0',
+  F: '#809df0',
+  W: '#809df0',
+  V: '#809df0',
+  // Positive charge (Red)
+  K: '#ed000a',
+  R: '#ed000a',
+  // Negative charge (Magenta)
+  D: '#be38bf',
+  E: '#be38bf',
+  // Polar (Green)
+  N: '#29c417',
+  Q: '#29c417',
+  S: '#29c417',
+  T: '#29c417',
+  // Cysteins (Pink)
+  C: '#ee7d80',
+  // Glycines (Orange)
+  G: '#ef8f48',
+  // Prolines (Yellow)
+  P: '#c1c204',
+  // Aromatics (Cyan)
+  H: '#23a6a4',
+  Y: '#23a6a4',
+  // STOP
+  _: '#FF0000',
+};
+
+// Zappo Color Scheme (physico-chemical properties)
+// From SnapGene
+export const zappoAAColors = {
+  A: '#fc8184',
+  C: '#ffd900',
+  D: '#eb3840',
+  E: '#eb3840',
+  F: '#fc7400',
+  G: '#b858be',
+  H: '#799af1',
+  I: '#fc8184',
+  K: '#799af1',
+  L: '#fc8184',
+  M: '#fc8184',
+  N: '#25be00',
+  P: '#b858be',
+  Q: '#25be00',
+  R: '#799af1',
+  S: '#25be00',
+  T: '#25be00',
+  V: '#fc8184',
+  W: '#fc7400',
+  Y: '#fc7400',
+  // STOP
+  _: '#FF0000',
+};
+
+// Zhao and London (transmembrane-tendency)
+// From SnapGene
+export const transmembraneAAColors = {
+  A: '#c85672',
+  C: '#ba6288',
+  D: '#7c96eb',
+  E: '#8490df',
+  F: '#eb3840',
+  G: '#bc6085',
+  H: '#a276ae',
+  I: '#eb3840',
+  K: '#799af1',
+  L: '#e83b45',
+  M: '#de4352',
+  N: '#9e79b3',
+  P: '#a276ae',
+  Q: '#997dbb',
+  R: '#8a8ad4',
+  S: '#b56690',
+  T: '#ba6289',
+  V: '#e83b45',
+  W: '#e1404e',
+  Y: '#ca546f',
+  // STOP
+  _: '#FF0000',
+};
+
 export const reds = [
   '#FFF5F0',
   '#FEF1EB',

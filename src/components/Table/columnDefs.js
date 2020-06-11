@@ -81,23 +81,29 @@ export const getSinglePosColumn = ({
   formatter: (val) => {
     // console.log(val);
     const row = val.row;
+    let letter = row[col];
     let cellBgColor = 'transparent';
     // Define the coloring behavior
-    if (
-      colorMode === 'compare' &&
-      conditionCompare(row[col], refRow[col], compareMode)
-    ) {
-      cellBgColor =
-        compareColor === 'code'
-          ? colors[row[col]]
-          : snapGeneHighlightColors[compareColor];
+    if (colorMode === 'compare') {
+      if (conditionCompare(row[col], refRow[col], compareMode)) {
+        // If in dots mode, change letters, not colors
+        if (compareColor === 'dots') {
+          letter = '.';
+        } else {
+          cellBgColor = Object.keys(snapGeneHighlightColors).includes(
+            compareColor
+          )
+            ? snapGeneHighlightColors[compareColor]
+            : colors[row[col]];
+        }
+      }
     }
     // Just coloring by code
-    else if (colorMode === 'code') {
+    else {
       cellBgColor = colors[row[col]];
     }
 
-    return <LetterCell value={row[col]} bgColor={cellBgColor} />;
+    return <LetterCell value={letter} bgColor={cellBgColor} />;
   },
   headerRenderer: (val) => {
     return <PosHeaderCell pos={val.column.name} />;

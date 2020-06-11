@@ -10,7 +10,13 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import { nanmax, nanmin } from '../../utils/math';
-import { snapGeneNTColors, shingAAColors } from '../../utils/colors';
+import {
+  snapGeneNTColors,
+  shingAAColors,
+  clustalXAAColors,
+  zappoAAColors,
+  transmembraneAAColors,
+} from '../../utils/colors';
 import TableOptions from './TableOptions';
 import {
   geneColumn,
@@ -251,8 +257,29 @@ const NewLineageDataTable = observer(() => {
           return;
         }
 
-        let colors =
-          covidStore.dnaOrAa === 'dna' ? snapGeneNTColors : shingAAColors;
+        let colors;
+        if (covidStore.dnaOrAa === 'dna') {
+          colors = snapGeneNTColors;
+        } else {
+          if (state.compareColor === 'code' || state.colorMode === 'code') {
+            colors = shingAAColors;
+          } else if (
+            state.compareColor === 'clustal' ||
+            state.colorMode === 'clustal'
+          ) {
+            colors = clustalXAAColors;
+          } else if (
+            state.compareColor === 'zappo' ||
+            state.colorMode === 'zappo'
+          ) {
+            colors = zappoAAColors;
+          } else if (
+            state.compareColor === 'zhao-london' ||
+            state.colorMode === 'zhao-london'
+          ) {
+            colors = transmembraneAAColors;
+          }
+        }
 
         // 0-indexed to 1-indexed
         let pos = parseInt(col.substring(4)) + 1;

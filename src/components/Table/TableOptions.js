@@ -11,17 +11,8 @@ const ColorModeSelectLabel = styled.label`
   margin-right: 1em;
   select {
     margin-left: 0.65em;
+    max-width: 200px;
   }
-`;
-
-const CompareModeSelectLabel = styled.label`
-  select {
-    margin-left: 0.65em;
-  }
-`;
-
-const Spacer = styled.div`
-  flex-grow: 1;
 `;
 
 const ColorModeSelect = ({ dnaOrAa, colorMode, handleChange }) => {
@@ -33,6 +24,20 @@ const ColorModeSelect = ({ dnaOrAa, colorMode, handleChange }) => {
       {dnaOrAa === 'dna' ? '4' : '20'}-Color Code
     </option>,
   ];
+
+  if (dnaOrAa === 'aa') {
+    colorModeElements.push(
+      <option key="clustal" value="clustal">
+        ClustalX (Properties)
+      </option>,
+      <option key="zappo" value="zappo">
+        Zappo (Physiochemical Properties)
+      </option>,
+      <option key="zhao-london" value="zhao-london">
+        Zhao and London (Transmembrane Tendency)
+      </option>
+    );
+  }
 
   return (
     <ColorModeSelectLabel>
@@ -48,6 +53,13 @@ ColorModeSelect.propTypes = {
   colorMode: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
 };
+
+const CompareModeSelectLabel = styled.label`
+  select {
+    margin-left: 0.65em;
+    max-width: 150px;
+  }
+`;
 
 const CompareModeSelect = ({
   disabled,
@@ -65,6 +77,21 @@ const CompareModeSelect = ({
       {dnaOrAa === 'dna' ? '4' : '20'}-color code
     </option>
   );
+
+  if (dnaOrAa === 'aa') {
+    colorOptionElements.push(
+      <option key="clustal" value="clustal">
+        ClustalX (Properties)
+      </option>,
+      <option key="zappo" value="zappo">
+        Zappo (Physiochemical Properties)
+      </option>,
+      <option key="zhao-london" value="zhao-london">
+        Zhao and London (Transmembrane Tendency)
+      </option>
+    );
+  }
+
   colorOptions.forEach((color) => {
     colorOptionElements.push(
       <option key={color} value={color}>
@@ -72,6 +99,15 @@ const CompareModeSelect = ({
       </option>
     );
   });
+
+  // Push dots option
+  if (dnaOrAa === 'aa') {
+    colorOptionElements.push(
+      <option key="dots" value="dots">
+        Dots
+      </option>
+    );
+  }
 
   return (
     <CompareModeSelectLabel>
@@ -120,6 +156,10 @@ const DataTableOptions = styled.div`
   select {
     padding: 1px 4px;
   }
+`;
+
+const Spacer = styled.div`
+  flex-grow: 1;
 `;
 
 const TableOptions = ({
