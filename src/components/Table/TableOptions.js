@@ -5,7 +5,6 @@ import { snapGeneHighlightColors } from '../../utils/colors';
 import { capitalize } from '../../utils/string';
 import { connect, useStores } from '../../stores/connect';
 
-import Button from '../Buttons/Button';
 import DropdownButton from '../Buttons/DropdownButton';
 
 const ColorModeSelectLabel = styled.label`
