@@ -14,7 +14,7 @@ import { VegaLite } from 'react-vega';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
-import NewLineageDataTable from './Table/NewLineageDataTable';
+import NewLineageDataTable from './Table/DataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
