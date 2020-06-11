@@ -1,8 +1,8 @@
 import locations from '../../data/location_map.json';
-import select_tree from '../../data/geo_select_tree.json';
+import selectTree from '../../data/geo_select_tree.json';
 
 export function loadSelectTree() {
-  return select_tree;
+  return selectTree;
 }
 
 export function getLocationIds(selectedNodes) {
@@ -12,35 +12,32 @@ export function getLocationIds(selectedNodes) {
   let location = {};
 
   // For each selected node
-  for(let i = 0; i < selectedNodes.length; i++) {
+  for (let i = 0; i < selectedNodes.length; i++) {
     selectedNode = selectedNodes[i];
     // For each location in the cases dataframe
-    for(let j = 0; j < locations.length; j++) {
+    for (let j = 0; j < locations.length; j++) {
       location = locations[j];
 
-      if(
-        selectedNode['level'] === 'region' && 
+      if (
+        selectedNode['level'] === 'region' &&
         selectedNode['value'] === location['region']
       ) {
         locationIds.push(location['index']);
-      }
-      else if(
-        selectedNode['level'] === 'country' && 
+      } else if (
+        selectedNode['level'] === 'country' &&
         selectedNode['region'] === location['region'] &&
         selectedNode['value'] === location['country']
       ) {
         locationIds.push(location['index']);
-      }
-      else if(
-        selectedNode['level'] === 'division' && 
+      } else if (
+        selectedNode['level'] === 'division' &&
         selectedNode['region'] === location['region'] &&
         selectedNode['country'] === location['country'] &&
         selectedNode['value'] === location['division']
       ) {
         locationIds.push(location['index']);
-      }
-      else if(
-        selectedNode['level'] === 'location' && 
+      } else if (
+        selectedNode['level'] === 'location' &&
         selectedNode['region'] === location['region'] &&
         selectedNode['country'] === location['country'] &&
         selectedNode['division'] === location['division'] &&
@@ -55,16 +52,15 @@ export function getLocationIds(selectedNodes) {
 }
 
 export function getLocationByNameAndLevel(selectTree, name, level) {
-  
   // Traverse tree with recursion
   function traverseTree(nodes) {
     let validNodes = [];
 
     // Check all children
-    for(let i = 0; i < nodes.length; i++) {
+    for (let i = 0; i < nodes.length; i++) {
       let node = nodes[i];
-      if(node.level === level && node.value === name) {
-        validNodes.push(node)
+      if (node.level === level && node.value === name) {
+        validNodes.push(node);
       }
 
       // Iterate over all children of child
