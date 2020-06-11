@@ -66,22 +66,22 @@ def process_ack():
             ]['index']
         )
 
-    # Subset columns
-    ack_df = ack_df[['gisaid_id', 'ack_id']]
+    # Turn into a series
+    ack_df = pd.Series(ack_df['ack_id'].values, index=ack_df['gisaid_id'].values)
 
     print('done')
 
     # print(ack_df)
 
     print('Saving acknowledgement files...', end='', flush=True)
+    
+    ack_df.to_csv(data_dir / 'taxon_acknowledgements.csv', header=['ack_id'], index_label='gisaid_id')	
+    ack_df.to_json(data_dir / 'taxon_acknowledgements.json')	
 
-    ack_df.to_csv(data_dir / 'taxon_acknowledgements.csv', index=False)	
-    ack_df.to_json(data_dir / 'taxon_acknowledgements.json', orient='records')	
-
-    # Drop MultiIndex to columns
-    unique_ack_df = unique_ack_df.reset_index()
-    unique_ack_df.to_csv(data_dir / 'acknowledgement_map.csv', index=False)
-    unique_ack_df.to_json(data_dir / 'acknowledgement_map.json', orient='records')	
+    # Drop MultiIndex to columns, make index the real index again
+    unique_ack_df = unique_ack_df.reset_index().set_index('index')
+    unique_ack_df.to_csv(data_dir / 'acknowledgement_map.csv', index=True, index_label='ack_id')
+    unique_ack_df.to_json(data_dir / 'acknowledgement_map.json', orient='index')	
 
     print('done', flush=True)	
 
