@@ -1,6 +1,5 @@
 /* eslint-disable react/display-name */
 import React, { useState } from 'react';
-import { toJS } from 'mobx';
 
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
@@ -399,7 +398,6 @@ const LineageDataTable = observer(() => {
   else if (covidStore.groupKey === 'snp') {
     defaultSortBy = 'pos';
   }
-  console.log('yo: ', toJS(covidStore.caseDataAggGroup));
 
   return (
     <DataTableContainer>
