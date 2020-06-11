@@ -5,6 +5,9 @@ import { snapGeneHighlightColors } from '../../utils/colors';
 import { capitalize } from '../../utils/string';
 import { connect, useStores } from '../../stores/connect';
 
+import Button from '../Buttons/Button';
+import DropdownButton from '../Buttons/DropdownButton';
+
 const ColorModeSelectLabel = styled.label`
   margin-right: 1em;
   select {
@@ -16,6 +19,10 @@ const CompareModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
   }
+`;
+
+const Spacer = styled.div`
+  flex-grow: 1;
 `;
 
 const ColorModeSelect = ({ dnaOrAa, colorMode, handleChange }) => {
@@ -108,6 +115,9 @@ const DataTableOptions = styled.div`
 
   margin-bottom: 10px;
 
+  padding-left: 10px;
+  padding-right: 10px;
+
   select {
     padding: 1px 4px;
   }
@@ -123,6 +133,12 @@ const TableOptions = ({
 }) => {
   const { covidStore } = useStores();
 
+  const handleDownloadSelect = (option) => {
+    if (option === 'Acknowledgements') {
+      covidStore.downloadAcknowledgements();
+    }
+  };
+
   return (
     <DataTableOptions>
       <ColorModeSelect
@@ -137,6 +153,12 @@ const TableOptions = ({
         compareColor={compareColor}
         handleModeChange={handleCompareModeChange}
         handleColorChange={handleCompareColorChange}
+      />
+      <Spacer />
+      <DropdownButton
+        text={'Download'}
+        options={['Acknowledgements', 'Aggregate Data']}
+        onSelect={handleDownloadSelect}
       />
     </DataTableOptions>
   );

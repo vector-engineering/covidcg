@@ -9,7 +9,7 @@ import _ from 'underscore';
 import DataTable from 'react-data-table-component';
 import HeatmapCell from './Cells/HeatmapCell';
 import LetterCell from './Cells/LetterCell';
-import Button from './Button';
+import Button from './Buttons/Button';
 import AddToSidepanelCheckbox from './AddToSidepanelCheckbox';
 import { useStores } from '../stores/connect';
 import { nanmin, nanmax } from '../utils/math';
