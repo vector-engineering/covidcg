@@ -50,6 +50,7 @@ export const lineageColumn = () => ({
 
 const conditionCompare = (base, refBase, matchOrMismatch) => {
   // Flip the XOR (XNOR)
+  console.log('hello', matchOrMismatch);
   return !((base === refBase) ^ (matchOrMismatch === 'match' ? true : false));
 };
 
@@ -100,12 +101,13 @@ export const getDefaultColumns = ({
     width: 60,
     formatter: (val) => {
       const row = val.row;
+      console.log(row.cases_sum);
       return (
         <HeatmapCell
           value={row.cases_sum}
           min={minCasesSum}
           max={maxCasesSum}
-          percent={true}
+          percent={false}
         />
       );
     },

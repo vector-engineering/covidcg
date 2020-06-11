@@ -196,7 +196,7 @@ const NewLineageDataTable = observer(() => {
           col,
           colorMode: state.colorMode,
           refRow,
-          compareMode: state.compareColor,
+          compareMode: state.compareMode,
           compareColor: state.compareColor,
           colors,
         })
@@ -206,6 +206,8 @@ const NewLineageDataTable = observer(() => {
   };
 
   const columns = buildColumns() || [];
+
+  console.log(state.compareMode);
 
   return (
     <DataTableContainer>
@@ -224,7 +226,7 @@ const NewLineageDataTable = observer(() => {
         columns={columns}
         rowGetter={(i) => state.rows[i]}
         rows={state.rows}
-        rowsCount={state.rows.length}
+        rowsCount={state.rows ? state.rows.length : 0}
         minHeight={500}
         sortColumn={state.sortColumn}
         sortDirection={state.sortDirection}
