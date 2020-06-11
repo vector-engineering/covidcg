@@ -8,8 +8,6 @@ const LetterCellDiv = styled.div`
   font-size: 1.25em;
   width: 25px;
   height: 100%;
-  margin-left: -4px;
-  margin-right: -4px;
   display: flex;
   flex-direction: column;
   align-items: center;

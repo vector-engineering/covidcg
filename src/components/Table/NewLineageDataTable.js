@@ -27,7 +27,67 @@ const DataTableContainer = styled.div`
     font-size: 12px;
     font-weight: 500;
   }
+
+  /* Data grid styles */
+  .rdg {
+    border-top: none;
+    border-left: none;
+    font-size: 12px;
+  }
+
+  /* All cells */
+  .rdg-cell {
+    // Allow text selection
+    user-select: text;
+
+    &.no-padding {
+      padding: 0px;
+    }
+    &.no-overflow {
+      text-overflow: unset;
+    }
+  }
+
+  .rdg-header-row {
+    background-color: white;
+    line-height: 65px;
+    height: 45px;
+    font-weight: 500;
+
+    .rdg-cell {
+      font-size: 12px;
+      border-right: none;
+      &.rdg-cell-frozen-last {
+        box-shadow: none;
+      }
+    }
+    /* Position columns */
+    .rdg-cell:nth-child(n + ${(props) => props.posColOffset}) {
+      padding: 0px;
+      background-color: transparent;
+      overflow: unset;
+    }
+  }
+
+  /* All other rows */
+  .rdg-row {
+    .rdg-cell {
+      border-right: none;
+      &.rdg-cell-frozen-last {
+        border-right: 1px solid #ccc;
+        box-shadow: none;
+      }
+    }
+    /* Position cells */
+    .rdg-cell.pos {
+      padding: 0px;
+    }
+  }
 `;
+
+DataTableContainer.defaultProps = {
+  posColOffset: 5,
+};
 
 const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
   if (sortDirection === 'ASC') {
@@ -42,11 +102,8 @@ const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list
   let refRow = _.findWhere(rows, { group: 'Reference' });
   rows = _.reject(rows, (row) => row.group == 'Reference');
-
   rows = rows.sort(sortFn);
-
   rows.unshift(refRow);
-
   return rows;
 };
 
@@ -202,15 +259,32 @@ const NewLineageDataTable = observer(() => {
         })
       );
     });
+
+    // console.log(_columns);
+
     return _columns;
   };
 
   const columns = buildColumns() || [];
 
-  console.log(state.compareMode);
+  let positionTitleOffset = 0;
+  let posColOffset = 0;
+
+  if (covidStore.groupKey === 'lineage') {
+    positionTitleOffset = 250;
+    posColOffset = 5;
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      positionTitleOffset = 310;
+      posColOffset = 7;
+    } else {
+      positionTitleOffset = 360;
+      posColOffset = 8;
+    }
+  }
 
   return (
-    <DataTableContainer>
+    <DataTableContainer posColOffset={posColOffset}>
       <TableOptions
         handleColorModeChange={handleColorModeChange}
         handleCompareModeChange={handleCompareModeChange}
@@ -219,7 +293,10 @@ const NewLineageDataTable = observer(() => {
         compareColor={state.compareColor}
         compareMode={state.compareMode}
       />
-      <span className="position-title">
+      <span
+        className="position-title"
+        style={{ marginLeft: positionTitleOffset }}
+      >
         {covidStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
       </span>
       <DataGrid
@@ -228,6 +305,10 @@ const NewLineageDataTable = observer(() => {
         rows={state.rows}
         rowsCount={state.rows ? state.rows.length : 0}
         minHeight={500}
+        headerRowHeight={45}
+        filterRowHeight={45}
+        rowHeight={25}
+        minColumnWidth={25}
         sortColumn={state.sortColumn}
         sortDirection={state.sortDirection}
         onSort={handleGridSort}

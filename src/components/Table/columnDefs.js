@@ -2,6 +2,7 @@
 import React from 'react';
 import LetterCell from '../Cells/LetterCell';
 import HeatmapCell from '../Cells/HeatmapCell';
+import PosHeaderCell from '../Cells/PosHeaderCell';
 import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
 import { snapGeneHighlightColors } from '../../utils/colors';
 
@@ -9,27 +10,34 @@ export const positionColumn = () => ({
   name: 'Position',
   key: 'pos',
   sortable: true,
-  width: 60,
+  width: 70,
+  cellClass: 'no-overflow',
+  frozen: true,
 });
 
 export const indexColumn = () => ({
   name: 'Index',
   key: 'pos',
   sortable: true,
-  width: 45,
+  width: 50,
+  frozen: true,
 });
 export const refColumn = () => ({
   name: 'Ref',
   key: 'ref',
   sortable: true,
-  width: 24,
+  width: 36,
+  frozen: true,
+  cellClass: 'no-padding',
   formatter: (val) => <LetterCell value={val.row['ref']} />,
 });
 export const altColumn = () => ({
   name: 'Alt',
   key: 'alt',
   sortable: true,
-  width: 24,
+  width: 36,
+  frozen: true,
+  cellClass: 'no-padding',
   formatter: (val) => <LetterCell value={val.row['alt']} />,
 });
 
@@ -37,7 +45,9 @@ export const geneColumn = () => ({
   name: 'Gene',
   key: 'gene',
   sortable: true,
-  width: 50,
+  width: 65,
+  cellClass: 'no-overflow',
+  frozen: true,
 });
 
 export const lineageColumn = () => ({
@@ -45,12 +55,12 @@ export const lineageColumn = () => ({
   name: 'Lineage',
   selector: 'group',
   sortable: true,
-  width: 100,
+  width: 85,
+  frozen: true,
 });
 
 const conditionCompare = (base, refBase, matchOrMismatch) => {
   // Flip the XOR (XNOR)
-  console.log('hello', matchOrMismatch);
   return !((base === refBase) ^ (matchOrMismatch === 'match' ? true : false));
 };
 
@@ -65,8 +75,11 @@ export const getSinglePosColumn = ({
 }) => ({
   name: pos.toString(),
   key: col,
+  cellClass: 'pos',
   sortable: false,
+  width: 25,
   formatter: (val) => {
+    // console.log(val);
     const row = val.row;
     let cellBgColor = 'transparent';
     // Define the coloring behavior
@@ -86,6 +99,9 @@ export const getSinglePosColumn = ({
 
     return <LetterCell value={row[col]} bgColor={cellBgColor} />;
   },
+  headerRenderer: (val) => {
+    return <PosHeaderCell pos={val.column.name} />;
+  },
 });
 
 export const getDefaultColumns = ({
@@ -98,10 +114,11 @@ export const getDefaultColumns = ({
     name: 'Seqs',
     key: 'cases_sum',
     sortable: true,
-    width: 60,
+    width: 55,
+    frozen: true,
+    cellClass: 'no-padding',
     formatter: (val) => {
       const row = val.row;
-      console.log(row.cases_sum);
       return (
         <HeatmapCell
           value={row.cases_sum}
@@ -116,7 +133,9 @@ export const getDefaultColumns = ({
     name: '% Seqs',
     key: 'cases_percent',
     sortable: true,
-    width: 75,
+    width: 70,
+    frozen: true,
+    cellClass: 'no-padding',
     formatter: (val) => {
       const row = val.row;
       return (
@@ -133,7 +152,8 @@ export const getDefaultColumns = ({
     name: 'Show structure',
     key: null,
     sortable: false,
-    width: 80,
+    width: 40,
+    frozen: true,
     formatter: (val) => <AddToSidepanelCheckbox groupKey={val.row.group} />,
   },
 ];
