@@ -170,6 +170,21 @@ def clean_location_data(location_df):
             {'country': 'China', 'division': 'Wuhan'}, 
             {'division': 'Hubei', 'location': 'Wuhan'}
         ),
+        # Move Keqiao into Zhejiang
+        # Move Shangyu into Zhejiang
+        # Move Yuecheng into Zhejiang
+        (
+            {'country': 'China', 'division': 'Keqiao'}, 
+            {'division': 'Zhejiang', 'location': 'Keqiao'}
+        ),
+        (
+            {'country': 'China', 'division': 'Shangyu'}, 
+            {'division': 'Zhejiang', 'location': 'Shangyu'}
+        ),
+        (
+            {'country': 'China', 'division': 'Yuecheng'}, 
+            {'division': 'Zhejiang', 'location': 'Yuecheng'}
+        ),
 
         # INDIA
         # -----
@@ -488,6 +503,11 @@ def clean_location_data(location_df):
         # Can't find a division for this location
         ({'country': 'Belgium', 'division': 'Mepel'}, {'division': -1}),
 
+        # BOSNIA AND HERZEGOVINA
+        # ----------------------
+        # Fix typos
+        ({'country': 'Bosnia and Hercegovina'}, {'country': 'Bosnia and Herzegovina'}),
+
         # CROATIA
         # -------
         # Fix typos
@@ -525,6 +545,12 @@ def clean_location_data(location_df):
         ({'country': 'France', 'division': ['IDF', 'Ile De France', 'Ile de France', 'Ile-de-France']}, {'division': 'Île-de-France'}),
         # Move Toulouse to Occitanie
         ({'country': 'France', 'division': 'Toulouse'}, {'division': 'Occitanie', 'location': 'Toulouse'}),
+
+        # Fix typos
+        ({'country': 'France', 'location': ['Chateau-Thierry', 'Chateau-thierry']}, {'location': 'Château-Thierry'}),
+        ({'country': 'France', 'location': ['Crépy-en -Valois', 'Crépy en Valois']}, {'location': 'Crépy-en-Valois'}),
+        ({'country': 'France', 'location': ['Asnieres sur Seine']}, {'location': 'Asnières-sur-Seine'}),
+        ({'country': 'France', 'location': ['Moussy le Neuf']}, {'location': 'Moussy Le Neuf'}),
 
 
         # GEORGIA
@@ -739,6 +765,21 @@ def clean_location_data(location_df):
         # --------
         # Move Colorado Springs from Wisconsin to Colorado
         ({'country': 'USA', 'division': 'Wisconsin', 'location': 'Coloardo Springs'}, {'division': 'Colorado', 'location': 'Colorado Springs'}),
+
+        # Connecticut
+        # -----------
+        # CT --> Connecticut
+        ({'country': 'USA', 'division': 'CT'}, {'division': 'Connecticut'}),
+
+        # Move towns to counties
+        ({'country': 'USA', 'division': 'Connecticut', 'location': ['NEWTOWN']}, {'location': 'Fairfield County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Hartford County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Litchfield County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Middlesex County'}),
+        ({'country': 'USA', 'division': 'Connecticut', 'location': ['BRANFORD', 'Bethany', 'East-Haven', 'HAMDEN', 'MADISON', 'MERIDEN', 'NORTHFORD', 'New-Haven', 'North-Haven', 'SEYMOUR', 'WALLINGFORD', 'WOODBRIDGE', 'West-Haven']}, {'location': 'New Haven County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'New London County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Tolland County'}),
+        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Windham County'}),
 
         # Louisiana
         # ---------
