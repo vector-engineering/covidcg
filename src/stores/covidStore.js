@@ -61,7 +61,6 @@ class ObservableCovidStore {
         dnaOrAa: toJS(initialDnaOrAa),
       },
       ({ aggCaseDataList, selectedAccessionIds }) => {
-        this.updateAggCaseDataByGroup();
         uiStoreInstance.onAggCaseDataStarted();
 
         aggCaseDataByGroup(
@@ -136,8 +135,8 @@ class ObservableCovidStore {
   }
 
   @action
-  updateAggCaseDataByGroup() {
-    uiStoreInstance.onAggCaseDataStarted();
+  updateAggCaseDataByGroup(suppressUIUpdate = false) {
+    suppressUIUpdate ? uiStoreInstance.onAggCaseDataStarted() : null;
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -152,15 +151,15 @@ class ObservableCovidStore {
         this.changingPositions = changingPositions;
         console.log('AGG_CASE_DATA FINISHED');
 
-        uiStoreInstance.onAggCaseDataFinished();
-        uiStoreInstance.onCaseDataStateFinished();
+        suppressUIUpdate ? uiStoreInstance.onAggCaseDataFinished() : null;
+        suppressUIUpdate ? uiStoreInstance.onCaseDataStateFinished() : null;
       }
     );
   }
 
   @action
-  updateCaseData() {
-    uiStoreInstance.onCaseDataStateStarted();
+  updateCaseData(suppressUIUpdate = false) {
+    suppressUIUpdate ? uiStoreInstance.onCaseDataStateStarted() : null;
 
     processCaseData(
       {
@@ -174,7 +173,7 @@ class ObservableCovidStore {
         this.selectedAccessionIds = selectedAccessionIds;
         console.log('CASE_DATA FINISHED');
 
-        this.updateAggCaseDataByGroup();
+        this.updateAggCaseDataByGroup((suppressUIUpdate = false));
       }
     );
   }
