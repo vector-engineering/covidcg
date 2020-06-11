@@ -99,7 +99,7 @@ DataGridContainer.defaultProps = {
 };
 
 const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
-  if (sortDirection === 'ASC') {
+  if (sortDirection === 'ASC' || sortDirection === 'None') {
     return a[sortColumn] > b[sortColumn] ? 1 : -1;
   }
   if (sortDirection === 'DESC') {
@@ -119,13 +119,26 @@ const sortRows = (rows, sortFn) => {
 const NewLineageDataTable = observer(() => {
   const { covidStore } = useStores();
 
-  // Color by 'compare': Comparison to reference, or 'code': With a defined color code
+  // Define initial sort column
+  let initialSortColumn;
+  if (covidStore.groupKey === 'lineage') {
+    initialSortColumn = 'group';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      initialSortColumn = 'pos';
+    } else {
+      initialSortColumn = 'index';
+    }
+  }
+
   const [state, setState] = useState({
+    // Color by 'compare': Comparison to reference, or 'code': With a defined color code
     colorMode: 'compare',
+    // 'match' or 'mismatch'
     compareMode: 'mismatch',
     compareColor: 'yellow',
     rows: covidStore.caseDataAggGroup,
-    sortColumn: 'group',
+    sortColumn: initialSortColumn,
     sortDirection: 'ASC',
   });
 
