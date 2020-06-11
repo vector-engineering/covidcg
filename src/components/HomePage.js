@@ -14,7 +14,7 @@ import { VegaLite } from 'react-vega';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
-import LineageDataTable from './LineageDataTable';
+import NewLineageDataTable from './Table/DataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
@@ -143,11 +143,31 @@ const HomePage = observer(({ covidStore, uiStore }) => {
       (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
-  const renderContent = () => {
+  const renderTableContent = () => {
     if (
       uiStore.caseDataState === asyncStates.STARTED ||
       uiStore.aggCaseDataState === asyncStates.STARTED
     ) {
+      return (
+        <div
+          style={{
+            paddingTop: '0px',
+            paddingRight: '24px',
+            paddingLeft: '12px',
+          }}
+        >
+          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+            <SkeletonElement delay={2} height={'50px'} />
+          </div>
+          <SkeletonElement delay={4} height={'400px'} />
+        </div>
+      );
+    }
+    return <NewLineageDataTable />;
+  };
+
+  const renderPlotContent = () => {
+    if (uiStore.caseDataState === asyncStates.STARTED) {
       return (
         <div
           style={{
@@ -157,15 +177,10 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           }}
         >
           <SkeletonElement delay={1} height={'436px'} />
-          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
-            <SkeletonElement delay={2} height={'50px'} />
-          </div>
-          <SkeletonElement delay={4} height={'400px'} />
         </div>
       );
-    }
-    return (
-      <>
+    } else {
+      return (
         <VegaLite
           data={{
             case_data: covidStore.caseData,
@@ -175,9 +190,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             brush: _.debounce(handleBrush, 500),
           }}
         />
-        <LineageDataTable />
-      </>
-    );
+      );
+    }
   };
 
   return (
@@ -218,7 +232,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             onChange={onChangeAreaStackMode}
           />
         </PlotOptions>
-        {renderContent()}
+        {renderPlotContent()}
+        {renderTableContent()}
       </PlotContainer>
     </HomePageDiv>
   );

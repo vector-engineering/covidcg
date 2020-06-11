@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
 
 const loadingAnim = keyframes`
@@ -26,9 +27,13 @@ const SkeletonContainer = styled.div`
 `;
 
 const SkeletonElement = memo(({ height, delay }) => {
-  console.log('render: ', delay);
+  // console.log('render: ', delay);
   return <SkeletonContainer height={height} delay={delay}></SkeletonContainer>;
 });
+SkeletonElement.propTypes = {
+  height: PropTypes.number.isRequired,
+  delay: PropTypes.number.isRequired,
+};
 
 SkeletonElement.displayName = 'SkeletonElement';
 

@@ -11,7 +11,9 @@ const HeatmapCellDiv = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0px 8px;
+  font-weight: normal;
 `;
 
 const HeatmapCell = ({ value, min, max, percent }) => {

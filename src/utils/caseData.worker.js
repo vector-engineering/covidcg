@@ -464,10 +464,10 @@ self.addEventListener(
 
     let result;
     if (data.type === 'aggCaseDataByGroup') {
-      console.log('into casedata for agg', data);
+      //console.log('into casedata for agg', data);
       result = aggCaseDataByGroup(data);
     } else if (data.type === 'processCaseData') {
-      console.log('into casedata for process', data);
+      //console.log('into casedata for process', data);
       result = processCaseData(
         data.selectedLocationIds,
         data.selectedGene,
