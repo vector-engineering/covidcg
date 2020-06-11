@@ -11,6 +11,7 @@ import numpy as np
 from pathlib import Path
 
 from fasta import read_fasta_file
+from process_ack import process_ack
 from process_geo import load_geo_data, build_select_tree
 from process_lineages import load_taxon_lineages
 from process_snps import load_dna_snps, load_aa_snps, generate_snp_signatures
@@ -20,6 +21,12 @@ project_root_path = Path(__file__).resolve().parent.parent
 data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path
 
 def main():
+
+    # ------------------------
+    # Process Acknowledgements
+    # ------------------------
+
+    process_ack()
     
     # ------------------------
     # Start with location data
@@ -151,7 +158,6 @@ def main():
     print('Saving case data...', end='', flush=True)
     taxon_df.to_csv(data_dir / 'case_data.csv', index=False)
     taxon_df.to_json(data_dir / 'case_data.json', orient='records')
-    
 
     # Write the reference fasta file to json
 
