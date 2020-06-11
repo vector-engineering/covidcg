@@ -4,6 +4,7 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
+import { downloadAcknowledgements } from '../utils/downloadWorkerWrapper';
 import { getGene, loadGeneOptions } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
@@ -11,6 +12,7 @@ import {
   getLocationByNameAndLevel,
   getLocationIds,
 } from '../utils/location';
+import { downloadBlobURL } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
@@ -26,6 +28,7 @@ class ObservableCovidStore {
   @observable changingPositions = {};
   @observable caseDataAggGroup = [];
   @observable dateRange = [];
+  @observable selectedAccessionIds = [];
 
   constructor() {
     // Select the Spike gene by default
@@ -57,13 +60,13 @@ class ObservableCovidStore {
         groupKey: toJS(initialGroupKey),
         dnaOrAa: toJS(initialDnaOrAa),
       },
-      (caseData) => {
+      ({ aggCaseDataList, selectedAccessionIds }) => {
         this.updateAggCaseDataByGroup();
         uiStoreInstance.onAggCaseDataStarted();
 
         aggCaseDataByGroup(
           {
-            caseData: toJS(caseData),
+            caseData: toJS(aggCaseDataList),
             selectedGene: toJS(defaultGene),
             groupKey: toJS(initialGroupKey),
             dnaOrAa: toJS(initialDnaOrAa),
@@ -76,10 +79,11 @@ class ObservableCovidStore {
             this.selectedGene = defaultGene;
             this.selectTree = selectTree;
             this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
-            this.caseData = caseData;
+            this.caseData = aggCaseDataList;
             this.changingPositions = changingPositions;
             this.caseDataAggGroup = caseDataAggGroup;
             this.dateRange = initialDateRange;
+            this.selectedAccessionIds = selectedAccessionIds;
 
             console.log('DATA INIT FINISHED');
 
@@ -165,11 +169,26 @@ class ObservableCovidStore {
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
       },
-      (data) => {
-        this.caseData = data;
+      ({ aggCaseDataList, selectedAccessionIds }) => {
+        this.caseData = aggCaseDataList;
+        this.selectedAccessionIds = selectedAccessionIds;
         console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup();
+      }
+    );
+  }
+
+  @action
+  downloadAcknowledgements() {
+    console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+    downloadAcknowledgements(
+      {
+        selectedAccessionIds: toJS(this.selectedAccessionIds),
+      },
+      (res) => {
+        // console.log(res);
+        downloadBlobURL(res.blobURL, 'acknowledgements.csv');
       }
     );
   }
