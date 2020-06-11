@@ -14,7 +14,7 @@ import { VegaLite } from 'react-vega';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
-import LineageDataTable from './LineageDataTable';
+import NewLineageDataTable from './Table/NewLineageDataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
@@ -169,7 +169,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             brush: _.debounce(handleBrush, 500),
           }}
         />
-        <LineageDataTable />
+        <NewLineageDataTable />
       </>
     );
   };

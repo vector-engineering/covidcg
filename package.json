@@ -32,6 +32,7 @@
     "mobx-router": "0.2.9",
     "object-assign": "4.1.1",
     "react": "16.11.0",
+    "react-data-grid": "7.0.0-canary.16",
     "react-data-table-component": "6.9.2",
     "react-dom": "16.11.0",
     "react-draggable": "4.4.2",
