@@ -144,7 +144,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   }
 
   const renderContent = () => {
-    console.log(uiStore.caseDataState, uiStore.aggCaseDataState);
     if (
       uiStore.caseDataState === asyncStates.STARTED ||
       uiStore.aggCaseDataState === asyncStates.STARTED
