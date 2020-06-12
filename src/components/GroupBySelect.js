@@ -23,7 +23,7 @@ const GroupKeySelectForm = styled.form`
     flex-grow: 1;
     margin-top: 5px;
     width: 100%;
-    border-radius: 0px;
+    border-radius: 3px;
   }
 `;
 

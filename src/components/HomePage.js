@@ -73,6 +73,7 @@ const AreaStackSelectContainer = styled.div`
   select {
     margin-left: 0.65em;
     padding: 1px 4px;
+    border-radius: 3px;
   }
 `;
 

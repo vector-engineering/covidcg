@@ -32,7 +32,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     background-color: #ffffff;
     border: 1px solid #ccc;
     padding: 3px 6px;
-    border-radius: 2px;
+    border-radius: 3px;
     display: inline-block;
     font-weight: normal;
     &:focus-within {
@@ -178,7 +178,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
         padding: 5px 8px;
         width: calc(100% - 20px);
         border: 1px solid #aaa;
-        border-radius: 5px;
+        border-radius: 3px;
         background-color: #ffffff;
         outline: none;
       }

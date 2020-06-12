@@ -34,6 +34,7 @@ const GeneSelectForm = styled.form`
     margin-left: 0.65em;
     padding: 1px 5px;
     width: 100%;
+    border-radius: 3px;
   }
 `;
 const PositionContainer = styled.div`

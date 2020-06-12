@@ -15,6 +15,7 @@ const ColorModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
     max-width: 200px;
+    border-radius: 3px;
   }
 `;
 
@@ -61,6 +62,7 @@ const CompareModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
     max-width: 150px;
+    border-radius: 3px;
   }
 `;
 
@@ -158,6 +160,7 @@ const DataTableOptions = styled.div`
 
   select {
     padding: 1px 4px;
+    border-radius: 3px;
   }
 `;
 
