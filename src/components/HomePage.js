@@ -24,13 +24,13 @@ import LoadingSpinner from './LoadingSpinner';
 const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
-  grid-template-rows: [row1] 50px [row2] auto [row3];
+  grid-template-rows: [row1] auto [row2];
   height: 100vh;
   width: 100vw;
 `;
 const FilterSidebar = styled.div`
   grid-column: col1 / col2;
-  grid-row: row1 / row3;
+  grid-row: row1 / row2;
 
   background-color: #f8f8f8;
   //padding-right: 10px;
@@ -41,7 +41,7 @@ const FilterSidebar = styled.div`
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
-  grid-row: row2 / row3;
+  grid-row: row1 / row2;
 
   width: 100%;
   box-sizing: border-box;
@@ -53,9 +53,23 @@ const PlotContainer = styled.div`
     width: calc(100% - 110px);
   }
 `;
-const PlotOptions = styled.div``;
+const PlotOptions = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .area-stack-title {
+    font-size: 1.25em;
+    margin-right: 10px;
+    padding-right: 10px;
+
+    border-right: 1px solid #ccc;
+  }
+`;
 
 const AreaStackSelectContainer = styled.div`
+  font-weight: normal;
   select {
     margin-left: 0.65em;
     padding: 1px 4px;
@@ -127,13 +141,17 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   if (covidStore.groupKey === 'lineage') {
     // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
+      (areaStackMode === 'percentages' ? 'Percent ' : '') +
       'Sequences by Lineage';
     // Tooltip title
     areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] = 'Lineage';
   } else if (covidStore.groupKey === 'snp') {
     // y-axis title
     areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
-      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+      (areaStackMode === 'percentages' ? 'Percent ' : '') +
+      'Sequences by ' +
+      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') +
+      ' SNP';
     // Tooltip title
     areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] =
       (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
@@ -169,6 +187,15 @@ const HomePage = observer(({ covidStore, uiStore }) => {
     }
   };
 
+  let areaStackTitle = 'Lineage ';
+  if (covidStore.groupKey === 'lineage') {
+    areaStackTitle = 'Lineage ';
+  } else if (covidStore.groupKey === 'snp') {
+    areaStackTitle = 'SNP ';
+  }
+  areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
+  areaStackTitle += ' Over Time';
+
   return (
     <>
       <HomePageDiv>
@@ -197,12 +224,13 @@ const HomePage = observer(({ covidStore, uiStore }) => {
 
         <PlotContainer>
           {/* <VegaLite
-          data={{
-            entropy_data: entropy_data
-          }} 
-          spec={entropy_spec}
-        /> */}
+            data={{
+              entropy_data: entropy_data
+            }} 
+            spec={entropy_spec}
+          /> */}
           <PlotOptions>
+            <span className="area-stack-title">{areaStackTitle}</span>
             <AreaStackModeSelect
               mode={areaStackMode}
               onChange={onChangeAreaStackMode}
