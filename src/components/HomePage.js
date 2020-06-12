@@ -38,10 +38,6 @@ const FilterSidebar = styled.div`
   border-right: 1px solid #aaa;
   display: flex;
   flex-direction: column;
-
-  .location-tree-title {
-    margin-left: 12px;
-  }
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -189,7 +185,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             selectedGene={covidStore.selectedGene}
             onChange={handleGeneChange}
           />
-          <span className="location-tree-title">Selected Locations:</span>
           <DropdownContainer
             data={covidStore.selectTree.children}
             onChange={(currentNode, selectedNodes) => {

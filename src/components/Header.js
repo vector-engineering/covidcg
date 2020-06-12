@@ -19,20 +19,43 @@ const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 5px;
+  // margin-bottom: 1px;
   h1 {
     font-weight: 700;
-    font-size: 2em;
+    font-size: 1.25em;
     margin: 0px;
     line-height: 30px;
   }
 `;
+
+const GISAIDContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  font-weight: normal;
+  font-size: 0.85em;
+
+  margin-bottom: 7px;
+
+  a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    margin-left: 2px;
+    img {
+      height: 16px;
+    }
+  }
+`;
+
 const NavLinks = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-right: 30px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 
   a {
     margin-right: 15px;
@@ -44,20 +67,24 @@ const VersionDiv = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  margin-bottom: 5px;
+  margin-bottom: 7px;
 
-  height: 100%;
+  // height: 30px;
+  // border-top: 1px solid #ccc;
 
   font-weight: normal;
   font-size: 0.75em;
-  color: #888888;
+  color: #666666;
 
-  span.version {
+  .version {
+    line-height: normal;
+    margin-bottom: 2px;
     span.version-num {
       font-weight: bold;
     }
   }
-  span.data-date {
+  .data-date {
+    line-height: normal;
     span.date {
       font-weight: bold;
     }
@@ -71,6 +98,16 @@ const Header = () => {
       <TitleContainer>
         <h1>COVID-19 CoV Genetics (CG)</h1>
       </TitleContainer>
+      <GISAIDContainer>
+        Powered by data from:&nbsp;
+        <a
+          href="https://www.gisaid.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
+        </a>
+      </GISAIDContainer>
       <NavLinks>
         <Link router={router} route={routes.home}>
           Home
@@ -87,12 +124,12 @@ const Header = () => {
         </a>
       </NavLinks>
       <VersionDiv>
-        <span className="version">
+        <div className="version">
           Version: <span className="version-num">{version}</span>
-        </span>
-        <span className="data-date">
+        </div>
+        <div className="data-date">
           Sequences Analyzed: Up to <span className="date">{dataDate}</span>
-        </span>
+        </div>
       </VersionDiv>
     </HeaderDiv>
   );
