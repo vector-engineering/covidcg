@@ -144,6 +144,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   }
 
   const renderTableContent = () => {
+    console.log(uiStore.caseDataState, uiStore.aggCaseDataState);
+
     if (
       uiStore.caseDataState === asyncStates.STARTED ||
       uiStore.aggCaseDataState === asyncStates.STARTED
@@ -167,6 +169,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   };
 
   const renderPlotContent = () => {
+    console.log(uiStore.caseDataState);
     if (uiStore.caseDataState === asyncStates.STARTED) {
       return (
         <div

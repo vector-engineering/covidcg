@@ -159,7 +159,7 @@ class ObservableCovidStore {
 
   @action
   updateCaseData(suppressUIUpdate = false) {
-    suppressUIUpdate ? uiStoreInstance.onCaseDataStateStarted() : null;
+    suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateStarted();
 
     processCaseData(
       {
