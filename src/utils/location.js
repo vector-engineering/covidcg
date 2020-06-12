@@ -1,5 +1,12 @@
 import locations from '../../data/location_map.json';
 import selectTree from '../../data/geo_select_tree.json';
+// import _ from 'underscore';
+
+// Create ID -> location object/hashmap
+const locationIdToNameMap = {};
+locations.forEach((loc) => {
+  locationIdToNameMap[loc['index']] = loc;
+});
 
 export function loadSelectTree() {
   return selectTree;
@@ -72,3 +79,21 @@ export function getLocationByNameAndLevel(selectTree, name, level) {
 
   return traverseTree(selectTree.children, name, level);
 }
+
+export function getLocationNameByIds(locationIds) {
+  const out = [];
+  locationIds.forEach((locId) => {
+    if (typeof locId !== 'string') {
+      locId = locId.toString();
+    }
+
+    out.push(locationIdToNameMap[locId]);
+  });
+  return out;
+}
+
+// Given locObj (a row from location_map), get the name of the most
+// specific level of the object, starting from location --> region
+// export function getMostSpecificLocationName(locObj) {
+//   if (locObj.location !== -1)
+// }

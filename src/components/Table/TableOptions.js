@@ -7,7 +7,7 @@ import { connect, useStores } from '../../stores/connect';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../SkeletonElement';
-import UiStore, { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/uiStore';
 import { observer } from 'mobx-react';
 
 const ColorModeSelectLabel = styled.label`
@@ -187,6 +187,8 @@ const TableOptions = observer(
     const handleDownloadSelect = (option) => {
       if (option === 'Acknowledgements') {
         covidStore.downloadAcknowledgements();
+      } else if (option === 'Aggregate Data') {
+        covidStore.downloadAggCaseData();
       }
     };
 

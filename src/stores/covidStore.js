@@ -4,7 +4,10 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
-import { downloadAcknowledgements } from '../utils/downloadWorkerWrapper';
+import {
+  downloadAcknowledgements,
+  downloadAggCaseData,
+} from '../utils/downloadWorkerWrapper';
 import { getGene, loadGeneOptions } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
@@ -12,7 +15,7 @@ import {
   getLocationByNameAndLevel,
   getLocationIds,
 } from '../utils/location';
-import { downloadBlobURL } from '../utils/download';
+import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
@@ -180,14 +183,50 @@ class ObservableCovidStore {
 
   @action
   downloadAcknowledgements() {
-    console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
     downloadAcknowledgements(
       {
         selectedAccessionIds: toJS(this.selectedAccessionIds),
       },
       (res) => {
         // console.log(res);
-        downloadBlobURL(res.blobURL, 'acknowledgements.csv');
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'acknowledgements',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
+      }
+    );
+  }
+
+  @action
+  downloadAggCaseData() {
+    downloadAggCaseData(
+      {
+        groupKey: this.groupKey,
+        dnaOrAa: this.dnaOrAa,
+        caseDataAggGroup: toJS(this.caseDataAggGroup),
+      },
+      (res) => {
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'agg_data',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
       }
     );
   }
