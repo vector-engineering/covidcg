@@ -76,7 +76,7 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
      `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
 
-5. Install NPM packages
+5. **Install NPM packages**
 
    `npm install`
 
@@ -126,11 +126,17 @@ This script calls and collects all data from the previous scripts, and compiles 
 
 ## About the project
 
-This project was developed by ...
+This project is developed by:
 
-The paper for this project ...
+- Ben Deverman (Broad Institute)
+- Alina Yujia Chan (Broad Institute)
+- Shing Hei Zhan (UBC)
+- Albert Chen (Broad Institute)
+- Kevin Altschuler
 
-Contact the authors by email: ...
+The manuscript for this project is currently being prepared.
+
+Contact the authors by email: Ben Deverman (bdeverma@broadinstitute.org)
 
 Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM) and Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM)
 
@@ -142,7 +148,7 @@ Find all acknowledgements at ...
 
 ### License
 
-... is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE).
+COVID-19 CG is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE).
 
 ### Contributing
 
