@@ -4,7 +4,11 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
-import { downloadAcknowledgements } from '../utils/downloadWorkerWrapper';
+import {
+  downloadAcknowledgements,
+  downloadAggCaseData,
+  downloadSequencesAndMetadata,
+} from '../utils/downloadWorkerWrapper';
 import { getGene, loadGeneOptions } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
@@ -12,7 +16,7 @@ import {
   getLocationByNameAndLevel,
   getLocationIds,
 } from '../utils/location';
-import { downloadBlobURL } from '../utils/download';
+import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
@@ -28,7 +32,7 @@ class ObservableCovidStore {
   @observable changingPositions = {};
   @observable caseDataAggGroup = [];
   @observable dateRange = [];
-  @observable selectedAccessionIds = [];
+  @observable selectedRows = [];
 
   constructor() {
     // Select the Spike gene by default
@@ -60,7 +64,7 @@ class ObservableCovidStore {
         groupKey: toJS(initialGroupKey),
         dnaOrAa: toJS(initialDnaOrAa),
       },
-      ({ aggCaseDataList, selectedAccessionIds }) => {
+      ({ aggCaseDataList, selectedRows }) => {
         uiStoreInstance.onAggCaseDataStarted();
 
         aggCaseDataByGroup(
@@ -82,7 +86,7 @@ class ObservableCovidStore {
             this.changingPositions = changingPositions;
             this.caseDataAggGroup = caseDataAggGroup;
             this.dateRange = initialDateRange;
-            this.selectedAccessionIds = selectedAccessionIds;
+            this.selectedRows = selectedRows;
 
             console.log('DATA INIT FINISHED');
 
@@ -168,9 +172,9 @@ class ObservableCovidStore {
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
       },
-      ({ aggCaseDataList, selectedAccessionIds }) => {
+      ({ aggCaseDataList, selectedRows }) => {
         this.caseData = aggCaseDataList;
-        this.selectedAccessionIds = selectedAccessionIds;
+        this.selectedRows = selectedRows;
         console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
@@ -180,14 +184,70 @@ class ObservableCovidStore {
 
   @action
   downloadAcknowledgements() {
-    console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
     downloadAcknowledgements(
-      {
-        selectedAccessionIds: toJS(this.selectedAccessionIds),
-      },
+      { selectedRows: toJS(this.selectedRows) },
       (res) => {
         // console.log(res);
-        downloadBlobURL(res.blobURL, 'acknowledgements.csv');
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'acknowledgements',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
+      }
+    );
+  }
+
+  @action
+  downloadAggCaseData() {
+    downloadAggCaseData(
+      {
+        groupKey: this.groupKey,
+        dnaOrAa: this.dnaOrAa,
+        caseDataAggGroup: toJS(this.caseDataAggGroup),
+      },
+      (res) => {
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'agg_data',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
+      }
+    );
+  }
+
+  @action
+  downloadSequencesAndMetadata() {
+    downloadSequencesAndMetadata(
+      { selectedRows: toJS(this.selectedRows) },
+      (res) => {
+        //console.log(res);
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'sequences',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
       }
     );
   }
