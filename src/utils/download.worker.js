@@ -1,5 +1,7 @@
 import { getAckTextsFromAccessionIds } from './acknowledgements';
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
+import { getLocationNameByIds } from './location';
+import { intToDnaSnp, intToAaSnp } from './snpData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
@@ -219,6 +221,72 @@ function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
   return csvString;
 }
 
+function downloadSequencesAndMetadata(selectedRows) {
+  // console.log(selectedRows);
+
+  let csvString = '';
+  // Write CSV headers
+  csvString += 'gisaid_id,sample_date,'; // Sequence metadata
+  csvString += 'region,country,division,location,'; // Location metadata
+  csvString += 'lineage,'; // Lineage assignment
+  csvString += 'nt_snp,aa_snp'; // SNP data
+  csvString += '\n';
+
+  for (let i = 0; i < selectedRows.length; i++) {
+    const row = selectedRows[i];
+
+    // Sequence metadata
+    csvString += row['gisaid_id'] + ',';
+    csvString += intToISO(row['sample_date']) + ',';
+
+    // Location metadata
+    const loc = getLocationNameByIds([row['location_id']])[0];
+    csvString +=
+      [
+        loc['region'] === '-1' ? '' : loc['region'],
+        loc['country'] === '-1' ? '' : loc['country'],
+        loc['division'] === '-1' ? '' : loc['division'],
+        loc['location'] === '-1' ? '' : loc['location'],
+      ].join(',') + ',';
+
+    // Lineage assignment
+    csvString += row['lineage'] + ',';
+
+    // SNP data
+    // NT SNPs
+    if (row['dna_snp_str'].length > 0) {
+      csvString +=
+        '"[' +
+        _.map(row['dna_snp_str'], (dnaSnpId) => {
+          return intToDnaSnp(dnaSnpId)['snp_str'];
+        }).join(',') +
+        ']",';
+    } else {
+      csvString += ',';
+    }
+    // AA SNPs
+    if (row['aa_snp_str'].length > 0) {
+      csvString +=
+        '"[' +
+        _.map(row['aa_snp_str'], (aaSnpId) => {
+          return intToAaSnp(aaSnpId)['snp_str'];
+        }).join(',') +
+        ']"';
+    } else {
+      csvString += '';
+    }
+
+    csvString += '\n';
+  }
+
+  let blob = new Blob([csvString]);
+  let url = URL.createObjectURL(blob);
+
+  return {
+    blobURL: url,
+  };
+}
+
 self.addEventListener(
   'message',
   function (e) {
@@ -235,6 +303,8 @@ self.addEventListener(
         data.dnaOrAa,
         data.caseDataAggGroup
       );
+    } else if (data.type === 'downloadSequencesAndMetadata') {
+      result = downloadSequencesAndMetadata(data.selectedRows);
     }
     // console.log(result);
     self.postMessage(JSON.stringify(result));

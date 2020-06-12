@@ -189,6 +189,8 @@ const TableOptions = observer(
         covidStore.downloadAcknowledgements();
       } else if (option === 'Aggregate Data') {
         covidStore.downloadAggCaseData();
+      } else if (option === 'Seqeunces + Metadata') {
+        covidStore.downloadSequencesAndMetadata();
       }
     };
 
@@ -225,7 +227,11 @@ const TableOptions = observer(
         <Spacer />
         <DropdownButton
           text={'Download'}
-          options={['Acknowledgements', 'Aggregate Data']}
+          options={[
+            'Seqeunces + Metadata',
+            'Aggregate Data',
+            'Acknowledgements',
+          ]}
           onSelect={handleDownloadSelect}
         />
       </DataTableOptions>

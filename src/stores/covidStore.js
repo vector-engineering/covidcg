@@ -7,6 +7,7 @@ import {
 import {
   downloadAcknowledgements,
   downloadAggCaseData,
+  downloadSequencesAndMetadata,
 } from '../utils/downloadWorkerWrapper';
 import { getGene, loadGeneOptions } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
@@ -185,9 +186,7 @@ class ObservableCovidStore {
   downloadAcknowledgements() {
     // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
     downloadAcknowledgements(
-      {
-        selectedRows: toJS(this.selectedRows),
-      },
+      { selectedRows: toJS(this.selectedRows) },
       (res) => {
         // console.log(res);
         downloadBlobURL(
@@ -219,6 +218,28 @@ class ObservableCovidStore {
           res.blobURL,
           generateSelectionString(
             'agg_data',
+            'csv',
+            this.groupKey,
+            this.dnaOrAa,
+            this.selectedGene,
+            this.selectedLocationIds,
+            this.dateRange
+          )
+        );
+      }
+    );
+  }
+
+  @action
+  downloadSequencesAndMetadata() {
+    downloadSequencesAndMetadata(
+      { selectedRows: toJS(this.selectedRows) },
+      (res) => {
+        //console.log(res);
+        downloadBlobURL(
+          res.blobURL,
+          generateSelectionString(
+            'sequences',
             'csv',
             this.groupKey,
             this.dnaOrAa,
