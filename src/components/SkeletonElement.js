@@ -38,6 +38,10 @@ const SkeletonElement = memo(({ height, delay, children }) => {
   );
 });
 SkeletonElement.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   height: PropTypes.number.isRequired,
   delay: PropTypes.number.isRequired,
 };
