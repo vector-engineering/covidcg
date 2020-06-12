@@ -31,6 +31,7 @@ const LargeBox = styled.div`
   position: fixed;
 `;
 
+// eslint-disable-next-line no-unused-vars
 const SmallBox = styled.div`
   height: ${hollowBoxSize};
   width: ${hollowBoxSize};

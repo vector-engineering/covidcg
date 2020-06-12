@@ -8,23 +8,29 @@ const SelectContainer = styled.div`
 `;
 
 const GroupKeySelectForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  padding-right: 60px;
   label {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     justify-content: flex-start;
   }
   select {
     padding: 1px 5px;
     margin-left: 0.75em;
     flex-grow: 1;
+    margin-top: 10px;
+    width: 100%;
+    border-radius: 0px;
   }
 `;
 
 const RadioForm = styled.form`
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
   margin-top: 0.85em;
 
@@ -39,6 +45,7 @@ const RadioForm = styled.form`
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+    margin-top: 10px;
   }
 
   .radio-item {

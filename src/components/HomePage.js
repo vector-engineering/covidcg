@@ -25,7 +25,6 @@ const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
   grid-template-rows: [row1] 50px [row2] auto [row3];
-
   height: 100vh;
   width: 100vw;
 `;
@@ -37,8 +36,8 @@ const FilterSidebar = styled.div`
   //padding-right: 10px;
   padding-bottom: 15px;
   border-right: 1px solid #aaa;
-  box-shadow: 0px 0px 5px #aaa;
-  display: block;
+  display: flex;
+  flex-direction: column;
 
   .location-tree-title {
     margin-left: 12px;
@@ -175,47 +174,50 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   };
 
   return (
-    <HomePageDiv>
-      <SideBar />
-      <FilterSidebar>
-        <GroupBySelect
-          groupKey={covidStore.groupKey}
-          dnaOrAa={covidStore.dnaOrAa}
-          onChange={handleGroupingChange}
-        />
-        <GeneSelect
-          genes={covidStore.genes}
-          selectedGene={covidStore.selectedGene}
-          onChange={handleGeneChange}
-        />
-        <span className="location-tree-title">Selected Locations:</span>
-        <DropdownContainer
-          data={covidStore.selectTree.children}
-          onChange={(currentNode, selectedNodes) => {
-            treeSelectOnChange(currentNode, selectedNodes);
-          }}
-          onAction={treeSelectOnAction}
-          onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-        />
-      </FilterSidebar>
-      <Header />
-      <PlotContainer>
-        {/* <VegaLite
+    <>
+      <HomePageDiv>
+        <SideBar />
+        <FilterSidebar>
+          <Header />
+          <GroupBySelect
+            groupKey={covidStore.groupKey}
+            dnaOrAa={covidStore.dnaOrAa}
+            onChange={handleGroupingChange}
+          />
+          <GeneSelect
+            genes={covidStore.genes}
+            selectedGene={covidStore.selectedGene}
+            onChange={handleGeneChange}
+          />
+          <span className="location-tree-title">Selected Locations:</span>
+          <DropdownContainer
+            data={covidStore.selectTree.children}
+            onChange={(currentNode, selectedNodes) => {
+              treeSelectOnChange(currentNode, selectedNodes);
+            }}
+            onAction={treeSelectOnAction}
+            onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+          />
+        </FilterSidebar>
+
+        <PlotContainer>
+          {/* <VegaLite
           data={{
             entropy_data: entropy_data
           }} 
           spec={entropy_spec}
         /> */}
-        <PlotOptions>
-          <AreaStackModeSelect
-            mode={areaStackMode}
-            onChange={onChangeAreaStackMode}
-          />
-        </PlotOptions>
-        {renderPlotContent()}
-        <DataTable />
-      </PlotContainer>
-    </HomePageDiv>
+          <PlotOptions>
+            <AreaStackModeSelect
+              mode={areaStackMode}
+              onChange={onChangeAreaStackMode}
+            />
+          </PlotOptions>
+          {renderPlotContent()}
+          <DataTable />
+        </PlotContainer>
+      </HomePageDiv>
+    </>
   );
 });
 

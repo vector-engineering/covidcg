@@ -29,6 +29,7 @@ const SkeletonContainer = styled.div`
   align-items: center;
 `;
 
+// eslint-disable-next-line react/prop-types
 const SkeletonElement = memo(({ height, delay, children }) => {
   // console.log('render: ', delay);
   return (

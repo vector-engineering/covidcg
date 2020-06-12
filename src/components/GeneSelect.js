@@ -7,9 +7,14 @@ const SelectContainer = styled.div`
   padding: 5px 8px;
   margin-top: 0px;
   padding-top: 0px;
+  margin-bottom: 5px;
 `;
 const GeneSelectForm = styled.form`
   font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-right: 60px;
 
   label {
     display: flex;
@@ -19,30 +24,31 @@ const GeneSelectForm = styled.form`
   }
 
   select {
+    margin-top: 10px;
     background-color: white;
     flex-grow: 1;
     margin-left: 0.65em;
     padding: 1px 5px;
+    width: 100%;
   }
 `;
 const PositionContainer = styled.div`
-  display: grid;
-  grid-template-columns: [col1] 50% [col2] 50% [col3];
-  grid-template-rows: [row1] auto [row2];
+  display: flex;
   font-weight: normal;
   font-size: 0.9em;
   margin-top: 3px;
+  margin-left: 8px;
+  width: 100%;
+  justify-content: space-between;
 `;
 const PosFrom = styled.div`
-  grid-column: col1/col2;
-  grid-row: row1/row2;
   padding-right: 8px;
   border-right: 1px solid #aaa;
+  flex-grow: 1;
 `;
 const PosTo = styled.div`
-  grid-column: col2/col3;
-  grid-row: row1/row2;
   padding-left: 8px;
+  flex-grow: 1;
 `;
 
 const GeneSelect = ({ genes, selectedGene, onChange }) => {
@@ -63,12 +69,10 @@ const GeneSelect = ({ genes, selectedGene, onChange }) => {
   return (
     <SelectContainer>
       <GeneSelectForm>
-        <label>
-          Gene:
-          <select value={selectedGene.gene} onChange={handleChange}>
-            {optionElements}
-          </select>
-        </label>
+        <label>Gene:</label>
+        <select value={selectedGene.gene} onChange={handleChange}>
+          {optionElements}
+        </select>
       </GeneSelectForm>
       <PositionContainer>
         <PosFrom>From: {selectedGene.start}</PosFrom>

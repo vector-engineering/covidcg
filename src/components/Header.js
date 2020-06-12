@@ -8,24 +8,23 @@ import { version, dataDate } from '../utils/version';
 
 const HeaderDiv = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
-
+  padding-top: 5px;
+  padding-left: 12px;
   border-bottom: 1px solid #aaa;
 `;
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 425px;
-
-  padding-left: 30px;
-
+  margin-bottom: 5px;
   h1 {
     font-weight: 700;
     font-size: 2em;
     margin: 0px;
+    line-height: 30px;
   }
 `;
 const NavLinks = styled.div`
@@ -33,6 +32,7 @@ const NavLinks = styled.div`
   flex-direction: row;
   align-items: center;
   margin-right: 30px;
+  margin-bottom: 5px;
 
   a {
     margin-right: 15px;
@@ -44,10 +44,9 @@ const VersionDiv = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
+  margin-bottom: 5px;
 
   height: 100%;
-  padding-left: 10px;
-  border-left: 1px solid #aaa;
 
   font-weight: normal;
   font-size: 0.75em;
