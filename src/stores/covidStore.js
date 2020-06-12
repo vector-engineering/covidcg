@@ -31,7 +31,7 @@ class ObservableCovidStore {
   @observable changingPositions = {};
   @observable caseDataAggGroup = [];
   @observable dateRange = [];
-  @observable selectedAccessionIds = [];
+  @observable selectedRows = [];
 
   constructor() {
     // Select the Spike gene by default
@@ -63,7 +63,7 @@ class ObservableCovidStore {
         groupKey: toJS(initialGroupKey),
         dnaOrAa: toJS(initialDnaOrAa),
       },
-      ({ aggCaseDataList, selectedAccessionIds }) => {
+      ({ aggCaseDataList, selectedRows }) => {
         uiStoreInstance.onAggCaseDataStarted();
 
         aggCaseDataByGroup(
@@ -85,7 +85,7 @@ class ObservableCovidStore {
             this.changingPositions = changingPositions;
             this.caseDataAggGroup = caseDataAggGroup;
             this.dateRange = initialDateRange;
-            this.selectedAccessionIds = selectedAccessionIds;
+            this.selectedRows = selectedRows;
 
             console.log('DATA INIT FINISHED');
 
@@ -171,9 +171,9 @@ class ObservableCovidStore {
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
       },
-      ({ aggCaseDataList, selectedAccessionIds }) => {
+      ({ aggCaseDataList, selectedRows }) => {
         this.caseData = aggCaseDataList;
-        this.selectedAccessionIds = selectedAccessionIds;
+        this.selectedRows = selectedRows;
         console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
@@ -186,7 +186,7 @@ class ObservableCovidStore {
     // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
     downloadAcknowledgements(
       {
-        selectedAccessionIds: toJS(this.selectedAccessionIds),
+        selectedRows: toJS(this.selectedRows),
       },
       (res) => {
         // console.log(res);

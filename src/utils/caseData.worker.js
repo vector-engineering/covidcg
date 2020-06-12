@@ -102,8 +102,8 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   console.log(caseData.length, 'rows remaining after gene filtering');
 
   // Get a list of Accession IDs and sample dates that are currently selected
-  let selectedAccessionIds = _.map(caseData, (row) => {
-    return { gisaid_id: row['gisaid_id'], sample_date: row['sample_date'] };
+  let selectedRows = _.map(caseData, (row) => {
+    return row;
   });
 
   // Group by grouping key and sample date
@@ -185,7 +185,7 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
 
   return {
     aggCaseDataList: aggCaseDataList,
-    selectedAccessionIds: selectedAccessionIds,
+    selectedRows: selectedRows,
   };
 }
 

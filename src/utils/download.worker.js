@@ -3,10 +3,10 @@ import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
-function downloadAcknowledgements(selectedAccessionIds) {
+function downloadAcknowledgements(selectedRows) {
   // Get the list of selected Accession IDs, and map to
   // acknowledgement texts
-  let ackTexts = getAckTextsFromAccessionIds(selectedAccessionIds);
+  let ackTexts = getAckTextsFromAccessionIds(selectedRows);
   // console.log(ackTexts);
 
   // Write to a CSV string
@@ -15,13 +15,13 @@ function downloadAcknowledgements(selectedAccessionIds) {
   let csvString =
     'Accession ID,Collection Date,Originating lab,Submitting lab,Authors\n';
 
-  for (let i = 0; i < selectedAccessionIds.length; i++) {
+  for (let i = 0; i < selectedRows.length; i++) {
     // Write Accession ID
-    csvString += selectedAccessionIds[i]['gisaid_id'] + ',';
+    csvString += selectedRows[i]['gisaid_id'] + ',';
     // Write Sample Date
     // Get the date in ISO format, and chop off the time/timezone info at the end
     // So that we get YYYY-MM-DD (the same as the original input format)
-    csvString += intToISO(selectedAccessionIds[i]['sample_date']) + ',';
+    csvString += intToISO(selectedRows[i]['sample_date']) + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes
@@ -228,7 +228,7 @@ self.addEventListener(
     let result;
     if (data.type === 'downloadAcknowledgements') {
       // This is a terminal endpoint, we don't need to post a message back
-      result = downloadAcknowledgements(data.selectedAccessionIds);
+      result = downloadAcknowledgements(data.selectedRows);
     } else if (data.type === 'downloadAggCaseData') {
       result = downloadAggCaseData(
         data.groupKey,
