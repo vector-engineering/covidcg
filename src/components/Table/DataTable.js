@@ -28,8 +28,12 @@ import {
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
+import SkeletonElement from '../SkeletonElement';
+import { asyncStates } from '../../stores/uiStore';
 
 const DataTableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   span.position-title {
     font-size: 12px;
     font-weight: 500;
@@ -117,7 +121,7 @@ const sortRows = (rows, sortFn) => {
 };
 
 const NewLineageDataTable = observer(() => {
-  const { covidStore } = useStores();
+  const { covidStore, uiStore } = useStores();
 
   // Define initial sort column
   let initialSortColumn;
@@ -163,6 +167,29 @@ const NewLineageDataTable = observer(() => {
     setState({ ...state, compareColor: event.target.value });
 
   const renderTable = () => {
+    if (
+      uiStore.caseDataState === asyncStates.STARTED ||
+      uiStore.aggCaseDataState === asyncStates.STARTED
+    ) {
+      return (
+        <div
+          style={{
+            paddingRight: '24px',
+            paddingLeft: '12px',
+            height: '100%',
+          }}
+        >
+          {_.times(20, (i) => (
+            <SkeletonElement
+              key={Math.random()}
+              delay={5 + i + (i % 2) * 12.5}
+              height={'25px'}
+            />
+          ))}
+        </div>
+      );
+    }
+
     // If we have no rows, then return an empty element
     // We'll always have the "reference" row, so no rows = 1 row
     if (state.rows.length === 1) {
@@ -348,7 +375,7 @@ const NewLineageDataTable = observer(() => {
             rowGetter={(i) => state.rows[i]}
             rows={state.rows}
             rowsCount={state.rows ? state.rows.length : 0}
-            minHeight={500}
+            minHeight={400}
             headerRowHeight={45}
             filterRowHeight={45}
             rowHeight={25}

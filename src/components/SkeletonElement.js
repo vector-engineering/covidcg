@@ -24,11 +24,18 @@ const SkeletonContainer = styled.div`
   transition-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-delay: ${({ delay }) => `${delay * 95}ms`};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const SkeletonElement = memo(({ height, delay }) => {
+const SkeletonElement = memo(({ height, delay, children }) => {
   // console.log('render: ', delay);
-  return <SkeletonContainer height={height} delay={delay}></SkeletonContainer>;
+  return (
+    <SkeletonContainer height={height} delay={delay}>
+      {children}
+    </SkeletonContainer>
+  );
 });
 SkeletonElement.propTypes = {
   height: PropTypes.number.isRequired,

@@ -6,6 +6,9 @@ import { capitalize } from '../../utils/string';
 import { connect, useStores } from '../../stores/connect';
 
 import DropdownButton from '../Buttons/DropdownButton';
+import SkeletonElement from '../SkeletonElement';
+import UiStore, { asyncStates } from '../../stores/uiStore';
+import { observer } from 'mobx-react';
 
 const ColorModeSelectLabel = styled.label`
   margin-right: 1em;
@@ -162,46 +165,71 @@ const Spacer = styled.div`
   flex-grow: 1;
 `;
 
-const TableOptions = ({
-  handleColorModeChange,
-  handleCompareModeChange,
-  handleCompareColorChange,
-  colorMode,
-  compareMode,
-  compareColor,
-}) => {
-  const { covidStore } = useStores();
+const SkeletonContainer = styled.div`
+  display: flex;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 12px;
+  padding-right: 24px;
+`;
 
-  const handleDownloadSelect = (option) => {
-    if (option === 'Acknowledgements') {
-      covidStore.downloadAcknowledgements();
+const TableOptions = observer(
+  ({
+    handleColorModeChange,
+    handleCompareModeChange,
+    handleCompareColorChange,
+    colorMode,
+    compareMode,
+    compareColor,
+  }) => {
+    const { covidStore, uiStore } = useStores();
+
+    const handleDownloadSelect = (option) => {
+      if (option === 'Acknowledgements') {
+        covidStore.downloadAcknowledgements();
+      }
+    };
+
+    if (
+      uiStore.caseDataState === asyncStates.STARTED ||
+      uiStore.aggCaseDataState === asyncStates.STARTED
+    ) {
+      return (
+        <SkeletonContainer>
+          <SkeletonElement delay={2} height={'30px'} />
+          &nbsp;&nbsp;
+          <SkeletonElement delay={3} height={'30px'} />
+          &nbsp;&nbsp;
+          <SkeletonElement delay={4} height={'30px'} />
+        </SkeletonContainer>
+      );
     }
-  };
 
-  return (
-    <DataTableOptions>
-      <ColorModeSelect
-        dnaOrAa={covidStore.dnaOrAa}
-        colorMode={colorMode}
-        handleChange={handleColorModeChange}
-      />
-      <CompareModeSelect
-        disabled={colorMode === 'code'}
-        dnaOrAa={covidStore.dnaOrAa}
-        compareMode={compareMode}
-        compareColor={compareColor}
-        handleModeChange={handleCompareModeChange}
-        handleColorChange={handleCompareColorChange}
-      />
-      <Spacer />
-      <DropdownButton
-        text={'Download'}
-        options={['Acknowledgements', 'Aggregate Data']}
-        onSelect={handleDownloadSelect}
-      />
-    </DataTableOptions>
-  );
-};
+    return (
+      <DataTableOptions>
+        <ColorModeSelect
+          dnaOrAa={covidStore.dnaOrAa}
+          colorMode={colorMode}
+          handleChange={handleColorModeChange}
+        />
+        <CompareModeSelect
+          disabled={colorMode === 'code'}
+          dnaOrAa={covidStore.dnaOrAa}
+          compareMode={compareMode}
+          compareColor={compareColor}
+          handleModeChange={handleCompareModeChange}
+          handleColorChange={handleCompareColorChange}
+        />
+        <Spacer />
+        <DropdownButton
+          text={'Download'}
+          options={['Acknowledgements', 'Aggregate Data']}
+          onSelect={handleDownloadSelect}
+        />
+      </DataTableOptions>
+    );
+  }
+);
 
 TableOptions.propTypes = {
   handleColorModeChange: PropTypes.func.isRequired,

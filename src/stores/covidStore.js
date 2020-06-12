@@ -136,7 +136,7 @@ class ObservableCovidStore {
 
   @action
   updateAggCaseDataByGroup(suppressUIUpdate = false) {
-    suppressUIUpdate ? uiStoreInstance.onAggCaseDataStarted() : null;
+    suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -151,8 +151,8 @@ class ObservableCovidStore {
         this.changingPositions = changingPositions;
         console.log('AGG_CASE_DATA FINISHED');
 
-        suppressUIUpdate ? uiStoreInstance.onAggCaseDataFinished() : null;
-        suppressUIUpdate ? uiStoreInstance.onCaseDataStateFinished() : null;
+        suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();
+        suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
       }
     );
   }

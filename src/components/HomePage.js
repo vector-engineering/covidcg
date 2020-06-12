@@ -14,11 +14,12 @@ import { VegaLite } from 'react-vega';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
-import NewLineageDataTable from './Table/DataTable';
+import DataTable from './Table/DataTable';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
+import LoadingSpinner from './LoadingSpinner';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -143,33 +144,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
       (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
-  const renderTableContent = () => {
-    console.log(uiStore.caseDataState, uiStore.aggCaseDataState);
-
-    if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
-    ) {
-      return (
-        <div
-          style={{
-            paddingTop: '0px',
-            paddingRight: '24px',
-            paddingLeft: '12px',
-          }}
-        >
-          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
-            <SkeletonElement delay={2} height={'50px'} />
-          </div>
-          <SkeletonElement delay={4} height={'400px'} />
-        </div>
-      );
-    }
-    return <NewLineageDataTable />;
-  };
-
   const renderPlotContent = () => {
-    console.log(uiStore.caseDataState);
     if (uiStore.caseDataState === asyncStates.STARTED) {
       return (
         <div
@@ -179,7 +154,9 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             paddingLeft: '12px',
           }}
         >
-          <SkeletonElement delay={1} height={'436px'} />
+          <SkeletonElement delay={1} height={'436px'}>
+            <LoadingSpinner />
+          </SkeletonElement>
         </div>
       );
     } else {
@@ -236,7 +213,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           />
         </PlotOptions>
         {renderPlotContent()}
-        {renderTableContent()}
+        <DataTable />
       </PlotContainer>
     </HomePageDiv>
   );
