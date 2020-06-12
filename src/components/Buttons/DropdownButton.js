@@ -37,11 +37,12 @@ const DropdownMenu = styled.div`
   position: absolute;
   top: 28px;
   right: 0;
-  z-index: 1;
+  z-index: 10;
 
   min-width: 10rem;
   padding: 5px 0px;
 
+  background-color: #fff;
   border: 1px solid #aaa;
   border-radius: 3px;
 
@@ -61,7 +62,7 @@ const DropdownItem = styled.a`
   color: #212529;
   text-align: inherit;
   white-space: nowrap;
-  background-color: transparent;
+  background-color: #fff;
   border: 0;
   text-decoration: none;
 
