@@ -99,7 +99,7 @@ const Header = () => {
         <h1>COVID-19 CoV Genetics (CG)</h1>
       </TitleContainer>
       <GISAIDContainer>
-        Powered by data from:&nbsp;
+        SARS-CoV-2 sequences from:&nbsp;
         <a
           href="https://www.gisaid.org/"
           target="_blank"
