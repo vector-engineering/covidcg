@@ -711,6 +711,16 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'location': 'Torres_de_Elorz'}, {'location': 'Torres de Elorz'}),
         ({'country': 'Spain', 'location': 'Velez_Malaga'}, {'location': 'Velez Malaga'}),
 
+        # More typos
+        ({'country': 'Spain', 'division': 'Balear_Islands'}, {'division': 'Balearic Islands'}),
+        ({'country': 'Spain', 'division': 'Canary_Islands'}, {'division': 'Canary Islands'}),
+        ({'country': 'Spain', 'location': 'Rio_San_Pedro'}, {'location': 'Rio San Pedro'}),
+        ({'country': 'Spain', 'location': 'Las_Palmas'}, {'location': 'Las Palmas'}),
+        ({'country': 'Spain', 'location': 'La_Estrada'}, {'location': 'La Estrada'}),
+        ({'country': 'Spain', 'location': 'Santa_Comba'}, {'location': 'Santa Comba'}),
+        ({'country': 'Spain', 'location': 'Santiago_de_Compostela'}, {'location': 'Santiago de Compostela'}),
+        ({'country': 'Spain', 'location': 'LeganA(c)s'}, {'location': 'Leganés'}),
+
         # SWEDEN
         # ------
 
@@ -728,6 +738,8 @@ def clean_location_data(location_df):
         ({'country': 'Switzerland', 'division': ['Genève', 'Geneve']}, {'division': 'Geneva'}),
         ({'country': 'Switzerland', 'division': 'Luzern'}, {'division': 'Lucerne'}),
         ({'country': 'Switzerland', 'division': 'Argovie'}, {'division': 'Aargau'}),
+        ({'country': 'Switzerland', 'division': 'Zurich'}, {'division': 'Zürich'}),
+        ({'country': 'Switzerland', 'division': 'Graubunden'}, {'division': 'Graubünden'}),
 
         # UNITED KINGDOM
         # --------------
@@ -761,6 +773,9 @@ def clean_location_data(location_df):
         # USA
         # ---
 
+        # Merge with "United States"
+        ({'country': 'United States'}, {'country': 'USA'}),
+
         # Washington DC
         # -------------
         # Unify with "District of Columbia"
@@ -778,6 +793,8 @@ def clean_location_data(location_df):
         ({'country': 'USA', 'division': 'California', 'location': 'Davis'}, {'location': 'Yolo County'}),
         # LA -> LA County
         ({'country': 'USA', 'division': 'California', 'location': 'Los Angeles'}, {'location': 'Los Angeles County'}),
+        # Los Angeles division -> California
+        ({'country': 'USA', 'division': 'Los Angeles'}, {'division': 'California', 'location': 'Los Angeles County'}),
         
         # Colorado
         # --------
@@ -927,11 +944,17 @@ def clean_location_data(location_df):
         # Brazil
         # ------
         # Fix typos
-        # Remove redundant Sao Paolo location
-
         ({'country': 'Brazil', 'division': 'Minas gerais'}, {'division': 'Minas Gerais'}),
         ({'country': 'Brazil', 'division': 'São Paulo'}, {'division': 'Sao Paulo'}),
+        # Remove redundant Sao Paolo location
         ({'country': 'Brazil', 'location': 'Sao Paulo'}, {'location': -1}),
+        # Fix more typos
+        ({'country': 'Brazil', 'location': 'DUQUE DE CAXIAS'}, {'location': 'Duque de Caxias'}),
+        ({'country': 'Brazil', 'location': 'NITEROI'}, {'location': 'Niteroi'}),
+        ({'country': 'Brazil', 'location': 'NOVA IGUACU'}, {'location': 'Nova Iguacu'}),
+        ({'country': 'Brazil', 'location': 'PETROPOLIS'}, {'location': 'Petropolis'}),
+        ({'country': 'Brazil', 'location': 'QUEIMADOS'}, {'location': 'Queimados'}),
+        ({'country': 'Brazil', 'location': 'RIO DE JANEIRO'}, {'location': 'Rio de Janeiro'}),
 
         # Colombia
         # --------
