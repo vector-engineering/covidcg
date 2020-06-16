@@ -52,7 +52,7 @@ print(structures)
 
 
 # Interaction distance in angstroms
-interaction_distance = 8.0
+interaction_distance = 4.0
 
 # dict of model -> list of residue indexes
 interacting_aas = {}

@@ -56,7 +56,7 @@ aa_snp_pos_df['count_norm'] = min_val + ((aa_snp_pos_df['count'] / aa_snp_pos_df
 aa_snp_pos_df['count_log_norm'] = min_val + ((aa_snp_pos_df['count_log'] / aa_snp_pos_df['count_log'].max()) / (max_val - min_val))
 
 # Get colormap
-cmap = cm.get_cmap('cool')
+cmap = cm.get_cmap('autumn')
 
 # Map normalized counts to colormap
 aa_snp_pos_df['color_rgb'] = aa_snp_pos_df['count_norm'].apply(cmap)

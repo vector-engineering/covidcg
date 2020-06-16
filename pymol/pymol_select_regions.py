@@ -38,36 +38,37 @@ with (data_dir / 'spike_structures.csv').open('r') as fp:
 
 # print(struct_rows)
 
+sele = 'spike'
 
 # For the ACE2 RBD, using contacts from 6M0J
-cmd.select('rbd', 'chain B and (resi 417 or resi 446 or resi 449 or resi 453 or resi 455 or resi 456 or resi 475 or resi 486 or resi 487 or resi 489 or resi 493 or resi 493 or resi 496 or resi 498 or resi 500 or resi 501 or resi 502 or resi 505)')
+cmd.select('rbd', '{} and (resi 417 or resi 446 or resi 449 or resi 453 or resi 455 or resi 456 or resi 475 or resi 486 or resi 487 or resi 489 or resi 493 or resi 493 or resi 496 or resi 498 or resi 500 or resi 501 or resi 502 or resi 505)'.format(sele))
 
 # Get CB6 Nab contacts (7C01)
-cmd.select('cb6', 'chain B and ({})'.format(
-    ' or '.join(['resi ' + x for x in struct_rows['7C01']['interacting_residues'].split(';')])
+cmd.select('cb6', '{} and ({})'.format(
+    sele, ' or '.join(['resi ' + x for x in struct_rows['7C01']['interacting_residues'].split(';')])
 ))
 
 # Get B38 Nab contacts (7BZ5)
-cmd.select('b38', 'chain B and ({})'.format(
-   ' or '.join(['resi ' + x for x in struct_rows['7BZ5']['interacting_residues'].split(';')])
+cmd.select('b38', '{} and ({})'.format(
+   sele, ' or '.join(['resi ' + x for x in struct_rows['7BZ5']['interacting_residues'].split(';')])
 ))
 
 # Get S309 Nab contacts (6WPT)
-cmd.select('s309', 'chain B and ({})'.format(
-    ' or '.join(['resi ' + x for x in struct_rows['6WPT']['interacting_residues'].split(';')])
+cmd.select('s309', '{} and ({})'.format(
+    sele, ' or '.join(['resi ' + x for x in struct_rows['6WPT']['interacting_residues'].split(';')])
 ))
 
 # Get 7BWJ contacts (7BWJ)
-cmd.select('7bwj', 'chain B and ({})'.format(
-    ' or '.join(['resi ' + x for x in struct_rows['7BWJ']['interacting_residues'].split(';')])
+cmd.select('7bwj', '{} and ({})'.format(
+    sele, ' or '.join(['resi ' + x for x in struct_rows['7BWJ']['interacting_residues'].split(';')])
 ))
 
 # CR3022 contacts (6W41)
-cmd.select('cr3022', 'chain B and ({})'.format(
-    ' or '.join(['resi ' + x for x in struct_rows['6W41']['interacting_residues'].split(';')])
+cmd.select('cr3022', '{} and ({})'.format(
+    sele, ' or '.join(['resi ' + x for x in struct_rows['6W41']['interacting_residues'].split(';')])
 ))
 
 # H11-D4 contacts (6Z43)
-cmd.select('h11d4', 'chain B and ({})'.format(
-    ' or '.join(['resi ' + x for x in struct_rows['6Z43']['interacting_residues'].split(';')])
+cmd.select('h11d4', '{} and ({})'.format(
+    sele, ' or '.join(['resi ' + x for x in struct_rows['6Z43']['interacting_residues'].split(';')])
 ))
