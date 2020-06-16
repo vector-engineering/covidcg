@@ -185,6 +185,11 @@ def clean_location_data(location_df):
             {'country': 'China', 'division': 'Yuecheng'}, 
             {'division': 'Zhejiang', 'location': 'Yuecheng'}
         ),
+        # Move Harbin into Heilongjiang
+        (
+            {'country': 'China', 'division': 'Harbin'}, 
+            {'division': 'Heilongjiang', 'location': 'Harbin'}
+        ),
 
         # INDIA
         # -----
@@ -720,6 +725,8 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'location': 'Santa_Comba'}, {'location': 'Santa Comba'}),
         ({'country': 'Spain', 'location': 'Santiago_de_Compostela'}, {'location': 'Santiago de Compostela'}),
         ({'country': 'Spain', 'location': 'LeganA(c)s'}, {'location': 'Leganés'}),
+        ({'country': 'Spain', 'location': 'Santa_Fe'}, {'location': 'Santa Fe'}),
+        ({'country': 'Spain', 'location': 'Campo_Real'}, {'location': 'Campo Real'}),
 
         # SWEDEN
         # ------
@@ -795,6 +802,8 @@ def clean_location_data(location_df):
         ({'country': 'USA', 'division': 'California', 'location': 'Los Angeles'}, {'location': 'Los Angeles County'}),
         # Los Angeles division -> California
         ({'country': 'USA', 'division': 'Los Angeles'}, {'division': 'California', 'location': 'Los Angeles County'}),
+        ({'country': 'USA', 'division': 'California', 'location': 'Alameda'}, {'location': 'Alameda County'}),
+        
         
         # Colorado
         # --------
@@ -830,23 +839,24 @@ def clean_location_data(location_df):
 
         # New York
         # --------
-        # Assume NY is NY State
-        # Unify county names
-        # Move NYC division into NY State division
-        # Merge NYC boroughs into one NYC
-
-        ({'country': 'USA', 'division': 'NY'}, {'division': 'New York'}),
         
+        # Assume NY is NY State
+        ({'country': 'USA', 'division': 'NY'}, {'division': 'New York'}),
+        # Move NYC division into NY State division
         ({'country': 'USA', 'division': 'New York City'}, {'division': 'New York', 'location': 'New York City'}),
         # Remove redundant "New York"
         ({'country': 'USA', 'division': 'New York', 'location': 'New York'}, {'location': -1}),
+        # Merge NYC boroughs into one NYC
         ({'country': 'USA', 'division': 'New York', 'location': ['Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island']}, {'location': 'New York City'}),
+        # Unify county names
         ({'country': 'USA', 'division': 'New York', 'location': ['Nassau', 'Nassau county']}, {'location': 'Nassau County'}),
         ({'country': 'USA', 'division': 'New York', 'location': 'Rockland'}, {'location': 'Rockland County'}),
         ({'country': 'USA', 'division': 'New York', 'location': ['Suffolk', 'Suffolk county']}, {'location': 'Suffolk County'}),
         ({'country': 'USA', 'division': 'New York', 'location': 'Westchester'}, {'location': 'Westchester County'}),
         # Remove empty location
         ({'country': 'USA', 'division': 'New York', 'location': ''}, {'location': -1}),
+        # Move Nassau County into NY
+        ({'country': 'USA', 'division': 'Nassau County'}, {'division': 'New York', 'location': 'Nassau County'}),
 
 
         # Washington
