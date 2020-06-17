@@ -747,6 +747,7 @@ def clean_location_data(location_df):
         ({'country': 'Switzerland', 'division': 'Argovie'}, {'division': 'Aargau'}),
         ({'country': 'Switzerland', 'division': 'Zurich'}, {'division': 'Zürich'}),
         ({'country': 'Switzerland', 'division': 'Graubunden'}, {'division': 'Graubünden'}),
+        ({'country': 'Switzerland', 'division': 'Sankt Gallen'}, {'division': 'St Gallen'}),
 
         # UNITED KINGDOM
         # --------------
@@ -782,6 +783,8 @@ def clean_location_data(location_df):
 
         # Merge with "United States"
         ({'country': 'United States'}, {'country': 'USA'}),
+        # Merge with USA region
+        ({'region': 'USA'}, {'region': 'North America', 'country': 'USA'}),
 
         # Washington DC
         # -------------
