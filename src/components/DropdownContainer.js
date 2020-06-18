@@ -9,6 +9,9 @@ const ContainerDiv = styled.div`
   padding-top: 8px;
 
   border-top: 1px solid #aaa;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
 
   .location-tree-title {
     margin-left: 15px;
