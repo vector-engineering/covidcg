@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+
   margin: 5px;
   padding: 5px 8px;
   margin-top: 0px;
@@ -10,11 +15,10 @@ const SelectContainer = styled.div`
   margin-bottom: 5px;
 `;
 const GeneSelectForm = styled.form`
-  font-weight: 700;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-right: 60px;
+  padding-right: 20px;
 
   label {
     display: flex;
@@ -24,12 +28,13 @@ const GeneSelectForm = styled.form`
   }
 
   select {
-    margin-top: 10px;
+    margin-top: 5px;
     background-color: white;
     flex-grow: 1;
     margin-left: 0.65em;
     padding: 1px 5px;
     width: 100%;
+    border-radius: 3px;
   }
 `;
 const PositionContainer = styled.div`
@@ -38,7 +43,7 @@ const PositionContainer = styled.div`
   font-size: 0.9em;
   margin-top: 3px;
   margin-left: 8px;
-  width: 100%;
+  margin-right: 20px;
   justify-content: space-between;
 `;
 const PosFrom = styled.div`

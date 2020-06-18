@@ -38,9 +38,9 @@ Table of Contents
 
 #### Data Requirements
 
-The python scripts require a `data` folder inside the root folder of the project in order to run. In accordance with the [GISAID](https://www.gisaid.org/) terms of service, we cannot distribute data to those who have not registered with their service. We are happy to share our data folder via. Google Drive, with raw as well as processed data, if you contact us and send proof of registration with GISAID.
+The python scripts require a `data` folder inside the root folder of the project in order to run. In accordance with the [GISAID](https://www.gisaid.org/) [Database Access Agreement (DAA)](https://www.gisaid.org/registration/terms-of-use/), we cannot share data outside of their distribution service.
 
-You can also download the data from GISAID yourself and run the python scripts from scratch. The `data` folder requires four folders to be populated with raw data from GISAID, prior to processing:
+The `data` folder requires four folders to be populated with raw data from GISAID, prior to processing:
 
 1. `fasta_raw`: FASTA sequences. These files can be downloaded by selecting "Sequences" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
 
@@ -76,7 +76,7 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
      `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
 
-5. Install NPM packages
+5. **Install NPM packages**
 
    `npm install`
 
@@ -126,11 +126,17 @@ This script calls and collects all data from the previous scripts, and compiles 
 
 ## About the project
 
-This project was developed by ...
+This project is developed by:
 
-The paper for this project ...
+- Ben Deverman (Broad Institute)
+- Alina Yujia Chan (Broad Institute)
+- Shing Hei Zhan (UBC)
+- Albert Chen (Broad Institute)
+- Kevin Altschuler
 
-Contact the authors by email: ...
+The manuscript for this project is currently being prepared.
+
+Contact the authors by email: Ben Deverman (bdeverma@broadinstitute.org)
 
 Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM) and Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM)
 
@@ -142,7 +148,7 @@ Find all acknowledgements at ...
 
 ### License
 
-... is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE).
+COVID-19 CG is distributed by an [MIT license](https://github.com/vector-engineering/covid-ui/blob/master/LICENSE).
 
 ### Contributing
 

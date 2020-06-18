@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
-  margin: 5px;
+  margin: 5px 5px 0px 5px;
   padding: 5px 8px;
 `;
 
 const GroupKeySelectForm = styled.form`
   display: flex;
   flex-direction: column;
-  padding-right: 60px;
+  padding-right: 20px;
   label {
     display: flex;
     flex-direction: column;
@@ -21,9 +21,9 @@ const GroupKeySelectForm = styled.form`
     padding: 1px 5px;
     margin-left: 0.75em;
     flex-grow: 1;
-    margin-top: 10px;
+    margin-top: 5px;
     width: 100%;
-    border-radius: 0px;
+    border-radius: 3px;
   }
 `;
 
@@ -45,7 +45,7 @@ const RadioForm = styled.form`
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    margin-top: 10px;
+    margin-top: 5px;
   }
 
   .radio-item {

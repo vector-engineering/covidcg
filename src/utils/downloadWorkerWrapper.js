@@ -9,6 +9,23 @@ export const downloadAcknowledgements = (data, callback) => {
 
   //console.log('Download worker posting:', data);
   data.type = 'downloadAcknowledgements';
+  downloadWorker.postMessage(JSON.stringify(data));
+};
 
+export const downloadAggCaseData = (data, callback) => {
+  downloadWorker.onmessage = (e) => {
+    callback(JSON.parse(e.data));
+  };
+
+  data.type = 'downloadAggCaseData';
+  downloadWorker.postMessage(JSON.stringify(data));
+};
+
+export const downloadSequencesAndMetadata = (data, callback) => {
+  downloadWorker.onmessage = (e) => {
+    callback(JSON.parse(e.data));
+  };
+
+  data.type = 'downloadSequencesAndMetadata';
   downloadWorker.postMessage(JSON.stringify(data));
 };

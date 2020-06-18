@@ -1,10 +1,5 @@
 import initialCaseData from '../../data/case_data.json';
-import {
-  int_to_dna_snp,
-  int_to_aa_snp,
-  dna_snp_in_gene,
-  aa_snp_in_gene,
-} from './snpData';
+import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
 import _ from 'underscore';
 
@@ -58,7 +53,7 @@ function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
       caseData.forEach((row) => {
         // Only keep SNPs that are within
         row['dna_snp_str'] = _.filter(row['dna_snp_str'], (snp_id) => {
-          return dna_snp_in_gene(snp_id, selectedGene.gene);
+          return dnaSnpInGene(snp_id, selectedGene.gene);
         });
         newCaseData.push(row);
       });
@@ -66,7 +61,7 @@ function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
       caseData.forEach((row) => {
         // Only keep SNPs that are within
         row['aa_snp_str'] = _.filter(row['aa_snp_str'], (snp_id) => {
-          return aa_snp_in_gene(snp_id, selectedGene.gene);
+          return aaSnpInGene(snp_id, selectedGene.gene);
         });
         newCaseData.push(row);
       });
@@ -102,8 +97,8 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
   console.log(caseData.length, 'rows remaining after gene filtering');
 
   // Get a list of Accession IDs and sample dates that are currently selected
-  let selectedAccessionIds = _.map(caseData, (row) => {
-    return { gisaid_id: row['gisaid_id'], sample_date: row['sample_date'] };
+  let selectedRows = _.map(caseData, (row) => {
+    return row;
   });
 
   // Group by grouping key and sample date
@@ -145,9 +140,9 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     groupKeys.forEach((_groupKey) => {
       // Replace the integer SNP ID with the actual SNP string
       if (groupKey === 'snp' && dnaOrAa === 'dna') {
-        _groupKey = int_to_dna_snp(_groupKey).snp_str;
+        _groupKey = intToDnaSnp(_groupKey).snp_str;
       } else if (groupKey === 'snp' && dnaOrAa === 'aa') {
-        _groupKey = int_to_aa_snp(_groupKey).snp_str;
+        _groupKey = intToAaSnp(_groupKey).snp_str;
       }
 
       // Create an entry for the group, if it doesn't already exist
@@ -185,7 +180,7 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
 
   return {
     aggCaseDataList: aggCaseDataList,
-    selectedAccessionIds: selectedAccessionIds,
+    selectedRows: selectedRows,
   };
 }
 

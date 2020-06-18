@@ -185,6 +185,11 @@ def clean_location_data(location_df):
             {'country': 'China', 'division': 'Yuecheng'}, 
             {'division': 'Zhejiang', 'location': 'Yuecheng'}
         ),
+        # Move Harbin into Heilongjiang
+        (
+            {'country': 'China', 'division': 'Harbin'}, 
+            {'division': 'Heilongjiang', 'location': 'Harbin'}
+        ),
 
         # INDIA
         # -----
@@ -334,11 +339,13 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Holsbeek'}, {'division': 'Flemish Brabant', 'location': 'Holsbeek'}),
         ({'country': 'Belgium', 'division': 'Huldenberg'}, {'division': 'Flemish Brabant', 'location': 'Huldenberg'}),
         ({'country': 'Belgium', 'division': ['Kampenhout', 'Berg', 'Buken', 'Nederokkerzeel']}, {'division': 'Flemish Brabant', 'location': 'Kampenhout'}),
+        ({'country': 'Belgium', 'division': ['Kortenberg', 'Erps-Kwerps', 'Everberg', 'Meerbeek']}, {'division': 'Flemish Brabant', 'location': 'Kortenberg'}),
         ({'country': 'Belgium', 'division': 'Kraainem'}, {'division': 'Flemish Brabant', 'location': 'Kraainem'}),
         ({'country': 'Belgium', 'division': ['Landen', 'Attenhoven', 'Eliksem', 'Ezemaal', 'Laar', 'Neerlanden', 'Neerwinden', 'Overwinden', 'Rumsdorp', 'Waasmont', 'Walsbets', 'Walshoutem', 'Wange', 'Wezeren']}, {'division': 'Flemish Brabant', 'location': 'Landen'}),
         ({'country': 'Belgium', 'division': ['Leuven', 'Heverlee', 'Kessel-Lo', 'Ladeuze', 'Wilsele']}, {'division': 'Flemish Brabant', 'location': 'Leuven'}),
         ({'country': 'Belgium', 'division': 'Linter'}, {'division': 'Flemish Brabant', 'location': 'Linter'}),
         ({'country': 'Belgium', 'division': 'Lubbeek'}, {'division': 'Flemish Brabant', 'location': 'Lubbeek'}),
+        ({'country': 'Belgium', 'division': ['Oud-Heverlee', 'Blanden', 'Haasrode', 'Sint-Joris-Weert', 'Vaalbeek']}, {'division': 'Flemish Brabant', 'location': 'Oud-Heverlee'}),
         ({'country': 'Belgium', 'division': ['Overijse']}, {'division': 'Flemish Brabant', 'location': 'Overijse'}),
         ({'country': 'Belgium', 'division': 'Machelen'}, {'division': 'Flemish Brabant', 'location': 'Machelen'}),
         ({'country': 'Belgium', 'division': 'Scherpenheuvel-Zichem'}, {'division': 'Flemish Brabant', 'location': 'Scherpenheuvel-Zichem'}),
@@ -403,18 +410,21 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Bassilly'}, {'division': 'Hainaut', 'location': 'Silly'}),
         ({'country': 'Belgium', 'division': ['Quevaucamps', 'Wadelincourt', 'Basecles', 'Ramegnies', 'Thumaide', 'Aubechies', 'Ellignies-Sainte-Anne']}, {'division': 'Hainaut', 'location': 'Belœil'}),
         ({'country': 'Belgium', 'division': ['Binche', 'Bray', 'Buvrinnes', 'Epinois', 'Leval-Trahegnies', 'Peronnes-lez-Binche', 'Ressaix', 'Waudrez']}, {'division': 'Hainaut', 'location': 'Binche'}),
-        ({'country': 'Belgium', 'division': ['Tournai', 'Doornik', 'Ere', 'Saint-Maur', 'Orcq', 'Esplechin', 'Froyennes', 'Froidmont', 'Willemeau', 'Ramegnies-Chin', 'Templeuve', 'Chercq', 'Blandain', 'Hertain', 'Lamain', 'Marquain', 'Gaurain-Ramecroix', 'Havinnes', 'Beclers', 'Thimougnies', 'Barry', 'Maulde', 'Vaulx', 'Vezon', 'Kain', 'Melles', 'Quartes', 'Rumillies', 'Mont-Saint-Aubert', 'Mourcourt', 'Warchin']}, {'division': 'Hainaut', 'location': 'Tournai'}),
         ({'country': 'Belgium', 'division': 'Boussu'}, {'division': 'Hainaut', 'location': 'Boussu'}),
+        ({'country': 'Belgium', 'division': ['Brugelette', 'Cambron-Casteau', 'Attre', 'Mevergnies-lez-Lens', 'Gages']}, {'division': 'Hainaut', 'location': 'Brugelette'}),
+        ({'country': 'Belgium', 'division': ['Brunehaut', 'Bléharies', 'Guignies', 'Hollain', 'Jollain-Merlin', 'Wez-Velvain', 'Lesdain', 'Laplaigne', 'Rongy', 'Howardries']}, {'division': 'Hainaut', 'location': 'Brunehaut'}),
         ({'country': 'Belgium', 'division': 'Bury'}, {'division': 'Hainaut', 'location': 'Péruwelz'}),
-        ({'country': 'Belgium', 'division': ['Charleroi', 'Dampremy', 'Lodenlinsart', 'Gilly', 'Montignies-Sur-Sambre', 'Montignies-sur-sambre', 'Couillet', 'Marcinelle', 'Mont-sur-Marchienne', 'Marchienne-au-Pont', 'Monceau-sur-Sambre', 'Goutroux', 'Roux', 'Jumet', 'Gosselies', 'Ransart']}, {'division': 'Hainaut', 'location': 'Charleroi'}),
+        ({'country': 'Belgium', 'division': ['Charleroi', 'Dampremy', 'Lodenlinsart', 'Gilly', 'Montignies-Sur-Sambre', 'Montignies-sur-sambre', 'Couillet', 'Marcinelle', 'Mont-sur-Marchienne', 'Marchienne-au-Pont', 'Monceau-sur-Sambre', 'Monceau-sur-sambre', 'Goutroux', 'Roux', 'Jumet', 'Gosselies', 'Ransart']}, {'division': 'Hainaut', 'location': 'Charleroi'}),
         ({'country': 'Belgium', 'division': ['Chatelet', 'Châtelet', 'Bouffioulx', 'Chatelineau']}, {'division': 'Hainaut', 'location': 'Châtelet'}),
         ({'country': 'Belgium', 'division': ['Colfontaine', 'Confontaine']}, {'division': 'Hainaut', 'location': 'Colfontaine'}),
         ({'country': 'Belgium', 'division': 'Cuesmes'}, {'division': 'Hainaut', 'location': 'Cuesmes'}),
         ({'country': 'Belgium', 'division': 'Dour'}, {'division': 'Hainaut', 'location': 'Dour'}),
         ({'country': 'Belgium', 'division': 'Edingen'}, {'division': 'Hainaut', 'location': 'Edingen'}),
         ({'country': 'Belgium', 'division': 'Ellezelles'}, {'division': 'Hainaut', 'location': 'Ellezelles'}),
+        ({'country': 'Belgium', 'division': ['Flobecq', 'Vloesberg']}, {'division': 'Hainaut', 'location': 'Flobecq'}),
         ({'country': 'Belgium', 'division': ['Fontaine-l Eveque', 'Forchies-la-marche']}, {'division': 'Hainaut', 'location': 'Fontaine-l\'Évêque'}),
         ({'country': 'Belgium', 'division': 'Frameries'}, {'division': 'Hainaut', 'location': 'Frameries'}),
+        ({'country': 'Belgium', 'division': ['Frasnes-lez-Anvaing', 'Arc', 'Ainières', 'Wattripont', 'Anvaing', 'Buissenal', 'Moustier', 'Oeudeghien', 'Ellignies', 'Dergneau', 'Saint-Sauveur', 'Hacquegnies', 'Herquegnies']}, {'division': 'Hainaut', 'location': 'Frasnes-lez-Anvaing'}),
         ({'country': 'Belgium', 'division': 'Haulchin'}, {'division': 'Hainaut', 'location': 'Haulchin'}),
         ({'country': 'Belgium', 'division': ['Hensies', 'Thulin']}, {'division': 'Hainaut', 'location': 'Hensies'}),
         ({'country': 'Belgium', 'division': 'Honnelles'}, {'division': 'Hainaut', 'location': 'Honnelles'}),
@@ -436,6 +446,7 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': ['Saint-Ghislain', 'Tertre', 'Villerot', 'Baudour', 'Neufmaison']}, {'division': 'Hainaut', 'location': 'Saint-Ghislain'}),
         ({'country': 'Belgium', 'division': ['Soignies', 'Casteau', 'Chaussee-Notre-Dame-Louvignies', 'Horrues', 'Neufvilles', 'Naast', 'Thieusies', 'Saisinne', 'Zinnik']}, {'division': 'Hainaut', 'location': 'Soignies'}),
         ({'country': 'Belgium', 'division': 'Seneffe'}, {'division': 'Hainaut', 'location': 'Seneffe'}),
+        ({'country': 'Belgium', 'division': ['Tournai', 'Doornik', 'Ere', 'Saint-Maur', 'Orcq', 'Esplechin', 'Froyennes', 'Froidmont', 'Willemeau', 'Ramegnies-Chin', 'Templeuve', 'Chercq', 'Blandain', 'Hertain', 'Lamain', 'Marquain', 'Gaurain-Ramecroix', 'Havinnes', 'Beclers', 'Thimougnies', 'Barry', 'Maulde', 'Vaulx', 'Vezon', 'Kain', 'Melles', 'Quartes', 'Rumillies', 'Mont-Saint-Aubert', 'Mourcourt', 'Warchin']}, {'division': 'Hainaut', 'location': 'Tournai'}),
         
 
         # Liege
@@ -448,6 +459,7 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Couthuin'}, {'division': 'Liege', 'location': 'Heron'}),
         ({'country': 'Belgium', 'division': 'Dalhem'}, {'division': 'Liege', 'location': 'Dalhem'}),
         ({'country': 'Belgium', 'division': 'Eupen'}, {'division': 'Liege', 'location': 'Eupen'}),
+        ({'country': 'Belgium', 'division': ['Hannut', 'Abolens', 'Avernas-le-Bauduin', 'Avin', 'Bertrée', 'Blehen', 'Cras-Avernas', 'Crehen', 'Grand-Hallet', 'Les-Saint-Remy', 'Merdorp', 'Moxhe', 'Petit-Hallet', 'Poucet', 'Thisnes', 'Trognée', 'Truielingen', 'Villers-le-Peuplier', 'Wansin']}, {'division': 'Liege', 'location': 'Hannut'}),
         ({'country': 'Belgium', 'division': 'Henri-chapelle'}, {'division': 'Liege', 'location': 'Welkenraedt'}),
         ({'country': 'Belgium', 'division': 'Herstal'}, {'division': 'Liege', 'location': 'Herstal'}),
         ({'country': 'Belgium', 'division': ['Herve', 'Chaineux']}, {'division': 'Liege', 'location': 'Herve'}),
@@ -477,10 +489,11 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': ['Namur', 'Beez', 'Belgrade', 'Saint-Servais', 'Saint-Marc', 'Bouge', 'Champion', 'Daussoulx', 'Flawinne', 'Malonne', 'Suarlee', 'Temploux', 'Vedrin', 'Boninne', 'Cognelee', 'Gelbressee', 'Marche-les-Dames', 'Dave', 'Jambes', 'Naninne', 'Wepion', 'Wierde', 'Erpent', 'Lives-sur-Meuse', 'Loyers']}, {'division': 'Namur', 'location': 'Namur'}),
 
         # Walloon Brabant
-        ({'country': 'Belgium', 'division': ['Braine-l alleud', 'Braine-l\'alleud']}, {'division': 'Walloon Brabant', 'location': 'Braine-l\'Alleud'}),
+        ({'country': 'Belgium', 'division': ['Braine-l alleud', 'Braine-l\'alleud', 'Ophain-Bois-Seigneur-Isaac', 'Lillois-Witterzée', 'Lillois-witterzée']}, {'division': 'Walloon Brabant', 'location': 'Braine-l\'Alleud'}),
         ({'country': 'Belgium', 'division': 'Braine-le-Chateau'}, {'division': 'Walloon Brabant', 'location': 'Braine-le-Château'}),
         ({'country': 'Belgium', 'division': 'Genappe'}, {'division': 'Walloon Brabant', 'location': 'Genappe'}),
         ({'country': 'Belgium', 'division': 'Lasne'}, {'division': 'Walloon Brabant', 'location': 'Lasne'}),
+        ({'country': 'Belgium', 'division': ['Rebecq', 'Bierghes', 'Bierk', 'Rebecq-Rognon', 'Roosbeek', 'Quenast', 'Kenast']}, {'division': 'Walloon Brabant', 'location': 'Rebecq'}),
         ({'country': 'Belgium', 'division': ['Rixensart', 'Rosieres', 'Rozieren', 'Genval']}, {'division': 'Walloon Brabant', 'location': 'Rixensart'}),
         ({'country': 'Belgium', 'division': 'Tubize'}, {'division': 'Walloon Brabant', 'location': 'Tubize'}),
         ({'country': 'Belgium', 'division': 'Waterloo'}, {'division': 'Walloon Brabant', 'location': 'Waterloo'}),
@@ -551,6 +564,9 @@ def clean_location_data(location_df):
         ({'country': 'France', 'location': ['Crépy-en -Valois', 'Crépy en Valois']}, {'location': 'Crépy-en-Valois'}),
         ({'country': 'France', 'location': ['Asnieres sur Seine']}, {'location': 'Asnières-sur-Seine'}),
         ({'country': 'France', 'location': ['Moussy le Neuf']}, {'location': 'Moussy Le Neuf'}),
+        ({'country': 'France', 'location': ['Gondrecourt-le-chateau']}, {'location': 'Gondrecourt-le-Chateau'}),
+        ({'country': 'France', 'location': ['Compiegne']}, {'location': 'Compiègne'}),
+        
 
 
         # GEORGIA
@@ -636,18 +652,24 @@ def clean_location_data(location_df):
         # POLAND
         # ------
         # Fix typos
-        # Don't use anglicized names here
         ({'country': 'Poland', 'division': 'Dolnoslakie'}, {'division': 'Dolnoslaskie'}),
+        # Don't use anglicized names here
         ({'country': 'Poland', 'division': ['Pomorze', 'Pomerania']}, {'division': 'Pomorskie'}),
         ({'country': 'Poland', 'division': 'Malopolska'}, {'division': 'Malopolskie'}),
         ({'country': 'Poland', 'division': 'Wielkopolska'}, {'division': 'Wielkopolskie'}),
         # Zielonogorskie -> Lubusz
         ({'country': 'Poland', 'division': 'Zielonogorskie'}, {'division': 'Lubusz'}),
+        # Fix typos
+        ({'country': 'Poland', 'location': 'Krakow'}, {'location': 'Kraków'}),
+
 
         # ROMANIA
         # -------
         # Fix weird encoding issue
         ({'country': ['ÄéRomania', '\u200eRomania']}, {'country': 'Romania'}),
+        # Anglicize
+        ({'country': 'Romania', 'division': 'Bucuresti'}, {'division': 'Bucharest'}),
+
         
         # RUSSIA
         # ------
@@ -694,6 +716,18 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'location': 'Torres_de_Elorz'}, {'location': 'Torres de Elorz'}),
         ({'country': 'Spain', 'location': 'Velez_Malaga'}, {'location': 'Velez Malaga'}),
 
+        # More typos
+        ({'country': 'Spain', 'division': 'Balear_Islands'}, {'division': 'Balearic Islands'}),
+        ({'country': 'Spain', 'division': 'Canary_Islands'}, {'division': 'Canary Islands'}),
+        ({'country': 'Spain', 'location': 'Rio_San_Pedro'}, {'location': 'Rio San Pedro'}),
+        ({'country': 'Spain', 'location': 'Las_Palmas'}, {'location': 'Las Palmas'}),
+        ({'country': 'Spain', 'location': 'La_Estrada'}, {'location': 'La Estrada'}),
+        ({'country': 'Spain', 'location': 'Santa_Comba'}, {'location': 'Santa Comba'}),
+        ({'country': 'Spain', 'location': 'Santiago_de_Compostela'}, {'location': 'Santiago de Compostela'}),
+        ({'country': 'Spain', 'location': 'LeganA(c)s'}, {'location': 'Leganés'}),
+        ({'country': 'Spain', 'location': 'Santa_Fe'}, {'location': 'Santa Fe'}),
+        ({'country': 'Spain', 'location': 'Campo_Real'}, {'location': 'Campo Real'}),
+
         # SWEDEN
         # ------
 
@@ -711,6 +745,9 @@ def clean_location_data(location_df):
         ({'country': 'Switzerland', 'division': ['Genève', 'Geneve']}, {'division': 'Geneva'}),
         ({'country': 'Switzerland', 'division': 'Luzern'}, {'division': 'Lucerne'}),
         ({'country': 'Switzerland', 'division': 'Argovie'}, {'division': 'Aargau'}),
+        ({'country': 'Switzerland', 'division': 'Zurich'}, {'division': 'Zürich'}),
+        ({'country': 'Switzerland', 'division': 'Graubunden'}, {'division': 'Graubünden'}),
+        ({'country': 'Switzerland', 'division': 'Sankt Gallen'}, {'division': 'St Gallen'}),
 
         # UNITED KINGDOM
         # --------------
@@ -721,12 +758,13 @@ def clean_location_data(location_df):
         # CANADA
         # ------
         # Unabbreviate province names
-
         ({'country': 'Canada', 'division': 'MB'}, {'division': 'Manitoba'}),
         ({'country': 'Canada', 'division': 'NB'}, {'division': 'New Brunswick'}),
         ({'country': 'Canada', 'division': 'NL'}, {'division': 'Newfoundland and Labrador'}),
         ({'country': 'Canada', 'division': 'NS'}, {'division': 'Nova Scotia'}),
         ({'country': 'Canada', 'division': 'SK'}, {'division': 'Saskatchewan'}),
+        # Toronto -> Ontario
+        ({'country': 'Canada', 'division': 'Toronto'}, {'division': 'Ontario', 'location': 'Toronto'}),
 
         # MEXICO
         # ------
@@ -742,6 +780,11 @@ def clean_location_data(location_df):
 
         # USA
         # ---
+
+        # Merge with "United States"
+        ({'country': 'United States'}, {'country': 'USA'}),
+        # Merge with USA region
+        ({'region': 'USA'}, {'region': 'North America', 'country': 'USA'}),
 
         # Washington DC
         # -------------
@@ -760,6 +803,10 @@ def clean_location_data(location_df):
         ({'country': 'USA', 'division': 'California', 'location': 'Davis'}, {'location': 'Yolo County'}),
         # LA -> LA County
         ({'country': 'USA', 'division': 'California', 'location': 'Los Angeles'}, {'location': 'Los Angeles County'}),
+        # Los Angeles division -> California
+        ({'country': 'USA', 'division': 'Los Angeles'}, {'division': 'California', 'location': 'Los Angeles County'}),
+        ({'country': 'USA', 'division': 'California', 'location': 'Alameda'}, {'location': 'Alameda County'}),
+        
         
         # Colorado
         # --------
@@ -795,23 +842,24 @@ def clean_location_data(location_df):
 
         # New York
         # --------
-        # Assume NY is NY State
-        # Unify county names
-        # Move NYC division into NY State division
-        # Merge NYC boroughs into one NYC
-
-        ({'country': 'USA', 'division': 'NY'}, {'division': 'New York'}),
         
+        # Assume NY is NY State
+        ({'country': 'USA', 'division': 'NY'}, {'division': 'New York'}),
+        # Move NYC division into NY State division
         ({'country': 'USA', 'division': 'New York City'}, {'division': 'New York', 'location': 'New York City'}),
         # Remove redundant "New York"
         ({'country': 'USA', 'division': 'New York', 'location': 'New York'}, {'location': -1}),
+        # Merge NYC boroughs into one NYC
         ({'country': 'USA', 'division': 'New York', 'location': ['Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island']}, {'location': 'New York City'}),
+        # Unify county names
         ({'country': 'USA', 'division': 'New York', 'location': ['Nassau', 'Nassau county']}, {'location': 'Nassau County'}),
         ({'country': 'USA', 'division': 'New York', 'location': 'Rockland'}, {'location': 'Rockland County'}),
         ({'country': 'USA', 'division': 'New York', 'location': ['Suffolk', 'Suffolk county']}, {'location': 'Suffolk County'}),
         ({'country': 'USA', 'division': 'New York', 'location': 'Westchester'}, {'location': 'Westchester County'}),
         # Remove empty location
         ({'country': 'USA', 'division': 'New York', 'location': ''}, {'location': -1}),
+        # Move Nassau County into NY
+        ({'country': 'USA', 'division': 'Nassau County'}, {'division': 'New York', 'location': 'Nassau County'}),
 
 
         # Washington
@@ -909,11 +957,17 @@ def clean_location_data(location_df):
         # Brazil
         # ------
         # Fix typos
-        # Remove redundant Sao Paolo location
-
         ({'country': 'Brazil', 'division': 'Minas gerais'}, {'division': 'Minas Gerais'}),
         ({'country': 'Brazil', 'division': 'São Paulo'}, {'division': 'Sao Paulo'}),
+        # Remove redundant Sao Paolo location
         ({'country': 'Brazil', 'location': 'Sao Paulo'}, {'location': -1}),
+        # Fix more typos
+        ({'country': 'Brazil', 'location': 'DUQUE DE CAXIAS'}, {'location': 'Duque de Caxias'}),
+        ({'country': 'Brazil', 'location': 'NITEROI'}, {'location': 'Niteroi'}),
+        ({'country': 'Brazil', 'location': 'NOVA IGUACU'}, {'location': 'Nova Iguacu'}),
+        ({'country': 'Brazil', 'location': 'PETROPOLIS'}, {'location': 'Petropolis'}),
+        ({'country': 'Brazil', 'location': 'QUEIMADOS'}, {'location': 'Queimados'}),
+        ({'country': 'Brazil', 'location': 'RIO DE JANEIRO'}, {'location': 'Rio de Janeiro'}),
 
         # Colombia
         # --------

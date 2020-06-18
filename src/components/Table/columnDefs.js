@@ -88,7 +88,10 @@ export const getSinglePosColumn = ({
       if (conditionCompare(row[col], refRow[col], compareMode)) {
         // If in dots mode, change letters, not colors
         if (compareColor === 'dots') {
-          letter = '.';
+          // Don't ever mask the reference with dots
+          if (row['group'] !== 'Reference') {
+            letter = '.';
+          }
         } else {
           cellBgColor = Object.keys(snapGeneHighlightColors).includes(
             compareColor

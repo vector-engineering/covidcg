@@ -2,109 +2,109 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-import aa_snp_map from '../../data/aa_snp_map.json';
-import dna_snp_map from '../../data/dna_snp_map.json';
+import aaSnpMap from '../../data/aa_snp_map.json';
+import dnaSnpMap from '../../data/dna_snp_map.json';
 
 import { getAllGenes } from './gene';
 
-// export function load_aa_snp_map() {
-//   return aa_snp_map;
+// export function loadAaSnpMap() {
+//   return aaSnpMap;
 // }
-// export function load_dna_snp_map() {
-//   return dna_snp_map;
+// export function loadDnaSnpMap() {
+//   return dnaSnpMap;
 // }
 
 // Re-map so it's integer -> SNP
-let int_to_dna_snp_map = {};
-let int_to_aa_snp_map = {};
+let intToDnaSnpMap = {};
+let intToAaSnpMap = {};
 
-let snp_id = -1;
+let snpId = -1;
 let split = [];
 
-Object.keys(dna_snp_map).forEach((snp) => {
-  snp_id = parseInt(dna_snp_map[snp]);
-  int_to_dna_snp_map[snp_id] = {};
+Object.keys(dnaSnpMap).forEach((snp) => {
+  snpId = parseInt(dnaSnpMap[snp]);
+  intToDnaSnpMap[snpId] = {};
   // Store the entire SNP string
-  int_to_dna_snp_map[snp_id]['snp_str'] = snp;
+  intToDnaSnpMap[snpId]['snp_str'] = snp;
 
   // Each SNP is broken up by pos|ref|alt
   split = snp.split('|');
 
   // Store all the parts
-  int_to_dna_snp_map[snp_id]['pos'] = parseInt(split[0]);
-  int_to_dna_snp_map[snp_id]['ref'] = split[1];
-  int_to_dna_snp_map[snp_id]['alt'] = split[2];
+  intToDnaSnpMap[snpId]['pos'] = parseInt(split[0]);
+  intToDnaSnpMap[snpId]['ref'] = split[1];
+  intToDnaSnpMap[snpId]['alt'] = split[2];
 });
-Object.keys(aa_snp_map).forEach((snp) => {
-  snp_id = parseInt(aa_snp_map[snp]);
-  int_to_aa_snp_map[snp_id] = {};
+Object.keys(aaSnpMap).forEach((snp) => {
+  snpId = parseInt(aaSnpMap[snp]);
+  intToAaSnpMap[snpId] = {};
   // Store the entire SNP string
-  int_to_aa_snp_map[snp_id]['snp_str'] = snp;
+  intToAaSnpMap[snpId]['snp_str'] = snp;
 
   // Each SNP is broken up by gene|pos|ref|alt
   split = snp.split('|');
 
   // Store all the parts
-  int_to_aa_snp_map[snp_id]['gene'] = split[0];
-  int_to_aa_snp_map[snp_id]['pos'] = parseInt(split[1]);
-  int_to_aa_snp_map[snp_id]['ref'] = split[2];
-  int_to_aa_snp_map[snp_id]['alt'] = split[3];
+  intToAaSnpMap[snpId]['gene'] = split[0];
+  intToAaSnpMap[snpId]['pos'] = parseInt(split[1]);
+  intToAaSnpMap[snpId]['ref'] = split[2];
+  intToAaSnpMap[snpId]['alt'] = split[3];
 });
 
-// console.log(int_to_dna_snp_map);
-// console.log(int_to_aa_snp_map);
+// console.log(intToDnaSnpMap);
+// console.log(intToAaSnpMap);
 
-export function int_to_dna_snp(dna_snp_id) {
-  if (dna_snp_id === -1) {
+export function intToDnaSnp(dnaSnpId) {
+  if (dnaSnpId === -1) {
     return { snp_str: 'Reference' };
   }
 
-  return int_to_dna_snp_map[dna_snp_id];
+  return intToDnaSnpMap[dnaSnpId];
 }
-export function int_to_aa_snp(aa_snp_id) {
-  if (aa_snp_id === -1) {
+export function intToAaSnp(aaSnpId) {
+  if (aaSnpId === -1) {
     return { snp_str: 'Reference' };
   }
 
-  return int_to_aa_snp_map[aa_snp_id];
+  return intToAaSnpMap[aaSnpId];
 }
 
 // Build a map of snp_ids -> gene
-let gene_to_dna_snp = {};
-let gene_to_aa_snp = {};
+let geneToDnaSnp = {};
+let geneToAaSnp = {};
 let allGenes = getAllGenes();
 
-let snp_obj = {};
-allGenes.forEach((gene_obj) => {
-  gene_to_dna_snp[gene_obj.gene] = [];
-  gene_to_aa_snp[gene_obj.gene] = [];
+let snpObj = {};
+allGenes.forEach((geneObj) => {
+  geneToDnaSnp[geneObj.gene] = [];
+  geneToAaSnp[geneObj.gene] = [];
 
-  Object.keys(int_to_dna_snp_map).forEach((dna_snp_id) => {
-    snp_obj = int_to_dna_snp_map[dna_snp_id];
+  Object.keys(intToDnaSnpMap).forEach((dnaSnpId) => {
+    snpObj = intToDnaSnpMap[dnaSnpId];
 
     // Check that the SNP position is within the boundaries for this gene
-    if (snp_obj.pos >= gene_obj.start && snp_obj.pos <= gene_obj.end) {
-      gene_to_dna_snp[gene_obj.gene].push(parseInt(dna_snp_id));
+    if (snpObj.pos >= geneObj.start && snpObj.pos <= geneObj.end) {
+      geneToDnaSnp[geneObj.gene].push(parseInt(dnaSnpId));
     }
   });
 
-  Object.keys(int_to_aa_snp_map).forEach((aa_snp_id) => {
-    snp_obj = int_to_aa_snp_map[aa_snp_id];
+  Object.keys(intToAaSnpMap).forEach((aaSnpId) => {
+    snpObj = intToAaSnpMap[aaSnpId];
 
     // Check that the AA SNP gene is the same as this gene
-    if (snp_obj.gene === gene_obj.gene) {
-      gene_to_aa_snp[gene_obj.gene].push(parseInt(aa_snp_id));
+    if (snpObj.gene === geneObj.gene) {
+      geneToAaSnp[geneObj.gene].push(parseInt(aaSnpId));
     }
   });
 });
 
-// console.log(gene_to_dna_snp);
-// console.log(gene_to_aa_snp);
+// console.log(geneToDnaSnp);
+// console.log(geneToAaSnp);
 
 // Is this SNP ID within this gene?
-export function dna_snp_in_gene(dna_snp_id, gene_name) {
-  return gene_to_dna_snp[gene_name].includes(dna_snp_id);
+export function dnaSnpInGene(dnaSnpId, geneName) {
+  return geneToDnaSnp[geneName].includes(dnaSnpId);
 }
-export function aa_snp_in_gene(aa_snp_id, gene_name) {
-  return int_to_aa_snp_map[aa_snp_id]['gene'] === gene_name;
+export function aaSnpInGene(aaSnpId, geneName) {
+  return intToAaSnpMap[aaSnpId]['gene'] === geneName;
 }

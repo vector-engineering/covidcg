@@ -15,6 +15,7 @@ const ColorModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
     max-width: 200px;
+    border-radius: 3px;
   }
 `;
 
@@ -61,6 +62,7 @@ const CompareModeSelectLabel = styled.label`
   select {
     margin-left: 0.65em;
     max-width: 150px;
+    border-radius: 3px;
   }
 `;
 
@@ -158,6 +160,7 @@ const DataTableOptions = styled.div`
 
   select {
     padding: 1px 4px;
+    border-radius: 3px;
   }
 `;
 
@@ -187,6 +190,10 @@ const TableOptions = observer(
     const handleDownloadSelect = (option) => {
       if (option === 'Acknowledgements') {
         covidStore.downloadAcknowledgements();
+      } else if (option === 'Aggregate Data') {
+        covidStore.downloadAggCaseData();
+      } else if (option === 'Seqeunces + Metadata') {
+        covidStore.downloadSequencesAndMetadata();
       }
     };
 
@@ -223,7 +230,11 @@ const TableOptions = observer(
         <Spacer />
         <DropdownButton
           text={'Download'}
-          options={['Acknowledgements', 'Aggregate Data']}
+          options={[
+            'Seqeunces + Metadata',
+            'Aggregate Data',
+            'Acknowledgements',
+          ]}
           onSelect={handleDownloadSelect}
         />
       </DataTableOptions>

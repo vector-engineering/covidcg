@@ -4,6 +4,17 @@ import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import _ from 'underscore';
 
+const ContainerDiv = styled.div`
+  margin-top: 5px;
+  padding-top: 8px;
+
+  border-top: 1px solid #aaa;
+
+  .location-tree-title {
+    margin-left: 15px;
+  }
+`;
+
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   flex-direction: column;
@@ -11,20 +22,20 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   overflow-y: hidden;
 
   ul.tag-list {
-    margin-left: 5px;
     li:first-child {
       span.placeholder:after {
         content: 'Viewing all sequences';
         font-size: 0.9rem;
         font-weight: normal;
+        font-style: italic;
       }
     }
   }
   .tag {
-    background-color: #f4f4f4;
-    border: 1px solid #e9e9e9;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
     padding: 3px 6px;
-    border-radius: 2px;
+    border-radius: 3px;
     display: inline-block;
     font-weight: normal;
     &:focus-within {
@@ -148,12 +159,8 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
 
     a.dropdown-trigger {
       width: calc(100% - 16px);
-      background-color: #ffffff;
       border: none;
-      border-top: 1px solid #aaa;
-      border-bottom: 1px solid #aaa;
-      box-shadow: 0px 0px 2px #aaa;
-      padding: 8px;
+      padding: 0px 12px;
       line-height: 20px;
       max-height: 200px;
       display: inline-block;
@@ -169,7 +176,8 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       position: relative;
       //width: calc(100% - 10px);
       padding: 4px;
-      padding-left: 8px;
+      padding-left: 15px;
+      padding-right: 15px;
       background-color: #f8f8f8;
       z-index: 1;
       flex-direction: column;
@@ -181,7 +189,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
         padding: 5px 8px;
         width: calc(100% - 20px);
         border: 1px solid #aaa;
-        border-radius: 5px;
+        border-radius: 3px;
         background-color: #ffffff;
         outline: none;
       }
@@ -239,24 +247,27 @@ class DropdownContainer extends Component {
   };
 
   render() {
-    const { data, ...rest } = this.props;
-    data;
+    const { ...rest } = this.props;
+
     return (
-      <StyledDropdownTreeSelect
-        data={this.state.data}
-        className="geo-dropdown-tree-select"
-        clearSearchOnChange={false}
-        keepTreeOnSearch={true}
-        keepChildrenOnSearch={true}
-        showPartiallySelected={true}
-        showDropdown="always"
-        inlineSearchInput={true}
-        texts={{
-          placeholder: 'Search...',
-          noMatches: 'No matches found',
-        }}
-        {...rest}
-      />
+      <ContainerDiv>
+        <span className="location-tree-title">Selected Locations:</span>
+        <StyledDropdownTreeSelect
+          data={this.state.data}
+          className="geo-dropdown-tree-select"
+          clearSearchOnChange={false}
+          keepTreeOnSearch={true}
+          keepChildrenOnSearch={true}
+          showPartiallySelected={true}
+          showDropdown="always"
+          inlineSearchInput={true}
+          texts={{
+            placeholder: 'Search...',
+            noMatches: 'No matches found',
+          }}
+          {...rest}
+        />
+      </ContainerDiv>
     );
   }
 }
