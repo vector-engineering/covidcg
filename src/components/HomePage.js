@@ -14,7 +14,7 @@ import { VegaLite } from 'react-vega';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
-import DataTable from './Table/DataTable';
+import DataTableContainer from './Table/DataTableContainer';
 import Header from './Header';
 import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
@@ -27,6 +27,8 @@ const HomePageDiv = styled.div`
   grid-template-rows: [row1] 50px [row2] auto [row3];
   height: 100vh;
   width: 100vw;
+  position: relative;
+  overflow-y: hidden;
 `;
 const FilterSidebar = styled.div`
   grid-column: col1 / col2;
@@ -38,6 +40,7 @@ const FilterSidebar = styled.div`
   border-right: 1px solid #aaa;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 
   .location-tree-title {
     margin-left: 12px;
@@ -52,6 +55,10 @@ const PlotContainer = styled.div`
 
   padding-left: 10px;
   padding-top: 10px;
+
+  position: relative;
+
+  overflow-y: scroll;
 
   .vega-embed {
     width: calc(100% - 110px);
@@ -214,7 +221,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             />
           </PlotOptions>
           {renderPlotContent()}
-          <DataTable />
+          <DataTableContainer />
         </PlotContainer>
       </HomePageDiv>
     </>
