@@ -158,7 +158,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     position: relative;
     flex-direction: column;
     display: flex;
-    overflow-y: hidden;
+    overflow: hidden;
 
     a.dropdown-trigger {
       width: calc(100% - 16px);
@@ -215,6 +215,9 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
           &:focus {
             outline: none;
           }
+        }
+        .infinite-scroll-component {
+          overflow-x: hidden;
         }
       }
     }
