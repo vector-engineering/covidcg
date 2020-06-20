@@ -34,6 +34,7 @@ import DataTable from './DataTable';
 const DataTableContainer = styled.div`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   position: relative;
   span.position-title {
     font-size: 12px;
