@@ -20,6 +20,7 @@ import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
+import NothingSelected from './NothingSelected';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -70,6 +71,7 @@ const PlotOptions = styled.div`
     font-size: 1.25em;
     margin-right: 10px;
     padding-right: 10px;
+    padding-left: 18px;
 
     border-right: 1px solid #ccc;
   }
@@ -160,12 +162,13 @@ const HomePage = observer(({ covidStore, uiStore }) => {
       return (
         <div
           style={{
-            paddingTop: '24px',
+            paddingTop: '12px',
             paddingRight: '24px',
             paddingLeft: '12px',
+            paddingBottom: '24px',
           }}
         >
-          <SkeletonElement delay={1} height={'436px'}>
+          <SkeletonElement delay={1} height={'400px'}>
             <LoadingSpinner />
           </SkeletonElement>
         </div>
@@ -194,6 +197,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
   areaStackTitle += ' Over Time';
 
+  console.log(covidStore.selectedLocationIds);
+
   return (
     <>
       <HomePageDiv>
@@ -214,12 +219,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         </FilterSidebar>
 
         <PlotContainer>
-          {/* <VegaLite
-            data={{
-              entropy_data: entropy_data
-            }} 
-            spec={entropy_spec}
-          /> */}
           <PlotOptions>
             <span className="area-stack-title">{areaStackTitle}</span>
             <AreaStackModeSelect

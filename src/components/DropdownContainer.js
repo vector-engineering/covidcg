@@ -29,7 +29,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   ul.tag-list {
     li:first-child {
       span.placeholder:after {
-        content: 'Viewing all sequences';
+        content: 'None';
         font-size: 0.9rem;
         font-weight: normal;
         font-style: italic;
@@ -249,8 +249,6 @@ const DropdownContainer = () => {
   const data = covidStore.selectTree;
 
   if (data) data.expanded = true;
-
-  console.log(toJS(data));
 
   const dropdownContainer = useMemo(
     () => (
