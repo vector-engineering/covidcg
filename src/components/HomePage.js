@@ -41,7 +41,6 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -125,16 +124,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         ? args[1].date
         : [-1, -1]
     );
-  };
-
-  const treeSelectOnChange = (currentNode, selectedNodes) => {
-    covidStore.selectLocations(selectedNodes);
-  };
-  const treeSelectOnAction = (node, action) => {
-    console.log('onAction::', action, node);
-  };
-  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-    console.log('onNodeToggle::', currentNode);
   };
 
   const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
@@ -221,14 +210,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             selectedGene={covidStore.selectedGene}
             onChange={handleGeneChange}
           />
-          <DropdownContainer
-            data={covidStore.selectTree.children}
-            onChange={(currentNode, selectedNodes) => {
-              treeSelectOnChange(currentNode, selectedNodes);
-            }}
-            onAction={treeSelectOnAction}
-            onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-          />
+          <DropdownContainer />
         </FilterSidebar>
 
         <PlotContainer>

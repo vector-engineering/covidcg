@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import _ from 'underscore';
+import { toJS } from 'mobx';
+import { useStores } from '../stores/connect';
 
 const ContainerDiv = styled.div`
   margin-top: 5px;
@@ -231,52 +233,55 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 `;
 
-class DropdownContainer extends Component {
-  // I forget why this component needs a wrapper with it's own state management
-  // but for some reason it does. If I remove this stuff the selections don't work
-  // anymore.
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: props.data,
-    };
-  }
-
-  UNSAFE_componentWillReceiveProps = (nextProps) => {
-    if (!_.isEqual(nextProps.data, this.state.data)) {
-      this.setState({ data: nextProps.data });
-    }
+const DropdownContainer = () => {
+  console.log(toJS(data));
+  const { covidStore } = useStores();
+  const treeSelectOnChange = (currentNode, selectedNodes) => {
+    covidStore.selectLocations(selectedNodes);
+  };
+  const treeSelectOnAction = (node, action) => {
+    console.log('onAction::', action, node);
+  };
+  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+    console.log('onNodeToggle::', currentNode);
   };
 
-  shouldComponentUpdate = (nextProps) => {
-    return !_.isEqual(nextProps.data, this.state.data);
-  };
+  const data = covidStore.selectTree;
 
-  render() {
-    const { ...rest } = this.props;
+  if (data) data.expanded = true;
 
-    return (
-      <ContainerDiv>
-        <span className="location-tree-title">Selected Locations:</span>
-        <StyledDropdownTreeSelect
-          data={this.state.data}
-          className="geo-dropdown-tree-select"
-          clearSearchOnChange={false}
-          keepTreeOnSearch={true}
-          keepChildrenOnSearch={true}
-          showPartiallySelected={true}
-          showDropdown="always"
-          inlineSearchInput={true}
-          texts={{
-            placeholder: 'Search...',
-            noMatches: 'No matches found',
-          }}
-          {...rest}
-        />
-      </ContainerDiv>
-    );
-  }
-}
+  console.log(toJS(data));
+
+  const dropdownContainer = useMemo(
+    () => (
+      <StyledDropdownTreeSelect
+        data={toJS(data)}
+        className="geo-dropdown-tree-select"
+        clearSearchOnChange={false}
+        keepTreeOnSearch={true}
+        keepChildrenOnSearch={true}
+        showPartiallySelected={true}
+        showDropdown="always"
+        inlineSearchInput={true}
+        texts={{
+          placeholder: 'Search...',
+          noMatches: 'No matches found',
+        }}
+        onChange={treeSelectOnChange}
+        onAction={treeSelectOnAction}
+        onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+      />
+    ),
+    [data]
+  );
+
+  return (
+    <ContainerDiv>
+      <span className="location-tree-title">Selected Locations:</span>
+      {dropdownContainer}
+    </ContainerDiv>
+  );
+};
 
 DropdownContainer.defaultProps = {
   data: {},
@@ -285,5 +290,7 @@ DropdownContainer.defaultProps = {
 DropdownContainer.propTypes = {
   data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
 };
+
+DropdownContainer.displayName = 'DropdownContainer';
 
 export default DropdownContainer;
