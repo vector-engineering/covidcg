@@ -1109,6 +1109,15 @@ def build_select_tree(location_df, unique_location_df):
     division_counts = dict(location_df.groupby(['region', 'country', 'division'])['gisaid_id'].count())
     location_counts = dict(location_df.groupby(['region', 'country', 'division', 'location'])['gisaid_id'].count())
 
+    # Load country -> emoji map
+    emoji_map = pd.read_excel(Path(__file__).parent / 'country_to_emoji.xls', skiprows=1)
+    # Expand country aliases, remove whitespace from each alias
+    emoji_map['aliases'] = (
+        emoji_map['aliases']
+        .str.split(',')
+        .apply(lambda x: [y.strip() for y in x])
+    )
+
     # Root node
     select_tree = {
         'label': 'All',
@@ -1146,8 +1155,17 @@ def build_select_tree(location_df, unique_location_df):
         if country_node:
             country_node = country_node[0]
         else:
+            
+            
+            # Look for an emoji for this country
+            country_emoji = ''
+            emoji_entry = emoji_map.loc[emoji_map['aliases'].apply(lambda x: loc['country'] in x), :]
+            # Fill the country emoji, if it exists
+            if len(emoji_entry) == 1:
+                country_emoji = emoji_entry.iat[0, 1] + ' '
+
             country_node = {
-                'label': loc['country'],
+                'label': country_emoji + loc['country'],
                 'value': loc['country'],
                 'region': loc['region'],
                 'level': 'country',

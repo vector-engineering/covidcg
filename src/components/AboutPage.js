@@ -113,17 +113,13 @@ const AboutPage = (props) => {
             Broad Institute of MIT and Harvard
           </a>
         </p>
-
         <h2>Attributions</h2>
-
         {/* https://github.com/dowjones/react-dropdown-tree-select
         https://github.com/vega/react-vega
         underscore.js
         VEGA
         react-data-table-component https://github.com/jbetancur/react-data-table-component#readme */}
-
         <h3>Data</h3>
-
         <ImageRow>
           <a
             href="https://www.gisaid.org/"
@@ -146,9 +142,7 @@ const AboutPage = (props) => {
           </a>{' '}
           for all the sequences
         </p>
-
         <h3>Code</h3>
-
         <p>
           This app was made from the{' '}
           <a
@@ -160,6 +154,7 @@ const AboutPage = (props) => {
           </a>
           .
         </p>
+        https://github.com/matiassingers/emoji-flags
       </Content>
     </AboutPageContainer>
   );
