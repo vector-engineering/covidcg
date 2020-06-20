@@ -145,9 +145,10 @@ def main():
     # Post-processing
     # ---------------
     print('Post-processing...', end='', flush=True)
+    # print(taxon_df.columns.values)
 
     # Drop extra columns
-    taxon_df.drop(columns=['name', 'taxon', 'SH-alrt', 'UFbootstrap', 'lineages_version', 'status', 'note'], inplace=True)
+    taxon_df.drop(columns=['Virus name', 'Location', 'Host', 'Additional location information', 'Gender', 'Patient age', 'Patient status', 'Passage', 'Specimen', 'Additional host information'], inplace=True)
 
     print('done')
 

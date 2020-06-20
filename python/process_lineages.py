@@ -20,12 +20,22 @@ data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> abs
 
 def load_taxon_lineages():
     # Load lineage files
-    lineage_files = sorted((data_dir / 'lineage_meta').glob('*.csv'))
-    print('Loading {} lineage metadata files...'.format(len(lineage_files)), end='', flush=True)
+    meta_files = sorted((data_dir / 'patient_meta').glob('*.tsv'))
+    print('Loading {} metadata files...'.format(len(meta_files)), end='', flush=True)
     lineage_df = pd.DataFrame()
-    for f in lineage_files:
-        lineage_df = pd.concat([lineage_df, pd.read_csv(f)], ignore_index=True)
+    for f in meta_files:
+        lineage_df = pd.concat([lineage_df, pd.read_csv(f, sep='\t', skiprows=2)], ignore_index=True)
     lineage_df = lineage_df.reset_index(drop=True)
+
+    lineage_df.rename(columns={
+        'Lineage': 'lineage',
+        'Collection date': 'sample_date',
+        'Accession ID': 'gisaid_id'
+    }, inplace=True)
+
+    # Filter out taxons with any lineage
+    lineage_df = lineage_df.loc[lineage_df['lineage'].apply(lambda x: (x is not None) and (type(x) is str)), :].reset_index(drop=True)
+
     unique_lineages = sorted(lineage_df['lineage'].unique())
     print('done. Loaded {} unique lineages'.format(len(unique_lineages)), flush=True)
 
@@ -35,7 +45,7 @@ def load_taxon_lineages():
     # Save combined lineages file
     all_lineages_path = data_dir / 'all_lineages.csv'
     lineage_df.to_csv(all_lineages_path, index=False)
-    print('Saved all lineage assignments to {}'.format(all_lineages_path))
+    # print('Saved all lineage assignments to {}'.format(all_lineages_path))
 
     return lineage_df
 
@@ -51,9 +61,13 @@ def get_consensus_dna_snps(dna_snp_df, lineage_df):
     lineage_snp_df = pd.DataFrame()
     
     unique_lineages = sorted(lineage_df['lineage'].unique())
-    for lineage in unique_lineages:
+    for i, lineage in enumerate(unique_lineages):
+        # print(i)
         # Get all taxon GISAID IDs assigned to this lineage
-        lin_df = lineage_df.copy().loc[lineage_df['lineage'] == lineage, :].reset_index(drop=True)
+        lin_df = lineage_df.copy()
+        # print('copied')
+        lin_df = lin_df.loc[lineage_df['lineage'] == lineage, :].reset_index(drop=True)
+        # print('subsetted')
 
         # Count SNPs per GISAID ID, for this lineage
         snp_group_df = (
@@ -66,6 +80,8 @@ def get_consensus_dna_snps(dna_snp_df, lineage_df):
         # Calculate consensus percentage
         snp_group_df['consensus'] = snp_group_df['gisaid_id'] / len(lin_df)
 
+        # print('counted')
+
         # SNPs from Clade A:
         consensus_snp_df = snp_group_df.loc[
             snp_group_df['consensus'] >  consensus_fraction, :
@@ -76,12 +92,14 @@ def get_consensus_dna_snps(dna_snp_df, lineage_df):
 
         # Append to master dataframe
         lineage_snp_df = pd.concat(
-            [
+            [   
                 lineage_snp_df,
                 consensus_snp_df[['lineage', 'pos', 'ref', 'alt', 'consensus']]
             ],
             ignore_index=True
         )
+
+    # print(lineage_snp_df.to_csv())
 
     # Save to disk
     print('Saving lineage - DNA SNP definitions')
@@ -150,7 +168,10 @@ def main():
     aa_snp_df = load_aa_snps()
     lineage_df = load_taxon_lineages()
 
+    # print('getting NT consensus')
     get_consensus_dna_snps(dna_snp_df, lineage_df)
+    
+    # print('getting AA consensus')
     get_consensus_aa_snps(aa_snp_df, lineage_df)
 
 

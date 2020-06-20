@@ -4,7 +4,13 @@ import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
-  row.date = new Date(row.date).getTime();
+  row.sample_date = new Date(row.sample_date).getTime();
+
+  // Floor at 2020-01-01
+  if (row.sample_date < 1577836800000) {
+    row.sample_date = 1577836800000;
+  }
+
   return row;
 });
 

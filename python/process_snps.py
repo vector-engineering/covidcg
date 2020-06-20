@@ -23,7 +23,7 @@ def load_dna_snps():
     for f in dna_snp_files:
         dna_snp_df = pd.concat([dna_snp_df, pd.read_csv(f)], ignore_index=True)
     # Extract the GISAID ID
-    # dna_snp_df['gisaid_id'] = dna_snp_df['taxon'].str.split('|', expand=True).apply(lambda x: x[1])
+    dna_snp_df['gisaid_id'] = dna_snp_df['taxon'].str.split('|', expand=True)[1]
 
     # Drop duplicate entries
     dna_snp_df.drop_duplicates(['taxon', 'pos'], inplace=True)
@@ -44,7 +44,7 @@ def load_aa_snps():
     for f in aa_snp_files:
         aa_snp_df = pd.concat([aa_snp_df, pd.read_csv(f)], ignore_index=True)
     # Extract the GISAID ID
-    # aa_snp_df['gisaid_id'] = aa_snp_df['taxon'].str.split('|', expand=True).apply(lambda x: x[1])
+    aa_snp_df['gisaid_id'] = aa_snp_df['taxon'].str.split('|', expand=True)[1]
 
     # Drop duplicate entries
     aa_snp_df.drop_duplicates(['taxon', 'gene', 'pos'], inplace=True)

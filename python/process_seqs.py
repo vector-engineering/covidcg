@@ -299,40 +299,6 @@ def process_snps(num_processes=0):
         print('done')
 
 
-def assign_seqs_to_clades():
-    '''Assign sequences to clades using pangolin'''
-
-    print('\nAssigning sequences to clades')
-    # Get all fasta files from data/
-    fasta_files = sorted((data_dir / 'fasta_processed').glob('*.fasta'))
-    # print('Found {} fasta files: \n  - {}'.format(len(fasta_files), '\n  - '.join([f.name for f in fasta_files])))
-
-    # Create output directory
-    (data_dir / 'lineage_meta').mkdir(exist_ok=True)
-
-    # Run pangolin
-    for i, ff in enumerate(fasta_files):
-
-        # Output file is the same as input, but chop off "gisaid" from the beginning
-        # And it'll start with "lineage_report"
-        outfile = ff.stem + '_lineage.csv'
-
-        # Skip if the lineage report already exists
-        if (data_dir / 'lineage_meta' / outfile).exists():
-            print('{} already exists. Skipping'.format(outfile))
-            continue
-
-        print('Processing {} / {}: {}'.format(i + 1, len(fasta_files), ff.name))
-
-        subprocess.run([
-            'pangolin', str(ff),
-            '-o', str(data_dir / 'lineage_meta'),
-            '--outfile', outfile,
-            '--threads', str(os.cpu_count())
-        ])
-
-
-
 def main():
 
     preprocess_sequences()
@@ -340,8 +306,6 @@ def main():
     align_sequences()
 
     process_snps()
-
-    assign_seqs_to_clades()
 
 
 if __name__ == '__main__':
