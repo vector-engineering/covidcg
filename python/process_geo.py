@@ -138,9 +138,15 @@ def clean_location_data(location_df):
         ({'country': 'South Africa', 'division': 'GP'}, {'division': 'Gauteng'}),
         ({'country': 'South Africa', 'division': 'LP'}, {'division': 'Limpopo'}),
         ({'country': 'South Africa', 'division': 'MP'}, {'division': 'Mpumalanga'}),
+        ({'country': 'South Africa', 'division': 'NW'}, {'division': 'North West'}),
         # Remove Unknown division
         ({'country': 'South Africa', 'division': 'Unknown'}, {'division': -1}),
 
+        # ASIA
+        # ----
+
+        # Fix typos
+        ({'region': 'Asian'}, {'region': 'Asia'}),
 
         # CHINA
         # -----
@@ -190,6 +196,16 @@ def clean_location_data(location_df):
             {'country': 'China', 'division': 'Harbin'}, 
             {'division': 'Heilongjiang', 'location': 'Harbin'}
         ),
+
+        # Move Shenzhen into Guangdong
+        ({'country': 'China', 'division': 'Shenzhen'}, {'division': 'Guangdong', 'location': 'Shenzhen'}),
+        # Fix Typos
+        ({'country': 'China', 'division': 'Chongqinq'}, {'division': 'Chongqing'}),
+
+        # Move HuaShang into Guangdong (province of submitting lab),
+        # can't find a location for this. The sequences are super short
+        # so these won't get displayed anyways
+        ({'country': 'China', 'division': 'HuaShang'}, {'division': 'Guangdong'}),
 
         # INDIA
         # -----
@@ -547,7 +563,7 @@ def clean_location_data(location_df):
         ({'country': 'Belgium', 'division': 'Roucourt'}, {'country': 'France', 'division': 'Hauts-de-France'}),
         # Fix typos
         (
-            {'country': 'France', 'division': ['Bourgogne Franche comte', 'Bourgogne-France-Comté', 'Bourgogne-Franche Comte', 'Bourgogne']}, 
+            {'country': 'France', 'division': ['Bourgogne Franche comte', 'Bourgogne-France-Comté', 'Bourgogne-Franche Comte', 'Bourgogne-France-Comte', 'Bourgogne']}, 
             {'division': 'Bourgogne-Franche-Comté'}
         ),
         # Unabbreviate province names, unify province names
@@ -566,7 +582,9 @@ def clean_location_data(location_df):
         ({'country': 'France', 'location': ['Moussy le Neuf']}, {'location': 'Moussy Le Neuf'}),
         ({'country': 'France', 'location': ['Gondrecourt-le-chateau']}, {'location': 'Gondrecourt-le-Chateau'}),
         ({'country': 'France', 'location': ['Compiegne']}, {'location': 'Compiègne'}),
-        
+
+        # Move Paris into Ile-de-France
+        ({'country': 'France', 'division': 'Paris'}, {'division': 'Île-de-France', 'location': 'Paris'}),
 
 
         # GEORGIA
@@ -728,6 +746,12 @@ def clean_location_data(location_df):
         ({'country': 'Spain', 'location': 'Santa_Fe'}, {'location': 'Santa Fe'}),
         ({'country': 'Spain', 'location': 'Campo_Real'}, {'location': 'Campo Real'}),
 
+        # More typos
+        ({'country': 'Spain', 'location': 'Palma_de_Mallorca_h'}, {'location': 'Palma de Mallorca'}),
+        ({'country': 'Spain', 'location': 'Santa_Maria_del_Camino'}, {'location': 'Santa Maria del Camino'}),
+        ({'country': 'Spain', 'location': 'Son_Servera'}, {'location': 'Son Servera'}),
+        ({'country': 'Spain', 'location': 'Logrono_h'}, {'location': 'Logrono'}),
+
         # SWEDEN
         # ------
 
@@ -806,6 +830,9 @@ def clean_location_data(location_df):
         # Los Angeles division -> California
         ({'country': 'USA', 'division': 'Los Angeles'}, {'division': 'California', 'location': 'Los Angeles County'}),
         ({'country': 'USA', 'division': 'California', 'location': 'Alameda'}, {'location': 'Alameda County'}),
+        ({'country': 'USA', 'division': 'California', 'location': 'Solano'}, {'location': 'Solano County'}),
+        # Move San Diego division into California
+        ({'country': 'USA', 'division': 'San Diego'}, {'division': 'California', 'location': 'San Diego County'}),
         
         
         # Colorado
@@ -819,13 +846,13 @@ def clean_location_data(location_df):
         ({'country': 'USA', 'division': 'CT'}, {'division': 'Connecticut'}),
 
         # Move towns to counties
-        ({'country': 'USA', 'division': 'Connecticut', 'location': ['NEWTOWN']}, {'location': 'Fairfield County'}),
+        ({'country': 'USA', 'division': 'Connecticut', 'location': ['NEWTOWN', 'Newtown', 'Bridgeport', 'New Fairfield', 'Port Chester', 'Shelton', 'Stratford', 'Trumbull', ]}, {'location': 'Fairfield County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Hartford County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Litchfield County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Middlesex County'}),
-        ({'country': 'USA', 'division': 'Connecticut', 'location': ['BRANFORD', 'Bethany', 'East-Haven', 'HAMDEN', 'MADISON', 'MERIDEN', 'NORTHFORD', 'New-Haven', 'North-Haven', 'SEYMOUR', 'WALLINGFORD', 'WOODBRIDGE', 'West-Haven']}, {'location': 'New Haven County'}),
+        ({'country': 'USA', 'division': 'Connecticut', 'location': ['BRANFORD', 'Branford', 'North-Branford', 'Bethany', 'East-Haven', 'East Haven', 'HAMDEN', 'Hamden', 'MADISON', 'Madison', 'MERIDEN', 'Meriden', 'Milford', 'NORTHFORD', 'Northford', 'New-Haven', 'New Haven', 'North-Haven', 'SEYMOUR', 'Seymour', 'Seymor', 'WALLINGFORD', 'Wallingford', 'Waterbury', 'WOODBRIDGE', 'Woodbridge', 'West-Haven', 'West Haven']}, {'location': 'New Haven County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'New London County'}),
-        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Tolland County'}),
+        ({'country': 'USA', 'division': 'Connecticut', 'location': ['Mount-Vernon']}, {'location': 'Tolland County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Windham County'}),
 
         # Louisiana
@@ -968,6 +995,9 @@ def clean_location_data(location_df):
         ({'country': 'Brazil', 'location': 'PETROPOLIS'}, {'location': 'Petropolis'}),
         ({'country': 'Brazil', 'location': 'QUEIMADOS'}, {'location': 'Queimados'}),
         ({'country': 'Brazil', 'location': 'RIO DE JANEIRO'}, {'location': 'Rio de Janeiro'}),
+        # More typos
+        ({'country': 'Brazil', 'division': 'Amazonas'}, {'division': 'Amazonas State'}),
+
 
         # Colombia
         # --------
