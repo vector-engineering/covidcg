@@ -128,10 +128,13 @@ class ObservableCovidStore {
   @action
   selectLocations(selectedNodes) {
     this.selectedLocationIds = getLocationIds(selectedNodes);
+    console.log(selectedNodes, this.selectedLocationIds);
 
-    console.log(this.selectedLocationIds);
-
-    this.updateCaseData();
+    if (!selectedNodes || !selectedNodes[0]) {
+      this.emptyCaseData();
+    } else {
+      this.updateCaseData();
+    }
   }
 
   @action
@@ -161,6 +164,14 @@ class ObservableCovidStore {
         suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
       }
     );
+  }
+
+  @action
+  emptyCaseData() {
+    this.caseData = [];
+    this.selectedRows = [];
+    this.caseDataAggGroup = [];
+    this.changingPositions = {};
   }
 
   @action
