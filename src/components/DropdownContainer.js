@@ -9,6 +9,9 @@ const ContainerDiv = styled.div`
   padding-top: 8px;
 
   border-top: 1px solid #aaa;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
 
   .location-tree-title {
     margin-left: 15px;
@@ -17,6 +20,9 @@ const ContainerDiv = styled.div`
 
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
+  flex-direction: column;
+  display: flex;
+  overflow-y: hidden;
 
   ul.tag-list {
     li:first-child {
@@ -68,9 +74,10 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 
   .tag-list {
-    display: inline;
+    display: flex;
     padding: 0;
     margin: 0;
+    flex-wrap: wrap;
   }
 
   .tag-item {
@@ -149,6 +156,9 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     width: 100%;
     display: block;
     position: relative;
+    flex-direction: column;
+    display: flex;
+    overflow-y: hidden;
 
     a.dropdown-trigger {
       width: calc(100% - 16px);
@@ -158,6 +168,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       max-height: 200px;
       display: inline-block;
       overflow: auto;
+      min-height: 36px;
 
       &:focus {
         outline: none;
@@ -172,6 +183,9 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       padding-right: 15px;
       background-color: #f8f8f8;
       z-index: 1;
+      flex-direction: column;
+      display: flex;
+      overflow-y: hidden;
 
       input.search {
         font-size: 1em;
@@ -186,6 +200,9 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       ul.root {
         margin-top: 5px;
         padding: 0;
+        flex-direction: column;
+        display: flex;
+        overflow-y: scroll;
 
         i.toggle {
           font-family: monospace;
