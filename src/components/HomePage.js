@@ -20,7 +20,6 @@ import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
-import NothingSelected from './NothingSelected';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -198,6 +197,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   areaStackTitle += ' Over Time';
 
   console.log(covidStore.selectedLocationIds);
+  console.log(covidStore.selectTree);
 
   return (
     <>
@@ -215,6 +215,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             selectedGene={covidStore.selectedGene}
             onChange={handleGeneChange}
           />
+
           <DropdownContainer />
         </FilterSidebar>
 

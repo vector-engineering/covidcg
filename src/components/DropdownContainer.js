@@ -1,10 +1,11 @@
-import React, { Component, memo, useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import _ from 'underscore';
 import { toJS } from 'mobx';
 import { useStores } from '../stores/connect';
+import { asyncStates } from '../stores/uiStore';
 
 const ContainerDiv = styled.div`
   margin-top: 5px;
@@ -234,9 +235,18 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
 `;
 
 const DropdownContainer = () => {
-  console.log(toJS(data));
-  const { covidStore } = useStores();
+  const { covidStore, uiStore } = useStores();
+  const [state, setState] = useState({
+    data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+    expanded: [],
+  });
   const treeSelectOnChange = (currentNode, selectedNodes) => {
+    if (
+      uiStore.caseDataState === asyncStates.STARTED ||
+      uiStore.aggCaseDataState === asyncStates.STARTED
+    ) {
+      return;
+    }
     covidStore.selectLocations(selectedNodes);
   };
   const treeSelectOnAction = (node, action) => {
@@ -246,14 +256,19 @@ const DropdownContainer = () => {
     console.log('onNodeToggle::', currentNode);
   };
 
-  const data = covidStore.selectTree;
-
-  if (data) data.expanded = true;
+  useEffect(() => {
+    if (!_.isEqual(covidStore.selectTree, state.data)) {
+      setState({
+        ...state,
+        data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+      });
+    }
+  }, [covidStore.selectTree]);
 
   const dropdownContainer = useMemo(
     () => (
       <StyledDropdownTreeSelect
-        data={toJS(data)}
+        data={state.data}
         className="geo-dropdown-tree-select"
         clearSearchOnChange={false}
         keepTreeOnSearch={true}
@@ -270,7 +285,7 @@ const DropdownContainer = () => {
         onNodeToggle={treeSelectOnNodeToggleCurrentNode}
       />
     ),
-    [data]
+    [state.data]
   );
 
   return (
