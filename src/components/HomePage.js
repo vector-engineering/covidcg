@@ -196,9 +196,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
   areaStackTitle += ' Over Time';
 
-  console.log(covidStore.selectedLocationIds);
-  console.log(covidStore.selectTree);
-
   return (
     <>
       <HomePageDiv>
