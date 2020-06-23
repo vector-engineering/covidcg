@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
+import { toJS } from 'mobx';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
@@ -41,7 +42,6 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -182,6 +182,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         </div>
       );
     } else {
+      console.log('hello');
       return (
         <VegaLite
           data={{

@@ -45,9 +45,9 @@
           }
         },
         "color": {
-          "field": "group",
+          "field": "color",
           "type": "nominal",
-          "scale": { "scheme": "tableau20" },
+          "scale": null,
           "legend": null
         },
         "opacity": {

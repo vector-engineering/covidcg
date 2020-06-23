@@ -1,6 +1,7 @@
 import initialCaseData from '../../data/case_data.json';
 import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
+import { warmColors, coolColors, snpColorArray } from '../constants/colors';
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
@@ -17,6 +18,34 @@ const processedCaseData = _.map(initialCaseData, (row) => {
 // function loadCaseData() {
 //   return processedCaseData;
 // }
+
+let _warmColors = Object.assign({}, warmColors);
+let _coolColors = Object.assign({}, coolColors);
+let _snpColorArray = [...snpColorArray];
+
+function iterateAndGetColor(colorobj, iter, i = 0) {
+  if (i < iter) {
+    return iterateAndGetColor(colorobj.child, iter, i + 1);
+  } else {
+    colorobj.colors.push(colorobj.colors.shift());
+    return colorobj.colors[0];
+  }
+}
+
+const getColor = _.memoize((group) => {
+  const match = group.match(/\./g);
+  const dots = match ? match.length : 0;
+  if (group.charAt(0) === 'A') {
+    return iterateAndGetColor(_warmColors, dots);
+  } else if (group.charAt(0) === 'B') {
+    return iterateAndGetColor(_coolColors, dots);
+  }
+});
+
+const getSnpColor = _.memoize(() => {
+  _snpColorArray.push(_snpColorArray.shift());
+  return _snpColorArray[0];
+});
 
 function convertToObj(list) {
   const obj = {};
@@ -169,15 +198,23 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     });
   }
 
+  let getColorMethod = getColor;
+
+  if (groupKey === 'snp') {
+    getColorMethod = getSnpColor;
+  }
+
   // Expand obj of objs back into a list of objects
   let aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((group) => {
     let dates = Object.keys(aggCaseData[group]);
     dates.forEach((date) => {
+      const color = getColorMethod(group);
       aggCaseDataList.push({
         group: group,
         date: date,
         cases_sum: aggCaseData[group][date],
+        color,
       });
     });
   });
