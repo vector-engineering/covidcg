@@ -62,18 +62,6 @@ const sortRows = (rows, sortFn) => {
 const NewLineageDataTable = observer(() => {
   const { covidStore, uiStore } = useStores();
 
-  // Define initial sort column
-  let initialSortColumn;
-  if (covidStore.groupKey === 'lineage') {
-    initialSortColumn = 'group';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      initialSortColumn = 'pos';
-    } else {
-      initialSortColumn = 'index';
-    }
-  }
-
   const [state, setState] = useState({
     // Color by 'compare': Comparison to reference, or 'code': With a defined color code
     colorMode: 'compare',
@@ -81,8 +69,8 @@ const NewLineageDataTable = observer(() => {
     compareMode: 'mismatch',
     compareColor: 'yellow',
     rows: covidStore.caseDataAggGroup,
-    sortColumn: initialSortColumn,
-    sortDirection: 'ASC',
+    sortColumn: 'cases_sum',
+    sortDirection: 'DESC',
   });
 
   useEffect(() => {
@@ -160,6 +148,8 @@ const NewLineageDataTable = observer(() => {
     );
 
     const handleGridSort = (sortColumn, sortDirection) => {
+      console.log('handle grid sort', sortColumn, sortDirection);
+
       let _sortDirection = sortDirection;
       if (sortDirection === 'NONE') {
         _sortDirection = 'ASC';
@@ -298,6 +288,8 @@ const NewLineageDataTable = observer(() => {
         posColOffset = 8;
       }
     }
+
+    console.log(state.sortColumn, state.sortDirection, columns);
 
     return (
       <>
