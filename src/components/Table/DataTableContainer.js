@@ -103,6 +103,7 @@ const NewLineageDataTable = observer(() => {
           style={{
             paddingRight: '24px',
             paddingLeft: '12px',
+            paddingTop: '24px',
             height: '100%',
           }}
         >
@@ -300,21 +301,23 @@ const NewLineageDataTable = observer(() => {
             ? 'Genomic Coordinate'
             : 'Residue Index'}
         </span>
-        <DataTable
-          posColOffset={posColOffset}
-          columns={columns}
-          rowGetter={(i) => state.rows[i]}
-          rows={state.rows}
-          rowsCount={state.rows ? state.rows.length : 0}
-          height={state.tableHeight}
-          headerRowHeight={45}
-          filterRowHeight={45}
-          rowHeight={25}
-          minColumnWidth={25}
-          sortColumn={state.sortColumn}
-          sortDirection={state.sortDirection}
-          handleGridSort={handleGridSort}
-        />
+        <div style={{ paddingLeft: '10px' }}>
+          <DataTable
+            posColOffset={posColOffset}
+            columns={columns}
+            rowGetter={(i) => state.rows[i]}
+            rows={state.rows}
+            rowsCount={state.rows ? state.rows.length : 0}
+            height={state.tableHeight}
+            headerRowHeight={45}
+            filterRowHeight={45}
+            rowHeight={25}
+            minColumnWidth={25}
+            sortColumn={state.sortColumn}
+            sortDirection={state.sortDirection}
+            onSort={handleGridSort}
+          />
+        </div>
       </>
     );
   };

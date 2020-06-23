@@ -41,7 +41,6 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -71,6 +70,7 @@ const PlotOptions = styled.div`
     font-size: 1.25em;
     margin-right: 10px;
     padding-right: 10px;
+    padding-left: 18px;
 
     border-right: 1px solid #ccc;
   }
@@ -127,16 +127,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
     );
   };
 
-  const treeSelectOnChange = (currentNode, selectedNodes) => {
-    covidStore.selectLocations(selectedNodes);
-  };
-  const treeSelectOnAction = (node, action) => {
-    console.log('onAction::', action, node);
-  };
-  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-    console.log('onNodeToggle::', currentNode);
-  };
-
   const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
 
   // Make a deep copy of the Vega spec so we can edit it
@@ -171,12 +161,13 @@ const HomePage = observer(({ covidStore, uiStore }) => {
       return (
         <div
           style={{
-            paddingTop: '24px',
+            paddingTop: '12px',
             paddingRight: '24px',
             paddingLeft: '12px',
+            paddingBottom: '24px',
           }}
         >
-          <SkeletonElement delay={1} height={'436px'}>
+          <SkeletonElement delay={1} height={'400px'}>
             <LoadingSpinner />
           </SkeletonElement>
         </div>
@@ -221,23 +212,11 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             selectedGene={covidStore.selectedGene}
             onChange={handleGeneChange}
           />
-          <DropdownContainer
-            data={covidStore.selectTree.children}
-            onChange={(currentNode, selectedNodes) => {
-              treeSelectOnChange(currentNode, selectedNodes);
-            }}
-            onAction={treeSelectOnAction}
-            onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-          />
+
+          <DropdownContainer />
         </FilterSidebar>
 
         <PlotContainer>
-          {/* <VegaLite
-            data={{
-              entropy_data: entropy_data
-            }} 
-            spec={entropy_spec}
-          /> */}
           <PlotOptions>
             <span className="area-stack-title">{areaStackTitle}</span>
             <AreaStackModeSelect

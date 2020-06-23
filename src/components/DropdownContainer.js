@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import _ from 'underscore';
+import { toJS } from 'mobx';
+import { useStores } from '../stores/connect';
+import { asyncStates } from '../stores/uiStore';
 
 const ContainerDiv = styled.div`
   margin-top: 5px;
@@ -27,7 +30,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   ul.tag-list {
     li:first-child {
       span.placeholder:after {
-        content: 'Viewing all sequences';
+        content: 'None';
         font-size: 0.9rem;
         font-weight: normal;
         font-style: italic;
@@ -231,52 +234,67 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 `;
 
-class DropdownContainer extends Component {
-  // I forget why this component needs a wrapper with it's own state management
-  // but for some reason it does. If I remove this stuff the selections don't work
-  // anymore.
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: props.data,
-    };
-  }
-
-  UNSAFE_componentWillReceiveProps = (nextProps) => {
-    if (!_.isEqual(nextProps.data, this.state.data)) {
-      this.setState({ data: nextProps.data });
+const DropdownContainer = () => {
+  const { covidStore, uiStore } = useStores();
+  const [state, setState] = useState({
+    data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+    expanded: [],
+  });
+  const treeSelectOnChange = (currentNode, selectedNodes) => {
+    if (
+      uiStore.caseDataState === asyncStates.STARTED ||
+      uiStore.aggCaseDataState === asyncStates.STARTED
+    ) {
+      return;
     }
+    covidStore.selectLocations(selectedNodes);
+  };
+  const treeSelectOnAction = (node, action) => {
+    console.log('onAction::', action, node);
+  };
+  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+    console.log('onNodeToggle::', currentNode);
   };
 
-  shouldComponentUpdate = (nextProps) => {
-    return !_.isEqual(nextProps.data, this.state.data);
-  };
+  useEffect(() => {
+    if (!_.isEqual(covidStore.selectTree, state.data)) {
+      setState({
+        ...state,
+        data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+      });
+    }
+  }, [covidStore.selectTree]);
 
-  render() {
-    const { ...rest } = this.props;
+  const dropdownContainer = useMemo(
+    () => (
+      <StyledDropdownTreeSelect
+        data={state.data}
+        className="geo-dropdown-tree-select"
+        clearSearchOnChange={false}
+        keepTreeOnSearch={true}
+        keepChildrenOnSearch={true}
+        showPartiallySelected={true}
+        showDropdown="always"
+        inlineSearchInput={true}
+        texts={{
+          placeholder: 'Search...',
+          noMatches: 'No matches found',
+        }}
+        onChange={treeSelectOnChange}
+        onAction={treeSelectOnAction}
+        onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+      />
+    ),
+    [state.data]
+  );
 
-    return (
-      <ContainerDiv>
-        <span className="location-tree-title">Selected Locations:</span>
-        <StyledDropdownTreeSelect
-          data={this.state.data}
-          className="geo-dropdown-tree-select"
-          clearSearchOnChange={false}
-          keepTreeOnSearch={true}
-          keepChildrenOnSearch={true}
-          showPartiallySelected={true}
-          showDropdown="always"
-          inlineSearchInput={true}
-          texts={{
-            placeholder: 'Search...',
-            noMatches: 'No matches found',
-          }}
-          {...rest}
-        />
-      </ContainerDiv>
-    );
-  }
-}
+  return (
+    <ContainerDiv>
+      <span className="location-tree-title">Selected Locations:</span>
+      {dropdownContainer}
+    </ContainerDiv>
+  );
+};
 
 DropdownContainer.defaultProps = {
   data: {},
@@ -285,5 +303,7 @@ DropdownContainer.defaultProps = {
 DropdownContainer.propTypes = {
   data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
 };
+
+DropdownContainer.displayName = 'DropdownContainer';
 
 export default DropdownContainer;
