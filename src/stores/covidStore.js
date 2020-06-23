@@ -128,7 +128,6 @@ class ObservableCovidStore {
   @action
   selectLocations(selectedNodes) {
     this.selectedLocationIds = getLocationIds(selectedNodes);
-    console.log(selectedNodes, this.selectedLocationIds);
 
     if (!selectedNodes || !selectedNodes[0]) {
       this.emptyCaseData();
