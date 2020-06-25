@@ -1,8 +1,8 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-const hollowBoxSize = '3em';
-const hollowLight = '#34495e';
+const hollowBoxSize = '2em';
+const hollowLight = '#ccc';
 // const hollowDark = '#34495e';
 const hollowTiming = '1125ms';
 
