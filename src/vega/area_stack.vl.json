@@ -70,7 +70,8 @@
             "field": "cases_sum",
             "title": "Sequences",
             "type": "quantitative"
-          }
+          },
+          { "field": "color", "title": "color", "type": "nominal" }
         ]
       }
     },

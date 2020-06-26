@@ -1,7 +1,12 @@
 import initialCaseData from '../../data/case_data.json';
 import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
-import { warmColors, coolColors, snpColorArray } from '../constants/colors';
+import {
+  warmColors,
+  coolColors,
+  snpColorArray,
+  incrementColor,
+} from '../constants/colors';
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
@@ -27,7 +32,7 @@ function iterateAndGetColor(colorobj, iter, i = 0) {
   if (i < iter) {
     return iterateAndGetColor(colorobj.child, iter, i + 1);
   } else {
-    colorobj.colors.push(colorobj.colors.shift());
+    colorobj.colors.push(incrementColor(colorobj.colors.shift(), 1));
     return colorobj.colors[0];
   }
 }
@@ -43,7 +48,7 @@ const getColor = _.memoize((group) => {
 });
 
 const getSnpColor = _.memoize(() => {
-  _snpColorArray.push(_snpColorArray.shift());
+  _snpColorArray.push(incrementColor(_snpColorArray.shift(), 1));
   return _snpColorArray[0];
 });
 
