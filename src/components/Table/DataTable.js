@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import DataGrid from 'react-data-grid';
 
 const DataGridContainer = styled.div`
+  margin-bottom: 24px;
   /* Data grid styles */
   .rdg {
     border-top: none;

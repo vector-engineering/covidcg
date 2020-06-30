@@ -21,6 +21,7 @@ import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
+import VegaLegend from './VegaLegend';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -168,7 +169,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             paddingBottom: '24px',
           }}
         >
-          <SkeletonElement delay={1} height={'400px'}>
+          <SkeletonElement delay={2} height={'400px'}>
             <LoadingSpinner />
           </SkeletonElement>
         </div>
@@ -176,15 +177,17 @@ const HomePage = observer(({ covidStore, uiStore }) => {
     } else {
       console.log('hello');
       return (
-        <VegaLite
-          data={{
-            case_data: covidStore.caseData,
-          }}
-          spec={areaStackSpec}
-          signalListeners={{
-            brush: _.debounce(handleBrush, 500),
-          }}
-        />
+        <>
+          <VegaLite
+            data={{
+              case_data: covidStore.caseData,
+            }}
+            spec={areaStackSpec}
+            signalListeners={{
+              brush: _.debounce(handleBrush, 500),
+            }}
+          />
+        </>
       );
     }
   };
@@ -226,6 +229,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
               onChange={onChangeAreaStackMode}
             />
           </PlotOptions>
+          <VegaLegend />
           {renderPlotContent()}
           <DataTableContainer />
         </PlotContainer>
