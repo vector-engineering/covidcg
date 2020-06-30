@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import styled from 'styled-components';
 
 import { useStores } from '../stores/connect';
@@ -11,7 +11,7 @@ const LegendAndButtonWrapper = styled.div`
   align-items: flex-start;
   margin-top: 12px;
   margin-bottom: 6px;
-  margin-left: 32px;
+  margin-left: 24px;
   margin-right: 24px;
 `;
 
@@ -32,7 +32,8 @@ const CollapseButton = styled.button`
   transition: color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   background-color: rgba(0, 0, 0, 0);
   outline: none;
-  width: 24px;
+  width: 32px;
+  font-size: 20px;
 
   &:hover {
     color: black;
@@ -85,15 +86,18 @@ const VegaLegend = () => {
 
   const renderLegendKeys = (groupObjs) => {
     return groupObjs.map((obj) => {
-      console.log(obj);
+      if (!obj.color) {
+        return null;
+      }
       return (
-        <LegendItem key={obj.color}>
+        <LegendItem key={`${Math.random()}${obj.color}`}>
           <ColorCircle color={obj.color} />
           <LegendText>{obj.group}</LegendText>
         </LegendItem>
       );
     });
   };
+
   return (
     <LegendAndButtonWrapper>
       <CollapseButton
@@ -109,5 +113,7 @@ const VegaLegend = () => {
     </LegendAndButtonWrapper>
   );
 };
+
+VegaLegend.displayName = 'VegaLegend';
 
 export default VegaLegend;
