@@ -130,6 +130,11 @@ def process_ack():
         one_name_first_last_inds, "Authors"
     ]
 
+    # Default to the original Author's column if the abbreviation is empty
+    unique_ack_df["authors_abbrev"] = unique_ack_df["authors_abbrev"].combine_first(
+        unique_ack_df["Authors"]
+    )
+
     # Append code to acknowledgement dataframe, and take
     # subset of columns
     ack_df = pd.concat([ack_df, pd.Series(code, name="ack_id")], axis=1)[
