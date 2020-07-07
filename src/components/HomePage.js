@@ -21,6 +21,7 @@ import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
+import VegaWrapper from './VegaWrapper';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -176,7 +177,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
     } else {
       console.log('hello');
       return (
-        <VegaLite
+        <VegaWrapper
           data={{
             case_data: covidStore.caseData,
           }}
