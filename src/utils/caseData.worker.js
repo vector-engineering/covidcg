@@ -243,7 +243,6 @@ function aggCaseDataByGroup({
   dateRange,
 }) {
   const lineageCountObj = {};
-  console.log(caseData);
   caseData.forEach((row) => {
     if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
     else {

@@ -1,13 +1,14 @@
-import { getAckTextsFromAccessionIds } from './acknowledgements';
+import { getAckTextsFromAckIds } from './acknowledgements';
 import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
 function downloadAcknowledgements(selectedRows) {
+  let ackIds = _.pluck(selectedRows, 'ack_id');
+
   // Get the list of selected Accession IDs, and map to
   // acknowledgement texts
-  let ackTexts = getAckTextsFromAccessionIds(selectedRows);
-  // console.log(ackTexts);
+  let ackTexts = getAckTextsFromAckIds(ackIds);
 
   // Write to a CSV string
   // Accession ID and sample date first
@@ -17,17 +18,17 @@ function downloadAcknowledgements(selectedRows) {
 
   for (let i = 0; i < selectedRows.length; i++) {
     // Write Accession ID
-    csvString += selectedRows[i]['gisaid_id'] + ',';
+    csvString += selectedRows[i]['Accession ID'] + ',';
     // Write Sample Date
     // Get the date in ISO format, and chop off the time/timezone info at the end
     // So that we get YYYY-MM-DD (the same as the original input format)
-    csvString += intToISO(selectedRows[i]['sample_date']) + ',';
+    csvString += intToISO(selectedRows[i]['collection_date']) + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes
-    csvString += '"' + ackTexts[i]['originating_lab'] + '",';
-    csvString += '"' + ackTexts[i]['submitting_lab'] + '",';
-    csvString += '"' + ackTexts[i]['authors'] + '"\n';
+    csvString += '"' + ackTexts[i]['Originating lab'] + '",';
+    csvString += '"' + ackTexts[i]['Submitting lab'] + '",';
+    csvString += '"' + ackTexts[i]['Authors'] + '"\n';
   }
 
   let blob = new Blob([csvString]);
