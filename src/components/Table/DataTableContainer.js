@@ -253,7 +253,10 @@ const NewLineageDataTable = observer(() => {
         }
 
         // 0-indexed to 1-indexed
-        let pos = parseInt(col.substring(4)) + 1;
+        let pos = parseInt(col.substring(4));
+        if (covidStore.dnaOrAa === 'dna') {
+          pos += 1;
+        }
 
         _columns.push(
           getSinglePosColumn({
