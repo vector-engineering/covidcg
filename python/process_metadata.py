@@ -155,11 +155,13 @@ def main():
 
     # Join acknowledgement IDs onto main metadata dataframe
     ack_df = process_ack()
+    print("Joining acknowledgements to main dataframe...", end="", flush=True)
     case_df = case_df.join(ack_df, on="Accession ID", how="left", sort=False)
     # Replace missing acknowledgement IDs with -1
     case_df["ack_id"].fillna(-1, inplace=True)
     # Cast ack_id to integer
     case_df["ack_id"] = case_df["ack_id"].astype(int)
+    print("done")
 
     dna_snp_df = load_dna_snps()
     aa_snp_df = load_aa_snps()
@@ -189,7 +191,9 @@ def main():
     print("done")
 
     # Get consensus SNPs for each lineage
+    print("Getting consensus SNPs for each lineage...", end="", flush=True)
     get_consensus_snps(case_df)
+    print("done")
 
     # Hash Accession IDs
     print("Anonymizing/hashing accession IDs...", end="", flush=True)
@@ -242,7 +246,7 @@ def main():
 
     print("Writing final case data...", end="", flush=True)
     case_df.to_csv(data_dir / "case_data2.csv", index_label="Accession ID")
-    case_df.to_json(data_dir / "case_data2.json", orient="records")
+    case_df.reset_index().to_json(data_dir / "case_data2.json", orient="records")
     print("done")
 
     write_reference_files()

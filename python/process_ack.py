@@ -60,9 +60,6 @@ def process_ack():
 
     print("Saving acknowledgement files...", end="", flush=True)
 
-    # ack_df.to_csv(data_dir / 'taxon_acknowledgements.csv', header=['ack_id'], index_label='gisaid_id')
-    # ack_df.to_json(data_dir / 'taxon_acknowledgements.json')
-
     # Drop MultiIndex to columns, make index the real index again
     unique_ack_df.to_csv(
         data_dir / "acknowledgement_map.csv", index=True, index_label="ack_id"

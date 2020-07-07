@@ -68,8 +68,6 @@ def get_consensus_snps(case_df):
     )
 
     # Save to disk
-    print("Saving lineage - SNP definitions")
-    # print(lineage_snp_df)
     lineage_snp_df.to_csv(data_dir / "lineage_snp.csv", index=False)
     lineage_snp_df.to_json(data_dir / "lineage_snp.json", orient="records")
 
