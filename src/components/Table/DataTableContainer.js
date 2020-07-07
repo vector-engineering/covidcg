@@ -149,7 +149,7 @@ const NewLineageDataTable = observer(() => {
     );
 
     const handleGridSort = (sortColumn, sortDirection) => {
-      console.log('handle grid sort', sortColumn, sortDirection);
+      // console.log('handle grid sort', sortColumn, sortDirection);
 
       let _sortDirection = sortDirection;
       if (sortDirection === 'NONE') {
