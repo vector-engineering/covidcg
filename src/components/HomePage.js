@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
 import { toJS } from 'mobx';
+import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
@@ -21,6 +22,9 @@ import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
+import VegaLegend from './VegaLegend';
+import VegaTree from './VegaTree';
+import AccordianWrapper from './AccordianWrapper';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -107,6 +111,7 @@ AreaStackModeSelect.propTypes = {
 const HomePage = observer(({ covidStore, uiStore }) => {
   // 'percentages' or 'counts'
   const [areaStackMode, setAreaStackMode] = useState('percentages');
+  const [ref, { x, y, width }] = useDimensions();
 
   const handleGroupingChange = (groupKey, dnaOrAa) => {
     covidStore.changeGrouping(groupKey, dnaOrAa);
@@ -168,23 +173,30 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             paddingBottom: '24px',
           }}
         >
-          <SkeletonElement delay={1} height={'400px'}>
+          <SkeletonElement delay={2} height={'400px'}>
             <LoadingSpinner />
           </SkeletonElement>
         </div>
       );
     } else {
-      console.log('hello');
       return (
-        <VegaLite
-          data={{
-            case_data: covidStore.caseData,
-          }}
-          spec={areaStackSpec}
-          signalListeners={{
-            brush: _.debounce(handleBrush, 500),
-          }}
-        />
+        <AccordianWrapper
+          title="plot"
+          defaultCollapsed={false}
+          maxHeight={'1200px'}
+        >
+          <div style={{ width: `${width}px` }}>
+            <VegaLite
+              data={{
+                case_data: covidStore.caseData,
+              }}
+              spec={areaStackSpec}
+              signalListeners={{
+                brush: _.debounce(handleBrush, 500),
+              }}
+            />
+          </div>
+        </AccordianWrapper>
       );
     }
   };
@@ -218,7 +230,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           <DropdownContainer />
         </FilterSidebar>
 
-        <PlotContainer>
+        <PlotContainer ref={ref}>
           <PlotOptions>
             <span className="area-stack-title">{areaStackTitle}</span>
             <AreaStackModeSelect
@@ -226,8 +238,17 @@ const HomePage = observer(({ covidStore, uiStore }) => {
               onChange={onChangeAreaStackMode}
             />
           </PlotOptions>
+          <VegaLegend />
           {renderPlotContent()}
-          <DataTableContainer />
+          <VegaTree width={width} data={covidStore.caseDataAggGroup} />
+
+          <AccordianWrapper
+            title="table"
+            defaultCollapsed={false}
+            maxHeight={'1200px'}
+          >
+            <DataTableContainer />
+          </AccordianWrapper>
         </PlotContainer>
       </HomePageDiv>
     </>
