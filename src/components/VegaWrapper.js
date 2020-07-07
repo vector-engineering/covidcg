@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { VegaLite } from 'react-vega';
 import { toJS } from 'mobx';
 import { useStores } from '../stores/connect';
@@ -36,6 +37,11 @@ const VegaWrapper = ({ data, spec, signalListeners }) => {
       signalListeners={signalListeners}
     />
   );
+};
+VegaWrapper.propTypes = {
+  data: PropTypes.object,
+  spec: PropTypes.object,
+  signalListeners: PropTypes.object,
 };
 
 export default VegaWrapper;

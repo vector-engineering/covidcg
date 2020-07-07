@@ -1,15 +1,14 @@
-import { getAckTextsFromAccessionIds } from './acknowledgements';
-import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
-import { getLocationNameByIds } from './location';
-import { intToDnaSnp, intToAaSnp } from './snpData';
+import { getAckTextsFromAckIds } from './acknowledgements';
+import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
 function downloadAcknowledgements(selectedRows) {
+  let ackIds = _.pluck(selectedRows, 'ack_id');
+
   // Get the list of selected Accession IDs, and map to
   // acknowledgement texts
-  let ackTexts = getAckTextsFromAccessionIds(selectedRows);
-  // console.log(ackTexts);
+  let ackTexts = getAckTextsFromAckIds(ackIds);
 
   // Write to a CSV string
   // Accession ID and sample date first
@@ -19,17 +18,17 @@ function downloadAcknowledgements(selectedRows) {
 
   for (let i = 0; i < selectedRows.length; i++) {
     // Write Accession ID
-    csvString += selectedRows[i]['gisaid_id'] + ',';
+    csvString += selectedRows[i]['Accession ID'] + ',';
     // Write Sample Date
     // Get the date in ISO format, and chop off the time/timezone info at the end
     // So that we get YYYY-MM-DD (the same as the original input format)
-    csvString += intToISO(selectedRows[i]['sample_date']) + ',';
+    csvString += intToISO(selectedRows[i]['collection_date']) + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes
-    csvString += '"' + ackTexts[i]['originating_lab'] + '",';
-    csvString += '"' + ackTexts[i]['submitting_lab'] + '",';
-    csvString += '"' + ackTexts[i]['authors'] + '"\n';
+    csvString += '"' + ackTexts[i]['Originating lab'] + '",';
+    csvString += '"' + ackTexts[i]['Submitting lab'] + '",';
+    csvString += '"' + ackTexts[i]['Authors'] + '"\n';
   }
 
   let blob = new Blob([csvString]);
@@ -77,10 +76,6 @@ function downloadAggCaseData(groupKey, dnaOrAa, caseDataAggGroup) {
 }
 
 function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
-  // Load lineage SNPs
-  const lineageDnaSnp = loadLineageDnaSnp();
-  const lineageAaSnp = loadLineageAaSnp();
-
   let csvString = '';
 
   // Write headers
@@ -103,7 +98,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
       row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Get NT SNPs
-    let ntSnps = _.filter(lineageDnaSnp, (snp) => snp.lineage === row['group']);
+    let ntSnps = getDnaSnpsFromLineage(row['group']);
     // Skip if it's empty
     if (ntSnps.length === 0) {
       csvString += ',';
@@ -124,7 +119,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
     }
 
     // Get AA SNPs
-    let aaSnps = _.filter(lineageAaSnp, (snp) => snp.lineage === row['group']);
+    let aaSnps = getAaSnpsFromLineage(row['group']);
     // Skip if it's empty
     if (aaSnps.length === 0) {
       csvString += ',';
@@ -136,7 +131,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
         return (
           snp['gene'] +
           '|' +
-          (parseInt(snp['pos']) + 1).toString() +
+          parseInt(snp['pos']).toString() +
           '|' +
           snp['ref'] +
           '|' +
@@ -221,72 +216,6 @@ function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
   return csvString;
 }
 
-function downloadSequencesAndMetadata(selectedRows) {
-  // console.log(selectedRows);
-
-  let csvString = '';
-  // Write CSV headers
-  csvString += 'gisaid_id,sample_date,'; // Sequence metadata
-  csvString += 'region,country,division,location,'; // Location metadata
-  csvString += 'lineage,'; // Lineage assignment
-  csvString += 'nt_snp,aa_snp'; // SNP data
-  csvString += '\n';
-
-  for (let i = 0; i < selectedRows.length; i++) {
-    const row = selectedRows[i];
-
-    // Sequence metadata
-    csvString += row['gisaid_id'] + ',';
-    csvString += intToISO(row['sample_date']) + ',';
-
-    // Location metadata
-    const loc = getLocationNameByIds([row['location_id']])[0];
-    csvString +=
-      [
-        loc['region'] === '-1' ? '' : loc['region'],
-        loc['country'] === '-1' ? '' : loc['country'],
-        loc['division'] === '-1' ? '' : loc['division'],
-        loc['location'] === '-1' ? '' : loc['location'],
-      ].join(',') + ',';
-
-    // Lineage assignment
-    csvString += row['lineage'] + ',';
-
-    // SNP data
-    // NT SNPs
-    if (row['dna_snp_str'].length > 0) {
-      csvString +=
-        '"[' +
-        _.map(row['dna_snp_str'], (dnaSnpId) => {
-          return intToDnaSnp(dnaSnpId)['snp_str'];
-        }).join(',') +
-        ']",';
-    } else {
-      csvString += ',';
-    }
-    // AA SNPs
-    if (row['aa_snp_str'].length > 0) {
-      csvString +=
-        '"[' +
-        _.map(row['aa_snp_str'], (aaSnpId) => {
-          return intToAaSnp(aaSnpId)['snp_str'];
-        }).join(',') +
-        ']"';
-    } else {
-      csvString += '';
-    }
-
-    csvString += '\n';
-  }
-
-  let blob = new Blob([csvString]);
-  let url = URL.createObjectURL(blob);
-
-  return {
-    blobURL: url,
-  };
-}
-
 self.addEventListener(
   'message',
   function (e) {
@@ -303,8 +232,6 @@ self.addEventListener(
         data.dnaOrAa,
         data.caseDataAggGroup
       );
-    } else if (data.type === 'downloadSequencesAndMetadata') {
-      result = downloadSequencesAndMetadata(data.selectedRows);
     }
     // console.log(result);
     self.postMessage(JSON.stringify(result));

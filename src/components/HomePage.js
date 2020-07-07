@@ -20,6 +20,7 @@ import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './VegaLegend';
 import VegaWrapper from './VegaWrapper';
+import AcknowledgementsTable from './AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -46,7 +47,10 @@ const PlotContainer = styled.div`
   grid-column: col2 / col3;
   grid-row: row1 / row2;
 
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  max-height: 100vh;
   box-sizing: border-box;
 
   padding-left: 10px;
@@ -83,6 +87,17 @@ const AreaStackSelectContainer = styled.div`
     padding: 1px 4px;
     border-radius: 3px;
   }
+`;
+
+const Footer = styled.div`
+  display: flex;
+  background-color: #f8f8f8;
+
+  margin-left: -10px;
+  padding: 5px;
+  border-top: 1px solid #ccc;
+
+  font-size: 0.85rem;
 `;
 
 const AreaStackModeSelect = ({ mode, onChange }) => {
@@ -228,6 +243,28 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           <VegaLegend />
           {renderPlotContent()}
           <DataTableContainer />
+          <AcknowledgementsTable />
+
+          <Footer>
+            <div className="gisaid-daa">
+              Data use subject to the{' '}
+              <a
+                href="https://www.gisaid.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GISAID
+              </a>{' '}
+              EpiCov™{' '}
+              <a
+                href="https://www.gisaid.org/registration/terms-of-use/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Database Access Agreement
+              </a>
+            </div>
+          </Footer>
         </PlotContainer>
       </HomePageDiv>
     </>

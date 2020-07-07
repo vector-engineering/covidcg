@@ -34,6 +34,7 @@ import DataTable from './DataTable';
 const DataTableContainer = styled.div`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   position: relative;
   span.position-title {
     font-size: 12px;
@@ -148,7 +149,7 @@ const NewLineageDataTable = observer(() => {
     );
 
     const handleGridSort = (sortColumn, sortDirection) => {
-      console.log('handle grid sort', sortColumn, sortDirection);
+      // console.log('handle grid sort', sortColumn, sortDirection);
 
       let _sortDirection = sortDirection;
       if (sortDirection === 'NONE') {
@@ -252,7 +253,10 @@ const NewLineageDataTable = observer(() => {
         }
 
         // 0-indexed to 1-indexed
-        let pos = parseInt(col.substring(4)) + 1;
+        let pos = parseInt(col.substring(4));
+        if (covidStore.dnaOrAa === 'dna') {
+          pos += 1;
+        }
 
         _columns.push(
           getSinglePosColumn({
