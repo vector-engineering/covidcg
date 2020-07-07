@@ -1,5 +1,5 @@
 import { getAckTextsFromAccessionIds } from './acknowledgements';
-import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
+import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
@@ -75,10 +75,6 @@ function downloadAggCaseData(groupKey, dnaOrAa, caseDataAggGroup) {
 }
 
 function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
-  // Load lineage SNPs
-  const lineageDnaSnp = loadLineageDnaSnp();
-  const lineageAaSnp = loadLineageAaSnp();
-
   let csvString = '';
 
   // Write headers
@@ -101,7 +97,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
       row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Get NT SNPs
-    let ntSnps = _.filter(lineageDnaSnp, (snp) => snp.lineage === row['group']);
+    let ntSnps = getDnaSnpsFromLineage(row['group']);
     // Skip if it's empty
     if (ntSnps.length === 0) {
       csvString += ',';
@@ -122,7 +118,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
     }
 
     // Get AA SNPs
-    let aaSnps = _.filter(lineageAaSnp, (snp) => snp.lineage === row['group']);
+    let aaSnps = getAaSnpsFromLineage(row['group']);
     // Skip if it's empty
     if (aaSnps.length === 0) {
       csvString += ',';
@@ -134,7 +130,7 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
         return (
           snp['gene'] +
           '|' +
-          (parseInt(snp['pos']) + 1).toString() +
+          parseInt(snp['pos']).toString() +
           '|' +
           snp['ref'] +
           '|' +
