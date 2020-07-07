@@ -19,6 +19,7 @@ import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaWrapper from './VegaWrapper';
+import AcknowledgementsTable from './AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -240,6 +241,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           </PlotOptions>
           {renderPlotContent()}
           <DataTableContainer />
+          <AcknowledgementsTable />
 
           <Footer>
             <div className="gisaid-daa">
