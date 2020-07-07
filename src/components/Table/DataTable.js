@@ -1,7 +1,7 @@
-import React, { useLayoutEffect, useCallback, useState, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import DataGrid from 'react-data-grid';
-import { useStores } from '../../stores/connect';
 
 const DataGridContainer = styled.div`
   /* Data grid styles */
@@ -113,6 +113,15 @@ const DataTable = ({
       />
     </DataGridContainer>
   );
+};
+
+DataTable.propTypes = {
+  posColOffset: PropTypes.number,
+  rows: PropTypes.array.isRequired,
+  columns: PropTypes.array.isRequired,
+  sortColumn: PropTypes.string,
+  sortDirection: PropTypes.string,
+  handleGridSort: PropTypes.func,
 };
 
 export default DataTable;

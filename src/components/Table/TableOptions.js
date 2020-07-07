@@ -156,7 +156,7 @@ const DataTableOptions = styled.div`
   margin-bottom: 10px;
 
   padding-left: 10px;
-  padding-right: 10px;
+  padding-right: 24px;
 
   select {
     padding: 1px 4px;
@@ -170,8 +170,8 @@ const Spacer = styled.div`
 
 const SkeletonContainer = styled.div`
   display: flex;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 28px;
+  padding-bottom: 28px;
   padding-left: 12px;
   padding-right: 24px;
 `;
@@ -195,20 +195,20 @@ const TableOptions = observer(
       }
     };
 
-    if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
-    ) {
-      return (
-        <SkeletonContainer>
-          <SkeletonElement delay={2} height={'30px'} />
-          &nbsp;&nbsp;
-          <SkeletonElement delay={3} height={'30px'} />
-          &nbsp;&nbsp;
-          <SkeletonElement delay={4} height={'30px'} />
-        </SkeletonContainer>
-      );
-    }
+    // if (
+    //   uiStore.caseDataState === asyncStates.STARTED ||
+    //   uiStore.aggCaseDataState === asyncStates.STARTED
+    // ) {
+    //   return (
+    //     <SkeletonContainer>
+    //       <SkeletonElement delay={2} height={'30px'} />
+    //       &nbsp;&nbsp;
+    //       <SkeletonElement delay={3} height={'30px'} />
+    //       &nbsp;&nbsp;
+    //       <SkeletonElement delay={4} height={'30px'} />
+    //     </SkeletonContainer>
+    //   );
+    // }
 
     return (
       <DataTableOptions>

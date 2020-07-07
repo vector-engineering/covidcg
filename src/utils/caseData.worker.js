@@ -1,6 +1,12 @@
 import initialCaseData from '../../data/case_data.json';
 import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
 import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
+import {
+  warmColors,
+  coolColors,
+  snpColorArray,
+  incrementColor,
+} from '../constants/colors';
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
@@ -17,6 +23,34 @@ const processedCaseData = _.map(initialCaseData, (row) => {
 // function loadCaseData() {
 //   return processedCaseData;
 // }
+
+let _warmColors = Object.assign({}, warmColors);
+let _coolColors = Object.assign({}, coolColors);
+let _snpColorArray = [...snpColorArray];
+
+function iterateAndGetColor(colorobj, iter, i = 0) {
+  if (i < iter) {
+    return iterateAndGetColor(colorobj.child, iter, i + 1);
+  } else {
+    colorobj.colors.push(incrementColor(colorobj.colors.shift(), 1));
+    return colorobj.colors[0];
+  }
+}
+
+const getColor = _.memoize((group) => {
+  const match = group.match(/\./g);
+  const dots = match ? match.length : 0;
+  if (group.charAt(0) === 'A') {
+    return iterateAndGetColor(_warmColors, dots);
+  } else if (group.charAt(0) === 'B') {
+    return iterateAndGetColor(_coolColors, dots);
+  }
+});
+
+const getSnpColor = _.memoize(() => {
+  _snpColorArray.push(incrementColor(_snpColorArray.shift(), 1));
+  return _snpColorArray[0];
+});
 
 function convertToObj(list) {
   const obj = {};
@@ -169,15 +203,23 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     });
   }
 
+  let getColorMethod = getColor;
+
+  if (groupKey === 'snp') {
+    getColorMethod = getSnpColor;
+  }
+
   // Expand obj of objs back into a list of objects
   let aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((group) => {
     let dates = Object.keys(aggCaseData[group]);
     dates.forEach((date) => {
+      const color = getColorMethod(group);
       aggCaseDataList.push({
         group: group,
         date: date,
         cases_sum: aggCaseData[group][date],
+        color,
       });
     });
   });
@@ -200,13 +242,49 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 }) {
+  const lineageCountObj = {};
+  console.log(caseData);
+  caseData.forEach((row) => {
+    if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
+    else {
+      lineageCountObj[row.group] = row.cases_sum;
+    }
+  });
+
+  const MAX_LINEAGE_SIZE = 10;
+  let groupsToKeepObj;
+  console.log(
+    'lineage count obj: ',
+    lineageCountObj,
+    Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
+  );
+  if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
+    let lineageCountArr = Object.entries(lineageCountObj);
+
+    // this will sort it so that 0 is the biggest
+    lineageCountArr.sort((a, b) => {
+      if (a[1] < b[1]) {
+        return 1;
+      }
+      if (a[1] > b[1]) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
+    console.log('lineage count arr', lineageCountArr);
+    groupsToKeepObj = Object.fromEntries(lineageCountArr);
+    console.log('groups to keep', groupsToKeepObj);
+  }
+
   // Aggregate case data by clade only (no dates)
   let caseDataAggGroup = {};
   let totalCaseCount = 0;
 
   // Filter by date
   caseData = filterByDate(caseData, dateRange);
-  console.log(caseData.length, 'rows remaining after date filtering');
 
   caseData.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, row.group)) {
@@ -429,6 +507,7 @@ function aggCaseDataByGroup({
   return {
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
+    groupsToKeepObj,
   };
 }
 
