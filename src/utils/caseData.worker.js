@@ -73,6 +73,17 @@ function filterByLocation(caseData, locationIds) {
   });
 }
 
+function getParent(group) {
+  let result = group.split('.');
+  if (result.length < 1) {
+    return 'root_node';
+  }
+  result.pop();
+
+  result = result.join('.');
+  return result;
+}
+
 function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
   // Don't need to do this if we're grouping by lineage
   if (groupKey === 'lineage') {
@@ -457,7 +468,6 @@ function aggCaseDataByGroup({
           }
         }
       }
-
       caseDataAggGroup[row]['pos_' + pos.toString()] = alt_base;
     });
   });
@@ -472,6 +482,13 @@ function aggCaseDataByGroup({
   Object.keys(caseDataAggGroup).forEach((group) => {
     caseDataAggGroup[group]['group'] = group;
     caseDataAggGroup[group]['color'] = getColorMethod(group);
+    const parentkey = getParent(group);
+    if (caseDataAggGroup[parentkey] && parentkey !== group) {
+      caseDataAggGroup[group].parent = parentkey;
+    } else {
+      caseDataAggGroup[group].parent = 'root_node';
+    }
+    caseDataAggGroup[group].id = group;
   });
   caseDataAggGroup = Object.values(caseDataAggGroup);
 
