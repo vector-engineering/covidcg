@@ -33,6 +33,7 @@ class ObservableCovidStore {
   @observable caseDataAggGroup = [];
   @observable dateRange = [];
   @observable selectedRows = [];
+  @observable groupsToKeep = {};
 
   constructor() {
     // Select the Spike gene by default
@@ -75,7 +76,8 @@ class ObservableCovidStore {
             dnaOrAa: toJS(initialDnaOrAa),
             dateRange: toJS(initialDateRange),
           },
-          ({ changingPositions, caseDataAggGroup }) => {
+          ({ changingPositions, caseDataAggGroup, groupsToKeepObj }) => {
+            this.groupsToKeep = groupsToKeepObj;
             this.groupKey = initialGroupKey;
             this.dnaOrAa = initialDnaOrAa;
             this.genes = loadGeneOptions();
@@ -153,10 +155,11 @@ class ObservableCovidStore {
         dnaOrAa: toJS(this.dnaOrAa),
         dateRange: toJS(this.dateRange),
       },
-      ({ caseDataAggGroup, changingPositions }) => {
+      ({ caseDataAggGroup, changingPositions, groupsToKeepObj }) => {
         // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
+        this.groupsToKeep = groupsToKeepObj;
         console.log('AGG_CASE_DATA FINISHED');
 
         suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();

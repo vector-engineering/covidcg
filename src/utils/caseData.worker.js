@@ -242,13 +242,49 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 }) {
+  const lineageCountObj = {};
+  console.log(caseData);
+  caseData.forEach((row) => {
+    if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
+    else {
+      lineageCountObj[row.group] = row.cases_sum;
+    }
+  });
+
+  const MAX_LINEAGE_SIZE = 10;
+  let groupsToKeepObj;
+  console.log(
+    'lineage count obj: ',
+    lineageCountObj,
+    Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
+  );
+  if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
+    let lineageCountArr = Object.entries(lineageCountObj);
+
+    // this will sort it so that 0 is the biggest
+    lineageCountArr.sort((a, b) => {
+      if (a[1] < b[1]) {
+        return 1;
+      }
+      if (a[1] > b[1]) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
+    console.log('lineage count arr', lineageCountArr);
+    groupsToKeepObj = Object.fromEntries(lineageCountArr);
+    console.log('groups to keep', groupsToKeepObj);
+  }
+
   // Aggregate case data by clade only (no dates)
   let caseDataAggGroup = {};
   let totalCaseCount = 0;
 
   // Filter by date
   caseData = filterByDate(caseData, dateRange);
-  console.log(caseData.length, 'rows remaining after date filtering');
 
   caseData.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, row.group)) {
@@ -478,6 +514,7 @@ function aggCaseDataByGroup({
   return {
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
+    groupsToKeepObj,
   };
 }
 
