@@ -498,9 +498,16 @@ function aggCaseDataByGroup({
     });
   });
 
+  let getColorMethod = getColor;
+
+  if (groupKey === 'snp') {
+    getColorMethod = getSnpColor;
+  }
+
   // Object -> List of records
   Object.keys(caseDataAggGroup).forEach((group) => {
     caseDataAggGroup[group]['group'] = group;
+    caseDataAggGroup[group]['color'] = getColorMethod(group);
   });
   caseDataAggGroup = Object.values(caseDataAggGroup);
 
