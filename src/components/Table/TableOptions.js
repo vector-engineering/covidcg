@@ -6,8 +6,6 @@ import { capitalize } from '../../utils/string';
 import { connect, useStores } from '../../stores/connect';
 
 import DropdownButton from '../Buttons/DropdownButton';
-import SkeletonElement from '../SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
 import { observer } from 'mobx-react';
 
 const ColorModeSelectLabel = styled.label`
@@ -168,14 +166,6 @@ const Spacer = styled.div`
   flex-grow: 1;
 `;
 
-const SkeletonContainer = styled.div`
-  display: flex;
-  padding-top: 28px;
-  padding-bottom: 28px;
-  padding-left: 12px;
-  padding-right: 24px;
-`;
-
 const TableOptions = observer(
   ({
     handleColorModeChange,
@@ -185,7 +175,7 @@ const TableOptions = observer(
     compareMode,
     compareColor,
   }) => {
-    const { covidStore, uiStore } = useStores();
+    const { covidStore } = useStores();
 
     const handleDownloadSelect = (option) => {
       if (option === 'Acknowledgements') {
@@ -194,21 +184,6 @@ const TableOptions = observer(
         covidStore.downloadAggCaseData();
       }
     };
-
-    // if (
-    //   uiStore.caseDataState === asyncStates.STARTED ||
-    //   uiStore.aggCaseDataState === asyncStates.STARTED
-    // ) {
-    //   return (
-    //     <SkeletonContainer>
-    //       <SkeletonElement delay={2} height={'30px'} />
-    //       &nbsp;&nbsp;
-    //       <SkeletonElement delay={3} height={'30px'} />
-    //       &nbsp;&nbsp;
-    //       <SkeletonElement delay={4} height={'30px'} />
-    //     </SkeletonContainer>
-    //   );
-    // }
 
     return (
       <DataTableOptions>

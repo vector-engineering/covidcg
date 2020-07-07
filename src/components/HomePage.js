@@ -3,13 +3,10 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
-import { toJS } from 'mobx';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
 import DropdownContainer from './DropdownContainer';
-
-import { VegaLite } from 'react-vega';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
