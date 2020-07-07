@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-"""Process sequence metadata
+"""Generate main case data file for the UI
+
 Author: Albert Chen (Deverman Lab, Broad Institute)
 """
 
