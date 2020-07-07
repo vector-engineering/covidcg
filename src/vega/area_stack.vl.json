@@ -45,9 +45,9 @@
           }
         },
         "color": {
-          "field": "group",
+          "field": "color",
           "type": "nominal",
-          "scale": { "scheme": "tableau20" },
+          "scale": null,
           "legend": null
         },
         "opacity": {
@@ -70,7 +70,8 @@
             "field": "cases_sum",
             "title": "Sequences",
             "type": "quantitative"
-          }
+          },
+          { "field": "color", "title": "color", "type": "nominal" }
         ]
       }
     },
