@@ -75,7 +75,7 @@ AccordionWrapper.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
-  maxHeight: PropTypes.number.isRequired,
+  maxHeight: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   defaultCollapsed: PropTypes.bool.isRequired,
 };
