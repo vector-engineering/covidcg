@@ -257,6 +257,9 @@ const NewLineageDataTable = observer(() => {
         if (covidStore.dnaOrAa === 'dna') {
           pos += 1;
         }
+        if (covidStore.groupKey === 'snp' && covidStore.dnaOrAa === 'aa') {
+          pos += 1;
+        }
 
         _columns.push(
           getSinglePosColumn({
