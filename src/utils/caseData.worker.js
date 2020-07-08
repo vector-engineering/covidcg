@@ -1,6 +1,6 @@
-import initialCaseData from '../../data/case_data.json';
+import initialCaseData from '../../data/case_data2.json';
 import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
-import { loadLineageDnaSnp, loadLineageAaSnp } from './lineageData';
+import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
 import {
   warmColors,
   coolColors,
@@ -10,11 +10,11 @@ import {
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
-  row.sample_date = new Date(row.sample_date).getTime();
+  row.collection_date = new Date(row.collection_date).getTime();
 
   // Floor at 2020-01-01
-  if (row.sample_date < 1577836800000) {
-    row.sample_date = 1577836800000;
+  if (row.collection_date < 1577836800000) {
+    row.collection_date = 1577836800000;
   }
 
   return row;
@@ -204,13 +204,13 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
       if (
         !Object.prototype.hasOwnProperty.call(
           aggCaseData[_groupKey],
-          row.sample_date
+          row.collection_date
         )
       ) {
-        aggCaseData[_groupKey][row.sample_date] = 0;
+        aggCaseData[_groupKey][row.collection_date] = 0;
       }
       // Add case count
-      aggCaseData[_groupKey][row.sample_date] += 1;
+      aggCaseData[_groupKey][row.collection_date] += 1;
     });
   }
 
@@ -253,13 +253,48 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 }) {
+  const lineageCountObj = {};
+  caseData.forEach((row) => {
+    if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
+    else {
+      lineageCountObj[row.group] = row.cases_sum;
+    }
+  });
+
+  const MAX_LINEAGE_SIZE = 10;
+  let groupsToKeepObj;
+  console.log(
+    'lineage count obj: ',
+    lineageCountObj,
+    Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
+  );
+  if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
+    let lineageCountArr = Object.entries(lineageCountObj);
+
+    // this will sort it so that 0 is the biggest
+    lineageCountArr.sort((a, b) => {
+      if (a[1] < b[1]) {
+        return 1;
+      }
+      if (a[1] > b[1]) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
+    console.log('lineage count arr', lineageCountArr);
+    groupsToKeepObj = Object.fromEntries(lineageCountArr);
+    console.log('groups to keep', groupsToKeepObj);
+  }
+
   // Aggregate case data by clade only (no dates)
   let caseDataAggGroup = {};
   let totalCaseCount = 0;
 
   // Filter by date
   caseData = filterByDate(caseData, dateRange);
-  console.log(caseData.length, 'rows remaining after date filtering');
 
   caseData.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, row.group)) {
@@ -282,43 +317,39 @@ function aggCaseDataByGroup({
   let changingPositions = {};
   // If we grouped by lineages, then we need to find what SNPs
   // the lineages correspond to, and add their SNP positions
-  let lineageSnpData;
   if (groupKey === 'lineage') {
-    lineageSnpData =
-      dnaOrAa === 'dna' ? loadLineageDnaSnp() : loadLineageAaSnp();
+    let lineageSnpFunc =
+      dnaOrAa === 'dna' ? getDnaSnpsFromLineage : getAaSnpsFromLineage;
 
     // For each lineage, add its changing positions
     Object.keys(caseDataAggGroup).forEach((lineage) => {
-      let lineageSnps = _.filter(
-        lineageSnpData,
-        (row) => row.lineage == lineage && row.group != 'Reference'
-      );
+      let lineageSnps = lineageSnpFunc(lineage);
 
       if (dnaOrAa === 'dna') {
-        lineageSnps.forEach((row) => {
-          if (row.pos > selectedGene.start && row.pos < selectedGene.end) {
+        lineageSnps.forEach((snp) => {
+          if (snp.pos > selectedGene.start && snp.pos < selectedGene.end) {
             // positions are 1-indexed in the input file
             if (
               !Object.prototype.hasOwnProperty.call(
                 changingPositions,
-                row.pos - 1
+                snp.pos - 1
               )
             ) {
-              changingPositions[row.pos - 1] = {};
-              changingPositions[row.pos - 1]['ref'] = row.ref;
+              changingPositions[snp.pos - 1] = {};
+              changingPositions[snp.pos - 1]['ref'] = snp.ref;
             }
           }
         });
       } else {
-        lineageSnps.forEach((row) => {
-          if (row.gene === selectedGene.gene) {
+        lineageSnps.forEach((snp) => {
+          if (snp.gene === selectedGene.gene) {
             // positions are 0-indexed in the input file
             if (
-              !Object.prototype.hasOwnProperty.call(changingPositions, row.pos)
+              !Object.prototype.hasOwnProperty.call(changingPositions, snp.pos)
             ) {
-              changingPositions[row.pos] = {};
-              changingPositions[row.pos]['gene'] = row.gene;
-              changingPositions[row.pos]['ref'] = row.ref;
+              changingPositions[snp.pos] = {};
+              changingPositions[snp.pos]['gene'] = snp.gene;
+              changingPositions[snp.pos]['ref'] = snp.ref;
             }
           }
         });
@@ -423,30 +454,32 @@ function aggCaseDataByGroup({
     });
   }
 
-  Object.keys(caseDataAggGroup).forEach((row) => {
+  Object.keys(caseDataAggGroup).forEach((group) => {
     Object.keys(changingPositions).forEach((pos) => {
       ref_base = changingPositions[pos]['ref'];
       alt_base = ref_base; // Default to same as reference
       pos = parseInt(pos);
 
       // Ignore finding alternate bases for the ref sequence
-      if (row === 'Reference') {
+      if (group === 'Reference') {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
       // to find a potential SNP at this location
       else if (groupKey === 'lineage') {
-        lineageSnpData =
-          dnaOrAa === 'dna' ? loadLineageDnaSnp() : loadLineageAaSnp();
+        let lineageSnpFunc =
+          dnaOrAa === 'dna' ? getDnaSnpsFromLineage : getAaSnpsFromLineage;
+        let lineageSnps = lineageSnpFunc(group);
+
         if (dnaOrAa === 'dna') {
           // The DNA SNPs are 0-indexed, so +1 to make it 1-indexed
-          snpRow = _.findWhere(lineageSnpData, { lineage: row, pos: pos + 1 });
+          snpRow = _.findWhere(lineageSnps, { pos: pos + 1 });
           if (snpRow !== undefined) {
             alt_base = snpRow.alt;
           }
         } else {
           // The AA SNPs are already 0-indexed
-          snpRow = _.findWhere(lineageSnpData, { lineage: row, pos: pos });
+          snpRow = _.findWhere(lineageSnps, { pos: pos });
           if (snpRow !== undefined) {
             alt_base = snpRow.alt;
           }
@@ -457,18 +490,19 @@ function aggCaseDataByGroup({
       else if (groupKey === 'snp') {
         // DNA SNP string: pos|ref|alt
         if (dnaOrAa === 'dna') {
-          if (pos === caseDataAggGroup[row]['pos'] - 1) {
-            alt_base = caseDataAggGroup[row]['alt'];
+          if (pos === caseDataAggGroup[group]['pos'] - 1) {
+            alt_base = caseDataAggGroup[group]['alt'];
           }
         }
         // AA SNP string: gene|pos|ref|alt
         else {
-          if (pos === caseDataAggGroup[row]['pos'] - 1) {
-            alt_base = caseDataAggGroup[row]['alt'];
+          if (pos === caseDataAggGroup[group]['pos'] - 1) {
+            alt_base = caseDataAggGroup[group]['alt'];
           }
         }
       }
-      caseDataAggGroup[row]['pos_' + pos.toString()] = alt_base;
+
+      caseDataAggGroup[group]['pos_' + pos.toString()] = alt_base;
     });
   });
 
@@ -495,6 +529,7 @@ function aggCaseDataByGroup({
   return {
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
+    groupsToKeepObj,
   };
 }
 

@@ -4,6 +4,8 @@
 Author: Albert Chen (Deverman Lab, Broad Institute)
 '''
 
+from pathlib import Path
+
 def translate(seq): 
     '''Original source code from https://www.geeksforgeeks.org/dna-protein-python-3/
     Translates DNA to amino acid based on standard codon table
@@ -44,3 +46,18 @@ def translate(seq):
         protein = '*'
 
     return protein
+
+
+
+# Thanks to user "rtaft" from https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python
+def human_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '({}{})'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+
+project_root_path = Path(__file__).resolve().parent.parent
+data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path

@@ -73,6 +73,5 @@ ipython_config.py
 # Ignore PDBs
 pymol/pdbs/**/*
 
-# Ignore data and figures generated from notebooks
-notebooks/*.csv
-notebooks/*.png
+# Ignore all notebooks
+notebooks/**

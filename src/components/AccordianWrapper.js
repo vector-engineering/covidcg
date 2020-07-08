@@ -12,6 +12,7 @@ const LegendAndButtonWrapper = styled.div`
 `;
 
 const LegendContainer = styled.div`
+  width: 100%;
   padding: 4px 6px;
   transition: max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   align-self: center;
@@ -48,7 +49,7 @@ const Title = styled.div`
 const AccordianWrapper = ({ children, maxHeight, title, defaultCollapsed }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       <Title>
         <CollapseButton
           onClick={() => {

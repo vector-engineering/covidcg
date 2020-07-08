@@ -10,8 +10,6 @@ import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
 import DropdownContainer from './DropdownContainer';
 
-import { VegaLite } from 'react-vega';
-
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
@@ -25,6 +23,8 @@ import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './VegaLegend';
 import VegaTree from './VegaTree';
 import AccordianWrapper from './AccordianWrapper';
+import VegaWrapper from './VegaWrapper';
+import AcknowledgementsTable from './AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -51,7 +51,10 @@ const PlotContainer = styled.div`
   grid-column: col2 / col3;
   grid-row: row1 / row2;
 
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  max-height: 100vh;
   box-sizing: border-box;
 
   padding-left: 10px;
@@ -88,6 +91,17 @@ const AreaStackSelectContainer = styled.div`
     padding: 1px 4px;
     border-radius: 3px;
   }
+`;
+
+const Footer = styled.div`
+  display: flex;
+  background-color: #f8f8f8;
+
+  margin-left: -10px;
+  padding: 5px;
+  border-top: 1px solid #ccc;
+
+  font-size: 0.85rem;
 `;
 
 const AreaStackModeSelect = ({ mode, onChange }) => {
@@ -186,7 +200,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           maxHeight={'1200px'}
         >
           <div style={{ width: `${width}px` }}>
-            <VegaLite
+            <VegaWrapper
               data={{
                 case_data: covidStore.caseData,
               }}
@@ -238,9 +252,18 @@ const HomePage = observer(({ covidStore, uiStore }) => {
               onChange={onChangeAreaStackMode}
             />
           </PlotOptions>
-          <VegaLegend />
+          <br />
+          <AccordianWrapper
+            title="legend"
+            defaultCollapsed={false}
+            maxHeight={'500px'}
+          >
+            <VegaLegend />
+          </AccordianWrapper>
           {renderPlotContent()}
-          <VegaTree width={width} data={covidStore.caseDataAggGroup} />
+          {covidStore.groupKey === 'lineage' && (
+            <VegaTree width={width} data={covidStore.caseDataAggGroup} />
+          )}
 
           <AccordianWrapper
             title="table"
@@ -249,6 +272,34 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           >
             <DataTableContainer />
           </AccordianWrapper>
+          <AccordianWrapper
+            title="acknowledgements"
+            defaultCollapsed={true}
+            maxHeight={'1200px'}
+          >
+            <AcknowledgementsTable />
+          </AccordianWrapper>
+
+          <Footer>
+            <div className="gisaid-daa">
+              Data use subject to the{' '}
+              <a
+                href="https://www.gisaid.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GISAID
+              </a>{' '}
+              EpiCov™{' '}
+              <a
+                href="https://www.gisaid.org/registration/terms-of-use/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Database Access Agreement
+              </a>
+            </div>
+          </Footer>
         </PlotContainer>
       </HomePageDiv>
     </>
