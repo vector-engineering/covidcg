@@ -57,6 +57,8 @@ const AcknowledgementsTable = observer(() => {
     let ackIds = _.pluck(covidStore.selectedRows, 'ack_id');
     // Get unique acknowledgement IDs
     ackIds = Array.from(new Set(ackIds));
+    // Remove null IDs
+    ackIds = _.reject(ackIds, (ackId) => ackId == -1);
 
     // Get the list of selected Accession IDs, and map to
     // acknowledgement texts

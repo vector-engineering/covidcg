@@ -8,6 +8,10 @@ export function getAckTextsFromAckIds(ackIds) {
   // For each acknowledgement ID, return a object representing the
   // acknowledgement text
   return _.map(ackIds, (ackId) => {
+    if (ackId == -1) {
+      return {};
+    }
+
     return ackIdToAckText[ackId];
   });
 }
