@@ -21,7 +21,7 @@ import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './VegaLegend';
 import VegaTree from './VegaTree';
-import AccordianWrapper from './AccordianWrapper';
+import AccordionWrapper from './AccordionWrapper';
 import VegaWrapper from './VegaWrapper';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
@@ -194,7 +194,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
       );
     } else {
       return (
-        <AccordianWrapper
+        <AccordionWrapper
           title="plot"
           defaultCollapsed={false}
           maxHeight={'1200px'}
@@ -210,7 +210,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
               }}
             />
           </div>
-        </AccordianWrapper>
+        </AccordionWrapper>
       );
     }
   };
@@ -253,32 +253,32 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             />
           </PlotOptions>
           <br />
-          <AccordianWrapper
+          <AccordionWrapper
             title="legend"
             defaultCollapsed={false}
             maxHeight={'500px'}
           >
             <VegaLegend />
-          </AccordianWrapper>
+          </AccordionWrapper>
           {renderPlotContent()}
           {covidStore.groupKey === 'lineage' && (
             <VegaTree width={width} data={covidStore.caseDataAggGroup} />
           )}
 
-          <AccordianWrapper
+          <AccordionWrapper
             title="table"
             defaultCollapsed={false}
             maxHeight={'1200px'}
           >
             <DataTableContainer />
-          </AccordianWrapper>
-          <AccordianWrapper
+          </AccordionWrapper>
+          <AccordionWrapper
             title="acknowledgements"
             defaultCollapsed={true}
             maxHeight={'1200px'}
           >
             <AcknowledgementsTable />
-          </AccordianWrapper>
+          </AccordionWrapper>
 
           <Footer>
             <div className="gisaid-daa">

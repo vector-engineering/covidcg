@@ -47,7 +47,7 @@ const Title = styled.div`
   display: flex;
 `;
 
-const AccordianWrapper = ({ children, maxHeight, title, defaultCollapsed }) => {
+const AccordionWrapper = ({ children, maxHeight, title, defaultCollapsed }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   return (
     <div style={{ width: '100%' }}>
@@ -70,7 +70,7 @@ const AccordianWrapper = ({ children, maxHeight, title, defaultCollapsed }) => {
   );
 };
 
-AccordianWrapper.propTypes = {
+AccordionWrapper.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
@@ -80,4 +80,4 @@ AccordianWrapper.propTypes = {
   defaultCollapsed: PropTypes.bool.isRequired,
 };
 
-export default AccordianWrapper;
+export default AccordionWrapper;

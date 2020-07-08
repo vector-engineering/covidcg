@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Vega } from 'react-vega';
 import { toJS } from 'mobx';
-import AccordianWrapper from './AccordianWrapper';
+import AccordionWrapper from './AccordionWrapper';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import { useStores } from '../stores/connect';
@@ -154,7 +154,7 @@ const VegaTree = ({ data, width }) => {
   // console.log(_data);
 
   return (
-    <AccordianWrapper
+    <AccordionWrapper
       defaultCollapsed={true}
       maxHeight={'1200px'}
       title={'tree'}
@@ -162,7 +162,7 @@ const VegaTree = ({ data, width }) => {
       <StyledTree>
         <Vega spec={vegaSpec} signalListeners={{}} />
       </StyledTree>
-    </AccordianWrapper>
+    </AccordionWrapper>
   );
 };
 
