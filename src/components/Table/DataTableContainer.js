@@ -284,15 +284,15 @@ const NewLineageDataTable = observer(() => {
     let positionTitleOffset = 0;
     let posColOffset = 0;
     if (covidStore.groupKey === 'lineage') {
-      positionTitleOffset = 250;
-      posColOffset = 5;
+      positionTitleOffset = 220;
+      posColOffset = 4;
     } else if (covidStore.groupKey === 'snp') {
       if (covidStore.dnaOrAa === 'dna') {
-        positionTitleOffset = 310;
-        posColOffset = 7;
+        positionTitleOffset = 280;
+        posColOffset = 6;
       } else {
-        positionTitleOffset = 360;
-        posColOffset = 8;
+        positionTitleOffset = 325;
+        posColOffset = 7;
       }
     }
 

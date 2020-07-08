@@ -157,12 +157,12 @@ export const getDefaultColumns = ({
       );
     },
   },
-  {
-    name: 'Show structure',
-    key: null,
-    sortable: false,
-    width: 40,
-    frozen: true,
-    formatter: (val) => <AddToSidepanelCheckbox groupKey={val.row.group} />,
-  },
+  // {
+  //   name: 'Show structure',
+  //   key: null,
+  //   sortable: false,
+  //   width: 40,
+  //   frozen: true,
+  //   formatter: (val) => <AddToSidepanelCheckbox groupKey={val.row.group} />,
+  // },
 ];

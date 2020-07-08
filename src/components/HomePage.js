@@ -227,7 +227,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   return (
     <>
       <HomePageDiv>
-        <SideBar />
+        {/* <SideBar /> */}
         <FilterSidebar>
           <Header />
           <GroupBySelect
