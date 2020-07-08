@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
-import { toJS } from 'mobx';
 import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
@@ -126,7 +125,7 @@ AreaStackModeSelect.propTypes = {
 const HomePage = observer(({ covidStore, uiStore }) => {
   // 'percentages' or 'counts'
   const [areaStackMode, setAreaStackMode] = useState('percentages');
-  const [ref, { x, y, width }] = useDimensions();
+  const [ref, { width }] = useDimensions();
 
   const handleGroupingChange = (groupKey, dnaOrAa) => {
     covidStore.changeGrouping(groupKey, dnaOrAa);

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Vega } from 'react-vega';
 import { toJS } from 'mobx';
@@ -150,7 +151,7 @@ const VegaTree = ({ data, width }) => {
     ],
   };
 
-  console.log(_data);
+  // console.log(_data);
 
   return (
     <AccordianWrapper
@@ -163,6 +164,11 @@ const VegaTree = ({ data, width }) => {
       </StyledTree>
     </AccordianWrapper>
   );
+};
+
+VegaTree.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  width: PropTypes.number.isRequired,
 };
 
 export default VegaTree;

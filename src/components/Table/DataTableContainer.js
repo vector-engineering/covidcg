@@ -293,7 +293,7 @@ const NewLineageDataTable = observer(() => {
       }
     }
 
-    console.log(state.sortColumn, state.sortDirection, columns);
+    // console.log(state.sortColumn, state.sortDirection, columns);
 
     return (
       <>

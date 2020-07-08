@@ -99,8 +99,6 @@ const AcknowledgementsTable = observer(() => {
     });
   };
 
-  console.log(state.rows);
-
   return (
     <AckContainer>
       <DataGrid
