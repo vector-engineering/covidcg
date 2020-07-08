@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { Vega } from 'react-vega';
 import { toJS } from 'mobx';
 import AccordianWrapper from './AccordianWrapper';
+import { asyncStates } from '../stores/uiStore';
+import SkeletonElement from './SkeletonElement';
+import { useStores } from '../stores/connect';
 
 const StyledTree = styled.div`
   .vega-bindings {
@@ -15,15 +18,22 @@ const StyledTree = styled.div`
 
 const VegaTree = ({ data, width }) => {
   const _data = [...toJS(data)];
-  _data.push({
-    id: 'root_node',
-    name: 'root node',
-    cases_percent: null,
-    cases_sum: null,
-    group: 'root_node',
-  });
+  const { uiStore } = useStores();
 
-  console.log(width - 200);
+  if (uiStore.caseDataState === asyncStates.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '0px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '0px',
+        }}
+      >
+        <SkeletonElement delay={1} height={'50px'} />
+      </div>
+    );
+  }
 
   const vegaSpec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
@@ -35,27 +45,17 @@ const VegaTree = ({ data, width }) => {
 
     signals: [
       {
-        name: 'labels',
-        value: true,
-        bind: { input: 'checkbox' },
-      },
-      {
         name: 'layout',
         value: 'tidy',
         bind: { input: 'radio', options: ['tidy', 'cluster'] },
       },
       {
         name: 'links',
-        value: 'orthogonal',
+        value: 'line',
         bind: {
           input: 'select',
           options: ['line', 'curve', 'diagonal', 'orthogonal'],
         },
-      },
-      {
-        name: 'separation',
-        value: true,
-        bind: { input: 'checkbox' },
       },
     ],
 
@@ -73,7 +73,7 @@ const VegaTree = ({ data, width }) => {
             type: 'tree',
             method: { signal: 'layout' },
             size: [{ signal: 'height' }, { signal: 'width' }],
-            separation: { signal: 'separation' },
+            separation: true,
             as: ['y', 'x', 'depth', 'children'],
           },
         ],
@@ -110,6 +110,7 @@ const VegaTree = ({ data, width }) => {
           update: {
             path: { field: 'path' },
             stroke: { value: '#ccc' },
+            strokeWidth: 12,
           },
         },
       },
@@ -124,7 +125,7 @@ const VegaTree = ({ data, width }) => {
           update: {
             x: { field: 'x' },
             y: { field: 'y' },
-            fill: { scale: 'color', field: 'depth' },
+            fill: { field: 'color' },
           },
         },
       },
@@ -142,7 +143,7 @@ const VegaTree = ({ data, width }) => {
             y: { field: 'y' },
             dx: { signal: 'datum.children ? -7 : 7' },
             align: { signal: "datum.children ? 'right' : 'left'" },
-            opacity: { signal: 'labels ? 1 : 0' },
+            opacity: { signal: '1' },
           },
         },
       },

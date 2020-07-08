@@ -94,6 +94,7 @@ const AreaStackSelectContainer = styled.div`
 `;
 
 const Footer = styled.div`
+  margin-top: auto;
   display: flex;
   background-color: #f8f8f8;
 

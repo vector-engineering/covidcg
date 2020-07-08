@@ -519,9 +519,10 @@ function aggCaseDataByGroup({
     const parentkey = getParent(group);
     if (caseDataAggGroup[parentkey] && parentkey !== group) {
       caseDataAggGroup[group].parent = parentkey;
-    } else {
-      caseDataAggGroup[group].parent = 'root_node';
+    } else if (group !== 'Reference') {
+      caseDataAggGroup[group].parent = 'Reference';
     }
+    caseDataAggGroup[group].name = group;
     caseDataAggGroup[group].id = group;
   });
   caseDataAggGroup = Object.values(caseDataAggGroup);
