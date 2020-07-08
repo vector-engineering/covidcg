@@ -104,8 +104,8 @@ def process_location_data(case_df):
     select_tree = build_select_tree(location_df, unique_location_df)
 
     # Re-apply Accession ID index
-    location_df['Accession ID'] = case_df['Accession ID']
-    location_df = location_df.set_index('Accession ID')
+    location_df["Accession ID"] = case_df["Accession ID"]
+    location_df = location_df.set_index("Accession ID")
 
     return location_df, unique_location_df
 
@@ -142,6 +142,12 @@ def clean_location_data(location_df):
         ),
         # Fix typos
         ({"country": "Marocco"}, {"country": "Morocco"}),
+        # SENEGAL
+        # -------
+        (
+            {"country": "Senegal", "division": ["St Louis", "St Louis (RTL)"]},
+            {"division": "St-Louis"},
+        ),
         # SOUTH AFRICA
         # ------------
         # Unabbreviate province names
@@ -157,6 +163,9 @@ def clean_location_data(location_df):
         # ----
         # Fix typos
         ({"region": "Asian"}, {"region": "Asia"}),
+        # BANGLADESH
+        # ----------
+        ({"country": "Bangladesh", "division": "Ragshahi"}, {"division": "Rajshahi"}),
         # CHINA
         # -----
         # Move NanChang into Jiangxi province
@@ -236,12 +245,144 @@ def clean_location_data(location_df):
             {"country": "India", "division": "Mumbai"},
             {"division": "Maharashtra", "location": "Mumbai"},
         ),
+        # MP -> Madhya Pradesh
+        ({"country": "India", "division": "MP"}, {"division": "Madhya Pradesh"}),
         # ISRAEL
         # ------
+        # Fix typos
+        ({"country": "ISRAEL"}, {"country": "Israel"}),
         # South Coast District --> South District
         (
-            {"country": "Israel", "division": "South Coast District"},
+            {
+                "country": "Israel",
+                "division": ["South Coast District", "Southern District"],
+            },
             {"division": "South District"},
+        ),
+        # Move cities into districts
+        (
+            {"country": "Israel", "division": ["ELAD"]},
+            {"division": "Center District", "location": "El'ad"},
+        ),
+        (
+            {"country": "Israel", "division": ["GANI TIKVA"]},
+            {"division": "Center District", "location": "Ganei Tikva"},
+        ),
+        (
+            {"country": "Israel", "division": ["GEDERA"]},
+            {"division": "Center District", "location": "Gedera"},
+        ),
+        (
+            {"country": "Israel", "division": ["KFAR-HABAD"]},
+            {"division": "Center District", "location": "Kfar Chabad"},
+        ),
+        (
+            {"country": "Israel", "division": ["NETANYA"]},
+            {"division": "Center District", "location": "Netanya"},
+        ),
+        (
+            {"country": "Israel", "division": ["PARDESIA"]},
+            {"division": "Center District", "location": "Pardesia"},
+        ),
+        (
+            {"country": "Israel", "division": ["PETAH-TIKVA"]},
+            {"division": "Center District", "location": "Petah Tikva"},
+        ),
+        (
+            {"country": "Israel", "division": ["RAANANA"]},
+            {"division": "Center District", "location": "Ra'anana"},
+        ),
+        (
+            {"country": "Israel", "division": ["RAMLA"]},
+            {"division": "Center District", "location": "Ramla"},
+        ),
+        (
+            {"country": "Israel", "division": ["SHOAM"]},
+            {"division": "Center District", "location": "Shoham"},
+        ),
+        (
+            {"country": "Israel", "division": ["YAVNE"]},
+            {"division": "Center District", "location": "Yavne"},
+        ),
+        (
+            {"country": "Israel", "division": ["YEHUD"]},
+            {"division": "Center District", "location": "Yehud"},
+        ),
+        (
+            {"country": "Israel", "division": ["Kefar Sava"]},
+            {"division": "Center District", "location": "Kfar Saba"},
+        ),
+        (
+            {"country": "Israel", "division": ["HAIFA"]},
+            {"division": "Haifa District", "location": "Haifa"},
+        ),
+        (
+            {"country": "Israel", "division": ["BEIT SHEMESH"]},
+            {"division": "Jerusalem District", "location": "Beit Shemesh"},
+        ),
+        (
+            {"country": "Israel", "division": ["JERUSALEM"]},
+            {"division": "Jerusalem District", "location": "Jerusalem"},
+        ),
+        (
+            {"country": "Israel", "division": ["ELKANA"]},
+            {"division": "Judea and Samaria Area", "location": "Elkana"},
+        ),
+        (
+            {"country": "Israel", "division": ["HUKUK"]},
+            {"division": "North District", "location": "Hukok"},
+        ),
+        (
+            {"country": "Israel", "division": ["MAALOT-TARSHICHA"]},
+            {"division": "North District", "location": "Ma'alot-Tarshiha"},
+        ),
+        (
+            {"country": "Israel", "division": ["TIRAT ZVI"]},
+            {"division": "North District", "location": "Tirat Zvi"},
+        ),
+        (
+            {"country": "Israel", "division": ["TVERIA"]},
+            {"division": "North District", "location": "Tiberias"},
+        ),
+        (
+            {"country": "Israel", "division": ["ZEFAT"]},
+            {"division": "North District", "location": "Safed"},
+        ),
+        (
+            {"country": "Israel", "division": ["ASHDOD"]},
+            {"division": "South District", "location": "Ashdod"},
+        ),
+        (
+            {"country": "Israel", "division": ["KIRYAT-GAT"]},
+            {"division": "South District", "location": "Kiryat Gat"},
+        ),
+        (
+            {"country": "Israel", "division": ["NETIVOT"]},
+            {"division": "South District", "location": "Netivot"},
+        ),
+        (
+            {"country": "Israel", "division": ["BAT-YAM"]},
+            {"division": "Tel Aviv District", "location": "Bat Yam"},
+        ),
+        (
+            {"country": "Israel", "division": ["BENI-BRAK"]},
+            {"division": "Tel Aviv District", "location": "Bnei Brak"},
+        ),
+        (
+            {"country": "Israel", "division": ["HOLON"]},
+            {"division": "Tel Aviv District", "location": "Holon"},
+        ),
+        (
+            {"country": "Israel", "division": ["KIRYAT ONO"]},
+            {"division": "Tel Aviv District", "location": "Kiryat Ono"},
+        ),
+        (
+            {"country": "Israel", "division": ["RAMAT-GAN", "Ramat Gan"]},
+            {"division": "Tel Aviv District", "location": "Ramat Gan"},
+        ),
+        (
+            {"country": "Israel", "division": ["TEL-AVIV"]},
+            {"division": "Tel Aviv District", "location": "Tel Aviv"},
         ),
         # JAPAN
         # -----
@@ -281,6 +422,7 @@ def clean_location_data(location_df):
         # -------
         # Fix typos
         ({"country": "Vietnam", "division": "Quangning"}, {"division": "Quangninh"}),
+        ({"country": "Vietnam", "division": "Thanh Hoa"}, {"division": "Thanhhoa"}),
         # BELGIUM
         # -------
         # Move Belgian cities into provinces
@@ -703,6 +845,20 @@ def clean_location_data(location_df):
         (
             {
                 "country": "Belgium",
+                "division": [
+                    "Kortenaken",
+                    "Hoeleden",
+                    "Kersbeek-Miskom",
+                    "Kersbeek-miskom",
+                    "Ransberg",
+                    "Waanrode",
+                ],
+            },
+            {"division": "Flemish Brabant", "location": "Kortenaken"},
+        ),
+        (
+            {
+                "country": "Belgium",
                 "division": ["Kortenberg", "Erps-Kwerps", "Everberg", "Meerbeek"],
             },
             {"division": "Flemish Brabant", "location": "Kortenberg"},
@@ -770,7 +926,21 @@ def clean_location_data(location_df):
             {"division": "Flemish Brabant", "location": "Machelen"},
         ),
         (
-            {"country": "Belgium", "division": "Scherpenheuvel-Zichem"},
+            {
+                "country": "Belgium",
+                "division": [
+                    "Scherpenheuvel-Zichem",
+                    "Scherpenheuvel-Zchem",
+                    "Averbode",
+                    "Messelbroek",
+                    "Okselaar",
+                    "Scherpenheuvel",
+                    "Schoonderbuken",
+                    "Keiberg",
+                    "Testelt",
+                    "Zichem",
+                ],
+            },
             {"division": "Flemish Brabant", "location": "Scherpenheuvel-Zichem"},
         ),
         (
@@ -778,7 +948,25 @@ def clean_location_data(location_df):
             {"division": "Flemish Brabant", "location": "Sint-Genesius-Rode"},
         ),
         (
-            {"country": "Belgium", "division": "Tervuren"},
+            {
+                "country": "Belgium",
+                "division": [
+                    "Steenokkerzeel",
+                    "Humelgem",
+                    "Wambeek",
+                    "Perk",
+                    "Huinhoven",
+                    "Boekt",
+                    "Melsbroek",
+                ],
+            },
+            {"division": "Flemish Brabant", "location": "Steenokkerzeel"},
+        ),
+        (
+            {
+                "country": "Belgium",
+                "division": ["Tervuren", "Duisberg", "Vossem", "Moorsel"],
+            },
             {"division": "Flemish Brabant", "location": "Tervuren"},
         ),
         (
@@ -798,7 +986,15 @@ def clean_location_data(location_df):
             {"division": "Flemish Brabant", "location": "Wezembeek-Oppem"},
         ),
         (
-            {"country": "Belgium", "division": ["Zaventem", "Sterrebeek"]},
+            {
+                "country": "Belgium",
+                "division": [
+                    "Zaventem",
+                    "Sterrebeek",
+                    "Nossegem",
+                    "Sint-Stevens-Woluwe",
+                ],
+            },
             {"division": "Flemish Brabant", "location": "Zaventem"},
         ),
         (
@@ -851,6 +1047,10 @@ def clean_location_data(location_df):
             {"division": "Limburg", "location": "Genk"},
         ),
         (
+            {"country": "Belgium", "division": ["Halen", "Loksbergen", "Zelem"]},
+            {"division": "Limburg", "location": "Halen"},
+        ),
+        (
             {
                 "country": "Belgium",
                 "division": [
@@ -879,7 +1079,7 @@ def clean_location_data(location_df):
             {"division": "Limburg", "location": "Lanaken"},
         ),
         (
-            {"country": "Belgium", "division": ["Leopoldsburg", "Heppen"]},
+            {"country": "Belgium", "division": ["Leopoldsburg", "Heppen", "Beverloo"]},
             {"division": "Limburg", "location": "Leopoldsburg"},
         ),
         (
@@ -965,7 +1165,7 @@ def clean_location_data(location_df):
             {"division": "Limburg", "location": "Tessenderlo"},
         ),
         (
-            {"country": "Belgium", "division": "Zolder"},
+            {"country": "Belgium", "division": ["Heusden-Zolder", "Zolder"]},
             {"division": "Limburg", "location": "Heusden-Zolder"},
         ),
         (
@@ -1168,6 +1368,19 @@ def clean_location_data(location_df):
             {
                 "country": "Belgium",
                 "division": [
+                    "Bernissart",
+                    "Blaton",
+                    "Harchies",
+                    "Pommeroeul",
+                    "Poomerœul",
+                ],
+            },
+            {"division": "Hainaut", "location": "Bernissart"},
+        ),
+        (
+            {
+                "country": "Belgium",
+                "division": [
                     "Binche",
                     "Bray",
                     "Buvrinnes",
@@ -1201,6 +1414,21 @@ def clean_location_data(location_df):
             {
                 "country": "Belgium",
                 "division": [
+                    "Braine-Le-Comte",
+                    "Hennuyères",
+                    "Henripont",
+                    "Petit-Roeulx-lez-Braine",
+                    "Ronquières",
+                    "Steenkerque",
+                    "Steenkerke",
+                ],
+            },
+            {"division": "Hainaut", "location": "Braine-Le-Comte"},
+        ),
+        (
+            {
+                "country": "Belgium",
+                "division": [
                     "Brunehaut",
                     "Bléharies",
                     "Guignies",
@@ -1216,7 +1444,20 @@ def clean_location_data(location_df):
             {"division": "Hainaut", "location": "Brunehaut"},
         ),
         (
-            {"country": "Belgium", "division": "Bury"},
+            {
+                "country": "Belgium",
+                "division": [
+                    "Péruwelz",
+                    "Bon-Secours",
+                    "Roucourt",
+                    "Braffe",
+                    "Bury",
+                    "Baugnies",
+                    "Wasmes-Audemez-Briffoeil",
+                    "Brasménil",
+                    "Wiers",
+                ],
+            },
             {"division": "Hainaut", "location": "Péruwelz"},
         ),
         (
@@ -1262,6 +1503,19 @@ def clean_location_data(location_df):
         (
             {"country": "Belgium", "division": "Dour"},
             {"division": "Hainaut", "location": "Dour"},
+        ),
+        (
+            {
+                "country": "Belgium",
+                "division": [
+                    "Ecaussinnes",
+                    "Écaussinees",
+                    "Écaussinees-d'Enghien",
+                    "Marche-lez-Écaussinnes",
+                    "Écaussinees-Lalaing",
+                ],
+            },
+            {"division": "Hainaut", "location": "Écaussinees"},
         ),
         (
             {"country": "Belgium", "division": "Edingen"},
@@ -1455,7 +1709,18 @@ def clean_location_data(location_df):
             {"division": "Hainaut", "location": "Morlanwelz"},
         ),
         (
-            {"country": "Belgium", "division": "Mouscron"},
+            {
+                "country": "Belgium",
+                "division": [
+                    "Mouscron",
+                    "Dottignies",
+                    "Dottenijs",
+                    "Luingne",
+                    "Lowingen",
+                    "Herseaux",
+                    "Herzeeuw",
+                ],
+            },
             {"division": "Hainaut", "location": "Mouscron"},
         ),
         (
@@ -1881,6 +2146,7 @@ def clean_location_data(location_df):
                 "division": [
                     "Braine-l alleud",
                     "Braine-l'alleud",
+                    "Braine-L'Alleud",
                     "Ophain-Bois-Seigneur-Isaac",
                     "Lillois-Witterzée",
                     "Lillois-witterzée",
@@ -1940,7 +2206,7 @@ def clean_location_data(location_df):
             {"division": "Brussels-Capital Region", "location": "Brussels"},
         ),
         (
-            {"country": "Belgium", "division": "Elsene"},
+            {"country": "Belgium", "division": ["Elsene", "Ixelles"]},
             {"division": "Brussels-Capital Region", "location": "Ixelles"},
         ),
         (
@@ -2019,6 +2285,11 @@ def clean_location_data(location_df):
             {"country": "Czechia", "division": "Prague"},
             {"division": "Central Czechia and Prague"},
         ),
+        # Fix typos
+        (
+            {"country": "Czechia", "division": "Vysocina Region"},
+            {"division": "Vysocina"},
+        ),
         # DENMARK
         # -------
         # Remove Unknown region
@@ -2034,6 +2305,15 @@ def clean_location_data(location_df):
         (
             {"country": "Belgium", "division": "Roucourt"},
             {"country": "France", "division": "Hauts-de-France"},
+        ),
+        # Move Flines-les-Mortagne (Flines-les-Morta) from Belgium into France
+        (
+            {"country": "Belgium", "division": ["Flines-Les-Morta"]},
+            {
+                "country": "France",
+                "division": "Hauts-de-France",
+                "location": "Flines-lès-Mortagne",
+            },
         ),
         # Fix typos
         (
@@ -2119,7 +2399,7 @@ def clean_location_data(location_df):
         # Duesseldorf -> North Rhine Westphalia
         (
             {"country": "Germany", "division": "Duesseldorf"},
-            {"division": "North Rhine Westphalia", "location": "Duesseldorf"},
+            {"division": "North Rhine-Westphalia", "location": "Duesseldorf"},
         ),
         # Frankfurt -> Hesse
         (
@@ -2130,6 +2410,15 @@ def clean_location_data(location_df):
         (
             {"country": "Germany", "division": "Rostock"},
             {"division": "Mecklenburg-Vorpommern", "location": "Rostock"},
+        ),
+        # Fix typos
+        (
+            {"country": "Germany", "division": "Baden-Wuerttemberg"},
+            {"division": "Baden-Württemberg"},
+        ),
+        (
+            {"country": "Germany", "division": "North Rhine Westphalia"},
+            {"division": "North Rhine-Westphalia"},
         ),
         # ITALY
         # -----
@@ -2448,6 +2737,16 @@ def clean_location_data(location_df):
         ),
         ({"country": "Spain", "location": "Son_Servera"}, {"location": "Son Servera"}),
         ({"country": "Spain", "location": "Logrono_h"}, {"location": "Logrono"}),
+        # More typos
+        ({"country": "Spain", "location": "Barcelona_h"}, {"location": "Barcelona"}),
+        (
+            {"country": "Spain", "location": "Alcala_de_Henares"},
+            {"location": "Alcala de Henares"},
+        ),
+        (
+            {"country": "Spain", "location": "Arganda_del_Rey"},
+            {"location": "Arganda del Rey"},
+        ),
         # SWEDEN
         # ------
         # Fix typos
@@ -2460,6 +2759,10 @@ def clean_location_data(location_df):
             {"division": "Gavleborg"},
         ),
         ({"country": "Sweden", "division": "Orebro lan"}, {"division": "Orebro"}),
+        (
+            {"country": "Sweden", "division": "Jamtland Harjedalen"},
+            {"division": "Jamtland"},
+        ),
         # SWITZERLAND
         # -----------
         # Fix typos
@@ -2492,6 +2795,8 @@ def clean_location_data(location_df):
             {"country": "United Kingdom", "location": "Northamtonshire"},
             {"location": "Northamptonshire"},
         ),
+        # Move England into UK
+        ({"country": "England"}, {"country": "United Kingdom", "division": "England"}),
         # CANADA
         # ------
         # Unabbreviate province names
@@ -2593,11 +2898,14 @@ def clean_location_data(location_df):
                 "country": "USA",
                 "division": "Connecticut",
                 "location": [
+                    "Fairfield",
+                    "Greenwich",
                     "NEWTOWN",
                     "Newtown",
                     "Bridgeport",
                     "New Fairfield",
                     "Port Chester",
+                    "Riverside",
                     "Shelton",
                     "Stratford",
                     "Trumbull",
@@ -2605,7 +2913,14 @@ def clean_location_data(location_df):
             },
             {"location": "Fairfield County"},
         ),
-        # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Hartford County'}),
+        (
+            {
+                "country": "USA",
+                "division": "Connecticut",
+                "location": ["Bristol", "Glastonbury", "Manchester"],
+            },
+            {"location": "Hartford County"},
+        ),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Litchfield County'}),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Middlesex County'}),
         (
@@ -2613,10 +2928,12 @@ def clean_location_data(location_df):
                 "country": "USA",
                 "division": "Connecticut",
                 "location": [
+                    "Beacon Falls",
                     "BRANFORD",
                     "Branford",
                     "North-Branford",
                     "Bethany",
+                    "Cheshire",
                     "East-Haven",
                     "East Haven",
                     "HAMDEN",
@@ -2631,6 +2948,8 @@ def clean_location_data(location_df):
                     "New-Haven",
                     "New Haven",
                     "North-Haven",
+                    "North Haven",
+                    "Prospect",
                     "SEYMOUR",
                     "Seymour",
                     "Seymor",
@@ -2722,6 +3041,16 @@ def clean_location_data(location_df):
         (
             {"country": "USA", "division": "Nassau County"},
             {"division": "New York", "location": "Nassau County"},
+        ),
+        # Move Yorktown Heights from CT into NY
+        (
+            {"country": "USA", "location": "Yorktown Heights"},
+            {"division": "New York", "location": "Westchester County"},
+        ),
+        # Move towns into counties
+        (
+            {"country": "USA", "division": "New York", "location": "New Rochelle"},
+            {"location": "Westchester County"},
         ),
         # Washington
         # ----------
@@ -2982,6 +3311,51 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "Wisconsin", "location": "Whitefish"},
             {"location": "Milwaukee County"},
         ),
+        # Fix typos
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Ozaukee county"},
+            {"location": "Ozaukee County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Rock county"},
+            {"location": "Rock County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Lafayette county"},
+            {"location": "Lafayette County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Columbia county"},
+            {"location": "Columbia County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Wisconsin",
+                "location": "Fond du Lac county",
+            },
+            {"location": "Fond du Lac County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Jefferson county"},
+            {"location": "Jefferson County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Milwaukee county"},
+            {"location": "Milwaukee County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Wisconsin",
+                "location": "Washington county",
+            },
+            {"location": "Washington County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Waukesha county"},
+            {"location": "Waukesha County"},
+        ),
         # Australia
         # ---------
         # Fix typos, unabbreviate province names
@@ -3033,6 +3407,11 @@ def clean_location_data(location_df):
         ),
         # More typos
         ({"country": "Brazil", "division": "Amazonas"}, {"division": "Amazonas State"}),
+        # Fix typos
+        ({"country": "Brazil", "division": "Ceara"}, {"division": "Ceará"}),
+        ({"country": "Brazil", "division": "Goiais"}, {"division": "Goiás"}),
+        ({"country": "Brazil", "division": "Maranhao"}, {"division": "Maranhão"}),
+        ({"country": "Brazil", "division": "Parana"}, {"division": "Paraná"}),
         # Colombia
         # --------
         # Fix typos
