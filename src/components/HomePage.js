@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
+import { toJS } from 'mobx';
+import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
@@ -19,6 +21,8 @@ import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './VegaLegend';
+import VegaTree from './VegaTree';
+import AccordianWrapper from './AccordianWrapper';
 import VegaWrapper from './VegaWrapper';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
@@ -90,6 +94,7 @@ const AreaStackSelectContainer = styled.div`
 `;
 
 const Footer = styled.div`
+  margin-top: auto;
   display: flex;
   background-color: #f8f8f8;
 
@@ -121,6 +126,7 @@ AreaStackModeSelect.propTypes = {
 const HomePage = observer(({ covidStore, uiStore }) => {
   // 'percentages' or 'counts'
   const [areaStackMode, setAreaStackMode] = useState('percentages');
+  const [ref, { x, y, width }] = useDimensions();
 
   const handleGroupingChange = (groupKey, dnaOrAa) => {
     covidStore.changeGrouping(groupKey, dnaOrAa);
@@ -188,17 +194,24 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         </div>
       );
     } else {
-      console.log('hello');
       return (
-        <VegaWrapper
-          data={{
-            case_data: covidStore.caseData,
-          }}
-          spec={areaStackSpec}
-          signalListeners={{
-            brush: _.debounce(handleBrush, 500),
-          }}
-        />
+        <AccordianWrapper
+          title="plot"
+          defaultCollapsed={false}
+          maxHeight={'1200px'}
+        >
+          <div style={{ width: `${width}px` }}>
+            <VegaWrapper
+              data={{
+                case_data: covidStore.caseData,
+              }}
+              spec={areaStackSpec}
+              signalListeners={{
+                brush: _.debounce(handleBrush, 500),
+              }}
+            />
+          </div>
+        </AccordianWrapper>
       );
     }
   };
@@ -232,7 +245,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           <DropdownContainer />
         </FilterSidebar>
 
-        <PlotContainer>
+        <PlotContainer ref={ref}>
           <PlotOptions>
             <span className="area-stack-title">{areaStackTitle}</span>
             <AreaStackModeSelect
@@ -240,10 +253,33 @@ const HomePage = observer(({ covidStore, uiStore }) => {
               onChange={onChangeAreaStackMode}
             />
           </PlotOptions>
-          <VegaLegend />
+          <br />
+          <AccordianWrapper
+            title="legend"
+            defaultCollapsed={false}
+            maxHeight={'500px'}
+          >
+            <VegaLegend />
+          </AccordianWrapper>
           {renderPlotContent()}
-          <DataTableContainer />
-          <AcknowledgementsTable />
+          {covidStore.groupKey === 'lineage' && (
+            <VegaTree width={width} data={covidStore.caseDataAggGroup} />
+          )}
+
+          <AccordianWrapper
+            title="table"
+            defaultCollapsed={false}
+            maxHeight={'1200px'}
+          >
+            <DataTableContainer />
+          </AccordianWrapper>
+          <AccordianWrapper
+            title="acknowledgements"
+            defaultCollapsed={true}
+            maxHeight={'1200px'}
+          >
+            <AcknowledgementsTable />
+          </AccordianWrapper>
 
           <Footer>
             <div className="gisaid-daa">

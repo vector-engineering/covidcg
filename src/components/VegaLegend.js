@@ -1,49 +1,17 @@
-import React, { useState, memo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useStores } from '../stores/connect';
 import SkeletonElement from './SkeletonElement';
 import { asyncStates } from '../stores/uiStore';
 
-const LegendAndButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  margin-top: 12px;
-  margin-bottom: 6px;
-  margin-left: 24px;
-  margin-right: 24px;
-`;
-
-const LegendContainer = styled.div`
-  border: 1px #bbb solid;
-  padding: 4px 6px;
-  border-radius: 2px;
-  max-height: 100px;
-  overflow-y: scroll;
-  transition: max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  ${({ collapsed }) => collapsed && `max-height 5px;`}
-`;
-
-const CollapseButton = styled.button`
-  border: none;
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-  background-color: rgba(0, 0, 0, 0);
-  outline: none;
-  width: 32px;
-  font-size: 20px;
-
-  &:hover {
-    color: black;
-  }
-`;
-
 const LegendList = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  border: 1px #eaeaea solid;
+  border-radius: 2px;
+  padding: 6px 12px;
 `;
 
 const LegendItem = styled.div`
@@ -67,7 +35,6 @@ const LegendText = styled.span`
 
 const VegaLegend = () => {
   const { covidStore, uiStore } = useStores();
-  const [collapsed, setCollapsed] = useState(false);
 
   if (uiStore.caseDataState === asyncStates.STARTED) {
     return (
@@ -99,18 +66,7 @@ const VegaLegend = () => {
   };
 
   return (
-    <LegendAndButtonWrapper>
-      <CollapseButton
-        onClick={() => {
-          setCollapsed(!collapsed);
-        }}
-      >
-        {collapsed ? '+' : '-'}
-      </CollapseButton>
-      <LegendContainer collapsed={collapsed}>
-        <LegendList>{renderLegendKeys(covidStore.caseDataAggGroup)}</LegendList>
-      </LegendContainer>
-    </LegendAndButtonWrapper>
+    <LegendList>{renderLegendKeys(covidStore.caseDataAggGroup)}</LegendList>
   );
 };
 
