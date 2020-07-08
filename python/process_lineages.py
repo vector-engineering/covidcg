@@ -28,9 +28,7 @@ def get_consensus_snps(case_df):
         lin_df = case_df.loc[case_df["lineage"] == lineage, :]
 
         dna_snp_freqs = dict(
-            Counter(
-                sum(lin_df["dna_snp_str"].apply(lambda x: x.split(";")).values, [])
-            ).most_common()
+            Counter(sum(lin_df["dna_snp_str"].values, [])).most_common()
         )
 
         dna_consensus_snps = sorted(
@@ -41,11 +39,7 @@ def get_consensus_snps(case_df):
             ]
         )
 
-        aa_snp_freqs = dict(
-            Counter(
-                sum(lin_df["aa_snp_str"].apply(lambda x: x.split(";")).values, [])
-            ).most_common()
-        )
+        aa_snp_freqs = dict(Counter(sum(lin_df["aa_snp_str"].values, [])).most_common())
 
         aa_consensus_snps = sorted(
             [
@@ -59,12 +53,6 @@ def get_consensus_snps(case_df):
 
     lineage_snp_df = pd.DataFrame.from_records(
         lineage_snp_df, columns=["lineage", "dna_snp_ids", "aa_snp_ids"]
-    )
-    lineage_snp_df["dna_snp_ids"] = lineage_snp_df["dna_snp_ids"].apply(
-        lambda x: ";".join([str(_x) for _x in x])
-    )
-    lineage_snp_df["aa_snp_ids"] = lineage_snp_df["aa_snp_ids"].apply(
-        lambda x: ";".join([str(_x) for _x in x])
     )
 
     # Save to disk

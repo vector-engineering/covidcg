@@ -173,7 +173,7 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     }
     // If we're grouping by SNP, then the value is a semicolon-delimited
     // list of SNPs that we should treat separately
-    else {
+    else if (groupKey === 'snp') {
       if (dnaOrAa === 'dna') {
         groupKeys = row['dna_snp_str'];
       } else {
@@ -213,6 +213,8 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
       aggCaseData[_groupKey][row.collection_date] += 1;
     });
   }
+
+  // console.log(aggCaseData);
 
   let getColorMethod = getColor;
 

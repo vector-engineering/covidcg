@@ -17,7 +17,7 @@ export function getDnaSnpsFromLineage(lineage) {
   if (lineageObj === undefined) {
     return [];
   }
-  let snpIds = lineageObj.dna_snp_ids.split(';');
+  let snpIds = lineageObj.dna_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
   return _.map(snpIds, (snpId) => intToDnaSnp(parseInt(snpId)));
 }
@@ -27,7 +27,7 @@ export function getAaSnpsFromLineage(lineage) {
   if (lineageObj === undefined) {
     return [];
   }
-  let snpIds = lineageObj.aa_snp_ids.split(';');
+  let snpIds = lineageObj.aa_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
   return _.map(snpIds, (snpId) => intToAaSnp(parseInt(snpId)));
 }

@@ -202,6 +202,21 @@ def main():
         how="inner",
         sort=False,
     ).rename(columns={"snp_str": "aa_snp_str", "snp_sig": "aa_snp_sig"})
+
+    # Semicolon-delimited string to array of SNPs
+    case_df["dna_snp_str"] = case_df["dna_snp_str"].apply(
+        lambda x: [int(_x) for _x in x.split(";")]
+    )
+    case_df["aa_snp_str"] = case_df["aa_snp_str"].apply(
+        lambda x: [int(_x) for _x in x.split(";")]
+    )
+    case_df["dna_snp_sig"] = case_df["dna_snp_sig"].apply(
+        lambda x: [int(_x) for _x in x.split(";")]
+    )
+    case_df["aa_snp_sig"] = case_df["aa_snp_sig"].apply(
+        lambda x: [int(_x) for _x in x.split(";")]
+    )
+
     print("done")
 
     # Get consensus SNPs for each lineage
