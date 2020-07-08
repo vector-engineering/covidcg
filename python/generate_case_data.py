@@ -39,7 +39,14 @@ def load_patient_metadata():
     )
     patient_meta_df = pd.DataFrame()
     for f in patient_meta_files:
-        _df = pd.read_csv(f, sep="\t", skiprows=2)
+        # Some files have a header, some don't
+        skiprows = 0
+        fp = f.open("r")
+        if "Virus name" not in fp.readline():
+            skiprows = 2
+        fp.close()
+
+        _df = pd.read_csv(f, sep="\t", skiprows=skiprows)
         patient_meta_df = pd.concat([patient_meta_df, _df], ignore_index=True)
 
     # Drop columns we don't need
@@ -77,7 +84,14 @@ def load_seq_metadata():
 
     seq_meta_df = pd.DataFrame()
     for f in seq_meta_files:
-        _df = pd.read_csv(f, sep="\t", skiprows=2)
+        # Some files have a header, some don't
+        skiprows = 0
+        fp = f.open("r")
+        if "Virus name" not in fp.readline():
+            skiprows = 2
+        fp.close()
+
+        _df = pd.read_csv(f, sep="\t", skiprows=skiprows)
         seq_meta_df = pd.concat([seq_meta_df, _df], ignore_index=True)
 
     # Drop columns we don't need
@@ -133,7 +147,6 @@ def main():
     # Load sequencing metadata, clean up
     seq_meta_df = load_seq_metadata()
     seq_meta_df = clean_seq_metadata(seq_meta_df)
-    # print(seq_meta_df)
 
     # Join patient and sequencing metadata on Accession ID
     case_df = patient_meta_df.join(
