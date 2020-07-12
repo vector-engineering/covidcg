@@ -1,5 +1,5 @@
 import lineageSnpData from '../../data/lineage_snp.json';
-import refSeq from '../../data/reference.json';
+import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
 import { intToDnaSnp, intToAaSnp } from './snpData';

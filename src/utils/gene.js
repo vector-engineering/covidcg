@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import genes from '../../data/genes.json';
+import genes from '../../static_data/genes.json';
 
 export function getAllGenes() {
   return genes;
