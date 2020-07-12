@@ -19,23 +19,3 @@ export function getGene(value) {
       : _.findWhere(genes, { gene: value })
   );
 }
-
-export function loadGeneOptions() {
-  // Load genes and create option for each gene
-  let options = [];
-
-  // All Genes option
-  options.push({
-    label: 'All Genes',
-    value: 'all',
-  });
-
-  genes.forEach((gene) => {
-    options.push({
-      label: gene.gene,
-      value: gene.gene,
-    });
-  });
-
-  return options;
-}

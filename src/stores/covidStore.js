@@ -23,9 +23,11 @@ class ObservableCovidStore {
   @observable dnaOrAa = null;
 
   @observable selectedGene = {};
+  @observable selectedProtein = {};
 
   @observable startPos = null;
   @observable endPos = null;
+
   @observable selectTree = [];
   @observable selectedLocationIds = [];
   @observable caseData = [];

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { loadGeneOptions } from '../utils/gene';
+import { getAllGenes } from '../utils/gene';
 
 const SelectContainer = styled.div`
   display: flex;
@@ -58,7 +58,7 @@ const PosTo = styled.div`
   flex-grow: 1;
 `;
 
-const genes = loadGeneOptions();
+const genes = getAllGenes();
 
 const GeneSelect = ({ selectedGene, onChange }) => {
   const handleChange = (event) => {
@@ -67,10 +67,17 @@ const GeneSelect = ({ selectedGene, onChange }) => {
 
   // Create option elements
   let optionElements = [];
-  genes.forEach((opt) => {
+  // All Genes option
+  optionElements.push(
+    <option key="all" value="all">
+      All Genes
+    </option>
+  );
+
+  genes.forEach((gene) => {
     optionElements.push(
-      <option key={opt.value} value={opt.value}>
-        {opt.label}
+      <option key={gene.gene} value={gene.gene}>
+        {gene.gene}
       </option>
     );
   });
