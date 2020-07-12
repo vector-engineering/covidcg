@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { loadGeneOptions } from '../utils/gene';
+
 const SelectContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,7 +58,9 @@ const PosTo = styled.div`
   flex-grow: 1;
 `;
 
-const GeneSelect = ({ genes, selectedGene, onChange }) => {
+const genes = loadGeneOptions();
+
+const GeneSelect = ({ selectedGene, onChange }) => {
   const handleChange = (event) => {
     onChange(event.target.value);
   };
@@ -88,7 +92,6 @@ const GeneSelect = ({ genes, selectedGene, onChange }) => {
 };
 
 GeneSelect.propTypes = {
-  genes: PropTypes.array.isRequired,
   selectedGene: PropTypes.object.isRequired,
   onChange: PropTypes.func,
 };

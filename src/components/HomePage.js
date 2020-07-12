@@ -236,7 +236,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             onChange={handleGroupingChange}
           />
           <GeneSelect
-            genes={covidStore.genes}
             selectedGene={covidStore.selectedGene}
             onChange={handleGeneChange}
           />

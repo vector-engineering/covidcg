@@ -8,7 +8,7 @@ import {
   downloadAcknowledgements,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
-import { getGene, loadGeneOptions } from '../utils/gene';
+import { getGene } from '../utils/gene';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
   loadSelectTree,
@@ -21,8 +21,9 @@ import { uiStoreInstance } from './rootStore';
 class ObservableCovidStore {
   @observable groupKey = null;
   @observable dnaOrAa = null;
-  @observable genes = [];
+
   @observable selectedGene = {};
+
   @observable startPos = null;
   @observable endPos = null;
   @observable selectTree = [];
@@ -79,7 +80,6 @@ class ObservableCovidStore {
             this.groupsToKeep = groupsToKeepObj;
             this.groupKey = initialGroupKey;
             this.dnaOrAa = initialDnaOrAa;
-            this.genes = loadGeneOptions();
             this.selectedGene = defaultGene;
             this.selectTree = selectTree;
             this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
