@@ -9,13 +9,7 @@ Author: Albert Chen - Deverman Lab, Broad Institute
 import numpy as np
 import pandas as pd
 
-from pathlib import Path
-
-project_root_path = Path(__file__).resolve().parent.parent
-data_dir = (
-    project_root_path / "data"
-).resolve()  # Resolve any symlinks --> absolute path
-
+from util import data_dir
 
 def load_dna_snps():
     # Load all DNA SNP files

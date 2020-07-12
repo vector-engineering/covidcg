@@ -12,13 +12,7 @@ import numpy as np
 import pandas as pd
 
 from functools import reduce
-from pathlib import Path
-from util import human_format
-
-project_root_path = Path(__file__).resolve().parent.parent
-data_dir = (
-    project_root_path / "data"
-).resolve()  # Resolve any symlinks --> absolute path
+from util import human_format, data_dir, static_data_dir
 
 
 def process_location_data(case_df):
@@ -3611,7 +3605,7 @@ def build_select_tree(location_df, unique_location_df):
 
     # Load country -> emoji map
     emoji_map = pd.read_excel(
-        Path(__file__).parent / "country_to_emoji.xls", skiprows=1
+        static_data_dir / "country_to_emoji.xls", skiprows=1
     )
     # Expand country aliases, remove whitespace from each alias
     emoji_map["aliases"] = (

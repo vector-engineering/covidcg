@@ -14,7 +14,6 @@ import pandas as pd
 import re
 
 from functools import reduce
-from pathlib import Path
 
 from fasta import read_fasta_file
 from clean_patient_metadata import clean_patient_metadata
@@ -24,7 +23,7 @@ from process_lineages import get_consensus_snps
 from process_locations import process_location_data
 from process_snps import load_dna_snps, load_aa_snps, process_snp_data
 from reference import ref_seq, genes, gene_aa
-from util import translate, data_dir
+from util import translate, data_dir, static_data_dir
 
 
 def load_patient_metadata():
@@ -128,7 +127,7 @@ def hash_accession_id(accession_id):
 def write_reference_files():
     print("Writing reference sequence files...", end="", flush=True)
     # Write the reference fasta file to json
-    ref_json_path = data_dir / "reference.json"
+    ref_json_path = static_data_dir / "reference.json"
 
     ref_obj = {"ref_seq": ref_seq, "gene_aa": gene_aa}
 

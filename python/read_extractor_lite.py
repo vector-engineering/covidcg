@@ -1,60 +1,57 @@
 # coding: utf-8
 
-'''Extract variable regions from an aligned segment, in a flexible
+"""Extract variable regions from an aligned segment, in a flexible
 and SNP-tolerant manner
 
 Modified and heavily trimmed down version of read_extractor.py (v0.1.0) 
 from the variant_extractor project
 
 Author: Albert Chen (Deverman Lab, Broad Institute)
-'''
+"""
 
 import numpy as np
 import pandas as pd
 
 from Bio import pairwise2
 from collections import defaultdict
-from pathlib import Path
 
 from reference import ref_seq, genes, gene_aa
-from util import translate
-
-project_root_path = Path(__file__).resolve().parent.parent
-data_dir = (project_root_path / 'data').resolve() # Resolve any symlinks --> absolute path
+from util import translate, data_dir
 
 # Get the reverse complement of a sequence
 def reverse_complement(seq):
     complement_map = {
-        'A': 'T', 
-        'C': 'G', 
-        'G': 'C', 
-        'T': 'A',
-        'N': 'N' # Degenerates stay degenerate
-    } 
+        "A": "T",
+        "C": "G",
+        "G": "C",
+        "T": "A",
+        "N": "N",  # Degenerates stay degenerate
+    }
     # Build reverse complement sequence
-    rev_comp_seq = ''
-    for char in seq[::-1]: # Reverse the forward sequence
+    rev_comp_seq = ""
+    for char in seq[::-1]:  # Reverse the forward sequence
         # Add the complements base by base
         rev_comp_seq += complement_map[char]
-    
+
     return rev_comp_seq
 
-class ReadExtractor():
-    '''Extract variable regions from a pysam AlignedSegment
-    '''
+
+class ReadExtractor:
+    """Extract variable regions from a pysam AlignedSegment
+    """
 
     RefSeq = ref_seq
     Genes = genes
     Gene_AA = gene_aa
 
     def __init__(self, read):
-        '''Build the extactor object for a read (pysam.AlignedSegment)
+        """Build the extactor object for a read (pysam.AlignedSegment)
         or a pair of reads if using paired-end sequencing
 
         Parameters
         ----------
         read: pysam.AlignedSegment
-        '''
+        """
 
         self.read = read
 
@@ -87,12 +84,11 @@ class ReadExtractor():
 
         # Read data from the pysam.AlignedSegment object into python variables
         self.load_read()
-    
 
     def load_read(self):
-        '''Load data in from the pysam.AlignedSegment object into Python
-        '''
-        
+        """Load data in from the pysam.AlignedSegment object into Python
+        """
+
         # Nucleotide sequence of the read
         self.read_seq = self.read.get_forward_sequence()
 
@@ -107,7 +103,7 @@ class ReadExtractor():
         # Get the reference sequence
         self.reference_seq = ReadExtractor.RefSeq
 
-        '''Expand CIGAR tuples to a list of CIGAR operations on the read (query)
+        """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
         https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignedSegment.cigartuples
         https://drive5.com/usearch/manual/cigar.html
@@ -141,7 +137,7 @@ class ReadExtractor():
                                     letters. USEARCH can read CIGAR strings using this operation, 
                                     but does not generate them.
         B	BAM_CBACK       9
-        '''
+        """
 
         self.cigar_ops = []
         for op_group in self.read.cigartuples:
@@ -163,9 +159,8 @@ class ReadExtractor():
         # using read.query_alignment_start
         self.read_i = self.read.query_alignment_start
 
-
     def crawl_to(self, destination):
-        '''Iterate (consume bases) through both the read and the reference
+        """Iterate (consume bases) through both the read and the reference
         Use the CIGAR operations and other stats to stay on the same
         "aligned" base (as if we did a multiple sequence alignment on the read and ref)
 
@@ -173,33 +168,30 @@ class ReadExtractor():
         ----------
         destination: int
             - Index on the reference of where we want to crawl to
-        '''
+        """
 
         while self.ref_i < destination:
 
             # If we've reached the end of the CIGAR string, break out
-            if (
-                    self.cigar_i >= len(self.cigar_ops) or 
-                    self.read_i >= len(self.read_seq)
-                ):
+            if self.cigar_i >= len(self.cigar_ops) or self.read_i >= len(self.read_seq):
                 return
 
             # Check if the position is part of a gene
             # If it is, then add it to the gene dict
             in_genes = [
-                gene for (gene, rnge) in ReadExtractor.Genes.items()
-                # Offset by 1 since ref_i is 0-indexed and the 
+                gene
+                for (gene, rnge) in ReadExtractor.Genes.items()
+                # Offset by 1 since ref_i is 0-indexed and the
                 # gene list is 1-indexed
                 if (self.ref_i + 1) >= rnge[0] and (self.ref_i + 1) <= rnge[1]
             ]
             for gene in in_genes:
                 self.genes[gene].append(self.read_seq[self.read_i])
 
-            
             # Grab the current CIGAR operation
             op = self.cigar_ops[self.cigar_i]
 
-            '''
+            """
             https://samtools.github.io/hts-specs/SAMv1.pdf
             ---------------------------------------------------
             | Op  | Code  | Consume Read  | Consume Reference |
@@ -215,7 +207,7 @@ class ReadExtractor():
             | X   | 8     | Yes           | Yes               |
             | B   | 9     | ?             | ?                 |
             ---------------------------------------------------
-            '''
+            """
 
             # MATCH - can be match or mismatch (SNP)
             if op == 0 or op == 7 or op == 8:
@@ -225,19 +217,30 @@ class ReadExtractor():
                 # and the reference to see if there's a mismatch
                 # If bowtie2 gave us the OP code of 8, then we know there's a mismatch
                 if (
-                        # Check for a mismatch OP code or a base mismatch for a
-                        # generic 0 OP code
-                        (
-                            (op == 8) or
-                            (op == 0 and self.read_seq[self.read_i] != self.reference_seq[self.ref_i])
-                        ) and
-                        # If the reference has an X as the base, then
-                        # ignore any SNPs at this position
-                        (self.reference_seq[self.ref_i] != 'X')
-
-                    ):
+                    # Check for a mismatch OP code or a base mismatch for a
+                    # generic 0 OP code
+                    (
+                        (op == 8)
+                        or (
+                            op == 0
+                            and self.read_seq[self.read_i]
+                            != self.reference_seq[self.ref_i]
+                        )
+                    )
+                    and
+                    # If the reference has an X as the base, then
+                    # ignore any SNPs at this position
+                    (self.reference_seq[self.ref_i] != "X")
+                ):
                     # Add substitution information to mutation string
-                    self.mutation_str.append((self.read.query_name, self.ref_i, self.reference_seq[self.ref_i], self.read_seq[self.read_i]))
+                    self.mutation_str.append(
+                        (
+                            self.read.query_name,
+                            self.ref_i,
+                            self.reference_seq[self.ref_i],
+                            self.read_seq[self.read_i],
+                        )
+                    )
 
                 self.read_i += 1
                 self.ref_i += 1
@@ -246,7 +249,9 @@ class ReadExtractor():
             elif op == 1 or op == 4:
 
                 # Add insertion information to mutation string
-                self.mutation_str.append((self.read.query_name, self.ref_i, '', self.read_seq[self.read_i]))
+                self.mutation_str.append(
+                    (self.read.query_name, self.ref_i, "", self.read_seq[self.read_i])
+                )
 
                 self.read_i += 1
 
@@ -254,7 +259,14 @@ class ReadExtractor():
             elif op == 2 or op == 3:
 
                 # Add deletion information to mutation string
-                self.mutation_str.append((self.read.query_name, self.ref_i, self.reference_seq[self.ref_i], ''))
+                self.mutation_str.append(
+                    (
+                        self.read.query_name,
+                        self.ref_i,
+                        self.reference_seq[self.ref_i],
+                        "",
+                    )
+                )
 
                 self.ref_i += 1
 
@@ -262,15 +274,14 @@ class ReadExtractor():
             else:
                 # Do nothing
                 pass
-            
+
             # Always iterate the CIGAR index
             self.cigar_i += 1
 
         # END WHILE
 
-
     def get_aa_snps(self):
-        '''Store list of AA SNPs/indels'''
+        """Store list of AA SNPs/indels"""
 
         self.aa_snps = []
 
@@ -278,7 +289,14 @@ class ReadExtractor():
         for gene, seq in self.genes_aa.items():
             # -3 gap open penalty, -0.1 gap extend penalty
             # Leaving gap penalties to 0 leads to sequential insertions/deletions. bad stuff
-            alignment = pairwise2.align.globalxs(ReadExtractor.Gene_AA[gene], seq, -3, -0.1, one_alignment_only=True, gap_char='-')[0]
+            alignment = pairwise2.align.globalxs(
+                ReadExtractor.Gene_AA[gene],
+                seq,
+                -3,
+                -0.1,
+                one_alignment_only=True,
+                gap_char="-",
+            )[0]
 
             # print(gene)
             # print(pairwise2.format_alignment(*alignment))
@@ -291,39 +309,51 @@ class ReadExtractor():
             i = 0
             while i < len(ref_aligned):
                 # If an insertion (gap in reference)
-                if ref_aligned[i] == '-':
+                if ref_aligned[i] == "-":
                     # Travel forwards until insertion is over,
                     # unless we're at the end
                     j = i + 1
-                    while j < len(ref_aligned) and ref_aligned[j] == '-':
+                    while j < len(ref_aligned) and ref_aligned[j] == "-":
                         j += 1
                     # Grab the entire insertion
-                    self.aa_snps.append((self.read.query_name, gene, i, '', query_aligned[i:j]))
-                    i = j # Continue
+                    self.aa_snps.append(
+                        (self.read.query_name, gene, i, "", query_aligned[i:j])
+                    )
+                    i = j  # Continue
 
                 # If a deletion (gap in query)
-                elif query_aligned[i] == '-':
+                elif query_aligned[i] == "-":
                     # Travel forwards until the deletion is over
                     # unless we're at the end
                     j = i + 1
-                    while j < len(ref_aligned) and query_aligned[j] == '-':
+                    while j < len(ref_aligned) and query_aligned[j] == "-":
                         j += 1
                     # Grab the entire deletion
-                    self.aa_snps.append((self.read.query_name, gene, i, ref_aligned[i:j], ''))
-                    i = j # Continue
+                    self.aa_snps.append(
+                        (self.read.query_name, gene, i, ref_aligned[i:j], "")
+                    )
+                    i = j  # Continue
 
                 # SNP/mismatch
                 elif ref_aligned[i] != query_aligned[i]:
                     # Add the SNP
-                    self.aa_snps.append((self.read.query_name, gene, i, ref_aligned[i], query_aligned[i]))
-                    i += 1 # Continue
-                
+                    self.aa_snps.append(
+                        (
+                            self.read.query_name,
+                            gene,
+                            i,
+                            ref_aligned[i],
+                            query_aligned[i],
+                        )
+                    )
+                    i += 1  # Continue
+
                 # Match
                 else:
-                    i += 1 # Continue
-                
+                    i += 1  # Continue
+
             # END WHILE ALIGNMENT
-            #if self.aa_snps:
+            # if self.aa_snps:
             #    print(pairwise2.format_alignment(*alignment))
 
         # END FOR GENE
@@ -333,11 +363,12 @@ class ReadExtractor():
         # TODO: is this the best way to do this?
         #       Ideally we should check the codon table in a degenerate-tolerant way to see
         #       if the ambiguous base affects the end AA assignment or not (it won't in a few cases)
-        self.aa_snps = [snp for snp in self.aa_snps if '?' not in snp[3] and '?' not in snp[4]]
-
+        self.aa_snps = [
+            snp for snp in self.aa_snps if "?" not in snp[3] and "?" not in snp[4]
+        ]
 
     def get_dna_snps(self):
-        '''Store list of NT SNPs/indels'''
+        """Store list of NT SNPs/indels"""
 
         # Join adjacent indels
         self.dna_snps = []
@@ -357,37 +388,38 @@ class ReadExtractor():
                 # is an ambiguous base (N)
                 # This is useless data bloat and should be removed as
                 # early as possible
-                if ref == 'N' or alt == 'N':
+                if ref == "N" or alt == "N":
                     continue
 
                 self.dna_snps.append((query_name, pos, ref, alt))
                 continue
-            
+
             # Check ahead for adjacent positions and the same indel type
             j = i
-            while (
-                    j < len(self.mutation_str) and 
-                    (
-                        (not self.mutation_str[j][2] and not ref) or # Both insertions
-                        (not self.mutation_str[j][3] and not alt)    # Both deletions
-                    )
-                ):
+            while j < len(self.mutation_str) and (
+                (not self.mutation_str[j][2] and not ref)
+                or (  # Both insertions
+                    not self.mutation_str[j][3] and not alt
+                )  # Both deletions
+            ):
                 j += 1
-            
+
             # Get adjacent indels
             adj_muts = self.mutation_str[i:j]
             # Combine bases, but keep first position and type
-            self.dna_snps.append((
-                query_name, pos,
-                ''.join([m[2] for m in adj_muts]),
-                ''.join([m[3] for m in adj_muts])
-            ))
+            self.dna_snps.append(
+                (
+                    query_name,
+                    pos,
+                    "".join([m[2] for m in adj_muts]),
+                    "".join([m[3] for m in adj_muts]),
+                )
+            )
             # Skip ahead to the end of the adjacent mutations
             i = j
 
-
     def process_all(self):
-        '''Do everything, return everything'''
+        """Do everything, return everything"""
 
         # Travel to the end of the read
         # so that we can collect additional mutations (if they exist)
@@ -402,10 +434,10 @@ class ReadExtractor():
         # but if there are, the translate() function will break when passed a string
         # that doesn't have a length of a multiple of 3.
         for gene in self.genes.keys():
-            self.genes[gene] = ''.join(self.genes[gene])
+            self.genes[gene] = "".join(self.genes[gene])
             self.genes_aa[gene] = translate(self.genes[gene])
 
         self.get_aa_snps()
 
         return self.genes, self.genes_aa, self.dna_snps, self.aa_snps
-    
+
