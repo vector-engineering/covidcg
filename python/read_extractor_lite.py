@@ -42,7 +42,6 @@ class ReadExtractor:
 
     RefSeq = ref_seq
     Genes = genes
-    Gene_AA = gene_aa
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -75,12 +74,9 @@ class ReadExtractor:
 
         # Store SNPs
         self.dna_snps = []
-        self.aa_snps = []
 
         # Store genes (as NT) in this dict
-        # We can translate to AA later
         self.genes = defaultdict(list)
-        self.genes_aa = {}
 
         # Read data from the pysam.AlignedSegment object into python variables
         self.load_read()
@@ -280,93 +276,6 @@ class ReadExtractor:
 
         # END WHILE
 
-    def get_aa_snps(self):
-        """Store list of AA SNPs/indels"""
-
-        self.aa_snps = []
-
-        # Pairwise align to reference
-        for gene, seq in self.genes_aa.items():
-            # -3 gap open penalty, -0.1 gap extend penalty
-            # Leaving gap penalties to 0 leads to sequential insertions/deletions. bad stuff
-            alignment = pairwise2.align.globalxs(
-                ReadExtractor.Gene_AA[gene],
-                seq,
-                -3,
-                -0.1,
-                one_alignment_only=True,
-                gap_char="-",
-            )[0]
-
-            # print(gene)
-            # print(pairwise2.format_alignment(*alignment))
-
-            ref_aligned = alignment[0]
-            query_aligned = alignment[1]
-
-            # Crawl through the pairwise alignment, similar to crawl_to(),
-            # and collect SNPs/indels
-            i = 0
-            while i < len(ref_aligned):
-                # If an insertion (gap in reference)
-                if ref_aligned[i] == "-":
-                    # Travel forwards until insertion is over,
-                    # unless we're at the end
-                    j = i + 1
-                    while j < len(ref_aligned) and ref_aligned[j] == "-":
-                        j += 1
-                    # Grab the entire insertion
-                    self.aa_snps.append(
-                        (self.read.query_name, gene, i, "", query_aligned[i:j])
-                    )
-                    i = j  # Continue
-
-                # If a deletion (gap in query)
-                elif query_aligned[i] == "-":
-                    # Travel forwards until the deletion is over
-                    # unless we're at the end
-                    j = i + 1
-                    while j < len(ref_aligned) and query_aligned[j] == "-":
-                        j += 1
-                    # Grab the entire deletion
-                    self.aa_snps.append(
-                        (self.read.query_name, gene, i, ref_aligned[i:j], "")
-                    )
-                    i = j  # Continue
-
-                # SNP/mismatch
-                elif ref_aligned[i] != query_aligned[i]:
-                    # Add the SNP
-                    self.aa_snps.append(
-                        (
-                            self.read.query_name,
-                            gene,
-                            i,
-                            ref_aligned[i],
-                            query_aligned[i],
-                        )
-                    )
-                    i += 1  # Continue
-
-                # Match
-                else:
-                    i += 1  # Continue
-
-            # END WHILE ALIGNMENT
-            # if self.aa_snps:
-            #    print(pairwise2.format_alignment(*alignment))
-
-        # END FOR GENE
-
-        # Remove any SNPs that contain unknown AAs
-        # (Due to ambiguous NTs)
-        # TODO: is this the best way to do this?
-        #       Ideally we should check the codon table in a degenerate-tolerant way to see
-        #       if the ambiguous base affects the end AA assignment or not (it won't in a few cases)
-        self.aa_snps = [
-            snp for snp in self.aa_snps if "?" not in snp[3] and "?" not in snp[4]
-        ]
-
     def get_dna_snps(self):
         """Store list of NT SNPs/indels"""
 
@@ -435,9 +344,5 @@ class ReadExtractor:
         # that doesn't have a length of a multiple of 3.
         for gene in self.genes.keys():
             self.genes[gene] = "".join(self.genes[gene])
-            self.genes_aa[gene] = translate(self.genes[gene])
 
-        self.get_aa_snps()
-
-        return self.genes, self.genes_aa, self.dna_snps, self.aa_snps
-
+        return self.genes, self.dna_snps

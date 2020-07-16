@@ -14,6 +14,7 @@ import subprocess
 from functools import partial
 
 from fasta import read_fasta_file
+from process_snps import load_dna_snps, process_gene_aa_snps, process_protein_aa_snps
 from read_extractor_lite import ReadExtractor
 from util import data_dir, static_data_dir
 
@@ -208,7 +209,6 @@ def process_snps_from_reads(sam_file_path, start, end):
     samfile = pysam.AlignmentFile(sam_file_path, "r")  # pylint: disable=no-member
 
     all_dna_snps = []
-    all_aa_snps = []
     counter = 0
     for read in samfile.fetch(until_eof=True):
 
@@ -224,16 +224,15 @@ def process_snps_from_reads(sam_file_path, start, end):
         read_extractor = ReadExtractor(read)
 
         # print(read.query_name)
-        genes, genes_aa, dna_snps, aa_snps = read_extractor.process_all()
+        dna_snps = read_extractor.process_all()
 
         all_dna_snps.extend(dna_snps)
-        all_aa_snps.extend(aa_snps)
 
         counter += 1
 
     samfile.close()
 
-    return (all_dna_snps, all_aa_snps)
+    return all_dna_snps
 
 
 def process_snps(num_processes=0):
@@ -241,24 +240,15 @@ def process_snps(num_processes=0):
     sam_files = sorted((data_dir / "sam").glob("*.sam"))
 
     dna_snp_folder_path = data_dir / "dna_snp"
-    aa_snp_folder_path = data_dir / "aa_snp"
-
     dna_snp_folder_path.mkdir(exist_ok=True)
-    aa_snp_folder_path.mkdir(exist_ok=True)
 
     # Get SNPs from each sam file
     for i, sam_file_path in enumerate(sam_files):
         # Output paths
         dna_snp_path = dna_snp_folder_path / (sam_file_path.stem + "_dna_snp.csv")
-        aa_snp_path = aa_snp_folder_path / (sam_file_path.stem + "_aa_snp.csv")
-
         # Skip if already done
-        if dna_snp_path.exists() and aa_snp_path.exists():
-            print(
-                "{} and {} already exist, skipping".format(
-                    dna_snp_path.name, aa_snp_path.name
-                )
-            )
+        if dna_snp_path.exists():
+            print("{} already exist, skipping".format(dna_snp_path.name))
             continue
 
         # Testing
@@ -283,11 +273,9 @@ def process_snps(num_processes=0):
         pool = mp.Pool(processes=num_processes)
 
         all_dna_snps = []
-        all_aa_snps = []
 
         def process_callback(ret):
-            all_dna_snps.extend(ret[0])
-            all_aa_snps.extend(ret[1])
+            all_dna_snps.extend(ret)
 
         def handle_error(e):
             raise e
@@ -309,14 +297,10 @@ def process_snps(num_processes=0):
         pool.join()
 
         # Write to disk
-
         # Open output files for writing
         fp_dna = dna_snp_path.open("w")
-        fp_aa = aa_snp_path.open("w")
-
         # Write headers
         fp_dna.write("taxon,pos,ref,alt\n")
-        fp_aa.write("taxon,gene,pos,ref,alt\n")
 
         # Write DNA SNPs/indels
         for snp in all_dna_snps:
@@ -324,27 +308,34 @@ def process_snps(num_processes=0):
                 "{},{},{},{}\n".format(snp[0], str(snp[1]), str(snp[2]), str(snp[3]))
             )
 
-        # Write AA SNPs/indels
-        for snp in all_aa_snps:
-            fp_aa.write(
-                "{},{},{},{},{}\n".format(
-                    snp[0], snp[1], str(snp[2]), str(snp[3]), str(snp[4])
-                )
-            )
-
         fp_dna.close()
-        fp_aa.close()
 
         print("done")
 
 
 def main():
-
     preprocess_sequences()
-
     align_sequences()
-
     process_snps()
+
+    dna_snp_df = load_dna_snps()
+    # print(dna_snp_df)
+
+    # Filter out indels and SNPs with length > 1
+    # Need to figure out what to do with those...
+    dna_snp_df = (
+        dna_snp_df.fillna("")
+        .loc[(dna_snp_df["ref"].str.len() == 1) & (dna_snp_df["alt"].str.len() == 1), :]
+        .reset_index(drop=True)
+    )
+
+    gene_aa_snp_df = process_gene_aa_snps(dna_snp_df)
+    # print(gene_aa_snp_df)
+    protein_aa_snp_df = process_protein_aa_snps(dna_snp_df)
+    # print(protein_aa_snp_df)
+
+    gene_aa_snp_df.to_csv(data_dir / "gene_aa_snp.csv", index=False)
+    protein_aa_snp_df.to_csv(data_dir / "protein_aa_snp.csv", index=False)
 
 
 if __name__ == "__main__":
