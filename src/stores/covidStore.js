@@ -258,6 +258,7 @@ class ObservableCovidStore {
       {
         groupKey: this.groupKey,
         dnaOrAa: this.dnaOrAa,
+        coordinateMode: this.coordinateMode,
         caseDataAggGroup: toJS(this.caseDataAggGroup),
       },
       (res) => {
