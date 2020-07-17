@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../stores/connect';
@@ -21,22 +21,28 @@ const SelectContainer = styled.div`
   }
 `;
 
-const ModeSelectForm = styled.form`
-  .radio {
-    margin-left: 10px;
-    margin-bottom: 5px;
+const ModeSelectForm = styled.form``;
 
-    label.checkbox-label {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
+const ModeRadio = styled.div`
+  margin-left: 10px;
+  margin-bottom: 5px;
+`;
 
-      padding-right: 10px;
+const ModeHorizontal = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-      input.checkbox-input {
-        margin: 0px 8px 0px 0px;
-      }
-    }
+  padding-right: 10px;
+
+  input.radio-input {
+    margin: 0px 8px 0px 0px;
+  }
+`;
+
+const ModeVertical = styled.label`
+  input.radio-input {
+    margin: 0px 8px 0px 0px;
   }
 `;
 
@@ -62,16 +68,53 @@ const SelectForm = styled.form`
     border-radius: 3px;
   }
 `;
+
+const CoordForm = styled.form`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  margin-top: 3px;
+  margin-left: 20px;
+  padding-right: 10px;
+
+  span {
+    font-weight: normal;
+    margin-right: 5px;
+  }
+  input {
+    margin-right: 5px;
+    max-width: 4rem;
+  }
+  button {
+    flex-grow: 1;
+  }
+`;
+
 const genes = getAllGenes();
 const proteins = getAllProteins();
 
 const GeneSelect = observer(() => {
   const { covidStore } = useStores();
 
+  const [state, setState] = useState({
+    customStart: covidStore.customCoordinates[0],
+    customEnd: covidStore.customCoordinates[1],
+  });
+
+  useEffect(() => {
+    setState({
+      ...state,
+      customStart: covidStore.customCoordinates[0],
+      customEnd: covidStore.customCoordinates[1],
+    });
+  }, [covidStore.customCoordinates]);
+
   const changeCoordinateMode = ({
     coordinateMode,
     selectedGene,
     selectedProtein,
+    customCoordinates,
   }) => {
     covidStore.changeCoordinateMode({
       coordinateMode:
@@ -86,6 +129,10 @@ const GeneSelect = observer(() => {
         selectedProtein === undefined
           ? covidStore.selectedProtein.protein
           : selectedProtein,
+      customCoordinates:
+        customCoordinates === undefined
+          ? covidStore.customCoordinates
+          : customCoordinates,
     });
   };
 
@@ -99,6 +146,19 @@ const GeneSelect = observer(() => {
 
   const handleProteinChange = (event) => {
     changeCoordinateMode({ selectedProtein: event.target.value });
+  };
+
+  const handleCustomCoordStartChange = (event) => {
+    setState({ ...state, customStart: event.target.value });
+  };
+  const handleCustomCoordEndChange = (event) => {
+    setState({ ...state, customEnd: event.target.value });
+  };
+  const handleCustomCoordSubmit = (event) => {
+    event.preventDefault();
+    changeCoordinateMode({
+      customCoordinates: [state.customStart, state.customEnd],
+    });
   };
 
   // Create option elements
@@ -141,10 +201,10 @@ const GeneSelect = observer(() => {
     <SelectContainer>
       <span className="title">Genomic Coordinates</span>
       <ModeSelectForm>
-        <div className="radio">
-          <label className="checkbox-label">
+        <ModeRadio>
+          <ModeHorizontal>
             <input
-              className="checkbox-input"
+              className="radio-input"
               type="radio"
               value="gene"
               checked={covidStore.coordinateMode === 'gene'}
@@ -159,12 +219,12 @@ const GeneSelect = observer(() => {
                 {geneOptionElements}
               </select>
             </SelectForm>
-          </label>
-        </div>
-        <div className="radio">
-          <label className="checkbox-label">
+          </ModeHorizontal>
+        </ModeRadio>
+        <ModeRadio>
+          <ModeHorizontal>
             <input
-              className="checkbox-input"
+              className="radio-input"
               type="radio"
               value="protein"
               checked={covidStore.coordinateMode === 'protein'}
@@ -179,8 +239,41 @@ const GeneSelect = observer(() => {
                 {proteinOptionElements}
               </select>
             </SelectForm>
-          </label>
-        </div>
+          </ModeHorizontal>
+        </ModeRadio>
+        <ModeRadio>
+          <ModeVertical>
+            <input
+              className="radio-input"
+              type="radio"
+              value="custom"
+              checked={covidStore.coordinateMode === 'custom'}
+              onChange={handleModeChange}
+            />
+            Custom Coordinates:
+            <CoordForm>
+              <span>From</span>
+              <input
+                type="number"
+                min={1}
+                max={29903}
+                step={1}
+                value={state.customStart}
+                onChange={handleCustomCoordStartChange}
+              />
+              <span>To</span>
+              <input
+                type="number"
+                min={1}
+                max={29903}
+                step={1}
+                value={state.customEnd}
+                onChange={handleCustomCoordEndChange}
+              />
+              <button onClick={handleCustomCoordSubmit}>OK</button>
+            </CoordForm>
+          </ModeVertical>
+        </ModeRadio>
       </ModeSelectForm>
     </SelectContainer>
   );

@@ -127,10 +127,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   const [areaStackMode, setAreaStackMode] = useState('percentages');
   const [ref, { width }] = useDimensions();
 
-  const handleGroupingChange = (groupKey, dnaOrAa) => {
-    covidStore.changeGrouping(groupKey, dnaOrAa);
-  };
-
   const handleBrush = (...args) => {
     //console.log(args);
     // this.setState({
@@ -226,11 +222,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         {/* <SideBar /> */}
         <FilterSidebar>
           <Header />
-          <GroupBySelect
-            groupKey={covidStore.groupKey}
-            dnaOrAa={covidStore.dnaOrAa}
-            onChange={handleGroupingChange}
-          />
+          <GroupBySelect />
           <GeneSelect />
 
           <DropdownContainer />

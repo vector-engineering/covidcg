@@ -1,5 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
+import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
@@ -61,13 +63,15 @@ const RadioForm = styled.form`
   }
 `;
 
-const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
+const GroupBySelect = observer(() => {
+  const { covidStore } = useStores();
+
   let handleGroupKeyChange = (event) => {
-    onChange(event.target.value, dnaOrAa);
+    covidStore.changeGrouping(event.target.value, covidStore.dnaOrAa);
   };
 
   let handleDnaOrAaChange = (event) => {
-    onChange(groupKey, event.target.value);
+    covidStore.changeGrouping(covidStore.groupKey, event.target.value);
   };
 
   // group by options
@@ -92,7 +96,7 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
       <GroupKeySelectForm>
         <label>
           Group sequences by:
-          <select value={groupKey} onChange={handleGroupKeyChange}>
+          <select value={covidStore.groupKey} onChange={handleGroupKeyChange}>
             {optionElements}
           </select>
         </label>
@@ -106,7 +110,7 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
               id="dnaChoice"
               name="dnaOrAa"
               value="dna"
-              checked={dnaOrAa === 'dna'}
+              checked={covidStore.dnaOrAa === 'dna'}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="dnaChoice">NT</label>
@@ -117,7 +121,11 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
               id="aaChoice"
               name="dnaOrAa"
               value="aa"
-              checked={dnaOrAa === 'aa'}
+              checked={covidStore.dnaOrAa === 'aa'}
+              disabled={
+                covidStore.coordinateMode !== 'gene' &&
+                covidStore.coordinateMode !== 'protein'
+              }
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="aaChoice">AA</label>
@@ -126,18 +134,9 @@ const GroupBySelect = ({ groupKey, dnaOrAa, onChange }) => {
       </RadioForm>
     </SelectContainer>
   );
-};
+});
 
-GroupBySelect.propTypes = {
-  groupKey: PropTypes.string,
-  dnaOrAa: PropTypes.string,
-  onChange: PropTypes.func,
-};
-
-GroupBySelect.defaultProps = {
-  groupKey: 'lineage',
-  dnaOrAa: 'dna',
-  onChange: () => {},
-};
+GroupBySelect.propTypes = {};
+GroupBySelect.defaultProps = {};
 
 export default GroupBySelect;

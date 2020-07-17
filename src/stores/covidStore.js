@@ -25,6 +25,7 @@ class ObservableCovidStore {
 
   @observable selectedGene = {};
   @observable selectedProtein = {};
+  @observable customCoordinates = [8000, 12000];
 
   @observable coordinateMode = null;
   @observable coordinateRanges = [];
@@ -42,6 +43,7 @@ class ObservableCovidStore {
     // Select the Spike gene and nsp13 protein by default
     let defaultGene = getGene('S');
     let defaultProtein = getProtein('nsp13');
+    let defaultCustomCoordinates = [8000, 12000];
     // Selecting the gene as the coordinate range by default
     let defaultCoordinateMode = 'gene';
     let defaultCoordinateRanges = [[defaultGene.start, defaultGene.end]];
@@ -96,6 +98,8 @@ class ObservableCovidStore {
 
             this.selectedGene = defaultGene;
             this.selectedProtein = defaultProtein;
+            this.customCoordinates = defaultCustomCoordinates;
+
             this.coordinateMode = defaultCoordinateMode;
             this.coordinateRanges = defaultCoordinateRanges;
 
@@ -132,14 +136,21 @@ class ObservableCovidStore {
   }
 
   @action
-  changeCoordinateMode({ coordinateMode, selectedGene, selectedProtein }) {
+  changeCoordinateMode({
+    coordinateMode,
+    selectedGene,
+    selectedProtein,
+    customCoordinates,
+  }) {
     console.log('CHANGE COORDINATE MODE', coordinateMode);
     console.log('SELECTED GENE:', selectedGene);
     console.log('SELECTED PROTEIN:', selectedProtein);
+    console.log('CUSTOM COORDINATES:', customCoordinates);
 
     this.coordinateMode = coordinateMode;
     this.selectedGene = getGene(selectedGene);
     this.selectedProtein = getProtein(selectedProtein);
+    this.customCoordinates = customCoordinates;
 
     // Set the coordinate range based off the coordinate mode
     if (coordinateMode === 'gene') {
@@ -148,6 +159,18 @@ class ObservableCovidStore {
       ];
     } else if (coordinateMode === 'protein') {
       this.coordinateRanges = this.selectedProtein.ranges;
+    } else if (coordinateMode === 'custom') {
+      this.coordinateRanges = [this.customCoordinates];
+    }
+
+    // If we switched to a coordinate mode that doesn't support AA SNPs,
+    // then switch off of it now
+    if (
+      this.dnaOrAa === 'aa' &&
+      this.coordinateMode !== 'gene' &&
+      this.coordinateMode !== 'protein'
+    ) {
+      this.dnaOrAa = 'dna';
     }
 
     this.updateCaseData();
