@@ -15,7 +15,7 @@ import areaStackSpecInitial from '../vega/area_stack.vl.json';
 import { connect } from '../stores/connect';
 import DataTableContainer from './Table/DataTableContainer';
 import Header from './Header';
-import SideBar from './Sidebar';
+// import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
