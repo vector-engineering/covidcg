@@ -3,7 +3,7 @@ import React from 'react';
 import LetterCell from '../Cells/LetterCell';
 import HeatmapCell from '../Cells/HeatmapCell';
 import PosHeaderCell from '../Cells/PosHeaderCell';
-import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
+// import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
 import { snapGeneHighlightColors } from '../../utils/colors';
 
 export const positionColumn = () => ({
@@ -44,6 +44,15 @@ export const altColumn = () => ({
 export const geneColumn = () => ({
   name: 'Gene',
   key: 'gene',
+  sortable: true,
+  width: 65,
+  cellClass: 'no-overflow',
+  frozen: true,
+});
+
+export const proteinColumn = () => ({
+  name: 'Protein',
+  key: 'protein',
   sortable: true,
   width: 65,
   cellClass: 'no-overflow',

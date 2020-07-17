@@ -131,10 +131,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
     covidStore.changeGrouping(groupKey, dnaOrAa);
   };
 
-  const handleGeneChange = (gene) => {
-    covidStore.selectGene(gene);
-  };
-
   const handleBrush = (...args) => {
     //console.log(args);
     // this.setState({
@@ -235,10 +231,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             dnaOrAa={covidStore.dnaOrAa}
             onChange={handleGroupingChange}
           />
-          <GeneSelect
-            selectedGene={covidStore.selectedGene}
-            onChange={handleGeneChange}
-          />
+          <GeneSelect />
 
           <DropdownContainer />
         </FilterSidebar>

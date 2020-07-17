@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
+import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 
 import { getAllGenes } from '../utils/gene';
+import { getAllProteins } from '../utils/protein';
 
 const SelectContainer = styled.div`
   display: flex;
@@ -10,17 +13,38 @@ const SelectContainer = styled.div`
   align-items: stretch;
   justify-content: flex-start;
 
-  margin: 5px;
-  padding: 5px 8px;
-  margin-top: 0px;
-  padding-top: 0px;
-  margin-bottom: 5px;
+  margin: 5px 5px 5px 5px;
+  padding: 0px 8px 5px 8px;
+
+  span.title {
+    margin-bottom: 5px;
+  }
 `;
-const GeneSelectForm = styled.form`
+
+const ModeSelectForm = styled.form`
+  .radio {
+    margin-left: 10px;
+    margin-bottom: 5px;
+
+    label.checkbox-label {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      padding-right: 10px;
+
+      input.checkbox-input {
+        margin: 0px 8px 0px 0px;
+      }
+    }
+  }
+`;
+
+const SelectForm = styled.form`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-right: 20px;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
 
   label {
     display: flex;
@@ -30,7 +54,6 @@ const GeneSelectForm = styled.form`
   }
 
   select {
-    margin-top: 5px;
     background-color: white;
     flex-grow: 1;
     margin-left: 0.65em;
@@ -39,72 +62,131 @@ const GeneSelectForm = styled.form`
     border-radius: 3px;
   }
 `;
-const PositionContainer = styled.div`
-  display: flex;
-  font-weight: normal;
-  font-size: 0.9em;
-  margin-top: 3px;
-  margin-left: 8px;
-  margin-right: 20px;
-  justify-content: space-between;
-`;
-const PosFrom = styled.div`
-  padding-right: 8px;
-  border-right: 1px solid #aaa;
-  flex-grow: 1;
-`;
-const PosTo = styled.div`
-  padding-left: 8px;
-  flex-grow: 1;
-`;
-
 const genes = getAllGenes();
+const proteins = getAllProteins();
 
-const GeneSelect = ({ selectedGene, onChange }) => {
-  const handleChange = (event) => {
-    onChange(event.target.value);
+const GeneSelect = observer(() => {
+  const { covidStore } = useStores();
+
+  const changeCoordinateMode = ({
+    coordinateMode,
+    selectedGene,
+    selectedProtein,
+  }) => {
+    covidStore.changeCoordinateMode({
+      coordinateMode:
+        coordinateMode === undefined
+          ? covidStore.coordinateMode
+          : coordinateMode,
+      selectedGene:
+        selectedGene === undefined
+          ? covidStore.selectedGene.gene
+          : selectedGene,
+      selectedProtein:
+        selectedProtein === undefined
+          ? covidStore.selectedProtein.protein
+          : selectedProtein,
+    });
+  };
+
+  const handleModeChange = (event) => {
+    changeCoordinateMode({ coordinateMode: event.target.value });
+  };
+
+  const handleGeneChange = (event) => {
+    changeCoordinateMode({ selectedGene: event.target.value });
+  };
+
+  const handleProteinChange = (event) => {
+    changeCoordinateMode({ selectedProtein: event.target.value });
   };
 
   // Create option elements
-  let optionElements = [];
+
+  // GENE
+  let geneOptionElements = [];
   // All Genes option
-  optionElements.push(
+  geneOptionElements.push(
     <option key="all" value="all">
       All Genes
     </option>
   );
 
   genes.forEach((gene) => {
-    optionElements.push(
+    geneOptionElements.push(
       <option key={gene.gene} value={gene.gene}>
-        {gene.gene}
+        {gene.gene}&nbsp;&nbsp;({gene.start}..{gene.end})
+      </option>
+    );
+  });
+
+  // PROTEIN
+  let proteinOptionElements = [];
+  // All Proteins option
+  proteinOptionElements.push(
+    <option key="all" value="all">
+      All Proteins
+    </option>
+  );
+
+  proteins.forEach((protein) => {
+    proteinOptionElements.push(
+      <option key={protein.protein} value={protein.protein}>
+        {protein.protein}&nbsp;&nbsp;({protein.segments})
       </option>
     );
   });
 
   return (
     <SelectContainer>
-      <GeneSelectForm>
-        <label>Gene:</label>
-        <select value={selectedGene.gene} onChange={handleChange}>
-          {optionElements}
-        </select>
-      </GeneSelectForm>
-      <PositionContainer>
-        <PosFrom>From: {selectedGene.start}</PosFrom>
-        <PosTo>To: {selectedGene.end}</PosTo>
-      </PositionContainer>
+      <span className="title">Genomic Coordinates</span>
+      <ModeSelectForm>
+        <div className="radio">
+          <label className="checkbox-label">
+            <input
+              className="checkbox-input"
+              type="radio"
+              value="gene"
+              checked={covidStore.coordinateMode === 'gene'}
+              onChange={handleModeChange}
+            />
+            <SelectForm>
+              <label>Gene:</label>
+              <select
+                value={covidStore.selectedGene.gene}
+                onChange={handleGeneChange}
+              >
+                {geneOptionElements}
+              </select>
+            </SelectForm>
+          </label>
+        </div>
+        <div className="radio">
+          <label className="checkbox-label">
+            <input
+              className="checkbox-input"
+              type="radio"
+              value="protein"
+              checked={covidStore.coordinateMode === 'protein'}
+              onChange={handleModeChange}
+            />
+            <SelectForm>
+              <label>Protein:</label>
+              <select
+                value={covidStore.selectedProtein.protein}
+                onChange={handleProteinChange}
+              >
+                {proteinOptionElements}
+              </select>
+            </SelectForm>
+          </label>
+        </div>
+      </ModeSelectForm>
     </SelectContainer>
   );
-};
+});
 
-GeneSelect.propTypes = {
-  selectedGene: PropTypes.object.isRequired,
-  onChange: PropTypes.func,
-};
-
-GeneSelect.defaultProps = {
-  onChange: () => {},
-};
+GeneSelect.propTypes = {};
+GeneSelect.defaultProps = {};
 
 export default GeneSelect;

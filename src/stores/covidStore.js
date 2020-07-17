@@ -9,6 +9,7 @@ import {
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
 import { getGene } from '../utils/gene';
+import { getProtein } from '../utils/protein';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
   loadSelectTree,
@@ -25,8 +26,8 @@ class ObservableCovidStore {
   @observable selectedGene = {};
   @observable selectedProtein = {};
 
-  @observable startPos = null;
-  @observable endPos = null;
+  @observable coordinateMode = null;
+  @observable coordinateRanges = [];
 
   @observable selectTree = [];
   @observable selectedLocationIds = [];
@@ -38,8 +39,12 @@ class ObservableCovidStore {
   @observable groupsToKeep = {};
 
   constructor() {
-    // Select the Spike gene by default
+    // Select the Spike gene and nsp13 protein by default
     let defaultGene = getGene('S');
+    let defaultProtein = getProtein('nsp13');
+    // Selecting the gene as the coordinate range by default
+    let defaultCoordinateMode = 'gene';
+    let defaultCoordinateRanges = [[defaultGene.start, defaultGene.end]];
 
     let selectTree = loadSelectTree();
     // Select NYC by default
@@ -63,7 +68,10 @@ class ObservableCovidStore {
     processCaseData(
       {
         selectedLocationIds: toJS(initialLocationIds),
+        coordinateMode: toJS(defaultCoordinateMode),
+        coordinateRanges: toJS(defaultCoordinateRanges),
         selectedGene: toJS(defaultGene),
+        selectedProtein: toJS(defaultProtein),
         groupKey: toJS(initialGroupKey),
         dnaOrAa: toJS(initialDnaOrAa),
       },
@@ -73,7 +81,10 @@ class ObservableCovidStore {
         aggCaseDataByGroup(
           {
             caseData: toJS(aggCaseDataList),
+            coordinateMode: toJS(defaultCoordinateMode),
+            coordinateRanges: toJS(defaultCoordinateRanges),
             selectedGene: toJS(defaultGene),
+            selectedProtein: toJS(defaultProtein),
             groupKey: toJS(initialGroupKey),
             dnaOrAa: toJS(initialDnaOrAa),
             dateRange: toJS(initialDateRange),
@@ -82,7 +93,12 @@ class ObservableCovidStore {
             this.groupsToKeep = groupsToKeepObj;
             this.groupKey = initialGroupKey;
             this.dnaOrAa = initialDnaOrAa;
+
             this.selectedGene = defaultGene;
+            this.selectedProtein = defaultProtein;
+            this.coordinateMode = defaultCoordinateMode;
+            this.coordinateRanges = defaultCoordinateRanges;
+
             this.selectTree = selectTree;
             this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
             this.caseData = aggCaseDataList;
@@ -116,14 +132,23 @@ class ObservableCovidStore {
   }
 
   @action
-  selectGene(_selectedGene) {
-    // im not sure what this var actually is
-    console.log('SELECT_GENE', _selectedGene);
-    this.selectedGene = getGene(_selectedGene);
+  changeCoordinateMode({ coordinateMode, selectedGene, selectedProtein }) {
+    console.log('CHANGE COORDINATE MODE', coordinateMode);
+    console.log('SELECTED GENE:', selectedGene);
+    console.log('SELECTED PROTEIN:', selectedProtein);
 
-    // Get matching clade_ids
-    //let lineages = getLineagesFromGene(this.selectedGene);
-    //this.selectedLineages = lineages;
+    this.coordinateMode = coordinateMode;
+    this.selectedGene = getGene(selectedGene);
+    this.selectedProtein = getProtein(selectedProtein);
+
+    // Set the coordinate range based off the coordinate mode
+    if (coordinateMode === 'gene') {
+      this.coordinateRanges = [
+        [this.selectedGene.start, this.selectedGene.end],
+      ];
+    } else if (coordinateMode === 'protein') {
+      this.coordinateRanges = this.selectedProtein.ranges;
+    }
 
     this.updateCaseData();
   }
@@ -151,7 +176,10 @@ class ObservableCovidStore {
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
+        coordinateMode: toJS(this.coordinateMode),
+        coordinateRanges: toJS(this.coordinateRanges),
         selectedGene: toJS(this.selectedGene),
+        selectedProtein: toJS(this.selectedProtein),
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
         dateRange: toJS(this.dateRange),
@@ -184,7 +212,10 @@ class ObservableCovidStore {
     processCaseData(
       {
         selectedLocationIds: toJS(this.selectedLocationIds),
+        coordinateMode: toJS(this.coordinateMode),
+        coordinateRanges: toJS(this.coordinateRanges),
         selectedGene: toJS(this.selectedGene),
+        selectedProtein: toJS(this.selectedProtein),
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
       },
