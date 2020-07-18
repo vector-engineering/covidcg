@@ -18,5 +18,12 @@ export function getAllProteins() {
 }
 
 export function getProtein(_protein) {
-  return _.findWhere(processedProteins, { protein: _protein });
+  // There's no object for "All Genes", so make one now
+  return _protein === 'All Proteins'
+    ? {
+        protein: 'All Proteins',
+        start: 1,
+        end: 30000,
+      }
+    : _.findWhere(processedProteins, { protein: _protein });
 }

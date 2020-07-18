@@ -407,6 +407,7 @@ function aggCaseDataByGroup({
           }
         });
       } else {
+        // AA-mode
         lineageSnps.forEach((snp) => {
           if (coordinateMode === 'gene') {
             inRange = snp.gene === selectedGene.gene;

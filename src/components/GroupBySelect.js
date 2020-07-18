@@ -97,6 +97,30 @@ const GroupBySelect = observer(() => {
     );
   });
 
+  let aaDisabledMessage = '';
+  let aaDisabled = false;
+  if (
+    covidStore.coordinateMode !== 'gene' &&
+    covidStore.coordinateMode !== 'protein'
+  ) {
+    aaDisabledMessage = ' (only for gene/protein)';
+    aaDisabled = true;
+  } else if (covidStore.groupKey !== 'snp') {
+    if (
+      covidStore.coordinateMode === 'gene' &&
+      covidStore.selectedGene.gene === 'All Genes'
+    ) {
+      aaDisabled = true;
+      aaDisabledMessage = ' (please select one gene)';
+    } else if (
+      covidStore.coordinateMode === 'protein' &&
+      covidStore.selectedProtein.protein === 'All Proteins'
+    ) {
+      aaDisabled = true;
+      aaDisabledMessage = ' (please select one protein)';
+    }
+  }
+
   return (
     <SelectContainer>
       <GroupKeySelectForm>
@@ -128,20 +152,12 @@ const GroupBySelect = observer(() => {
               name="dnaOrAa"
               value="aa"
               checked={covidStore.dnaOrAa === 'aa'}
-              disabled={
-                covidStore.coordinateMode !== 'gene' &&
-                covidStore.coordinateMode !== 'protein'
-              }
+              disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="aaChoice">
               AA
-              <span className="disabled-text">
-                {covidStore.coordinateMode !== 'gene' &&
-                covidStore.coordinateMode !== 'protein'
-                  ? ' (only for gene/protein)'
-                  : ''}
-              </span>
+              <span className="disabled-text">{aaDisabledMessage}</span>
             </label>
           </div>
         </div>

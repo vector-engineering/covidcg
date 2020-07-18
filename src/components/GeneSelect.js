@@ -243,6 +243,28 @@ const proteins = getAllProteins();
 const GeneSelect = observer(() => {
   const { covidStore } = useStores();
 
+  // Create option elements
+
+  // GENE
+  let geneOptionElements = [];
+  genes.forEach((gene) => {
+    geneOptionElements.push(
+      <option key={gene.gene} value={gene.gene}>
+        {gene.gene}&nbsp;&nbsp;({gene.start}..{gene.end})
+      </option>
+    );
+  });
+
+  // PROTEIN
+  let proteinOptionElements = [];
+  proteins.forEach((protein) => {
+    proteinOptionElements.push(
+      <option key={protein.protein} value={protein.protein}>
+        {protein.protein}&nbsp;&nbsp;({protein.segments})
+      </option>
+    );
+  });
+
   const [state, setState] = useState({
     primerTreeData: Object.assign(getPrimerSelectTree()),
     selectedPrimers: [],
@@ -251,6 +273,19 @@ const GeneSelect = observer(() => {
     customEnd: covidStore.customCoordinates[1],
   });
 
+  // Disable "All Genes" and "All Proteins" option
+  // when in AA mode and non-SNP grouping
+  // useEffect(() => {
+  //   let _geneOptionElements = state.geneOptionElements;
+  //   let _proteinOptionElements = state.proteinOptionElements;
+
+  //   if (covidStore.groupKey !== 'snp' && covidStore.dnaOrAa === 'aa') {
+
+  //   }
+
+  // }, [covidStore.groupKey, covidStore.dnaOrAa]);
+
+  // Update custom coordinates from the store
   useEffect(() => {
     setState({
       ...state,
@@ -380,42 +415,6 @@ const GeneSelect = observer(() => {
     });
   };
 
-  // Create option elements
-
-  // GENE
-  let geneOptionElements = [];
-  // All Genes option
-  geneOptionElements.push(
-    <option key="all" value="all">
-      All Genes
-    </option>
-  );
-
-  genes.forEach((gene) => {
-    geneOptionElements.push(
-      <option key={gene.gene} value={gene.gene}>
-        {gene.gene}&nbsp;&nbsp;({gene.start}..{gene.end})
-      </option>
-    );
-  });
-
-  // PROTEIN
-  let proteinOptionElements = [];
-  // All Proteins option
-  proteinOptionElements.push(
-    <option key="all" value="all">
-      All Proteins
-    </option>
-  );
-
-  proteins.forEach((protein) => {
-    proteinOptionElements.push(
-      <option key={protein.protein} value={protein.protein}>
-        {protein.protein}&nbsp;&nbsp;({protein.segments})
-      </option>
-    );
-  });
-
   // This component needs to be in a memoized function
   // since it manages its own local state. It should never be re-rendered
   // forcefully
@@ -459,6 +458,15 @@ const GeneSelect = observer(() => {
               value={covidStore.selectedGene.gene}
               onChange={handleGeneChange}
             >
+              <option
+                key="All Genes"
+                value="All Genes"
+                disabled={
+                  covidStore.groupKey !== 'snp' && covidStore.dnaOrAa === 'aa'
+                }
+              >
+                All Genes
+              </option>
               {geneOptionElements}
             </select>
           </SelectForm>
@@ -479,6 +487,15 @@ const GeneSelect = observer(() => {
               value={covidStore.selectedProtein.protein}
               onChange={handleProteinChange}
             >
+              <option
+                key="All Proteins"
+                value="All Proteins"
+                disabled={
+                  covidStore.groupKey !== 'snp' && covidStore.dnaOrAa === 'aa'
+                }
+              >
+                All Proteins
+              </option>
               {proteinOptionElements}
             </select>
           </SelectForm>

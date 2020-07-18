@@ -136,6 +136,19 @@ class ObservableCovidStore {
     this.groupKey = _groupKey;
     this.dnaOrAa = _dnaOrAa;
 
+    // If we switched to non-SNP grouping in AA-mode,
+    // then make sure we don't have "All Genes" or "All Proteins" selected
+    if (this.groupKey !== 'snp' && this.dnaOrAa === 'aa') {
+      if (this.selectedGene.gene === 'All Genes') {
+        // Switch back to S gene
+        this.selectedGene = getGene('S');
+      }
+      if (this.selectedProtein.protein === 'All Proteins') {
+        // Switch back to nsp13 protein
+        this.selectedProtein = getProtein('nsp13');
+      }
+    }
+
     this.updateCaseData();
   }
 
@@ -147,11 +160,11 @@ class ObservableCovidStore {
     selectedPrimers,
     customCoordinates,
   }) {
-    console.log('CHANGE COORDINATE MODE', coordinateMode);
-    console.log('SELECTED GENE:', selectedGene);
-    console.log('SELECTED PROTEIN:', selectedProtein);
-    console.log('SELECTED PRIMERS:', selectedPrimers);
-    console.log('CUSTOM COORDINATES:', customCoordinates);
+    // console.log('CHANGE COORDINATE MODE', coordinateMode);
+    // console.log('SELECTED GENE:', selectedGene);
+    // console.log('SELECTED PROTEIN:', selectedProtein);
+    // console.log('SELECTED PRIMERS:', selectedPrimers);
+    // console.log('CUSTOM COORDINATES:', customCoordinates);
 
     let initial = Object.assign({
       coordinateMode: toJS(this.coordinateMode),

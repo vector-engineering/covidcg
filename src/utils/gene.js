@@ -9,7 +9,7 @@ export function getGene(value) {
   // Get the selected gene object
   return (
     // There's no object for "All Genes", so make one now
-    value === 'all'
+    value === 'All Genes'
       ? {
           gene: 'All Genes',
           start: 1,
