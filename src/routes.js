@@ -5,17 +5,19 @@ import HomePage from './components/HomePage';
 import AboutPage from './components/AboutPage';
 import NotFoundPage from './components/NotFoundPage';
 
+export const publicPath = '/';
+
 const routes = {
   home: new Route({
-    path: '/',
+    path: publicPath,
     component: <HomePage />,
   }),
   home_index: new Route({
-    path: '/index.html',
+    path: publicPath + 'index.html',
     component: <HomePage />,
   }),
   about: new Route({
-    path: '/about',
+    path: publicPath + 'about',
     component: <AboutPage />,
     onEnter: () => {
       // we could do stuff here
