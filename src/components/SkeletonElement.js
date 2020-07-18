@@ -16,7 +16,7 @@ const loadingAnim = keyframes`
 `;
 
 const SkeletonContainer = styled.div`
-  height: ${({ height }) => height};
+  height: ${({ height }) => height}px;
   width: 100%;
   background-color: #eee;
   animation-name: ${loadingAnim};

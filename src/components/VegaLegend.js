@@ -1,4 +1,5 @@
 import React from 'react';
+import { observer } from 'mobx-react';
 import styled from 'styled-components';
 
 import { useStores } from '../stores/connect';
@@ -33,7 +34,7 @@ const LegendText = styled.span`
   font-weight: 400;
 `;
 
-const VegaLegend = () => {
+const VegaLegend = observer(() => {
   const { covidStore, uiStore } = useStores();
 
   if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -68,7 +69,7 @@ const VegaLegend = () => {
   return (
     <LegendList>{renderLegendKeys(covidStore.caseDataAggGroup)}</LegendList>
   );
-};
+});
 
 VegaLegend.displayName = 'VegaLegend';
 
