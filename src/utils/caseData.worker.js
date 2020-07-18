@@ -386,7 +386,6 @@ function aggCaseDataByGroup({
     let inRange = false;
     Object.keys(caseDataAggGroup).forEach((lineage) => {
       let lineageSnps = lineageSnpFunc(lineage);
-
       if (dnaOrAa === 'dna') {
         lineageSnps.forEach((snp) => {
           inRange = _.some(coordinateRanges, (range) => {

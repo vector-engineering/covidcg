@@ -22,8 +22,7 @@ export function getProtein(_protein) {
   return _protein === 'All Proteins'
     ? {
         protein: 'All Proteins',
-        start: 1,
-        end: 30000,
+        ranges: [[1, 30000]],
       }
     : _.findWhere(processedProteins, { protein: _protein });
 }
