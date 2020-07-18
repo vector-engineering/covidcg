@@ -20,7 +20,7 @@ import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './VegaLegend';
-import VegaTree from './VegaTree';
+// import VegaTree from './VegaTree';
 import AccordionWrapper from './AccordionWrapper';
 import VegaWrapper from './VegaWrapper';
 import AcknowledgementsTable from './AcknowledgementsTable';
@@ -245,9 +245,10 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             <VegaLegend />
           </AccordionWrapper>
           {renderPlotContent()}
-          {covidStore.groupKey === 'lineage' && (
+
+          {/*covidStore.groupKey === 'lineage' && (
             <VegaTree width={width} data={covidStore.caseDataAggGroup} />
-          )}
+          )*/}
 
           <AccordionWrapper
             title="table"
