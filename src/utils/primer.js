@@ -25,7 +25,7 @@ processedPrimers.forEach((primer) => {
   });
 });
 
-console.log(primerSelectTree);
+// console.log(primerSelectTree);
 
 export function getAllPrimers() {
   return processedPrimers;

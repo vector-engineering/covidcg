@@ -21,108 +21,44 @@ import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
-  @observable groupKey = null;
-  @observable dnaOrAa = null;
+  @observable groupKey = 'lineage';
+  @observable dnaOrAa = 'dna';
 
-  @observable selectedGene = {};
-  @observable selectedProtein = {};
+  // Select the Spike gene and nsp13 protein by default
+  @observable selectedGene = getGene('S');
+  @observable selectedProtein = getProtein('nsp13');
   @observable selectedPrimers = [];
   @observable customCoordinates = [8000, 12000];
 
-  @observable coordinateMode = null;
-  @observable coordinateRanges = [];
+  // Selecting the gene as the coordinate range by default
+  @observable coordinateMode = 'gene';
+  @observable coordinateRanges = [
+    [this.selectedGene.start, this.selectedGene.end],
+  ];
 
-  @observable selectTree = [];
+  @observable selectTree = loadSelectTree();
   @observable selectedLocationIds = [];
   @observable caseData = [];
   @observable changingPositions = {};
   @observable caseDataAggGroup = [];
-  @observable dateRange = [];
+  @observable dateRange = [-1, -1]; // No initial date range
   @observable selectedRows = [];
   @observable groupsToKeep = {};
 
   constructor() {
-    // Select the Spike gene and nsp13 protein by default
-    let defaultGene = getGene('S');
-    let defaultProtein = getProtein('nsp13');
-    let defaultSelectedPrimers = [];
-    let defaultCustomCoordinates = [8000, 12000];
-    // Selecting the gene as the coordinate range by default
-    let defaultCoordinateMode = 'gene';
-    let defaultCoordinateRanges = [[defaultGene.start, defaultGene.end]];
-
-    let selectTree = loadSelectTree();
     // Select NYC by default
     let NYCNode = getLocationByNameAndLevel(
-      selectTree,
+      this.selectTree,
       'New York City',
       'location'
     );
     NYCNode[0].checked = true;
     let NYCLocationId = getLocationIds(NYCNode);
-
-    let initialGroupKey = 'lineage';
-    let initialDnaOrAa = 'dna';
-    let initialLocationIds = NYCLocationId;
-
-    // No initial date range
-    let initialDateRange = [-1, -1];
+    this.selectedLocationIds = NYCLocationId;
 
     uiStoreInstance.onCaseDataStateStarted();
 
-    processCaseData(
-      {
-        selectedLocationIds: toJS(initialLocationIds),
-        coordinateMode: toJS(defaultCoordinateMode),
-        coordinateRanges: toJS(defaultCoordinateRanges),
-        selectedGene: toJS(defaultGene),
-        selectedProtein: toJS(defaultProtein),
-        groupKey: toJS(initialGroupKey),
-        dnaOrAa: toJS(initialDnaOrAa),
-      },
-      ({ aggCaseDataList, selectedRows }) => {
-        uiStoreInstance.onAggCaseDataStarted();
-
-        aggCaseDataByGroup(
-          {
-            caseData: toJS(aggCaseDataList),
-            coordinateMode: toJS(defaultCoordinateMode),
-            coordinateRanges: toJS(defaultCoordinateRanges),
-            selectedGene: toJS(defaultGene),
-            selectedProtein: toJS(defaultProtein),
-            groupKey: toJS(initialGroupKey),
-            dnaOrAa: toJS(initialDnaOrAa),
-            dateRange: toJS(initialDateRange),
-          },
-          ({ changingPositions, caseDataAggGroup, groupsToKeepObj }) => {
-            this.groupsToKeep = groupsToKeepObj;
-            this.groupKey = initialGroupKey;
-            this.dnaOrAa = initialDnaOrAa;
-
-            this.selectedGene = defaultGene;
-            this.selectedProtein = defaultProtein;
-            this.selectedPrimers = defaultSelectedPrimers;
-            this.customCoordinates = defaultCustomCoordinates;
-
-            this.coordinateMode = defaultCoordinateMode;
-            this.coordinateRanges = defaultCoordinateRanges;
-
-            this.selectTree = selectTree;
-            this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
-            this.caseData = aggCaseDataList;
-            this.changingPositions = changingPositions;
-            this.caseDataAggGroup = caseDataAggGroup;
-            this.dateRange = initialDateRange;
-            this.selectedRows = selectedRows;
-
-            console.log('DATA INIT FINISHED');
-
-            uiStoreInstance.onAggCaseDataFinished();
-            uiStoreInstance.onCaseDataStateFinished();
-          }
-        );
-      }
-    );
+    this.updateCaseData();
   }
 
   @action
