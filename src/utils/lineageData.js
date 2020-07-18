@@ -1,8 +1,8 @@
 import lineageSnpData from '../../data/lineage_snp.json';
-import refSeq from '../../data/reference.json';
+import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
-import { intToDnaSnp, intToAaSnp } from './snpData';
+import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
 
 export function loadLineageSnp() {
   return lineageSnpData;
@@ -22,14 +22,24 @@ export function getDnaSnpsFromLineage(lineage) {
   return _.map(snpIds, (snpId) => intToDnaSnp(parseInt(snpId)));
 }
 
-export function getAaSnpsFromLineage(lineage) {
+export function getGeneAaSnpsFromLineage(lineage) {
   let lineageObj = _.findWhere(lineageSnpData, { lineage: lineage });
   if (lineageObj === undefined) {
     return [];
   }
-  let snpIds = lineageObj.aa_snp_ids;
+  let snpIds = lineageObj.gene_aa_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
-  return _.map(snpIds, (snpId) => intToAaSnp(parseInt(snpId)));
+  return _.map(snpIds, (snpId) => intToGeneAaSnp(parseInt(snpId)));
+}
+
+export function getProteinAaSnpsFromLineage(lineage) {
+  let lineageObj = _.findWhere(lineageSnpData, { lineage: lineage });
+  if (lineageObj === undefined) {
+    return [];
+  }
+  let snpIds = lineageObj.protein_aa_snp_ids;
+  snpIds = _.reject(snpIds, (snpId) => snpId === '');
+  return _.map(snpIds, (snpId) => intToProteinAaSnp(parseInt(snpId)));
 }
 
 export function getLineagesWithDnaSnpInGene(gene) {
@@ -58,7 +68,27 @@ export function getLineagesWithAaSnpInGene(gene) {
   // Get lineages whose positions fall within start -- end
   lineageData.forEach((lineageObj) => {
     // Get SNP objects from this list of IDs
-    let snps = getAaSnpsFromLineage(lineageObj.lineage);
+    let snps = getGeneAaSnpsFromLineage(lineageObj.lineage);
+
+    snps.forEach((snp) => {
+      // If the SNP is on the gene of interest, then add it
+      if (snp.gene === gene.gene) {
+        validLineages.add(lineageObj.lineage);
+      }
+    });
+  });
+
+  return Array.from(validLineages);
+}
+
+export function getLineagesWithAaSnpInProtein(gene) {
+  let lineageData = loadLineageSnp();
+  let validLineages = new Set();
+
+  // Get lineages whose positions fall within start -- end
+  lineageData.forEach((lineageObj) => {
+    // Get SNP objects from this list of IDs
+    let snps = getProteinAaSnpsFromLineage(lineageObj.lineage);
 
     snps.forEach((snp) => {
       // If the SNP is on the gene of interest, then add it

@@ -1,4 +1,5 @@
 import { observable, action, toJS } from 'mobx';
+import _ from 'underscore';
 
 import {
   processCaseData,
@@ -8,7 +9,8 @@ import {
   downloadAcknowledgements,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
-import { getGene, loadGeneOptions } from '../utils/gene';
+import { getGene } from '../utils/gene';
+import { getProtein } from '../utils/protein';
 //import { getLineagesFromGene } from '../utils/lineageData';
 import {
   loadSelectTree,
@@ -21,10 +23,15 @@ import { uiStoreInstance } from './rootStore';
 class ObservableCovidStore {
   @observable groupKey = null;
   @observable dnaOrAa = null;
-  @observable genes = [];
+
   @observable selectedGene = {};
-  @observable startPos = null;
-  @observable endPos = null;
+  @observable selectedProtein = {};
+  @observable selectedPrimers = [];
+  @observable customCoordinates = [8000, 12000];
+
+  @observable coordinateMode = null;
+  @observable coordinateRanges = [];
+
   @observable selectTree = [];
   @observable selectedLocationIds = [];
   @observable caseData = [];
@@ -35,8 +42,14 @@ class ObservableCovidStore {
   @observable groupsToKeep = {};
 
   constructor() {
-    // Select the Spike gene by default
+    // Select the Spike gene and nsp13 protein by default
     let defaultGene = getGene('S');
+    let defaultProtein = getProtein('nsp13');
+    let defaultSelectedPrimers = [];
+    let defaultCustomCoordinates = [8000, 12000];
+    // Selecting the gene as the coordinate range by default
+    let defaultCoordinateMode = 'gene';
+    let defaultCoordinateRanges = [[defaultGene.start, defaultGene.end]];
 
     let selectTree = loadSelectTree();
     // Select NYC by default
@@ -60,7 +73,10 @@ class ObservableCovidStore {
     processCaseData(
       {
         selectedLocationIds: toJS(initialLocationIds),
+        coordinateMode: toJS(defaultCoordinateMode),
+        coordinateRanges: toJS(defaultCoordinateRanges),
         selectedGene: toJS(defaultGene),
+        selectedProtein: toJS(defaultProtein),
         groupKey: toJS(initialGroupKey),
         dnaOrAa: toJS(initialDnaOrAa),
       },
@@ -70,7 +86,10 @@ class ObservableCovidStore {
         aggCaseDataByGroup(
           {
             caseData: toJS(aggCaseDataList),
+            coordinateMode: toJS(defaultCoordinateMode),
+            coordinateRanges: toJS(defaultCoordinateRanges),
             selectedGene: toJS(defaultGene),
+            selectedProtein: toJS(defaultProtein),
             groupKey: toJS(initialGroupKey),
             dnaOrAa: toJS(initialDnaOrAa),
             dateRange: toJS(initialDateRange),
@@ -79,8 +98,15 @@ class ObservableCovidStore {
             this.groupsToKeep = groupsToKeepObj;
             this.groupKey = initialGroupKey;
             this.dnaOrAa = initialDnaOrAa;
-            this.genes = loadGeneOptions();
+
             this.selectedGene = defaultGene;
+            this.selectedProtein = defaultProtein;
+            this.selectedPrimers = defaultSelectedPrimers;
+            this.customCoordinates = defaultCustomCoordinates;
+
+            this.coordinateMode = defaultCoordinateMode;
+            this.coordinateRanges = defaultCoordinateRanges;
+
             this.selectTree = selectTree;
             this.selectedLocationIds = initialLocationIds; // TODO: select NYC by default
             this.caseData = aggCaseDataList;
@@ -110,18 +136,113 @@ class ObservableCovidStore {
     this.groupKey = _groupKey;
     this.dnaOrAa = _dnaOrAa;
 
+    // If we switched to non-SNP grouping in AA-mode,
+    // then make sure we don't have "All Genes" or "All Proteins" selected
+    if (this.groupKey !== 'snp' && this.dnaOrAa === 'aa') {
+      if (this.selectedGene.gene === 'All Genes') {
+        // Switch back to S gene
+        this.selectedGene = getGene('S');
+      }
+      if (this.selectedProtein.protein === 'All Proteins') {
+        // Switch back to nsp13 protein
+        this.selectedProtein = getProtein('nsp13');
+      }
+    }
+
     this.updateCaseData();
   }
 
   @action
-  selectGene(_selectedGene) {
-    // im not sure what this var actually is
-    console.log('SELECT_GENE', _selectedGene);
-    this.selectedGene = getGene(_selectedGene);
+  changeCoordinateMode({
+    coordinateMode,
+    selectedGene,
+    selectedProtein,
+    selectedPrimers,
+    customCoordinates,
+  }) {
+    // console.log('CHANGE COORDINATE MODE', coordinateMode);
+    // console.log('SELECTED GENE:', selectedGene);
+    // console.log('SELECTED PROTEIN:', selectedProtein);
+    // console.log('SELECTED PRIMERS:', selectedPrimers);
+    // console.log('CUSTOM COORDINATES:', customCoordinates);
 
-    // Get matching clade_ids
-    //let lineages = getLineagesFromGene(this.selectedGene);
-    //this.selectedLineages = lineages;
+    let initial = Object.assign({
+      coordinateMode: toJS(this.coordinateMode),
+      selectedGene: toJS(this.selectedGene),
+      selectedProtein: toJS(this.selectedProtein),
+      selectedPrimers: toJS(this.selectedPrimers),
+      customCoordinates: toJS(this.customCoordinates),
+    });
+    // console.log(initial);
+
+    this.coordinateMode = coordinateMode;
+    this.selectedGene = getGene(selectedGene);
+    this.selectedProtein = getProtein(selectedProtein);
+    this.selectedPrimers = selectedPrimers;
+    this.customCoordinates = customCoordinates;
+
+    // Set the coordinate range based off the coordinate mode
+    if (coordinateMode === 'gene') {
+      this.coordinateRanges = [
+        [this.selectedGene.start, this.selectedGene.end],
+      ];
+    } else if (coordinateMode === 'protein') {
+      this.coordinateRanges = this.selectedProtein.ranges;
+    } else if (coordinateMode === 'primer') {
+      let ranges = [];
+      this.selectedPrimers.forEach((primer) => {
+        ranges.push([primer.Start, primer.End]);
+      });
+      this.coordinateRanges = ranges;
+    } else if (coordinateMode === 'custom') {
+      this.coordinateRanges = [this.customCoordinates];
+    }
+
+    // If we switched to a coordinate mode that doesn't support AA SNPs,
+    // then switch off of it now
+    if (
+      this.dnaOrAa === 'aa' &&
+      this.coordinateMode !== 'gene' &&
+      this.coordinateMode !== 'protein'
+    ) {
+      this.dnaOrAa = 'dna';
+    }
+
+    // If nothing changed, then skip the update
+    if (this.coordinateMode !== initial.coordinateMode) {
+      // Do nothing
+    } else if (
+      this.coordinateMode === 'gene' &&
+      this.selectedGene.gene === initial.selectedGene.gene
+    ) {
+      return;
+    } else if (
+      this.coordinateMode === 'protein' &&
+      this.selectedProtein.protein == initial.selectedProtein.protein
+    ) {
+      return;
+    } else if (this.coordinateMode === 'primer') {
+      let changed = false;
+      if (this.selectedPrimers.length !== initial.selectedPrimers.length) {
+        changed = true;
+      } else {
+        for (let i = 0; i < this.selectedPrimers.length; i++) {
+          if (!_.isEqual(this.selectedPrimers[i], initial.selectedPrimers[i])) {
+            changed = true;
+            break;
+          }
+        }
+      }
+      if (!changed) {
+        return;
+      }
+    } else if (
+      this.coordinateMode === 'custom' &&
+      this.coordinateRanges[0][0] === initial.customCoordinates[0][0] &&
+      this.coordinateRanges[0][1] === initial.customCoordinates[0][1]
+    ) {
+      return;
+    }
 
     this.updateCaseData();
   }
@@ -149,7 +270,10 @@ class ObservableCovidStore {
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
+        coordinateMode: toJS(this.coordinateMode),
+        coordinateRanges: toJS(this.coordinateRanges),
         selectedGene: toJS(this.selectedGene),
+        selectedProtein: toJS(this.selectedProtein),
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
         dateRange: toJS(this.dateRange),
@@ -182,7 +306,10 @@ class ObservableCovidStore {
     processCaseData(
       {
         selectedLocationIds: toJS(this.selectedLocationIds),
+        coordinateMode: toJS(this.coordinateMode),
+        coordinateRanges: toJS(this.coordinateRanges),
         selectedGene: toJS(this.selectedGene),
+        selectedProtein: toJS(this.selectedProtein),
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
       },
@@ -225,6 +352,7 @@ class ObservableCovidStore {
       {
         groupKey: this.groupKey,
         dnaOrAa: this.dnaOrAa,
+        coordinateMode: this.coordinateMode,
         caseDataAggGroup: toJS(this.caseDataAggGroup),
       },
       (res) => {

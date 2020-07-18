@@ -1,6 +1,10 @@
 import initialCaseData from '../../data/case_data2.json';
-import { intToDnaSnp, intToAaSnp, dnaSnpInGene, aaSnpInGene } from './snpData';
-import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
+import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
+import {
+  getDnaSnpsFromLineage,
+  getGeneAaSnpsFromLineage,
+  getProteinAaSnpsFromLineage,
+} from './lineageData';
 import {
   warmColors,
   coolColors,
@@ -19,10 +23,6 @@ const processedCaseData = _.map(initialCaseData, (row) => {
 
   return row;
 });
-
-// function loadCaseData() {
-//   return processedCaseData;
-// }
 
 let _warmColors = Object.assign({}, warmColors);
 let _coolColors = Object.assign({}, coolColors);
@@ -84,41 +84,64 @@ function getParent(group) {
   return result;
 }
 
-function filterByGene(caseData, selectedGene, groupKey, dnaOrAa) {
-  // Don't need to do this if we're grouping by lineage
-  if (groupKey === 'lineage') {
-    return caseData;
-  }
-
-  // Don't need to do this if we selected all genes
-  if (selectedGene.gene === 'All Genes') {
-    return caseData;
-  }
-
-  console.log('selected gene:', selectedGene.gene);
-
+function filterByCoordinateRange({ caseData, coordinateRanges }) {
   let newCaseData = [];
 
-  if (groupKey === 'snp') {
-    if (dnaOrAa === 'dna') {
-      caseData.forEach((row) => {
-        // Only keep SNPs that are within
-        row['dna_snp_str'] = _.filter(row['dna_snp_str'], (snp_id) => {
-          return dnaSnpInGene(snp_id, selectedGene.gene);
-        });
-        newCaseData.push(row);
+  caseData.forEach((row) => {
+    // Only keep SNPs that are within
+    row['dna_snp_str'] = _.filter(row['dna_snp_str'], (snpId) => {
+      let snpObj = intToDnaSnp(snpId);
+      // Keep the SNP if it falls into any one of the ranges
+      return _.some(coordinateRanges, (range) => {
+        return snpObj.pos >= range[0] && snpObj.pos <= range[1];
       });
-    } else {
-      caseData.forEach((row) => {
-        // Only keep SNPs that are within
-        row['aa_snp_str'] = _.filter(row['aa_snp_str'], (snp_id) => {
-          return aaSnpInGene(snp_id, selectedGene.gene);
-        });
-        newCaseData.push(row);
-      });
+    });
+    newCaseData.push(row);
+  });
+
+  return newCaseData;
+}
+
+function filterByGeneOrProtein({
+  caseData,
+  coordinateMode,
+  selectedGene,
+  selectedProtein,
+}) {
+  let newCaseData = [];
+
+  if (coordinateMode === 'gene') {
+    // Don't need to do this if we selected all genes
+    if (selectedGene.gene === 'All Genes') {
+      return caseData;
     }
-  } /*else if (groupKey == 'snp_sig') {
-  }*/
+
+    caseData.forEach((row) => {
+      row['gene_aa_snp_str'] = _.filter(row['gene_aa_snp_str'], (snpId) => {
+        let snpObj = intToGeneAaSnp(snpId);
+        return snpObj.gene === selectedGene.gene;
+      });
+      newCaseData.push(row);
+    });
+  } else if (coordinateMode === 'protein') {
+    // Don't need to do this if we selected all proteins
+    if (selectedProtein.protein === 'All Proteins') {
+      return caseData;
+    }
+
+    caseData.forEach((row) => {
+      row['protein_aa_snp_str'] = _.filter(
+        row['protein_aa_snp_str'],
+        (snpId) => {
+          let snpObj = intToProteinAaSnp(snpId);
+          return snpObj.protein === selectedProtein.protein;
+        }
+      );
+      newCaseData.push(row);
+    });
+  } else {
+    return caseData;
+  }
 
   return newCaseData;
 }
@@ -135,17 +158,40 @@ function filterByDate(caseData, dateRange) {
   return caseData;
 }
 
-function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
+function processCaseData({
+  selectedLocationIds,
+  coordinateMode,
+  coordinateRanges,
+  selectedGene,
+  selectedProtein,
+  groupKey,
+  dnaOrAa,
+}) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
-  //console.log('filtering by locationIds', locationIds);
+  //console.log('filtering by selectedLocationIds', selectedLocationIds);
 
   // Filter by location
-  caseData = filterByLocation(caseData, locationIds);
+  caseData = filterByLocation(caseData, selectedLocationIds);
   console.log(caseData.length, 'rows remaining after location filtering');
-  // Filter by gene
-  caseData = filterByGene(caseData, selectedGene, groupKey, dnaOrAa);
-  console.log(caseData.length, 'rows remaining after gene filtering');
+  // Filter by coordinate range (DNA mode only)
+  if (groupKey === 'snp' && dnaOrAa === 'dna') {
+    caseData = filterByCoordinateRange({ caseData, coordinateRanges });
+    console.log(
+      caseData.length,
+      'rows remaining after coordinate range filtering'
+    );
+  }
+  // Filter by gene/protein (AA mode only, gene or protein selected)
+  if (groupKey === 'snp' && dnaOrAa === 'aa') {
+    caseData = filterByGeneOrProtein({
+      caseData,
+      coordinateMode,
+      selectedGene,
+      selectedProtein,
+    });
+    console.log(caseData.length, 'rows remaining after gene/protein filtering');
+  }
 
   // Get a list of Accession IDs and sample dates that are currently selected
   let selectedRows = _.map(caseData, (row) => {
@@ -164,12 +210,6 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
     // keys are literal
     if (groupKey === 'lineage') {
       groupKeys = [row['lineage']];
-    } else if (groupKey === 'snp_sig') {
-      if (dnaOrAa === 'dna') {
-        groupKeys = [row['dna_snp_sig']];
-      } else {
-        groupKeys = [row['aa_snp_sig']];
-      }
     }
     // If we're grouping by SNP, then the value is a semicolon-delimited
     // list of SNPs that we should treat separately
@@ -177,7 +217,11 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
       if (dnaOrAa === 'dna') {
         groupKeys = row['dna_snp_str'];
       } else {
-        groupKeys = row['aa_snp_str'];
+        if (coordinateMode === 'gene') {
+          groupKeys = row['gene_aa_snp_str'];
+        } else if (coordinateMode === 'protein') {
+          groupKeys = row['protein_aa_snp_str'];
+        }
       }
     }
 
@@ -193,7 +237,11 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
       if (groupKey === 'snp' && dnaOrAa === 'dna') {
         _groupKey = intToDnaSnp(_groupKey).snp_str;
       } else if (groupKey === 'snp' && dnaOrAa === 'aa') {
-        _groupKey = intToAaSnp(_groupKey).snp_str;
+        if (coordinateMode === 'gene') {
+          _groupKey = intToGeneAaSnp(_groupKey).snp_str;
+        } else if (coordinateMode === 'protein') {
+          _groupKey = intToProteinAaSnp(_groupKey).snp_str;
+        }
       }
 
       // Create an entry for the group, if it doesn't already exist
@@ -250,7 +298,10 @@ function processCaseData(locationIds, selectedGene, groupKey, dnaOrAa) {
 // in the data table
 function aggCaseDataByGroup({
   caseData,
+  coordinateMode,
+  coordinateRanges,
   selectedGene,
+  selectedProtein,
   groupKey,
   dnaOrAa,
   dateRange,
@@ -319,17 +370,29 @@ function aggCaseDataByGroup({
   let changingPositions = {};
   // If we grouped by lineages, then we need to find what SNPs
   // the lineages correspond to, and add their SNP positions
+  let lineageSnpFunc = null;
   if (groupKey === 'lineage') {
-    let lineageSnpFunc =
-      dnaOrAa === 'dna' ? getDnaSnpsFromLineage : getAaSnpsFromLineage;
+    if (dnaOrAa === 'dna') {
+      lineageSnpFunc = getDnaSnpsFromLineage;
+    } else {
+      if (coordinateMode === 'gene') {
+        lineageSnpFunc = getGeneAaSnpsFromLineage;
+      } else if (coordinateMode === 'protein') {
+        lineageSnpFunc = getProteinAaSnpsFromLineage;
+      }
+    }
 
     // For each lineage, add its changing positions
+    let inRange = false;
     Object.keys(caseDataAggGroup).forEach((lineage) => {
       let lineageSnps = lineageSnpFunc(lineage);
-
       if (dnaOrAa === 'dna') {
         lineageSnps.forEach((snp) => {
-          if (snp.pos > selectedGene.start && snp.pos < selectedGene.end) {
+          inRange = _.some(coordinateRanges, (range) => {
+            return snp.pos >= range[0] && snp.pos <= range[1];
+          });
+
+          if (inRange) {
             // positions are 1-indexed in the input file
             if (
               !Object.prototype.hasOwnProperty.call(
@@ -343,14 +406,25 @@ function aggCaseDataByGroup({
           }
         });
       } else {
+        // AA-mode
         lineageSnps.forEach((snp) => {
-          if (snp.gene === selectedGene.gene) {
+          if (coordinateMode === 'gene') {
+            inRange = snp.gene === selectedGene.gene;
+          } else if (coordinateMode === 'protein') {
+            inRange = snp.protein === selectedProtein.protein;
+          }
+
+          if (inRange) {
             // positions are 0-indexed in the input file
             if (
               !Object.prototype.hasOwnProperty.call(changingPositions, snp.pos)
             ) {
               changingPositions[snp.pos] = {};
-              changingPositions[snp.pos]['gene'] = snp.gene;
+              if (coordinateMode === 'gene') {
+                changingPositions[snp.pos]['gene'] = snp.gene;
+              } else if (coordinateMode === 'protein') {
+                changingPositions[snp.pos]['protein'] = snp.protein;
+              }
               changingPositions[snp.pos]['ref'] = snp.ref;
             }
           }
@@ -391,7 +465,11 @@ function aggCaseDataByGroup({
 
         if (!Object.prototype.hasOwnProperty.call(changingPositions, pos)) {
           changingPositions[pos] = {};
-          changingPositions[pos]['gene'] = snp_str_split[0];
+          if (coordinateMode === 'gene') {
+            changingPositions[pos]['gene'] = snp_str_split[0];
+          } else if (coordinateMode === 'protein') {
+            changingPositions[pos]['protein'] = snp_str_split[0];
+          }
           changingPositions[pos]['ref'] = snp_str_split[2];
         }
       });
@@ -435,7 +513,11 @@ function aggCaseDataByGroup({
         if (dnaOrAa == 'dna') {
           caseDataAggGroup[row]['pos'] = 'Reference';
         } else {
-          caseDataAggGroup[row]['gene'] = 'Reference';
+          if (coordinateMode === 'gene') {
+            caseDataAggGroup[row]['gene'] = 'Reference';
+          } else if (coordinateMode === 'protein') {
+            caseDataAggGroup[row]['protein'] = 'Reference';
+          }
         }
         return;
       }
@@ -447,8 +529,12 @@ function aggCaseDataByGroup({
         caseDataAggGroup[row]['ref'] = row_split[1];
         caseDataAggGroup[row]['alt'] = row_split[2];
       } else {
-        // AA SNP string: gene|pos|ref|alt
-        caseDataAggGroup[row]['gene'] = row_split[0];
+        // AA SNP string: gene|pos|ref|alt or protein|pos|ref|alt
+        if (coordinateMode === 'gene') {
+          caseDataAggGroup[row]['gene'] = row_split[0];
+        } else if (coordinateMode === 'protein') {
+          caseDataAggGroup[row]['protein'] = row_split[0];
+        }
         caseDataAggGroup[row]['pos'] = parseInt(row_split[1]);
         caseDataAggGroup[row]['ref'] = row_split[2];
         caseDataAggGroup[row]['alt'] = row_split[3];
@@ -469,8 +555,7 @@ function aggCaseDataByGroup({
       // If we grouped by lineage, use the lineage name
       // to find a potential SNP at this location
       else if (groupKey === 'lineage') {
-        let lineageSnpFunc =
-          dnaOrAa === 'dna' ? getDnaSnpsFromLineage : getAaSnpsFromLineage;
+        // lineageSnpFunc is defined above
         let lineageSnps = lineageSnpFunc(group);
 
         if (dnaOrAa === 'dna') {
@@ -573,12 +658,7 @@ self.addEventListener(
       result = aggCaseDataByGroup(data);
     } else if (data.type === 'processCaseData') {
       //console.log('into casedata for process', data);
-      result = processCaseData(
-        data.selectedLocationIds,
-        data.selectedGene,
-        data.groupKey,
-        data.dnaOrAa
-      );
+      result = processCaseData(data);
     }
     self.postMessage(JSON.stringify(result));
   },

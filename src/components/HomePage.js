@@ -15,7 +15,7 @@ import areaStackSpecInitial from '../vega/area_stack.vl.json';
 import { connect } from '../stores/connect';
 import DataTableContainer from './Table/DataTableContainer';
 import Header from './Header';
-import SideBar from './Sidebar';
+// import SideBar from './Sidebar';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
@@ -127,14 +127,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
   const [areaStackMode, setAreaStackMode] = useState('percentages');
   const [ref, { width }] = useDimensions();
 
-  const handleGroupingChange = (groupKey, dnaOrAa) => {
-    covidStore.changeGrouping(groupKey, dnaOrAa);
-  };
-
-  const handleGeneChange = (gene) => {
-    covidStore.selectGene(gene);
-  };
-
   const handleBrush = (...args) => {
     //console.log(args);
     // this.setState({
@@ -230,16 +222,8 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         {/* <SideBar /> */}
         <FilterSidebar>
           <Header />
-          <GroupBySelect
-            groupKey={covidStore.groupKey}
-            dnaOrAa={covidStore.dnaOrAa}
-            onChange={handleGroupingChange}
-          />
-          <GeneSelect
-            genes={covidStore.genes}
-            selectedGene={covidStore.selectedGene}
-            onChange={handleGeneChange}
-          />
+          <GroupBySelect />
+          <GeneSelect />
 
           <DropdownContainer />
         </FilterSidebar>

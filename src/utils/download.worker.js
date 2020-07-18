@@ -1,9 +1,13 @@
 import { getAckTextsFromAckIds } from './acknowledgements';
-import { getDnaSnpsFromLineage, getAaSnpsFromLineage } from './lineageData';
+import {
+  getDnaSnpsFromLineage,
+  getGeneAaSnpsFromLineage,
+  getProteinAaSnpsFromLineage,
+} from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
 
-function downloadAcknowledgements(selectedRows) {
+function downloadAcknowledgements({ selectedRows }) {
   let ackIds = _.pluck(selectedRows, 'ack_id');
 
   // Get the list of selected Accession IDs, and map to
@@ -39,7 +43,12 @@ function downloadAcknowledgements(selectedRows) {
   };
 }
 
-function downloadAggCaseData(groupKey, dnaOrAa, caseDataAggGroup) {
+function downloadAggCaseData({
+  groupKey,
+  dnaOrAa,
+  coordinateMode,
+  caseDataAggGroup,
+}) {
   // console.log(groupKey, dnaOrAa, caseDataAggGroup);
 
   let csvString = '';
@@ -58,7 +67,11 @@ function downloadAggCaseData(groupKey, dnaOrAa, caseDataAggGroup) {
 
   // If we're in lineage mode, then we need to get SNPs for this lineage
   if (groupKey === 'lineage') {
-    csvString = downloadAggCaseDataLineage(caseDataAggGroup, changingPositions);
+    csvString = downloadAggCaseDataLineage({
+      caseDataAggGroup,
+      changingPositions,
+      coordinateMode,
+    });
   } else if (groupKey === 'snp') {
     csvString = downloadAggCaseDataSnp(
       dnaOrAa,
@@ -75,7 +88,11 @@ function downloadAggCaseData(groupKey, dnaOrAa, caseDataAggGroup) {
   };
 }
 
-function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
+function downloadAggCaseDataLineage({
+  caseDataAggGroup,
+  changingPositions,
+  coordinateMode,
+}) {
   let csvString = '';
 
   // Write headers
@@ -119,7 +136,12 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
     }
 
     // Get AA SNPs
-    let aaSnps = getAaSnpsFromLineage(row['group']);
+    let aaSnps = [];
+    if (coordinateMode === 'gene') {
+      aaSnps = getGeneAaSnpsFromLineage(row['group']);
+    } else if (coordinateMode === 'protein') {
+      aaSnps = getProteinAaSnpsFromLineage(row['group']);
+    }
     // Skip if it's empty
     if (aaSnps.length === 0) {
       csvString += ',';
@@ -128,8 +150,14 @@ function downloadAggCaseDataLineage(caseDataAggGroup, changingPositions) {
       aaSnps = _.map(aaSnps, (snp) => {
         // Format as gene|pos|ref|alt
         // Position is 0-indexed, so make it 1-indexed
+        let label = '';
+        if (coordinateMode === 'gene') {
+          label = snp['gene'];
+        } else if (coordinateMode === 'protein') {
+          label = snp['protein'];
+        }
         return (
-          snp['gene'] +
+          label +
           '|' +
           parseInt(snp['pos']).toString() +
           '|' +
@@ -225,13 +253,9 @@ self.addEventListener(
     let result;
     if (data.type === 'downloadAcknowledgements') {
       // This is a terminal endpoint, we don't need to post a message back
-      result = downloadAcknowledgements(data.selectedRows);
+      result = downloadAcknowledgements(data);
     } else if (data.type === 'downloadAggCaseData') {
-      result = downloadAggCaseData(
-        data.groupKey,
-        data.dnaOrAa,
-        data.caseDataAggGroup
-      );
+      result = downloadAggCaseData(data);
     }
     // console.log(result);
     self.postMessage(JSON.stringify(result));

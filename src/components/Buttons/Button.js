@@ -30,7 +30,7 @@ const StyledButton = styled.button`
 `;
 
 const Button = ({ children, sticky, onClick, onFocus, onBlur, ...rest }) => {
-  const handleClick = () => onClick();
+  const handleClick = (e) => onClick(e);
   const handleFocus = () => onFocus();
   const handleBlur = (e) => onBlur(e);
 

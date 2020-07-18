@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import genes from '../../data/genes.json';
+import genes from '../../static_data/genes.json';
 
 export function getAllGenes() {
   return genes;
@@ -9,7 +9,7 @@ export function getGene(value) {
   // Get the selected gene object
   return (
     // There's no object for "All Genes", so make one now
-    value === 'all'
+    value === 'All Genes'
       ? {
           gene: 'All Genes',
           start: 1,
@@ -18,24 +18,4 @@ export function getGene(value) {
         }
       : _.findWhere(genes, { gene: value })
   );
-}
-
-export function loadGeneOptions() {
-  // Load genes and create option for each gene
-  let options = [];
-
-  // All Genes option
-  options.push({
-    label: 'All Genes',
-    value: 'all',
-  });
-
-  genes.forEach((gene) => {
-    options.push({
-      label: gene.gene,
-      value: gene.gene,
-    });
-  });
-
-  return options;
 }

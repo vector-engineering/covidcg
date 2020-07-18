@@ -3,32 +3,18 @@ import Worker from './caseData.worker.js';
 
 const caseDataWorker = new Worker();
 
-export const processCaseData = (caseData, callback) => {
+export const processCaseData = (pkg, callback) => {
   caseDataWorker.onmessage = (e) => {
     callback(JSON.parse(e.data));
   };
-
-  caseData.type = 'processCaseData';
-
-  caseDataWorker.postMessage(JSON.stringify(caseData)); // Send data to our worker.
+  pkg.type = 'processCaseData';
+  caseDataWorker.postMessage(JSON.stringify(pkg)); // Send data to our worker.
 };
 
-export const aggCaseDataByGroup = (
-  { caseData, selectedGene, groupKey, dnaOrAa, dateRange },
-  callback
-) => {
-  caseDataWorker.postMessage(
-    JSON.stringify({
-      type: 'aggCaseDataByGroup',
-      caseData,
-      selectedGene,
-      groupKey,
-      dnaOrAa,
-      dateRange,
-    })
-  );
-
+export const aggCaseDataByGroup = (pkg, callback) => {
   caseDataWorker.onmessage = (e) => {
     callback(JSON.parse(e.data));
   };
+  pkg.type = 'aggCaseDataByGroup';
+  caseDataWorker.postMessage(JSON.stringify(pkg));
 };

@@ -14,7 +14,6 @@ import pandas as pd
 import re
 
 from functools import reduce
-from pathlib import Path
 
 from fasta import read_fasta_file
 from clean_patient_metadata import clean_patient_metadata
@@ -22,9 +21,9 @@ from clean_seq_metadata import clean_seq_metadata
 from process_ack import process_ack
 from process_lineages import get_consensus_snps
 from process_locations import process_location_data
-from process_snps import load_dna_snps, load_aa_snps, process_snp_data
+from process_snps import process_snp_data
 from reference import ref_seq, genes, gene_aa
-from util import translate, data_dir
+from util import translate, data_dir, static_data_dir
 
 
 def load_patient_metadata():
@@ -128,7 +127,7 @@ def hash_accession_id(accession_id):
 def write_reference_files():
     print("Writing reference sequence files...", end="", flush=True)
     # Write the reference fasta file to json
-    ref_json_path = data_dir / "reference.json"
+    ref_json_path = static_data_dir / "reference.json"
 
     ref_obj = {"ref_seq": ref_seq, "gene_aa": gene_aa}
 
@@ -177,45 +176,55 @@ def main():
     case_df["ack_id"] = case_df["ack_id"].astype(int)
     print("done")
 
-    dna_snp_df = load_dna_snps()
-    aa_snp_df = load_aa_snps()
-    dna_snp_group_df, aa_snp_group_df = process_snp_data(dna_snp_df, aa_snp_df)
+    dna_snp_group_df, gene_aa_snp_group_df, protein_aa_snp_group_df = process_snp_data()
 
     print("Joining SNP data to main dataframe...", end="", flush=True)
-    dna_snp_group_df = dna_snp_group_df.rename(
-        columns={"gisaid_id": "Accession ID"}
-    ).set_index("Accession ID")
-    aa_snp_group_df = aa_snp_group_df.rename(
-        columns={"gisaid_id": "Accession ID"}
-    ).set_index("Accession ID")
+    dna_snp_group_df = dna_snp_group_df.set_index("Accession ID")
+    gene_aa_snp_group_df = gene_aa_snp_group_df.set_index("Accession ID")
+    protein_aa_snp_group_df = protein_aa_snp_group_df.set_index("Accession ID")
 
     # Inner join to main dataframe, to exclude filtered out sequences
     case_df = case_df.join(
-        dna_snp_group_df[["snp_str", "snp_sig"]],
+        # dna_snp_group_df[["snp_str", "snp_sig"]],
+        dna_snp_group_df[["snp_str"]],
         on="Accession ID",
         how="inner",
         sort=False,
     ).rename(columns={"snp_str": "dna_snp_str", "snp_sig": "dna_snp_sig"})
     case_df = case_df.join(
-        aa_snp_group_df[["snp_str", "snp_sig"]],
+        # gene_aa_snp_group_df[["snp_str", "snp_sig"]],
+        gene_aa_snp_group_df[["snp_str"]],
         on="Accession ID",
         how="inner",
         sort=False,
-    ).rename(columns={"snp_str": "aa_snp_str", "snp_sig": "aa_snp_sig"})
+    ).rename(columns={"snp_str": "gene_aa_snp_str", "snp_sig": "gene_aa_snp_sig"})
+    case_df = case_df.join(
+        # protein_aa_snp_group_df[["snp_str", "snp_sig"]],
+        protein_aa_snp_group_df[["snp_str"]],
+        on="Accession ID",
+        how="inner",
+        sort=False,
+    ).rename(columns={"snp_str": "protein_aa_snp_str", "snp_sig": "protein_aa_snp_sig"})
 
     # Semicolon-delimited string to array of SNPs
     case_df["dna_snp_str"] = case_df["dna_snp_str"].apply(
         lambda x: [int(_x) for _x in x.split(";")]
     )
-    case_df["aa_snp_str"] = case_df["aa_snp_str"].apply(
+    case_df["gene_aa_snp_str"] = case_df["gene_aa_snp_str"].apply(
         lambda x: [int(_x) for _x in x.split(";")]
     )
-    case_df["dna_snp_sig"] = case_df["dna_snp_sig"].apply(
+    case_df["protein_aa_snp_str"] = case_df["protein_aa_snp_str"].apply(
         lambda x: [int(_x) for _x in x.split(";")]
     )
-    case_df["aa_snp_sig"] = case_df["aa_snp_sig"].apply(
-        lambda x: [int(_x) for _x in x.split(";")]
-    )
+    # case_df["dna_snp_sig"] = case_df["dna_snp_sig"].apply(
+    #     lambda x: [int(_x) for _x in x.split(";")]
+    # )
+    # case_df["gene_aa_snp_sig"] = case_df["gene_aa_snp_sig"].apply(
+    #     lambda x: [int(_x) for _x in x.split(";")]
+    # )
+    # case_df["protein_aa_snp_sig"] = case_df["protein_aa_snp_sig"].apply(
+    #     lambda x: [int(_x) for _x in x.split(";")]
+    # )
 
     print("done")
 

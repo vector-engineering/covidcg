@@ -19,6 +19,7 @@ import {
 import TableOptions from './TableOptions';
 import {
   geneColumn,
+  proteinColumn,
   positionColumn,
   indexColumn,
   refColumn,
@@ -183,7 +184,11 @@ const NewLineageDataTable = observer(() => {
       if (covidStore.groupKey === 'snp') {
         // Add the gene column, if we're in AA mode
         if (covidStore.dnaOrAa === 'aa') {
-          _columns.push(geneColumn(handleGridSort));
+          if (covidStore.coordinateMode === 'gene') {
+            _columns.push(geneColumn(handleGridSort));
+          } else if (covidStore.coordinateMode === 'protein') {
+            _columns.push(proteinColumn(handleGridSort));
+          }
         }
         // Add the position column
         // We don't need as much space for this, for AA mode
