@@ -179,7 +179,7 @@ const HomePage = observer(({ covidStore, uiStore }) => {
             paddingBottom: '24px',
           }}
         >
-          <SkeletonElement delay={2} height={'400px'}>
+          <SkeletonElement delay={2} height={400}>
             <LoadingSpinner />
           </SkeletonElement>
         </div>

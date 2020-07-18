@@ -46,7 +46,7 @@ const VegaLegend = () => {
           paddingBottom: '0px',
         }}
       >
-        <SkeletonElement delay={1} height={'50px'} />
+        <SkeletonElement delay={1} height={50} />
       </div>
     );
   }

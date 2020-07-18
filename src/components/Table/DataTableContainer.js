@@ -113,7 +113,7 @@ const NewLineageDataTable = observer(() => {
             <SkeletonElement
               key={Math.random()}
               delay={5 + i + (i % 2) * 12.5}
-              height={'25px'}
+              height={25}
             />
           ))}
         </div>
