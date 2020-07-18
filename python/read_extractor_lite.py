@@ -16,24 +16,7 @@ from Bio import pairwise2
 from collections import defaultdict
 
 from reference import ref_seq, genes, gene_aa
-from util import translate, data_dir
-
-# Get the reverse complement of a sequence
-def reverse_complement(seq):
-    complement_map = {
-        "A": "T",
-        "C": "G",
-        "G": "C",
-        "T": "A",
-        "N": "N",  # Degenerates stay degenerate
-    }
-    # Build reverse complement sequence
-    rev_comp_seq = ""
-    for char in seq[::-1]:  # Reverse the forward sequence
-        # Add the complements base by base
-        rev_comp_seq += complement_map[char]
-
-    return rev_comp_seq
+from util import translate, data_dir, reverse_complement
 
 
 class ReadExtractor:

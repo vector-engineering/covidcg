@@ -59,3 +59,13 @@ proteins_df = pd.read_csv(proteins_path, comment="#")
 # Write to JSON
 proteins_df.to_json(static_data_dir / "proteins.json", orient="records")
 
+# Load primers
+primers_path = static_data_dir / "primers.csv"
+primers_df = pd.read_csv(primers_path)
+
+# Write to JSON
+# Only take a subset of the data to kee file sizes down
+primers_df[["Institution", "Name", "Sequence", "Reverse", "Start", "End"]].to_json(
+    static_data_dir / "primers.json", orient="records"
+)
+

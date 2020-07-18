@@ -109,6 +109,24 @@ def human_format(num):
     )
 
 
+# Get the reverse complement of a sequence
+def reverse_complement(seq):
+    complement_map = {
+        "A": "T",
+        "C": "G",
+        "G": "C",
+        "T": "A",
+        "N": "N",  # Degenerates stay degenerate
+    }
+    # Build reverse complement sequence
+    rev_comp_seq = ""
+    for char in seq[::-1]:  # Reverse the forward sequence
+        # Add the complements base by base
+        rev_comp_seq += complement_map[char]
+
+    return rev_comp_seq
+
+
 project_root_path = Path(__file__).resolve().parent.parent
 data_dir = (
     project_root_path / "data"
