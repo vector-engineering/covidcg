@@ -1,4 +1,5 @@
 import { observable, action, toJS } from 'mobx';
+import _ from 'underscore';
 
 import {
   processCaseData,
@@ -25,6 +26,7 @@ class ObservableCovidStore {
 
   @observable selectedGene = {};
   @observable selectedProtein = {};
+  @observable selectedPrimers = [];
   @observable customCoordinates = [8000, 12000];
 
   @observable coordinateMode = null;
@@ -43,6 +45,7 @@ class ObservableCovidStore {
     // Select the Spike gene and nsp13 protein by default
     let defaultGene = getGene('S');
     let defaultProtein = getProtein('nsp13');
+    let defaultSelectedPrimers = [];
     let defaultCustomCoordinates = [8000, 12000];
     // Selecting the gene as the coordinate range by default
     let defaultCoordinateMode = 'gene';
@@ -98,6 +101,7 @@ class ObservableCovidStore {
 
             this.selectedGene = defaultGene;
             this.selectedProtein = defaultProtein;
+            this.selectedPrimers = defaultSelectedPrimers;
             this.customCoordinates = defaultCustomCoordinates;
 
             this.coordinateMode = defaultCoordinateMode;
@@ -140,16 +144,28 @@ class ObservableCovidStore {
     coordinateMode,
     selectedGene,
     selectedProtein,
+    selectedPrimers,
     customCoordinates,
   }) {
     console.log('CHANGE COORDINATE MODE', coordinateMode);
     console.log('SELECTED GENE:', selectedGene);
     console.log('SELECTED PROTEIN:', selectedProtein);
+    console.log('SELECTED PRIMERS:', selectedPrimers);
     console.log('CUSTOM COORDINATES:', customCoordinates);
+
+    let initial = Object.assign({
+      coordinateMode: toJS(this.coordinateMode),
+      selectedGene: toJS(this.selectedGene),
+      selectedProtein: toJS(this.selectedProtein),
+      selectedPrimers: toJS(this.selectedPrimers),
+      customCoordinates: toJS(this.customCoordinates),
+    });
+    // console.log(initial);
 
     this.coordinateMode = coordinateMode;
     this.selectedGene = getGene(selectedGene);
     this.selectedProtein = getProtein(selectedProtein);
+    this.selectedPrimers = selectedPrimers;
     this.customCoordinates = customCoordinates;
 
     // Set the coordinate range based off the coordinate mode
@@ -159,6 +175,12 @@ class ObservableCovidStore {
       ];
     } else if (coordinateMode === 'protein') {
       this.coordinateRanges = this.selectedProtein.ranges;
+    } else if (coordinateMode === 'primer') {
+      let ranges = [];
+      this.selectedPrimers.forEach((primer) => {
+        ranges.push([primer.Start, primer.End]);
+      });
+      this.coordinateRanges = ranges;
     } else if (coordinateMode === 'custom') {
       this.coordinateRanges = [this.customCoordinates];
     }
@@ -171,6 +193,42 @@ class ObservableCovidStore {
       this.coordinateMode !== 'protein'
     ) {
       this.dnaOrAa = 'dna';
+    }
+
+    // If nothing changed, then skip the update
+    if (this.coordinateMode !== initial.coordinateMode) {
+      // Do nothing
+    } else if (
+      this.coordinateMode === 'gene' &&
+      this.selectedGene.gene === initial.selectedGene.gene
+    ) {
+      return;
+    } else if (
+      this.coordinateMode === 'protein' &&
+      this.selectedProtein.protein == initial.selectedProtein.protein
+    ) {
+      return;
+    } else if (this.coordinateMode === 'primer') {
+      let changed = false;
+      if (this.selectedPrimers.length !== initial.selectedPrimers.length) {
+        changed = true;
+      } else {
+        for (let i = 0; i < this.selectedPrimers.length; i++) {
+          if (!_.isEqual(this.selectedPrimers[i], initial.selectedPrimers[i])) {
+            changed = true;
+            break;
+          }
+        }
+      }
+      if (!changed) {
+        return;
+      }
+    } else if (
+      this.coordinateMode === 'custom' &&
+      this.coordinateRanges[0][0] === initial.customCoordinates[0][0] &&
+      this.coordinateRanges[0][1] === initial.customCoordinates[0][1]
+    ) {
+      return;
     }
 
     this.updateCaseData();

@@ -60,6 +60,12 @@ const RadioForm = styled.form`
       margin: 0px;
       margin-right: 0.5em;
     }
+
+    span.disabled-text {
+      font-weight: normal;
+      font-size: 0.8em;
+      color: #888;
+    }
   }
 `;
 
@@ -128,7 +134,15 @@ const GroupBySelect = observer(() => {
               }
               onChange={handleDnaOrAaChange}
             ></input>
-            <label htmlFor="aaChoice">AA</label>
+            <label htmlFor="aaChoice">
+              AA
+              <span className="disabled-text">
+                {covidStore.coordinateMode !== 'gene' &&
+                covidStore.coordinateMode !== 'protein'
+                  ? ' (only for gene/protein)'
+                  : ''}
+              </span>
+            </label>
           </div>
         </div>
       </RadioForm>
