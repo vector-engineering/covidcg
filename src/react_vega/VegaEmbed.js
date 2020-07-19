@@ -12,6 +12,7 @@ import getUniqueFieldNames from './utils/getUniqueFieldNames';
 import isFunction from './utils/isFunction';
 import { NOOP } from './constants';
 import computeSpecChanges from './utils/computeSpecChanges';
+import equal from 'fast-deep-equal';
 
 const VegaEmbed = ({
   className,
@@ -19,6 +20,7 @@ const VegaEmbed = ({
   data,
   signals,
   signalListeners,
+  dataListeners,
   style,
   width,
   height,
@@ -33,7 +35,9 @@ const VegaEmbed = ({
 
   const prevOptionsRef = useRef(null);
   const prevSpecRef = useRef(null);
+  const prevDataRef = useRef(null);
   const prevSignalListenersRef = useRef(null);
+  const prevDataListenersRef = useRef(null);
 
   const handleError = (error) => {
     onError(error);
@@ -74,6 +78,36 @@ const VegaEmbed = ({
     return signalNames.length > 0;
   };
 
+  const addDataListenersToView = (view, dataListeners) => {
+    if (!dataListeners) {
+      return;
+    }
+    const dataNames = Object.keys(dataListeners);
+    dataNames.forEach((dataName) => {
+      try {
+        view.addDataListener(dataName, dataListeners[dataName]);
+      } catch (error) {
+        console.warn('Cannot add invalid data listener.', error);
+      }
+    });
+    return dataNames.length > 0;
+  };
+
+  const removeDataListenersFromView = (view, dataListeners) => {
+    if (!dataListeners) {
+      return;
+    }
+    const dataNames = Object.keys(dataListeners);
+    dataNames.forEach((dataName) => {
+      try {
+        view.removeDataListener(dataName, dataListeners[dataName]);
+      } catch (error) {
+        console.warn('Cannot remove invalid data listener.', error);
+      }
+    });
+    return dataNames.length > 0;
+  };
+
   const combineSpecWithDimension = ({ spec, width, height }) => {
     if (typeof width !== 'undefined' && typeof height !== 'undefined') {
       return { ...spec, width, height };
@@ -93,7 +127,10 @@ const VegaEmbed = ({
       const finalSpec = combineSpecWithDimension({ spec, width, height });
       viewPromise = vegaEmbed(containerRef.current, finalSpec, options)
         .then(({ view }) => {
-          if (addSignalListenersToView(view, signalListeners)) {
+          let hasListeners =
+            addSignalListenersToView(view, signalListeners) +
+            addDataListenersToView(view, dataListeners);
+          if (hasListeners) {
             view.run();
           }
           setView(view);
@@ -135,6 +172,7 @@ const VegaEmbed = ({
     prevSpecRef.current = spec;
     prevOptionsRef.current = options;
     prevSignalListenersRef.current = signalListeners;
+    prevDataListenersRef.current = dataListeners;
   });
 
   // Listen to dataset changes and update data
@@ -143,8 +181,9 @@ const VegaEmbed = ({
     // console.log(data);
     // console.log(viewPromise);
 
-    if (data && Object.keys(data).length > 0) {
-      // console.log('NEW DATA -> MODIFY');
+    // I don't know what I'm doing. but the promise is defined
+    // during initialization, so this runs on hard re-render
+    if (viewPromise && data && Object.keys(data).length > 0) {
       modifyView((view) => {
         Object.keys(data).forEach((name) => {
           if (data[name]) {
@@ -156,14 +195,44 @@ const VegaEmbed = ({
                 vega
                   .changeset()
                   .remove(() => true)
-                  .insert(data[name])
+                  // Do another deep copy of the data... since Vega will insert
+                  // additional keys during its processing and we want an unmodified
+                  // version to do diffs with
+                  .insert(JSON.parse(JSON.stringify(data[name])))
               );
             }
           }
         });
         view.resize().run();
       });
+      // And this will run on new props (soft re-render)
+    } else if (_view && data) {
+      let prevData = prevDataRef.current;
+
+      Object.keys(data).forEach((name) => {
+        // console.log(name, data[name], prevData[name]);
+
+        if (
+          !Object.prototype.hasOwnProperty.call(prevData, name) ||
+          !equal(data[name], prevData[name])
+        ) {
+          console.log('Changing datasets', name);
+          if (isFunction(data[name])) {
+            data[name](_view.data(name));
+          } else {
+            _view.change(
+              name,
+              vega
+                .changeset()
+                .remove(() => true)
+                .insert(JSON.parse(JSON.stringify(data[name])))
+            );
+          }
+        }
+      });
     }
+
+    prevDataRef.current = data;
   }, [data]);
 
   // Update Vega dimensions without redrawing the whole thing
@@ -177,11 +246,11 @@ const VegaEmbed = ({
 
   // Listen to changes in signals passed via. props
   useEffect(() => {
-    console.log('Passed signals:', signals);
+    // console.log('Passed signals:', signals);
     if (_view) {
       Object.keys(signals).forEach((signalName) => {
         let currentSignalVal = _view.signal(signalName);
-        console.log('current', currentSignalVal, 'new', signals[signalName]);
+        // console.log('current', currentSignalVal, 'new', signals[signalName]);
         // Only update if the signal is different
         if (currentSignalVal != signals[signalName]) {
           _view.signal(signalName, { group: signals[signalName] });
@@ -203,12 +272,39 @@ const VegaEmbed = ({
     if (_view && areSignalListenersChanged) {
       removeSignalListenersFromView(_view, oldSignalListeners);
       addSignalListenersToView(_view, newSignalListeners);
-      setView(_view.run());
+      _view.runAsync();
     }
   };
   useEffect(() => {
     updateSignalListeners();
   }, [signalListeners]);
+
+  // Listen to changes in dataListeners
+  const updateDataListeners = () => {
+    const newDataListeners = dataListeners;
+    const oldDataListeners = prevDataListenersRef.current;
+
+    const areDataListenersChanged = !shallowEqual(
+      newDataListeners,
+      oldDataListeners
+    );
+
+    if (_view && areDataListenersChanged) {
+      removeDataListenersFromView(_view, oldDataListeners);
+      addDataListenersToView(_view, newDataListeners);
+      _view.runAsync();
+    }
+  };
+  useEffect(() => {
+    updateDataListeners();
+  }, [dataListeners]);
+
+  const recreateView = () => {
+    clearView();
+    createView();
+    updateSignalListeners();
+    updateDataListeners();
+  };
 
   useLayoutEffect(() => {
     if (!initialized) {
@@ -225,18 +321,14 @@ const VegaEmbed = ({
 
     // Only create a new view if necessary
     if (Array.from(fieldSet).some((f) => options[f] !== prevOptions[f])) {
-      clearView();
-      createView();
-      updateSignalListeners();
+      recreateView();
     } else {
       const specChanges = computeSpecChanges(spec, prevSpec);
       // console.log(spec, prevSpec);
       // console.log('spec changes', specChanges);
 
       if (specChanges && specChanges.isExpensive) {
-        clearView();
-        createView();
-        updateSignalListeners();
+        recreateView();
       }
     }
 
@@ -260,6 +352,7 @@ VegaEmbed.propTypes = {
   data: PropTypes.object.isRequired,
   signals: PropTypes.object,
   signalListeners: PropTypes.object, // key -> value (function)
+  dataListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
   onNewView: PropTypes.func,
   onError: PropTypes.func,
@@ -269,6 +362,7 @@ VegaEmbed.defaultProps = {
   className: 'vega-embed',
   signals: {},
   signalListeners: {},
+  dataListeners: {},
   style: {},
   onNewView: NOOP,
   onError: (error) => {

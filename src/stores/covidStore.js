@@ -46,6 +46,7 @@ class ObservableCovidStore {
   @observable groupsToKeep = {};
 
   @observable hoverGroup = null;
+  @observable selectedGroups = [];
 
   constructor() {
     // Select NYC by default
@@ -265,6 +266,11 @@ class ObservableCovidStore {
   updateHoverGroup(group) {
     // console.log('UPDATE HOVER GROUP', group);
     this.hoverGroup = group;
+  }
+
+  @action
+  updateSelectedGroups(groups) {
+    this.selectedGroups = groups;
   }
 
   @action

@@ -84,6 +84,11 @@ const VegaStackedBars = observer(({ width }) => {
     covidStore.updateHoverGroup(hoverGroup);
   };
 
+  const handleSelected = (...args) => {
+    // console.log(args);
+    covidStore.updateSelectedGroups(args[1]);
+  };
+
   // let newCaseData;
 
   // if (covidStore.groupsToKeep) {
@@ -142,6 +147,7 @@ const VegaStackedBars = observer(({ width }) => {
   }
 
   let caseData = JSON.parse(JSON.stringify(covidStore.caseData));
+  let selectedGroups = JSON.parse(JSON.stringify(covidStore.selectedGroups));
 
   // Compute counts for each group
   let countsPerGroup = {};
@@ -188,11 +194,15 @@ const VegaStackedBars = observer(({ width }) => {
         <VegaEmbed
           data={{
             cases_by_date_and_group: caseData,
+            selected: selectedGroups,
           }}
           spec={barStackSpec}
           signalListeners={{
             detailDomain: _.debounce(handleBrush, 500),
             hoverBar: _.throttle(handleHoverGroup, 100),
+          }}
+          dataListeners={{
+            selected: handleSelected,
           }}
           signals={{
             hoverBar: covidStore.hoverGroup,

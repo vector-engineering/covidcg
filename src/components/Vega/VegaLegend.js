@@ -21,21 +21,50 @@ const LegendItem = styled.div`
   align-items: center;
   padding: 0px 6px;
 
-  border: ${(props) => (props.hovered ? '1px solid #666' : 'none')};
-  margin: ${(props) => (props.hovered ? '0px 0px 0px 0px' : '1px 1px 1px 1px')};
+  border: ${({ hovered, selected }) => {
+    if (hovered) {
+      return '1px solid #666';
+    } else if (selected) {
+      return '1px solid #000';
+    } else {
+      return 'none';
+    }
+  }};
+  border-radius: 3px;
+  margin: ${({ hovered, selected }) => {
+    if (hovered || selected) {
+      return '0px 0px 0px 0px';
+    } else {
+      return '1px 1px 1px 1px';
+    }
+  }};
+  background-color: ${({ selected }) =>
+    selected ? 'rgba(0,0,0,0.1)' : 'transparent'};
 `;
 
 LegendItem.defaultProps = {
   hovered: false,
+  selected: null,
 };
 
 const ColorCircle = styled.div`
-  ${({ color }) => color && `background-color: ${color};`}
+  background-color: ${({ color, selected }) => {
+    if (selected === null || selected) {
+      return color;
+    } else {
+      return '#CCC';
+    }
+  }};
   width: 12px;
   height: 12px;
   border-radius: 50%;
   margin-right: 4px;
 `;
+
+ColorCircle.defaultProps = {
+  color: '#000',
+  selected: null,
+};
 
 const LegendText = styled.span`
   font-size: 10px;
@@ -72,6 +101,12 @@ const VegaLegend = observer(() => {
     updateHoverGroup(null);
   };
 
+  const onItemSelect = (selectedGroup, e) => {
+    // console.log('select', selectedGroup, e);
+    e.preventDefault();
+    covidStore.updateSelectedGroups([{ group: selectedGroup }]);
+  };
+
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
     if (hoverGroup === covidStore.hoverGroup) {
@@ -85,14 +120,29 @@ const VegaLegend = observer(() => {
       if (!obj.color) {
         return null;
       }
+
+      let itemSelected = null;
+      if (covidStore.selectedGroups.length > 0) {
+        if (
+          _.findWhere(covidStore.selectedGroups, { group: obj.group }) !==
+          undefined
+        ) {
+          itemSelected = true;
+        } else {
+          itemSelected = false;
+        }
+      }
+
       return (
         <LegendItem
           key={`${Math.random()}${obj.color}`}
           hovered={covidStore.hoverGroup === obj.group}
+          selected={itemSelected}
           onMouseEnter={onItemEnter.bind(this, obj.group)}
           onMouseLeave={onItemLeave}
+          onMouseDown={onItemSelect.bind(this, obj.group)}
         >
-          <ColorCircle color={obj.color} />
+          <ColorCircle color={obj.color} selected={itemSelected} />
           <LegendText>{obj.group}</LegendText>
         </LegendItem>
       );
