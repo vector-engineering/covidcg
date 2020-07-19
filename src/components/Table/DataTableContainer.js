@@ -317,7 +317,6 @@ const NewLineageDataTable = observer(() => {
           <DataTable
             posColOffset={posColOffset}
             columns={columns}
-            rowGetter={(i) => state.rows[i]}
             rows={state.rows}
             rowsCount={state.rows ? state.rows.length : 0}
             height={state.tableHeight}
