@@ -1414,13 +1414,13 @@
           "orient": "bottom",
           "scale": "x",
           "zindex": 0,
-          "format": "%b %d",
+          "format": "%m-%d",
           "tickCount": "week",
           "grid": true,
           "gridScale": "y",
           "gridColor": "#DDD",
 
-          "labelFontSize": 14,
+          "labelFontSize": 12,
           "labelPadding": 3
         },
         {
@@ -1602,13 +1602,13 @@
           "title": "Collection date",
           "titleFontSize": 18,
           "titlePadding": 10,
-          "format": "%b %d",
+          "format": "%m-%d",
 
           "grid": true,
           "gridColor": "#DDD",
           "gridScale": "yOverview",
 
-          "labelFontSize": 14,
+          "labelFontSize": 12,
           "labelPadding": 3,
 
           "tickCount": "week"
