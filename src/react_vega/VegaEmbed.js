@@ -85,28 +85,6 @@ const VegaEmbed = ({
     return spec;
   };
 
-  const updateSingleDatasetInView = (view, name, value) => {
-    if (value) {
-      if (isFunction(value)) {
-        value(view.data(name));
-      } else {
-        view.change(
-          name,
-          vega
-            .changeset()
-            .remove(() => true)
-            .insert(value)
-        );
-      }
-    }
-  };
-
-  const updateMultipleDatasetsInView = (view, data) => {
-    Object.keys(data).forEach((name) => {
-      updateSingleDatasetInView(view, name, data[name]);
-    });
-  };
-
   const createView = () => {
     // console.log('CREATE VIEW');
     if (containerRef.current) {
@@ -161,7 +139,21 @@ const VegaEmbed = ({
 
     if (data && Object.keys(data).length > 0) {
       modifyView((view) => {
-        updateMultipleDatasetsInView(view, data);
+        Object.keys(data).forEach((name) => {
+          if (data[name]) {
+            if (isFunction(data[name])) {
+              data[name](view.data(name));
+            } else {
+              view.change(
+                name,
+                vega
+                  .changeset()
+                  .remove(() => true)
+                  .insert(data[name])
+              );
+            }
+          }
+        });
         view.resize().run();
       });
     }
@@ -177,7 +169,7 @@ const VegaEmbed = ({
   }, [width, height]);
 
   // Listen to changes in signalListeners
-  useEffect(() => {
+  const updateSignalListeners = () => {
     const newSignalListeners = signalListeners;
     const oldSignalListeners = prevSignalListenersRef.current;
 
@@ -193,6 +185,9 @@ const VegaEmbed = ({
       }
       view.run();
     });
+  };
+  useEffect(() => {
+    updateSignalListeners();
   }, [signalListeners]);
 
   useLayoutEffect(() => {
@@ -212,6 +207,7 @@ const VegaEmbed = ({
     if (Array.from(fieldSet).some((f) => options[f] !== prevOptions[f])) {
       clearView();
       createView();
+      updateSignalListeners();
     } else {
       const specChanges = computeSpecChanges(spec, prevSpec);
       // console.log(spec, prevSpec);
@@ -220,6 +216,7 @@ const VegaEmbed = ({
       if (specChanges && specChanges.isExpensive) {
         clearView();
         createView();
+        updateSignalListeners();
       }
     }
 
