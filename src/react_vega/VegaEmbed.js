@@ -43,6 +43,9 @@ const VegaEmbed = ({
   };
 
   const addSignalListenersToView = (view, signalListeners) => {
+    if (!signalListeners) {
+      return;
+    }
     const signalNames = Object.keys(signalListeners);
     signalNames.forEach((signalName) => {
       try {
@@ -56,6 +59,9 @@ const VegaEmbed = ({
   };
 
   const removeSignalListenersFromView = (view, signalListeners) => {
+    if (!signalListeners) {
+      return;
+    }
     const signalNames = Object.keys(signalListeners);
     signalNames.forEach((signalName) => {
       try {
@@ -193,6 +199,7 @@ const VegaEmbed = ({
       clearView();
       createView();
     } else {
+      // BUG: width/height changes only are being marked as expensive, for some reason
       const specChanges = computeSpecChanges(
         combineSpecWithDimension({ spec, width, height }),
         combineSpecWithDimension({
@@ -222,12 +229,8 @@ const VegaEmbed = ({
               view.height(specChanges.height);
             }
             if (areSignalListenersChanged) {
-              if (oldSignalListeners) {
-                removeSignalListenersFromView(view, oldSignalListeners);
-              }
-              if (newSignalListeners) {
-                addSignalListenersToView(view, newSignalListeners);
-              }
+              removeSignalListenersFromView(view, oldSignalListeners);
+              addSignalListenersToView(view, newSignalListeners);
             }
 
             view.run();
@@ -235,12 +238,8 @@ const VegaEmbed = ({
         }
       } else if (!shallowEqual(newSignalListeners, oldSignalListeners)) {
         modifyView((view) => {
-          if (oldSignalListeners) {
-            removeSignalListenersFromView(view, oldSignalListeners);
-          }
-          if (newSignalListeners) {
-            addSignalListenersToView(view, newSignalListeners);
-          }
+          removeSignalListenersFromView(view, oldSignalListeners);
+          addSignalListenersToView(view, newSignalListeners);
           view.run();
         });
       }
@@ -253,7 +252,6 @@ const VegaEmbed = ({
     };
   });
 
-  // return <Container ref={containerRef} className={className} style={style} />;
   return <div ref={containerRef} className={className} style={style} />;
 };
 
