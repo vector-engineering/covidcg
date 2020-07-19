@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
+import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../SkeletonElement';
@@ -66,9 +67,11 @@ const VegaLegend = observer(() => {
     });
   };
 
-  return (
-    <LegendList>{renderLegendKeys(covidStore.caseDataAggGroup)}</LegendList>
-  );
+  // Make own copy of the elements, and sort by group
+  let legendItems = JSON.parse(JSON.stringify(covidStore.caseDataAggGroup));
+  legendItems = _.sortBy(legendItems, (row) => row.group);
+
+  return <LegendList>{renderLegendKeys(legendItems)}</LegendList>;
 });
 
 VegaLegend.displayName = 'VegaLegend';
