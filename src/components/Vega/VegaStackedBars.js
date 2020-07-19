@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
-import { Vega } from 'react-vega';
+import VegaEmbed from '../../react_vega/VegaEmbed';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
 import barStackSpecInitial from '../../vega/bar_stack_v1.vg.json';
@@ -186,7 +186,7 @@ const VegaStackedBars = observer(({ width }) => {
       </PlotOptions>
 
       <div style={{ width: `${width - 150}px` }}>
-        <Vega
+        <VegaEmbed
           data={{
             cases_by_date_and_group: caseData,
           }}
