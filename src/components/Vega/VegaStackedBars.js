@@ -75,6 +75,16 @@ const VegaStackedBars = observer(({ width }) => {
     }
   };
 
+  const handleHoverGroup = (...args) => {
+    //console.log(args);
+    // Don't fire the action if there's no change
+    let hoverGroup = args[1] === null ? null : args[1]['group'];
+    if (hoverGroup === covidStore.hoverGroup) {
+      return;
+    }
+    covidStore.updateHoverGroup(hoverGroup);
+  };
+
   // let newCaseData;
 
   // if (covidStore.groupsToKeep) {
@@ -183,6 +193,7 @@ const VegaStackedBars = observer(({ width }) => {
           spec={barStackSpec}
           signalListeners={{
             detailDomain: _.debounce(handleBrush, 500),
+            hoverBar: _.throttle(handleHoverGroup, 100),
           }}
         />
       </div>

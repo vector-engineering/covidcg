@@ -19,8 +19,15 @@ const LegendList = styled.div`
 const LegendItem = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 12px;
+  padding: 0px 6px;
+
+  border: ${(props) => (props.hovered ? '1px solid #666' : 'none')};
+  margin: ${(props) => (props.hovered ? '0px 0px 0px 0px' : '1px 1px 1px 1px')};
 `;
+
+LegendItem.defaultProps = {
+  hovered: false,
+};
 
 const ColorCircle = styled.div`
   ${({ color }) => color && `background-color: ${color};`}
@@ -53,13 +60,38 @@ const VegaLegend = observer(() => {
     );
   }
 
+  const onItemEnter = (hoverGroup, e) => {
+    // console.log('enter', hoverGroup, e);
+    e.preventDefault();
+    updateHoverGroup(hoverGroup);
+  };
+
+  const onItemLeave = (e) => {
+    // console.log('leave', e);
+    e.preventDefault();
+    updateHoverGroup(null);
+  };
+
+  const updateHoverGroup = (hoverGroup) => {
+    // Don't fire the action if there's no change
+    if (hoverGroup === covidStore.hoverGroup) {
+      return;
+    }
+    covidStore.updateHoverGroup(hoverGroup);
+  };
+
   const renderLegendKeys = (groupObjs) => {
     return groupObjs.map((obj) => {
       if (!obj.color) {
         return null;
       }
       return (
-        <LegendItem key={`${Math.random()}${obj.color}`}>
+        <LegendItem
+          key={`${Math.random()}${obj.color}`}
+          hovered={covidStore.hoverGroup === obj.group}
+          onMouseEnter={onItemEnter.bind(this, obj.group)}
+          onMouseLeave={onItemLeave}
+        >
           <ColorCircle color={obj.color} />
           <LegendText>{obj.group}</LegendText>
         </LegendItem>

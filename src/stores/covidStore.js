@@ -45,6 +45,8 @@ class ObservableCovidStore {
   @observable selectedRows = [];
   @observable groupsToKeep = {};
 
+  @observable hoverGroup = null;
+
   constructor() {
     // Select NYC by default
     let NYCNode = getLocationByNameAndLevel(
@@ -257,6 +259,12 @@ class ObservableCovidStore {
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
       }
     );
+  }
+
+  @action
+  updateHoverGroup(group) {
+    // console.log('UPDATE HOVER GROUP', group);
+    this.hoverGroup = group;
   }
 
   @action
