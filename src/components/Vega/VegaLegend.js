@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -73,6 +73,30 @@ const LegendText = styled.span`
 
 const VegaLegend = observer(() => {
   const { covidStore, uiStore } = useStores();
+  const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
+
+  const onKeyDown = (e) => {
+    // Shift key = 16
+    if (e.keyCode === 16) {
+      setShiftKeyPressed(true);
+    }
+  };
+
+  const onKeyUp = (e) => {
+    if (e.keyCode === 16) {
+      setShiftKeyPressed(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, false);
+      document.removeEventListener('keyup', onKeyUp, false);
+    };
+  });
 
   if (uiStore.caseDataState === asyncStates.STARTED) {
     return (
@@ -104,7 +128,12 @@ const VegaLegend = observer(() => {
   const onItemSelect = (selectedGroup, e) => {
     // console.log('select', selectedGroup, e);
     e.preventDefault();
-    covidStore.updateSelectedGroups([{ group: selectedGroup }]);
+
+    let newGroups = [{ group: selectedGroup }];
+    if (shiftKeyPressed) {
+      newGroups = newGroups.concat(covidStore.selectedGroups);
+    }
+    covidStore.updateSelectedGroups(newGroups);
   };
 
   const updateHoverGroup = (hoverGroup) => {
