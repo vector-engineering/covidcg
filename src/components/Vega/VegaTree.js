@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Vega } from 'react-vega';
 import { toJS } from 'mobx';
-import AccordionWrapper from './AccordionWrapper';
-import { asyncStates } from '../stores/uiStore';
-import SkeletonElement from './SkeletonElement';
-import { useStores } from '../stores/connect';
+import AccordionWrapper from '../AccordionWrapper';
+import { asyncStates } from '../../stores/uiStore';
+import SkeletonElement from '../SkeletonElement';
+import { useStores } from '../../stores/connect';
 
 const StyledTree = styled.div`
   .vega-bindings {

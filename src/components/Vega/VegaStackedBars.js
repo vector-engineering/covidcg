@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
 import { Vega } from 'react-vega';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
-import barStackSpecInitial from '../vega/bar_stack_v1.vg.json';
+import barStackSpecInitial from '../../vega/bar_stack_v1.vg.json';
 
 const PlotOptions = styled.div`
   display: flex;

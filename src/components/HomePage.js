@@ -18,10 +18,10 @@ import Header from './Header';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
-import VegaLegend from './VegaLegend';
+import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
 import AccordionWrapper from './AccordionWrapper';
-import VegaStackedBars from './VegaStackedBars';
+import VegaStackedBars from './Vega/VegaStackedBars';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
 const HomePageDiv = styled.div`

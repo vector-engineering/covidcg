@@ -2,9 +2,9 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 
-import { useStores } from '../stores/connect';
-import SkeletonElement from './SkeletonElement';
-import { asyncStates } from '../stores/uiStore';
+import { useStores } from '../../stores/connect';
+import SkeletonElement from '../SkeletonElement';
+import { asyncStates } from '../../stores/uiStore';
 
 const LegendList = styled.div`
   display: flex;
