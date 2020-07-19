@@ -194,6 +194,9 @@ const VegaStackedBars = observer(({ width }) => {
             detailDomain: _.debounce(handleBrush, 500),
             hoverBar: _.throttle(handleHoverGroup, 100),
           }}
+          signals={{
+            hoverBar: covidStore.hoverGroup,
+          }}
           width={width}
         />
       </div>

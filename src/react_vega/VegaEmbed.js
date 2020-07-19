@@ -17,6 +17,7 @@ const VegaEmbed = ({
   className,
   spec,
   data,
+  signals,
   signalListeners,
   style,
   width,
@@ -28,6 +29,7 @@ const VegaEmbed = ({
   const containerRef = createRef();
   let viewPromise;
   const [initialized, setInitialized] = useState(false);
+  const [_view, setView] = useState(null);
 
   const prevOptionsRef = useRef(null);
   const prevSpecRef = useRef(null);
@@ -36,7 +38,7 @@ const VegaEmbed = ({
   const handleError = (error) => {
     onError(error);
     // eslint-disable-next-line no-console
-    console.warn(error);
+    console.warn('VEGA ERROR', error);
     return undefined;
   };
 
@@ -94,7 +96,8 @@ const VegaEmbed = ({
           if (addSignalListenersToView(view, signalListeners)) {
             view.run();
           }
-          return view;
+          setView(view);
+          return { view };
         })
         .catch(handleError);
 
@@ -105,20 +108,21 @@ const VegaEmbed = ({
   };
 
   const modifyView = (action) => {
+    // console.log('MODIFY VIEW', viewPromise);
     if (viewPromise) {
       viewPromise
-        .then((view) => {
+        .then(({ view }) => {
           if (view) {
             action(view);
           }
-
-          return true;
+          return { view };
         })
         .catch(handleError);
     }
   };
 
   const clearView = () => {
+    // console.log('CLEAR VIEW');
     modifyView((view) => {
       view.finalize();
     });
@@ -133,11 +137,14 @@ const VegaEmbed = ({
     prevSignalListenersRef.current = signalListeners;
   });
 
+  // Listen to dataset changes and update data
   useEffect(() => {
-    // console.log('new data');
+    // console.log('NEW DATA');
     // console.log(data);
+    // console.log(viewPromise);
 
     if (data && Object.keys(data).length > 0) {
+      // console.log('NEW DATA -> MODIFY');
       modifyView((view) => {
         Object.keys(data).forEach((name) => {
           if (data[name]) {
@@ -162,11 +169,26 @@ const VegaEmbed = ({
   // Update Vega dimensions without redrawing the whole thing
   useEffect(() => {
     // console.log('change width/height');
-    modifyView((view) => {
-      view.width(width);
-      view.height(height);
-    });
+    if (_view) {
+      _view.width(width);
+      _view.height(height);
+    }
   }, [width, height]);
+
+  // Listen to changes in signals passed via. props
+  useEffect(() => {
+    console.log('Passed signals:', signals);
+    if (_view) {
+      Object.keys(signals).forEach((signalName) => {
+        let currentSignalVal = _view.signal(signalName);
+        console.log('current', currentSignalVal, 'new', signals[signalName]);
+        // Only update if the signal is different
+        if (currentSignalVal != signals[signalName]) {
+          _view.signal(signalName, { group: signals[signalName] });
+        }
+      });
+    }
+  }, [signals]);
 
   // Listen to changes in signalListeners
   const updateSignalListeners = () => {
@@ -178,13 +200,11 @@ const VegaEmbed = ({
       oldSignalListeners
     );
 
-    modifyView((view) => {
-      if (areSignalListenersChanged) {
-        removeSignalListenersFromView(view, oldSignalListeners);
-        addSignalListenersToView(view, newSignalListeners);
-      }
-      view.run();
-    });
+    if (_view && areSignalListenersChanged) {
+      removeSignalListenersFromView(_view, oldSignalListeners);
+      addSignalListenersToView(_view, newSignalListeners);
+      setView(_view.run());
+    }
   };
   useEffect(() => {
     updateSignalListeners();
@@ -238,6 +258,7 @@ VegaEmbed.propTypes = {
   className: PropTypes.string,
   spec: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
+  signals: PropTypes.object,
   signalListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
   onNewView: PropTypes.func,
@@ -246,6 +267,7 @@ VegaEmbed.propTypes = {
 VegaEmbed.defaultProps = {
   mode: 'vega',
   className: 'vega-embed',
+  signals: {},
   signalListeners: {},
   style: {},
   onNewView: NOOP,
