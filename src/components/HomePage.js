@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import _ from 'underscore';
+// import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
@@ -66,30 +66,6 @@ const PlotContainer = styled.div`
     width: calc(100% - 110px);
   }
 `;
-const PlotOptions = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-
-  .area-stack-title {
-    font-size: 1.25em;
-    margin-right: 10px;
-    padding-right: 10px;
-    padding-left: 18px;
-
-    border-right: 1px solid #ccc;
-  }
-`;
-
-const AreaStackSelectContainer = styled.div`
-  font-weight: normal;
-  select {
-    margin-left: 0.65em;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-`;
 
 const Footer = styled.div`
   margin-top: auto;
@@ -103,30 +79,8 @@ const Footer = styled.div`
   font-size: 0.85rem;
 `;
 
-const AreaStackModeSelect = ({ mode, onChange }) => {
-  return (
-    <AreaStackSelectContainer>
-      <label>
-        Display mode:
-        <select value={mode} onChange={onChange}>
-          <option value="counts">Counts</option>
-          <option value="percentages">Percentages</option>
-        </select>
-      </label>
-    </AreaStackSelectContainer>
-  );
-};
-AreaStackModeSelect.propTypes = {
-  mode: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
-const HomePage = observer(({ covidStore, uiStore }) => {
-  // 'percentages' or 'counts'
-  const [areaStackMode, setAreaStackMode] = useState('percentages');
+const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
-
-  const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
 
   const renderPlotContent = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -151,22 +105,11 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           defaultCollapsed={false}
           maxHeight={'1200px'}
         >
-          <div style={{ width: `${width - 150}px` }}>
-            <VegaStackedBars width={width - 150} />
-          </div>
+          <VegaStackedBars width={width - 150} />
         </AccordionWrapper>
       );
     }
   };
-
-  let areaStackTitle = 'Lineage ';
-  if (covidStore.groupKey === 'lineage') {
-    areaStackTitle = 'Lineage ';
-  } else if (covidStore.groupKey === 'snp') {
-    areaStackTitle = 'SNP ';
-  }
-  areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
-  areaStackTitle += ' Over Time';
 
   return (
     <>
@@ -181,14 +124,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <PlotOptions>
-            <span className="area-stack-title">{areaStackTitle}</span>
-            <AreaStackModeSelect
-              mode={areaStackMode}
-              onChange={onChangeAreaStackMode}
-            />
-          </PlotOptions>
-          <br />
           <AccordionWrapper
             title="legend"
             defaultCollapsed={false}
