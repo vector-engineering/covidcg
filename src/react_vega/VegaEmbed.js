@@ -168,13 +168,32 @@ const VegaEmbed = ({
   }, [data]);
 
   // Update Vega dimensions without redrawing the whole thing
-  useLayoutEffect(() => {
+  useEffect(() => {
     // console.log('change width/height');
     modifyView((view) => {
       view.width(width);
       view.height(height);
     });
   }, [width, height]);
+
+  // Listen to changes in signalListeners
+  useEffect(() => {
+    const newSignalListeners = signalListeners;
+    const oldSignalListeners = prevSignalListenersRef.current;
+
+    const areSignalListenersChanged = !shallowEqual(
+      newSignalListeners,
+      oldSignalListeners
+    );
+
+    modifyView((view) => {
+      if (areSignalListenersChanged) {
+        removeSignalListenersFromView(view, oldSignalListeners);
+        addSignalListenersToView(view, newSignalListeners);
+      }
+      view.run();
+    });
+  }, [signalListeners]);
 
   useLayoutEffect(() => {
     if (!initialized) {
@@ -187,7 +206,6 @@ const VegaEmbed = ({
     const prevOptions = prevOptionsRef.current;
     const fieldSet = getUniqueFieldNames([options, prevOptions]);
     // console.log(options, prevOptions, fieldSet);
-
     const prevSpec = prevSpecRef.current;
 
     // Only create a new view if necessary
@@ -199,27 +217,10 @@ const VegaEmbed = ({
       // console.log(spec, prevSpec);
       // console.log('spec changes', specChanges);
 
-      const newSignalListeners = signalListeners;
-      const oldSignalListeners = prevSignalListenersRef.current;
-
-      if (specChanges) {
-        if (specChanges.isExpensive) {
-          clearView();
-          createView();
-        }
+      if (specChanges && specChanges.isExpensive) {
+        clearView();
+        createView();
       }
-
-      const areSignalListenersChanged = !shallowEqual(
-        newSignalListeners,
-        oldSignalListeners
-      );
-      modifyView((view) => {
-        if (areSignalListenersChanged) {
-          removeSignalListenersFromView(view, oldSignalListeners);
-          addSignalListenersToView(view, newSignalListeners);
-        }
-        view.run();
-      });
     }
 
     // Specify how to clean up after this effect:
@@ -227,7 +228,7 @@ const VegaEmbed = ({
     return function cleanup() {
       clearView();
     };
-  }, [spec, signalListeners]);
+  }, [spec, options]);
 
   return <div ref={containerRef} className={className} style={style} />;
 };
