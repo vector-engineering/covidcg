@@ -31,8 +31,6 @@ const VegaEmbed = ({
 
   const prevOptionsRef = useRef(null);
   const prevSpecRef = useRef(null);
-  const prevWidthRef = useRef(null);
-  const prevHeightRef = useRef(null);
   const prevSignalListenersRef = useRef(null);
 
   const handleError = (error) => {
@@ -154,8 +152,6 @@ const VegaEmbed = ({
   useEffect(() => {
     prevSpecRef.current = spec;
     prevOptionsRef.current = options;
-    prevWidthRef.current = width;
-    prevHeightRef.current = height;
     prevSignalListenersRef.current = signalListeners;
   });
 
@@ -171,6 +167,15 @@ const VegaEmbed = ({
     }
   }, [data]);
 
+  // Update Vega dimensions without redrawing the whole thing
+  useLayoutEffect(() => {
+    // console.log('change width/height');
+    modifyView((view) => {
+      view.width(width);
+      view.height(height);
+    });
+  }, [width, height]);
+
   useLayoutEffect(() => {
     if (!initialized) {
       // console.log('initializing');
@@ -183,31 +188,16 @@ const VegaEmbed = ({
     const fieldSet = getUniqueFieldNames([options, prevOptions]);
     // console.log(options, prevOptions, fieldSet);
 
-    fieldSet.delete('className');
-    fieldSet.delete('signalListeners');
-    fieldSet.delete('spec');
-    fieldSet.delete('style');
-    fieldSet.delete('width');
-    fieldSet.delete('height');
-
     const prevSpec = prevSpecRef.current;
-    const prevWidth = prevWidthRef.current;
-    const prevHeight = prevHeightRef.current;
 
     // Only create a new view if necessary
     if (Array.from(fieldSet).some((f) => options[f] !== prevOptions[f])) {
       clearView();
       createView();
     } else {
-      // BUG: width/height changes only are being marked as expensive, for some reason
-      const specChanges = computeSpecChanges(
-        combineSpecWithDimension({ spec, width, height }),
-        combineSpecWithDimension({
-          spec: prevSpec,
-          width: prevWidth,
-          height: prevHeight,
-        })
-      );
+      const specChanges = computeSpecChanges(spec, prevSpec);
+      // console.log(spec, prevSpec);
+      // console.log('spec changes', specChanges);
 
       const newSignalListeners = signalListeners;
       const oldSignalListeners = prevSignalListenersRef.current;
@@ -216,33 +206,20 @@ const VegaEmbed = ({
         if (specChanges.isExpensive) {
           clearView();
           createView();
-        } else {
-          const areSignalListenersChanged = !shallowEqual(
-            newSignalListeners,
-            oldSignalListeners
-          );
-          modifyView((view) => {
-            if (specChanges.width !== false) {
-              view.width(specChanges.width);
-            }
-            if (specChanges.height !== false) {
-              view.height(specChanges.height);
-            }
-            if (areSignalListenersChanged) {
-              removeSignalListenersFromView(view, oldSignalListeners);
-              addSignalListenersToView(view, newSignalListeners);
-            }
-
-            view.run();
-          });
         }
-      } else if (!shallowEqual(newSignalListeners, oldSignalListeners)) {
-        modifyView((view) => {
+      }
+
+      const areSignalListenersChanged = !shallowEqual(
+        newSignalListeners,
+        oldSignalListeners
+      );
+      modifyView((view) => {
+        if (areSignalListenersChanged) {
           removeSignalListenersFromView(view, oldSignalListeners);
           addSignalListenersToView(view, newSignalListeners);
-          view.run();
-        });
-      }
+        }
+        view.run();
+      });
     }
 
     // Specify how to clean up after this effect:
@@ -250,7 +227,7 @@ const VegaEmbed = ({
     return function cleanup() {
       clearView();
     };
-  });
+  }, [spec, signalListeners]);
 
   return <div ref={containerRef} className={className} style={style} />;
 };

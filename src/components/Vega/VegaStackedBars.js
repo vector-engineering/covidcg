@@ -76,7 +76,6 @@ const VegaStackedBars = observer(({ width }) => {
   };
 
   const handleHoverGroup = (...args) => {
-    //console.log(args);
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
     if (hoverGroup === covidStore.hoverGroup) {
@@ -195,6 +194,7 @@ const VegaStackedBars = observer(({ width }) => {
             detailDomain: _.debounce(handleBrush, 500),
             hoverBar: _.throttle(handleHoverGroup, 100),
           }}
+          width={width}
         />
       </div>
     </div>
