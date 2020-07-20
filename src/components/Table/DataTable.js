@@ -27,6 +27,7 @@ const DataGridContainer = styled.div`
 
   .rdg-header-row {
     background-color: white;
+    // background-color: transparent;
     line-height: 65px;
     height: 45px;
     font-weight: 500;
@@ -48,6 +49,7 @@ const DataGridContainer = styled.div`
 
   /* All other rows */
   .rdg-row {
+    background-color: transparent;
     .rdg-cell {
       border-right: none;
       &.rdg-cell-frozen-last {
