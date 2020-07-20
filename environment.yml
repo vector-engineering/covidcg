@@ -14,7 +14,7 @@ dependencies:
   - biopython=1.76
   - pip=20.1.1
   - pip:
-      - pysam==0.16.0.1
+      - pysam==0.15.4
   # If you want to run the notebooks:
   - jupyter=1.0.0
   - jupyter_contrib_nbextensions=0.5.1
