@@ -278,7 +278,7 @@ function processCaseData({
       const color = getColorMethod(group);
       aggCaseDataList.push({
         group: group,
-        date: date,
+        date: parseInt(date),
         cases_sum: aggCaseData[group][date],
         color,
       });

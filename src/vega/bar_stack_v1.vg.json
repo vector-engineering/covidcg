@@ -1,0 +1,453 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 1000,
+  "height": 360,
+  "padding": 5,
+
+  "data": [
+    {
+      "name": "cases_by_date_and_group",
+      "format": {
+        "parse": {
+          "group": "string",
+          "cases_sum": "number",
+          "date": "date:'%Q'"
+        }
+      },
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": ["date"],
+          "sort": { "field": "group" },
+          "field": "cases_sum",
+          "offset": "zero"
+        },
+        {
+          "type": "formula",
+          "as": "day_start",
+          "expr": "datetime(time(datum.date) - 0)"
+        },
+        {
+          "type": "formula",
+          "as": "day_end",
+          "expr": "datetime(time(datum.date) + 86400000)"
+        }
+      ]
+    },
+    {
+      "name": "cases_by_date",
+      "source": "cases_by_date_and_group",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["date"],
+          "fields": ["cases_sum"],
+          "ops": ["sum"],
+          "as": ["cases_sum_by_date"]
+        },
+        {
+          "type": "formula",
+          "as": "day_start",
+          "expr": "datetime(time(datum.date) - 0)"
+        },
+        {
+          "type": "formula",
+          "as": "day_end",
+          "expr": "datetime(time(datum.date) + 86400000)"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "!shift && clicked", "insert": "clicked" },
+        { "trigger": "shift && clicked", "toggle": "clicked" }
+      ]
+    }
+  ],
+
+  "signals": [
+    {
+      "name": "detailDomain"
+    },
+    { "name": "brush", "value": 0 },
+    { "name": "delta", "value": 0 },
+    { "name": "xdown", "value": 0 },
+    { "name": "anchor", "value": null },
+    { "name": "hoverBar", "value": null },
+    {
+      "name": "clear",
+      "value": true,
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "value": false,
+      "on": [
+        {
+          "events": "@detailbars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clicked",
+      "value": null,
+      "on": [
+        {
+          "events": "@detailbars:click",
+          "update": "{group: datum.group}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "name": "detail",
+      "encode": {
+        "enter": {
+          "height": { "value": 280 },
+          "width": { "value": 1000 }
+        }
+      },
+      "signals": [
+        {
+          "name": "hoverBar",
+          "push": "outer",
+          "on": [
+            {
+              "events": "@detailbars:mouseover!",
+              "update": "{group: datum.group, date: datum.date}"
+            },
+            {
+              "events": "@detailbars:mouseout!",
+              "update": "null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "x",
+          "type": "time",
+          "range": "width",
+          "domain": {
+            "fields": [
+              { "data": "cases_by_date", "field": "day_start" },
+              { "data": "cases_by_date", "field": "day_end" }
+            ]
+          },
+          "domainRaw": { "signal": "detailDomain" }
+        },
+        {
+          "name": "y",
+          "type": "linear",
+          "range": [280, 0],
+          "nice": true,
+          "zero": true,
+          "domain": { "data": "cases_by_date_and_group", "field": "y1" }
+        }
+      ],
+      "axes": [
+        {
+          "orient": "bottom",
+          "scale": "x",
+          "zindex": 0,
+          "format": "%m-%d",
+          "tickCount": "week",
+          "grid": true,
+          "gridScale": "y",
+          "gridColor": "#DDD",
+
+          "labelFontSize": 12,
+          "labelPadding": 3
+        },
+        {
+          "orient": "left",
+          "scale": "y",
+          "zindex": 0,
+          "grid": true,
+          "gridColor": "#DDD",
+
+          "title": "Sequences by Lineage",
+          "titleFontSize": 14,
+          "titlePadding": 10,
+
+          "labelFontSize": 14,
+          "labelPadding": 5,
+          "tickCount": 5
+        }
+      ],
+      "marks": [
+        {
+          "type": "group",
+          "encode": {
+            "enter": {
+              "height": { "field": { "group": "height" } },
+              "width": { "field": { "group": "width" } },
+              "clip": { "value": true }
+            }
+          },
+          "marks": [
+            {
+              "type": "rect",
+              "name": "detailbars",
+              "from": { "data": "cases_by_date_and_group" },
+              "encode": {
+                "enter": {
+                  "strokeWidth": { "value": 1 },
+                  "tooltip": {
+                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum, 'Collection date': timeFormat(datum.date, '%b %d %Y')}"
+                  }
+                },
+                "update": {
+                  "x": { "scale": "x", "field": "day_start" },
+                  "x2": { "scale": "x", "field": "day_end" },
+                  "y": { "scale": "y", "field": "y0" },
+                  "y2": { "scale": "y", "field": "y1" },
+                  "fill": [
+                    {
+                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group))",
+                      "field": "color"
+                    },
+                    { "value": "#CCC" }
+                  ],
+                  "stroke": [
+                    {
+                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "value": "#000"
+                    },
+                    { "value": "transparent" }
+                  ],
+                  "zindex": [
+                    {
+                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "value": 3
+                    },
+                    { "value": 1 }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "overview",
+      "encode": {
+        "enter": {
+          "x": { "value": 0 },
+          "y": { "value": 300 },
+          "width": { "value": 1000 },
+          "height": { "value": 60 },
+          "fill": { "value": "transparent" }
+        }
+      },
+      "signals": [
+        {
+          "name": "brush",
+          "push": "outer",
+          "on": [
+            {
+              "events": "@overview:mousedown",
+              "update": "[x(), x()]"
+            },
+            {
+              "events": {
+                "merge": [
+                  { "markname": "overview", "type": "dblclick" },
+                  { "markname": "brushrect", "type": "dblclick" }
+                ]
+              },
+              "update": "0"
+            },
+            {
+              "events": "[@overview:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, width)]"
+            },
+            {
+              "events": {
+                "merge": [
+                  { "markname": "overview", "type": "mouseup" },
+                  { "markname": "brushrect", "type": "mouseup" }
+                ]
+              },
+              "update": "abs(span(brush)) <= 2 ? 0 : [brush[0], brush[1]]"
+            },
+            {
+              "events": { "signal": "delta" },
+              "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+            }
+          ]
+        },
+        {
+          "name": "anchor",
+          "push": "outer",
+          "on": [{ "events": "@brushrect:mousedown", "update": "slice(brush)" }]
+        },
+        {
+          "name": "xdown",
+          "push": "outer",
+          "on": [{ "events": "@brushrect:mousedown", "update": "x()" }]
+        },
+        {
+          "name": "delta",
+          "push": "outer",
+          "on": [
+            {
+              "events": "[@brushrect:mousedown, window:mouseup] > window:mousemove!",
+              "update": "x() - xdown"
+            }
+          ]
+        },
+        {
+          "name": "detailDomain",
+          "push": "outer",
+          "on": [
+            {
+              "events": { "signal": "brush" },
+              "update": "span(brush) ? invert('xOverview', brush) : null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "xOverview",
+          "type": "time",
+          "range": "width",
+          "domain": {
+            "fields": [
+              { "data": "cases_by_date", "field": "day_start" },
+              { "data": "cases_by_date", "field": "day_end" }
+            ]
+          }
+        },
+        {
+          "name": "yOverview",
+          "type": "linear",
+          "range": [60, 0],
+          "domain": { "data": "cases_by_date", "field": "cases_sum_by_date" },
+          "nice": true,
+          "zero": true
+        }
+      ],
+      "axes": [
+        {
+          "orient": "bottom",
+          "scale": "xOverview",
+          "title": "Collection date",
+          "titleFontSize": 18,
+          "titlePadding": 10,
+          "format": "%m-%d",
+
+          "grid": true,
+          "gridColor": "#DDD",
+          "gridScale": "yOverview",
+
+          "labelFontSize": 12,
+          "labelPadding": 3,
+
+          "tickCount": "week"
+        },
+        {
+          "orient": "left",
+          "scale": "yOverview",
+
+          "title": "All Seqs",
+          "titleFontSize": 14,
+          "titlePadding": 10,
+
+          "labelFontSize": 14,
+          "labelPadding": 3,
+
+          "tickCount": 3
+        }
+      ],
+      "marks": [
+        {
+          "type": "rect",
+          "from": { "data": "cases_by_date" },
+          "encode": {
+            "enter": {
+              "x": { "scale": "xOverview", "field": "day_start" },
+              "x2": { "scale": "xOverview", "field": "day_end" },
+              "y": { "scale": "yOverview", "value": 0 },
+              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" }
+            },
+            "update": {
+              "fill": [
+                {
+                  "test": "detailDomain && inrange(datum.date, detailDomain)",
+                  "value": "#f00"
+                },
+                { "value": "#888" }
+              ]
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "name": "brushrect",
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "value": 60 },
+              "fill": { "value": "#333" },
+              "fillOpacity": { "value": 0.2 }
+            },
+            "update": {
+              "x": { "signal": "brush[0]" },
+              "x2": { "signal": "brush[1]" }
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "value": 60 },
+              "width": { "value": 1 },
+              "fill": { "value": "firebrick" }
+            },
+            "update": {
+              "x": { "signal": "brush[0]" }
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "value": 60 },
+              "width": { "value": 1 },
+              "fill": { "value": "firebrick" }
+            },
+            "update": {
+              "x": { "signal": "brush[1]" }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

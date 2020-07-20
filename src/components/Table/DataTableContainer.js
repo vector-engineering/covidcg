@@ -31,6 +31,7 @@ import {
 import SkeletonElement from '../SkeletonElement';
 import { asyncStates } from '../../stores/uiStore';
 import DataTable from './DataTable';
+import RowRenderer from './RowRenderer';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -73,6 +74,30 @@ const NewLineageDataTable = observer(() => {
     rows: covidStore.caseDataAggGroup,
     sortColumn: 'cases_sum',
     sortDirection: 'DESC',
+
+    shiftKeyPressed: false,
+  });
+
+  // Listen for shift key press
+  const onKeyDown = (e) => {
+    // Shift key = 16
+    if (e.keyCode === 16) {
+      setState({ ...state, shiftKeyPressed: true });
+    }
+  };
+  const onKeyUp = (e) => {
+    if (e.keyCode === 16) {
+      setState({ ...state, shiftKeyPressed: false });
+    }
+  };
+  useEffect(() => {
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, false);
+      document.removeEventListener('keyup', onKeyUp, false);
+    };
   });
 
   useEffect(() => {
@@ -94,6 +119,31 @@ const NewLineageDataTable = observer(() => {
     setState({ ...state, compareMode: event.target.value });
   const handleCompareColorChange = (event) =>
     setState({ ...state, compareColor: event.target.value });
+
+  const onRowClick = (rowIndex, row, column) => {
+    //console.log(rowIndex, row, column);
+
+    let newGroups;
+
+    // If the item is already selected, then deselect it
+    if (
+      _.findWhere(covidStore.selectedGroups, { group: row.group }) !== undefined
+    ) {
+      newGroups = _.reject(
+        covidStore.selectedGroups,
+        (group) => group.group == row.group
+      );
+    } else {
+      // Otherwise, add it
+      newGroups = [{ group: row.group }];
+      // If shift is pressed, then add it to the existing selected groups
+      if (state.shiftKeyPressed) {
+        newGroups = newGroups.concat(covidStore.selectedGroups);
+      }
+    }
+
+    covidStore.updateSelectedGroups(newGroups);
+  };
 
   const renderTable = () => {
     if (
@@ -302,6 +352,7 @@ const NewLineageDataTable = observer(() => {
     }
 
     // console.log(state.sortColumn, state.sortDirection, columns);
+    // console.log(state.rows);
 
     return (
       <>
@@ -317,8 +368,8 @@ const NewLineageDataTable = observer(() => {
           <DataTable
             posColOffset={posColOffset}
             columns={columns}
-            rowGetter={(i) => state.rows[i]}
             rows={state.rows}
+            rowGetter={(i) => state.rows[i]}
             rowsCount={state.rows ? state.rows.length : 0}
             height={state.tableHeight}
             headerRowHeight={45}
@@ -328,6 +379,8 @@ const NewLineageDataTable = observer(() => {
             sortColumn={state.sortColumn}
             sortDirection={state.sortDirection}
             onSort={handleGridSort}
+            rowRenderer={RowRenderer}
+            onRowClick={onRowClick}
           />
         </div>
       </>

@@ -27,9 +27,12 @@ const DataGridContainer = styled.div`
 
   .rdg-header-row {
     background-color: white;
+    // background-color: transparent;
     line-height: 65px;
     height: 45px;
     font-weight: 500;
+    z-index: 4;
+    width: 100%;
 
     .rdg-cell {
       font-size: 12px;
@@ -48,6 +51,7 @@ const DataGridContainer = styled.div`
 
   /* All other rows */
   .rdg-row {
+    background-color: transparent;
     .rdg-cell {
       border-right: none;
       &.rdg-cell-frozen-last {
@@ -85,33 +89,13 @@ function useHookWithRefCallback() {
   return [setRef];
 }
 
-const DataTable = ({
-  posColOffset,
-  rows,
-  columns,
-  sortColumn,
-  sortDirection,
-  handleGridSort,
-}) => {
+const DataTable = ({ posColOffset, rows, ...rest }) => {
   const [ref] = useHookWithRefCallback();
 
   return (
     <DataGridContainer posColOffset={posColOffset}>
       <div ref={ref} />
-      <DataGrid
-        columns={columns}
-        rowGetter={(i) => rows[i]}
-        rows={rows}
-        rowsCount={rows ? rows.length : 0}
-        height={400}
-        headerRowHeight={45}
-        filterRowHeight={45}
-        rowHeight={25}
-        minColumnWidth={25}
-        sortColumn={sortColumn}
-        sortDirection={sortDirection}
-        onSort={handleGridSort}
-      />
+      <DataGrid rows={rows} height={400} {...rest} />
     </DataGridContainer>
   );
 };
@@ -119,10 +103,6 @@ const DataTable = ({
 DataTable.propTypes = {
   posColOffset: PropTypes.number,
   rows: PropTypes.array.isRequired,
-  columns: PropTypes.array.isRequired,
-  sortColumn: PropTypes.string,
-  sortDirection: PropTypes.string,
-  handleGridSort: PropTypes.func,
 };
 
 export default DataTable;

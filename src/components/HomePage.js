@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import _ from 'underscore';
+// import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
@@ -10,7 +10,6 @@ import GroupBySelect from './GroupBySelect';
 import DropdownContainer from './DropdownContainer';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
-import areaStackSpecInitial from '../vega/area_stack.vl.json';
 
 import { connect } from '../stores/connect';
 import DataTableContainer from './Table/DataTableContainer';
@@ -19,10 +18,10 @@ import Header from './Header';
 import { asyncStates } from '../stores/uiStore';
 import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
-import VegaLegend from './VegaLegend';
+import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
 import AccordionWrapper from './AccordionWrapper';
-import VegaWrapper from './VegaWrapper';
+import VegaStackedBars from './Vega/VegaStackedBars';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
@@ -67,30 +66,6 @@ const PlotContainer = styled.div`
     width: calc(100% - 110px);
   }
 `;
-const PlotOptions = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-
-  .area-stack-title {
-    font-size: 1.25em;
-    margin-right: 10px;
-    padding-right: 10px;
-    padding-left: 18px;
-
-    border-right: 1px solid #ccc;
-  }
-`;
-
-const AreaStackSelectContainer = styled.div`
-  font-weight: normal;
-  select {
-    margin-left: 0.65em;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-`;
 
 const Footer = styled.div`
   margin-top: auto;
@@ -104,69 +79,8 @@ const Footer = styled.div`
   font-size: 0.85rem;
 `;
 
-const AreaStackModeSelect = ({ mode, onChange }) => {
-  return (
-    <AreaStackSelectContainer>
-      <label>
-        Display mode:
-        <select value={mode} onChange={onChange}>
-          <option value="counts">Counts</option>
-          <option value="percentages">Percentages</option>
-        </select>
-      </label>
-    </AreaStackSelectContainer>
-  );
-};
-AreaStackModeSelect.propTypes = {
-  mode: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
-const HomePage = observer(({ covidStore, uiStore }) => {
-  // 'percentages' or 'counts'
-  const [areaStackMode, setAreaStackMode] = useState('percentages');
+const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
-
-  const handleBrush = (...args) => {
-    //console.log(args);
-    // this.setState({
-    //   info: JSON.stringify(args),
-    // });
-    covidStore.selectDateRange(
-      Object.prototype.hasOwnProperty.call(args[1], 'date')
-        ? args[1].date
-        : [-1, -1]
-    );
-  };
-
-  const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
-
-  // Make a deep copy of the Vega spec so we can edit it
-  const areaStackSpec = JSON.parse(JSON.stringify(areaStackSpecInitial));
-
-  if (areaStackMode === 'percentages') {
-    areaStackSpec['vconcat'][0]['encoding']['y']['stack'] = 'normalize';
-  }
-
-  // Adapt labels to groupings
-  if (covidStore.groupKey === 'lineage') {
-    // y-axis title
-    areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by Lineage';
-    // Tooltip title
-    areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] = 'Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    // y-axis title
-    areaStackSpec['vconcat'][0]['encoding']['y']['axis']['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by ' +
-      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') +
-      ' SNP';
-    // Tooltip title
-    areaStackSpec['vconcat'][0]['encoding']['tooltip'][0]['title'] =
-      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
-  }
 
   const renderPlotContent = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -191,30 +105,11 @@ const HomePage = observer(({ covidStore, uiStore }) => {
           defaultCollapsed={false}
           maxHeight={'1200px'}
         >
-          <div style={{ width: `${width}px` }}>
-            <VegaWrapper
-              data={{
-                case_data: covidStore.caseData,
-              }}
-              spec={areaStackSpec}
-              signalListeners={{
-                brush: _.debounce(handleBrush, 500),
-              }}
-            />
-          </div>
+          <VegaStackedBars width={width - 150} />
         </AccordionWrapper>
       );
     }
   };
-
-  let areaStackTitle = 'Lineage ';
-  if (covidStore.groupKey === 'lineage') {
-    areaStackTitle = 'Lineage ';
-  } else if (covidStore.groupKey === 'snp') {
-    areaStackTitle = 'SNP ';
-  }
-  areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
-  areaStackTitle += ' Over Time';
 
   return (
     <>
@@ -229,14 +124,6 @@ const HomePage = observer(({ covidStore, uiStore }) => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <PlotOptions>
-            <span className="area-stack-title">{areaStackTitle}</span>
-            <AreaStackModeSelect
-              mode={areaStackMode}
-              onChange={onChangeAreaStackMode}
-            />
-          </PlotOptions>
-          <br />
           <AccordionWrapper
             title="legend"
             defaultCollapsed={false}
