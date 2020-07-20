@@ -325,7 +325,7 @@ class ReadExtractor:
         # TODO: I don't think there's any codon-shifting indels in these sequences,
         # but if there are, the translate() function will break when passed a string
         # that doesn't have a length of a multiple of 3.
-        for gene in self.genes.keys():
-            self.genes[gene] = "".join(self.genes[gene])
+        # for gene in self.genes.keys():
+        #     self.genes[gene] = "".join(self.genes[gene])
 
-        return self.genes, self.dna_snps
+        return self.dna_snps
