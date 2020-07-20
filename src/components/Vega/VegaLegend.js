@@ -129,10 +129,26 @@ const VegaLegend = observer(() => {
     // console.log('select', selectedGroup, e);
     e.preventDefault();
 
-    let newGroups = [{ group: selectedGroup }];
-    if (shiftKeyPressed) {
-      newGroups = newGroups.concat(covidStore.selectedGroups);
+    let newGroups;
+
+    // If the item is already selected, then deselect it
+    if (
+      _.findWhere(covidStore.selectedGroups, { group: selectedGroup }) !==
+      undefined
+    ) {
+      newGroups = _.reject(
+        covidStore.selectedGroups,
+        (group) => group.group == selectedGroup
+      );
+    } else {
+      // Otherwise, add it
+      newGroups = [{ group: selectedGroup }];
+      // If shift is pressed, then add it to the existing selected groups
+      if (shiftKeyPressed) {
+        newGroups = newGroups.concat(covidStore.selectedGroups);
+      }
     }
+
     covidStore.updateSelectedGroups(newGroups);
   };
 
