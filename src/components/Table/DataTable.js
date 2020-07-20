@@ -31,6 +31,8 @@ const DataGridContainer = styled.div`
     line-height: 65px;
     height: 45px;
     font-weight: 500;
+    z-index: 4;
+    width: 100%;
 
     .rdg-cell {
       font-size: 12px;
