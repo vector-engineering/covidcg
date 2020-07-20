@@ -93,7 +93,7 @@ const DataTable = ({ posColOffset, rows, ...rest }) => {
   return (
     <DataGridContainer posColOffset={posColOffset}>
       <div ref={ref} />
-      <DataGrid rowGetter={(i) => rows[i]} rows={rows} height={400} {...rest} />
+      <DataGrid rows={rows} height={400} {...rest} />
     </DataGridContainer>
   );
 };
