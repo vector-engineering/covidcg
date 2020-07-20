@@ -38,8 +38,15 @@ const LegendItem = styled.div`
       return '1px 1px 1px 1px';
     }
   }};
-  background-color: ${({ selected }) =>
-    selected ? 'rgba(0,0,0,0.1)' : 'transparent'};
+  background-color: ${({ hovered, selected }) => {
+    if (hovered) {
+      return 'rgba(0,0,0,0.05)';
+    } else if (selected) {
+      return 'rgba(0,0,0,0.1)';
+    } else {
+      return 'transparent';
+    }
+  }};
 `;
 
 LegendItem.defaultProps = {
