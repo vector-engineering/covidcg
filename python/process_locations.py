@@ -120,6 +120,11 @@ def clean_location_data(location_df):
         # ---
         # Abbreviate name to save space
         ({"country": "Democratic Republic of the Congo"}, {"country": "DRC"}),
+        # Fix typos
+        (
+            {"country": "DRC", "division": "Kongo Central"},
+            {"division": "Kongo-Central"},
+        ),
         # MOROCCO
         # -------
         # Move to Africa
@@ -138,10 +143,12 @@ def clean_location_data(location_df):
         ({"country": "Marocco"}, {"country": "Morocco"}),
         # SENEGAL
         # -------
+        # Fix typos
         (
             {"country": "Senegal", "division": ["St Louis", "St Louis (RTL)"]},
             {"division": "St-Louis"},
         ),
+        ({"country": "Senegal", "division": ["Dakarhuman"]}, {"division": "Dakar"}),
         # SOUTH AFRICA
         # ------------
         # Unabbreviate province names
@@ -151,6 +158,11 @@ def clean_location_data(location_df):
         ({"country": "South Africa", "division": "LP"}, {"division": "Limpopo"}),
         ({"country": "South Africa", "division": "MP"}, {"division": "Mpumalanga"}),
         ({"country": "South Africa", "division": "NW"}, {"division": "North West"}),
+        ({"country": "South Africa", "division": "FS"}, {"division": "Free State"}),
+        (
+            {"country": "South Africa", "division": ["WC", "Western Cape Province"]},
+            {"division": "Western Cape"},
+        ),
         # Remove Unknown division
         ({"country": "South Africa", "division": "Unknown"}, {"division": -1}),
         # ASIA
@@ -303,7 +315,7 @@ def clean_location_data(location_df):
             {"division": "Center District", "location": "Yehud"},
         ),
         (
-            {"country": "Israel", "division": ["Kefar Sava"]},
+            {"country": "Israel", "division": ["Kefar Sava", "Kfar Saba"]},
             {"division": "Center District", "location": "Kfar Saba"},
         ),
         (
@@ -2741,6 +2753,18 @@ def clean_location_data(location_df):
             {"country": "Spain", "location": "Arganda_del_Rey"},
             {"location": "Arganda del Rey"},
         ),
+        # Move Donostia-San Sebastian into Basque Country
+        (
+            {
+                "country": "Spain",
+                "division": ["Donostia-San Sebatian", "Donostia-San Sebastian"],
+            },
+            {
+                "country": "Spain",
+                "division": "Basque Country",
+                "location": "Donostia-San Sebastián",
+            },
+        ),
         # SWEDEN
         # ------
         # Fix typos
@@ -2828,8 +2852,22 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "District of Columbia"},
             {"division": "Washington DC"},
         ),
+        # Arizona
+        # -------
+        # Fix typos
+        # Move Phoenix into Maricopa County
+        (
+            {
+                "country": "USA",
+                "division": "Arizona",
+                "location": ["Maricopa county", "Phoenix"],
+            },
+            {"location": "Maricopa County"},
+        ),
         # California
         # ----------
+        # Fix typos
+        ({"country": "USA", "division": "Califonia"}, {"division": "California"}),
         # Unify county names
         (
             {
@@ -2854,7 +2892,11 @@ def clean_location_data(location_df):
         ),
         # LA -> LA County
         (
-            {"country": "USA", "division": "California", "location": "Los Angeles"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": ["Los Angeles", "Los Angeles county"],
+            },
             {"location": "Los Angeles County"},
         ),
         # Los Angeles division -> California
@@ -2875,12 +2917,48 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "San Diego"},
             {"division": "California", "location": "San Diego County"},
         ),
+        # Imperial -> Imperial County
+        (
+            {"country": "USA", "division": "California", "location": "Imperial"},
+            {"location": "Imperial County"},
+        ),
+        # Fix typos
+        (
+            {"country": "USA", "division": "California", "location": ["Marin county"]},
+            {"location": "Marin County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "California",
+                "location": ["San Diego county"],
+            },
+            {"location": "San Diego County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "California",
+                "location": ["Santa Clara county"],
+            },
+            {"location": "Santa Clara County"},
+        ),
         # Colorado
         # --------
         # Move Colorado Springs from Wisconsin to Colorado
         (
             {"country": "USA", "division": "Wisconsin", "location": "Coloardo Springs"},
             {"division": "Colorado", "location": "Colorado Springs"},
+        ),
+        # Colorado Springs -> El Paso County
+        (
+            {"country": "USA", "division": "Colorado", "location": "Colorado Springs"},
+            {"location": "El Paso County"},
+        ),
+        # Fix typos
+        (
+            {"country": "USA", "division": "Colorado", "location": ["Denver county"]},
+            {"location": "Denver County"},
         ),
         # Connecticut
         # -----------
@@ -2892,6 +2970,7 @@ def clean_location_data(location_df):
                 "country": "USA",
                 "division": "Connecticut",
                 "location": [
+                    "Fairfield county",
                     "Fairfield",
                     "Greenwich",
                     "NEWTOWN",
@@ -2964,6 +3043,72 @@ def clean_location_data(location_df):
             {"location": "Tolland County"},
         ),
         # ({'country': 'USA', 'division': 'Connecticut', 'location': []}, {'location': 'Windham County'}),
+        # Florida
+        # -------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "Florida",
+                "location": ["Miami", "Miami-dade county"],
+            },
+            {"location": "Miami-Dade County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Florida",
+                "location": ["Palm Beach county"],
+            },
+            {"location": "Palm Beach County"},
+        ),
+        # Illinois
+        # --------
+        # Fix typos
+        # Move Chicago -> Cook County
+        (
+            {
+                "country": "USA",
+                "division": "Illinois",
+                "location": ["Chicago", "Cook county"],
+            },
+            {"location": "Cook County"},
+        ),
+        (
+            {"country": "USA", "division": "Illinois", "location": ["Dupage county"],},
+            {"location": "Dupage County"},
+        ),
+        (
+            {"country": "USA", "division": "Illinois", "location": ["Kane county"],},
+            {"location": "Kane County"},
+        ),
+        (
+            {"country": "USA", "division": "Illinois", "location": ["Lake county"],},
+            {"location": "Lake County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Illinois",
+                "location": ["Mchenry county", "McHenry county"],
+            },
+            {"location": "McHenry County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Illinois",
+                "location": ["Winnebago county"],
+            },
+            {"location": "Winnebago County"},
+        ),
+        # Iowa
+        # ----
+        # Fix typos
+        (
+            {"country": "USA", "division": "Iowa", "location": ["Jackson county"],},
+            {"location": "Jackson County"},
+        ),
         # Louisiana
         # ---------
         # Assume LA is Louisiana
@@ -2974,6 +3119,51 @@ def clean_location_data(location_df):
         (
             {"country": "USA", "division": "New Jersey", "location": "Hudson"},
             {"location": "Hudson County"},
+        ),
+        # Massachusetts
+        # -------------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "Massachusetts",
+                "location": ["Middlesex county"],
+            },
+            {"location": "Middlesex County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Massachusetts",
+                "location": ["Norfolk county"],
+            },
+            {"location": "Norfolk County"},
+        ),
+        # Minnesota
+        # ---------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "Minnesota",
+                "location": ["Stearns county"],
+            },
+            {"location": "Stearns County"},
+        ),
+        # New Jersey
+        # ----------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "New Jersey",
+                "location": ["Bergen county"],
+            },
+            {"location": "Bergen County"},
+        ),
+        (
+            {"country": "USA", "division": "New Jersey", "location": ["Essex county"],},
+            {"location": "Essex County"},
         ),
         # New York
         # --------
@@ -3046,6 +3236,70 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "New York", "location": "New Rochelle"},
             {"location": "Westchester County"},
         ),
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "New York",
+                "location": ["Onondaga county"],
+            },
+            {"location": "Onondaga County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "New York",
+                "location": ["Rockland county"],
+            },
+            {"location": "Rockland County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "New York",
+                "location": ["Westchester county"],
+            },
+            {"location": "Westchester County"},
+        ),
+        # Pennsylvania
+        # ------------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "Pennsylvania",
+                "location": ["Montgomery county"],
+            },
+            {"location": "Montgomery County"},
+        ),
+        # Pittsburgh -> Alleghany County
+        (
+            {"country": "USA", "division": "Pennsylvania", "location": ["Pittsburgh"],},
+            {"location": "Alleghany County"},
+        ),
+        # South Carolina
+        # --------------
+        # Fix typos
+        (
+            {"country": "USA", "division": "South Carolina", "location": ["Richland"],},
+            {"location": "Richland County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "South Carolina",
+                "location": ["Fairfield"],
+            },
+            {"location": "Fairfield County"},
+        ),
+        (
+            {"country": "USA", "division": "South Carolina", "location": ["Berkeley"],},
+            {"location": "Berkeley County"},
+        ),
+        # Vermont
+        # -------
+        # VT -> Vermont
+        ({"country": "USA", "division": "VT"}, {"division": "Vermont"}),
         # Washington
         # ----------
         # Move towns into counties
@@ -3350,6 +3604,62 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "Wisconsin", "location": "Waukesha county"},
             {"location": "Waukesha County"},
         ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Brown county"},
+            {"location": "Brown County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Dane county"},
+            {"location": "Dane County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Dodge county"},
+            {"location": "Dodge County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Door county"},
+            {"location": "Door County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Jackson county"},
+            {"location": "Jackson County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Manitowoc county"},
+            {"location": "Manitowoc County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Outagamie county"},
+            {"location": "Outagamie County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Sauk county"},
+            {"location": "Sauk County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Sheboygan county"},
+            {"location": "Sheboygan County"},
+        ),
+        (
+            {
+                "country": "USA",
+                "division": "Wisconsin",
+                "location": "Trempealeau county",
+            },
+            {"location": "Trempealeau County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Vernon county"},
+            {"location": "Vernon County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Waupaca county"},
+            {"location": "Waupaca County"},
+        ),
+        (
+            {"country": "USA", "division": "Wisconsin", "location": "Winnebago county"},
+            {"location": "Winnebago County"},
+        ),
         # Australia
         # ---------
         # Fix typos, unabbreviate province names
@@ -3604,9 +3914,7 @@ def build_select_tree(location_df, unique_location_df):
     )
 
     # Load country -> emoji map
-    emoji_map = pd.read_excel(
-        static_data_dir / "country_to_emoji.xls", skiprows=1
-    )
+    emoji_map = pd.read_excel(static_data_dir / "country_to_emoji.xls", skiprows=1)
     # Expand country aliases, remove whitespace from each alias
     emoji_map["aliases"] = (
         emoji_map["aliases"].str.split(",").apply(lambda x: [y.strip() for y in x])

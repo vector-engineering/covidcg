@@ -92,8 +92,6 @@ def clean_age_metadata(patient_meta_df):
             continue
 
         # Merge "Unknowns"
-        # "Adult" is too vague
-        # "Over 18" is too vague
         elif v in [
             "unknown",
             "unkown",
@@ -102,12 +100,14 @@ def clean_age_metadata(patient_meta_df):
             "uknown",
             "no data",
             "Male",
-            "Adult",
-            "Over 18",
-            "over 18",
         ]:
             # patient_meta_df.loc[i, 'Patient age clean'] = 'Unknown'
             continue
+
+        # Parse "Adult" and "Over 18" to be 18 -> 100
+        elif v in ["Over 18", "over 18", "> 18", "Adult"]:
+            patient_meta_df.loc[i, "age_start"] = 18.0
+            patient_meta_df.loc[i, "age_end"] = 100.0
 
         # Parse clean integers. e.g., "42"
         elif re.match(r"^[0-9]+$", v):
@@ -201,10 +201,15 @@ def clean_age_metadata(patient_meta_df):
     print(
         'Could not parse the following "Patient Age" values: {}'.format(
             ", ".join(
-                patient_meta_df["age_clean"][pd.isnull(patient_meta_df["age_start"])]
-                .str.strip()
-                .unique()
-                .astype(str)
+                [
+                    '"{}"'.format(x)
+                    for x in patient_meta_df["age_clean"][
+                        pd.isnull(patient_meta_df["age_start"])
+                    ]
+                    .str.strip()
+                    .unique()
+                    .astype(str)
+                ]
             )
         )
     )
@@ -256,6 +261,9 @@ def clean_patient_status_metadata(patient_meta_df):
             "Hospitaized",
             "inpatient",
             "Hospitalized patient",
+            "Hopsitalized",
+            "Hospitalised",
+            "Still Hospitalized",
         ],
         "Recovered": ["Cured"],
         "Discharged": [
@@ -267,6 +275,8 @@ def clean_patient_status_metadata(patient_meta_df):
             "Released, Live",
             "Moderate/Outpatient",
             "Discharged after recovery",
+            "DAMA",  # Dischared Against Medical Advice
+            "Hospitalized, Released",
         ],
         "Pneumonia": [
             "Pneumonia (chest X-ray), not critical",
@@ -275,26 +285,31 @@ def clean_patient_status_metadata(patient_meta_df):
         "Asymptomatic": [
             "Asymptomatic/Released",
             "Mild/Contact exposure/Asymptomatic",
-            "Healthy",
+            "Asymptomatic, identified as positive during preoperation investigation",
         ],
-        "Symptomatic": [
-            "Mild symptoms (fever, cardiovascular disorders)",
-            "Mild symptoms inpatient for observation",
-            "Mild clinical signs without hospitalization",
-            "Mild",
-            "fever",
-            "Live, acute respiratory infection",
-        ],
+        "Symptomatic": ["symptomatic"],
+        "Fever": ["fever"],
         "Intensive Care Unit": [
             "Intensive Care Unit",
             "Hospitalized in ICU",
             "ICU; Serious",
             "Severe/ICU",
+            "ICU",
         ],
-        "Mild Case": ["Mild case"],
-        "Deceased": ["Death", "Hospitalized/Deceased"],
+        "Mild Case": ["Mild case", "Mild"],
+        "Deceased": [
+            "Death",
+            "Hospitalized/Deceased",
+            "deceased",
+            "Hospitalized, deceased",
+        ],
         "LTC": ["EHPAD", "EHPAD_IRA"],
-        "Quarantine": ["Stable in quarantine", "Quarantined", "Isolation"],
+        "Quarantine": [
+            "Stable in quarantine",
+            "Quarantined",
+            "Isolation",
+            "Facility quarantine",
+        ],
         "Home": ["Mild, at home.", "Live, mild symptoms, at home"],
     }
 
@@ -315,7 +330,9 @@ def clean_patient_status_metadata(patient_meta_df):
     print("done")
     print(
         '"Patient Status" values: {}'.format(
-            ", ".join(patient_meta_df["patient_status"].unique())
+            ", ".join(
+                ['"{}"'.format(x) for x in patient_meta_df["patient_status"].unique()]
+            )
         )
     )
 
@@ -350,6 +367,7 @@ def clean_passage_metadata(patient_meta_df):
             "Orginial",
             "Original, from nasopharyngeal aspirate",
             "ORIGINAL",
+            "origin",
         ],
         "Vero": [],
         "Vero P1": [
@@ -360,7 +378,7 @@ def clean_passage_metadata(patient_meta_df):
             "Vero 1",
             "Vero1",
         ],
-        "Vero P2": ["Vero cell P2", "P2, Vero"],
+        "Vero P2": ["Vero cell P2", "P2, Vero", "Vero2"],
         "Vero P3": ["Vero cell P3"],
         "Vero P4": ["Vero cell P4"],
         "LLC-MK2": [],
@@ -384,12 +402,13 @@ def clean_passage_metadata(patient_meta_df):
             "P1 Vero E6",
         ],
         "Vero E6 P2": ["VeroE6/P2", "VERO E6 / P2", "Vero E6 cells, P2"],
-        "Vero E6 P3": ["VeroE6/P3", "Vero E6-P3"],
+        "Vero E6 P3": ["VeroE6/P3", "Vero E6-P3", "VeroE6, passage 3"],
         "Vero E6 P4": ["Passage 4 in Vero E6 cells"],
         "Vero/hSLAM P1": [],
         "Vero E6/TMPRSS2": ["VeroE6/TMPRSS2"],
         "Caco-2": ["C2", "Caco2"],
         "Caco-2 P1": [],
+        "Caco-2 P2": ["Passage 2, Caco2"],
         "Culture (unknown)": ["Virus culture"],
     }
 
@@ -406,10 +425,15 @@ def clean_passage_metadata(patient_meta_df):
     print(
         'Setting "Passage" values to "Unknown": {}'.format(
             ", ".join(
-                patient_meta_df["Passage"][pd.isnull(patient_meta_df["passage"])]
-                .str.strip()
-                .unique()
-                .astype(str)
+                [
+                    '"{}"'.format(x)
+                    for x in patient_meta_df["Passage"][
+                        pd.isnull(patient_meta_df["passage"])
+                    ]
+                    .str.strip()
+                    .unique()
+                    .astype(str)
+                ]
             )
         )
     )
@@ -448,6 +472,7 @@ def clean_specimen_metadata(patient_meta_df):
             "Broncoalveolar",
             "BAL",
         ],
+        "Bronchial secretion": [],
         "Buccal swab": ["buccal swab"],
         "Deep throat saliva": [],
         "Dry swab": [],
@@ -456,6 +481,7 @@ def clean_specimen_metadata(patient_meta_df):
             "endotracheal aspirates",
             "Endotracheal aspirate (ETA)",
             "endotracheal aspirate (ETA)",
+            'Endotracheales Aspirat'
         ],
         "Enviromental swab": ["Door handle", "Air", "Air sample", "Home environment"],
         "Fecal swab": [],
@@ -509,11 +535,11 @@ def clean_specimen_metadata(patient_meta_df):
         "Nasal & oro-pharyngeal swab": [
             "Nasal, oropharyngeal swab",
             "Oro-pharyngeal swab, Nasal swab",
-            "oronasopharynx",
         ],
         "Nasal swab, oral swab, tracheal wash": [
             "Oral swab; Nasal swab; Tracheal wash"
         ],
+        "Nasal washing": ["Nasal Washing"],
         "Nasopharyngeal swab": [
             "nasopharyngeal swab",
             "Nasopharyngeal swab",
@@ -536,6 +562,7 @@ def clean_specimen_metadata(patient_meta_df):
             "Upper Resp NPS",
             "Nasal-pharyngeal swab",
             "Nasopharyngeal",
+            "Nasopharygeal Swab",
         ],
         "Nasopharyngeal VTM": [],
         "Nasopharyngeal & oro-pharyngeal swab": [
@@ -564,11 +591,11 @@ def clean_specimen_metadata(patient_meta_df):
             "Nasopharyngeal swab/Oropharyngeal swab",
             "Naso and/or oro-pharyngeal swab",
             "Naso and/or oropharyngeal swab",
-            "Oronasopharynx",
             "Oro/naso-pharyngeal swab",
             "Oro/naso-pharyngeal swabs",
             "Oro-naso-pharyngeal swab",
             "Oro-naso-pharyngeal swabs",
+            "NP/OP swab",
         ],
         "Nasopharyngeal & pharyngeal swab": [
             "Naso and pharyngeal swab",
@@ -624,6 +651,7 @@ def clean_specimen_metadata(patient_meta_df):
             "Oropharynx",
         ],
         "Oro-pharyngeal & conjunctival swab": ["Oropharyngeal/conjunctival swab"],
+        "Oronasopharynx": ["Oronasopahrynx", "oronasopharynx", "Oronasopharynx",],
         "Pharyngeal swab": ["pharyngeal swab", "pharynx swab"],
         "Pharyngeal exudate": ["Pharingeal exudate"],
         "Plasma": [],
@@ -642,7 +670,13 @@ def clean_specimen_metadata(patient_meta_df):
         "Stool": ["Faeces", "Feces"],
         "Swab (unspecified)": ["swab", "Swab"],
         "Throat saliva": [],
-        "Throat swab": ["throat swab", "Throat Swab", "Throat", "Throat swabs"],
+        "Throat swab": [
+            "throat swab",
+            "Throat Swab",
+            "Throat",
+            "Throat swabs",
+            "Throat swab; passaged twice in Vero E6 cells",
+        ],
         "Throat swab, serum, blood, sputum, urine": [
             "Throat Swab, Serum, Blood, Sputum, Urine"
         ],
@@ -659,6 +693,7 @@ def clean_specimen_metadata(patient_meta_df):
         "Upper respiratory secretion": ["upper respiratory secretion"],
         "Urine": [],
         "Urine & blood": ["Blood, urine"],
+        "Vomit fluid": [],
         "Wastewater": [
             "Untreated wastewater",
             "Wastewater; sewage sample",
@@ -679,10 +714,15 @@ def clean_specimen_metadata(patient_meta_df):
     print(
         'Setting "Specimen" values to "Unknown": {}'.format(
             ", ".join(
-                patient_meta_df["Specimen"][pd.isnull(patient_meta_df["specimen"])]
-                .str.strip()
-                .unique()
-                .astype(str)
+                [
+                    '"{}"'.format(x)
+                    for x in patient_meta_df["Specimen"][
+                        pd.isnull(patient_meta_df["specimen"])
+                    ]
+                    .str.strip()
+                    .unique()
+                    .astype(str)
+                ]
             )
         )
     )
