@@ -75,3 +75,6 @@ pymol/pdbs/**/*
 
 # Ignore all notebooks
 notebooks/**
+
+# Old versions
+versions/**
