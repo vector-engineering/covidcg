@@ -8,7 +8,7 @@ import { useStores } from '../stores/connect';
 import { asyncStates } from '../stores/uiStore';
 
 const ContainerDiv = styled.div`
-  margin-top: 5px;
+  margin-top: 2px;
   padding-top: 8px;
 
   border-top: 1px solid #aaa;

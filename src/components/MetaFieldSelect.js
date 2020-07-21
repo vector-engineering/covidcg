@@ -21,13 +21,8 @@ const MetaFieldSelectContainer = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  border-top: 1px solid #aaa;
   padding-left: 15px;
-  padding-top: 10px;
   padding-bottom: 10px;
-
-  .meta-select-header {
-  }
 `;
 
 const SelectList = styled.div`
@@ -327,9 +322,6 @@ const MetaFieldSelect = observer(() => {
 
   return (
     <MetaFieldSelectContainer>
-      <div className="meta-select-header">
-        <span className="meta-select-title">Filter sequences by:</span>
-      </div>
       <SelectList>
         <SelectContainer>
           <label>Patient Age:</label>

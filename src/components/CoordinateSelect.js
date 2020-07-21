@@ -22,8 +22,8 @@ const SelectContainer = styled.div`
   align-items: stretch;
   justify-content: flex-start;
 
-  margin: 5px 5px 5px 5px;
-  padding: 0px 8px 5px 8px;
+  margin: 5px 5px 0px 5px;
+  padding: 0px 8px 0px 8px;
 
   span.title {
     margin-bottom: 5px;
@@ -440,7 +440,6 @@ const CoordinateSelect = observer(() => {
 
   return (
     <SelectContainer>
-      <span className="title">Genomic Coordinates</span>
       <ModeSelectForm>
         <ModeRadioHorizontal>
           <ModeLabel>

@@ -22,6 +22,7 @@ import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
 import AccordionWrapper from './AccordionWrapper';
+import SidebarAccordionWrapper from './SidebarAccordionWrapper';
 import VegaStackedBars from './Vega/VegaStackedBars';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
@@ -102,7 +103,7 @@ const HomePage = observer(({ uiStore }) => {
     } else {
       return (
         <AccordionWrapper
-          title="plot"
+          title="Plot"
           defaultCollapsed={false}
           maxHeight={'1200px'}
         >
@@ -119,15 +120,25 @@ const HomePage = observer(({ uiStore }) => {
         <FilterSidebar>
           <Header />
           <GroupBySelect />
-          <CoordinateSelect />
-          <MetaFieldSelect />
+          <SidebarAccordionWrapper
+            title="Genomic Coordinates"
+            defaultCollapsed={false}
+          >
+            <CoordinateSelect />
+          </SidebarAccordionWrapper>
+          <SidebarAccordionWrapper
+            title="Filter sequences by:"
+            defaultCollapsed={false}
+          >
+            <MetaFieldSelect />
+          </SidebarAccordionWrapper>
 
           <DropdownContainer />
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
           <AccordionWrapper
-            title="legend"
+            title="Legend"
             defaultCollapsed={false}
             maxHeight={'500px'}
           >
@@ -140,7 +151,7 @@ const HomePage = observer(({ uiStore }) => {
           )*/}
 
           <AccordionWrapper
-            title="table"
+            title="Table"
             defaultCollapsed={false}
             maxHeight={'1200px'}
           >
