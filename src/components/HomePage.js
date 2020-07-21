@@ -7,6 +7,7 @@ import useDimensions from 'react-use-dimensions';
 
 import GeneSelect from './GeneSelect';
 import GroupBySelect from './GroupBySelect';
+import MetaFieldSelect from './MetaFieldSelect';
 import DropdownContainer from './DropdownContainer';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
@@ -119,6 +120,7 @@ const HomePage = observer(({ uiStore }) => {
           <Header />
           <GroupBySelect />
           <GeneSelect />
+          <MetaFieldSelect />
 
           <DropdownContainer />
         </FilterSidebar>

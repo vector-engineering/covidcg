@@ -11,6 +11,7 @@ import {
   snpColorArray,
   incrementColor,
 } from '../constants/colors';
+import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
 const processedCaseData = _.map(initialCaseData, (row) => {
@@ -158,6 +159,42 @@ function filterByDate(caseData, dateRange) {
   return caseData;
 }
 
+function filterByMetadataFieldsAndAgeRange(
+  caseData,
+  selectedMetadataFields,
+  ageRange
+) {
+  // Remove any fields from the selectedMetadataFields object that are empty arrays
+  let metadataFields = {};
+  Object.keys(selectedMetadataFields).forEach((field) => {
+    if (selectedMetadataFields[field].length > 0) {
+      metadataFields[field] = selectedMetadataFields[field];
+    }
+  });
+
+  let remove;
+  caseData = _.reject(caseData, (row) => {
+    remove = false;
+    Object.keys(metadataFields).forEach((field) => {
+      if (!metadataFields[field].includes(row[field])) {
+        remove = true;
+      }
+    });
+
+    // Age range
+    if (
+      (ageRange[0] !== null && row['age_start'] < ageRange[0]) ||
+      (ageRange[1] !== null && row['age_end'] > ageRange[1])
+    ) {
+      remove = true;
+    }
+
+    return remove;
+  });
+
+  return caseData;
+}
+
 function processCaseData({
   selectedLocationIds,
   coordinateMode,
@@ -166,6 +203,8 @@ function processCaseData({
   selectedProtein,
   groupKey,
   dnaOrAa,
+  selectedMetadataFields,
+  ageRange,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
@@ -197,6 +236,16 @@ function processCaseData({
   let selectedRows = _.map(caseData, (row) => {
     return row;
   });
+
+  const metadataCounts = countMetadataFields(caseData);
+
+  // Filter by metadata fields and age range
+  caseData = filterByMetadataFieldsAndAgeRange(
+    caseData,
+    selectedMetadataFields,
+    ageRange
+  );
+  console.log(caseData.length, 'rows remaining after metadata filtering');
 
   // Group by grouping key and sample date
   console.log('Grouping by', groupKey, 'and sample date');
@@ -288,8 +337,9 @@ function processCaseData({
   //console.log(aggCaseDataList);
 
   return {
-    aggCaseDataList: aggCaseDataList,
-    selectedRows: selectedRows,
+    aggCaseDataList,
+    selectedRows,
+    metadataCounts,
   };
 }
 

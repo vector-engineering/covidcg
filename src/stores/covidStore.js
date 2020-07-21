@@ -48,6 +48,11 @@ class ObservableCovidStore {
   @observable hoverGroup = null;
   @observable selectedGroups = [];
 
+  // Metadata filtering
+  @observable metadataCounts = {};
+  @observable selectedMetadataFields = {};
+  @observable ageRange = [null, null];
+
   constructor() {
     // Select NYC by default
     let NYCNode = getLocationByNameAndLevel(
@@ -198,6 +203,13 @@ class ObservableCovidStore {
   }
 
   @action
+  updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
+    this.selectedMetadataFields = selectedMetadataFields;
+    this.ageRange = ageRange;
+    this.updateCaseData();
+  }
+
+  @action
   selectDateRange(_dateRange) {
     this.dateRange = _dateRange;
     this.updateAggCaseDataByGroup();
@@ -251,10 +263,13 @@ class ObservableCovidStore {
         selectedProtein: toJS(this.selectedProtein),
         groupKey: toJS(this.groupKey),
         dnaOrAa: toJS(this.dnaOrAa),
+        selectedMetadataFields: toJS(this.selectedMetadataFields),
+        ageRange: toJS(this.ageRange),
       },
-      ({ aggCaseDataList, selectedRows }) => {
+      ({ aggCaseDataList, selectedRows, metadataCounts }) => {
         this.caseData = aggCaseDataList;
         this.selectedRows = selectedRows;
+        this.metadataCounts = metadataCounts;
         console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
