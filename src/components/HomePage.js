@@ -21,6 +21,7 @@ import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
+import StatusBar from './StatusBar';
 import AccordionWrapper from './AccordionWrapper';
 import SidebarAccordionWrapper from './SidebarAccordionWrapper';
 import VegaStackedBars from './Vega/VegaStackedBars';
@@ -56,9 +57,6 @@ const PlotContainer = styled.div`
   width: 100%;
   max-height: 100vh;
   box-sizing: border-box;
-
-  padding-left: 10px;
-  padding-top: 10px;
 
   position: relative;
 
@@ -130,7 +128,7 @@ const HomePage = observer(({ uiStore }) => {
           <SidebarAccordionWrapper
             title="Filter sequences by"
             defaultCollapsed={true}
-            maxHeight={'220px'}
+            maxHeight={'240px'}
           >
             <MetaFieldSelect />
           </SidebarAccordionWrapper>
@@ -145,6 +143,8 @@ const HomePage = observer(({ uiStore }) => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
+          <StatusBar />
+
           <AccordionWrapper
             title="Legend"
             defaultCollapsed={false}

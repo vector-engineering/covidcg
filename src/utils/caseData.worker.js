@@ -232,10 +232,8 @@ function processCaseData({
     console.log(caseData.length, 'rows remaining after gene/protein filtering');
   }
 
-  // Get a list of Accession IDs and sample dates that are currently selected
-  let selectedRows = _.map(caseData, (row) => {
-    return row;
-  });
+  // Get the initial number of sequences, prior to metadata filtering
+  const numSequencesBeforeMetadataFiltering = caseData.length;
 
   const metadataCounts = countMetadataFields(caseData);
 
@@ -246,6 +244,11 @@ function processCaseData({
     ageRange
   );
   console.log(caseData.length, 'rows remaining after metadata filtering');
+
+  // Get a list of Accession IDs and sample dates that are currently selected
+  let selectedRows = _.map(caseData, (row) => {
+    return row;
+  });
 
   // Group by grouping key and sample date
   console.log('Grouping by', groupKey, 'and sample date');
@@ -338,6 +341,7 @@ function processCaseData({
 
   return {
     aggCaseDataList,
+    numSequencesBeforeMetadataFiltering,
     selectedRows,
     metadataCounts,
   };

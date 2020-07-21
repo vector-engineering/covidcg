@@ -49,6 +49,7 @@ class ObservableCovidStore {
   @observable selectedGroups = [];
 
   // Metadata filtering
+  @observable numSequencesBeforeMetadataFiltering = 0;
   @observable metadataCounts = {};
   @observable selectedMetadataFields = {};
   @observable ageRange = [null, null];
@@ -266,10 +267,16 @@ class ObservableCovidStore {
         selectedMetadataFields: toJS(this.selectedMetadataFields),
         ageRange: toJS(this.ageRange),
       },
-      ({ aggCaseDataList, selectedRows, metadataCounts }) => {
+      ({
+        aggCaseDataList,
+        selectedRows,
+        metadataCounts,
+        numSequencesBeforeMetadataFiltering,
+      }) => {
         this.caseData = aggCaseDataList;
         this.selectedRows = selectedRows;
         this.metadataCounts = metadataCounts;
+        this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
