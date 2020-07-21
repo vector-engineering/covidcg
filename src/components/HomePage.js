@@ -5,8 +5,9 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import GeneSelect from './GeneSelect';
+import CoordinateSelect from './CoordinateSelect';
 import GroupBySelect from './GroupBySelect';
+import MetaFieldSelect from './MetaFieldSelect';
 import DropdownContainer from './DropdownContainer';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
@@ -20,7 +21,9 @@ import SkeletonElement from './SkeletonElement';
 import LoadingSpinner from './LoadingSpinner';
 import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
+import StatusBar from './StatusBar';
 import AccordionWrapper from './AccordionWrapper';
+import SidebarAccordionWrapper from './SidebarAccordionWrapper';
 import VegaStackedBars from './Vega/VegaStackedBars';
 import AcknowledgementsTable from './AcknowledgementsTable';
 
@@ -54,9 +57,6 @@ const PlotContainer = styled.div`
   width: 100%;
   max-height: 100vh;
   box-sizing: border-box;
-
-  padding-left: 10px;
-  padding-top: 10px;
 
   position: relative;
 
@@ -101,7 +101,7 @@ const HomePage = observer(({ uiStore }) => {
     } else {
       return (
         <AccordionWrapper
-          title="plot"
+          title="Plot"
           defaultCollapsed={false}
           maxHeight={'1200px'}
         >
@@ -118,14 +118,35 @@ const HomePage = observer(({ uiStore }) => {
         <FilterSidebar>
           <Header />
           <GroupBySelect />
-          <GeneSelect />
+          <SidebarAccordionWrapper
+            title="Genomic coordinates"
+            defaultCollapsed={false}
+            maxHeight={'420px'}
+          >
+            <CoordinateSelect />
+          </SidebarAccordionWrapper>
+          <SidebarAccordionWrapper
+            title="Filter sequences by"
+            defaultCollapsed={true}
+            maxHeight={'240px'}
+          >
+            <MetaFieldSelect />
+          </SidebarAccordionWrapper>
 
+          {/*<SidebarAccordionWrapper
+            title="Selected locations"
+            defaultCollapsed={false}
+          >
+            <DropdownContainer />
+          </SidebarAccordionWrapper>*/}
           <DropdownContainer />
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
+          <StatusBar />
+
           <AccordionWrapper
-            title="legend"
+            title="Legend"
             defaultCollapsed={false}
             maxHeight={'500px'}
           >
@@ -138,7 +159,7 @@ const HomePage = observer(({ uiStore }) => {
           )*/}
 
           <AccordionWrapper
-            title="table"
+            title="Table"
             defaultCollapsed={false}
             maxHeight={'1200px'}
           >

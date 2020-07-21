@@ -5,7 +5,7 @@ import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
-  margin: 5px 5px 0px 5px;
+  margin: 5px 5px 3px 5px;
   padding: 5px 8px;
 `;
 

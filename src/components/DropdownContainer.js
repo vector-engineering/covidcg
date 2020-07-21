@@ -8,7 +8,7 @@ import { useStores } from '../stores/connect';
 import { asyncStates } from '../stores/uiStore';
 
 const ContainerDiv = styled.div`
-  margin-top: 5px;
+  margin-top: 2px;
   padding-top: 8px;
 
   border-top: 1px solid #aaa;
@@ -162,16 +162,13 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     flex-direction: column;
     display: flex;
     overflow: hidden;
+    align-items: stretch;
 
     a.dropdown-trigger {
       width: calc(100% - 16px);
       border: none;
       padding: 0px 12px;
       line-height: 20px;
-      max-height: 200px;
-      display: inline-block;
-      overflow: auto;
-      min-height: 36px;
 
       &:focus {
         outline: none;
@@ -181,6 +178,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     .dropdown-content {
       position: relative;
       //width: calc(100% - 10px);
+      flex-grow: 1;
       padding: 4px;
       padding-left: 15px;
       padding-right: 15px;
