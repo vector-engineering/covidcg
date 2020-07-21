@@ -127,13 +127,18 @@ const HomePage = observer(({ uiStore }) => {
             <CoordinateSelect />
           </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
-            title="Filter sequences by:"
+            title="Filter sequences by"
             defaultCollapsed={false}
           >
             <MetaFieldSelect />
           </SidebarAccordionWrapper>
 
-          <DropdownContainer />
+          <SidebarAccordionWrapper
+            title="Selected Locations"
+            defaultCollapsed={false}
+          >
+            <DropdownContainer />
+          </SidebarAccordionWrapper>
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
