@@ -121,7 +121,7 @@ const HomePage = observer(({ uiStore }) => {
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper
-            title="Genomic Coordinates"
+            title="Genomic coordinates"
             defaultCollapsed={false}
           >
             <CoordinateSelect />
@@ -134,7 +134,7 @@ const HomePage = observer(({ uiStore }) => {
           </SidebarAccordionWrapper>
 
           <SidebarAccordionWrapper
-            title="Selected Locations"
+            title="Selected locations"
             defaultCollapsed={false}
           >
             <DropdownContainer />
