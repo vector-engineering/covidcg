@@ -8,9 +8,17 @@ import { useStores } from '../stores/connect';
 import { asyncStates } from '../stores/uiStore';
 
 const ContainerDiv = styled.div`
+  margin-top: 2px;
+  padding-top: 8px;
+
+  border-top: 1px solid #aaa;
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+
+  .location-tree-title {
+    margin-left: 15px;
+  }
 `;
 
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
@@ -278,7 +286,12 @@ const DropdownContainer = () => {
     [state.data]
   );
 
-  return <ContainerDiv>{dropdownContainer}</ContainerDiv>;
+  return (
+    <ContainerDiv>
+      <span className="location-tree-title">Selected Locations:</span>
+      {dropdownContainer}
+    </ContainerDiv>
+  );
 };
 
 DropdownContainer.defaultProps = {

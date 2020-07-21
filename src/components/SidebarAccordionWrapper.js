@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 const AccordionContainer = styled.div`
   width: 100%;
+  // height: 100%;
   margin-bottom: 3px;
   border-top: 1px solid #aaa;
   padding-top: 5px;
@@ -11,15 +12,15 @@ const AccordionContainer = styled.div`
 
 const CollapseContent = styled.div`
   width: 100%;
+  // height: 100%;
   transition: max-height 0.15s cubic-bezier(0.22, 1, 0.36, 1);
   align-self: center;
   border-radius: 2px;
-  max-height: ${({ collapsed }) => {
+  max-height: ${({ maxHeight, collapsed }) => {
     if (collapsed) {
       return '1px';
-    } else {
-      return '100%';
     }
+    return maxHeight ? `${maxHeight}` : '100px';
   }};
   overflow-y: scroll;
 `;
@@ -47,7 +48,12 @@ const Title = styled.div`
   display: flex;
 `;
 
-const SidebarAccordionWrapper = ({ children, title, defaultCollapsed }) => {
+const SidebarAccordionWrapper = ({
+  children,
+  title,
+  maxHeight,
+  defaultCollapsed,
+}) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   return (
     <AccordionContainer>
@@ -61,7 +67,9 @@ const SidebarAccordionWrapper = ({ children, title, defaultCollapsed }) => {
         </CollapseButton>
         {title}
       </Title>
-      <CollapseContent collapsed={collapsed}>{children}</CollapseContent>
+      <CollapseContent maxHeight={maxHeight} collapsed={collapsed}>
+        {children}
+      </CollapseContent>
     </AccordionContainer>
   );
 };
@@ -71,6 +79,7 @@ SidebarAccordionWrapper.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
+  maxHeight: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   defaultCollapsed: PropTypes.bool.isRequired,
 };

@@ -123,22 +123,25 @@ const HomePage = observer(({ uiStore }) => {
           <SidebarAccordionWrapper
             title="Genomic coordinates"
             defaultCollapsed={false}
+            maxHeight={'420px'}
           >
             <CoordinateSelect />
           </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
             title="Filter sequences by"
-            defaultCollapsed={false}
+            defaultCollapsed={true}
+            maxHeight={'220px'}
           >
             <MetaFieldSelect />
           </SidebarAccordionWrapper>
 
-          <SidebarAccordionWrapper
+          {/*<SidebarAccordionWrapper
             title="Selected locations"
             defaultCollapsed={false}
           >
             <DropdownContainer />
-          </SidebarAccordionWrapper>
+          </SidebarAccordionWrapper>*/}
+          <DropdownContainer />
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
