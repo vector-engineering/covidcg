@@ -53,6 +53,10 @@ All the following steps require root privileges
   # Restart NGINX service
   > systemctl restart nginx
 
+6. Set up SSL via. LetsEncrypt (optional)
+
+  Follow instructions: https://certbot.eff.org/lets-encrypt/debianbuster-nginx
+
 Attributions
 ------------
 
