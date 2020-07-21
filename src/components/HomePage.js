@@ -5,7 +5,7 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import GeneSelect from './GeneSelect';
+import CoordinateSelect from './CoordinateSelect';
 import GroupBySelect from './GroupBySelect';
 import MetaFieldSelect from './MetaFieldSelect';
 import DropdownContainer from './DropdownContainer';
@@ -119,7 +119,7 @@ const HomePage = observer(({ uiStore }) => {
         <FilterSidebar>
           <Header />
           <GroupBySelect />
-          <GeneSelect />
+          <CoordinateSelect />
           <MetaFieldSelect />
 
           <DropdownContainer />

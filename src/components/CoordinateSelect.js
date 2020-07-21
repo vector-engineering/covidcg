@@ -240,7 +240,7 @@ const CoordForm = styled.form`
 const genes = getAllGenes();
 const proteins = getAllProteins();
 
-const GeneSelect = observer(() => {
+const CoordinateSelect = observer(() => {
   const { covidStore } = useStores();
 
   // Create option elements
@@ -568,7 +568,7 @@ const GeneSelect = observer(() => {
   );
 });
 
-GeneSelect.propTypes = {};
-GeneSelect.defaultProps = {};
+CoordinateSelect.propTypes = {};
+CoordinateSelect.defaultProps = {};
 
-export default GeneSelect;
+export default CoordinateSelect;
