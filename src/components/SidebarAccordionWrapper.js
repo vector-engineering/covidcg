@@ -47,12 +47,7 @@ const Title = styled.div`
   display: flex;
 `;
 
-const SidebarAccordionWrapper = ({
-  children,
-  maxHeight,
-  title,
-  defaultCollapsed,
-}) => {
+const SidebarAccordionWrapper = ({ children, title, defaultCollapsed }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   return (
     <AccordionContainer>
@@ -66,9 +61,7 @@ const SidebarAccordionWrapper = ({
         </CollapseButton>
         {title}
       </Title>
-      <CollapseContent maxHeight={maxHeight} collapsed={collapsed}>
-        {children}
-      </CollapseContent>
+      <CollapseContent collapsed={collapsed}>{children}</CollapseContent>
     </AccordionContainer>
   );
 };
@@ -78,7 +71,6 @@ SidebarAccordionWrapper.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
-  maxHeight: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   defaultCollapsed: PropTypes.bool.isRequired,
 };
