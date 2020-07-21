@@ -36,6 +36,7 @@
     "react-dom": "16.11.0",
     "react-draggable": "4.4.2",
     "react-dropdown-tree-select": "2.3.2",
+    "react-multi-select-component": "3.0.0",
     "react-use-dimensions": "1.2.1",
     "react-vega": "7.3.0",
     "styled-components": "5.1.1",
