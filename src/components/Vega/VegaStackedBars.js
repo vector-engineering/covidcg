@@ -28,7 +28,8 @@ const PlotOptions = styled.div`
   }
 `;
 
-const AreaStackSelectContainer = styled.div`
+const SelectContainer = styled.div`
+  margin-right: 8px;
   font-weight: normal;
   select {
     margin-left: 0.65em;
@@ -37,30 +38,21 @@ const AreaStackSelectContainer = styled.div`
   }
 `;
 
-const AreaStackModeSelect = ({ mode, onChange }) => {
-  return (
-    <AreaStackSelectContainer>
-      <label>
-        Display mode:
-        <select value={mode} onChange={onChange}>
-          <option value="counts">Counts</option>
-          <option value="percentages">Percentages</option>
-        </select>
-      </label>
-    </AreaStackSelectContainer>
-  );
-};
-AreaStackModeSelect.propTypes = {
-  mode: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
 const VegaStackedBars = observer(({ width }) => {
   const { covidStore } = useStores();
 
-  // 'percentages' or 'counts'
-  const [areaStackMode, setAreaStackMode] = useState('counts');
-  const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
+  const [state, setState] = useState({
+    areaStackMode: 'counts', // 'percentages' or 'counts'
+    countMode: 'new', // 'new' or 'cumulative'
+    dateBin: 'day', // 'day', 'week', 'month'
+  });
+
+  const onChangeAreaStackMode = (event) =>
+    setState({ ...state, areaStackMode: event.target.value });
+  const onChangeCountMode = (event) =>
+    setState({ ...state, countMode: event.target.value });
+  const onChangeDateBin = (event) =>
+    setState({ ...state, dateBin: event.target.value });
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
@@ -119,32 +111,65 @@ const VegaStackedBars = observer(({ width }) => {
   barStackSpec['width'] = width;
   barStackSpec['marks'][0]['encode']['enter']['width']['value'] = width;
 
-  if (areaStackMode === 'percentages') {
-    let caseDataSpec = _.findWhere(barStackSpec['data'], {
-      name: 'cases_by_date_and_group',
-    });
-    let stackTransform = _.findWhere(caseDataSpec['transform'], {
-      type: 'stack',
-    });
-    stackTransform['offset'] = 'normalize';
+  // TODO: these are signals and should be able to be set when passed
+  //       through the signal prop object. but for some reason it doesn't
+  //       trigger the proper re-render, probably because I have no idea
+  //       how the Vega View API actually works. For now manually modifying
+  //       the spec and triggering a hard re-render will work...
+  // Set the stack offset mode
+  let stackOffsetSignal = _.findWhere(barStackSpec['signals'], {
+    name: 'stackOffset',
+  });
+  if (state.areaStackMode === 'percentages') {
+    stackOffsetSignal['value'] = 'normalize';
+  } else {
+    stackOffsetSignal['value'] = 'zero';
+  }
+
+  // Set the date bin
+  let dateBinSignal = _.findWhere(barStackSpec['signals'], {
+    name: 'dateBin',
+  });
+  if (state.dateBin === 'day') {
+    dateBinSignal['value'] = 1000 * 60 * 60 * 24;
+  } else if (state.dateBin === 'week') {
+    dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 7;
+  } else if (state.dateBin === 'month') {
+    dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 30;
+  }
+
+  // If running in cumulative mode, add the vega transformation
+  // By default the cumulative transformation is dumped into a column
+  // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+  // column with this cumulative count
+  let windowFieldSignal = _.findWhere(barStackSpec['signals'], {
+    name: 'windowField',
+  });
+  if (state.countMode === 'cumulative') {
+    windowFieldSignal['value'] = 'cases_sum';
+  } else {
+    windowFieldSignal['value'] = 'cases_sum_cumulative';
   }
 
   // Adapt labels to groupings
-  let detailGroup = _.findWhere(barStackSpec['marks'], { name: 'detail' });
+  let detailYLabelSignal = _.findWhere(barStackSpec['signals'], {
+    name: 'detailYLabel',
+  });
   // let detailBars = detailGroup['marks'][0]['marks'][0];
-  if (covidStore.groupKey === 'lineage') {
-    // y-axis title
-    detailGroup['axes'][1]['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    // y-axis title
-    detailGroup['axes'][1]['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by ' +
-      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') +
-      ' SNP';
+  let detailYLabel = '';
+  if (state.countMode === 'cumulative') {
+    detailYLabel += 'Cumulative ';
   }
+  if (state.areaStackMode === 'percentages') {
+    detailYLabel += '% ';
+  }
+  if (covidStore.groupKey === 'lineage') {
+    detailYLabel += 'Sequences by Lineage';
+  } else if (covidStore.groupKey === 'snp') {
+    detailYLabel +=
+      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+  }
+  detailYLabelSignal['value'] = detailYLabel;
 
   let caseData = JSON.parse(JSON.stringify(covidStore.caseData));
   let selectedGroups = JSON.parse(JSON.stringify(covidStore.selectedGroups));
@@ -166,28 +191,68 @@ const VegaStackedBars = observer(({ width }) => {
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
 
-  let areaStackTitle = 'Lineage ';
+  let areaStackTitle = '';
+  if (state.countMode === 'cumulative') {
+    areaStackTitle += 'Cumulative ';
+  } else if (state.countMode === 'new') {
+    areaStackTitle += 'New ';
+  }
+
   if (covidStore.groupKey === 'lineage') {
-    areaStackTitle = 'Lineage ';
+    areaStackTitle += 'Lineage ';
   } else if (covidStore.groupKey === 'snp') {
     if (covidStore.dnaOrAa === 'dna') {
-      areaStackTitle = 'NT';
+      areaStackTitle += 'NT';
     } else {
-      areaStackTitle = 'AA';
+      areaStackTitle += 'AA';
     }
     areaStackTitle += ' SNP ';
   }
-  areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
-  areaStackTitle += ' Over Time';
+  areaStackTitle +=
+    state.areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
+
+  if (state.dateBin === 'day') {
+    areaStackTitle += ' by Day';
+  } else if (state.dateBin === 'week') {
+    areaStackTitle += ' by Week';
+  } else if (state.dateBin === 'month') {
+    areaStackTitle += ' by Month';
+  }
 
   return (
     <div>
       <PlotOptions>
         <span className="area-stack-title">{areaStackTitle}</span>
-        <AreaStackModeSelect
-          mode={areaStackMode}
-          onChange={onChangeAreaStackMode}
-        />
+        <SelectContainer>
+          <label>
+            <select value={state.countMode} onChange={onChangeCountMode}>
+              <option value="new">New</option>
+              <option value="cumulative">Cumulative</option>
+            </select>
+          </label>
+        </SelectContainer>
+        sequences, shown as{' '}
+        <SelectContainer>
+          <label>
+            <select
+              value={state.areaStackMode}
+              onChange={onChangeAreaStackMode}
+            >
+              <option value="counts">Counts</option>
+              <option value="percentages">Percentages</option>
+            </select>
+          </label>
+        </SelectContainer>
+        grouped by{' '}
+        <SelectContainer>
+          <label>
+            <select value={state.dateBin} onChange={onChangeDateBin}>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </label>
+        </SelectContainer>
       </PlotOptions>
 
       <div style={{ width: `${width - 150}px` }}>

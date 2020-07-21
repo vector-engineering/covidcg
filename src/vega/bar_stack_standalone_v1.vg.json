@@ -1265,21 +1265,37 @@
       ],
       "transform": [
         {
+          "type": "bin",
+          "field": "date",
+          "extent": [
+            { "signal": "dateRangeStart" },
+            { "signal": "dateRangeEnd" }
+          ],
+          "step": { "signal": "dateBin" },
+          "as": ["day_start", "day_end"]
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["group", "day_start", "day_end"],
+          "fields": ["cases_sum", "group_counts", "color"],
+          "ops": ["sum", "max", "max"],
+          "as": ["cases_sum", "group_counts", "color"]
+        },
+        {
+          "type": "window",
+          "sort": { "field": "day_start" },
+          "groupby": ["group"],
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": [{ "signal": "windowField" }],
+          "frame": [null, 0]
+        },
+        {
           "type": "stack",
-          "groupby": ["date"],
+          "groupby": ["day_start"],
           "sort": { "field": "group" },
           "field": "cases_sum",
-          "offset": "zero"
-        },
-        {
-          "type": "formula",
-          "as": "day_start",
-          "expr": "datetime(time(datum.date) - 0)"
-        },
-        {
-          "type": "formula",
-          "as": "day_end",
-          "expr": "datetime(time(datum.date) + 86400000)"
+          "offset": { "signal": "stackOffset" }
         }
       ]
     },
@@ -1289,20 +1305,10 @@
       "transform": [
         {
           "type": "aggregate",
-          "groupby": ["date"],
+          "groupby": ["day_start", "day_end"],
           "fields": ["cases_sum"],
           "ops": ["sum"],
           "as": ["cases_sum_by_date"]
-        },
-        {
-          "type": "formula",
-          "as": "day_start",
-          "expr": "datetime(time(datum.date) - 0)"
-        },
-        {
-          "type": "formula",
-          "as": "day_end",
-          "expr": "datetime(time(datum.date) + 86400000)"
         }
       ]
     },
@@ -1318,6 +1324,13 @@
   ],
 
   "signals": [
+    { "name": "dateRangeStart", "value": 1575158400000 },
+    { "name": "dateRangeEnd", "value": 1609372800000 },
+    { "name": "dateBin", "value": 86400000 },
+    { "name": "overviewYLabel", "value": "All Seqs" },
+    { "name": "detailYLabel", "value": "Sequences by Lineage" },
+    { "name": "stackOffset", "value": "zero" },
+    { "name": "windowField", "value": "cases_sum_dummy" },
     {
       "name": "detailDomain"
     },
@@ -1378,7 +1391,7 @@
           "on": [
             {
               "events": "@detailbars:mouseover!",
-              "update": "{group: datum.group, date: datum.date}"
+              "update": "{group: datum.group, date: datum.day_start}"
             },
             {
               "events": "@detailbars:mouseout!",
@@ -1430,7 +1443,7 @@
           "grid": true,
           "gridColor": "#DDD",
 
-          "title": "Sequences by Lineage",
+          "title": { "signal": "detailYLabel" },
           "titleFontSize": 14,
           "titlePadding": 10,
 
@@ -1458,7 +1471,7 @@
                 "enter": {
                   "strokeWidth": { "value": 1 },
                   "tooltip": {
-                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum, 'Collection date': timeFormat(datum.date, '%b %d %Y')}"
+                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   }
                 },
                 "update": {
@@ -1617,7 +1630,7 @@
           "orient": "left",
           "scale": "yOverview",
 
-          "title": "All Seqs",
+          "title": { "signal": "overviewYLabel" },
           "titleFontSize": 14,
           "titlePadding": 10,
 
@@ -1641,7 +1654,7 @@
             "update": {
               "fill": [
                 {
-                  "test": "detailDomain && inrange(datum.date, detailDomain)",
+                  "test": "detailDomain && inrange(datum.day_start, detailDomain)",
                   "value": "#f00"
                 },
                 { "value": "#888" }
