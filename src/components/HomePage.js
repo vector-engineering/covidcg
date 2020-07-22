@@ -23,6 +23,7 @@ import VegaLegend from './Vega/VegaLegend';
 // import VegaTree from './VegaTree';
 import StatusBar from './StatusBar';
 import AccordionWrapper from './AccordionWrapper';
+import ReactTooltip from 'react-tooltip';
 import SidebarAccordionWrapper from './SidebarAccordionWrapper';
 import VegaStackedBars from './Vega/VegaStackedBars';
 import AcknowledgementsTable from './AcknowledgementsTable';
@@ -75,6 +76,23 @@ const Footer = styled.div`
   font-size: 0.85rem;
 `;
 
+const AccordionTitle = styled.span`
+  .question-button {
+    font-family: monospace;
+    font-size: 1em;
+    line-height: normal;
+
+    margin-left: 8px;
+    padding: 2px 5px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    &:hover {
+      background-color: #f8f8f8;
+    }
+  }
+`;
+
 const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
 
@@ -97,10 +115,29 @@ const HomePage = observer(({ uiStore }) => {
     } else {
       return (
         <AccordionWrapper
-          title="Plot"
+          title={
+            <AccordionTitle>
+              <span>Plot</span>
+              <span
+                className="question-button"
+                data-tip="<p>Hover over a bar in the plot to highlight it in the legend and table.</p><p>Click on a bar to select it, here and in the legend and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple bars.</p>"
+                data-html="true"
+                data-for="tooltip-plot"
+              >
+                ?
+              </span>
+            </AccordionTitle>
+          }
           defaultCollapsed={false}
           maxHeight={'1200px'}
         >
+          <ReactTooltip
+            id="tooltip-plot"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
           <VegaStackedBars width={width - 150} />
         </AccordionWrapper>
       );
@@ -110,6 +147,13 @@ const HomePage = observer(({ uiStore }) => {
   return (
     <>
       <HomePageDiv>
+        <ReactTooltip
+          id="tooltip-home"
+          type="light"
+          effect="solid"
+          border={true}
+          borderColor="#888"
+        />
         {/* <SideBar /> */}
         <FilterSidebar>
           <Header />
@@ -141,7 +185,19 @@ const HomePage = observer(({ uiStore }) => {
         <PlotContainer ref={ref}>
           <StatusBar />
           <AccordionWrapper
-            title="Legend"
+            title={
+              <AccordionTitle>
+                <span>Legend</span>
+                <span
+                  className="question-button"
+                  data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
+                  data-html="true"
+                  data-for="tooltip-home"
+                >
+                  ?
+                </span>
+              </AccordionTitle>
+            }
             defaultCollapsed={false}
             maxHeight={'500px'}
           >
@@ -152,7 +208,19 @@ const HomePage = observer(({ uiStore }) => {
             <VegaTree width={width} data={covidStore.caseDataAggGroup} />
           )*/}
           <AccordionWrapper
-            title="Table"
+            title={
+              <AccordionTitle>
+                <span>Table</span>
+                <span
+                  className="question-button"
+                  data-tip="<p>Hover over an row in the table to highlight it in the plot and legend.</p><p>Click on a row to select it, here and in the plot and legend.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple rows.</p>"
+                  data-html="true"
+                  data-for="tooltip-home"
+                >
+                  ?
+                </span>
+              </AccordionTitle>
+            }
             defaultCollapsed={false}
             maxHeight={'1200px'}
           >
