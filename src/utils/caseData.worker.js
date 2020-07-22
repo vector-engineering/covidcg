@@ -316,8 +316,16 @@ function processCaseData({
 
   // console.log(aggCaseData);
 
-  let getColorMethod = getColor;
+  // Compute total counts per group
+  let countsPerGroup = {};
+  Object.keys(aggCaseData).forEach((group) => {
+    countsPerGroup[group] = Object.values(aggCaseData[group]).reduce(
+      (memo, val) => memo + val,
+      0
+    );
+  });
 
+  let getColorMethod = getColor;
   if (groupKey === 'snp') {
     getColorMethod = getSnpColor;
   }
@@ -332,12 +340,13 @@ function processCaseData({
         group: group,
         date: parseInt(date),
         cases_sum: aggCaseData[group][date],
+        group_counts: countsPerGroup[group],
         color,
       });
     });
   });
 
-  //console.log(aggCaseDataList);
+  console.log(aggCaseDataList);
 
   return {
     aggCaseDataList,
