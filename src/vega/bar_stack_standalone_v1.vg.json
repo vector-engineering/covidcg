@@ -32,6 +32,18 @@
           "as": ["cases_sum", "group_counts", "color"]
         },
         {
+          "type": "impute",
+          "field": "cases_sum",
+          "key": "day_start",
+          "groupby": ["group", "color", "group_counts"],
+          "value": 0
+        },
+        {
+          "type": "formula",
+          "expr": "datum.day_start + dateBin",
+          "as": "day_end"
+        },
+        {
           "type": "window",
           "sort": {"field": "day_start"},
           "groupby": ["group"],
@@ -76,7 +88,7 @@
   "signals": [
     {"name": "dateRangeStart", "value": 1575158400000},
     {"name": "dateRangeEnd", "value": 1609372800000},
-    {"name": "dateBin", "value": 604800000},
+    {"name": "dateBin", "value": 86400000},
     {"name": "overviewYLabel", "value": "All Seqs"},
     {"name": "detailYLabel", "value": "Sequences by Lineage"},
     {"name": "stackOffset", "value": "zero"},
