@@ -273,6 +273,7 @@ const VegaStackedBars = observer(({ width }) => {
             hoverBar: covidStore.hoverGroup,
           }}
           width={width}
+          actions={false}
         />
       </div>
     </div>
