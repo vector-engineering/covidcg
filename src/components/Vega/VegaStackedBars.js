@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import { toJS } from 'mobx';
@@ -28,7 +28,8 @@ const PlotOptions = styled.div`
   }
 `;
 
-const AreaStackSelectContainer = styled.div`
+const SelectContainer = styled.div`
+  margin-right: 8px;
   font-weight: normal;
   select {
     margin-left: 0.65em;
@@ -37,30 +38,27 @@ const AreaStackSelectContainer = styled.div`
   }
 `;
 
-const AreaStackModeSelect = ({ mode, onChange }) => {
-  return (
-    <AreaStackSelectContainer>
-      <label>
-        Display mode:
-        <select value={mode} onChange={onChange}>
-          <option value="counts">Counts</option>
-          <option value="percentages">Percentages</option>
-        </select>
-      </label>
-    </AreaStackSelectContainer>
-  );
-};
-AreaStackModeSelect.propTypes = {
-  mode: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
 const VegaStackedBars = observer(({ width }) => {
   const { covidStore } = useStores();
 
-  // 'percentages' or 'counts'
-  const [areaStackMode, setAreaStackMode] = useState('counts');
-  const onChangeAreaStackMode = (event) => setAreaStackMode(event.target.value);
+  const [state, setState] = useState({
+    data: {
+      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
+      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+    },
+    spec: JSON.parse(JSON.stringify(barStackSpecInitial)),
+    hoverGroup: {},
+    areaStackMode: 'counts', // 'percentages' or 'counts'
+    countMode: 'new', // 'new' or 'cumulative'
+    dateBin: 'day', // 'day', 'week', 'month'
+  });
+
+  const onChangeAreaStackMode = (event) =>
+    setState({ ...state, areaStackMode: event.target.value });
+  const onChangeCountMode = (event) =>
+    setState({ ...state, countMode: event.target.value });
+  const onChangeDateBin = (event) =>
+    setState({ ...state, dateBin: event.target.value });
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
@@ -81,122 +79,222 @@ const VegaStackedBars = observer(({ width }) => {
     if (hoverGroup === covidStore.hoverGroup) {
       return;
     }
+
+    // console.log('Updating store hoverGroup from plot', hoverGroup);
+    // console.log('state hovergroup', state.hoverGroup);
     covidStore.updateHoverGroup(hoverGroup);
   };
 
   const handleSelected = (...args) => {
     // console.log(args);
+
+    // Don't fire if the selection is the same
+    if (_.isEqual(args[1], covidStore.selectedGroups)) {
+      return;
+    }
+
     covidStore.updateSelectedGroups(args[1]);
   };
 
-  // let newCaseData;
+  // Update internal caseData copy
+  useEffect(() => {
+    // console.log('Update caseData');
 
-  // if (covidStore.groupsToKeep) {
-  //   newCaseData = [];
-  //   const addedOthersByDate = {};
+    // let newCaseData;
 
-  //   covidStore.caseData.forEach((row, key) => {
-  //     if (!covidStore.groupsToKeep[row.group]) {
-  //       row.group = 'other';
-  //       row.color = '#cccccc';
-  //       if (addedOthersByDate[row.date]) {
-  //         covidStore.caseData[addedOthersByDate[row.date]].cases_sum +=
-  //           row.cases_sum;
-  //       } else {
-  //         addedOthersByDate[row.date] = key;
-  //         newCaseData.push(row);
-  //       }
-  //     } else {
-  //       newCaseData.push(row);
-  //     }
-  //   });
-  // }
+    // if (covidStore.groupsToKeep) {
+    //   newCaseData = [];
+    //   const addedOthersByDate = {};
 
-  // Make a deep copy of the Vega spec so we can edit it
-  const barStackSpec = JSON.parse(JSON.stringify(barStackSpecInitial));
+    //   covidStore.caseData.forEach((row, key) => {
+    //     if (!covidStore.groupsToKeep[row.group]) {
+    //       row.group = 'other';
+    //       row.color = '#cccccc';
+    //       if (addedOthersByDate[row.date]) {
+    //         covidStore.caseData[addedOthersByDate[row.date]].cases_sum +=
+    //           row.cases_sum;
+    //       } else {
+    //         addedOthersByDate[row.date] = key;
+    //         newCaseData.push(row);
+    //       }
+    //     } else {
+    //       newCaseData.push(row);
+    //     }
+    //   });
+    // }
 
-  // Set the width manually
-  barStackSpec['width'] = width;
-  barStackSpec['marks'][0]['encode']['enter']['width']['value'] = width;
-
-  if (areaStackMode === 'percentages') {
-    let caseDataSpec = _.findWhere(barStackSpec['data'], {
-      name: 'cases_by_date_and_group',
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        cases_by_date_and_group: JSON.parse(
+          JSON.stringify(covidStore.caseData)
+        ),
+      },
     });
-    let stackTransform = _.findWhere(caseDataSpec['transform'], {
-      type: 'stack',
+  }, [covidStore.caseData]);
+
+  // Update internal selected groups copy
+  useEffect(() => {
+    // console.log('Update selectedGroups');
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+      },
     });
-    stackTransform['offset'] = 'normalize';
-  }
+  }, [covidStore.selectedGroups]);
 
-  // Adapt labels to groupings
-  let detailGroup = _.findWhere(barStackSpec['marks'], { name: 'detail' });
-  // let detailBars = detailGroup['marks'][0]['marks'][0];
-  if (covidStore.groupKey === 'lineage') {
-    // y-axis title
-    detailGroup['axes'][1]['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    // y-axis title
-    detailGroup['axes'][1]['title'] =
-      (areaStackMode === 'percentages' ? 'Percent ' : '') +
-      'Sequences by ' +
-      (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') +
-      ' SNP';
-  }
+  useEffect(() => {
+    let spec = JSON.parse(JSON.stringify(state.spec));
 
-  let caseData = JSON.parse(JSON.stringify(covidStore.caseData));
-  let selectedGroups = JSON.parse(JSON.stringify(covidStore.selectedGroups));
+    // Set the width manually
+    spec['width'] = width;
+    spec['marks'][0]['encode']['enter']['width']['value'] = width;
+    spec['marks'][1]['encode']['enter']['width']['value'] = width;
 
-  // Compute counts for each group
-  let countsPerGroup = {};
-  caseData.forEach((row) => {
-    if (!Object.prototype.hasOwnProperty.call(countsPerGroup, row.group)) {
-      countsPerGroup[row.group] = 0;
+    // TODO: these are signals and should be able to be set when passed
+    //       through the signal prop object. but for some reason it doesn't
+    //       trigger the proper re-render, probably because I have no idea
+    //       how the Vega View API actually works. For now manually modifying
+    //       the spec and triggering a hard re-render will work...
+    // Set the stack offset mode
+    let stackOffsetSignal = _.findWhere(spec['signals'], {
+      name: 'stackOffset',
+    });
+    if (state.areaStackMode === 'percentages') {
+      stackOffsetSignal['value'] = 'normalize';
+    } else {
+      stackOffsetSignal['value'] = 'zero';
     }
-    countsPerGroup[row.group] += row.cases_sum;
-  });
 
-  // Map counts per group back onto main dataset
-  caseData.forEach((row) => {
-    row['group_counts'] = countsPerGroup[row.group];
-  });
+    // Set the date bin
+    let dateBinSignal = _.findWhere(spec['signals'], {
+      name: 'dateBin',
+    });
+    if (state.dateBin === 'day') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24;
+    } else if (state.dateBin === 'week') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 7;
+    } else if (state.dateBin === 'month') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 30;
+    }
+
+    // If running in cumulative mode, add the vega transformation
+    // By default the cumulative transformation is dumped into a column
+    // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+    // column with this cumulative count
+    let windowFieldSignal = _.findWhere(spec['signals'], {
+      name: 'windowField',
+    });
+    if (state.countMode === 'cumulative') {
+      windowFieldSignal['value'] = 'cases_sum';
+    } else {
+      windowFieldSignal['value'] = 'cases_sum_cumulative';
+    }
+
+    // Adapt labels to groupings
+    let detailYLabelSignal = _.findWhere(spec['signals'], {
+      name: 'detailYLabel',
+    });
+    // let detailBars = detailGroup['marks'][0]['marks'][0];
+    let detailYLabel = '';
+    if (state.countMode === 'cumulative') {
+      detailYLabel += 'Cumulative ';
+    }
+    if (state.areaStackMode === 'percentages') {
+      detailYLabel += '% ';
+    }
+    if (covidStore.groupKey === 'lineage') {
+      detailYLabel += 'Sequences by Lineage';
+    } else if (covidStore.groupKey === 'snp') {
+      detailYLabel +=
+        'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+    }
+    detailYLabelSignal['value'] = detailYLabel;
+
+    setState({ ...state, spec });
+  }, [
+    state.areaStackMode,
+    state.dateBin,
+    state.countMode,
+    covidStore.groupKey,
+    covidStore.dnaOrAa,
+    width,
+  ]);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
 
-  let areaStackTitle = 'Lineage ';
+  let areaStackTitle = '';
+  if (state.countMode === 'cumulative') {
+    areaStackTitle += 'Cumulative ';
+  } else if (state.countMode === 'new') {
+    areaStackTitle += 'New ';
+  }
+
   if (covidStore.groupKey === 'lineage') {
-    areaStackTitle = 'Lineage ';
+    areaStackTitle += 'Lineage ';
   } else if (covidStore.groupKey === 'snp') {
     if (covidStore.dnaOrAa === 'dna') {
-      areaStackTitle = 'NT';
+      areaStackTitle += 'NT';
     } else {
-      areaStackTitle = 'AA';
+      areaStackTitle += 'AA';
     }
     areaStackTitle += ' SNP ';
   }
-  areaStackTitle += areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
-  areaStackTitle += ' Over Time';
+  areaStackTitle +=
+    state.areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
+
+  if (state.dateBin === 'day') {
+    areaStackTitle += ' by Day';
+  } else if (state.dateBin === 'week') {
+    areaStackTitle += ' by Week';
+  } else if (state.dateBin === 'month') {
+    areaStackTitle += ' by Month';
+  }
 
   return (
     <div>
       <PlotOptions>
         <span className="area-stack-title">{areaStackTitle}</span>
-        <AreaStackModeSelect
-          mode={areaStackMode}
-          onChange={onChangeAreaStackMode}
-        />
+        <SelectContainer>
+          <label>
+            <select value={state.countMode} onChange={onChangeCountMode}>
+              <option value="new">New</option>
+              <option value="cumulative">Cumulative</option>
+            </select>
+          </label>
+        </SelectContainer>
+        sequences, shown as{' '}
+        <SelectContainer>
+          <label>
+            <select
+              value={state.areaStackMode}
+              onChange={onChangeAreaStackMode}
+            >
+              <option value="counts">Counts</option>
+              <option value="percentages">Percentages</option>
+            </select>
+          </label>
+        </SelectContainer>
+        grouped by{' '}
+        <SelectContainer>
+          <label>
+            <select value={state.dateBin} onChange={onChangeDateBin}>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </label>
+        </SelectContainer>
       </PlotOptions>
 
-      <div style={{ width: `${width - 150}px` }}>
+      <div style={{ width: `${width}px` }}>
         <VegaEmbed
-          data={{
-            cases_by_date_and_group: caseData,
-            selected: selectedGroups,
-          }}
-          spec={barStackSpec}
+          data={state.data}
+          spec={state.spec}
           signalListeners={{
             detailDomain: _.debounce(handleBrush, 500),
             hoverBar: _.throttle(handleHoverGroup, 100),
@@ -208,6 +306,8 @@ const VegaStackedBars = observer(({ width }) => {
             hoverBar: covidStore.hoverGroup,
           }}
           width={width}
+          // height={300}
+          actions={false}
         />
       </div>
     </div>
