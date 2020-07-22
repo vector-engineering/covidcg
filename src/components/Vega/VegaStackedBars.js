@@ -110,6 +110,7 @@ const VegaStackedBars = observer(({ width }) => {
   // Set the width manually
   barStackSpec['width'] = width;
   barStackSpec['marks'][0]['encode']['enter']['width']['value'] = width;
+  barStackSpec['marks'][1]['encode']['enter']['width']['value'] = width;
 
   // TODO: these are signals and should be able to be set when passed
   //       through the signal prop object. but for some reason it doesn't
