@@ -154,12 +154,6 @@ const VegaStackedBars = observer(({ width }) => {
     spec['marks'][0]['encode']['enter']['width']['value'] = width;
     spec['marks'][1]['encode']['enter']['width']['value'] = width;
 
-    setState({ ...state, spec });
-  }, [width]);
-
-  useEffect(() => {
-    let spec = JSON.parse(JSON.stringify(state.spec));
-
     // TODO: these are signals and should be able to be set when passed
     //       through the signal prop object. but for some reason it doesn't
     //       trigger the proper re-render, probably because I have no idea
@@ -227,6 +221,7 @@ const VegaStackedBars = observer(({ width }) => {
     state.countMode,
     covidStore.groupKey,
     covidStore.dnaOrAa,
+    width,
   ]);
 
   // For development in Vega Editor
