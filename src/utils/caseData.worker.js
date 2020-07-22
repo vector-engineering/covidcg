@@ -346,7 +346,7 @@ function processCaseData({
     });
   });
 
-  console.log(aggCaseDataList);
+  // console.log(aggCaseDataList);
 
   return {
     aggCaseDataList,

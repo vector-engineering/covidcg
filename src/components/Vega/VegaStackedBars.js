@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import { toJS } from 'mobx';
@@ -42,6 +42,12 @@ const VegaStackedBars = observer(({ width }) => {
   const { covidStore } = useStores();
 
   const [state, setState] = useState({
+    data: {
+      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
+      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+    },
+    spec: JSON.parse(JSON.stringify(barStackSpecInitial)),
+    hoverGroup: {},
     areaStackMode: 'counts', // 'percentages' or 'counts'
     countMode: 'new', // 'new' or 'cumulative'
     dateBin: 'day', // 'day', 'week', 'month'
@@ -73,121 +79,155 @@ const VegaStackedBars = observer(({ width }) => {
     if (hoverGroup === covidStore.hoverGroup) {
       return;
     }
+
+    // console.log('Updating store hoverGroup from plot', hoverGroup);
+    // console.log('state hovergroup', state.hoverGroup);
     covidStore.updateHoverGroup(hoverGroup);
   };
 
   const handleSelected = (...args) => {
     // console.log(args);
+
+    // Don't fire if the selection is the same
+    if (_.isEqual(args[1], covidStore.selectedGroups)) {
+      return;
+    }
+
     covidStore.updateSelectedGroups(args[1]);
   };
 
-  // let newCaseData;
+  // Update internal caseData copy
+  useEffect(() => {
+    // console.log('Update caseData');
 
-  // if (covidStore.groupsToKeep) {
-  //   newCaseData = [];
-  //   const addedOthersByDate = {};
+    // let newCaseData;
 
-  //   covidStore.caseData.forEach((row, key) => {
-  //     if (!covidStore.groupsToKeep[row.group]) {
-  //       row.group = 'other';
-  //       row.color = '#cccccc';
-  //       if (addedOthersByDate[row.date]) {
-  //         covidStore.caseData[addedOthersByDate[row.date]].cases_sum +=
-  //           row.cases_sum;
-  //       } else {
-  //         addedOthersByDate[row.date] = key;
-  //         newCaseData.push(row);
-  //       }
-  //     } else {
-  //       newCaseData.push(row);
-  //     }
-  //   });
-  // }
+    // if (covidStore.groupsToKeep) {
+    //   newCaseData = [];
+    //   const addedOthersByDate = {};
 
-  // Make a deep copy of the Vega spec so we can edit it
-  const barStackSpec = JSON.parse(JSON.stringify(barStackSpecInitial));
+    //   covidStore.caseData.forEach((row, key) => {
+    //     if (!covidStore.groupsToKeep[row.group]) {
+    //       row.group = 'other';
+    //       row.color = '#cccccc';
+    //       if (addedOthersByDate[row.date]) {
+    //         covidStore.caseData[addedOthersByDate[row.date]].cases_sum +=
+    //           row.cases_sum;
+    //       } else {
+    //         addedOthersByDate[row.date] = key;
+    //         newCaseData.push(row);
+    //       }
+    //     } else {
+    //       newCaseData.push(row);
+    //     }
+    //   });
+    // }
 
-  // Set the width manually
-  barStackSpec['width'] = width;
-  barStackSpec['marks'][0]['encode']['enter']['width']['value'] = width;
-  barStackSpec['marks'][1]['encode']['enter']['width']['value'] = width;
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        cases_by_date_and_group: JSON.parse(
+          JSON.stringify(covidStore.caseData)
+        ),
+      },
+    });
+  }, [covidStore.caseData]);
 
-  // TODO: these are signals and should be able to be set when passed
-  //       through the signal prop object. but for some reason it doesn't
-  //       trigger the proper re-render, probably because I have no idea
-  //       how the Vega View API actually works. For now manually modifying
-  //       the spec and triggering a hard re-render will work...
-  // Set the stack offset mode
-  let stackOffsetSignal = _.findWhere(barStackSpec['signals'], {
-    name: 'stackOffset',
-  });
-  if (state.areaStackMode === 'percentages') {
-    stackOffsetSignal['value'] = 'normalize';
-  } else {
-    stackOffsetSignal['value'] = 'zero';
-  }
+  // Update internal selected groups copy
+  useEffect(() => {
+    // console.log('Update selectedGroups');
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+      },
+    });
+  }, [covidStore.selectedGroups]);
 
-  // Set the date bin
-  let dateBinSignal = _.findWhere(barStackSpec['signals'], {
-    name: 'dateBin',
-  });
-  if (state.dateBin === 'day') {
-    dateBinSignal['value'] = 1000 * 60 * 60 * 24;
-  } else if (state.dateBin === 'week') {
-    dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 7;
-  } else if (state.dateBin === 'month') {
-    dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 30;
-  }
+  useEffect(() => {
+    let spec = JSON.parse(JSON.stringify(state.spec));
 
-  // If running in cumulative mode, add the vega transformation
-  // By default the cumulative transformation is dumped into a column
-  // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
-  // column with this cumulative count
-  let windowFieldSignal = _.findWhere(barStackSpec['signals'], {
-    name: 'windowField',
-  });
-  if (state.countMode === 'cumulative') {
-    windowFieldSignal['value'] = 'cases_sum';
-  } else {
-    windowFieldSignal['value'] = 'cases_sum_cumulative';
-  }
+    // Set the width manually
+    spec['width'] = width;
+    spec['marks'][0]['encode']['enter']['width']['value'] = width;
+    spec['marks'][1]['encode']['enter']['width']['value'] = width;
 
-  // Adapt labels to groupings
-  let detailYLabelSignal = _.findWhere(barStackSpec['signals'], {
-    name: 'detailYLabel',
-  });
-  // let detailBars = detailGroup['marks'][0]['marks'][0];
-  let detailYLabel = '';
-  if (state.countMode === 'cumulative') {
-    detailYLabel += 'Cumulative ';
-  }
-  if (state.areaStackMode === 'percentages') {
-    detailYLabel += '% ';
-  }
-  if (covidStore.groupKey === 'lineage') {
-    detailYLabel += 'Sequences by Lineage';
-  } else if (covidStore.groupKey === 'snp') {
-    detailYLabel +=
-      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
-  }
-  detailYLabelSignal['value'] = detailYLabel;
+    setState({ ...state, spec });
+  }, [width]);
 
-  let caseData = JSON.parse(JSON.stringify(covidStore.caseData));
-  let selectedGroups = JSON.parse(JSON.stringify(covidStore.selectedGroups));
+  useEffect(() => {
+    let spec = JSON.parse(JSON.stringify(state.spec));
 
-  // Compute counts for each group
-  let countsPerGroup = {};
-  caseData.forEach((row) => {
-    if (!Object.prototype.hasOwnProperty.call(countsPerGroup, row.group)) {
-      countsPerGroup[row.group] = 0;
+    // TODO: these are signals and should be able to be set when passed
+    //       through the signal prop object. but for some reason it doesn't
+    //       trigger the proper re-render, probably because I have no idea
+    //       how the Vega View API actually works. For now manually modifying
+    //       the spec and triggering a hard re-render will work...
+    // Set the stack offset mode
+    let stackOffsetSignal = _.findWhere(spec['signals'], {
+      name: 'stackOffset',
+    });
+    if (state.areaStackMode === 'percentages') {
+      stackOffsetSignal['value'] = 'normalize';
+    } else {
+      stackOffsetSignal['value'] = 'zero';
     }
-    countsPerGroup[row.group] += row.cases_sum;
-  });
 
-  // Map counts per group back onto main dataset
-  caseData.forEach((row) => {
-    row['group_counts'] = countsPerGroup[row.group];
-  });
+    // Set the date bin
+    let dateBinSignal = _.findWhere(spec['signals'], {
+      name: 'dateBin',
+    });
+    if (state.dateBin === 'day') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24;
+    } else if (state.dateBin === 'week') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 7;
+    } else if (state.dateBin === 'month') {
+      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 30;
+    }
+
+    // If running in cumulative mode, add the vega transformation
+    // By default the cumulative transformation is dumped into a column
+    // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+    // column with this cumulative count
+    let windowFieldSignal = _.findWhere(spec['signals'], {
+      name: 'windowField',
+    });
+    if (state.countMode === 'cumulative') {
+      windowFieldSignal['value'] = 'cases_sum';
+    } else {
+      windowFieldSignal['value'] = 'cases_sum_cumulative';
+    }
+
+    // Adapt labels to groupings
+    let detailYLabelSignal = _.findWhere(spec['signals'], {
+      name: 'detailYLabel',
+    });
+    // let detailBars = detailGroup['marks'][0]['marks'][0];
+    let detailYLabel = '';
+    if (state.countMode === 'cumulative') {
+      detailYLabel += 'Cumulative ';
+    }
+    if (state.areaStackMode === 'percentages') {
+      detailYLabel += '% ';
+    }
+    if (covidStore.groupKey === 'lineage') {
+      detailYLabel += 'Sequences by Lineage';
+    } else if (covidStore.groupKey === 'snp') {
+      detailYLabel +=
+        'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+    }
+    detailYLabelSignal['value'] = detailYLabel;
+
+    setState({ ...state, spec });
+  }, [
+    state.areaStackMode,
+    state.dateBin,
+    state.countMode,
+    covidStore.groupKey,
+    covidStore.dnaOrAa,
+  ]);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
@@ -256,13 +296,10 @@ const VegaStackedBars = observer(({ width }) => {
         </SelectContainer>
       </PlotOptions>
 
-      <div style={{ width: `${width - 150}px` }}>
+      <div style={{ width: `${width}px` }}>
         <VegaEmbed
-          data={{
-            cases_by_date_and_group: caseData,
-            selected: selectedGroups,
-          }}
-          spec={barStackSpec}
+          data={state.data}
+          spec={state.spec}
           signalListeners={{
             detailDomain: _.debounce(handleBrush, 500),
             hoverBar: _.throttle(handleHoverGroup, 100),
@@ -274,6 +311,7 @@ const VegaStackedBars = observer(({ width }) => {
             hoverBar: covidStore.hoverGroup,
           }}
           width={width}
+          // height={300}
           actions={false}
         />
       </div>

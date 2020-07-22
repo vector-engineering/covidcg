@@ -10,9 +10,7 @@ import vegaEmbed, { vega } from 'vega-embed';
 import shallowEqual from './utils/shallowEqual';
 import getUniqueFieldNames from './utils/getUniqueFieldNames';
 import isFunction from './utils/isFunction';
-import { NOOP } from './constants';
 import computeSpecChanges from './utils/computeSpecChanges';
-import equal from 'fast-deep-equal';
 
 const VegaEmbed = ({
   className,
@@ -29,15 +27,17 @@ const VegaEmbed = ({
   ...options
 }) => {
   const containerRef = createRef();
-  let viewPromise;
-  const [initialized, setInitialized] = useState(false);
-  const [_view, setView] = useState(null);
 
-  const prevOptionsRef = useRef(null);
-  const prevSpecRef = useRef(null);
-  const prevDataRef = useRef(null);
-  const prevSignalListenersRef = useRef(null);
-  const prevDataListenersRef = useRef(null);
+  const [state, setState] = useState({
+    initialized: false,
+    viewPromise: undefined,
+  });
+
+  const prevOptionsRef = useRef({});
+  const prevSpecRef = useRef({});
+  const prevDataRef = useRef({});
+  const prevSignalListenersRef = useRef({});
+  const prevDataListenersRef = useRef({});
 
   const handleError = (error) => {
     onError(error);
@@ -125,29 +125,36 @@ const VegaEmbed = ({
     // console.log('CREATE VIEW');
     if (containerRef.current) {
       const finalSpec = combineSpecWithDimension({ spec, width, height });
-      viewPromise = vegaEmbed(containerRef.current, finalSpec, options)
+      // vega-embed options: https://github.com/vega/vega-embed#options
+      let viewPromise = vegaEmbed(containerRef.current, finalSpec, options)
         .then(({ view }) => {
-          let hasListeners =
-            addSignalListenersToView(view, signalListeners) +
-            addDataListenersToView(view, dataListeners);
-          if (hasListeners) {
-            view.run();
-          }
-          setView(view);
+          // Unset previous data to force push the data into the new view
+          prevDataRef.current = {};
+          updateData(view);
+
+          return { view };
+        })
+        .then(({ view }) => {
+          addSignalListenersToView(view, signalListeners);
+          addDataListenersToView(view, dataListeners);
+          view.height(3); // TODO: I have no idea why this works or what it does
+          view.run();
           return { view };
         })
         .catch(handleError);
 
-      if (onNewView) {
+      setState({ ...state, viewPromise });
+
+      if (onNewView !== null) {
         modifyView(onNewView);
       }
     }
   };
 
   const modifyView = (action) => {
-    // console.log('MODIFY VIEW', viewPromise);
-    if (viewPromise) {
-      viewPromise
+    // console.log('MODIFY VIEW');
+    if (state.viewPromise !== undefined) {
+      state.viewPromise
         .then(({ view }) => {
           if (view) {
             action(view);
@@ -163,64 +170,37 @@ const VegaEmbed = ({
     modifyView((view) => {
       view.finalize();
     });
-    viewPromise = undefined;
+    setState({ ...state, viewPromise: undefined });
+
+    prevOptionsRef.current = {};
+    prevSpecRef.current = {};
+    prevDataRef.current = {};
+    prevSignalListenersRef.current = {};
+    prevDataListenersRef.current = {};
 
     return this;
   };
 
-  useEffect(() => {
-    prevSpecRef.current = spec;
-    prevOptionsRef.current = options;
-    prevSignalListenersRef.current = signalListeners;
-    prevDataListenersRef.current = dataListeners;
-  });
-
-  // Listen to dataset changes and update data
-  useEffect(() => {
-    // console.log('NEW DATA');
-    // console.log(data);
-    // console.log(viewPromise);
-
-    // I don't know what I'm doing. but the promise is defined
-    // during initialization, so this runs on hard re-render
-    if (viewPromise && data && Object.keys(data).length > 0) {
-      modifyView((view) => {
-        Object.keys(data).forEach((name) => {
-          if (data[name]) {
-            if (isFunction(data[name])) {
-              data[name](view.data(name));
-            } else {
-              view.change(
-                name,
-                vega
-                  .changeset()
-                  .remove(() => true)
-                  // Do another deep copy of the data... since Vega will insert
-                  // additional keys during its processing and we want an unmodified
-                  // version to do diffs with
-                  .insert(JSON.parse(JSON.stringify(data[name])))
-              );
-            }
-          }
-        });
-        view.resize().run();
-      });
-      // And this will run on new props (soft re-render)
-    } else if (_view && data) {
+  const updateData = (view) => {
+    if (view && data) {
       let prevData = prevDataRef.current;
 
       Object.keys(data).forEach((name) => {
         // console.log(name, data[name], prevData[name]);
+        // if (data[name] !== prevData[name]) {
+        //   console.log('datasets changed:', name);
+        //   console.log(data[name]);
+        // }
 
         if (
           !Object.prototype.hasOwnProperty.call(prevData, name) ||
-          !equal(data[name], prevData[name])
+          data[name] !== prevData[name]
         ) {
-          console.log('Changing datasets', name);
+          // console.log('Changing datasets', name);
           if (isFunction(data[name])) {
-            data[name](_view.data(name));
+            data[name](view.data(name));
           } else {
-            _view.change(
+            view.change(
               name,
               vega
                 .changeset()
@@ -230,33 +210,30 @@ const VegaEmbed = ({
           }
         }
       });
-    }
 
+      // let promise = view.runAsync();
+      // promise.then((view) => {
+      //   console.log('finished');
+      //   console.log(view.getState());
+      // });
+      view.runAsync();
+    }
     prevDataRef.current = data;
-  }, [data]);
-
-  // Update Vega dimensions without redrawing the whole thing
-  useEffect(() => {
-    // console.log('change width/height');
-    if (_view) {
-      _view.width(width);
-      _view.height(height);
-    }
-  }, [width, height]);
+  };
 
   // Listen to changes in signals passed via. props
   useEffect(() => {
     // console.log('Passed signals:', signals);
-    if (_view) {
+    modifyView((view) => {
       Object.keys(signals).forEach((signalName) => {
-        let currentSignalVal = _view.signal(signalName);
+        let currentSignalVal = view.signal(signalName);
         // console.log('current', currentSignalVal, 'new', signals[signalName]);
         // Only update if the signal is different
         if (currentSignalVal != signals[signalName]) {
-          _view.signal(signalName, { group: signals[signalName] });
+          view.signal(signalName, { group: signals[signalName] });
         }
       });
-    }
+    });
   }, [signals]);
 
   // Listen to changes in signalListeners
@@ -269,15 +246,13 @@ const VegaEmbed = ({
       oldSignalListeners
     );
 
-    if (_view && areSignalListenersChanged) {
-      removeSignalListenersFromView(_view, oldSignalListeners);
-      addSignalListenersToView(_view, newSignalListeners);
-      _view.runAsync();
+    if (areSignalListenersChanged) {
+      modifyView((view) => {
+        removeSignalListenersFromView(view, oldSignalListeners);
+        addSignalListenersToView(view, newSignalListeners);
+      });
     }
   };
-  useEffect(() => {
-    updateSignalListeners();
-  }, [signalListeners]);
 
   // Listen to changes in dataListeners
   const updateDataListeners = () => {
@@ -289,55 +264,102 @@ const VegaEmbed = ({
       oldDataListeners
     );
 
-    if (_view && areDataListenersChanged) {
-      removeDataListenersFromView(_view, oldDataListeners);
-      addDataListenersToView(_view, newDataListeners);
-      _view.runAsync();
+    if (areDataListenersChanged) {
+      modifyView((view) => {
+        removeDataListenersFromView(view, oldDataListeners);
+        addDataListenersToView(view, newDataListeners);
+      });
     }
   };
-  useEffect(() => {
-    updateDataListeners();
-  }, [dataListeners]);
 
   const recreateView = () => {
+    // If the view is currently being re-rendered, then skip this...
+    if (state.viewPromise !== undefined) {
+      // console.log('in the middle of a re-render');
+      // return;
+    }
+
+    // console.log('recreating view');
     clearView();
     createView();
-    updateSignalListeners();
-    updateDataListeners();
+    // updateSignalListeners();
+    // updateDataListeners();
+    // updateData();
   };
 
   useLayoutEffect(() => {
-    if (!initialized) {
-      // console.log('initializing');
-      createView();
-      setInitialized(true);
-      return;
+    if (state.viewPromise === undefined) {
+      recreateView();
+      // updateData(state.view);
     }
 
-    const prevOptions = prevOptionsRef.current;
-    const fieldSet = getUniqueFieldNames([options, prevOptions]);
-    // console.log(options, prevOptions, fieldSet);
     const prevSpec = prevSpecRef.current;
 
     // Only create a new view if necessary
-    if (Array.from(fieldSet).some((f) => options[f] !== prevOptions[f])) {
-      recreateView();
-    } else {
-      const specChanges = computeSpecChanges(spec, prevSpec);
-      // console.log(spec, prevSpec);
-      // console.log('spec changes', specChanges);
+    const specChanges = computeSpecChanges(spec, prevSpec);
+    // console.log(spec, prevSpec);
+    // console.log('spec changes', specChanges);
 
-      if (specChanges && specChanges.isExpensive) {
-        recreateView();
-      }
+    if (specChanges && specChanges.isExpensive) {
+      // console.log('Triggering recreate because of spec changes');
+      recreateView();
     }
 
     // Specify how to clean up after this effect:
     // This function is called when the component unmounts
     return function cleanup() {
+      // console.log('CLEANUP: from layout');
       clearView();
     };
-  }, [spec, options]);
+  }, [spec]);
+
+  useEffect(() => {
+    const prevOptions = prevOptionsRef.current;
+    const fieldSet = getUniqueFieldNames([options, prevOptions]);
+    // console.log(options, prevOptions, fieldSet);
+
+    if (Array.from(fieldSet).some((f) => options[f] !== prevOptions[f])) {
+      // console.log('Trigger recreate because of option changes');
+      recreateView();
+    }
+  }, [options]);
+
+  // Listen to dataset changes and update data
+  useEffect(() => {
+    //console.log('NEW DATA');
+    modifyView((view) => {
+      updateData(view);
+    });
+  }, [data]);
+
+  //Update Vega dimensions without redrawing the whole thing
+  useEffect(() => {
+    modifyView((view) => {
+      console.log('change width/height', width, height);
+      if (width !== undefined) {
+        view.width(width);
+      }
+      if (height !== undefined) {
+        view.height(height);
+      }
+      view.run();
+    });
+  }, [width, height]);
+
+  useEffect(() => {
+    updateSignalListeners();
+  }, [signalListeners]);
+
+  useEffect(() => {
+    updateDataListeners();
+  }, [dataListeners]);
+
+  useEffect(() => {
+    prevSpecRef.current = spec;
+    prevOptionsRef.current = options;
+    prevSignalListenersRef.current = signalListeners;
+    prevDataListenersRef.current = dataListeners;
+  }, [spec, options, signalListeners, dataListeners]);
 
   return <div ref={containerRef} className={className} style={style} />;
 };
@@ -354,7 +376,7 @@ VegaEmbed.propTypes = {
   signalListeners: PropTypes.object, // key -> value (function)
   dataListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
-  onNewView: PropTypes.func,
+  onNewView: PropTypes.oneOf([PropTypes.func, null]),
   onError: PropTypes.func,
 };
 VegaEmbed.defaultProps = {
@@ -364,7 +386,7 @@ VegaEmbed.defaultProps = {
   signalListeners: {},
   dataListeners: {},
   style: {},
-  onNewView: NOOP,
+  onNewView: null,
   onError: (error) => {
     console.error(error);
     return null;

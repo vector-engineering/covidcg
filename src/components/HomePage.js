@@ -61,10 +61,6 @@ const PlotContainer = styled.div`
   position: relative;
 
   overflow-y: scroll;
-
-  .vega-embed {
-    width: calc(100% - 110px);
-  }
 `;
 
 const Footer = styled.div`
@@ -144,7 +140,6 @@ const HomePage = observer(({ uiStore }) => {
 
         <PlotContainer ref={ref}>
           <StatusBar />
-
           <AccordionWrapper
             title="Legend"
             defaultCollapsed={false}
@@ -153,11 +148,9 @@ const HomePage = observer(({ uiStore }) => {
             <VegaLegend />
           </AccordionWrapper>
           {renderPlotContent()}
-
           {/*covidStore.groupKey === 'lineage' && (
             <VegaTree width={width} data={covidStore.caseDataAggGroup} />
           )*/}
-
           <AccordionWrapper
             title="Table"
             defaultCollapsed={false}
@@ -172,7 +165,6 @@ const HomePage = observer(({ uiStore }) => {
           >
             <AcknowledgementsTable />
           </AccordionWrapper>
-
           <Footer>
             <div className="gisaid-daa">
               Data use subject to the{' '}
