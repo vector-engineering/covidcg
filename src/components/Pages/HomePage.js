@@ -5,10 +5,10 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import CoordinateSelect from '../CoordinateSelect';
-import GroupBySelect from '../GroupBySelect';
-import MetaFieldSelect from '../MetaFieldSelect';
-import DropdownContainer from '../DropdownContainer';
+import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
+import GroupBySelect from '../FilterSidebar/GroupBySelect';
+import MetaFieldSelect from '../FilterSidebar/MetaFieldSelect';
+import DropdownContainer from '../FilterSidebar/DropdownContainer';
 import Modal from 'react-modal';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';

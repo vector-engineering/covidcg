@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
-import Button from './Buttons/Button';
+import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
-import { getAllGenes } from '../utils/gene';
-import { getAllProteins } from '../utils/protein';
+import { getAllGenes } from '../../utils/gene';
+import { getAllProteins } from '../../utils/protein';
 import {
   getPrimerSelectTree,
   getPrimerByName,
   getPrimersByGroup,
-} from '../utils/primer';
+} from '../../utils/primer';
 
 const SelectContainer = styled.div`
   display: flex;
