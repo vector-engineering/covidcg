@@ -14,16 +14,16 @@ import {
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
-const processedCaseData = _.map(initialCaseData, (row) => {
-  row.collection_date = new Date(row.collection_date).getTime();
-
-  // Floor at 2020-01-01
-  if (row.collection_date < 1577836800000) {
-    row.collection_date = 1577836800000;
+const processedCaseData = _.reject(
+  _.map(initialCaseData, (row) => {
+    row.collection_date = new Date(row.collection_date).getTime();
+    return row;
+  }),
+  (row) => {
+    // Remove cases before 2019-12-15
+    return row.collection_date < 1576368000000;
   }
-
-  return row;
-});
+);
 
 let _warmColors = Object.assign({}, warmColors);
 let _coolColors = Object.assign({}, coolColors);
