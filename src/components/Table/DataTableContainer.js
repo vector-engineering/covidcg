@@ -101,6 +101,16 @@ const NewLineageDataTable = observer(() => {
     };
   });
 
+  // Reset the coloring settings when dnaOrAa is changed
+  useEffect(() => {
+    setState({
+      ...state,
+      colorMode: 'compare',
+      compareMode: 'mismatch',
+      compareColor: 'yellow',
+    });
+  }, [covidStore.dnaOrAa]);
+
   useEffect(() => {
     setState({
       ...state,
