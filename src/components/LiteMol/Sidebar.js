@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 
 import styled from 'styled-components';
 import Draggable from 'react-draggable'; // <DraggableCore>
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 import LiteMolViewer from './LiteMolViewer';
 
 function clamp(num, min, max) {

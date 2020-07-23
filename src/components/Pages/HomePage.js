@@ -25,7 +25,7 @@ import VegaLegend from '../Vega/VegaLegend';
 import StatusBar from '../StatusBar';
 import AccordionWrapper from '../AccordionWrapper';
 import ReactTooltip from 'react-tooltip';
-import SidebarAccordionWrapper from '../SidebarAccordionWrapper';
+import SidebarAccordionWrapper from '../LiteMol/SidebarAccordionWrapper';
 import VegaStackedBars from '../Vega/VegaStackedBars';
 import AcknowledgementsTable from '../AcknowledgementsTable';
 

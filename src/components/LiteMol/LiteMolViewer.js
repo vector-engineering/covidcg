@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import styled from 'styled-components';
 import LiteMol from 'litemol';
-import './../styles/litemol.min.css';
+import './../../styles/litemol.min.css';
 
 const Container = styled.div`
   padding-top: 20px;
