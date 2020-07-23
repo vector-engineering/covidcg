@@ -68,6 +68,15 @@ export const lineageColumn = () => ({
   frozen: true,
 });
 
+export const cladeColumn = () => ({
+  key: 'group',
+  name: 'Clade',
+  selector: 'group',
+  sortable: true,
+  width: 85,
+  frozen: true,
+});
+
 const conditionCompare = (base, refBase, matchOrMismatch) => {
   // Flip the XOR (XNOR)
   return !((base === refBase) ^ (matchOrMismatch === 'match' ? true : false));

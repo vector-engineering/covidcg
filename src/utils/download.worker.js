@@ -1,8 +1,8 @@
 import { getAckTextsFromAckIds } from './acknowledgements';
 import {
-  getDnaSnpsFromLineage,
-  getGeneAaSnpsFromLineage,
-  getProteinAaSnpsFromLineage,
+  getDnaSnpsFromGroup,
+  getGeneAaSnpsFromGroup,
+  getProteinAaSnpsFromGroup,
 } from './lineageData';
 import { intToISO } from './date';
 import _ from 'underscore';
@@ -66,8 +66,9 @@ function downloadAggCaseData({
   });
 
   // If we're in lineage mode, then we need to get SNPs for this lineage
-  if (groupKey === 'lineage') {
-    csvString = downloadAggCaseDataLineage({
+  if (groupKey === 'lineage' || groupKey === 'clade') {
+    csvString = downloadAggCaseDataGroup({
+      groupKey,
       caseDataAggGroup,
       changingPositions,
       coordinateMode,
@@ -88,7 +89,8 @@ function downloadAggCaseData({
   };
 }
 
-function downloadAggCaseDataLineage({
+function downloadAggCaseDataGroup({
+  groupKey,
   caseDataAggGroup,
   changingPositions,
   coordinateMode,
@@ -115,7 +117,7 @@ function downloadAggCaseDataLineage({
       row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Get NT SNPs
-    let ntSnps = getDnaSnpsFromLineage(row['group']);
+    let ntSnps = getDnaSnpsFromGroup(groupKey, row['group']);
     // Skip if it's empty
     if (ntSnps.length === 0) {
       csvString += ',';
@@ -138,9 +140,9 @@ function downloadAggCaseDataLineage({
     // Get AA SNPs
     let aaSnps = [];
     if (coordinateMode === 'gene') {
-      aaSnps = getGeneAaSnpsFromLineage(row['group']);
+      aaSnps = getGeneAaSnpsFromGroup(groupKey, row['group']);
     } else if (coordinateMode === 'protein') {
-      aaSnps = getProteinAaSnpsFromLineage(row['group']);
+      aaSnps = getProteinAaSnpsFromGroup(groupKey, row['group']);
     }
     // Skip if it's empty
     if (aaSnps.length === 0) {
