@@ -69,26 +69,26 @@ const SplashScreenContent = ({ onRequestClose }) => {
         <p>
           COVID-19 CG helps users to quickly find answers to questions including
           but not limited to:
-          <ol>
-            <li>
-              Which SARS-CoV-2 lineages are present in a given city or region
-              within a user-specified period of time?
-            </li>
-            <li>
-              Which SARS-CoV-2 variants should I test my therapeutic, antibody,
-              or diagnostic on before implementation in a specific region?
-            </li>
-            <li>
-              What are the community outcomes after particular policies,
-              vaccines, or therapeutics are applied in that population?
-            </li>
-            <li>
-              Are there data from transient mutations that can elucidate common
-              mechanisms of resistance to acquired immunity? Can this be
-              leveraged for vaccine, antibody, or small molecule drug design?
-            </li>
-          </ol>
         </p>
+        <ol>
+          <li>
+            Which SARS-CoV-2 lineages are present in a given city or region
+            within a user-specified period of time?
+          </li>
+          <li>
+            Which SARS-CoV-2 variants should I test my therapeutic, antibody, or
+            diagnostic on before implementation in a specific region?
+          </li>
+          <li>
+            What are the community outcomes after particular policies, vaccines,
+            or therapeutics are applied in that population?
+          </li>
+          <li>
+            Are there data from transient mutations that can elucidate common
+            mechanisms of resistance to acquired immunity? Can this be leveraged
+            for vaccine, antibody, or small molecule drug design?
+          </li>
+        </ol>
         <p>
           Users can view the comprehensive nucleotide and amino acid residue
           variation in their selection to inform their research hypothesis
