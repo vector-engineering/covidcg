@@ -481,7 +481,7 @@ def clean_specimen_metadata(patient_meta_df):
             "endotracheal aspirates",
             "Endotracheal aspirate (ETA)",
             "endotracheal aspirate (ETA)",
-            'Endotracheales Aspirat'
+            "Endotracheales Aspirat",
         ],
         "Enviromental swab": ["Door handle", "Air", "Air sample", "Home environment"],
         "Fecal swab": [],
@@ -735,6 +735,12 @@ def clean_specimen_metadata(patient_meta_df):
 def clean_collection_date_metadata(patient_meta_df):
 
     patient_meta_df["collection_date"] = patient_meta_df["Collection date"].str.strip()
+
+    # Filter out really unspecific collection dates
+    # If the date is 4 characters or less (a year, like "2019", or "2020"), then remove it
+    patient_meta_df = patient_meta_df.loc[
+        patient_meta_df["collection_date"].str.len() > 4, :
+    ]
 
     # patient_meta_df["collection_date"] = patient_meta_df["collection_date"].fillna(
     #     "Unknown"
