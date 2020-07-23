@@ -9,7 +9,7 @@ import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
 import GroupBySelect from '../FilterSidebar/GroupBySelect';
 import MetaFieldSelect from '../FilterSidebar/MetaFieldSelect';
 import DropdownContainer from '../FilterSidebar/DropdownContainer';
-import Modal from 'react-modal';
+import SplashScreenModal from '../Modals/SplashScreenModal';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 
@@ -72,9 +72,16 @@ const Footer = styled.div`
 
   margin-left: -10px;
   padding: 5px;
+  padding-left: 20px;
   border-top: 1px solid #ccc;
 
   font-size: 0.85rem;
+
+  .gisaid-daa {
+    margin-right: 10px;
+    padding-right: 10px;
+    border-right: 1px solid #aaa;
+  }
 `;
 
 const AccordionTitle = styled.span`
@@ -94,13 +101,15 @@ const AccordionTitle = styled.span`
   }
 `;
 
-Modal.setAppElement('#app');
-
 const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
 
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const openModal = () => {
+  const [modalIsOpen, setIsOpen] = useState(true);
+  const openModal = (e) => {
+    if (e !== undefined) {
+      e.preventDefault();
+    }
+
     setIsOpen(true);
   };
   const afterOpenModal = () => {
@@ -161,33 +170,11 @@ const HomePage = observer(({ uiStore }) => {
 
   return (
     <>
-      <Modal
+      <SplashScreenModal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
-        style={{
-          content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-        contentLabel="Example Modal"
-      >
-        <h2>Hello</h2>
-        <button onClick={closeModal}>close</button>
-        <div>I am a modal</div>
-        <form>
-          <input />
-          <button>tab navigation</button>
-          <button>stays</button>
-          <button>inside</button>
-          <button>the modal</button>
-        </form>
-      </Modal>
+      />
       <HomePageDiv>
         <ReactTooltip
           id="tooltip-home"
@@ -198,7 +185,6 @@ const HomePage = observer(({ uiStore }) => {
         />
         {/* <SideBar /> */}
         <FilterSidebar>
-          <button onClick={openModal}>Open Modal</button>
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper
@@ -295,6 +281,9 @@ const HomePage = observer(({ uiStore }) => {
                 Database Access Agreement
               </a>
             </div>
+            <a href="#" onClick={openModal}>
+              Show Splash Screen
+            </a>
           </Footer>
         </PlotContainer>
       </HomePageDiv>

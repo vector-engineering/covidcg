@@ -5,6 +5,8 @@ import { Link } from 'mobx-router';
 import routes from '../../routes';
 import { connect } from '../../stores/connect';
 
+import ExternalLink from '../ExternalLink';
+
 import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
 import ReactLogo from '../../assets/images/React-icon.svg';
 import MobXLogo from '../../assets/images/mobx.png';
@@ -125,24 +127,6 @@ const ImageRow = styled.div`
     margin-right: 10px;
   }
 `;
-
-const ExternalLink = ({ children, href }) => {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer">
-      {children}
-    </a>
-  );
-};
-ExternalLink.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]),
-  href: PropTypes.string.isRequired,
-};
-ExternalLink.defaultProps = {
-  children: '',
-};
 
 // Since this component is simple and static, there's no parent container for it.
 const AboutPage = (props) => {
