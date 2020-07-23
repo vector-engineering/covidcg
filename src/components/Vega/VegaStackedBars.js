@@ -208,6 +208,8 @@ const VegaStackedBars = observer(({ width }) => {
     }
     if (covidStore.groupKey === 'lineage') {
       detailYLabel += 'Sequences by Lineage';
+    } else if (covidStore.groupKey === 'clade') {
+      detailYLabel += 'Sequences by Clade';
     } else if (covidStore.groupKey === 'snp') {
       detailYLabel +=
         'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
@@ -236,6 +238,8 @@ const VegaStackedBars = observer(({ width }) => {
 
   if (covidStore.groupKey === 'lineage') {
     areaStackTitle += 'Lineage ';
+  } else if (covidStore.groupKey === 'clade') {
+    areaStackTitle += 'Clade ';
   } else if (covidStore.groupKey === 'snp') {
     if (covidStore.dnaOrAa === 'dna') {
       areaStackTitle += 'NT';

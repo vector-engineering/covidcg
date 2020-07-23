@@ -73,6 +73,8 @@ const StatusBar = observer(() => {
   let groupName;
   if (covidStore.groupKey === 'lineage') {
     groupName = 'Lineage';
+  } else if (covidStore.groupKey === 'clade') {
+    groupName = 'Clade';
   } else if (covidStore.groupKey === 'snp') {
     if (covidStore.dnaOrAa === 'dna') {
       groupName = 'NT SNP';

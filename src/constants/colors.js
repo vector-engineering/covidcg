@@ -152,3 +152,15 @@ export const snpColorArray = [
   '#30e1b9',
   '#8ff8e2',
 ];
+
+// from https://personal.sron.nl/~pault/#sec:qualitative
+// 'vibrant' scheme
+export const cladeColorArray = [
+  '#0077bb',
+  '#33bbee',
+  '#009988',
+  '#ee7733',
+  '#cc3311',
+  '#ee3377',
+  '#bbbbbb',
+];

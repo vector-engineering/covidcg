@@ -21,7 +21,7 @@ import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
 class ObservableCovidStore {
-  @observable groupKey = 'lineage';
+  @observable groupKey = 'lineage'; // lineage, clade, snp
   @observable dnaOrAa = 'dna';
 
   // Select the Spike gene and nsp13 protein by default

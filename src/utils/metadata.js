@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import metadataMap from '../../data/metadata_map.json';
 
 const metadataFields = [

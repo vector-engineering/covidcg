@@ -25,6 +25,7 @@ import {
   refColumn,
   altColumn,
   lineageColumn,
+  cladeColumn,
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
@@ -228,6 +229,8 @@ const NewLineageDataTable = observer(() => {
       // For lineage grouping, add lineage column
       if (covidStore.groupKey === 'lineage') {
         _columns.push(lineageColumn(handleGridSort));
+      } else if (covidStore.groupKey === 'clade') {
+        _columns.push(cladeColumn(handleGridSort));
       }
 
       // For SNP grouping, add each SNP chunk as its own column
@@ -338,7 +341,7 @@ const NewLineageDataTable = observer(() => {
 
     let positionTitleOffset = 0;
     let posColOffset = 0;
-    if (covidStore.groupKey === 'lineage') {
+    if (covidStore.groupKey === 'lineage' || covidStore.groupKey === 'clade') {
       positionTitleOffset = 220;
       posColOffset = 4;
     } else if (covidStore.groupKey === 'snp') {
