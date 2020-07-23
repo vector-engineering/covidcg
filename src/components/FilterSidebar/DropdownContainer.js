@@ -4,8 +4,8 @@ import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import _ from 'underscore';
 import { toJS } from 'mobx';
-import { useStores } from '../stores/connect';
-import { asyncStates } from '../stores/uiStore';
+import { useStores } from '../../stores/connect';
+import { asyncStates } from '../../stores/uiStore';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;

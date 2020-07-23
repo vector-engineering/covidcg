@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
-import Button from './Buttons/Button';
+import Button from '../Buttons/Button';
 import MultiSelect from 'react-multi-select-component';
 
 import {
   getMetadataFields,
   getMetadataFieldNiceName,
   getMetadataValueFromId,
-} from '../utils/metadata';
+} from '../../utils/metadata';
 
 const formWidth = '160px';
 

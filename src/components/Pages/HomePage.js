@@ -1,32 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import CoordinateSelect from './CoordinateSelect';
-import GroupBySelect from './GroupBySelect';
-import MetaFieldSelect from './MetaFieldSelect';
-import DropdownContainer from './DropdownContainer';
+import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
+import GroupBySelect from '../FilterSidebar/GroupBySelect';
+import MetaFieldSelect from '../FilterSidebar/MetaFieldSelect';
+import DropdownContainer from '../FilterSidebar/DropdownContainer';
+import SplashScreenModal from '../Modals/SplashScreenModal';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 
-import { connect } from '../stores/connect';
-import DataTableContainer from './Table/DataTableContainer';
-import Header from './Header';
+import { connect } from '../../stores/connect';
+import DataTableContainer from '../Table/DataTableContainer';
+import Header from '../Header';
 // import SideBar from './Sidebar';
-import { asyncStates } from '../stores/uiStore';
-import SkeletonElement from './SkeletonElement';
-import LoadingSpinner from './LoadingSpinner';
-import VegaLegend from './Vega/VegaLegend';
+import { asyncStates } from '../../stores/uiStore';
+import SkeletonElement from '../SkeletonElement';
+import LoadingSpinner from '../LoadingSpinner';
+import VegaLegend from '../Vega/VegaLegend';
 // import VegaTree from './VegaTree';
-import StatusBar from './StatusBar';
-import AccordionWrapper from './AccordionWrapper';
+import StatusBar from '../StatusBar';
+import AccordionWrapper from '../AccordionWrapper';
 import ReactTooltip from 'react-tooltip';
-import SidebarAccordionWrapper from './SidebarAccordionWrapper';
-import VegaStackedBars from './Vega/VegaStackedBars';
-import AcknowledgementsTable from './AcknowledgementsTable';
+import SidebarAccordionWrapper from '../LiteMol/SidebarAccordionWrapper';
+import VegaStackedBars from '../Vega/VegaStackedBars';
+import AcknowledgementsTable from '../AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -71,9 +72,16 @@ const Footer = styled.div`
 
   margin-left: -10px;
   padding: 5px;
+  padding-left: 20px;
   border-top: 1px solid #ccc;
 
   font-size: 0.85rem;
+
+  .gisaid-daa {
+    margin-right: 10px;
+    padding-right: 10px;
+    border-right: 1px solid #aaa;
+  }
 `;
 
 const AccordionTitle = styled.span`
@@ -95,6 +103,22 @@ const AccordionTitle = styled.span`
 
 const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
+
+  const [modalIsOpen, setIsOpen] = useState(true);
+  const openModal = (e) => {
+    if (e !== undefined) {
+      e.preventDefault();
+    }
+
+    setIsOpen(true);
+  };
+  const afterOpenModal = () => {
+    // references are now sync'd and can be accessed.
+    // subtitle.style.color = '#f00';
+  };
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   const renderPlotContent = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -146,6 +170,11 @@ const HomePage = observer(({ uiStore }) => {
 
   return (
     <>
+      <SplashScreenModal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+      />
       <HomePageDiv>
         <ReactTooltip
           id="tooltip-home"
@@ -252,6 +281,9 @@ const HomePage = observer(({ uiStore }) => {
                 Database Access Agreement
               </a>
             </div>
+            <a href="#" onClick={openModal}>
+              Show Splash Screen
+            </a>
           </Footer>
         </PlotContainer>
       </HomePageDiv>
