@@ -2835,6 +2835,8 @@ def clean_location_data(location_df):
         # ------
         # Unabbreviate province names
         ({"country": "Mexico", "division": "CDMX"}, {"division": "Mexico City"}),
+        ({"country": "Mexico", "division": "BC"}, {"division": "Baja California"}),
+        ({"country": "Mexico", "division": "BCS"}, {"division": "Baja California Sur"}),
         # North America
         # -------------
         # Who misspelled north??

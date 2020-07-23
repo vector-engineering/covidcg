@@ -251,6 +251,7 @@ def clean_patient_status_metadata(patient_meta_df):
             "Unknow",
             "uknown",
             "\ufeffUnknown",
+            "uncknown",
         ],
         "Alive": ["Live", "Live, physical examination"],
         "Hospitalized": [
@@ -295,6 +296,7 @@ def clean_patient_status_metadata(patient_meta_df):
             "ICU; Serious",
             "Severe/ICU",
             "ICU",
+            "Hospitalized (Intensive care unit)",
         ],
         "Mild Case": ["Mild case", "Mild"],
         "Deceased": [
@@ -369,7 +371,7 @@ def clean_passage_metadata(patient_meta_df):
             "ORIGINAL",
             "origin",
         ],
-        "Vero": [],
+        "Vero": ["Vero cells"],
         "Vero P1": [
             "Vero p1",
             "Vero CCL81 isolate P1",
@@ -400,6 +402,9 @@ def clean_passage_metadata(patient_meta_df):
             "Vero E6, 1 passage",
             "Vero E6 P1, mouse-P14",
             "P1 Vero E6",
+            "Passage 1 / Vero-E6",
+            "P1 / Vero-E6",
+            "P1/ Vero-E6",
         ],
         "Vero E6 P2": ["VeroE6/P2", "VERO E6 / P2", "Vero E6 cells, P2"],
         "Vero E6 P3": ["VeroE6/P3", "Vero E6-P3", "VeroE6, passage 3"],
@@ -563,6 +568,7 @@ def clean_specimen_metadata(patient_meta_df):
             "Nasal-pharyngeal swab",
             "Nasopharyngeal",
             "Nasopharygeal Swab",
+            "Nasopharyngeal swa",
         ],
         "Nasopharyngeal VTM": [],
         "Nasopharyngeal & oro-pharyngeal swab": [
@@ -596,6 +602,7 @@ def clean_specimen_metadata(patient_meta_df):
             "Oro-naso-pharyngeal swab",
             "Oro-naso-pharyngeal swabs",
             "NP/OP swab",
+            "nasopharyngeal/oropharyngeal swab",
         ],
         "Nasopharyngeal & pharyngeal swab": [
             "Naso and pharyngeal swab",
