@@ -92,7 +92,7 @@
     {"name": "overviewYLabel", "value": "All Seqs"},
     {"name": "detailYLabel", "value": "Sequences by Lineage"},
     {"name": "stackOffset", "value": "zero"},
-    {"name": "windowField", "value": "cases_sum"},
+    {"name": "windowField", "value": "cases_sum_dummy"},
     {"name": "detailDomain"},
     {"name": "brush", "value": 0},
     {"name": "delta", "value": 0},
@@ -237,21 +237,21 @@
                   "y2": {"scale": "y", "field": "y1"},
                   "fill": [
                     {
-                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group))",
+                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum > 0)",
                       "field": "color"
                     },
                     {"value": "#CCC"}
                   ],
                   "stroke": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
                       "value": "#000"
                     }, 
                     {"value": "transparent"}
                   ],
                   "zindex": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
                       "value": 3
                     }, 
                     {"value": 1}

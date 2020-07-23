@@ -243,21 +243,21 @@
                   "y2": { "scale": "y", "field": "y1" },
                   "fill": [
                     {
-                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group))",
+                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum > 0)",
                       "field": "color"
                     },
                     { "value": "#CCC" }
                   ],
                   "stroke": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
                       "value": "#000"
                     },
                     { "value": "transparent" }
                   ],
                   "zindex": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
                       "value": 3
                     },
                     { "value": 1 }
