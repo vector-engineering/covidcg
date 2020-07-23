@@ -19,7 +19,7 @@ from fasta import read_fasta_file
 from clean_patient_metadata import clean_patient_metadata
 from clean_seq_metadata import clean_seq_metadata
 from process_ack import process_ack
-from process_lineages import get_consensus_snps
+from process_lineages import get_all_consensus_snps
 from process_locations import process_location_data
 from process_snps import process_snp_data
 from reference import ref_seq, genes, gene_aa
@@ -228,9 +228,9 @@ def main():
 
     print("done")
 
-    # Get consensus SNPs for each lineage
-    print("Getting consensus SNPs for each lineage...", end="", flush=True)
-    get_consensus_snps(case_df)
+    # Get consensus SNPs for each lineage/clade
+    print("Getting consensus SNPs for each lineage and clade...", end="", flush=True)
+    get_all_consensus_snps(case_df)
     print("done")
 
     # Hash Accession IDs

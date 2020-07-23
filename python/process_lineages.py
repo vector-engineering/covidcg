@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""Process clade information
+"""Process pangolin lineage/clade information
 
 Author: Albert Chen (Deverman Lab, Broad Institute)
 """
@@ -13,18 +13,35 @@ from collections import Counter
 from util import translate, data_dir
 
 
-def get_consensus_snps(case_df):
+def get_all_consensus_snps(case_df):
+    get_consensus_snps(case_df, "lineage")
+    get_consensus_snps(case_df, "clade")
+
+
+def get_consensus_snps(case_df, group_key):
+    """Generalized for lineages/clades
+
+    Parameters
+    ----------
+    case_df: pandas.DataFrame
+    group_key: str
+        - 'lineage' or 'clade'
+
+    Returns
+    -------
+    group_snp_df: pandas.DataFrame
+    """
 
     # Fraction of taxons that need to have a SNP for it to be considered a consensus
-    # SNP for a lineage
+    # SNP for a lineage/clade
     # TODO: make this a CLI arg
     consensus_fraction = 0.9
 
-    lineage_snp_df = []
-    unique_lineages = sorted(case_df["lineage"].unique())
+    group_snp_df = []
+    unique_groups = sorted(case_df[group_key].unique())
 
-    for i, lineage in enumerate(unique_lineages):
-        lin_df = case_df.loc[case_df["lineage"] == lineage, :]
+    for i, group in enumerate(unique_groups):
+        lin_df = case_df.loc[case_df[group_key] == group, :]
 
         dna_snp_freqs = dict(
             Counter(sum(lin_df["dna_snp_str"].values, [])).most_common()
@@ -62,22 +79,48 @@ def get_consensus_snps(case_df):
             ]
         )
 
-        lineage_snp_df.append(
+        group_snp_df.append(
             (
-                lineage,
+                group,
                 dna_consensus_snps,
                 gene_aa_consensus_snps,
                 protein_aa_consensus_snps,
             )
         )
 
-    lineage_snp_df = pd.DataFrame.from_records(
-        lineage_snp_df,
-        columns=["lineage", "dna_snp_ids", "gene_aa_snp_ids", "protein_aa_snp_ids"],
+    group_snp_df = pd.DataFrame.from_records(
+        group_snp_df,
+        columns=[group_key, "dna_snp_ids", "gene_aa_snp_ids", "protein_aa_snp_ids"],
     )
 
     # Save to disk
-    lineage_snp_df.to_csv(data_dir / "lineage_snp.csv", index=False)
-    lineage_snp_df.to_json(data_dir / "lineage_snp.json", orient="records")
+    group_snp_df.to_csv(data_dir / (group_key + "_snp.csv"), index=False)
+    group_snp_df.to_json(data_dir / (group_key + "_snp.json"), orient="records")
 
-    return lineage_snp_df
+    return group_snp_df
+
+
+if __name__ == "__main__":
+    case_df = pd.read_csv(data_dir / "case_data2.csv")
+    case_df.set_index("Accession ID")
+
+    case_df["dna_snp_str"] = (
+        case_df["dna_snp_str"]
+        .str.strip("[]")
+        .str.split(",")
+        .apply(lambda x: [int(_x) for _x in x])
+    )
+    case_df["gene_aa_snp_str"] = (
+        case_df["gene_aa_snp_str"]
+        .str.strip("[]")
+        .str.split(",")
+        .apply(lambda x: [int(_x) for _x in x])
+    )
+    case_df["protein_aa_snp_str"] = (
+        case_df["protein_aa_snp_str"]
+        .str.strip("[]")
+        .str.split(",")
+        .apply(lambda x: [int(_x) for _x in x])
+    )
+
+    get_all_consensus_snps(case_df)
