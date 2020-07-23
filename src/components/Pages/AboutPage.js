@@ -2,21 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'mobx-router';
-import routes from '../routes';
-import { connect } from '../stores/connect';
+import routes from '../../routes';
+import { connect } from '../../stores/connect';
 
-import ReactSlingshotImage from '../assets/images/react_slingshot.png';
-import ReactLogo from '../assets/images/React-icon.svg';
-import MobXLogo from '../assets/images/mobx.png';
-import IDLLogo from '../assets/images/idl-logo.png';
-import NextstrainLogo from '../assets/images/nextstrain_logo.png';
-import HKUSTLogo from '../assets/images/HKUST-original_0.svg';
-import LANLLogo from '../assets/images/lanl_logo.svg';
-import PangolinLogo from '../assets/images/pangolin_logo.png';
-import UCLLogo from '../assets/images/university-college-london-ucl-vector-logo.svg';
-import COGUKLogo from '../assets/images/logo-cog-uk.png';
-import UBCLogo from '../assets/images/ubc_logo.png';
-import JHULogo from '../assets/images/jhu_logo.jpg';
+import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
+import ReactLogo from '../../assets/images/React-icon.svg';
+import MobXLogo from '../../assets/images/mobx.png';
+import IDLLogo from '../../assets/images/idl-logo.png';
+import NextstrainLogo from '../../assets/images/nextstrain_logo.png';
+import HKUSTLogo from '../../assets/images/HKUST-original_0.svg';
+import LANLLogo from '../../assets/images/lanl_logo.svg';
+import PangolinLogo from '../../assets/images/pangolin_logo.png';
+import UCLLogo from '../../assets/images/university-college-london-ucl-vector-logo.svg';
+import COGUKLogo from '../../assets/images/logo-cog-uk.png';
+import UBCLogo from '../../assets/images/ubc_logo.png';
+import JHULogo from '../../assets/images/jhu_logo.jpg';
 
 const AboutPageContainer = styled.div`
   display: flex;

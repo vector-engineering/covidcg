@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Route } from 'mobx-router';
-import HomePage from './components/HomePage';
-import AboutPage from './components/AboutPage';
-import NotFoundPage from './components/NotFoundPage';
+import HomePage from './components/Pages/HomePage';
+import AboutPage from './components/Pages/AboutPage';
+import NotFoundPage from './components/Pages/NotFoundPage';
 
 export const publicPath = '/';
 

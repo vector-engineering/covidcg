@@ -1,32 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import CoordinateSelect from './CoordinateSelect';
-import GroupBySelect from './GroupBySelect';
-import MetaFieldSelect from './MetaFieldSelect';
-import DropdownContainer from './DropdownContainer';
+import CoordinateSelect from '../CoordinateSelect';
+import GroupBySelect from '../GroupBySelect';
+import MetaFieldSelect from '../MetaFieldSelect';
+import DropdownContainer from '../DropdownContainer';
+import Modal from 'react-modal';
 
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 
-import { connect } from '../stores/connect';
-import DataTableContainer from './Table/DataTableContainer';
-import Header from './Header';
+import { connect } from '../../stores/connect';
+import DataTableContainer from '../Table/DataTableContainer';
+import Header from '../Header';
 // import SideBar from './Sidebar';
-import { asyncStates } from '../stores/uiStore';
-import SkeletonElement from './SkeletonElement';
-import LoadingSpinner from './LoadingSpinner';
-import VegaLegend from './Vega/VegaLegend';
+import { asyncStates } from '../../stores/uiStore';
+import SkeletonElement from '../SkeletonElement';
+import LoadingSpinner from '../LoadingSpinner';
+import VegaLegend from '../Vega/VegaLegend';
 // import VegaTree from './VegaTree';
-import StatusBar from './StatusBar';
-import AccordionWrapper from './AccordionWrapper';
+import StatusBar from '../StatusBar';
+import AccordionWrapper from '../AccordionWrapper';
 import ReactTooltip from 'react-tooltip';
-import SidebarAccordionWrapper from './SidebarAccordionWrapper';
-import VegaStackedBars from './Vega/VegaStackedBars';
-import AcknowledgementsTable from './AcknowledgementsTable';
+import SidebarAccordionWrapper from '../SidebarAccordionWrapper';
+import VegaStackedBars from '../Vega/VegaStackedBars';
+import AcknowledgementsTable from '../AcknowledgementsTable';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -93,8 +94,22 @@ const AccordionTitle = styled.span`
   }
 `;
 
+Modal.setAppElement('#app');
+
 const HomePage = observer(({ uiStore }) => {
   const [ref, { width }] = useDimensions();
+
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const openModal = () => {
+    setIsOpen(true);
+  };
+  const afterOpenModal = () => {
+    // references are now sync'd and can be accessed.
+    // subtitle.style.color = '#f00';
+  };
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   const renderPlotContent = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -146,6 +161,33 @@ const HomePage = observer(({ uiStore }) => {
 
   return (
     <>
+      <Modal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+        contentLabel="Example Modal"
+      >
+        <h2>Hello</h2>
+        <button onClick={closeModal}>close</button>
+        <div>I am a modal</div>
+        <form>
+          <input />
+          <button>tab navigation</button>
+          <button>stays</button>
+          <button>inside</button>
+          <button>the modal</button>
+        </form>
+      </Modal>
       <HomePageDiv>
         <ReactTooltip
           id="tooltip-home"
@@ -156,6 +198,7 @@ const HomePage = observer(({ uiStore }) => {
         />
         {/* <SideBar /> */}
         <FilterSidebar>
+          <button onClick={openModal}>Open Modal</button>
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper

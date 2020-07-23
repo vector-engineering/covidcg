@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'mobx-router';
-import routes from '../routes';
-import { connect } from '../stores/connect';
+import routes from '../../routes';
+import { connect } from '../../stores/connect';
 
 const NotFoundPage = (props) => {
   return (
