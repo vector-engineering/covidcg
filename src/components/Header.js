@@ -82,6 +82,10 @@ const VersionDiv = styled.div`
     span.version-num {
       font-weight: bold;
     }
+
+    .release-link {
+      margin-left: 3px;
+    }
   }
   .data-date {
     line-height: normal;
@@ -125,7 +129,15 @@ const Header = () => {
       </NavLinks>
       <VersionDiv>
         <div className="version">
-          Version: <span className="version-num">{version}</span>
+          Version: <span className="version-num">{version}</span>{' '}
+          <a
+            className="release-link"
+            href="https://github.com/vector-engineering/COVID19-CG/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            (Changelog)
+          </a>
         </div>
         <div className="data-date">
           Sequences Analyzed: Up to <span className="date">{dataDate}</span>
