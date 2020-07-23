@@ -4,6 +4,8 @@ import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
+import { intToISO } from '../utils/date';
+
 const StatusBarContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -89,6 +91,14 @@ const StatusBar = observer(() => {
     selectedGroups = <span className="content">({selectedGroups})</span>;
   }
 
+  let selectedDates = 'No date range selected';
+  if (covidStore.dateRange[0] !== -1 && covidStore.dateRange[1] !== -1) {
+    selectedDates =
+      intToISO(covidStore.dateRange[0]) +
+      ' – ' +
+      intToISO(covidStore.dateRange[1] - 86400000);
+  }
+
   return (
     <StatusBarContainer>
       <RowStatus width={200}>
@@ -108,6 +118,12 @@ const StatusBar = observer(() => {
           </span>
         </div>
         {selectedGroups}
+      </RowStatus>
+      <RowStatus width={150}>
+        <div className="row-status-header">
+          <span className="title">Date Selection</span>
+        </div>
+        <span className="content">{selectedDates}</span>
       </RowStatus>
     </StatusBarContainer>
   );
