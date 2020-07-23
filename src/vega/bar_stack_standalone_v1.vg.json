@@ -287,7 +287,8 @@
                   {"markname": "overviewbars", "type": "mousedown" }
                 ]
               },
-              "update": "[x(), x()]"
+              "asdf": "invert('xOverview', [x(), x()])",
+              "update": "[scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000), scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)]"
             },
             {
               "events": {
@@ -321,7 +322,7 @@
                   }
                 ]
               },
-              "update": "[brush[0], clamp(x(), 0, width)]"
+              "update": "[brush[0], clamp(scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000), 0, width)]"
             },
             {
               "events": {
@@ -346,7 +347,7 @@
         {
           "name": "xdown",
           "push": "outer",
-          "on": [{"events": "@brushrect:mousedown", "update": "x()"}]
+          "on": [{"events": "@brushrect:mousedown", "update": "scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)"}]
         },
         {
           "name": "delta",
@@ -354,7 +355,7 @@
           "on": [
             {
               "events": "[@brushrect:mousedown, window:mouseup] > window:mousemove!",
-              "update": "x() - xdown"
+              "update": "scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000) - xdown"
             }
           ]
         },
@@ -437,7 +438,7 @@
             "update": {
               "fill": [
                 {
-                  "test": "detailDomain && inrange(datum.day_start, detailDomain)",
+                  "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",
                   "value": "#f00"
                 },
                 {"value": "#888"}
