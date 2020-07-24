@@ -37,7 +37,7 @@ export function generateSelectionString(
 
   // Add date range
   let startDate =
-    dateRange[0] === -1 ? new Date('2020-01-01').getTime() : dateRange[0];
+    dateRange[0] === -1 ? new Date('2019-12-15').getTime() : dateRange[0];
   let endDate =
     dateRange[1] === -1 ? new Date('2020-12-31').getTime() : dateRange[1];
 
