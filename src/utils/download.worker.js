@@ -7,7 +7,19 @@ import {
 import { intToISO } from './date';
 import _ from 'underscore';
 
-function downloadAcknowledgements({ selectedRows }) {
+function downloadAccessionIdsData({ accessionIds }) {
+  // console.log(accessionIds);
+
+  let csvString = accessionIds.join('\n');
+  let blob = new Blob([csvString]);
+  let url = URL.createObjectURL(blob);
+
+  return {
+    blobURL: url,
+  };
+}
+
+function downloadAcknowledgementsData({ selectedRows }) {
   let ackIds = _.pluck(selectedRows, 'ack_id');
 
   // Get the list of selected Accession IDs, and map to
@@ -253,11 +265,13 @@ self.addEventListener(
     //console.log('in downloadworker event listener', data);
 
     let result;
-    if (data.type === 'downloadAcknowledgements') {
+    if (data.type === 'downloadAcknowledgementsData') {
       // This is a terminal endpoint, we don't need to post a message back
-      result = downloadAcknowledgements(data);
+      result = downloadAcknowledgementsData(data);
     } else if (data.type === 'downloadAggCaseData') {
       result = downloadAggCaseData(data);
+    } else if (data.type === 'downloadAccessionIdsData') {
+      result = downloadAccessionIdsData(data);
     }
     // console.log(result);
     self.postMessage(JSON.stringify(result));

@@ -6,9 +6,11 @@ import {
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
 import {
-  downloadAcknowledgements,
+  downloadAccessionIdsData,
+  downloadAcknowledgementsData,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
+import { decryptAccessionIds } from '../utils/decrypt';
 import { getGene } from '../utils/gene';
 import { getProtein } from '../utils/protein';
 //import { getLineagesFromGene } from '../utils/lineageData';
@@ -296,24 +298,56 @@ class ObservableCovidStore {
   }
 
   @action
+  downloadAccessionIds() {
+    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
+      (responseData) => {
+        downloadAccessionIdsData(
+          { accessionIds: responseData['accession_ids'] },
+          (res) => {
+            downloadBlobURL(
+              res.blobURL,
+              generateSelectionString(
+                'accession_ids',
+                'txt',
+                this.groupKey,
+                this.dnaOrAa,
+                this.selectedLocationIds,
+                this.dateRange
+              )
+            );
+          }
+        );
+      }
+    );
+  }
+
+  @action
   downloadAcknowledgements() {
     // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
-    downloadAcknowledgements(
-      { selectedRows: toJS(this.selectedRows) },
-      (res) => {
-        // console.log(res);
-        downloadBlobURL(
-          res.blobURL,
-          generateSelectionString(
-            'acknowledgements',
-            'csv',
-            this.groupKey,
-            this.dnaOrAa,
-            this.selectedGene,
-            this.selectedLocationIds,
-            this.dateRange
-          )
-        );
+
+    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
+      (responseData) => {
+        // Make a deep copy of the selected rows
+        let selectedRows = JSON.parse(JSON.stringify(toJS(this.selectedRows)));
+        // Overwrite the existing hashed Accession IDs with the real ones
+        for (let i = 0; i < selectedRows.length; i++) {
+          selectedRows[i]['Accession ID'] = responseData['accession_ids'][i];
+        }
+
+        downloadAcknowledgementsData({ selectedRows }, (res) => {
+          // console.log(res);
+          downloadBlobURL(
+            res.blobURL,
+            generateSelectionString(
+              'acknowledgements',
+              'csv',
+              this.groupKey,
+              this.dnaOrAa,
+              this.selectedLocationIds,
+              this.dateRange
+            )
+          );
+        });
       }
     );
   }
@@ -335,7 +369,6 @@ class ObservableCovidStore {
             'csv',
             this.groupKey,
             this.dnaOrAa,
-            this.selectedGene,
             this.selectedLocationIds,
             this.dateRange
           )

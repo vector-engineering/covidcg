@@ -4,13 +4,10 @@ import { getLocationNameByIds } from './location';
 import { intToISO } from './date';
 
 export function downloadBlobURL(blob_url, filename) {
-  let link = window.document.createElement('a');
+  const link = window.document.getElementById('hidden-download-link');
   link.setAttribute('href', blob_url);
   link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  window.document.body.appendChild(link);
   link.click();
-  window.document.body.removeChild(link);
 }
 
 // Generate a string, for downloaded file names, that represents
@@ -20,13 +17,9 @@ export function generateSelectionString(
   suffix,
   groupKey,
   dnaOrAa,
-  selectedGene,
   selectedLocationIds,
   dateRange
 ) {
-  // Prepare some regex stuff
-  const whitespace_pattern = /\s+/g;
-
   let out = prefix + '_';
 
   // Add group key
@@ -35,8 +28,6 @@ export function generateSelectionString(
   if (groupKey === 'snp') {
     out += dnaOrAa + '_';
   }
-  // Add selected gene
-  out += selectedGene.gene.replace(whitespace_pattern, '') + '_';
 
   // Add locations
   let locNames = getLocationNameByIds(selectedLocationIds);
@@ -51,7 +42,7 @@ export function generateSelectionString(
     dateRange[1] === -1 ? new Date('2020-12-31').getTime() : dateRange[1];
 
   out += intToISO(startDate) + '-';
-  out += intToISO(endDate) + '_';
+  out += intToISO(endDate);
 
   out += '.' + suffix;
 

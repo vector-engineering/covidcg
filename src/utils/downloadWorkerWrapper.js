@@ -2,11 +2,11 @@
 import Worker from './download.worker.js';
 const downloadWorker = new Worker();
 
-export const downloadAcknowledgements = (data, callback) => {
+export const downloadAcknowledgementsData = (data, callback) => {
   downloadWorker.onmessage = (e) => {
     callback(JSON.parse(e.data));
   };
-  data.type = 'downloadAcknowledgements';
+  data.type = 'downloadAcknowledgementsData';
   downloadWorker.postMessage(JSON.stringify(data));
 };
 
@@ -15,5 +15,13 @@ export const downloadAggCaseData = (data, callback) => {
     callback(JSON.parse(e.data));
   };
   data.type = 'downloadAggCaseData';
+  downloadWorker.postMessage(JSON.stringify(data));
+};
+
+export const downloadAccessionIdsData = (data, callback) => {
+  downloadWorker.onmessage = (e) => {
+    callback(JSON.parse(e.data));
+  };
+  data.type = 'downloadAccessionIdsData';
   downloadWorker.postMessage(JSON.stringify(data));
 };

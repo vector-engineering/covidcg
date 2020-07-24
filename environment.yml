@@ -15,6 +15,9 @@ dependencies:
   - pip=20.1.1
   - pip:
       - pysam==0.15.4
+      # For cloud function development
+      - functions-framework==2.0.0
+      - google-cloud-storage==1.29.0
   # If you want to run the notebooks:
   - jupyter=1.0.0
   - jupyter_contrib_nbextensions=0.5.1
