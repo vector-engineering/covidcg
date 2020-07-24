@@ -14,6 +14,7 @@ const HeaderDiv = styled.div`
   padding-top: 5px;
   padding-left: 12px;
   border-bottom: 1px solid #aaa;
+  flex-shrink: 0;
 `;
 const TitleContainer = styled.div`
   display: flex;
