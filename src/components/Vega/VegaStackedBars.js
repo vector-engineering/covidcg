@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import { toJS } from 'mobx';
@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
@@ -17,6 +18,7 @@ const PlotOptions = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 10px;
+  padding-right: 10px;
 
   .area-stack-title {
     font-size: 1.25em;
@@ -25,6 +27,10 @@ const PlotOptions = styled.div`
     padding-left: 18px;
 
     border-right: 1px solid #ccc;
+  }
+
+  .spacer {
+    flex-grow: 1;
   }
 `;
 
@@ -52,6 +58,7 @@ const VegaStackedBars = observer(({ width }) => {
     countMode: 'new', // 'new' or 'cumulative'
     dateBin: 'day', // 'day', 'week', 'month'
   });
+  const vegaRef = useRef();
 
   const onChangeAreaStackMode = (event) =>
     setState({ ...state, areaStackMode: event.target.value });
@@ -94,6 +101,21 @@ const VegaStackedBars = observer(({ width }) => {
     }
 
     covidStore.updateSelectedGroups(args[1]);
+  };
+
+  const handleDownloadSelect = (option) => {
+    // console.log(option);
+    // TODO: use the plot options and covidStore options to build a more descriptive filename
+    //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
+    if (option === 'PNG') {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 1);
+    } else if (option === 'PNG (2X)') {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 2);
+    } else if (option === 'PNG (4X)') {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 4);
+    } else if (option === 'SVG') {
+      vegaRef.current.downloadImage('svg', 'vega-export.svg');
+    }
   };
 
   // Update internal caseData copy
@@ -293,10 +315,17 @@ const VegaStackedBars = observer(({ width }) => {
             </select>
           </label>
         </SelectContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={['PNG', 'PNG (2X)', 'PNG (4X)', 'SVG']}
+          onSelect={handleDownloadSelect}
+        />
       </PlotOptions>
 
       <div style={{ width: `${width}px` }}>
         <VegaEmbed
+          ref={vegaRef}
           data={state.data}
           spec={state.spec}
           signalListeners={{
