@@ -4,13 +4,10 @@ import { getLocationNameByIds } from './location';
 import { intToISO } from './date';
 
 export function downloadBlobURL(blob_url, filename) {
-  let link = window.document.createElement('a');
+  const link = window.document.getElementById('hidden-download-link');
   link.setAttribute('href', blob_url);
   link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  window.document.body.appendChild(link);
   link.click();
-  window.document.body.removeChild(link);
 }
 
 // Generate a string, for downloaded file names, that represents
