@@ -78,3 +78,6 @@ notebooks/**
 
 # Old versions
 versions/**
+
+# Server pycache
+server/decrypt_function/__pycache__/**
