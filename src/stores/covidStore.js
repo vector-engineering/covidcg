@@ -6,6 +6,7 @@ import {
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
 import {
+  downloadAccessionIdsData,
   downloadAcknowledgementsData,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
@@ -297,8 +298,32 @@ class ObservableCovidStore {
   }
 
   @action
+  downloadAccessionIds() {
+    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
+      (responseData) => {
+        downloadAccessionIdsData(
+          { accessionIds: responseData['accession_ids'] },
+          (res) => {
+            downloadBlobURL(
+              res.blobURL,
+              generateSelectionString(
+                'accession_ids',
+                'txt',
+                this.groupKey,
+                this.dnaOrAa,
+                this.selectedLocationIds,
+                this.dateRange
+              )
+            );
+          }
+        );
+      }
+    );
+  }
+
+  @action
   downloadAcknowledgements() {
-    console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
 
     decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
       (responseData) => {
@@ -318,7 +343,6 @@ class ObservableCovidStore {
               'csv',
               this.groupKey,
               this.dnaOrAa,
-              this.selectedGene,
               this.selectedLocationIds,
               this.dateRange
             )
@@ -345,7 +369,6 @@ class ObservableCovidStore {
             'csv',
             this.groupKey,
             this.dnaOrAa,
-            this.selectedGene,
             this.selectedLocationIds,
             this.dateRange
           )
