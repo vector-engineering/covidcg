@@ -1,6 +1,7 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic stacked bar chart example.",
+  "comment": "These will be overridden by the container of this vega plot",
   "width": 700,
   "height": 360,
   "padding": 5,
@@ -8,6 +9,7 @@
   "data": [
     {
       "name": "cases_by_date_and_group",
+      "comment": "Main data object, same as caseData in store",
       "format": {
         "parse": {
           "group": "string",
@@ -17,6 +19,7 @@
       },
       "transform": [
         {
+          "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
           "field": "date",
           "extent": [
@@ -27,6 +30,7 @@
           "as": ["day_start", "day_end"]
         },
         {
+          "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
           "type": "aggregate",
           "groupby": ["group", "day_start", "day_end"],
           "fields": ["cases_sum", "group_counts", "color"],
@@ -34,6 +38,7 @@
           "as": ["cases_sum", "group_counts", "color"]
         },
         {
+          "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
           "type": "impute",
           "field": "cases_sum",
           "key": "day_start",
@@ -41,11 +46,13 @@
           "value": 0
         },
         {
+          "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
           "type": "formula",
           "expr": "datum.day_start + dateBin",
           "as": "day_end"
         },
         {
+          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
           "type": "window",
           "sort": { "field": "day_start" },
           "groupby": ["group"],
@@ -55,6 +62,7 @@
           "frame": [null, 0]
         },
         {
+          "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
           "type": "stack",
           "groupby": ["day_start"],
           "sort": { "field": "group" },
@@ -66,6 +74,7 @@
     {
       "name": "cases_by_date",
       "source": "cases_by_date_and_group",
+      "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
       "transform": [
         {
           "type": "aggregate",
@@ -78,6 +87,7 @@
     },
     {
       "name": "selected",
+      "comment": "A list of groups that are selected",
       "on": [
         { "trigger": "clear", "remove": true },
         { "trigger": "!shift", "remove": true },
@@ -88,22 +98,73 @@
   ],
 
   "signals": [
-    { "name": "dateRangeStart", "value": 1575158400000 },
-    { "name": "dateRangeEnd", "value": 1609372800000 },
-    { "name": "dateBin", "value": 86400000 },
-    { "name": "overviewYLabel", "value": "All Seqs" },
-    { "name": "detailYLabel", "value": "Sequences by Lineage" },
-    { "name": "stackOffset", "value": "zero" },
-    { "name": "windowField", "value": "cases_sum_dummy" },
-    { "name": "detailDomain" },
-    { "name": "brush", "value": 0 },
-    { "name": "delta", "value": 0 },
-    { "name": "xdown", "value": 0 },
-    { "name": "anchor", "value": null },
-    { "name": "hoverBar", "value": null },
+    {
+      "name": "dateRangeStart",
+      "value": 1575158400000,
+      "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
+    },
+    {
+      "name": "dateRangeEnd",
+      "value": 1609372800000
+    },
+    {
+      "name": "dateBin",
+      "value": 86400000,
+      "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group"
+    },
+    {
+      "name": "overviewYLabel",
+      "value": "All Seqs",
+      "comment": "Y-axis label of the overview (bottom) panel"
+    },
+    {
+      "name": "detailYLabel",
+      "value": "Sequences by Lineage",
+      "comment": "Y-axis label of the detail (upper) panel"
+    },
+    {
+      "name": "stackOffset",
+      "value": "zero",
+      "comment": "Whether to show the counts as percentages ('normalize') or as absolute counts ('zero'). This is passed to the stack transform of cases_by_date_and_group"
+    },
+    {
+      "name": "windowField",
+      "value": "cases_sum_dummy",
+      "comment": "Whether to show the cumulative counts ('cases_sum'), or dump the cumulative counts into a field that we ignore (usually 'cases_sum_dummy'). This is passed to the window transform of cases_by_date_and_group"
+    },
+    {
+      "name": "detailDomain",
+      "comment": "The date range selected on the overview (bottom) panel. The units are in JS date objects. If there is no date selected, this should be null."
+    },
+    {
+      "name": "brush",
+      "value": 0,
+      "comment": "The date range selected on the overview (bottom) panel, in screen-space coordinate units (pixels). This will be converted to dates for the detailDomain signal by referencing the xOverview scale"
+    },
+    {
+      "name": "delta",
+      "value": 0,
+      "comment": "The difference between windows when dragging a date selection window in the overview (bottom) panel. It is tracked onmousemove and used to update the 'brush' signal after mouseup. Units are in screen-space coordinates (pixels)"
+    },
+    {
+      "name": "xdown",
+      "value": 0,
+      "comment": "The initial screen-space click location, in screen-space coordinates (pixels), when first clicking on the date range window before dragging it. This is used to calculate the 'delta' signal"
+    },
+    {
+      "name": "anchor",
+      "value": null,
+      "comment": "The initial 'brush' signal state, when clicking on the date range window to drag it. Units are in screen-space coordinates (pixels). Used to update the 'brush' signal after dragging it."
+    },
+    {
+      "name": "hoverBar",
+      "value": null,
+      "comment": "Used to store which group is hovered over. Is an object with field 'group'"
+    },
     {
       "name": "clear",
       "value": true,
+      "comment": "If clicking on anything but a grouped bar, then clear the selection (by clearing the 'selection' data object)",
       "on": [
         {
           "events": "mouseup[!event.item]",
@@ -115,6 +176,7 @@
     {
       "name": "shift",
       "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple groups by holding down shift before clicking",
       "on": [
         {
           "events": "@detailbars:click",
@@ -126,6 +188,7 @@
     {
       "name": "clicked",
       "value": null,
+      "comment": "Track clicks on the group bars, for selection purposes",
       "on": [
         {
           "events": "@detailbars:click",
@@ -140,7 +203,9 @@
     {
       "type": "group",
       "name": "detail",
+      "comment": "The mark group for the detail (upper) panel",
       "encode": {
+        "comment": "The width and height should be overridden by the plot's container",
         "enter": {
           "height": { "value": 280 },
           "width": { "value": 700 }
@@ -149,6 +214,7 @@
       "signals": [
         {
           "name": "hoverBar",
+          "comment": "Set the hoverBar signal when a bar is hovered over, and clear it when the mouse is hovered over anything else",
           "push": "outer",
           "on": [
             {
@@ -165,6 +231,7 @@
       "scales": [
         {
           "name": "x",
+          "comment": "Provide two fields for the domain, since if we only provide the day_start, the last day will get cut off, and if we only provide day_end, the first day will get cut off",
           "type": "time",
           "range": "width",
           "domain": {
@@ -177,6 +244,7 @@
         },
         {
           "name": "y",
+          "comment": "Scale the y axis from 0 to the highest bar height",
           "type": "linear",
           "range": [280, 0],
           "nice": true,
@@ -217,6 +285,7 @@
       "marks": [
         {
           "type": "group",
+          "comment": "Not sure why we need a group mark here, but this is how it is in the example plot, so I didn't change it",
           "encode": {
             "enter": {
               "height": { "field": { "group": "height" } },
@@ -230,6 +299,7 @@
               "name": "detailbars",
               "from": { "data": "cases_by_date_and_group" },
               "encode": {
+                "comment": "Define the tooltip and other constant values here",
                 "enter": {
                   "strokeWidth": { "value": 1 },
                   "tooltip": {
@@ -244,21 +314,27 @@
                   "fill": [
                     {
                       "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum > 0)",
-                      "field": "color"
+                      "field": "color",
+                      "comment": "If this group is selected, or if nothing is selected, then color it normally."
                     },
-                    { "value": "#CCC" }
+                    {
+                      "value": "#CCC",
+                      "comment": "If there is a selected group and this group isn't one of them, then color it light grey"
+                    }
                   ],
                   "stroke": [
                     {
                       "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
-                      "value": "#000"
+                      "value": "#000",
+                      "comment": "If this group is being hovered over, then set outline it black. Since we're imputing empty groups, only highlight groups with more than zero cases."
                     },
                     { "value": "transparent" }
                   ],
                   "zindex": [
                     {
                       "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
-                      "value": 3
+                      "value": 3,
+                      "comment": "Same as the 'stroke' test, but we also need to set the z-index here since it's possible the outline stroke will get hidden under other bars"
                     },
                     { "value": 1 }
                   ]
@@ -272,7 +348,9 @@
     {
       "type": "group",
       "name": "overview",
+      "comment": "Mark group for the overview (bottom) panel",
       "encode": {
+        "comment": "The width should be overridden by the plot container",
         "enter": {
           "x": { "value": 0 },
           "y": { "value": 300 },
@@ -284,6 +362,7 @@
       "signals": [
         {
           "name": "brush",
+          "comment": "Trigger the date selection brush when any area of the overview plot is clicked. The update code was originally [x(), x()], but I changed it to snap to days instead of selecting by screen-space pixel. All the code does is convert from screen-space pixels --> date --> days --> round to nearest day --> date --> screen-space pixels. invert() is used to convert from pixels to date, and round(x / 86400000) rounds to the nearest day. round() * 86400000 converts from days back into the date (in milliseconds), and scale() converts from date back into screen-space coordinates. This fragment of code is used in all the signals below for day-snapping.",
           "push": "outer",
           "on": [
             {
@@ -296,6 +375,7 @@
               "update": "[scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000), scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)]"
             },
             {
+              "comment": "Clear the brush selection on any double-click",
               "events": {
                 "merge": [
                   { "markname": "overview", "type": "dblclick" },
@@ -305,6 +385,7 @@
               "update": "0"
             },
             {
+              "comment": "Update the brush on mousemove. Hold the first point of the range constant (brush[0]), and modify brush[1] by snapping to day as well (see comment above). clamp() is used to ensure that the range stays within the bounds of the plot. Capture mousemove events on both the plot and the bars to allow dragging anywhere on the overview plot",
               "events": {
                 "merge": [
                   {
@@ -330,6 +411,7 @@
               "update": "[brush[0], clamp(scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000), 0, width)]"
             },
             {
+              "comment": "When the mousemove is finished (marked by mouseup event), then reorganize the brush vector so that the lesser value is first",
               "events": {
                 "merge": [
                   { "markname": "overview", "type": "mouseup" },
@@ -339,6 +421,7 @@
               "update": "abs(span(brush)) <= 2 ? 0 : [brush[0], brush[1]]"
             },
             {
+              "comment": "Capture when the date range window is dragged, and update the ranges. Since the dragging logic implements day-snapping on its own, we don't have to round anything here.",
               "events": { "signal": "delta" },
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
             }
@@ -346,11 +429,13 @@
         },
         {
           "name": "anchor",
+          "comment": "Make a copy of the brush vector when the date range is clicked. Used by the 'brush' signal to update itself after a date range drag",
           "push": "outer",
           "on": [{ "events": "@brushrect:mousedown", "update": "slice(brush)" }]
         },
         {
           "name": "xdown",
+          "comment": "Track the initial drag x-coordinate, and snap to the nearest day. Used to set the 'delta' signal",
           "push": "outer",
           "on": [
             {
@@ -361,6 +446,7 @@
         },
         {
           "name": "delta",
+          "comment": "Track how far and in what direction the date range was dragged. Snap to the nearest day. Used to set the 'brush' signal after a date range drag",
           "push": "outer",
           "on": [
             {
@@ -371,6 +457,7 @@
         },
         {
           "name": "detailDomain",
+          "comment": "The same as the 'brush' signal, but in date coordinates instead of screen-space (pixel) coordinates",
           "push": "outer",
           "on": [
             {
@@ -383,6 +470,7 @@
       "scales": [
         {
           "name": "xOverview",
+          "comment": "Provide two fields for the domain, since if we only provide the day_start, the last day will get cut off, and if we only provide day_end, the first day will get cut off",
           "type": "time",
           "range": "width",
           "domain": {
@@ -449,7 +537,8 @@
               "fill": [
                 {
                   "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",
-                  "value": "#f00"
+                  "value": "#f00",
+                  "comment": "Color this bar red if it's within the date selection range"
                 },
                 { "value": "#888" }
               ]
@@ -459,6 +548,7 @@
         {
           "type": "rect",
           "name": "brushrect",
+          "comment": "Draw the date selection range",
           "encode": {
             "enter": {
               "y": { "value": 0 },
@@ -474,6 +564,7 @@
         },
         {
           "type": "rect",
+          "comment": "Draw the beginning bar of the date selection range",
           "interactive": false,
           "encode": {
             "enter": {
@@ -489,6 +580,7 @@
         },
         {
           "type": "rect",
+          "comment": "Draw the ending bar of the date selection range",
           "interactive": false,
           "encode": {
             "enter": {
