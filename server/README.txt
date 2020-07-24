@@ -57,6 +57,15 @@ All the following steps require root privileges
 
   Follow instructions: https://certbot.eff.org/lets-encrypt/debianbuster-nginx
 
+
+Accession ID Decryption
+-----------------------
+
+Data served to clients has Accession IDs hashed to prevent dataset reconstruction, so to get the actual Accession IDs of the displayed data, the users must have to hit a server which takes in hashed IDs and return real IDs
+
+For covidcg.org this is deployed as a Google Cloud Function, and the code for this function is in the decrypt_function/ folder. See the test_script.sh file for instructions on running it locally on your machine and a test request to see if it works. This function requires a map of hash ID -> real ID, and we have this map stored as a CSV in a Google Cloud Storage bucket. If you want, you can define the map directly in the python file or load it in as a file along with the function python script. Keep in mind that this map must be updated when the data is updated, or else hashed IDs will return as null values.
+
+
 Attributions
 ------------
 
