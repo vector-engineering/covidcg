@@ -6,7 +6,7 @@ import {
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
 import {
-  downloadAcknowledgements,
+  downloadAcknowledgementsData,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
 import { decryptAccessionIds } from '../utils/decrypt';
@@ -298,7 +298,7 @@ class ObservableCovidStore {
 
   @action
   downloadAcknowledgements() {
-    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+    console.log('DOWNLOAD ACKNOWLEDGEMENTS');
 
     decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
       (responseData) => {
@@ -309,7 +309,7 @@ class ObservableCovidStore {
           selectedRows[i]['Accession ID'] = responseData['accession_ids'][i];
         }
 
-        downloadAcknowledgements({ selectedRows }, (res) => {
+        downloadAcknowledgementsData({ selectedRows }, (res) => {
           // console.log(res);
           downloadBlobURL(
             res.blobURL,
