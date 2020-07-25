@@ -12,11 +12,10 @@ Author: Albert Chen (Deverman Lab, Broad Institute)
 import numpy as np
 import pandas as pd
 
-from Bio import pairwise2
 from collections import defaultdict
 
-from reference import ref_seq, genes, gene_aa
-from util import translate, data_dir, reverse_complement
+from cg_scripts.reference import ref_seq, genes, gene_aa
+from cg_scripts.util import translate, data_dir, reverse_complement
 
 
 class ReadExtractor:

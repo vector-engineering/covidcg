@@ -10,8 +10,8 @@ import pandas as pd
 
 from pathlib import Path
 
-from fasta import read_fasta_file
-from util import translate, data_dir, static_data_dir
+from cg_scripts.fasta import read_fasta_file
+from cg_scripts.util import translate, data_dir, static_data_dir
 
 # Load the reference sequence
 ref_fasta_path = static_data_dir / "reference.fasta"
