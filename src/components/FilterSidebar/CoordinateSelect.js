@@ -509,7 +509,7 @@ const CoordinateSelect = observer(() => {
               checked={covidStore.coordinateMode === 'primer'}
               onChange={handleModeChange}
             />
-            Primers/Probes:
+            Primers/Probes
           </ModeLabel>
           <UpdatePrimersButton
             show={state.primersChanged}
@@ -538,7 +538,7 @@ const CoordinateSelect = observer(() => {
               checked={covidStore.coordinateMode === 'custom'}
               onChange={handleModeChange}
             />
-            Custom Coordinates:
+            Custom Coordinates
           </ModeLabel>
           <CoordForm>
             <span>From</span>

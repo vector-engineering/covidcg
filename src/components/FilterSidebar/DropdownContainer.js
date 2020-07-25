@@ -288,7 +288,7 @@ const DropdownContainer = () => {
 
   return (
     <ContainerDiv>
-      <span className="location-tree-title">Selected Locations:</span>
+      <span className="location-tree-title">Selected Locations</span>
       {dropdownContainer}
     </ContainerDiv>
   );

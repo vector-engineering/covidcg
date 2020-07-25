@@ -5,53 +5,68 @@ import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
-  margin: 5px 5px 3px 5px;
-  padding: 5px 8px;
+  margin: 7px 13px 5px 13px;
+
+  display: grid;
+  grid-template-columns: [col1] 100% [col2];
+  grid-template-rows: [row1] 22px [row2] 3px [row3] 22px [row4];
 `;
 
 const GroupKeySelectForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  padding-right: 20px;
+  grid-column: col1 / col2;
+  grid-row: row1 / row2;
+
   label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
-  select {
-    padding: 1px 5px;
-    margin-left: 0.75em;
-    flex-grow: 1;
-    margin-top: 5px;
-    width: 100%;
-    border-radius: 3px;
+    display: grid;
+    grid-template-columns: [col1] 60% [col2] 40% [col3];
+    grid-template-rows: [row1] 100% [row2];
+
+    span {
+      grid-row: row1 / row2;
+      grid-column: col1 / col2;
+    }
+
+    select {
+      grid-row: row1 / row2;
+      grid-column: col2 / col3;
+      padding: 1px 5px;
+      flex-grow: 1;
+      width: 100%;
+      border-radius: 3px;
+      margin: 0px;
+    }
   }
 `;
 
 const RadioForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-top: 0.85em;
+  grid-column: col1 / col2;
+  grid-row: row3 / row4;
 
-  p {
-    // margin-right: 0.1em;
-    margin: 0px;
+  display: grid;
+  grid-template-columns: [col1] 60% [col2] 40% [col3];
+  grid-template-rows: [row1] 100% [row2];
+
+  span {
+    grid-row: row1 / row2;
+    grid-column: col1 / col2;
   }
 
   .radio-row {
-    flex-grow: 1;
+    grid-row: row1 / row2;
+    grid-column: col2 / col3;
+
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    margin-top: 5px;
   }
 
   .radio-item {
     margin-left: 0.65em;
+    &:first-child {
+      margin-left: 0px;
+    }
+
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -126,14 +141,14 @@ const GroupBySelect = observer(() => {
     <SelectContainer>
       <GroupKeySelectForm>
         <label>
-          Group sequences by:
+          <span>Group sequences by</span>
           <select value={covidStore.groupKey} onChange={handleGroupKeyChange}>
             {optionElements}
           </select>
         </label>
       </GroupKeySelectForm>
       <RadioForm>
-        <p>Mutation format:</p>
+        <span>Mutation format</span>
         <div className="radio-row">
           <div className="radio-item">
             <input
