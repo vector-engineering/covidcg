@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'mobx-router';
 
-import CGLogo from '../assets/images/cg_logo_v13.png';
+import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import routes from '../routes';
-import { useStores } from '../stores/connect';
-import { version, dataDate } from '../utils/version';
+import routes from '../../routes';
+import { useStores } from '../../stores/connect';
+import { version, dataDate } from '../../utils/version';
 
 const HeaderDiv = styled.div`
   display: flex;

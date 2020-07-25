@@ -15,7 +15,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 
 import { connect } from '../../stores/connect';
 import DataTableContainer from '../Table/DataTableContainer';
-import Header from '../Header';
+import Header from '../FilterSidebar/Header';
 // import SideBar from './Sidebar';
 import { asyncStates } from '../../stores/uiStore';
 import SkeletonElement from '../SkeletonElement';
@@ -176,13 +176,6 @@ const HomePage = observer(({ uiStore }) => {
         onRequestClose={closeModal}
       />
       <HomePageDiv>
-        <ReactTooltip
-          id="tooltip-home"
-          type="light"
-          effect="solid"
-          border={true}
-          borderColor="#888"
-        />
         {/* <SideBar /> */}
         <FilterSidebar>
           <Header />
@@ -212,6 +205,13 @@ const HomePage = observer(({ uiStore }) => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
+          <ReactTooltip
+            id="tooltip-home"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
           <StatusBar />
           <AccordionWrapper
             title={
