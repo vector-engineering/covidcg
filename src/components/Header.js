@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'mobx-router';
 
+import CGLogo from '../assets/images/cg_logo_v13.png';
+
 import routes from '../routes';
 import { useStores } from '../stores/connect';
 import { version, dataDate } from '../utils/version';
@@ -9,23 +11,31 @@ import { version, dataDate } from '../utils/version';
 const HeaderDiv = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
-  padding-top: 5px;
-  padding-left: 12px;
   border-bottom: 1px solid #aaa;
   flex-shrink: 0;
 `;
 const TitleContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  // margin-bottom: 1px;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #aaa;
+
+  background-color: #fff;
+
   h1 {
     font-weight: 700;
     font-size: 1.25em;
     margin: 0px;
     line-height: 30px;
+    margin-left: 12px;
+  }
+
+  img {
+    width: auto;
+    margin-left: auto;
   }
 `;
 
@@ -38,6 +48,7 @@ const GISAIDContainer = styled.div`
   font-size: 1em;
 
   margin-bottom: 7px;
+  margin-left: 12px;
 
   a {
     display: flex;
@@ -55,6 +66,7 @@ const NavLinks = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-left: 12px;
   margin-right: 30px;
   margin-bottom: 10px;
 
@@ -68,6 +80,7 @@ const VersionDiv = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
+  margin-left: 12px;
   margin-bottom: 7px;
 
   // height: 30px;
@@ -101,7 +114,8 @@ const Header = () => {
   return (
     <HeaderDiv>
       <TitleContainer>
-        <h1>COVID-19 CoV Genetics (CG)</h1>
+        <img height={78} src={CGLogo}></img>
+        <h1>COVID-19 CoV Genetics</h1>
       </TitleContainer>
       <GISAIDContainer>
         SARS-CoV-2 sequences from:&nbsp;
