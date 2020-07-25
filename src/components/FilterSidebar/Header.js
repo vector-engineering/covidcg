@@ -1,11 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'mobx-router';
 
 import CGLogo from '../../assets/images/cg_logo_v13.png';
-
-import routes from '../../routes';
-import { useStores } from '../../stores/connect';
 import { version, dataDate } from '../../utils/version';
 
 const HeaderDiv = styled.div`
@@ -62,19 +58,6 @@ const GISAIDContainer = styled.div`
   }
 `;
 
-const NavLinks = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-left: 12px;
-  margin-right: 30px;
-  margin-bottom: 10px;
-
-  a {
-    margin-right: 15px;
-  }
-`;
-
 const VersionDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -110,7 +93,6 @@ const VersionDiv = styled.div`
 `;
 
 const Header = () => {
-  const { router } = useStores();
   return (
     <HeaderDiv>
       <TitleContainer>
@@ -127,21 +109,6 @@ const Header = () => {
           <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
         </a>
       </GISAIDContainer>
-      <NavLinks>
-        <Link router={router} route={routes.home}>
-          Home
-        </Link>
-        <Link router={router} route={routes.about}>
-          About
-        </Link>
-        <a
-          href="https://github.com/vector-engineering/covid_ui"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View on GitHub
-        </a>
-      </NavLinks>
       <VersionDiv>
         <div className="version">
           Version: <span className="version-num">{version}</span>{' '}
