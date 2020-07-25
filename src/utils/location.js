@@ -12,48 +12,23 @@ export function loadSelectTree() {
   return selectTree;
 }
 
+// Recursively look through children for location IDs
+function getLocationIdsFromNode(node) {
+  return [node.location_id].concat(
+    node.children.reduce((memo, child) => {
+      return memo.concat(getLocationIdsFromNode(child));
+    }, [])
+  );
+}
+
 export function getLocationIds(selectedNodes) {
   // Get all locations matching the selected nodes
   let locationIds = [];
-  let selectedNode = {};
-  let location = {};
 
   // For each selected node
-  for (let i = 0; i < selectedNodes.length; i++) {
-    selectedNode = selectedNodes[i];
-    // For each location in the cases dataframe
-    for (let j = 0; j < locations.length; j++) {
-      location = locations[j];
-
-      if (
-        selectedNode['level'] === 'region' &&
-        selectedNode['value'] === location['region']
-      ) {
-        locationIds.push(location['index']);
-      } else if (
-        selectedNode['level'] === 'country' &&
-        selectedNode['region'] === location['region'] &&
-        selectedNode['value'] === location['country']
-      ) {
-        locationIds.push(location['index']);
-      } else if (
-        selectedNode['level'] === 'division' &&
-        selectedNode['region'] === location['region'] &&
-        selectedNode['country'] === location['country'] &&
-        selectedNode['value'] === location['division']
-      ) {
-        locationIds.push(location['index']);
-      } else if (
-        selectedNode['level'] === 'location' &&
-        selectedNode['region'] === location['region'] &&
-        selectedNode['country'] === location['country'] &&
-        selectedNode['division'] === location['division'] &&
-        selectedNode['value'] === location['location']
-      ) {
-        locationIds.push(location['index']);
-      }
-    }
-  }
+  selectedNodes.forEach((node) => {
+    locationIds.push(Array.from(new Set(getLocationIdsFromNode(node))));
+  });
 
   return locationIds;
 }

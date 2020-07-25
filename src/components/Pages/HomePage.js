@@ -19,6 +19,7 @@ import StatusBar from '../StatusBar';
 import SidebarAccordionWrapper from '../LiteMol/SidebarAccordionWrapper';
 
 import GroupTab from './GroupTab';
+import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
 import Footer from '../Footer';
 
@@ -86,7 +87,7 @@ const HomePage = observer(() => {
     if (activeTab === 'group') {
       return <GroupTab width={width} />;
     } else if (activeTab === 'location') {
-      return <div></div>;
+      return <LocationTab width={width} />;
     } else if (activeTab === 'about') {
       return <AboutTab />;
     }
