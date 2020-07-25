@@ -15,7 +15,7 @@ import {
   clustalXAAColors,
   zappoAAColors,
   transmembraneAAColors,
-} from '../../utils/colors';
+} from '../../constants/colors';
 import TableOptions from './TableOptions';
 import {
   geneColumn,
