@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import ExternalLink from '../ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 import { version, dataDate } from '../../utils/version';
 
@@ -80,7 +81,7 @@ const VersionDiv = styled.div`
       font-weight: bold;
     }
 
-    .release-link {
+    a {
       margin-left: 3px;
     }
   }
@@ -101,25 +102,19 @@ const Header = () => {
       </TitleContainer>
       <GISAIDContainer>
         SARS-CoV-2 sequences from:&nbsp;
-        <a
-          href="https://www.gisaid.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <ExternalLink href="https://www.gisaid.org/">
           <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
-        </a>
+        </ExternalLink>
       </GISAIDContainer>
       <VersionDiv>
         <div className="version">
           Version: <span className="version-num">{version}</span>{' '}
-          <a
-            className="release-link"
-            href="https://github.com/vector-engineering/COVID19-CG/releases"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG/releases">
             (Changelog)
-          </a>
+          </ExternalLink>
+          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG">
+            [GitHub]
+          </ExternalLink>
         </div>
         <div className="data-date">
           Sequences Analyzed: Up to <span className="date">{dataDate}</span>
