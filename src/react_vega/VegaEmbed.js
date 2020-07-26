@@ -211,21 +211,6 @@ const VegaEmbed = forwardRef(
       prevDataRef.current = data;
     };
 
-    // Listen to changes in signals passed via. props
-    useEffect(() => {
-      // console.log('Passed signals:', signals);
-      modifyView((view) => {
-        Object.keys(signals).forEach((signalName) => {
-          let currentSignalVal = view.signal(signalName);
-          // console.log('current', currentSignalVal, 'new', signals[signalName]);
-          // Only update if the signal is different
-          if (currentSignalVal != signals[signalName]) {
-            view.signal(signalName, { group: signals[signalName] });
-          }
-        });
-      });
-    }, [signals]);
-
     // Listen to changes in signalListeners
     const updateSignalListeners = () => {
       const newSignalListeners = signalListeners;
@@ -329,6 +314,26 @@ const VegaEmbed = forwardRef(
         view.run();
       });
     }, [width, height]);
+
+    // Listen to changes in signals passed via. props
+    useEffect(() => {
+      // console.log('Passed signals:', signals);
+      modifyView((view) => {
+        let changed = false;
+        Object.keys(signals).forEach((signalName) => {
+          let currentSignalVal = view.signal(signalName);
+          // console.log('current', currentSignalVal, 'new', signals[signalName]);
+          // Only update if the signal is different
+          if (currentSignalVal != signals[signalName]) {
+            view.signal(signalName, signals[signalName]);
+            changed = true;
+          }
+        });
+        if (changed) {
+          view.resize().run();
+        }
+      });
+    }, [signals]);
 
     useEffect(() => {
       updateSignalListeners();
