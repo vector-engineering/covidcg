@@ -1,0 +1,237 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 300,
+  "padding": 5,
+  "autosize": "pad",
+
+  "signals": [
+    {
+      "name": "rangeStep",
+      "value": 20
+    },
+    {
+      "name": "innerPadding",
+      "value": 0.2
+    },
+    {
+      "name": "outerPadding",
+      "value": 0.1
+    },
+    { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabel", "value": "Sequences by Lineage" },
+    {
+      "name": "hoverLocation",
+      "value": null,
+      "on": [
+        {
+          "events": "@locationbars:mouseover!",
+          "update": "{location: datum.location, group: datum.group}"
+        },
+        {
+          "events": "@locationbars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "clear",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clicked",
+      "value": null,
+      "comment": "Track clicks on the location bars, for selection purposes",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "{location: datum.location}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "selectedGroups",
+      "values": [{ "group": "B.1" }, { "group": "B.1.3" }]
+    },
+    {
+      "name": "location_by_group",
+      "format": {
+        "parse": {
+          "location": "string",
+          "group": "string",
+          "cases_sum": "number",
+          "location_counts": "number",
+          "date": "date:'%Q'"
+        }
+      },
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "indata('selectedGroups', 'group', datum.group)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["location", "group"],
+          "fields": ["cases_sum", "color"],
+          "ops": ["sum", "max"],
+          "as": ["cases_sum", "color"]
+        },
+        {
+          "type": "stack",
+          "groupby": ["location"],
+          "sort": { "field": "group" },
+          "field": "cases_sum",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "location_bars",
+      "source": "location_by_group",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["location"]
+        },
+        {
+          "type": "formula",
+          "as": "span",
+          "expr": "rangeStep * bandspace(1, innerPadding, outerPadding)"
+        },
+        {
+          "type": "stack",
+          "field": "span"
+        },
+        {
+          "type": "extent",
+          "field": "y1",
+          "signal": "yExtent"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "comment": "A list of groups that are selected",
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "!shift && clicked", "insert": "clicked" },
+        { "trigger": "shift && clicked", "toggle": "clicked" }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "yscale",
+      "type": "band",
+      "round": true,
+      "range": { "step": { "signal": "rangeStep" } },
+      "domain": { "data": "location_bars", "field": "location" },
+      "paddingInner": { "signal": "innerPadding" },
+      "paddingOuter": { "signal": "outerPadding" }
+    },
+    {
+      "name": "xscale",
+      "type": "linear",
+      "range": "width",
+      "nice": true,
+      "zero": true,
+      "domain": { "data": "location_by_group", "field": "y1" }
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "zindex": 1,
+      "labelFontSize": 14,
+
+      "title": { "signal": "xLabel" },
+      "titleFontSize": 14,
+      "titlePadding": 10
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "domain": false,
+      "zindex": 1,
+      "labelFontSize": 14,
+      "labelLimit": 200,
+      "labelPadding": 4
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "locationbars",
+      "type": "rect",
+      "from": { "data": "location_by_group" },
+      "encode": {
+        "enter": {
+          "strokeWidth": { "value": 2 }
+        },
+        "update": {
+          "y": { "scale": "yscale", "field": "location" },
+          "height": { "scale": "yscale", "band": 1 },
+          "x": { "scale": "xscale", "field": "y1" },
+          "x2": { "scale": "xscale", "field": "y0" },
+          "fill": [
+            {
+              "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum > 0)",
+              "field": "color",
+              "comment": "If this location is selected, or if nothing is selected, then color it normally."
+            },
+            {
+              "value": "#CCC",
+              "comment": "If there is a selected location and this location isn't one of them, then color it light grey"
+            }
+          ],
+          "tooltip": {
+            "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts}"
+          },
+          "stroke": [
+            {
+              "test": "hoverLocation && hoverLocation.location == datum.location && datum.cases_sum > 0",
+              "value": "#000"
+            },
+            { "value": "transparent" }
+          ],
+          "fillOpacity": [
+            {
+              "test": "hoverLocation && hoverLocation.location == datum.location && datum.cases_sum > 0",
+              "value": 0.8
+            },
+            { "value": 1 }
+          ]
+        }
+      }
+    }
+  ]
+}

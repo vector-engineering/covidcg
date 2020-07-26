@@ -58,8 +58,7 @@ class ObservableCovidStore {
   @observable ageRange = [null, null];
 
   // For location tab
-  @observable aggLocationDataByDate = [];
-  @observable aggLocationDataByGroup = [];
+  @observable aggLocationData = [];
 
   constructor() {
     // Select NYC by default
@@ -80,7 +79,7 @@ class ObservableCovidStore {
     let MassLocationId = getLocationIds(MassNode);
 
     this.selectedLocationIds = NYCLocationId.concat(MassLocationId);
-    console.log(this.selectedLocationIds);
+    // console.log(this.selectedLocationIds);
     this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
 
     uiStoreInstance.onCaseDataStateStarted();
@@ -293,15 +292,13 @@ class ObservableCovidStore {
         selectedRows,
         metadataCounts,
         numSequencesBeforeMetadataFiltering,
-        aggLocationDataByDateList,
-        aggLocationDataByGroupList,
+        aggLocationDataList,
       }) => {
         this.caseData = aggCaseDataList;
         this.selectedRows = selectedRows;
         this.metadataCounts = metadataCounts;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        this.aggLocationDataByDate = aggLocationDataByDateList;
-        this.aggLocationDataByGroup = aggLocationDataByGroupList;
+        this.aggLocationData = aggLocationDataList;
         // console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));

@@ -287,8 +287,10 @@ function processCaseData({
   });
 
   // For the location tab:
+  const aggLocationData = {};
   const aggLocationDataByDate = {}; // Group by location and date
   const aggLocationDataByGroup = {}; // Group by location and group (lineage/clade/snp)
+  const countsPerLocation = {};
 
   // Build a map of location_id --> node
   // Also while we're at it, create an entry for this node
@@ -300,58 +302,34 @@ function processCaseData({
     });
     aggLocationDataByDate[selectedLocationNodes[i].value] = {};
     aggLocationDataByGroup[selectedLocationNodes[i].value] = {};
+    countsPerLocation[selectedLocationNodes[i].value] = 0;
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
-  const selectedGroupKeys = _.pluck(selectedGroups, 'group');
+  // const selectedGroupKeys = _.pluck(selectedGroups, 'group');
   let groupKeys = [];
+  let location;
   caseData.forEach((row) => {
+    countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
     groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
-    // If this row is in the selected groups
-    if (_.some(_.map(groupKeys, (key) => selectedGroupKeys.includes(key)))) {
-      // Create a date key, if it doesn't already exist
-      if (
-        !Object.prototype.hasOwnProperty.call(
-          aggLocationDataByDate[locationIdToNodeMap[row.location_id]],
-          row.collection_date
-        )
-      ) {
-        aggLocationDataByDate[locationIdToNodeMap[row.location_id]][
-          row.collection_date
-        ] = 0;
-      }
-      // Add case count
-      aggLocationDataByDate[locationIdToNodeMap[row.location_id]][
-        row.collection_date
-      ] += 1;
 
-      groupKeys.forEach((group) => {
-        // Create a group key, if it doesn't already exist
-        if (
-          !Object.prototype.hasOwnProperty.call(
-            aggLocationDataByGroup[locationIdToNodeMap[row.location_id]],
-            group
-          )
-        ) {
-          aggLocationDataByGroup[locationIdToNodeMap[row.location_id]][
-            group
-          ] = 0;
-        }
-        // Add case count
-        aggLocationDataByGroup[locationIdToNodeMap[row.location_id]][
-          group
-        ] += 1;
-      });
-    }
+    location = locationIdToNodeMap[row.location_id];
+    !(location in aggLocationData) && (aggLocationData[location] = {});
+    !(row.collection_date in aggLocationData[location]) &&
+      (aggLocationData[location][row.collection_date] = {});
+    groupKeys.forEach((group) => {
+      !(group in aggLocationData[location][row.collection_date]) &&
+        (aggLocationData[location][row.collection_date][group] = 0);
+      aggLocationData[location][row.collection_date][group] += 1;
+    });
   });
 
   // Compute total counts per group
-  const countsPerLocation = {};
-  Object.keys(aggLocationDataByDate).forEach((location) => {
-    countsPerLocation[location] = Object.values(
-      aggLocationDataByDate[location]
-    ).reduce((memo, val) => memo + val, 0);
-  });
+  // Object.keys(aggLocationDataByDate).forEach((location) => {
+  //   countsPerLocation[location] = Object.values(
+  //     aggLocationDataByDate[location]
+  //   ).reduce((memo, val) => memo + val, 0);
+  // });
 
   let getColorMethod;
   if (groupKey === 'lineage') {
@@ -362,34 +340,24 @@ function processCaseData({
     getColorMethod = getSnpColor;
   }
 
-  // Object of objects to a list of objects
-  const aggLocationDataByDateList = [];
-  Object.keys(aggLocationDataByDate).forEach((location) => {
-    let dates = Object.keys(aggLocationDataByDate[location]);
+  const aggLocationDataList = [];
+  Object.keys(aggLocationData).forEach((location) => {
+    const dates = Object.keys(aggLocationData[location]);
     dates.forEach((date) => {
-      aggLocationDataByDateList.push({
-        location: location,
-        date: parseInt(date),
-        cases_sum: aggLocationDataByDate[location][date],
-        location_counts: countsPerLocation[location],
+      groupKeys = Object.keys(aggLocationData[location][date]);
+      groupKeys.forEach((group) => {
+        aggLocationDataList.push({
+          location: location,
+          date: parseInt(date),
+          group: group,
+          cases_sum: aggLocationData[location][date][group],
+          location_counts: countsPerLocation[location],
+          color: getColorMethod(group),
+        });
       });
     });
   });
-  const aggLocationDataByGroupList = [];
-  Object.keys(aggLocationDataByGroup).forEach((location) => {
-    let groups = Object.keys(aggLocationDataByGroup[location]);
-    groups.forEach((group) => {
-      aggLocationDataByGroupList.push({
-        location: location,
-        group: group,
-        cases_sum: aggLocationDataByGroup[location][group],
-        location_counts: countsPerLocation[location],
-        color: getColorMethod(group),
-      });
-    });
-  });
-  console.log(JSON.stringify(aggLocationDataByDateList));
-  console.log(JSON.stringify(aggLocationDataByGroupList));
+  console.log(JSON.stringify(aggLocationDataList));
 
   // Group by grouping key and sample date
   // console.log('Grouping by', groupKey, 'and sample date');
@@ -470,8 +438,7 @@ function processCaseData({
     numSequencesBeforeMetadataFiltering,
     selectedRows,
     metadataCounts,
-    aggLocationDataByDateList,
-    aggLocationDataByGroupList,
+    aggLocationDataList,
   };
 }
 
