@@ -121,6 +121,14 @@ const VegaEmbed = forwardRef(
         // vega-embed options: https://github.com/vega/vega-embed#options
         let viewPromise = vegaEmbed(containerRef.current, spec, options)
           .then(({ view }) => {
+            // Add signals
+            Object.keys(signals).forEach((signalName) => {
+              view.signal(signalName, signals[signalName]);
+            });
+
+            return view;
+          })
+          .then((view) => {
             // Unset previous data to force push the data into the new view
             prevDataRef.current = {};
             updateData(view);
