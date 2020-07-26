@@ -45,40 +45,8 @@ const SelectContainer = styled.div`
 `;
 
 const VegaStackedBars = observer(({ width }) => {
-  const { covidStore } = useStores();
-
-  const [state, setState] = useState({
-    data: {
-      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
-      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
-    },
-    spec: JSON.parse(JSON.stringify(barStackSpecInitial)),
-    hoverGroup: {},
-    areaStackMode: 'counts', // 'percentages' or 'counts'
-    countMode: 'new', // 'new' or 'cumulative'
-    dateBin: 'day', // 'day', 'week', 'month'
-  });
   const vegaRef = useRef();
-
-  const onChangeAreaStackMode = (event) =>
-    setState({ ...state, areaStackMode: event.target.value });
-  const onChangeCountMode = (event) =>
-    setState({ ...state, countMode: event.target.value });
-  const onChangeDateBin = (event) =>
-    setState({ ...state, dateBin: event.target.value });
-
-  const handleBrush = (...args) => {
-    let dateRange = args[1];
-    if (dateRange !== null) {
-      covidStore.selectDateRange([
-        dateRange[0].getTime(),
-        dateRange[1].getTime(),
-      ]);
-    } else {
-      // Reset time range
-      covidStore.selectDateRange([-1, -1]);
-    }
-  };
+  const { covidStore } = useStores();
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
@@ -115,6 +83,45 @@ const VegaStackedBars = observer(({ width }) => {
       vegaRef.current.downloadImage('png', 'vega-export.png', 4);
     } else if (option === 'SVG') {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
+    }
+  };
+
+  const [state, setState] = useState({
+    data: {
+      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
+      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+    },
+    spec: JSON.parse(JSON.stringify(barStackSpecInitial)),
+    signalListeners: {
+      detailDomain: _.debounce(handleBrush, 500),
+      hoverBar: _.throttle(handleHoverGroup, 100),
+    },
+    dataListeners: {
+      selected: handleSelected,
+    },
+    hoverGroup: {},
+    areaStackMode: 'counts', // 'percentages' or 'counts'
+    countMode: 'new', // 'new' or 'cumulative'
+    dateBin: 'day', // 'day', 'week', 'month'
+  });
+
+  const onChangeAreaStackMode = (event) =>
+    setState({ ...state, areaStackMode: event.target.value });
+  const onChangeCountMode = (event) =>
+    setState({ ...state, countMode: event.target.value });
+  const onChangeDateBin = (event) =>
+    setState({ ...state, dateBin: event.target.value });
+
+  const handleBrush = (...args) => {
+    let dateRange = args[1];
+    if (dateRange !== null) {
+      covidStore.selectDateRange([
+        dateRange[0].getTime(),
+        dateRange[1].getTime(),
+      ]);
+    } else {
+      // Reset time range
+      covidStore.selectDateRange([-1, -1]);
     }
   };
 
@@ -170,11 +177,6 @@ const VegaStackedBars = observer(({ width }) => {
 
   useEffect(() => {
     let spec = JSON.parse(JSON.stringify(state.spec));
-
-    // Set the width manually
-    spec['width'] = width;
-    spec['marks'][0]['encode']['enter']['width']['value'] = width;
-    spec['marks'][1]['encode']['enter']['width']['value'] = width;
 
     // TODO: these are signals and should be able to be set when passed
     //       through the signal prop object. but for some reason it doesn't
@@ -245,7 +247,6 @@ const VegaStackedBars = observer(({ width }) => {
     state.countMode,
     covidStore.groupKey,
     covidStore.dnaOrAa,
-    width,
   ]);
 
   // For development in Vega Editor
@@ -328,18 +329,12 @@ const VegaStackedBars = observer(({ width }) => {
           ref={vegaRef}
           data={state.data}
           spec={state.spec}
-          signalListeners={{
-            detailDomain: _.debounce(handleBrush, 500),
-            hoverBar: _.throttle(handleHoverGroup, 100),
-          }}
-          dataListeners={{
-            selected: handleSelected,
-          }}
+          signalListeners={state.signalListeners}
+          dataListeners={state.dataListeners}
           signals={{
             hoverBar: covidStore.hoverGroup,
           }}
           width={width}
-          // height={300}
           actions={false}
         />
       </div>
