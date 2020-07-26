@@ -22,6 +22,7 @@ const VegaEmbed = forwardRef(
       data,
       signals,
       cheapSignals,
+      updateDataSignals,
       signalListeners,
       dataListeners,
       style,
@@ -115,8 +116,8 @@ const VegaEmbed = forwardRef(
     };
 
     const createView = () => {
-      // console.log('CREATE VIEW');
       if (containerRef.current) {
+        // console.log('CREATE VIEW');
         // vega-embed options: https://github.com/vega/vega-embed#options
         let viewPromise = vegaEmbed(containerRef.current, spec, options)
           .then(({ view }) => {
@@ -322,6 +323,7 @@ const VegaEmbed = forwardRef(
       // console.log('Passed signals:', signals);
       modifyView((view) => {
         let changed = false;
+        let doUpdateData = false;
         Object.keys(signals).forEach((signalName) => {
           let currentSignalVal = view.signal(signalName);
           // console.log('current', currentSignalVal, 'new', signals[signalName]);
@@ -329,11 +331,18 @@ const VegaEmbed = forwardRef(
           if (!equal(currentSignalVal, signals[signalName])) {
             view.signal(signalName, signals[signalName]);
             changed = !cheapSignals.includes(signalName);
+            doUpdateData = updateDataSignals.includes(signalName);
           }
         });
         if (changed) {
           // console.log('Signals changed, re-running view...');
-          view.resize().run();
+          if (doUpdateData) {
+            // console.log('Updating data as well');
+            prevDataRef.current = {};
+            updateData(view);
+          } else {
+            view.resize().run();
+          }
         }
       });
     }, [signals]);
@@ -385,6 +394,7 @@ VegaEmbed.propTypes = {
   data: PropTypes.object.isRequired,
   signals: PropTypes.object,
   cheapSignals: PropTypes.arrayOf(PropTypes.string),
+  updateDataSignals: PropTypes.arrayOf(PropTypes.string),
   signalListeners: PropTypes.object, // key -> value (function)
   dataListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
@@ -396,6 +406,7 @@ VegaEmbed.defaultProps = {
   className: 'vega-embed',
   signals: {},
   cheapSignals: [],
+  updateDataSignals: [],
   signalListeners: {},
   dataListeners: {},
   style: {},
