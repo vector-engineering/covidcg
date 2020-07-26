@@ -357,7 +357,7 @@ function processCaseData({
       });
     });
   });
-  console.log(JSON.stringify(aggLocationDataList));
+  // console.log(JSON.stringify(aggLocationDataList));
 
   // Group by grouping key and sample date
   // console.log('Grouping by', groupKey, 'and sample date');

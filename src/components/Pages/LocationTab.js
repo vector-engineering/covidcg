@@ -10,6 +10,7 @@ import SkeletonElement from '../SkeletonElement';
 import LoadingSpinner from '../LoadingSpinner';
 
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
+import LocationDatePlot from '../Vega/LocationDatePlot';
 
 const LocationTabContainer = styled.div``;
 
@@ -32,6 +33,47 @@ const AccordionTitle = styled.span`
 
 const LocationTab = observer(({ width }) => {
   const { uiStore } = useStores();
+
+  const renderLocationDatePlot = () => {
+    if (uiStore.caseDataState === asyncStates.STARTED) {
+      return (
+        <div
+          style={{
+            paddingTop: '12px',
+            paddingRight: '24px',
+            paddingLeft: '12px',
+            paddingBottom: '24px',
+          }}
+        >
+          <SkeletonElement delay={2} height={300}>
+            <LoadingSpinner />
+          </SkeletonElement>
+        </div>
+      );
+    } else {
+      return (
+        <AccordionWrapper
+          title={
+            <AccordionTitle>
+              <span>Legend</span>
+              <span
+                className="question-button"
+                data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
+                data-html="true"
+                data-for="tooltip-home"
+              >
+                ?
+              </span>
+            </AccordionTitle>
+          }
+          defaultCollapsed={false}
+          maxHeight={'500px'}
+        >
+          <LocationDatePlot width={width - 200} />
+        </AccordionWrapper>
+      );
+    }
+  };
 
   const renderLocationGroupPlot = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -75,7 +117,10 @@ const LocationTab = observer(({ width }) => {
   };
 
   return (
-    <LocationTabContainer>{renderLocationGroupPlot()}</LocationTabContainer>
+    <LocationTabContainer>
+      {renderLocationDatePlot()}
+      {renderLocationGroupPlot()}
+    </LocationTabContainer>
   );
 });
 LocationTab.propTypes = {

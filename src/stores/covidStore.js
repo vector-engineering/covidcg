@@ -59,6 +59,7 @@ class ObservableCovidStore {
 
   // For location tab
   @observable aggLocationData = [];
+  @observable focusedLocations = []; // Selected locations in the location tab
 
   constructor() {
     // Select NYC by default
