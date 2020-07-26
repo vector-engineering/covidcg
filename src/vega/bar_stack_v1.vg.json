@@ -129,8 +129,8 @@
     },
     {
       "name": "windowField",
-      "value": "cases_sum_dummy",
-      "comment": "Whether to show the cumulative counts ('cases_sum'), or dump the cumulative counts into a field that we ignore (usually 'cases_sum_dummy'). This is passed to the window transform of cases_by_date_and_group"
+      "value": "cases_sum_cumulative",
+      "comment": "Whether to show the cumulative counts ('cases_sum'), or dump the cumulative counts into a field that we ignore (usually 'cases_sum_cumulative'). This is passed to the window transform of cases_by_date_and_group"
     },
     {
       "name": "detailDomain",
@@ -206,9 +206,9 @@
       "comment": "The mark group for the detail (upper) panel",
       "encode": {
         "comment": "The width and height should be overridden by the plot's container",
-        "enter": {
+        "update": {
           "height": { "value": 280 },
-          "width": { "value": 700 }
+          "width": { "signal": "width" }
         }
       },
       "signals": [
@@ -287,7 +287,7 @@
           "type": "group",
           "comment": "Not sure why we need a group mark here, but this is how it is in the example plot, so I didn't change it",
           "encode": {
-            "enter": {
+            "update": {
               "height": { "field": { "group": "height" } },
               "width": { "field": { "group": "width" } },
               "clip": { "value": true }
@@ -351,10 +351,10 @@
       "comment": "Mark group for the overview (bottom) panel",
       "encode": {
         "comment": "The width should be overridden by the plot container",
-        "enter": {
+        "update": {
           "x": { "value": 0 },
           "y": { "value": 300 },
-          "width": { "value": 700 },
+          "width": { "signal": "width" },
           "height": { "value": 60 },
           "fill": { "value": "transparent" }
         }
@@ -527,13 +527,11 @@
           "name": "overviewbars",
           "from": { "data": "cases_by_date" },
           "encode": {
-            "enter": {
+            "update": {
               "x": { "scale": "xOverview", "field": "day_start" },
               "x2": { "scale": "xOverview", "field": "day_end" },
               "y": { "scale": "yOverview", "value": 0 },
-              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" }
-            },
-            "update": {
+              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" },
               "fill": [
                 {
                   "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",
