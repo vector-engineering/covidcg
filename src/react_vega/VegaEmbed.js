@@ -12,6 +12,7 @@ import shallowEqual from './utils/shallowEqual';
 import getUniqueFieldNames from './utils/getUniqueFieldNames';
 import isFunction from './utils/isFunction';
 import computeSpecChanges from './utils/computeSpecChanges';
+import equal from 'fast-deep-equal';
 
 const VegaEmbed = forwardRef(
   (
@@ -20,6 +21,7 @@ const VegaEmbed = forwardRef(
       spec,
       data,
       signals,
+      cheapSignals,
       signalListeners,
       dataListeners,
       style,
@@ -324,12 +326,13 @@ const VegaEmbed = forwardRef(
           let currentSignalVal = view.signal(signalName);
           // console.log('current', currentSignalVal, 'new', signals[signalName]);
           // Only update if the signal is different
-          if (currentSignalVal != signals[signalName]) {
+          if (!equal(currentSignalVal, signals[signalName])) {
             view.signal(signalName, signals[signalName]);
-            changed = true;
+            changed = !cheapSignals.includes(signalName);
           }
         });
         if (changed) {
+          // console.log('Signals changed, re-running view...');
           view.resize().run();
         }
       });
@@ -381,6 +384,7 @@ VegaEmbed.propTypes = {
   spec: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   signals: PropTypes.object,
+  cheapSignals: PropTypes.arrayOf(PropTypes.string),
   signalListeners: PropTypes.object, // key -> value (function)
   dataListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
@@ -391,6 +395,7 @@ VegaEmbed.defaultProps = {
   mode: 'vega',
   className: 'vega-embed',
   signals: {},
+  cheapSignals: [],
   signalListeners: {},
   dataListeners: {},
   style: {},
