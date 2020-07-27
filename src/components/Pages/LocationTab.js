@@ -53,7 +53,7 @@ const LocationTab = observer(({ width }) => {
             </AccordionTitle>
           }
           defaultCollapsed={false}
-          maxHeight={'500px'}
+          maxHeight={'800px'}
         >
           <LocationDatePlot width={width - 200} />
           <ReactTooltip
