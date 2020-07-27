@@ -6,6 +6,7 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
 import { asyncStates } from '../../stores/uiStore';
+import { mergeGroupsIntoOther, mergeLegendItemsIntoOther } from './utils';
 
 const LegendList = styled.div`
   display: flex;
@@ -202,7 +203,11 @@ const VegaLegend = observer(() => {
   };
 
   // Make own copy of the elements, and sort by group
-  let legendItems = JSON.parse(JSON.stringify(covidStore.caseDataAggGroup));
+  let legendItems = mergeLegendItemsIntoOther(
+    JSON.parse(JSON.stringify(covidStore.caseDataAggGroup)),
+    covidStore.groupsToKeep
+  );
+  console.log(legendItems, covidStore.caseDataAggGroup);
   legendItems = _.sortBy(legendItems, (row) => row.group);
 
   return <LegendList>{renderLegendKeys(legendItems)}</LegendList>;

@@ -279,9 +279,10 @@ class ObservableCovidStore {
         .map((item) => item[0]);
     } else {
       this.groupsToKeep = this.lineageCountArr
-        .filter((item) => item[1] > this.minLocalCountsToShow)
+        .filter((item) => item[1] >= this.minLocalCountsToShow)
         .map((item) => item[0]);
     }
+    this.groupsToKeep.push('Reference');
   }
 
   @action
