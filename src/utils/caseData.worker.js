@@ -313,11 +313,29 @@ function processCaseData({
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
     groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
 
+    // If groupKeys is empty, that means that it's a sequence
+    // that had its SNPs filtered out. We'll replace it with an "empty"
+    // placeholder object to group by
+    if (groupKeys.length === 0) {
+      groupKeys = [-1];
+    }
+
     location = locationIdToNodeMap[row.location_id];
     !(location in aggLocationData) && (aggLocationData[location] = {});
     !(row.collection_date in aggLocationData[location]) &&
       (aggLocationData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
+      // Replace the integer SNP ID with the actual SNP string
+      if (groupKey === 'snp' && dnaOrAa === 'dna') {
+        group = intToDnaSnp(group).snp_str;
+      } else if (groupKey === 'snp' && dnaOrAa === 'aa') {
+        if (coordinateMode === 'gene') {
+          group = intToGeneAaSnp(group).snp_str;
+        } else if (coordinateMode === 'protein') {
+          group = intToProteinAaSnp(group).snp_str;
+        }
+      }
+
       !(group in aggLocationData[location][row.collection_date]) &&
         (aggLocationData[location][row.collection_date][group] = 0);
       aggLocationData[location][row.collection_date][group] += 1;
@@ -357,7 +375,7 @@ function processCaseData({
       });
     });
   });
-  // console.log(JSON.stringify(aggLocationDataList));
+  // console.log(aggLocationDataList);
 
   // Group by grouping key and sample date
   // console.log('Grouping by', groupKey, 'and sample date');
