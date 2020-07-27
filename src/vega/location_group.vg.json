@@ -19,7 +19,10 @@
       "value": 0.1
     },
     { "name": "stackOffset", "value": "normalize" },
-    { "name": "xLabel", "value": "Sequences by Lineage" },
+    {
+      "name": "xLabel",
+      "value": "Sequences by Lineage (Cumulative, All Sequences)"
+    },
     {
       "name": "hoverLocation",
       "value": null,
@@ -242,6 +245,8 @@
       "scale": "xscale",
       "zindex": 1,
       "labelFontSize": 14,
+
+      "format": "%",
 
       "title": { "signal": "xLabel" },
       "titleFontSize": 14,

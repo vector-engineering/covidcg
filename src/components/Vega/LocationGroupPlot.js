@@ -93,6 +93,21 @@ const LocationGroupPlot = observer(({ width }) => {
     });
   }, [covidStore.aggLocationData, covidStore.selectedGroups]);
 
+  let xLabel = 'Sequences by ';
+  if (covidStore.groupKey === 'lineage') {
+    xLabel += 'Lineage ';
+  } else if (covidStore.groupKey === 'clade') {
+    xLabel += 'Clade ';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      xLabel += 'NT';
+    } else {
+      xLabel += 'AA';
+    }
+    xLabel += ' SNP ';
+  }
+  xLabel += ' (Cumulative, All Sequences)';
+
   return (
     <PlotContainer>
       <div style={{ width: `${width}` }}>
@@ -105,6 +120,7 @@ const LocationGroupPlot = observer(({ width }) => {
           signals={{
             hoverLocation: { location: covidStore.hoverLocation },
             hoverGroup: { group: covidStore.hoverGroup },
+            xLabel,
           }}
           width={width}
           actions={false}
