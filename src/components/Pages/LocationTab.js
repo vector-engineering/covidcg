@@ -5,9 +5,9 @@ import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { asyncStates } from '../../stores/uiStore';
 
-import AccordionWrapper from '../AccordionWrapper';
-import SkeletonElement from '../SkeletonElement';
-import LoadingSpinner from '../LoadingSpinner';
+import AccordionWrapper from '../Common/AccordionWrapper';
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
 
 import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';

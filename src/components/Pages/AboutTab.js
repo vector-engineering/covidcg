@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import ExternalLink from '../ExternalLink';
+import ExternalLink from '../Common/ExternalLink';
 
 import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
 import ReactLogo from '../../assets/images/React-icon.svg';

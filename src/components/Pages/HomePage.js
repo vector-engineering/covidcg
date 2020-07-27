@@ -16,7 +16,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 // import SideBar from './Sidebar';
 // import VegaTree from './VegaTree';
 import StatusBar from '../StatusBar';
-import SidebarAccordionWrapper from '../LiteMol/SidebarAccordionWrapper';
+import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
 
 import GroupTab from './GroupTab';
 import LocationTab from './LocationTab';

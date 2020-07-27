@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
-import SkeletonElement from '../SkeletonElement';
+import SkeletonElement from '../Common/SkeletonElement';
 import { asyncStates } from '../../stores/uiStore';
 
 const LegendList = styled.div`

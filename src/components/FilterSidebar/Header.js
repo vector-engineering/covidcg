@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import ExternalLink from '../ExternalLink';
+import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 import { version, dataDate } from '../../utils/version';
 

@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import _ from 'underscore';
 
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 
 import DataGrid from 'react-data-grid';
-import AckCell from './Cells/AckCell';
-import AckAuthorCell from './Cells/AckAuthorCell';
+import AckCell from '../Cells/AckCell';
+import AckAuthorCell from '../Cells/AckAuthorCell';
 
-import { getAckTextsFromAckIds } from '../utils/acknowledgements';
+import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 
 const AckContainer = styled.div`
   /* Data grid styles */

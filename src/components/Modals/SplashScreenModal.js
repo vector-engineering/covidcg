@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import ExternalLink from '../ExternalLink';
+import ExternalLink from '../Common/ExternalLink';
 
 const Wrapper = styled.div`
   display: flex;

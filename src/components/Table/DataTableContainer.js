@@ -29,7 +29,7 @@ import {
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
-import SkeletonElement from '../SkeletonElement';
+import SkeletonElement from '../Common/SkeletonElement';
 import { asyncStates } from '../../stores/uiStore';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';

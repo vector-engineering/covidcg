@@ -6,14 +6,14 @@ import { useStores } from '../../stores/connect';
 import { asyncStates } from '../../stores/uiStore';
 
 import ReactTooltip from 'react-tooltip';
-import AccordionWrapper from '../AccordionWrapper';
-import SkeletonElement from '../SkeletonElement';
-import LoadingSpinner from '../LoadingSpinner';
+import AccordionWrapper from '../Common/AccordionWrapper';
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
 
 import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/VegaStackedBars';
 import DataTableContainer from '../Table/DataTableContainer';
-import AcknowledgementsTable from '../AcknowledgementsTable';
+import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 const GroupTabContainer = styled.div``;
 
