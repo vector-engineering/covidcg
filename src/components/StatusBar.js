@@ -175,7 +175,7 @@ const StatusBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, 'group')}
           >
-            Compare SNPs
+            Main
           </a>
         </TabItem>
         <TabItem active={activeTab === 'location'}>
