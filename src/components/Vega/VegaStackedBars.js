@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
+import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 
@@ -87,6 +88,7 @@ const VegaStackedBars = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
+    showWarning: true,
     data: {
       cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
       selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
@@ -102,6 +104,13 @@ const VegaStackedBars = observer(({ width }) => {
     countMode: 'new', // 'new' or 'cumulative'
     dateBin: 'day', // 'day', 'week', 'month'
   });
+
+  const onDismissWarning = () => {
+    setState({
+      ...state,
+      showWarning: false,
+    });
+  };
 
   const onChangeAreaStackMode = (event) =>
     setState({ ...state, areaStackMode: event.target.value });
@@ -244,6 +253,13 @@ const VegaStackedBars = observer(({ width }) => {
 
   return (
     <div>
+      <WarningBox
+        show={state.showWarning}
+        onDismiss={onDismissWarning}
+        text="Inconsistent sampling in the underlying data can result in missing
+          data and artefacts in this visualization. Please interpret this data
+          with care."
+      />
       <PlotOptions>
         <span className="area-stack-title">{areaStackTitle}</span>
         <SelectContainer>

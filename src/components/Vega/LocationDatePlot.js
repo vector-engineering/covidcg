@@ -6,6 +6,7 @@ import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
+import WarningBox from '../Common/WarningBox';
 import initialSpec from '../../vega/location_date.vg.json';
 
 const PlotContainer = styled.div``;
@@ -120,8 +121,7 @@ const LocationDatePlot = observer(({ width }) => {
     dateBin: 'day', // 'day', 'week', 'month'
   });
 
-  const onDismissWarning = (event) => {
-    event.preventDefault();
+  const onDismissWarning = () => {
     setState({
       ...state,
       showWarning: false,
@@ -256,20 +256,13 @@ const LocationDatePlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
-      <WarningContainer show={state.showWarning}>
-        <div className="warning-header">
-          <span className="warning-title">WARNING:</span>
-          <div className="spacer" />
-          <button className="close-button" onClick={onDismissWarning}>
-            Dismiss
-          </button>
-        </div>
-        <p className="warning-text">
-          Inconsistent sampling in the underlying data can result in missing
+      <WarningBox
+        show={state.showWarning}
+        onDismiss={onDismissWarning}
+        text="Inconsistent sampling in the underlying data can result in missing
           data and artefacts in this visualization. Please interpret this data
-          with care.
-        </p>
-      </WarningContainer>
+          with care."
+      />
 
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>
