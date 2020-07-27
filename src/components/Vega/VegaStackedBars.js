@@ -49,6 +49,19 @@ const VegaStackedBars = observer(({ width }) => {
   const vegaRef = useRef();
   const { covidStore } = useStores();
 
+  const handleBrush = (...args) => {
+    let dateRange = args[1];
+    if (dateRange !== null) {
+      covidStore.selectDateRange([
+        dateRange[0].getTime(),
+        dateRange[1].getTime(),
+      ]);
+    } else {
+      // Reset time range
+      covidStore.selectDateRange([-1, -1]);
+    }
+  };
+
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
@@ -118,19 +131,6 @@ const VegaStackedBars = observer(({ width }) => {
     setState({ ...state, countMode: event.target.value });
   const onChangeDateBin = (event) =>
     setState({ ...state, dateBin: event.target.value });
-
-  const handleBrush = (...args) => {
-    let dateRange = args[1];
-    if (dateRange !== null) {
-      covidStore.selectDateRange([
-        dateRange[0].getTime(),
-        dateRange[1].getTime(),
-      ]);
-    } else {
-      // Reset time range
-      covidStore.selectDateRange([-1, -1]);
-    }
-  };
 
   // Update internal caseData copy
   useEffect(() => {
