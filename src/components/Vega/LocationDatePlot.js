@@ -10,6 +10,43 @@ import initialSpec from '../../vega/location_date.vg.json';
 
 const PlotContainer = styled.div``;
 
+const WarningContainer = styled.div`
+  display: ${({ show }) => (show ? 'flex' : 'none')};
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+
+  // colors from Bootstrap
+  background-color: #fff3cd;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+
+  margin: 0px 10px;
+  margin-bottom: 15px;
+  padding: 10px 20px;
+
+  .warning-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5px;
+    .warning-title {
+      font-size: 1.25em;
+    }
+    .spacer {
+      flex-grow: 1;
+    }
+  }
+
+  .warning-text {
+    margin: 0px;
+    font-weight: normal;
+  }
+`;
+WarningContainer.defaultProps = {
+  show: true,
+};
+
 const PlotOptions = styled.div`
   display: flex;
   flex-direction: row;
@@ -65,6 +102,7 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
+    showWarning: true,
     data: {
       location_data: [],
       selectedGroups: [],
@@ -77,11 +115,18 @@ const LocationDatePlot = observer(({ width }) => {
     dataListeners: {
       selected: handleSelected,
     },
-    hoverLocation: {},
     normMode: 'counts', // 'percentages' or 'counts'
     countMode: 'new', // 'new' or 'cumulative'
     dateBin: 'day', // 'day', 'week', 'month'
   });
+
+  const onDismissWarning = (event) => {
+    event.preventDefault();
+    setState({
+      ...state,
+      showWarning: false,
+    });
+  };
 
   const onChangeNormMode = (event) =>
     setState({ ...state, normMode: event.target.value });
@@ -186,8 +231,38 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
 
+  plotTitle += ' (Selected ';
+  if (covidStore.groupKey === 'lineage') {
+    plotTitle += 'Lineages ';
+  } else if (covidStore.groupKey === 'clade') {
+    plotTitle += 'Clades ';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      plotTitle += 'NT';
+    } else {
+      plotTitle += 'AA';
+    }
+    plotTitle += ' SNPs ';
+  }
+  plotTitle += ' Only)';
+
   return (
     <PlotContainer>
+      <WarningContainer show={state.showWarning}>
+        <div className="warning-header">
+          <span className="warning-title">WARNING:</span>
+          <div className="spacer" />
+          <button className="close-button" onClick={onDismissWarning}>
+            Dismiss
+          </button>
+        </div>
+        <p className="warning-text">
+          Inconsistent sampling in the underlying data can result in missing
+          data and artefacts in this visualization. Please interpret this data
+          with care.
+        </p>
+      </WarningContainer>
+
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>
         <SelectContainer>

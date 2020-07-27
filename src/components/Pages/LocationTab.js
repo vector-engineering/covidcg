@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { asyncStates } from '../../stores/uiStore';
 
+import ReactTooltip from 'react-tooltip';
 import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -40,12 +41,12 @@ const LocationTab = observer(({ width }) => {
         <AccordionWrapper
           title={
             <AccordionTitle>
-              <span>Legend</span>
+              <span>Location-Date Plot</span>
               <span
                 className="question-button"
-                data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
+                data-tip="<p>Click on a legend item, line, or dot to select the location.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple locations.</p>"
                 data-html="true"
-                data-for="tooltip-home"
+                data-for="tooltip-location-group"
               >
                 ?
               </span>
@@ -55,6 +56,13 @@ const LocationTab = observer(({ width }) => {
           maxHeight={'500px'}
         >
           <LocationDatePlot width={width - 200} />
+          <ReactTooltip
+            id="tooltip-location-date"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
         </AccordionWrapper>
       );
     }
@@ -81,12 +89,12 @@ const LocationTab = observer(({ width }) => {
         <AccordionWrapper
           title={
             <AccordionTitle>
-              <span>Legend</span>
+              <span>Location-Group Plot</span>
               <span
                 className="question-button"
-                data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
+                data-tip="<p>Click on a the location names on the y-axis to select locations.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple locations.</p><p>Click on a bar to select a lineage/clade/SNP.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple lineages/clades/SNPs.</p>"
                 data-html="true"
-                data-for="tooltip-home"
+                data-for="tooltip-location-group"
               >
                 ?
               </span>
@@ -96,6 +104,13 @@ const LocationTab = observer(({ width }) => {
           maxHeight={'500px'}
         >
           <LocationGroupPlot width={width - 300} />
+          <ReactTooltip
+            id="tooltip-location-group"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
         </AccordionWrapper>
       );
     }
@@ -103,6 +118,13 @@ const LocationTab = observer(({ width }) => {
 
   return (
     <LocationTabContainer>
+      <ReactTooltip
+        id="tooltip-locations"
+        type="light"
+        effect="solid"
+        border={true}
+        borderColor="#888"
+      />
       <AccordionWrapper
         title={
           <AccordionTitle>
@@ -111,7 +133,7 @@ const LocationTab = observer(({ width }) => {
               className="question-button"
               data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
               data-html="true"
-              data-for="tooltip-home"
+              data-for="tooltip-locations"
             >
               ?
             </span>
