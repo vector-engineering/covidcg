@@ -434,7 +434,8 @@
             "enter": {
               "dy": {"value": -5},
               "fontSize": {"value": 14},
-              "angle": {"value": 340}
+              "angle": {"value": 340},
+              "zindex": {"value": 5}
             },
             "update": {
               "x": {"scale": "xscale", "field": "day_middle", "offset": 2},

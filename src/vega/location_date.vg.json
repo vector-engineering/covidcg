@@ -182,14 +182,14 @@
           "groupby": ["location", "day_start"],
           "fields": ["cases_sum", "color", "all_cases_sum"],
           "ops": ["sum", "max", "max"],
-          "as": ["cases_sum_agg", "color", "all_cases_sum_agg"]
+          "as": ["cases_sum", "color", "all_cases_sum"]
         },
         {
           "type": "window",
           "sort": { "field": "day_start" },
           "groupby": ["location"],
           "ops": ["sum", "sum"],
-          "fields": ["cases_sum_agg", "all_cases_sum_agg"],
+          "fields": ["cases_sum", "all_cases_sum"],
           "as": ["cases_sum_agg", "all_cases_sum_agg"],
           "frame": { "signal": "cumulativeWindow" }
         },
@@ -454,7 +454,8 @@
             "enter": {
               "dy": { "value": -5 },
               "fontSize": { "value": 14 },
-              "angle": { "value": 340 }
+              "angle": { "value": 340 },
+              "zindex": { "value": 5 }
             },
             "update": {
               "x": { "scale": "xscale", "field": "day_middle", "offset": 2 },
