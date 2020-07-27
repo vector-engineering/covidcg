@@ -18,7 +18,7 @@ import LocationDatePlot from '../Vega/LocationDatePlot';
 const LocationTabContainer = styled.div``;
 
 const LocationTab = observer(({ width }) => {
-  const { covidStore, uiStore } = useStores();
+  const { uiStore } = useStores();
 
   const renderLocationDatePlot = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {

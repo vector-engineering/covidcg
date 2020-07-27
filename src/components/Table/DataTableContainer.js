@@ -131,7 +131,7 @@ const NewLineageDataTable = observer(() => {
   const handleCompareColorChange = (event) =>
     setState({ ...state, compareColor: event.target.value });
 
-  const onRowClick = (rowIndex, row, column) => {
+  const onRowClick = (rowIndex, row) => {
     //console.log(rowIndex, row, column);
 
     let newGroups;

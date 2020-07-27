@@ -300,7 +300,6 @@ class ObservableCovidStore {
         dnaOrAa: toJS(this.dnaOrAa),
         selectedMetadataFields: toJS(this.selectedMetadataFields),
         ageRange: toJS(this.ageRange),
-        selectedGroups: toJS(this.selectedGroups),
         selectedLocationNodes: toJS(this.selectedLocationNodes),
       },
       ({

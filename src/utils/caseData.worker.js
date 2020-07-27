@@ -239,7 +239,6 @@ function processCaseData({
   dnaOrAa,
   selectedMetadataFields,
   ageRange,
-  selectedGroups,
   selectedLocationNodes,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
@@ -306,7 +305,6 @@ function processCaseData({
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
-  // const selectedGroupKeys = _.pluck(selectedGroups, 'group');
   let groupKeys = [];
   let location;
   caseData.forEach((row) => {
