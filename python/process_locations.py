@@ -3940,6 +3940,7 @@ def build_select_tree(location_df, unique_location_df):
                 "label": loc["region"],
                 "value": loc["region"],
                 "level": "region",
+                "location_id": loc['index'],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -3976,6 +3977,7 @@ def build_select_tree(location_df, unique_location_df):
                 "value": loc["country"],
                 "region": loc["region"],
                 "level": "country",
+                "location_id": loc['index'],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -4006,6 +4008,7 @@ def build_select_tree(location_df, unique_location_df):
                 "region": loc["region"],
                 "country": loc["country"],
                 "level": "division",
+                "location_id": loc['index'],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -4043,6 +4046,7 @@ def build_select_tree(location_df, unique_location_df):
                 "country": loc["country"],
                 "division": loc["division"],
                 "level": "location",
+                "location_id": loc['index'],
                 "actions": [
                     {
                         "className": "fa fa-info",

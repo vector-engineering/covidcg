@@ -39,6 +39,7 @@ class ObservableCovidStore {
   ];
 
   @observable selectTree = loadSelectTree();
+  @observable selectedLocationNodes = [];
   @observable selectedLocationIds = [];
   @observable caseData = [];
   @observable changingPositions = {};
@@ -48,13 +49,18 @@ class ObservableCovidStore {
   @observable groupsToKeep = {};
 
   @observable hoverGroup = null;
-  @observable selectedGroups = [];
+  @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
 
   // Metadata filtering
   @observable numSequencesBeforeMetadataFiltering = 0;
   @observable metadataCounts = {};
   @observable selectedMetadataFields = {};
   @observable ageRange = [null, null];
+
+  // For location tab
+  @observable aggLocationData = [];
+  @observable hoverLocation = null;
+  @observable focusedLocations = []; // Selected locations in the location tab
 
   constructor() {
     // Select NYC by default
@@ -65,7 +71,18 @@ class ObservableCovidStore {
     );
     NYCNode[0].checked = true;
     let NYCLocationId = getLocationIds(NYCNode);
-    this.selectedLocationIds = NYCLocationId;
+
+    let MassNode = getLocationByNameAndLevel(
+      this.selectTree,
+      'Massachusetts',
+      'division'
+    );
+    MassNode[0].checked = true;
+    let MassLocationId = getLocationIds(MassNode);
+
+    this.selectedLocationIds = NYCLocationId.concat(MassLocationId);
+    // console.log(this.selectedLocationIds);
+    this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
 
     uiStoreInstance.onCaseDataStateStarted();
 
@@ -74,12 +91,20 @@ class ObservableCovidStore {
 
   @action
   changeGrouping(_groupKey, _dnaOrAa) {
-    console.log(
-      'CHANGE GROUPING. GROUP KEY:',
-      _groupKey,
-      'DNA OR AA:',
-      _dnaOrAa
-    );
+    // console.log(
+    //   'CHANGE GROUPING. GROUP KEY:',
+    //   _groupKey,
+    //   'DNA OR AA:',
+    //   _dnaOrAa
+    // );
+
+    // Clear selected groups?
+    if (this.groupKey !== _groupKey) {
+      this.selectedGroups = [];
+    } else if (_groupKey === 'snp' && this.dnaOrAa !== _dnaOrAa) {
+      this.selectedGroups = [];
+    }
+
     this.groupKey = _groupKey;
     this.dnaOrAa = _dnaOrAa;
 
@@ -191,11 +216,17 @@ class ObservableCovidStore {
       return;
     }
 
+    // Clear selected groups?
+    // TODO: we don't need to do this, depending on the selection.
+    //       do this in a smarter way
+    this.selectedGroups = [];
+
     this.updateCaseData();
   }
 
   @action
   selectLocations(selectedNodes) {
+    this.selectedLocationNodes = selectedNodes;
     this.selectedLocationIds = getLocationIds(selectedNodes);
 
     if (!selectedNodes || !selectedNodes[0]) {
@@ -237,7 +268,7 @@ class ObservableCovidStore {
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
         this.groupsToKeep = groupsToKeepObj;
-        console.log('AGG_CASE_DATA FINISHED');
+        // console.log('AGG_CASE_DATA FINISHED');
 
         suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();
         suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
@@ -268,18 +299,22 @@ class ObservableCovidStore {
         dnaOrAa: toJS(this.dnaOrAa),
         selectedMetadataFields: toJS(this.selectedMetadataFields),
         ageRange: toJS(this.ageRange),
+        selectedGroups: toJS(this.selectedGroups),
+        selectedLocationNodes: toJS(this.selectedLocationNodes),
       },
       ({
         aggCaseDataList,
         selectedRows,
         metadataCounts,
         numSequencesBeforeMetadataFiltering,
+        aggLocationDataList,
       }) => {
         this.caseData = aggCaseDataList;
         this.selectedRows = selectedRows;
         this.metadataCounts = metadataCounts;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        console.log('CASE_DATA FINISHED');
+        this.aggLocationData = aggLocationDataList;
+        // console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup((suppressUIUpdate = false));
       }
@@ -295,6 +330,16 @@ class ObservableCovidStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
+  }
+
+  @action
+  updateHoverLocation(location) {
+    this.hoverLocation = location;
+  }
+
+  @action
+  updateFocusedLocations(locations) {
+    this.focusedLocations = locations;
   }
 
   @action

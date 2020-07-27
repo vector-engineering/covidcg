@@ -232,33 +232,81 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 `;
 
+// https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme
+// https://dowjones.github.io/react-dropdown-tree-select/#/story/tree-node-paths-hoc
+// utility method to assign object paths.
+// this path can be used with lodash.get or similar
+// to retrieve a deeply nested object
+const assignObjectPaths = (obj, stack) => {
+  const isArray = Array.isArray(obj);
+  Object.keys(obj).forEach((k) => {
+    const node = obj[k];
+    const key = isArray ? `[${k}]` : k;
+
+    if (typeof node === 'object') {
+      node.path = stack ? `${stack}.${key}` : key;
+      assignObjectPaths(node, node.path);
+    }
+  });
+};
+
 const DropdownContainer = () => {
   const { covidStore, uiStore } = useStores();
+
+  let initialData = Object.assign(toJS(covidStore.selectTree), {
+    expanded: true,
+  });
+  assignObjectPaths(initialData);
+
   const [state, setState] = useState({
-    data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+    data: initialData,
     expanded: [],
   });
   const treeSelectOnChange = (currentNode, selectedNodes) => {
+    // Since the tree is rendered in a flat state, we need to get all node
+    // children from the original data, via. the node paths
+    let selectedNodeObjs = selectedNodes.map((node) => {
+      // Get children using the object path
+      const pathChunks = node['path'].split('.');
+      let nodeObj = state.data;
+      pathChunks.forEach((chunk) => {
+        // If this chunk is an array index:
+        if (chunk.charAt(0) === '[' && chunk.charAt(chunk.length - 1) === ']') {
+          const arrRx = /\[([0-9]*)\]/g;
+          const arrIndexMatch = arrRx.exec(chunk);
+          nodeObj = nodeObj[parseInt(arrIndexMatch[1])];
+        } else {
+          nodeObj = nodeObj[chunk];
+        }
+      });
+      return nodeObj;
+    });
+
     if (
       uiStore.caseDataState === asyncStates.STARTED ||
       uiStore.aggCaseDataState === asyncStates.STARTED
     ) {
       return;
     }
-    covidStore.selectLocations(selectedNodes);
+    covidStore.selectLocations(selectedNodeObjs);
   };
-  const treeSelectOnAction = (node, action) => {
-    console.log('onAction::', action, node);
-  };
-  const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-    console.log('onNodeToggle::', currentNode);
-  };
+  // const treeSelectOnAction = (node, action) => {
+  //   console.log('onAction::', action, node);
+  // };
+  // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+  //   console.log('onNodeToggle::', currentNode);
+  // };
 
   useEffect(() => {
     if (!_.isEqual(covidStore.selectTree, state.data)) {
+      let data = Object.assign(toJS(covidStore.selectTree), {
+        expanded: true,
+      });
+      assignObjectPaths(data);
+
       setState({
         ...state,
-        data: Object.assign(toJS(covidStore.selectTree), { expanded: true }),
+        data: data,
       });
     }
   }, [covidStore.selectTree]);
@@ -279,8 +327,8 @@ const DropdownContainer = () => {
           noMatches: 'No matches found',
         }}
         onChange={treeSelectOnChange}
-        onAction={treeSelectOnAction}
-        onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+        // onAction={treeSelectOnAction}
+        // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
       />
     ),
     [state.data]

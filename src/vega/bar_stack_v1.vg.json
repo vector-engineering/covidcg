@@ -58,15 +58,15 @@
           "groupby": ["group"],
           "ops": ["sum"],
           "fields": ["cases_sum"],
-          "as": [{ "signal": "windowField" }],
-          "frame": [null, 0]
+          "as": ["cases_sum_new"],
+          "frame": { "signal": "cumulativeWindow" }
         },
         {
           "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
           "type": "stack",
           "groupby": ["day_start"],
           "sort": { "field": "group" },
-          "field": "cases_sum",
+          "field": "cases_sum_new",
           "offset": { "signal": "stackOffset" }
         }
       ]
@@ -128,9 +128,9 @@
       "comment": "Whether to show the counts as percentages ('normalize') or as absolute counts ('zero'). This is passed to the stack transform of cases_by_date_and_group"
     },
     {
-      "name": "windowField",
-      "value": "cases_sum_dummy",
-      "comment": "Whether to show the cumulative counts ('cases_sum'), or dump the cumulative counts into a field that we ignore (usually 'cases_sum_dummy'). This is passed to the window transform of cases_by_date_and_group"
+      "name": "cumulativeWindow",
+      "value": [0, 0],
+      "comment": "Window to calculate cumulative counts over. [0, 0] disables this behavior, while [null, 0] does the cumulative counting"
     },
     {
       "name": "detailDomain",
@@ -206,9 +206,9 @@
       "comment": "The mark group for the detail (upper) panel",
       "encode": {
         "comment": "The width and height should be overridden by the plot's container",
-        "enter": {
+        "update": {
           "height": { "value": 280 },
-          "width": { "value": 700 }
+          "width": { "signal": "width" }
         }
       },
       "signals": [
@@ -287,7 +287,7 @@
           "type": "group",
           "comment": "Not sure why we need a group mark here, but this is how it is in the example plot, so I didn't change it",
           "encode": {
-            "enter": {
+            "update": {
               "height": { "field": { "group": "height" } },
               "width": { "field": { "group": "width" } },
               "clip": { "value": true }
@@ -303,7 +303,7 @@
                 "enter": {
                   "strokeWidth": { "value": 1 },
                   "tooltip": {
-                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   }
                 },
                 "update": {
@@ -313,7 +313,7 @@
                   "y2": { "scale": "y", "field": "y1" },
                   "fill": [
                     {
-                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum > 0)",
+                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
                       "field": "color",
                       "comment": "If this group is selected, or if nothing is selected, then color it normally."
                     },
@@ -324,7 +324,7 @@
                   ],
                   "stroke": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum_new > 0",
                       "value": "#000",
                       "comment": "If this group is being hovered over, then set outline it black. Since we're imputing empty groups, only highlight groups with more than zero cases."
                     },
@@ -351,10 +351,10 @@
       "comment": "Mark group for the overview (bottom) panel",
       "encode": {
         "comment": "The width should be overridden by the plot container",
-        "enter": {
+        "update": {
           "x": { "value": 0 },
           "y": { "value": 300 },
-          "width": { "value": 700 },
+          "width": { "signal": "width" },
           "height": { "value": 60 },
           "fill": { "value": "transparent" }
         }
@@ -527,13 +527,11 @@
           "name": "overviewbars",
           "from": { "data": "cases_by_date" },
           "encode": {
-            "enter": {
+            "update": {
               "x": { "scale": "xOverview", "field": "day_start" },
               "x2": { "scale": "xOverview", "field": "day_end" },
               "y": { "scale": "yOverview", "value": 0 },
-              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" }
-            },
-            "update": {
+              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" },
               "fill": [
                 {
                   "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",

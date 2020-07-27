@@ -10,7 +10,7 @@ import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
-import barStackSpecInitial from '../../vega/bar_stack_v1.vg.json';
+import initialSpec from '../../vega/bar_stack_v1.vg.json';
 
 const PlotOptions = styled.div`
   display: flex;
@@ -45,40 +45,8 @@ const SelectContainer = styled.div`
 `;
 
 const VegaStackedBars = observer(({ width }) => {
-  const { covidStore } = useStores();
-
-  const [state, setState] = useState({
-    data: {
-      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
-      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
-    },
-    spec: JSON.parse(JSON.stringify(barStackSpecInitial)),
-    hoverGroup: {},
-    areaStackMode: 'counts', // 'percentages' or 'counts'
-    countMode: 'new', // 'new' or 'cumulative'
-    dateBin: 'day', // 'day', 'week', 'month'
-  });
   const vegaRef = useRef();
-
-  const onChangeAreaStackMode = (event) =>
-    setState({ ...state, areaStackMode: event.target.value });
-  const onChangeCountMode = (event) =>
-    setState({ ...state, countMode: event.target.value });
-  const onChangeDateBin = (event) =>
-    setState({ ...state, dateBin: event.target.value });
-
-  const handleBrush = (...args) => {
-    let dateRange = args[1];
-    if (dateRange !== null) {
-      covidStore.selectDateRange([
-        dateRange[0].getTime(),
-        dateRange[1].getTime(),
-      ]);
-    } else {
-      // Reset time range
-      covidStore.selectDateRange([-1, -1]);
-    }
-  };
+  const { covidStore } = useStores();
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
@@ -115,6 +83,43 @@ const VegaStackedBars = observer(({ width }) => {
       vegaRef.current.downloadImage('png', 'vega-export.png', 4);
     } else if (option === 'SVG') {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
+    }
+  };
+
+  const [state, setState] = useState({
+    data: {
+      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
+      selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+    },
+    signalListeners: {
+      detailDomain: _.debounce(handleBrush, 500),
+      hoverBar: _.throttle(handleHoverGroup, 100),
+    },
+    dataListeners: {
+      selected: handleSelected,
+    },
+    areaStackMode: 'counts', // 'percentages' or 'counts'
+    countMode: 'new', // 'new' or 'cumulative'
+    dateBin: 'day', // 'day', 'week', 'month'
+  });
+
+  const onChangeAreaStackMode = (event) =>
+    setState({ ...state, areaStackMode: event.target.value });
+  const onChangeCountMode = (event) =>
+    setState({ ...state, countMode: event.target.value });
+  const onChangeDateBin = (event) =>
+    setState({ ...state, dateBin: event.target.value });
+
+  const handleBrush = (...args) => {
+    let dateRange = args[1];
+    if (dateRange !== null) {
+      covidStore.selectDateRange([
+        dateRange[0].getTime(),
+        dateRange[1].getTime(),
+      ]);
+    } else {
+      // Reset time range
+      covidStore.selectDateRange([-1, -1]);
     }
   };
 
@@ -168,86 +173,6 @@ const VegaStackedBars = observer(({ width }) => {
     });
   }, [covidStore.selectedGroups]);
 
-  useEffect(() => {
-    let spec = JSON.parse(JSON.stringify(state.spec));
-
-    // Set the width manually
-    spec['width'] = width;
-    spec['marks'][0]['encode']['enter']['width']['value'] = width;
-    spec['marks'][1]['encode']['enter']['width']['value'] = width;
-
-    // TODO: these are signals and should be able to be set when passed
-    //       through the signal prop object. but for some reason it doesn't
-    //       trigger the proper re-render, probably because I have no idea
-    //       how the Vega View API actually works. For now manually modifying
-    //       the spec and triggering a hard re-render will work...
-    // Set the stack offset mode
-    let stackOffsetSignal = _.findWhere(spec['signals'], {
-      name: 'stackOffset',
-    });
-    if (state.areaStackMode === 'percentages') {
-      stackOffsetSignal['value'] = 'normalize';
-    } else {
-      stackOffsetSignal['value'] = 'zero';
-    }
-
-    // Set the date bin
-    let dateBinSignal = _.findWhere(spec['signals'], {
-      name: 'dateBin',
-    });
-    if (state.dateBin === 'day') {
-      dateBinSignal['value'] = 1000 * 60 * 60 * 24;
-    } else if (state.dateBin === 'week') {
-      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 7;
-    } else if (state.dateBin === 'month') {
-      dateBinSignal['value'] = 1000 * 60 * 60 * 24 * 30;
-    }
-
-    // If running in cumulative mode, add the vega transformation
-    // By default the cumulative transformation is dumped into a column
-    // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
-    // column with this cumulative count
-    let windowFieldSignal = _.findWhere(spec['signals'], {
-      name: 'windowField',
-    });
-    if (state.countMode === 'cumulative') {
-      windowFieldSignal['value'] = 'cases_sum';
-    } else {
-      windowFieldSignal['value'] = 'cases_sum_cumulative';
-    }
-
-    // Adapt labels to groupings
-    let detailYLabelSignal = _.findWhere(spec['signals'], {
-      name: 'detailYLabel',
-    });
-    // let detailBars = detailGroup['marks'][0]['marks'][0];
-    let detailYLabel = '';
-    if (state.countMode === 'cumulative') {
-      detailYLabel += 'Cumulative ';
-    }
-    if (state.areaStackMode === 'percentages') {
-      detailYLabel += '% ';
-    }
-    if (covidStore.groupKey === 'lineage') {
-      detailYLabel += 'Sequences by Lineage';
-    } else if (covidStore.groupKey === 'clade') {
-      detailYLabel += 'Sequences by Clade';
-    } else if (covidStore.groupKey === 'snp') {
-      detailYLabel +=
-        'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
-    }
-    detailYLabelSignal['value'] = detailYLabel;
-
-    setState({ ...state, spec });
-  }, [
-    state.areaStackMode,
-    state.dateBin,
-    state.countMode,
-    covidStore.groupKey,
-    covidStore.dnaOrAa,
-    width,
-  ]);
-
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
 
@@ -279,6 +204,42 @@ const VegaStackedBars = observer(({ width }) => {
     areaStackTitle += ' by Week';
   } else if (state.dateBin === 'month') {
     areaStackTitle += ' by Month';
+  }
+
+  // Set the stack offset mode
+  const stackOffset =
+    state.areaStackMode === 'percentages' ? 'normalize' : 'zero';
+  // Set the date bin
+  let dateBin;
+  if (state.dateBin === 'day') {
+    dateBin = 1000 * 60 * 60 * 24;
+  } else if (state.dateBin === 'week') {
+    dateBin = 1000 * 60 * 60 * 24 * 7;
+  } else if (state.dateBin === 'month') {
+    dateBin = 1000 * 60 * 60 * 24 * 30;
+  }
+  // If running in cumulative mode, add the vega transformation
+  // By default the cumulative transformation is dumped into a column
+  // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+  // column with this cumulative count
+  const cumulativeWindow =
+    state.countMode === 'cumulative' ? [null, 0] : [0, 0];
+
+  // Adapt labels to groupings
+  let detailYLabel = '';
+  if (state.countMode === 'cumulative') {
+    detailYLabel += 'Cumulative ';
+  }
+  if (state.areaStackMode === 'percentages') {
+    detailYLabel += '% ';
+  }
+  if (covidStore.groupKey === 'lineage') {
+    detailYLabel += 'Sequences by Lineage';
+  } else if (covidStore.groupKey === 'clade') {
+    detailYLabel += 'Sequences by Clade';
+  } else if (covidStore.groupKey === 'snp') {
+    detailYLabel +=
+      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
   }
 
   return (
@@ -327,19 +288,18 @@ const VegaStackedBars = observer(({ width }) => {
         <VegaEmbed
           ref={vegaRef}
           data={state.data}
-          spec={state.spec}
-          signalListeners={{
-            detailDomain: _.debounce(handleBrush, 500),
-            hoverBar: _.throttle(handleHoverGroup, 100),
-          }}
-          dataListeners={{
-            selected: handleSelected,
-          }}
+          spec={initialSpec}
+          signalListeners={state.signalListeners}
+          dataListeners={state.dataListeners}
           signals={{
-            hoverBar: covidStore.hoverGroup,
+            hoverBar: { group: covidStore.hoverGroup },
+            stackOffset,
+            dateBin,
+            cumulativeWindow,
+            detailYLabel,
           }}
+          cheapSignals={['hoverBar']}
           width={width}
-          // height={300}
           actions={false}
         />
       </div>
