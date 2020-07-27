@@ -22,6 +22,7 @@ import GroupTab from './GroupTab';
 import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
 import Footer from '../Footer';
+import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -105,6 +106,7 @@ const HomePage = observer(() => {
         <FilterSidebar>
           <Header />
           <GroupBySelect />
+          <FilterDataIntoOther />
           <SidebarAccordionWrapper
             title="Genomic coordinates"
             defaultCollapsed={false}

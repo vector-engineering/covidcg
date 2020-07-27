@@ -441,7 +441,6 @@ function processCaseData({
         group: group,
         date: parseInt(date),
         cases_sum: aggCaseData[group][date],
-        group_counts: countsPerGroup[group],
         color: getColorMethod(group),
       });
     });
@@ -479,7 +478,21 @@ function aggCaseDataByGroup({
     }
   });
 
-  const MAX_LINEAGE_SIZE = 10;
+  let lineageCountArr = Object.entries(lineageCountObj);
+
+  // this will sort it so that 0 is the biggest
+  lineageCountArr.sort((a, b) => {
+    if (a[1] < b[1]) {
+      return 1;
+    }
+    if (a[1] > b[1]) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+
+  const MAX_LINEAGE_SIZE = 100;
   let groupsToKeepObj;
   console.log(
     'lineage count obj: ',
@@ -487,20 +500,6 @@ function aggCaseDataByGroup({
     Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
   );
   if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
-    let lineageCountArr = Object.entries(lineageCountObj);
-
-    // this will sort it so that 0 is the biggest
-    lineageCountArr.sort((a, b) => {
-      if (a[1] < b[1]) {
-        return 1;
-      }
-      if (a[1] > b[1]) {
-        return -1;
-      } else {
-        return 0;
-      }
-    });
-
     lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
     console.log('lineage count arr', lineageCountArr);
     groupsToKeepObj = Object.fromEntries(lineageCountArr);
@@ -786,6 +785,7 @@ function aggCaseDataByGroup({
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
     groupsToKeepObj,
+    lineageCountArr,
   };
 }
 

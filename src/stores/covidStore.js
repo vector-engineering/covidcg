@@ -22,6 +22,9 @@ import {
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
+export const DEFAULT_MAX_GROUPS_TO_SHOW = -1;
+export const DEFAULT_MIN_COUNTS_TO_SHOW = 50;
+
 class ObservableCovidStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
   @observable dnaOrAa = 'dna';
@@ -46,7 +49,11 @@ class ObservableCovidStore {
   @observable caseDataAggGroup = [];
   @observable dateRange = [-1, -1]; // No initial date range
   @observable selectedRows = [];
-  @observable groupsToKeep = {};
+  @observable groupsToKeep = [];
+  @observable lineageCountArr = {};
+
+  @observable maxLineagesToShow = DEFAULT_MAX_GROUPS_TO_SHOW;
+  @observable minLocalCountsToShow = DEFAULT_MIN_COUNTS_TO_SHOW;
 
   @observable hoverGroup = null;
   // @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
@@ -251,6 +258,33 @@ class ObservableCovidStore {
   }
 
   @action
+  setMaxLineages(num) {
+    this.maxLineagesToShow = num;
+    this.minLocalCountsToShow = -1;
+    this.updateGroupsToKeep();
+  }
+
+  @action
+  setMinLocalCounts(num) {
+    this.minLocalCountsToShow = num;
+    this.maxLineagesToShow = -1;
+    this.updateGroupsToKeep();
+  }
+
+  @action
+  updateGroupsToKeep() {
+    if (this.maxLineagesToShow > -1) {
+      this.groupsToKeep = this.lineageCountArr
+        .slice(0, this.maxLineagesToShow)
+        .map((item) => item[0]);
+    } else {
+      this.groupsToKeep = this.lineageCountArr
+        .filter((item) => item[1] > this.minLocalCountsToShow)
+        .map((item) => item[0]);
+    }
+  }
+
+  @action
   updateAggCaseDataByGroup(suppressUIUpdate = false) {
     suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
@@ -264,12 +298,14 @@ class ObservableCovidStore {
         dnaOrAa: toJS(this.dnaOrAa),
         dateRange: toJS(this.dateRange),
       },
-      ({ caseDataAggGroup, changingPositions, groupsToKeepObj }) => {
+      ({ caseDataAggGroup, changingPositions, lineageCountArr }) => {
         // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
-        this.groupsToKeep = groupsToKeepObj;
+        this.lineageCountArr = lineageCountArr;
         // console.log('AGG_CASE_DATA FINISHED');
+
+        this.updateGroupsToKeep();
 
         suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();
         suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
@@ -324,7 +360,11 @@ class ObservableCovidStore {
   @action
   updateHoverGroup(group) {
     // console.log('UPDATE HOVER GROUP', group);
-    this.hoverGroup = group;
+    if (!this.groupsToKeep.includes(group)) {
+      this.hoverGroup = 'other';
+    } else {
+      this.hoverGroup = group;
+    }
   }
 
   @action

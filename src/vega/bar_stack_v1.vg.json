@@ -19,6 +19,14 @@
       },
       "transform": [
         {
+          "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
+          "type": "joinaggregate",
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": ["group_counts"],
+          "groupby": ["group"]
+        },
+        {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
           "field": "date",

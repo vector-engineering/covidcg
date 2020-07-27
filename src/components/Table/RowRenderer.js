@@ -92,9 +92,17 @@ const RowRenderer = observer(({ row, ...rest }) => {
     }
   }
 
+  let hovered = covidStore.hoverGroup === row.group;
+
+  if (
+    !covidStore.groupsToKeep.includes(row.group) &&
+    covidStore.hoverGroup === 'other'
+  ) {
+    hovered = true;
+  }
   return (
     <RowWrapper
-      hovered={covidStore.hoverGroup === row.group}
+      hovered={hovered}
       selected={rowSelected}
       onMouseEnter={onItemEnter.bind(this, row.group)}
       onMouseLeave={onItemLeave}

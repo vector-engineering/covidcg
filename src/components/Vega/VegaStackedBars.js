@@ -12,6 +12,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
 import initialSpec from '../../vega/bar_stack_v1.vg.json';
+import { mergeGroupsIntoOther } from './utils';
 
 const PlotOptions = styled.div`
   display: flex;
@@ -103,7 +104,10 @@ const VegaStackedBars = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      cases_by_date_and_group: JSON.parse(JSON.stringify(covidStore.caseData)),
+      cases_by_date_and_group: mergeGroupsIntoOther(
+        JSON.parse(JSON.stringify(covidStore.caseData)),
+        covidStore.groupsToKeep
+      ),
       selected: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
     },
     signalListeners: {
@@ -163,12 +167,13 @@ const VegaStackedBars = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        cases_by_date_and_group: JSON.parse(
-          JSON.stringify(covidStore.caseData)
+        cases_by_date_and_group: mergeGroupsIntoOther(
+          JSON.parse(JSON.stringify(covidStore.caseData)),
+          covidStore.groupsToKeep
         ),
       },
     });
-  }, [covidStore.caseData]);
+  }, [covidStore.caseData, covidStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {
