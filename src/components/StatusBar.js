@@ -88,7 +88,7 @@ const RowStatus = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
 
-  width: ${({ width }) => width}px;
+  flex-grow: ${({ grow }) => grow};
 
   padding: 4px 10px;
   line-height: normal;
@@ -198,7 +198,7 @@ const StatusBar = observer(({ activeTab, onTabChange }) => {
         </TabItem>
       </TabBar>
       <StatusGroup>
-        <RowStatus width={200}>
+        <RowStatus grow={1}>
           <div className="row-status-header">
             <span className="title">Sequences</span>
             <span className="subtitle">
@@ -207,7 +207,7 @@ const StatusBar = observer(({ activeTab, onTabChange }) => {
           </div>
           {numSequencesBeforeMetadataFilteringText}
         </RowStatus>
-        <RowStatus width={300}>
+        <RowStatus grow={2}>
           <div className="row-status-header">
             <span className="title">{groupName} Selection</span>
             <span className="subtitle">
@@ -216,7 +216,7 @@ const StatusBar = observer(({ activeTab, onTabChange }) => {
           </div>
           {selectedGroups}
         </RowStatus>
-        <RowStatus width={150}>
+        <RowStatus grow={1}>
           <div className="row-status-header">
             <span className="title">Date Selection</span>
           </div>
