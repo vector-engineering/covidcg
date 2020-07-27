@@ -15,39 +15,6 @@ import LocationDatePlot from '../Vega/LocationDatePlot';
 
 const LocationTabContainer = styled.div``;
 
-const SelectedGroupsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  background-color: #f8f8f8;
-  margin-left: 20px;
-  border: 1px solid #aaa;
-  margin-right: 20px;
-  margin-bottom: 10px;
-  border-radius: 2px;
-  padding: 10px;
-
-  .selected-groups-title {
-    margin-right: 10px;
-  }
-
-  .group-list {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-flow: wrap;
-    justify-content: start;
-  }
-`;
-
-const GroupItem = styled.div`
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 3px 8px;
-  margin-right: 5px;
-`;
-
 const AccordionTitle = styled.span`
   .question-button {
     font-family: monospace;
@@ -150,23 +117,6 @@ const LocationTab = observer(({ width }) => {
     }
   };
 
-  const groupElements = [];
-  covidStore.selectedGroups.forEach((group) => {
-    groupElements.push(<GroupItem key={group.group}>{group.group}</GroupItem>);
-  });
-  let selectedGroupsTitle = 'Selected ';
-  if (covidStore.groupKey === 'lineage') {
-    selectedGroupsTitle += 'Lineages';
-  } else if (covidStore.groupKey === 'clade') {
-    selectedGroupsTitle += 'Clades';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      selectedGroupsTitle += 'NT SNPs';
-    } else {
-      selectedGroupsTitle += 'AA SNPs';
-    }
-  }
-
   return (
     <LocationTabContainer>
       <AccordionWrapper
@@ -188,10 +138,6 @@ const LocationTab = observer(({ width }) => {
       >
         <VegaLegend />
       </AccordionWrapper>
-      {/* <SelectedGroupsContainer>
-        <span className="selected-groups-title">{selectedGroupsTitle}:</span>
-        <div className="group-list">{groupElements}</div>
-      </SelectedGroupsContainer> */}
 
       {renderLocationDatePlot()}
       {renderLocationGroupPlot()}
