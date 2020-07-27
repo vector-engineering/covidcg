@@ -49,7 +49,8 @@ class ObservableCovidStore {
   @observable groupsToKeep = {};
 
   @observable hoverGroup = null;
-  @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
+  // @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
+  @observable selectedGroups = [];
 
   // Metadata filtering
   @observable numSequencesBeforeMetadataFiltering = 0;
