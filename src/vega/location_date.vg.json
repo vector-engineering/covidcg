@@ -15,12 +15,50 @@
       "value": null,
       "on": [
         {
-          "events": "@locationlines:mouseover!",
-          "update": "{location: datum.location}"
+          "events": {
+            "merge": [
+              {
+                "markname": "locationlines",
+                "type": "mouseover",
+                "consume": true
+              },
+              {
+                "markname": "locationdots",
+                "type": "mouseover",
+                "consume": true
+              },
+              {
+                "markname": "locationlabel",
+                "type": "mouseover",
+                "consume": true
+              }
+            ]
+          },
+          "update": "{location: datum.location}",
+          "force": true
         },
         {
-          "events": "@locationlines:mouseout!",
-          "update": "null"
+          "events": {
+            "merge": [
+              {
+                "markname": "locationlines",
+                "type": "mouseout",
+                "consume": true
+              },
+              {
+                "markname": "locationdots",
+                "type": "mouseout",
+                "consume": true
+              },
+              {
+                "markname": "locationlabel",
+                "type": "mouseout",
+                "consume": true
+              }
+            ]
+          },
+          "update": "null",
+          "force": true
         }
       ]
     },
@@ -36,9 +74,10 @@
     {
       "name": "dateBin",
       "value": 86400000,
-      "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group"
+      "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
     },
-    { "name": "yField", "value": "cases_norm" },
+    { "name": "cumulativeWindow", "value": [0, 0] },
+    { "name": "yField", "value": "cases_sum_agg" },
     { "name": "yLabel", "value": "% Sequences" },
     {
       "name": "clear",
@@ -61,10 +100,16 @@
           "events": {
             "merge": [
               { "markname": "locationlines", "type": "click" },
-              { "markname": "locationdots", "type": "click" }
+              { "markname": "locationdots", "type": "click" },
+              { "markname": "locationlabel", "type": "click" }
             ]
           },
           "update": "event.shiftKey",
+          "force": true
+        },
+        {
+          "events": "@legendLabel:click, @legendSymbol:click",
+          "update": "{location: datum.value}",
           "force": true
         }
       ]
@@ -78,10 +123,16 @@
           "events": {
             "merge": [
               { "markname": "locationlines", "type": "click" },
-              { "markname": "locationdots", "type": "click" }
+              { "markname": "locationdots", "type": "click" },
+              { "markname": "locationlabel", "type": "click" }
             ]
           },
           "update": "{location: datum.location}",
+          "force": true
+        },
+        {
+          "events": "@legendLabel:click, @legendSymbol:click",
+          "update": "{location: datum.value}",
           "force": true
         }
       ]
@@ -131,18 +182,27 @@
           "groupby": ["location", "day_start"],
           "fields": ["cases_sum", "color", "all_cases_sum"],
           "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "color", "all_cases_sum"]
+          "as": ["cases_sum_agg", "color", "all_cases_sum_agg"]
+        },
+        {
+          "type": "window",
+          "sort": { "field": "day_start" },
+          "groupby": ["location"],
+          "ops": ["sum", "sum"],
+          "fields": ["cases_sum_agg", "all_cases_sum_agg"],
+          "as": ["cases_sum_agg", "all_cases_sum_agg"],
+          "frame": { "signal": "cumulativeWindow" }
         },
         {
           "type": "collect",
           "sort": {
-            "field": ["day_start"],
-            "order": ["ascending"]
+            "field": ["location", "day_start"],
+            "order": ["ascending", "ascending"]
           }
         },
         {
           "type": "formula",
-          "expr": "datum.cases_sum / datum.all_cases_sum",
+          "expr": "datum.cases_sum_agg / datum.all_cases_sum_agg",
           "as": "cases_norm"
         },
         {
@@ -193,7 +253,7 @@
     {
       "name": "color",
       "type": "ordinal",
-      "range": "category",
+      "range": { "scheme": "category10" },
       "domain": { "data": "location_data", "field": "location" }
     }
   ],
@@ -235,8 +295,50 @@
     }
   ],
 
+  "legends": [
+    {
+      "stroke": "color",
+      "title": "Locations",
+      "orient": "top",
+      "direction": "vertical",
+      "columns": 8,
+      "encode": {
+        "symbols": {
+          "name": "legendSymbol",
+          "interactive": true,
+          "update": {
+            "fill": { "value": "transparent" },
+            "strokeWidth": { "value": 2 },
+            "opacity": [
+              {
+                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
+                "value": 0.8
+              },
+              { "value": 0.15 }
+            ],
+            "size": { "value": 64 }
+          }
+        },
+        "labels": {
+          "name": "legendLabel",
+          "interactive": true,
+          "update": {
+            "opacity": [
+              {
+                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
+                "value": 1
+              },
+              { "value": 0.25 }
+            ]
+          }
+        }
+      }
+    }
+  ],
+
   "marks": [
     {
+      "name": "layer0",
       "type": "group",
       "from": {
         "facet": {
@@ -245,6 +347,24 @@
           "groupby": "location"
         }
       },
+      "data": [
+        {
+          "name": "label",
+          "source": "series",
+          "transform": [
+            {
+              "type": "joinaggregate",
+              "fields": ["day_middle"],
+              "ops": ["max"],
+              "as": ["max_day"]
+            },
+            {
+              "type": "filter",
+              "expr": "datum.day_middle == datum.max_day"
+            }
+          ]
+        }
+      ],
       "marks": [
         {
           "name": "locationlines",
@@ -262,7 +382,7 @@
               "y": { "scale": "yscale", "field": { "signal": "yField" } },
               "stroke": [
                 {
-                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum > 0)",
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
@@ -303,7 +423,7 @@
               "y": { "scale": "yscale", "field": { "signal": "yField" } },
               "stroke": [
                 {
-                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum > 0)",
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
@@ -320,6 +440,38 @@
                 {
                   "test": "hoverLocation && hoverLocation.location == datum.location",
                   "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        },
+        {
+          "name": "locationlabel",
+          "type": "text",
+          "from": { "data": "label" },
+          "encode": {
+            "enter": {
+              "dy": { "value": -5 },
+              "fontSize": { "value": 14 },
+              "angle": { "value": 340 }
+            },
+            "update": {
+              "x": { "scale": "xscale", "field": "day_middle", "offset": 2 },
+              "y": { "scale": "yscale", "field": { "signal": "yField" } },
+              "text": { "field": "location" },
+              "fill": [
+                {
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
+                  "scale": "color",
+                  "field": "location"
+                },
+                { "value": "#ccc" }
+              ],
+              "fillOpacity": [
+                {
+                  "test": "hoverLocation && hoverLocation.location == datum.location",
+                  "value": 0.6
                 },
                 { "value": 1 }
               ]

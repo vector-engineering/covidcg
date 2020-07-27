@@ -1,7 +1,7 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic stacked bar chart example.",
-  "width": 300,
+  "width": 500,
   "padding": 5,
   "autosize": "pad",
 
@@ -25,8 +25,22 @@
       "value": null,
       "on": [
         {
+          "events": "@yAxisLabels:mouseover!",
+          "update": "{location: datum.value}"
+        },
+        {
+          "events": "@yAxisLabels:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
           "events": "@locationbars:mouseover!",
-          "update": "{location: datum.location, group: datum.group}"
+          "update": "{group: datum.group}"
         },
         {
           "events": "@locationbars:mouseout!",
@@ -36,10 +50,15 @@
     },
     { "name": "height", "update": "yExtent[1]" },
     {
-      "name": "clear",
+      "name": "clearGroup",
       "value": true,
       "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
       "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "false",
+          "force": true
+        },
         {
           "events": "mouseup[!event.item]",
           "update": "true",
@@ -48,7 +67,24 @@
       ]
     },
     {
-      "name": "shift",
+      "name": "clearLocation",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "false",
+          "force": true
+        },
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftGroup",
       "value": false,
       "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
       "on": [
@@ -60,13 +96,36 @@
       ]
     },
     {
-      "name": "clicked",
+      "name": "shiftLocation",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedGroups",
       "value": null,
       "comment": "Track clicks on the location bars, for selection purposes",
       "on": [
         {
           "events": "@locationbars:click",
-          "update": "{location: datum.location}",
+          "update": "{group: datum.group}",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedLocations",
+      "value": null,
+      "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "{location: datum.value}",
           "force": true
         }
       ]
@@ -76,7 +135,32 @@
   "data": [
     {
       "name": "selectedGroups",
-      "values": [{ "group": "B.1" }, { "group": "B.1.3" }]
+      "values": [{ "group": "B.1" }, { "group": "B.1.3" }],
+      "on": [
+        { "trigger": "clearGroup", "remove": true },
+        { "trigger": "!shiftGroup", "remove": true },
+        {
+          "trigger": "!shiftGroup && clickedGroups",
+          "insert": "clickedGroups"
+        },
+        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+      ]
+    },
+    {
+      "name": "selectedLocations",
+      "comment": "A list of groups that are selected",
+      "on": [
+        { "trigger": "clearLocation", "remove": true },
+        { "trigger": "!shiftLocation", "remove": true },
+        {
+          "trigger": "!shiftLocation && clickedLocations",
+          "insert": "clickedLocations"
+        },
+        {
+          "trigger": "shiftLocation && clickedLocations",
+          "toggle": "clickedLocations"
+        }
+      ]
     },
     {
       "name": "location_by_group",
@@ -90,10 +174,6 @@
         }
       },
       "transform": [
-        {
-          "type": "filter",
-          "expr": "indata('selectedGroups', 'group', datum.group)"
-        },
         {
           "type": "aggregate",
           "groupby": ["location", "group"],
@@ -132,16 +212,6 @@
           "field": "y1",
           "signal": "yExtent"
         }
-      ]
-    },
-    {
-      "name": "selected",
-      "comment": "A list of groups that are selected",
-      "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
       ]
     }
   ],
@@ -184,54 +254,138 @@
       "zindex": 1,
       "labelFontSize": 14,
       "labelLimit": 200,
-      "labelPadding": 4
+      "labelPadding": 4,
+
+      "encode": {
+        "labels": {
+          "name": "yAxisLabels",
+          "interactive": true,
+          "update": {
+            "opacity": { "value": 1.0 },
+            "fill": [
+              {
+                "test": "!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.value)",
+                "value": "#000"
+              },
+              { "value": "#ccc" }
+            ]
+          },
+          "hover": {
+            "opacity": { "value": 0.6 }
+          }
+        }
+      }
     }
   ],
 
   "marks": [
     {
-      "name": "locationbars",
-      "type": "rect",
-      "from": { "data": "location_by_group" },
+      "name": "layer0",
+      "type": "group",
       "encode": {
-        "enter": {
-          "strokeWidth": { "value": 2 }
-        },
         "update": {
-          "y": { "scale": "yscale", "field": "location" },
-          "height": { "scale": "yscale", "band": 1 },
-          "x": { "scale": "xscale", "field": "y1" },
-          "x2": { "scale": "xscale", "field": "y0" },
-          "fill": [
-            {
-              "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum > 0)",
-              "field": "color",
-              "comment": "If this location is selected, or if nothing is selected, then color it normally."
-            },
-            {
-              "value": "#CCC",
-              "comment": "If there is a selected location and this location isn't one of them, then color it light grey"
-            }
-          ],
-          "tooltip": {
-            "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts}"
-          },
-          "stroke": [
-            {
-              "test": "hoverLocation && hoverLocation.location == datum.location && datum.cases_sum > 0",
-              "value": "#000"
-            },
-            { "value": "transparent" }
-          ],
-          "fillOpacity": [
-            {
-              "test": "hoverLocation && hoverLocation.location == datum.location && datum.cases_sum > 0",
-              "value": 0.8
-            },
-            { "value": 1 }
-          ]
+          "width": { "signal": "width" },
+          "height": { "signal": "height" }
         }
-      }
+      },
+      "marks": [
+        {
+          "name": "locationbars",
+          "type": "rect",
+          "from": { "data": "location_by_group" },
+          "encode": {
+            "enter": {
+              "strokeWidth": { "value": 2 },
+              "fill": { "field": "color" },
+              "tooltip": {
+                "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts}"
+              }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "location" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "field": "y1" },
+              "x2": { "scale": "xscale", "field": "y0" },
+              "fillOpacity": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": 0.7
+                },
+                {
+                  "test": "(!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.location)) && (datum.cases_sum > 0)",
+                  "value": 1.0
+                },
+                {
+                  "value": 0.3
+                }
+              ],
+              "stroke": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": "#333"
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.group)",
+                  "value": "#000"
+                },
+                { "value": "transparent" }
+              ],
+              "strokeDash": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": [4, 4]
+                },
+                { "value": [0, 0] }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": 4
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.group)",
+                  "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        },
+        {
+          "name": "locationbaroutline",
+          "type": "rect",
+          "from": { "data": "location_bars" },
+          "encode": {
+            "enter": {
+              "fill": { "value": "white" },
+              "fillOpacity": { "value": 0.3 }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "location" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "value": 0 },
+              "x2": [
+                {
+                  "test": "hoverLocation && hoverLocation.location === datum.location",
+                  "scale": "xscale",
+                  "value": 1
+                },
+                {
+                  "scale": "xscale",
+                  "value": 0
+                }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverLocation && hoverLocation.location === datum.location",
+                  "value": 3
+                },
+                { "value": 0 }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

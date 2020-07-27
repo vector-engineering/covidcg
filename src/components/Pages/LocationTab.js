@@ -9,10 +9,44 @@ import AccordionWrapper from '../AccordionWrapper';
 import SkeletonElement from '../SkeletonElement';
 import LoadingSpinner from '../LoadingSpinner';
 
+import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
 const LocationTabContainer = styled.div``;
+
+const SelectedGroupsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  background-color: #f8f8f8;
+  margin-left: 20px;
+  border: 1px solid #aaa;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  border-radius: 2px;
+  padding: 10px;
+
+  .selected-groups-title {
+    margin-right: 10px;
+  }
+
+  .group-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-flow: wrap;
+    justify-content: start;
+  }
+`;
+
+const GroupItem = styled.div`
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 3px 8px;
+  margin-right: 5px;
+`;
 
 const AccordionTitle = styled.span`
   .question-button {
@@ -32,7 +66,7 @@ const AccordionTitle = styled.span`
 `;
 
 const LocationTab = observer(({ width }) => {
-  const { uiStore } = useStores();
+  const { covidStore, uiStore } = useStores();
 
   const renderLocationDatePlot = () => {
     if (uiStore.caseDataState === asyncStates.STARTED) {
@@ -110,14 +144,55 @@ const LocationTab = observer(({ width }) => {
           defaultCollapsed={false}
           maxHeight={'500px'}
         >
-          <LocationGroupPlot width={width - 200} />
+          <LocationGroupPlot width={width - 300} />
         </AccordionWrapper>
       );
     }
   };
 
+  const groupElements = [];
+  covidStore.selectedGroups.forEach((group) => {
+    groupElements.push(<GroupItem key={group.group}>{group.group}</GroupItem>);
+  });
+  let selectedGroupsTitle = 'Selected ';
+  if (covidStore.groupKey === 'lineage') {
+    selectedGroupsTitle += 'Lineages';
+  } else if (covidStore.groupKey === 'clade') {
+    selectedGroupsTitle += 'Clades';
+  } else if (covidStore.groupKey === 'snp') {
+    if (covidStore.dnaOrAa === 'dna') {
+      selectedGroupsTitle += 'NT SNPs';
+    } else {
+      selectedGroupsTitle += 'AA SNPs';
+    }
+  }
+
   return (
     <LocationTabContainer>
+      <AccordionWrapper
+        title={
+          <AccordionTitle>
+            <span>Legend</span>
+            <span
+              className="question-button"
+              data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
+              data-html="true"
+              data-for="tooltip-home"
+            >
+              ?
+            </span>
+          </AccordionTitle>
+        }
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+      >
+        <VegaLegend />
+      </AccordionWrapper>
+      {/* <SelectedGroupsContainer>
+        <span className="selected-groups-title">{selectedGroupsTitle}:</span>
+        <div className="group-list">{groupElements}</div>
+      </SelectedGroupsContainer> */}
+
       {renderLocationDatePlot()}
       {renderLocationGroupPlot()}
     </LocationTabContainer>

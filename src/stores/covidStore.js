@@ -59,6 +59,7 @@ class ObservableCovidStore {
 
   // For location tab
   @observable aggLocationData = [];
+  @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
 
   constructor() {
@@ -316,6 +317,16 @@ class ObservableCovidStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
+  }
+
+  @action
+  updateHoverLocation(location) {
+    this.hoverLocation = location;
+  }
+
+  @action
+  updateFocusedLocations(locations) {
+    this.focusedLocations = locations;
   }
 
   @action

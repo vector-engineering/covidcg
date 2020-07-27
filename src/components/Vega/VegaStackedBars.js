@@ -98,7 +98,6 @@ const VegaStackedBars = observer(({ width }) => {
     dataListeners: {
       selected: handleSelected,
     },
-    hoverGroup: {},
     areaStackMode: 'counts', // 'percentages' or 'counts'
     countMode: 'new', // 'new' or 'cumulative'
     dateBin: 'day', // 'day', 'week', 'month'
