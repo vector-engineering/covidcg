@@ -91,17 +91,22 @@ class ObservableCovidStore {
 
   @action
   changeGrouping(_groupKey, _dnaOrAa) {
-    console.log(
-      'CHANGE GROUPING. GROUP KEY:',
-      _groupKey,
-      'DNA OR AA:',
-      _dnaOrAa
-    );
+    // console.log(
+    //   'CHANGE GROUPING. GROUP KEY:',
+    //   _groupKey,
+    //   'DNA OR AA:',
+    //   _dnaOrAa
+    // );
+
+    // Clear selected groups?
+    if (this.groupKey !== _groupKey) {
+      this.selectedGroups = [];
+    } else if (_groupKey === 'snp' && this.dnaOrAa !== _dnaOrAa) {
+      this.selectedGroups = [];
+    }
+
     this.groupKey = _groupKey;
     this.dnaOrAa = _dnaOrAa;
-
-    // Clear selected groups
-    this.selectedGroups = [];
 
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
@@ -210,6 +215,11 @@ class ObservableCovidStore {
     ) {
       return;
     }
+
+    // Clear selected groups?
+    // TODO: we don't need to do this, depending on the selection.
+    //       do this in a smarter way
+    this.selectedGroups = [];
 
     this.updateCaseData();
   }

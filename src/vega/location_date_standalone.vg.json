@@ -155,7 +155,7 @@
         },
         {
           "type": "filter",
-          "expr": "indata('selectedGroups', 'group', datum.group)"
+          "expr": "indata('selectedGroups', 'group', datum.group) || length(data('selectedGroups')) == 0"
         },
         {
           "type": "aggregate",

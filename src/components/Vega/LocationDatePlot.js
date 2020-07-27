@@ -231,20 +231,28 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
 
-  plotTitle += ' (Selected ';
+  if (covidStore.selectedGroups.length > 0) {
+    plotTitle += ' (Selected ';
+  } else {
+    plotTitle += ' (All ';
+  }
   if (covidStore.groupKey === 'lineage') {
-    plotTitle += 'Lineages ';
+    plotTitle += 'Lineages';
   } else if (covidStore.groupKey === 'clade') {
-    plotTitle += 'Clades ';
+    plotTitle += 'Clades';
   } else if (covidStore.groupKey === 'snp') {
     if (covidStore.dnaOrAa === 'dna') {
       plotTitle += 'NT';
     } else {
       plotTitle += 'AA';
     }
-    plotTitle += ' SNPs ';
+    plotTitle += ' SNPs';
   }
-  plotTitle += ' Only)';
+  if (covidStore.selectedGroups.length > 0) {
+    plotTitle += ' Only)';
+  } else {
+    plotTitle += ')';
+  }
 
   return (
     <PlotContainer>
