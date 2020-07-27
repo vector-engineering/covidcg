@@ -100,6 +100,9 @@ class ObservableCovidStore {
     this.groupKey = _groupKey;
     this.dnaOrAa = _dnaOrAa;
 
+    // Clear selected groups
+    this.selectedGroups = [];
+
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
     if (this.groupKey !== 'snp' && this.dnaOrAa === 'aa') {
