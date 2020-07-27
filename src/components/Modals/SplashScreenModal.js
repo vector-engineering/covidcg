@@ -54,7 +54,7 @@ const SplashScreenContent = ({ onRequestClose }) => {
         </div>
         <div className="spacer"></div>
         <button className="close-button" onClick={onRequestClose}>
-          Dismiss
+          Proceed
         </button>
       </Header>
       <Content>
