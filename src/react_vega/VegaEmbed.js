@@ -20,6 +20,7 @@ const VegaEmbed = forwardRef(
       className,
       spec,
       data,
+      recreateOnDatasets,
       signals,
       cheapSignals,
       updateDataSignals,
@@ -308,7 +309,26 @@ const VegaEmbed = forwardRef(
     useEffect(() => {
       modifyView((view) => {
         // console.log('NEW DATA');
-        updateData(view);
+
+        let prevData = prevDataRef.current;
+        let recreate = false;
+        if (view && data) {
+          Object.keys(data).forEach((name) => {
+            if (
+              (!Object.prototype.hasOwnProperty.call(prevData, name) ||
+                data[name] !== prevData[name]) &&
+              recreateOnDatasets.includes(name)
+            ) {
+              recreate = true;
+            }
+          });
+        }
+
+        if (recreate) {
+          recreateView();
+        } else {
+          updateData(view);
+        }
       });
     }, [data]);
 
@@ -400,6 +420,7 @@ VegaEmbed.propTypes = {
   className: PropTypes.string,
   spec: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
+  recreateOnDatasets: PropTypes.arrayOf(PropTypes.string),
   signals: PropTypes.object,
   cheapSignals: PropTypes.arrayOf(PropTypes.string),
   updateDataSignals: PropTypes.arrayOf(PropTypes.string),
@@ -412,6 +433,7 @@ VegaEmbed.propTypes = {
 VegaEmbed.defaultProps = {
   mode: 'vega',
   className: 'vega-embed',
+  recreateOnDatasets: [],
   signals: {},
   cheapSignals: [],
   updateDataSignals: [],
