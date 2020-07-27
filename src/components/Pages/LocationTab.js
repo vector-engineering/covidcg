@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { asyncStates } from '../../stores/uiStore';
 
+import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -14,23 +15,6 @@ import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
 const LocationTabContainer = styled.div``;
-
-const AccordionTitle = styled.span`
-  .question-button {
-    font-family: monospace;
-    font-size: 1em;
-    line-height: normal;
-
-    margin-left: 8px;
-    padding: 2px 5px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    &:hover {
-      background-color: #f8f8f8;
-    }
-  }
-`;
 
 const LocationTab = observer(({ width }) => {
   const { covidStore, uiStore } = useStores();
