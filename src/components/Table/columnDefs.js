@@ -4,7 +4,7 @@ import LetterCell from '../Cells/LetterCell';
 import HeatmapCell from '../Cells/HeatmapCell';
 import PosHeaderCell from '../Cells/PosHeaderCell';
 // import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
-import { snapGeneHighlightColors } from '../../utils/colors';
+import { snapGeneHighlightColors } from '../../constants/colors';
 
 export const positionColumn = () => ({
   name: 'Position',

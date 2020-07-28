@@ -1,0 +1,388 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 500,
+  "padding": 5,
+  "autosize": "pad",
+
+  "signals": [
+    {
+      "name": "rangeStep",
+      "value": 20
+    },
+    {
+      "name": "innerPadding",
+      "value": 0.2
+    },
+    {
+      "name": "outerPadding",
+      "value": 0.1
+    },
+    { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabel", "value": "Sequences by Lineage (Cumulative, All Sequences)" },
+    {
+      "name": "hoverLocation",
+      "value": null,
+      "on": [
+        {
+          "events": "@yAxisLabels:mouseover!",
+          "update": "{location: datum.value}"
+        },
+        {
+          "events": "@yAxisLabels:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@locationbars:mouseover!",
+          "update": "{group: datum.group}"
+        },
+        {
+          "events": "@locationbars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "clearGroup",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "false",
+          "force": true
+        },
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clearLocation",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "false",
+          "force": true
+        },
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftGroup",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftLocation",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedGroups",
+      "value": null,
+      "comment": "Track clicks on the location bars, for selection purposes",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "{group: datum.group}",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedLocations",
+      "value": null,
+      "on": [
+        {
+          "events": "@yAxisLabels:click",
+          "update": "{location: datum.value}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "selectedGroups",
+      "values": [
+        {"group": "B.1"},
+        {"group": "B.1.3"}
+      ],
+      "on": [
+        { "trigger": "clearGroup", "remove": true },
+        { "trigger": "!shiftGroup", "remove": true },
+        { "trigger": "!shiftGroup && clickedGroups", "insert": "clickedGroups" },
+        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+      ]
+    },
+    {
+      "name": "selectedLocations",
+      "comment": "A list of groups that are selected",
+      "on": [
+        { "trigger": "clearLocation", "remove": true },
+        { "trigger": "!shiftLocation", "remove": true },
+        { "trigger": "!shiftLocation && clickedLocations", "insert": "clickedLocations" },
+        { "trigger": "shiftLocation && clickedLocations", "toggle": "clickedLocations" }
+      ]
+    },
+    {
+      "name": "location_by_group",
+      "format": {
+        "parse": {
+          "location": "string",
+          "group": "string",
+          "cases_sum": "number",
+          "location_counts": "number",
+          "date": "date:'%Q'"
+        }
+      },
+      "values": [{"location":"Massachusetts","date":1580256000000,"group":"B","cases_sum":1,"location_counts":40,"color":"#006386"},{"location":"Massachusetts","date":1583366400000,"group":"B.1","cases_sum":4,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1583366400000,"group":"B.2","cases_sum":1,"location_counts":40,"color":"#008f96"},{"location":"Massachusetts","date":1583452800000,"group":"B.1","cases_sum":9,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1583539200000,"group":"B.1","cases_sum":2,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1583280000000,"group":"B.1","cases_sum":2,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1584144000000,"group":"A.1","cases_sum":1,"location_counts":40,"color":"#f45455"},{"location":"Massachusetts","date":1584144000000,"group":"B.1.5.4","cases_sum":1,"location_counts":40,"color":"#1b8018"},{"location":"Massachusetts","date":1584144000000,"group":"B.1","cases_sum":4,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1584144000000,"group":"A.3","cases_sum":2,"location_counts":40,"color":"#e9494c"},{"location":"Massachusetts","date":1584144000000,"group":"B.1.5","cases_sum":1,"location_counts":40,"color":"#038060"},{"location":"Massachusetts","date":1584144000000,"group":"B.1.1","cases_sum":1,"location_counts":40,"color":"#069471"},{"location":"Massachusetts","date":1584057600000,"group":"B.1","cases_sum":1,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1584230400000,"group":"B.1","cases_sum":6,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1584662400000,"group":"B.1","cases_sum":1,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1593216000000,"group":"B.1","cases_sum":2,"location_counts":40,"color":"#007a81"},{"location":"Massachusetts","date":1593129600000,"group":"B.1","cases_sum":1,"location_counts":40,"color":"#007a81"},{"location":"New York City","date":1584316800000,"group":"B.1","cases_sum":37,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584316800000,"group":"B.1.3","cases_sum":7,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584316800000,"group":"B.2","cases_sum":5,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584316800000,"group":"A.3","cases_sum":1,"location_counts":1023,"color":"#e9494c"},{"location":"New York City","date":1584316800000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584403200000,"group":"B.1","cases_sum":43,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584403200000,"group":"B.1.3","cases_sum":10,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584403200000,"group":"B.2.1","cases_sum":1,"location_counts":1023,"color":"#0abe94"},{"location":"New York City","date":1584403200000,"group":"B.2","cases_sum":6,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584403200000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584403200000,"group":"B","cases_sum":1,"location_counts":1023,"color":"#006386"},{"location":"New York City","date":1584403200000,"group":"B.1.26","cases_sum":1,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1584144000000,"group":"B.1","cases_sum":10,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584144000000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584144000000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584144000000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1584144000000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584230400000,"group":"B.1","cases_sum":28,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584230400000,"group":"B.1.3","cases_sum":4,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584230400000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584230400000,"group":"B.1.26","cases_sum":1,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1584230400000,"group":"B.1.29","cases_sum":2,"location_counts":1023,"color":"#07e9ba"},{"location":"New York City","date":1584230400000,"group":"B.2","cases_sum":1,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584489600000,"group":"A","cases_sum":3,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1584489600000,"group":"B.2","cases_sum":6,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584489600000,"group":"B.1","cases_sum":81,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584489600000,"group":"B.1.3","cases_sum":27,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584489600000,"group":"B.1.26","cases_sum":3,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1584489600000,"group":"B.1.1","cases_sum":4,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584489600000,"group":"B.1.1.9","cases_sum":1,"location_counts":1023,"color":"#2a9424"},{"location":"New York City","date":1584489600000,"group":"A.5","cases_sum":1,"location_counts":1023,"color":"#de3e42"},{"location":"New York City","date":1584489600000,"group":"B.1.p2","cases_sum":1,"location_counts":1023,"color":"#00ffce"},{"location":"New York City","date":1584489600000,"group":"A.1","cases_sum":3,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584489600000,"group":"B.2.1","cases_sum":1,"location_counts":1023,"color":"#0abe94"},{"location":"New York City","date":1584489600000,"group":"B.1.5","cases_sum":1,"location_counts":1023,"color":"#038060"},{"location":"New York City","date":1584576000000,"group":"B.1.3","cases_sum":11,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584576000000,"group":"B.1","cases_sum":51,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584576000000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584576000000,"group":"B.1.1.9","cases_sum":1,"location_counts":1023,"color":"#2a9424"},{"location":"New York City","date":1584576000000,"group":"B.2","cases_sum":3,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584576000000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1584576000000,"group":"A.3","cases_sum":1,"location_counts":1023,"color":"#e9494c"},{"location":"New York City","date":1584576000000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1583884800000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1583884800000,"group":"B.1","cases_sum":2,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1583884800000,"group":"A.1","cases_sum":2,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584057600000,"group":"B.1","cases_sum":19,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584057600000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1584057600000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584057600000,"group":"B.2","cases_sum":2,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584057600000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584057600000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584748800000,"group":"B.1","cases_sum":25,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584748800000,"group":"B.1.3","cases_sum":5,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584748800000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1584748800000,"group":"B.1.29","cases_sum":1,"location_counts":1023,"color":"#07e9ba"},{"location":"New York City","date":1584748800000,"group":"B.2","cases_sum":1,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584662400000,"group":"B.1","cases_sum":42,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584662400000,"group":"B.2","cases_sum":4,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1584662400000,"group":"B.1.1","cases_sum":4,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1584662400000,"group":"A.2","cases_sum":1,"location_counts":1023,"color":"#d4333a"},{"location":"New York City","date":1584662400000,"group":"B.1.3","cases_sum":8,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584662400000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1584835200000,"group":"B.1","cases_sum":11,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1584835200000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1584835200000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585612800000,"group":"B.1","cases_sum":5,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585612800000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585612800000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585699200000,"group":"B.1.1","cases_sum":3,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585699200000,"group":"B.1.p2","cases_sum":1,"location_counts":1023,"color":"#00ffce"},{"location":"New York City","date":1585699200000,"group":"B.1","cases_sum":49,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585699200000,"group":"B.1.3","cases_sum":15,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585699200000,"group":"B.1.1.1","cases_sum":1,"location_counts":1023,"color":"#39a930"},{"location":"New York City","date":1585699200000,"group":"B.2","cases_sum":2,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1583625600000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585872000000,"group":"B.1","cases_sum":26,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585872000000,"group":"B.1.3","cases_sum":5,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585872000000,"group":"B.2","cases_sum":3,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1585872000000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585872000000,"group":"B.1.5","cases_sum":1,"location_counts":1023,"color":"#038060"},{"location":"New York City","date":1583971200000,"group":"B.1","cases_sum":11,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1583971200000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1583971200000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1583971200000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1583971200000,"group":"B.1.5","cases_sum":1,"location_counts":1023,"color":"#038060"},{"location":"New York City","date":1583971200000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585526400000,"group":"B.1.3","cases_sum":10,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585526400000,"group":"B","cases_sum":2,"location_counts":1023,"color":"#006386"},{"location":"New York City","date":1585526400000,"group":"B.1","cases_sum":62,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585526400000,"group":"B.2","cases_sum":1,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1585526400000,"group":"B.1.26","cases_sum":5,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1585526400000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585526400000,"group":"A.1","cases_sum":2,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1585526400000,"group":"A","cases_sum":1,"location_counts":1023,"color":"#821b2a"},{"location":"New York City","date":1585526400000,"group":"A.3","cases_sum":1,"location_counts":1023,"color":"#e9494c"},{"location":"New York City","date":1586131200000,"group":"B.1","cases_sum":18,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586131200000,"group":"B.1.3","cases_sum":4,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586131200000,"group":"B.1.26","cases_sum":1,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1586131200000,"group":"B.2","cases_sum":1,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1586131200000,"group":"B.1.41","cases_sum":1,"location_counts":1023,"color":"#006d51"},{"location":"New York City","date":1586131200000,"group":"B.1.29","cases_sum":1,"location_counts":1023,"color":"#07e9ba"},{"location":"New York City","date":1586044800000,"group":"B.1","cases_sum":19,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586044800000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585785600000,"group":"B.1","cases_sum":22,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585785600000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585785600000,"group":"B.1.26","cases_sum":1,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1585785600000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585958400000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585958400000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586476800000,"group":"B.1","cases_sum":9,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586476800000,"group":"B.1.3","cases_sum":4,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586304000000,"group":"B.1.3","cases_sum":3,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586304000000,"group":"B.1","cases_sum":18,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586304000000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1586304000000,"group":"B.1.29","cases_sum":1,"location_counts":1023,"color":"#07e9ba"},{"location":"New York City","date":1586736000000,"group":"B.1","cases_sum":9,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586736000000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586736000000,"group":"B.1.26","cases_sum":1,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1586736000000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1586217600000,"group":"B.1","cases_sum":5,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586217600000,"group":"B.1.3","cases_sum":2,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586390400000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586390400000,"group":"B.1","cases_sum":6,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586563200000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1586649600000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587513600000,"group":"B.1","cases_sum":4,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587340800000,"group":"B.1","cases_sum":11,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587340800000,"group":"B.1.3","cases_sum":5,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586822400000,"group":"B.1","cases_sum":2,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586995200000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586995200000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587427200000,"group":"B.1","cases_sum":5,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586908800000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1586908800000,"group":"B.1","cases_sum":5,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1586908800000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1587686400000,"group":"B.1","cases_sum":2,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587686400000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1583280000000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1583280000000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1583366400000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1583712000000,"group":"B.2","cases_sum":5,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1583712000000,"group":"B.1","cases_sum":7,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1583712000000,"group":"B.1.3","cases_sum":2,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1583712000000,"group":"B","cases_sum":2,"location_counts":1023,"color":"#006386"},{"location":"New York City","date":1583712000000,"group":"A.1","cases_sum":1,"location_counts":1023,"color":"#f45455"},{"location":"New York City","date":1583107200000,"group":"B","cases_sum":1,"location_counts":1023,"color":"#006386"},{"location":"New York City","date":1583798400000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1583798400000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585440000000,"group":"B.1","cases_sum":4,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585440000000,"group":"B.1.3","cases_sum":3,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585440000000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585008000000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585180800000,"group":"B.1","cases_sum":19,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585180800000,"group":"B.1.3","cases_sum":2,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585180800000,"group":"B.1.26","cases_sum":2,"location_counts":1023,"color":"#0ad3a7"},{"location":"New York City","date":1585180800000,"group":"B.1.1","cases_sum":2,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1585180800000,"group":"B.2","cases_sum":1,"location_counts":1023,"color":"#008f96"},{"location":"New York City","date":1585267200000,"group":"B.1","cases_sum":15,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585267200000,"group":"B.1.3","cases_sum":2,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585267200000,"group":"B.1.5","cases_sum":1,"location_counts":1023,"color":"#038060"},{"location":"New York City","date":1585094400000,"group":"B.1","cases_sum":11,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1585094400000,"group":"B.1.3","cases_sum":4,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1585094400000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1587772800000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587081600000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587945600000,"group":"B.1.1","cases_sum":1,"location_counts":1023,"color":"#069471"},{"location":"New York City","date":1587945600000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588464000000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588896000000,"group":"B.1","cases_sum":4,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588204800000,"group":"B.1","cases_sum":3,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588204800000,"group":"A.3","cases_sum":1,"location_counts":1023,"color":"#e9494c"},{"location":"New York City","date":1589068800000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588032000000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1588982400000,"group":"B.1","cases_sum":1,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587859200000,"group":"B.1","cases_sum":2,"location_counts":1023,"color":"#007a81"},{"location":"New York City","date":1587859200000,"group":"B.1.3","cases_sum":1,"location_counts":1023,"color":"#08a982"},{"location":"New York City","date":1588809600000,"group":"B.1","cases_sum":2,"location_counts":1023,"color":"#007a81"}],
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["location", "group"],
+          "fields": ["cases_sum", "color"],
+          "ops": ["sum", "max"],
+          "as": ["cases_sum", "color"]
+        },
+        {
+          "type": "stack",
+          "groupby": ["location"],
+          "sort": { "field": "group" },
+          "field": "cases_sum",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "location_bars",
+      "source": "location_by_group",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["location"]
+        },
+        {
+          "type": "formula",
+          "as": "span",
+          "expr": "rangeStep * bandspace(1, innerPadding, outerPadding)"
+        },
+        {
+          "type": "stack",
+          "field": "span"
+        },
+        {
+          "type": "extent",
+          "field": "y1",
+          "signal": "yExtent"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "yscale",
+      "type": "band",
+      "round": true,
+      "range": { "step": { "signal": "rangeStep" } },
+      "domain": { "data": "location_bars", "field": "location" },
+      "paddingInner": { "signal": "innerPadding" },
+      "paddingOuter": { "signal": "outerPadding" }
+    },
+    {
+      "name": "xscale",
+      "type": "linear",
+      "range": "width",
+      "nice": true,
+      "zero": true,
+      "domain": { "data": "location_by_group", "field": "y1" }
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "zindex": 1,
+      "labelFontSize": 14,
+
+      "format": "%",
+
+      "title": { "signal": "xLabel" },
+      "titleFontSize": 14,
+      "titlePadding": 10
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "domain": false,
+      "zindex": 1,
+      "labelFontSize": 14,
+      "labelLimit": 200,
+      "labelPadding": 4,
+
+      "encode": {
+        "labels": {
+          "name": "yAxisLabels",
+          "interactive": true,
+          "update": {
+            "opacity": {"value": 1.0},
+            "fill": [
+              {
+                "test": "!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.value)",
+                "value": "#000"
+              },
+              {"value": "#ccc"}
+            ]
+          },
+          "hover": {
+            "opacity": {"value": 0.6}
+          }
+        }
+      }
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "layer0",
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": {"signal": "width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "marks": [
+        {
+          "name": "locationbars",
+          "type": "rect",
+          "from": { "data": "location_by_group" },
+          "encode": {
+            "enter": {
+              "strokeWidth": { "value": 2 },
+              "fill": {"field": "color"},
+              "tooltip": {
+                "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts}"
+              }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "location" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "field": "y1" },
+              "x2": { "scale": "xscale", "field": "y0" },
+              "fillOpacity": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": 0.7
+                },
+                {
+                  "test": "(!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.location)) && (datum.cases_sum > 0)",
+                  "value": 1.0
+                },
+                {
+                  "value": 0.3
+                }
+              ],
+              "stroke": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": "#333"
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.group)",
+                  "value": "#000"
+                },
+                { "value": "transparent" }
+              ],
+              "strokeDash": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": [4, 4]
+                },
+                {"value": [0, 0]}
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.group",
+                  "value": 4
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.group)",
+                  "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        },
+        {
+          "name": "locationbaroutline",
+          "type": "rect",
+          "from": { "data": "location_bars" },
+          "encode": {
+            "enter": {
+              "fill": {"value": "white"},
+              "fillOpacity": {"value": 0.3}
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "location" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "value": 0 },
+              "x2": [
+                { 
+                  "test": "hoverLocation && hoverLocation.location === datum.location",
+                  "scale": "xscale", 
+                  "value": 1 
+                },
+                { 
+                  "scale": "xscale", 
+                  "value": 0
+                }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverLocation && hoverLocation.location === datum.location",
+                  "value": 3
+                },
+                {"value": 0}
+              ]
+            }
+          } 
+        }
+      ]
+    }
+  ]
+}

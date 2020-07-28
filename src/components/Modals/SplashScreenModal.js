@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Modal from 'react-modal';
 
-import ExternalLink from '../ExternalLink';
+import CGLogo from '../../assets/images/cg_logo_v13.png';
+
+import ExternalLink from '../Common/ExternalLink';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,14 +18,17 @@ const Wrapper = styled.div`
 const Header = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 
   margin-bottom: 10px;
   padding-top: 10px;
 
-  h2 {
-    margin-bottom: 0px;
-    margin-top: 0px;
+  .title {
+    h2 {
+      margin-bottom: 0px;
+      margin-top: 0px;
+      margin-left: 5px;
+    }
   }
   .spacer {
     flex-grow: 1;
@@ -43,10 +48,13 @@ const SplashScreenContent = ({ onRequestClose }) => {
   return (
     <Wrapper>
       <Header>
-        <h2>Hello</h2>
+        <div className="title">
+          <img height={75} src={CGLogo}></img>
+          <h2>COVID-19 CoV Genetics</h2>
+        </div>
         <div className="spacer"></div>
         <button className="close-button" onClick={onRequestClose}>
-          Dismiss
+          Proceed
         </button>
       </Header>
       <Content>

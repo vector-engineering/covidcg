@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { snapGeneHighlightColors } from '../../utils/colors';
+import { snapGeneHighlightColors } from '../../constants/colors';
 import { capitalize } from '../../utils/string';
 import { connect, useStores } from '../../stores/connect';
 

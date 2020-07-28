@@ -1,11 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Link } from 'mobx-router';
-import routes from '../../routes';
-import { connect } from '../../stores/connect';
 
-import ExternalLink from '../ExternalLink';
+import ExternalLink from '../Common/ExternalLink';
 
 import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
 import ReactLogo from '../../assets/images/React-icon.svg';
@@ -20,33 +16,15 @@ import COGUKLogo from '../../assets/images/logo-cog-uk.png';
 import UBCLogo from '../../assets/images/ubc_logo.png';
 import JHULogo from '../../assets/images/jhu_logo.jpg';
 
-const AboutPageContainer = styled.div`
+const AboutTabContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
 
-  min-height: 100vh;
   background-color: #f8f8f8;
 `;
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #aaa;
-  width: 100%;
 
-  background-color: #fff;
-`;
-const Title = styled.h1`
-  margin: 0px;
-  margin-right: 20px;
-  font-weight: 700;
-  font-size: 2em;
-  border-right: 1px solid #aaa;
-  padding-right: 20px;
-`;
 const Content = styled.div`
   flex-grow: 1;
   max-width: 1000px;
@@ -129,16 +107,9 @@ const ImageRow = styled.div`
 `;
 
 // Since this component is simple and static, there's no parent container for it.
-const AboutPage = (props) => {
+const AboutTab = () => {
   return (
-    <AboutPageContainer>
-      <Header>
-        <Title>About</Title>
-        <Link route={routes.home} router={props.router}>
-          Back to Home
-        </Link>
-      </Header>
-
+    <AboutTabContainer>
       <Content>
         {/*
         <TOC>
@@ -661,12 +632,8 @@ const AboutPage = (props) => {
           </div>
         </ContentSection>
       </Content>
-    </AboutPageContainer>
+    </AboutTabContainer>
   );
 };
 
-AboutPage.propTypes = {
-  router: PropTypes.object.isRequired,
-};
-
-export default connect(AboutPage);
+export default AboutTab;

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { toJS } from 'mobx';
-import AccordionWrapper from '../AccordionWrapper';
+import AccordionWrapper from '../Common/AccordionWrapper';
 import { asyncStates } from '../../stores/uiStore';
-import SkeletonElement from '../SkeletonElement';
+import SkeletonElement from '../Common/SkeletonElement';
 import { useStores } from '../../stores/connect';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';

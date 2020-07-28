@@ -15,7 +15,7 @@ import {
   clustalXAAColors,
   zappoAAColors,
   transmembraneAAColors,
-} from '../../utils/colors';
+} from '../../constants/colors';
 import TableOptions from './TableOptions';
 import {
   geneColumn,
@@ -29,7 +29,7 @@ import {
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
-import SkeletonElement from '../SkeletonElement';
+import SkeletonElement from '../Common/SkeletonElement';
 import { asyncStates } from '../../stores/uiStore';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
@@ -131,7 +131,7 @@ const NewLineageDataTable = observer(() => {
   const handleCompareColorChange = (event) =>
     setState({ ...state, compareColor: event.target.value });
 
-  const onRowClick = (rowIndex, row, column) => {
+  const onRowClick = (rowIndex, row) => {
     //console.log(rowIndex, row, column);
 
     let newGroups;
