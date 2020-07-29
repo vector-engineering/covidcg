@@ -251,7 +251,7 @@ rule process_acknowledgements:
         )
     output:
         ack_meta = data_folder + "/ack_meta.csv",
-        ack_map = data_folder + "/ack_map.csv"
+        ack_map = data_folder + "/ack_map.json"
     run:
         ack_df, ack_map = process_ack(input.ack)
         ack_df.to_csv(output.ack_meta)
