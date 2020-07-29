@@ -11,8 +11,6 @@ processedGenes = _.map(processedGenes, (gene) => {
   return gene;
 });
 
-console.log(processedGenes);
-
 export function getAllGenes() {
   return processedGenes;
 }

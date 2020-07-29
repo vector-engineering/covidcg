@@ -15,7 +15,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 // import SideBar from './Sidebar';
 // import VegaTree from './VegaTree';
-import StatusBar from '../StatusBar';
+import TabBar from '../TabBar';
 import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
 
 import GroupTab from './GroupTab';
@@ -130,7 +130,7 @@ const HomePage = observer(() => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <StatusBar activeTab={activeTab} onTabChange={onTabChange} />
+          <TabBar activeTab={activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer openModal={openModal} />
         </PlotContainer>
