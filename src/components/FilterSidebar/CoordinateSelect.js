@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
+import ReactTooltip from 'react-tooltip';
 import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
@@ -235,7 +236,33 @@ const CoordForm = styled.form`
   button {
     flex-grow: 1;
   }
+
+  .question-button {
+    font-family: monospace;
+    font-size: 1em;
+    line-height: normal;
+
+    margin-left: 8px;
+    padding: 2px 5px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    &:hover {
+      background-color: #f8f8f8;
+    }
+  }
 `;
+
+const UpdateCoordButton = styled(Button)`
+  display: ${(props) => (props.show ? 'block' : 'none')};
+  font-size: 0.9em;
+  padding: 3px 8px;
+  margin-left: 10px;
+`;
+
+UpdateCoordButton.defaultProps = {
+  show: false,
+};
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
@@ -271,6 +298,7 @@ const CoordinateSelect = observer(() => {
     primersChanged: false,
     customStart: covidStore.customCoordinates[0],
     customEnd: covidStore.customCoordinates[1],
+    customCoordinatesChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -344,10 +372,26 @@ const CoordinateSelect = observer(() => {
   };
 
   const handleCustomCoordStartChange = (event) => {
-    setState({ ...state, customStart: event.target.value });
+    let customCoordinatesChanged = false;
+    if (covidStore.customCoordinates[0] != event.target.value) {
+      customCoordinatesChanged = true;
+    }
+    setState({
+      ...state,
+      customCoordinatesChanged,
+      customStart: event.target.value,
+    });
   };
   const handleCustomCoordEndChange = (event) => {
-    setState({ ...state, customEnd: event.target.value });
+    let customCoordinatesChanged = false;
+    if (covidStore.customCoordinates[1] != event.target.value) {
+      customCoordinatesChanged = true;
+    }
+    setState({
+      ...state,
+      customCoordinatesChanged,
+      customEnd: event.target.value,
+    });
   };
   const handleCustomCoordSubmit = (event) => {
     event.preventDefault();
@@ -440,6 +484,13 @@ const CoordinateSelect = observer(() => {
 
   return (
     <SelectContainer>
+      <ReactTooltip
+        id="tooltip-filter-sidebar"
+        type="light"
+        effect="solid"
+        border={true}
+        borderColor="#888"
+      />
       <ModeSelectForm>
         <ModeRadioHorizontal>
           <ModeLabel>
@@ -538,7 +589,16 @@ const CoordinateSelect = observer(() => {
               checked={covidStore.coordinateMode === 'custom'}
               onChange={handleModeChange}
             />
-            Custom Coordinates
+            <span>Custom Coordinates</span>
+            <UpdateCoordButton
+              show={
+                state.customCoordinatesChanged &&
+                covidStore.coordinateMode === 'custom'
+              }
+              onClick={handleCustomCoordSubmit}
+            >
+              Confirm
+            </UpdateCoordButton>
           </ModeLabel>
           <CoordForm>
             <span>From</span>
@@ -559,7 +619,14 @@ const CoordinateSelect = observer(() => {
               value={state.customEnd}
               onChange={handleCustomCoordEndChange}
             />
-            <button onClick={handleCustomCoordSubmit}>OK</button>
+            <span
+              className="question-button"
+              data-tip="<p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-html="true"
+              data-for="tooltip-filter-sidebar"
+            >
+              ?
+            </span>
           </CoordForm>
         </ModeRadioVertical>
       </ModeSelectForm>

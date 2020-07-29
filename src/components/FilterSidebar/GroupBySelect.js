@@ -6,29 +6,21 @@ import styled from 'styled-components';
 
 const SelectContainer = styled.div`
   margin: 7px 13px 5px 13px;
-
-  display: grid;
-  grid-template-columns: [col1] 100% [col2];
-  grid-template-rows: [row1] 22px [row2] 3px [row3] 22px [row4];
 `;
 
 const GroupKeySelectForm = styled.form`
-  grid-column: col1 / col2;
-  grid-row: row1 / row2;
-
   label {
-    display: grid;
-    grid-template-columns: [col1] 60% [col2] 40% [col3];
-    grid-template-rows: [row1] 100% [row2];
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5px;
 
     span {
-      grid-row: row1 / row2;
-      grid-column: col1 / col2;
+      flex-shrink: 0;
+      margin-right: 10px;
     }
 
     select {
-      grid-row: row1 / row2;
-      grid-column: col2 / col3;
       padding: 1px 5px;
       flex-grow: 1;
       width: 100%;
@@ -39,22 +31,16 @@ const GroupKeySelectForm = styled.form`
 `;
 
 const RadioForm = styled.form`
-  grid-column: col1 / col2;
-  grid-row: row3 / row4;
-
-  display: grid;
-  grid-template-columns: [col1] 60% [col2] 40% [col3];
-  grid-template-rows: [row1] 100% [row2];
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   span {
-    grid-row: row1 / row2;
-    grid-column: col1 / col2;
+    flex-shrink: 0;
+    margin-right: 10px;
   }
 
   .radio-row {
-    grid-row: row1 / row2;
-    grid-column: col2 / col3;
-
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -80,6 +66,10 @@ const RadioForm = styled.form`
       font-weight: normal;
       font-size: 0.8em;
       color: #888;
+      flex-shrink: 1;
+      white-space: normal;
+      line-height: normal;
+      margin-left: 5px;
     }
   }
 `;
@@ -171,10 +161,8 @@ const GroupBySelect = observer(() => {
               disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
-            <label htmlFor="aaChoice">
-              AA
-              <span className="disabled-text">{aaDisabledMessage}</span>
-            </label>
+            <label htmlFor="aaChoice">AA</label>
+            <span className="disabled-text">{aaDisabledMessage}</span>
           </div>
         </div>
       </RadioForm>
