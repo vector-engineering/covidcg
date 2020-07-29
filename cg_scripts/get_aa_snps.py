@@ -48,7 +48,7 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
     aa_seqs = {}
 
     for ref_name, ref_row in gene_or_protein_df.iterrows():
-        print(ref_name)
+        # print(ref_name)
 
         segments = ref_row["segments"].split(";")
 

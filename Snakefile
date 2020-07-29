@@ -214,33 +214,6 @@ rule process_seq_metadata:
         seq_meta_df.to_csv(output.seq_meta)
 
 
-rule process_location_metadata:
-    input:
-        patient_meta = data_folder + "/patient_meta.csv",
-        emoji_map_file = static_data_folder + "/country_to_emoji.xls"
-    output:
-        location_meta = data_folder + "/location_meta.csv",
-        location_map = data_folder + "/location_map.json",
-        geo_select_tree = data_folder + "/geo_select_tree.json"
-    run:
-        patient_meta_df = pd.read_csv(input.patient_meta)
-        location_df, location_map_df = process_location_metadata(patient_meta_df)
-
-        location_df.to_csv(output.location_meta)
-        location_map_df.drop(columns=["loc_str"]).to_json(
-            output.location_map, orient="records"
-        )
-
-        # Save tree as json file
-        geo_select_tree = build_select_tree(
-            location_df, 
-            location_map_df, 
-            emoji_map_file=input.emoji_map_file
-        )
-        with open(output.geo_select_tree, "w") as fp:
-            fp.write(json.dumps(geo_select_tree))
-
-
 ACK_FILES, = glob_wildcards("data/acknowledgements/{ack_file}.xls")
 
 rule process_acknowledgements:
@@ -263,21 +236,22 @@ rule generate_ui_data:
     input:
         patient_meta = data_folder + "/patient_meta.csv",
         seq_meta = data_folder + "/seq_meta.csv",
-        location_meta = data_folder + "/location_meta.csv",
         ack_meta = data_folder + "/ack_meta.csv",
         dna_snp_group = data_folder + "/dna_snp_group.csv",
         gene_aa_snp_group = data_folder + "/gene_aa_snp_group.csv",
-        protein_aa_snp_group = data_folder + "/protein_aa_snp_group.csv"
+        protein_aa_snp_group = data_folder + "/protein_aa_snp_group.csv",
+        emoji_map_file = static_data_folder + "/country_to_emoji.xls"
     output:
         accession_hashmap = data_folder + "/accession_hashmap.csv",
         metadata_map = data_folder + "/metadata_map.json",
+        location_map = data_folder + "/location_map.json",
+        geo_select_tree = data_folder + "/geo_select_tree.json",
         case_data = data_folder + "/case_data.json",
         # CSV is just for excel/debugging
         case_data_csv = data_folder + "/case_data.csv"
     run:
         patient_meta_df = pd.read_csv(input.patient_meta, index_col="Accession ID")
         seq_meta_df = pd.read_csv(input.seq_meta, index_col="Accession ID")
-        location_meta_df = pd.read_csv(input.location_meta, index_col="Accession ID")
         ack_meta_df = pd.read_csv(input.ack_meta, index_col="Accession ID")
 
         dna_snp_group_df = pd.read_csv(input.dna_snp_group, index_col="Accession ID")
@@ -326,9 +300,24 @@ rule generate_ui_data:
             )
         )
 
+        # Process location metadata
+        location_df, location_map_df = process_location_metadata(df)
+
+        location_map_df.drop(columns=["loc_str"]).to_json(
+            output.location_map, orient="records"
+        )
+        # Save tree as json file
+        geo_select_tree = build_select_tree(
+            location_df, 
+            location_map_df, 
+            emoji_map_file=input.emoji_map_file
+        )
+        with open(output.geo_select_tree, "w") as fp:
+            fp.write(json.dumps(geo_select_tree))
+
         # Join location IDs onto main metadata dataframe, then drop original Location column
         df = df.join(
-            location_meta_df[["location_id"]], on="Accession ID", how="inner", sort=False
+            location_df[["location_id"]], on="Accession ID", how="inner", sort=False
         ).drop(columns=["Location"])
 
         # Hash Accession IDs
@@ -474,7 +463,7 @@ rule process_artic_primers:
 
 
 # This is only for site maintainers
-if config["upload_hashmap"]:
+if "upload_hashmap" in config and config["upload_hashmap"]:
     GS = GSRemoteProvider()
     rule update_gcs_hashmap:
         input:
