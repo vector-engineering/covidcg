@@ -1,6 +1,6 @@
 // Load acknowledgement data
 
-import ackIdToAckText from '../../data/acknowledgement_map.json';
+import ackIdToAckText from '../../data/ack_map.json';
 
 import _ from 'underscore';
 

@@ -250,7 +250,7 @@ const CoordinateSelect = observer(() => {
   genes.forEach((gene) => {
     geneOptionElements.push(
       <option key={gene.gene} value={gene.gene}>
-        {gene.gene}&nbsp;&nbsp;({gene.start}..{gene.end})
+        {gene.gene}&nbsp;&nbsp;({gene.segments})
       </option>
     );
   });

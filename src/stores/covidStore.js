@@ -34,9 +34,7 @@ class ObservableCovidStore {
 
   // Selecting the gene as the coordinate range by default
   @observable coordinateMode = 'gene';
-  @observable coordinateRanges = [
-    [this.selectedGene.start, this.selectedGene.end],
-  ];
+  @observable coordinateRanges = this.selectedGene.ranges;
 
   @observable selectTree = loadSelectTree();
   @observable selectedLocationNodes = [];
@@ -156,9 +154,7 @@ class ObservableCovidStore {
 
     // Set the coordinate range based off the coordinate mode
     if (coordinateMode === 'gene') {
-      this.coordinateRanges = [
-        [this.selectedGene.start, this.selectedGene.end],
-      ];
+      this.coordinateRanges = this.selectedGene.ranges;
     } else if (coordinateMode === 'protein') {
       this.coordinateRanges = this.selectedProtein.ranges;
     } else if (coordinateMode === 'primer') {
