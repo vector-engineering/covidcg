@@ -1,179 +1,174 @@
 import pandas as pd
 import numpy as np
 
-from cg_scripts.get_dna_snps import load_dna_snp_file
-from cg_scripts.reference import ref_seq
+from cg_scripts.fasta import read_fasta_file
 from cg_scripts.util import translate
 
 
-def process_gene_aa_snps(dna_snp_df, genes_file):
-    genes_df = pd.read_csv(genes_file)
+def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
+    # Load the reference sequence
+    with open(reference_file, "r") as fp:
+        lines = fp.readlines()
+        ref = read_fasta_file(lines)
+        ref_seq = list(ref.values())[0]
 
-    # Only take protein-coding genes
-    genes_df = (
-        genes_df.loc[genes_df["protein_coding"] == 1, :]
-        # set the gene as the index
-        .set_index("gene")
-    )
+    gene_or_protein_df = pd.read_csv(gene_or_protein_file, comment="#")
 
-    gene_aa_snps = []
-    gene_aa_seqs = {}
-    for gene_name, gene in genes_df.iterrows():
-        print(gene_name)
-
-        gene_start = int(gene["start"])
-        gene_end = int(gene["end"])
-
-        gene_aa_seqs[gene_name] = translate(ref_seq[gene_start - 1 : gene_end])
-
-        gene_snp_df = dna_snp_df.loc[
-            (dna_snp_df["pos"] >= gene_start) & (dna_snp_df["pos"] <= gene_end), :
-        ].copy()
-        gene_snp_df["codon_ind"] = (gene_snp_df["pos"] - gene_start) // 3
-        gene_snp_df["codon_start"] = gene_start + (gene_snp_df["codon_ind"] * 3)
-        # spike_snps['codon_end'] = spike_snps['codon_start'] + 3
-        gene_snp_df["codon_pos"] = gene_snp_df["pos"] - gene_snp_df["codon_start"]
-
-        gene_snp_df = gene_snp_df.groupby(["taxon", "codon_ind"], as_index=False)[
-            ["codon_pos", "ref", "alt"]
-        ].agg(list)
-
-        gene_snp_df["codon"] = gene_snp_df["codon_ind"].apply(
-            lambda x: list(
-                ref_seq[(gene_start + (x * 3) - 1) : (gene_start + (x * 3) + 2)]
-            )
+    if mode == "gene":
+        # Only take protein-coding genes
+        gene_or_protein_df = (
+            gene_or_protein_df.loc[gene_or_protein_df["protein_coding"] == 1, :]
+            # set the gene as the index
+            .set_index("gene")
         )
-        gene_snp_df["ref_aa"] = gene_snp_df["codon"].apply(
-            lambda x: translate("".join(x))
+    else:
+        gene_or_protein_df = gene_or_protein_df.set_index("protein")
+
+    dna_snp_df = pd.read_csv(dna_snp_file)
+    # Filter out any big SNPs in the 5' or 3' UTR
+    dna_snp_df = dna_snp_df.loc[
+        (dna_snp_df["pos"] < 29675) & (dna_snp_df["pos"] > 265), :
+    ].reset_index(drop=True)
+    # Filter out any frameshifting indels
+    dna_snp_df = dna_snp_df.loc[
+        ((dna_snp_df["ref"].str.len() == 1) & (dna_snp_df["alt"].str.len() == 1))
+        | (
+            (dna_snp_df["ref"].str.len() > 1)
+            & (dna_snp_df["alt"].str.len() == 0)
+            & (dna_snp_df["ref"].str.len() % 3 == 0)
         )
+        | (
+            (dna_snp_df["alt"].str.len() > 1)
+            & (dna_snp_df["ref"].str.len() == 0)
+            & (dna_snp_df["alt"].str.len() % 3 == 0)
+        )
+    ].reset_index(drop=True)
 
-        for i, row in gene_snp_df.iterrows():
-            codon = row["codon"]
-            for codon_pos, ref, alt in zip(row["codon_pos"], row["ref"], row["alt"]):
-                # assert codon[codon_pos] == ref
-                if codon[codon_pos] != ref:
-                    print(row)
-                codon[codon_pos] = alt
+    aa_snps = []
+    aa_seqs = {}
 
-            alt_aa = translate("".join(codon))
+    for ref_name, ref_row in gene_or_protein_df.iterrows():
+        print(ref_name)
 
-            if row["ref_aa"] != alt_aa:
-                gene_aa_snps.append(
-                    (
-                        row["taxon"],
-                        gene_name,
-                        row["codon_ind"] + 1,
-                        row["ref_aa"],
-                        alt_aa,
-                    )
-                )
-
-    gene_aa_snp_df = pd.DataFrame.from_records(
-        gene_aa_snps, columns=["taxon", "gene", "pos", "ref", "alt"]
-    )
-    return gene_aa_snp_df
-
-
-def process_protein_aa_snps(dna_snp_df, proteins_file):
-    # Load proteins data
-    proteins_df = pd.read_csv(proteins_file)
-    proteins_df = proteins_df.set_index("protein")
-
-    protein_aa_seq = {}
-    protein_aa_snps = []
-
-    for protein_name, protein in proteins_df.iterrows():
-        print(protein_name)
-
-        segments = protein["segments"].split(";")
+        segments = ref_row["segments"].split(";")
 
         resi_counter = 0
-        protein_aa_seq[protein_name] = []
+        aa_seqs[ref_name] = []
+
         for segment in segments:
+            # Get the region in coordinates to translate/look for SNPs in
             segment_start = int(segment.split("..")[0])
             segment_end = int(segment.split("..")[1])
             resi_counter += (segment_end - segment_start + 1) // 3
 
-            protein_aa_seq[protein_name] += list(
+            # Translate the sequence and store it for later
+            aa_seqs[ref_name] += list(
                 translate(ref_seq[segment_start - 1 : segment_end])
             )
 
+            # Get all NT SNPs in this segment
             segment_snp_df = dna_snp_df.loc[
                 (dna_snp_df["pos"] >= segment_start)
                 & (dna_snp_df["pos"] <= segment_end),
                 :,
             ].copy()
-            segment_snp_df["codon_ind"] = (segment_snp_df["pos"] - segment_start) // 3
-            segment_snp_df["codon_start"] = segment_start + (
-                segment_snp_df["codon_ind"] * 3
-            )
-            # spike_snps['codon_end'] = spike_snps['codon_start'] + 3
-            segment_snp_df["codon_pos"] = (
-                segment_snp_df["pos"] - segment_snp_df["codon_start"]
-            )
 
-            segment_snp_df = segment_snp_df.groupby(
-                ["taxon", "codon_ind"], as_index=False
-            )[["codon_pos", "ref", "alt"]].agg(list)
+            # For each NT SNP in this segment:
+            for i, snp in segment_snp_df.iterrows():
 
-            segment_snp_df["codon"] = segment_snp_df["codon_ind"].apply(
-                lambda x: list(
-                    ref_seq[
-                        (segment_start + (x * 3) - 1) : (segment_start + (x * 3) + 2)
-                    ]
-                )
-            )
-            segment_snp_df["ref_aa"] = segment_snp_df["codon"].apply(
-                lambda x: translate("".join(x))
-            )
+                # Get the affected region, in codon-indexes
+                # (Relative to the segment start)
+                codon_ind_start = (snp["pos"] - segment_start) // 3
+                codon_ind_end = (
+                    snp["pos"]
+                    + (0 if len(snp["ref"]) == 0 else len(snp["ref"]) - 1)
+                    - segment_start
+                ) // 3
+                # print(codon_ind_start, codon_ind_end)
 
-            for i, row in segment_snp_df.iterrows():
-                codon = row["codon"]
-                for codon_pos, ref, alt in zip(
-                    row["codon_pos"], row["ref"], row["alt"]
-                ):
-                    assert codon[codon_pos] == ref
-                    codon[codon_pos] = alt
+                # Get region start/end, 0-indexed
+                region_start = segment_start + (codon_ind_start * 3) - 1
+                region_end = segment_start + (codon_ind_end * 3) + 2
+                # Position of the SNP inside the region (0-indexed)
+                pos_inside_region = snp["pos"] - region_start - 1
 
-                alt_aa = translate("".join(codon))
+                # Get the reference sequence of the region
+                region_seq = list(ref_seq[region_start:region_end])
+                # Translate the reference region sequence
+                ref_aa = list(translate("".join(region_seq)))
+                # print(region_seq, ref_aa)
 
-                if row["ref_aa"] != alt_aa:
-                    protein_aa_snps.append(
-                        (
-                            row["taxon"],
-                            protein_name,
-                            row["codon_ind"] + 1,
-                            row["ref_aa"],
-                            alt_aa,
-                        )
+                # Make sure the reference matches
+                # print(region_seq[pos_inside_region:(pos_inside_region + len(snp['ref']))])
+                if len(snp["ref"]) > 0:
+                    ref_snp_seq = "".join(
+                        region_seq[
+                            pos_inside_region : (pos_inside_region + len(snp["ref"]))
+                        ]
                     )
+                    if not ref_snp_seq == snp["ref"]:
+                        print(
+                            "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
+                                ref_snp_seq, snp["ref"],
+                            )
+                        )
+                        # I guess just move on.....
 
-        # print("".join(protein_aa_seq[protein_name]))
+                # Remove the reference base(s)
+                if len(snp["ref"]) > 0:
+                    region_seq = (
+                        region_seq[:pos_inside_region]
+                        + region_seq[(pos_inside_region + len(snp["ref"])) :]
+                    )
+                # Add the alt base(s)
+                if len(snp["alt"]) > 0:
+                    for base in list(snp["alt"])[::-1]:
+                        region_seq.insert(pos_inside_region, base)
 
-    protein_aa_snp_df = pd.DataFrame.from_records(
-        protein_aa_snps, columns=["taxon", "protein", "pos", "ref", "alt"]
-    )
+                # Translate the new region
+                alt_aa = list(translate("".join(region_seq)))
+                # print(region_seq, alt_aa)
 
-    return protein_aa_snp_df
+                # Remove matching AAs from the start of ref_aa
+                # i.e., if ref = 'FF', and alt = 'F', then:
+                #       ref = 'F' and alt = ''
+                remove_inds = []
+                for b in range(max(len(ref_aa), len(alt_aa))):
+                    if b >= len(ref_aa) or b >= len(alt_aa):
+                        break
 
+                    if ref_aa[b] == alt_aa[b]:
+                        remove_inds.append(b)
+                    else:
+                        break
 
-def get_aa_snps(
-    dna_snp_file, genes_file, proteins_file, gene_aa_snp_file, protein_aa_snp_file
-):
-    dna_snp_df = load_dna_snp_file(dna_snp_file)
+                for ind in remove_inds[::-1]:
+                    ref_aa.pop(ind)
+                    alt_aa.pop(ind)
+                # print(ref_aa, alt_aa)
 
-    # Filter out indels and SNPs with length > 1
-    # Need to figure out what to do with those...
-    # dna_snp_df = (
-    #     dna_snp_df.fillna("")
-    #     .loc[(dna_snp_df["ref"].str.len() == 1) & (dna_snp_df["alt"].str.len() == 1), :]
-    #     .reset_index(drop=True)
-    # )
+                # If there's no mutation, or synonymous mutation,
+                # then move on
+                if not ref_aa and not alt_aa:
+                    continue
 
-    gene_aa_snp_df = process_gene_aa_snps(dna_snp_df, genes_file)
-    # print(gene_aa_snp_df)
-    protein_aa_snp_df = process_protein_aa_snps(dna_snp_df, proteins_file)
-    # print(protein_aa_snp_df)
+                aa_snps.append(
+                    (
+                        snp["taxon"],
+                        ref_name,
+                        codon_ind_start + 1,
+                        "".join(ref_aa),
+                        "".join(alt_aa),
+                    )
+                )
 
-    gene_aa_snp_df.to_csv(gene_aa_snp_file, index=False)
-    protein_aa_snp_df.to_csv(protein_aa_snp_file, index=False)
+    if mode == "gene":
+        aa_snp_df = pd.DataFrame.from_records(
+            aa_snps, columns=["taxon", "gene", "pos", "ref", "alt"]
+        )
+    else:
+        aa_snp_df = pd.DataFrame.from_records(
+            aa_snps, columns=["taxon", "protein", "pos", "ref", "alt"]
+        )
+
+    return aa_snp_df

@@ -4,6 +4,8 @@
 Author: Albert Chen (Deverman Lab, Broad Institute)
 """
 
+import hashlib
+
 from pathlib import Path
 
 
@@ -127,8 +129,7 @@ def reverse_complement(seq):
     return rev_comp_seq
 
 
-project_root_path = Path(__file__).resolve().parent.parent
-data_dir = (
-    project_root_path / "data"
-).resolve()  # Resolve any symlinks --> absolute path
-static_data_dir = (project_root_path / "static_data").resolve()
+def hash_accession_id(accession_id):
+    m = hashlib.sha256()
+    m.update(str(accession_id).encode("utf-8"))
+    return m.hexdigest()

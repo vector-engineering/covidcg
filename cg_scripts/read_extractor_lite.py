@@ -14,16 +14,14 @@ import pandas as pd
 
 from collections import defaultdict
 
-from cg_scripts.reference import ref_seq, genes, gene_aa
-from cg_scripts.util import translate, data_dir, reverse_complement
+from cg_scripts.util import translate, reverse_complement
 
 
 class ReadExtractor:
     """Extract variable regions from a pysam AlignedSegment
     """
 
-    RefSeq = ref_seq
-    Genes = genes
+    RefSeq = ''
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -56,9 +54,6 @@ class ReadExtractor:
 
         # Store SNPs
         self.dna_snps = []
-
-        # Store genes (as NT) in this dict
-        self.genes = defaultdict(list)
 
         # Read data from the pysam.AlignedSegment object into python variables
         self.load_read()
@@ -153,18 +148,6 @@ class ReadExtractor:
             # If we've reached the end of the CIGAR string, break out
             if self.cigar_i >= len(self.cigar_ops) or self.read_i >= len(self.read_seq):
                 return
-
-            # Check if the position is part of a gene
-            # If it is, then add it to the gene dict
-            in_genes = [
-                gene
-                for (gene, rnge) in ReadExtractor.Genes.items()
-                # Offset by 1 since ref_i is 0-indexed and the
-                # gene list is 1-indexed
-                if (self.ref_i + 1) >= rnge[0] and (self.ref_i + 1) <= rnge[1]
-            ]
-            for gene in in_genes:
-                self.genes[gene].append(self.read_seq[self.read_i])
 
             # Grab the current CIGAR operation
             op = self.cigar_ops[self.cigar_i]
@@ -316,15 +299,5 @@ class ReadExtractor:
         # so that we can collect additional mutations (if they exist)
         # Don't throw an error once we reach the end
         self.crawl_to(len(self.reference_seq))
-
         self.get_dna_snps()
-
-        # Collapse gene NT lists into strings and translate them
-
-        # TODO: I don't think there's any codon-shifting indels in these sequences,
-        # but if there are, the translate() function will break when passed a string
-        # that doesn't have a length of a multiple of 3.
-        # for gene in self.genes.keys():
-        #     self.genes[gene] = "".join(self.genes[gene])
-
         return self.dna_snps
