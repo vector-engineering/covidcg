@@ -266,6 +266,11 @@ const DropdownContainer = () => {
     // Since the tree is rendered in a flat state, we need to get all node
     // children from the original data, via. the node paths
     let selectedNodeObjs = selectedNodes.map((node) => {
+      // If the path doesn't exist, then we're at the root node
+      if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
+        return state.data;
+      }
+
       // Get children using the object path
       const pathChunks = node['path'].split('.');
       let nodeObj = state.data;
