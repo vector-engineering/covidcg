@@ -226,6 +226,9 @@ class ObservableCovidStore {
     this.selectedLocationNodes = selectedNodes;
     this.selectedLocationIds = getLocationIds(selectedNodes);
 
+    // Clear metadata fields
+    this.selectedMetadataFields = {};
+
     if (!selectedNodes || !selectedNodes[0]) {
       this.emptyCaseData();
     } else {

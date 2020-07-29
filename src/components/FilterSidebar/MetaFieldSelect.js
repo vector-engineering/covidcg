@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
+import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -162,10 +163,20 @@ const MetaFieldSelect = observer(() => {
   // When the selected fields are flushed to the store, see if we still need
   // to display the update button
   useEffect(() => {
-    // console.log('updated selected', covidStore.selectedMetadataFields);
+    // IDs back into options objects in state.fieldOptions
+    const fieldSelected = JSON.parse(
+      JSON.stringify(toJS(covidStore.selectedMetadataFields))
+    );
+    Object.keys(fieldSelected).forEach((field) => {
+      fieldSelected[field] = fieldSelected[field].map((id) => {
+        return state.fieldOptions[field][id];
+      });
+    });
+
     setState({
       ...state,
-      changed: checkChanged(state.fieldSelected, state.ageRange),
+      fieldSelected,
+      changed: checkChanged(fieldSelected, state.ageRange),
     });
   }, [covidStore.selectedMetadataFields, covidStore.ageRange]);
 
