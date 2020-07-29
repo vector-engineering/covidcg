@@ -202,7 +202,7 @@ const VegaStackedBars = observer(({ width }) => {
     } else {
       areaStackTitle += 'AA';
     }
-    areaStackTitle += ' SNP ';
+    areaStackTitle += ' SNV ';
   }
   areaStackTitle +=
     state.areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
@@ -248,7 +248,7 @@ const VegaStackedBars = observer(({ width }) => {
     detailYLabel += 'Sequences by Clade';
   } else if (covidStore.groupKey === 'snp') {
     detailYLabel +=
-      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
   }
 
   return (

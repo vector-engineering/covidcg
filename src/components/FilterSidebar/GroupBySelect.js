@@ -99,7 +99,7 @@ const GroupBySelect = observer(() => {
   let groupByOptions = [
     { label: 'Lineage', value: 'lineage' },
     { label: 'Clade', value: 'clade' },
-    { label: 'SNP', value: 'snp' },
+    { label: 'SNV', value: 'snp' },
     // { label: 'SNP Signature', value: 'snp_sig' },
   ];
 

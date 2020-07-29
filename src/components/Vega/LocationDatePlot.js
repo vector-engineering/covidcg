@@ -199,7 +199,7 @@ const LocationDatePlot = observer(({ width }) => {
     yLabel += 'Sequences by Clade';
   } else if (covidStore.groupKey === 'snp') {
     yLabel +=
-      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNP';
+      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
   }
 
   let plotTitle = '';
@@ -219,7 +219,7 @@ const LocationDatePlot = observer(({ width }) => {
     } else {
       plotTitle += 'AA';
     }
-    plotTitle += ' SNP ';
+    plotTitle += ' SNV ';
   }
   plotTitle += state.normMode === 'percentages' ? 'Percentages' : 'Counts';
 
@@ -246,7 +246,7 @@ const LocationDatePlot = observer(({ width }) => {
     } else {
       plotTitle += 'AA';
     }
-    plotTitle += ' SNPs';
+    plotTitle += ' SNVs';
   }
   if (covidStore.selectedGroups.length > 0) {
     plotTitle += ' Only)';

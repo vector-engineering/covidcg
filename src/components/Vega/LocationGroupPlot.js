@@ -104,7 +104,7 @@ const LocationGroupPlot = observer(({ width }) => {
     } else {
       xLabel += 'AA';
     }
-    xLabel += ' SNP ';
+    xLabel += ' SNV ';
   }
   xLabel += ' (Cumulative, All Sequences)';
 
