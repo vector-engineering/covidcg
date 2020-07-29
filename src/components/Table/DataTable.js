@@ -46,6 +46,18 @@ const DataGridContainer = styled.div`
       padding: 0px;
       background-color: transparent;
       overflow: unset;
+      .rdg-header-sort-cell {
+        display: block;
+        position: relative;
+        height: 100%;
+        // Sorting caret
+        span:nth-child(2) {
+          position: absolute;
+          line-height: normal;
+          top: 5px;
+          left: 4px;
+        }
+      }
     }
   }
 

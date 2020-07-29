@@ -94,7 +94,7 @@ export const getSinglePosColumn = ({
   name: pos.toString(),
   key: col,
   cellClass: 'pos',
-  sortable: false,
+  sortable: true,
   width: 25,
   formatter: (val) => {
     // console.log(val);
