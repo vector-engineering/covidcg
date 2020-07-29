@@ -5,9 +5,9 @@ import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
-import ReactTooltip from 'react-tooltip';
 import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
+import QuestionButton from '../Buttons/QuestionButton';
 
 import { getAllGenes } from '../../utils/gene';
 import { getAllProteins } from '../../utils/protein';
@@ -235,21 +235,6 @@ const CoordForm = styled.form`
   }
   button {
     flex-grow: 1;
-  }
-
-  .question-button {
-    font-family: monospace;
-    font-size: 1em;
-    line-height: normal;
-
-    margin-left: 8px;
-    padding: 2px 5px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    &:hover {
-      background-color: #f8f8f8;
-    }
   }
 `;
 
@@ -484,13 +469,6 @@ const CoordinateSelect = observer(() => {
 
   return (
     <SelectContainer>
-      <ReactTooltip
-        id="tooltip-filter-sidebar"
-        type="light"
-        effect="solid"
-        border={true}
-        borderColor="#888"
-      />
       <ModeSelectForm>
         <ModeRadioHorizontal>
           <ModeLabel>
@@ -619,14 +597,11 @@ const CoordinateSelect = observer(() => {
               value={state.customEnd}
               onChange={handleCustomCoordEndChange}
             />
-            <span
-              className="question-button"
+            <QuestionButton
               data-tip="<p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
               data-html="true"
               data-for="tooltip-filter-sidebar"
-            >
-              ?
-            </span>
+            />
           </CoordForm>
         </ModeRadioVertical>
       </ModeSelectForm>

@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import useDimensions from 'react-use-dimensions';
 import { connect } from '../../stores/connect';
 
+import ReactTooltip from 'react-tooltip';
+import QuestionButton from '../Buttons/QuestionButton';
 import Header from '../FilterSidebar/Header';
 import GroupBySelect from '../FilterSidebar/GroupBySelect';
 import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
@@ -43,6 +45,15 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+
+  .filter-sidebar-tooltip {
+    background-color: #fff;
+    font-weight: normal;
+    p {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+  }
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -103,6 +114,14 @@ const HomePage = observer(() => {
       <HomePageDiv>
         {/* <SideBar /> */}
         <FilterSidebar>
+          <ReactTooltip
+            className="filter-sidebar-tooltip"
+            id="tooltip-filter-sidebar"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper
@@ -113,7 +132,16 @@ const HomePage = observer(() => {
             <CoordinateSelect />
           </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
-            title="Filter sequences by"
+            title={
+              <div>
+                Filter by metadata (advanced)
+                <QuestionButton
+                  data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p>'
+                  data-html={true}
+                  data-for="tooltip-filter-sidebar"
+                />
+              </div>
+            }
             defaultCollapsed={true}
             maxHeight={'240px'}
           >
