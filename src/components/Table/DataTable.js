@@ -64,6 +64,12 @@ const DataGridContainer = styled.div`
   /* All other rows */
   .rdg-row {
     background-color: transparent;
+
+    /* First column */
+    .rdg-cell:nth-child(1) {
+      overflow: visible;
+    }
+
     .rdg-cell {
       border-right: none;
       &.rdg-cell-frozen-last {
