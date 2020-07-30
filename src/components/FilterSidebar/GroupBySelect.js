@@ -4,61 +4,39 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 
+import ExternalLink from '../Common/ExternalLink';
+
 const SelectContainer = styled.div`
-  margin: 7px 13px 5px 13px;
-
-  display: grid;
-  grid-template-columns: [col1] 100% [col2];
-  grid-template-rows: [row1] 22px [row2] 3px [row3] 22px [row4];
-`;
-
-const GroupKeySelectForm = styled.form`
-  grid-column: col1 / col2;
-  grid-row: row1 / row2;
-
-  label {
-    display: grid;
-    grid-template-columns: [col1] 60% [col2] 40% [col3];
-    grid-template-rows: [row1] 100% [row2];
-
-    span {
-      grid-row: row1 / row2;
-      grid-column: col1 / col2;
-    }
-
-    select {
-      grid-row: row1 / row2;
-      grid-column: col2 / col3;
-      padding: 1px 5px;
-      flex-grow: 1;
-      width: 100%;
-      border-radius: 3px;
-      margin: 0px;
-    }
-  }
+  padding: 7px 13px 0px 13px;
+  box-shadow: 0px 2px 4px #aaa;
+  background-color: #fcfcfc;
 `;
 
 const RadioForm = styled.form`
-  grid-column: col1 / col2;
-  grid-row: row3 / row4;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 
-  display: grid;
-  grid-template-columns: [col1] 60% [col2] 40% [col3];
-  grid-template-rows: [row1] 100% [row2];
+  margin-bottom: 10px;
+  // margin-bottom: 5px;
+
+  // background-color: #fff;
+  // padding: 5px 10px;
+  // border: 1px solid #ccc;
 
   span {
-    grid-row: row1 / row2;
-    grid-column: col1 / col2;
+    flex-shrink: 0;
+    margin-right: 10px;
   }
 
   .radio-row {
-    grid-row: row1 / row2;
-    grid-column: col2 / col3;
-
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    margin-top: 3px;
+    margin-left: 12px;
   }
 
   .radio-item {
@@ -80,8 +58,17 @@ const RadioForm = styled.form`
       font-weight: normal;
       font-size: 0.8em;
       color: #888;
+      flex-shrink: 1;
+      white-space: normal;
+      line-height: normal;
+      margin-left: 5px;
     }
   }
+`;
+
+const Link = styled(ExternalLink)`
+  font-size: 0.9em;
+  margin-left: 10px;
 `;
 
 const GroupBySelect = observer(() => {
@@ -94,24 +81,6 @@ const GroupBySelect = observer(() => {
   let handleDnaOrAaChange = (event) => {
     covidStore.changeGrouping(covidStore.groupKey, event.target.value);
   };
-
-  // group by options
-  let groupByOptions = [
-    { label: 'Lineage', value: 'lineage' },
-    { label: 'Clade', value: 'clade' },
-    { label: 'SNP', value: 'snp' },
-    // { label: 'SNP Signature', value: 'snp_sig' },
-  ];
-
-  // Create option elements
-  let optionElements = [];
-  groupByOptions.forEach((opt) => {
-    optionElements.push(
-      <option key={opt.value} value={opt.value}>
-        {opt.label}
-      </option>
-    );
-  });
 
   let aaDisabledMessage = '';
   let aaDisabled = false;
@@ -137,16 +106,62 @@ const GroupBySelect = observer(() => {
     }
   }
 
+  const renderLineageLink = () => {
+    if (covidStore.groupKey === 'lineage') {
+      return (
+        <Link href="https://cov-lineages.org/descriptions.html">
+          (Lineage Descriptions)
+        </Link>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <SelectContainer>
-      <GroupKeySelectForm>
-        <label>
-          <span>Group sequences by</span>
-          <select value={covidStore.groupKey} onChange={handleGroupKeyChange}>
-            {optionElements}
-          </select>
-        </label>
-      </GroupKeySelectForm>
+      <RadioForm>
+        <span className="form-title">Group sequences by</span>
+        <div className="radio-row">
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="lineage"
+                checked={covidStore.groupKey === 'lineage'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>Lineage</span>
+            </label>
+          </div>
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="clade"
+                checked={covidStore.groupKey === 'clade'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>Clade</span>
+            </label>
+          </div>
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="snp"
+                checked={covidStore.groupKey === 'snp'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>SNV</span>
+            </label>
+          </div>
+        </div>
+        {renderLineageLink()}
+      </RadioForm>
       <RadioForm>
         <span>Mutation format</span>
         <div className="radio-row">
@@ -171,10 +186,8 @@ const GroupBySelect = observer(() => {
               disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
-            <label htmlFor="aaChoice">
-              AA
-              <span className="disabled-text">{aaDisabledMessage}</span>
-            </label>
+            <label htmlFor="aaChoice">AA</label>
+            <span className="disabled-text">{aaDisabledMessage}</span>
           </div>
         </div>
       </RadioForm>

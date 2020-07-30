@@ -7,6 +7,7 @@ import _ from 'underscore';
 
 import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
+import QuestionButton from '../Buttons/QuestionButton';
 
 import { getAllGenes } from '../../utils/gene';
 import { getAllProteins } from '../../utils/protein';
@@ -237,6 +238,17 @@ const CoordForm = styled.form`
   }
 `;
 
+const UpdateCoordButton = styled(Button)`
+  display: ${(props) => (props.show ? 'block' : 'none')};
+  font-size: 0.9em;
+  padding: 3px 8px;
+  margin-left: 10px;
+`;
+
+UpdateCoordButton.defaultProps = {
+  show: false,
+};
+
 const genes = getAllGenes();
 const proteins = getAllProteins();
 
@@ -271,6 +283,7 @@ const CoordinateSelect = observer(() => {
     primersChanged: false,
     customStart: covidStore.customCoordinates[0],
     customEnd: covidStore.customCoordinates[1],
+    customCoordinatesChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -344,10 +357,26 @@ const CoordinateSelect = observer(() => {
   };
 
   const handleCustomCoordStartChange = (event) => {
-    setState({ ...state, customStart: event.target.value });
+    let customCoordinatesChanged = false;
+    if (covidStore.customCoordinates[0] != event.target.value) {
+      customCoordinatesChanged = true;
+    }
+    setState({
+      ...state,
+      customCoordinatesChanged,
+      customStart: event.target.value,
+    });
   };
   const handleCustomCoordEndChange = (event) => {
-    setState({ ...state, customEnd: event.target.value });
+    let customCoordinatesChanged = false;
+    if (covidStore.customCoordinates[1] != event.target.value) {
+      customCoordinatesChanged = true;
+    }
+    setState({
+      ...state,
+      customCoordinatesChanged,
+      customEnd: event.target.value,
+    });
   };
   const handleCustomCoordSubmit = (event) => {
     event.preventDefault();
@@ -538,7 +567,16 @@ const CoordinateSelect = observer(() => {
               checked={covidStore.coordinateMode === 'custom'}
               onChange={handleModeChange}
             />
-            Custom Coordinates
+            <span>Custom Coordinates</span>
+            <UpdateCoordButton
+              show={
+                state.customCoordinatesChanged &&
+                covidStore.coordinateMode === 'custom'
+              }
+              onClick={handleCustomCoordSubmit}
+            >
+              Confirm
+            </UpdateCoordButton>
           </ModeLabel>
           <CoordForm>
             <span>From</span>
@@ -559,7 +597,11 @@ const CoordinateSelect = observer(() => {
               value={state.customEnd}
               onChange={handleCustomCoordEndChange}
             />
-            <button onClick={handleCustomCoordSubmit}>OK</button>
+            <QuestionButton
+              data-tip="<p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-html="true"
+              data-for="tooltip-filter-sidebar"
+            />
           </CoordForm>
         </ModeRadioVertical>
       </ModeSelectForm>

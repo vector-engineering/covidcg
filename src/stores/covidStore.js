@@ -123,6 +123,21 @@ class ObservableCovidStore {
     this.updateCaseData();
   }
 
+  // Get a pretty name for the group
+  getGroupLabel() {
+    if (this.groupKey === 'lineage') {
+      return 'Lineage';
+    } else if (this.groupKey === 'clade') {
+      return 'Clade';
+    } else if (this.groupKey === 'snp') {
+      if (this.dnaOrAa === 'dna') {
+        return 'NT SNV';
+      } else {
+        return 'AA SNV';
+      }
+    }
+  }
+
   @action
   changeCoordinateMode({
     coordinateMode,
@@ -225,6 +240,9 @@ class ObservableCovidStore {
   selectLocations(selectedNodes) {
     this.selectedLocationNodes = selectedNodes;
     this.selectedLocationIds = getLocationIds(selectedNodes);
+
+    // Clear metadata fields
+    this.selectedMetadataFields = {};
 
     if (!selectedNodes || !selectedNodes[0]) {
       this.emptyCaseData();

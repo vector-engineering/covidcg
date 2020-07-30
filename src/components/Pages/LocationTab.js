@@ -5,7 +5,8 @@ import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { asyncStates } from '../../stores/uiStore';
 
-import ReactTooltip from 'react-tooltip';
+import KBD from '../Common/KBD';
+import TabIndicator from '../Common/TabIndicator';
 import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -17,136 +18,127 @@ import LocationDatePlot from '../Vega/LocationDatePlot';
 
 const LocationTabContainer = styled.div``;
 
-const LocationTab = observer(({ width }) => {
-  const { uiStore } = useStores();
+const HelpText = styled.div`
+  margin-bottom: 5px;
 
-  const renderLocationDatePlot = () => {
-    if (uiStore.caseDataState === asyncStates.STARTED) {
-      return (
-        <div
-          style={{
-            paddingTop: '12px',
-            paddingRight: '24px',
-            paddingLeft: '12px',
-            paddingBottom: '24px',
-          }}
-        >
-          <SkeletonElement delay={2} height={300}>
-            <LoadingSpinner />
-          </SkeletonElement>
-        </div>
-      );
-    } else {
-      return (
-        <AccordionWrapper
-          title={
-            <AccordionTitle>
-              <span>Location-Date Plot</span>
-              <span
-                className="question-button"
-                data-tip="<p>Click on a legend item, line, or dot to select the location.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple locations.</p>"
-                data-html="true"
-                data-for="tooltip-location-group"
-              >
-                ?
-              </span>
-            </AccordionTitle>
-          }
-          defaultCollapsed={false}
-          maxHeight={'800px'}
-        >
-          <LocationDatePlot width={width - 200} />
-          <ReactTooltip
-            id="tooltip-location-date"
-            type="light"
-            effect="solid"
-            border={true}
-            borderColor="#888"
-          />
-        </AccordionWrapper>
-      );
-    }
-  };
+  font-weight: normal;
+  font-size: 0.9em;
+  color: #666;
+  line-height: normal;
+  p {
+    margin-top: 0px;
+    margin-bottom: 3px;
+  }
+`;
 
-  const renderLocationGroupPlot = () => {
-    if (uiStore.caseDataState === asyncStates.STARTED) {
-      return (
-        <div
-          style={{
-            paddingTop: '12px',
-            paddingRight: '24px',
-            paddingLeft: '12px',
-            paddingBottom: '24px',
-          }}
-        >
-          <SkeletonElement delay={2} height={300}>
-            <LoadingSpinner />
-          </SkeletonElement>
-        </div>
-      );
-    } else {
-      return (
-        <AccordionWrapper
-          title={
-            <AccordionTitle>
-              <span>Location-Group Plot</span>
-              <span
-                className="question-button"
-                data-tip="<p>Click on a the location names on the y-axis to select locations.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple locations.</p><p>Click on a bar to select a lineage/clade/SNP.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple lineages/clades/SNPs.</p>"
-                data-html="true"
-                data-for="tooltip-location-group"
-              >
-                ?
-              </span>
-            </AccordionTitle>
-          }
-          defaultCollapsed={false}
-          maxHeight={'500px'}
-        >
-          <LocationGroupPlot width={width - 300} />
-          <ReactTooltip
-            id="tooltip-location-group"
-            type="light"
-            effect="solid"
-            border={true}
-            borderColor="#888"
-          />
-        </AccordionWrapper>
-      );
-    }
-  };
-
-  return (
-    <LocationTabContainer>
-      <ReactTooltip
-        id="tooltip-locations"
-        type="light"
-        effect="solid"
-        border={true}
-        borderColor="#888"
-      />
+const LocationDatePlotWrapper = observer(({ width }) => {
+  const { covidStore, uiStore } = useStores();
+  if (uiStore.caseDataState === asyncStates.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={300}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  } else {
+    return (
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>Legend</span>
-            <span
-              className="question-button"
-              data-tip="<p>Hover over an item in the legend to highlight it in the plot and table.</p><p>Click on a legend item to select it, here and in the plot and table.</p><p>Hold the <kbd>Shift</kbd> key and click to select multiple items.</p>"
-              data-html="true"
-              data-for="tooltip-locations"
-            >
-              ?
-            </span>
-          </AccordionTitle>
-        }
+        title={<AccordionTitle>Location-Date Plot</AccordionTitle>}
+        defaultCollapsed={false}
+        maxHeight={'800px'}
+      >
+        <HelpText>
+          <p>
+            This plot compares the sequence counts or percentages, of the
+            selected <b>{covidStore.getGroupLabel()}s</b>, between the selected
+            locations. Click to highlight one, or hold <KBD>Shift</KBD> and
+            click to highlight multiple locations. Highlighted locations will be
+            shown in the plot below as well.
+          </p>
+        </HelpText>
+        <LocationDatePlot width={width - 200} />
+      </AccordionWrapper>
+    );
+  }
+});
+LocationDatePlotWrapper.propTypes = {
+  width: PropTypes.number,
+};
+
+const LocationGroupPlotWrapper = observer(({ width }) => {
+  const { covidStore, uiStore } = useStores();
+  if (uiStore.caseDataState === asyncStates.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={300}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  } else {
+    return (
+      <AccordionWrapper
+        title={<AccordionTitle>Location-Group Plot</AccordionTitle>}
         defaultCollapsed={false}
         maxHeight={'500px'}
       >
+        <HelpText>
+          <p>
+            This plot shows the cumulative proportion of{' '}
+            <b>{covidStore.getGroupLabel()}s</b> per location. Click to select
+            one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
+            {covidStore.getGroupLabel()}s. Sequences from the selected{' '}
+            {covidStore.getGroupLabel()}s will be shown in the plot above.
+          </p>
+        </HelpText>
+        <LocationGroupPlot width={width - 300} />
+      </AccordionWrapper>
+    );
+  }
+});
+LocationGroupPlotWrapper.propTypes = {
+  width: PropTypes.number,
+};
+
+const LocationTab = observer(({ width }) => {
+  const { covidStore } = useStores();
+
+  return (
+    <LocationTabContainer>
+      <AccordionWrapper
+        title={<AccordionTitle>Legend</AccordionTitle>}
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+      >
+        <HelpText>
+          <p>
+            Items in the legend represent <b>{covidStore.getGroupLabel()}s</b>.
+            Click to select one, or hold <KBD>Shift</KBD> and click to select
+            multiple {covidStore.getGroupLabel()}s. Sequence counts of the
+            selected {covidStore.getGroupLabel()}s will be compared between
+            locations in the plot below.
+          </p>
+        </HelpText>
         <VegaLegend />
       </AccordionWrapper>
 
-      {renderLocationDatePlot()}
-      {renderLocationGroupPlot()}
+      <LocationDatePlotWrapper width={width} />
+      <LocationGroupPlotWrapper width={width} />
     </LocationTabContainer>
   );
 });

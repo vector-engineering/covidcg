@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const PosHeaderCellContainer = styled.div`
-  transform: rotate(-55deg) translate(8px, 0px);
+  line-height: normal;
+  transform: rotate(-55deg) translate(-13px, 15px);
 `;
 
 const PosHeaderCell = ({ pos }) => {

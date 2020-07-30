@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import useDimensions from 'react-use-dimensions';
 import { connect } from '../../stores/connect';
 
+import ReactTooltip from 'react-tooltip';
+import QuestionButton from '../Buttons/QuestionButton';
 import Header from '../FilterSidebar/Header';
 import GroupBySelect from '../FilterSidebar/GroupBySelect';
 import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
@@ -15,7 +17,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 // import SideBar from './Sidebar';
 // import VegaTree from './VegaTree';
-import StatusBar from '../StatusBar';
+import TabBar from '../TabBar';
 import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
 
 import GroupTab from './GroupTab';
@@ -43,6 +45,16 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-y: hidden;
+
+  .filter-sidebar-tooltip {
+    background-color: #fff;
+    font-weight: normal;
+    p {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+  }
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -103,6 +115,14 @@ const HomePage = observer(() => {
       <HomePageDiv>
         {/* <SideBar /> */}
         <FilterSidebar>
+          <ReactTooltip
+            className="filter-sidebar-tooltip"
+            id="tooltip-filter-sidebar"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper
@@ -113,7 +133,16 @@ const HomePage = observer(() => {
             <CoordinateSelect />
           </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
-            title="Filter sequences by"
+            title={
+              <div>
+                Filter by metadata (advanced)
+                <QuestionButton
+                  data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p>'
+                  data-html={true}
+                  data-for="tooltip-filter-sidebar"
+                />
+              </div>
+            }
             defaultCollapsed={true}
             maxHeight={'240px'}
           >
@@ -130,7 +159,7 @@ const HomePage = observer(() => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <StatusBar activeTab={activeTab} onTabChange={onTabChange} />
+          <TabBar activeTab={activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer openModal={openModal} />
         </PlotContainer>
