@@ -5,35 +5,22 @@ import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 
 const SelectContainer = styled.div`
-  margin: 7px 13px 5px 13px;
-`;
-
-const GroupKeySelectForm = styled.form`
-  label {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 5px;
-
-    span {
-      flex-shrink: 0;
-      margin-right: 10px;
-    }
-
-    select {
-      padding: 1px 5px;
-      flex-grow: 1;
-      width: 100%;
-      border-radius: 3px;
-      margin: 0px;
-    }
-  }
+  padding: 7px 13px 0px 13px;
+  box-shadow: 0px 2px 4px #aaa;
+  background-color: #fcfcfc;
 `;
 
 const RadioForm = styled.form`
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+
+  margin-bottom: 10px;
+  // margin-bottom: 5px;
+
+  // background-color: #fff;
+  // padding: 5px 10px;
+  // border: 1px solid #ccc;
 
   span {
     flex-shrink: 0;
@@ -45,6 +32,9 @@ const RadioForm = styled.form`
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    margin-top: 3px;
+    margin-left: 12px;
   }
 
   .radio-item {
@@ -85,24 +75,6 @@ const GroupBySelect = observer(() => {
     covidStore.changeGrouping(covidStore.groupKey, event.target.value);
   };
 
-  // group by options
-  let groupByOptions = [
-    { label: 'Lineage', value: 'lineage' },
-    { label: 'Clade', value: 'clade' },
-    { label: 'SNV', value: 'snp' },
-    // { label: 'SNP Signature', value: 'snp_sig' },
-  ];
-
-  // Create option elements
-  let optionElements = [];
-  groupByOptions.forEach((opt) => {
-    optionElements.push(
-      <option key={opt.value} value={opt.value}>
-        {opt.label}
-      </option>
-    );
-  });
-
   let aaDisabledMessage = '';
   let aaDisabled = false;
   if (
@@ -129,14 +101,47 @@ const GroupBySelect = observer(() => {
 
   return (
     <SelectContainer>
-      <GroupKeySelectForm>
-        <label>
-          <span>Group sequences by</span>
-          <select value={covidStore.groupKey} onChange={handleGroupKeyChange}>
-            {optionElements}
-          </select>
-        </label>
-      </GroupKeySelectForm>
+      <RadioForm>
+        <span className="form-title">Group sequences by</span>
+        <div className="radio-row">
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="lineage"
+                checked={covidStore.groupKey === 'lineage'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>Lineage</span>
+            </label>
+          </div>
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="clade"
+                checked={covidStore.groupKey === 'clade'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>Clade</span>
+            </label>
+          </div>
+          <div className="radio-item">
+            <label>
+              <input
+                className="radio-input"
+                type="radio"
+                value="snp"
+                checked={covidStore.groupKey === 'snp'}
+                onChange={handleGroupKeyChange}
+              />
+              <span>SNV</span>
+            </label>
+          </div>
+        </div>
+      </RadioForm>
       <RadioForm>
         <span>Mutation format</span>
         <div className="radio-row">
