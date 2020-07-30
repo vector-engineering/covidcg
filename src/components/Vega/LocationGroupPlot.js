@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
+import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
@@ -108,8 +109,20 @@ const LocationGroupPlot = observer(({ width }) => {
   }
   xLabel += ' (Cumulative, All Sequences)';
 
-  return (
-    <PlotContainer>
+  const renderPlot = () => {
+    if (covidStore.selectedLocationIds.length == 0) {
+      return (
+        <EmptyPlot height={100}>
+          <p>
+            No locations selected. Please select one or more locations from the
+            sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+            <b>{covidStore.getGroupLabel()}</b> between them.
+          </p>
+        </EmptyPlot>
+      );
+    }
+
+    return (
       <div style={{ width: `${width}` }}>
         <VegaEmbed
           ref={vegaRef}
@@ -126,8 +139,10 @@ const LocationGroupPlot = observer(({ width }) => {
           actions={false}
         />
       </div>
-    </PlotContainer>
-  );
+    );
+  };
+
+  return <PlotContainer>{renderPlot()}</PlotContainer>;
 });
 LocationGroupPlot.propTypes = {
   width: PropTypes.number,

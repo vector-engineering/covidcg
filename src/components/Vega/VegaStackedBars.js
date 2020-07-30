@@ -4,11 +4,15 @@ import styled from 'styled-components';
 // import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { asyncStates } from '../../stores/uiStore';
 import _ from 'underscore';
 
+import EmptyPlot from '../Common/EmptyPlot';
 import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
 import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
@@ -47,7 +51,7 @@ const SelectContainer = styled.div`
 
 const VegaStackedBars = observer(({ width }) => {
   const vegaRef = useRef();
-  const { covidStore } = useStores();
+  const { covidStore, uiStore } = useStores();
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
@@ -249,6 +253,35 @@ const VegaStackedBars = observer(({ width }) => {
   } else if (covidStore.groupKey === 'snp') {
     detailYLabel +=
       'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
+  }
+
+  if (uiStore.caseDataState === asyncStates.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={400}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
+
+  if (covidStore.selectedLocationIds.length === 0) {
+    return (
+      <EmptyPlot height={250}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{covidStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
   }
 
   return (

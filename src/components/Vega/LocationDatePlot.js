@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
+import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
 import initialSpec from '../../vega_specs/location_date.vg.json';
@@ -193,14 +194,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (state.normMode === 'percentages') {
     yLabel += '% ';
   }
-  if (covidStore.groupKey === 'lineage') {
-    yLabel += 'Sequences by Lineage';
-  } else if (covidStore.groupKey === 'clade') {
-    yLabel += 'Sequences by Clade';
-  } else if (covidStore.groupKey === 'snp') {
-    yLabel +=
-      'Sequences by ' + (covidStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
-  }
+  yLabel += 'Sequences by ' + covidStore.getGroupLabel();
 
   let plotTitle = '';
   if (state.countMode === 'cumulative') {
@@ -208,20 +202,8 @@ const LocationDatePlot = observer(({ width }) => {
   } else if (state.countMode === 'new') {
     plotTitle += 'New ';
   }
-
-  if (covidStore.groupKey === 'lineage') {
-    plotTitle += 'Lineage ';
-  } else if (covidStore.groupKey === 'clade') {
-    plotTitle += 'Clade ';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      plotTitle += 'NT';
-    } else {
-      plotTitle += 'AA';
-    }
-    plotTitle += ' SNV ';
-  }
-  plotTitle += state.normMode === 'percentages' ? 'Percentages' : 'Counts';
+  plotTitle += covidStore.getGroupLabel();
+  plotTitle += state.normMode === 'percentages' ? ' Percentages' : ' Counts';
 
   if (state.dateBin === 'day') {
     plotTitle += ' by Day';
@@ -230,29 +212,88 @@ const LocationDatePlot = observer(({ width }) => {
   } else if (state.dateBin === 'month') {
     plotTitle += ' by Month';
   }
+  if (covidStore.selectedGroups.length > 0) {
+    plotTitle += ' (Selected ' + covidStore.getGroupLabel() + 's Only)';
+  }
 
-  if (covidStore.selectedGroups.length > 0) {
-    plotTitle += ' (Selected ';
-  } else {
-    plotTitle += ' (All ';
-  }
-  if (covidStore.groupKey === 'lineage') {
-    plotTitle += 'Lineages';
-  } else if (covidStore.groupKey === 'clade') {
-    plotTitle += 'Clades';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
-      plotTitle += 'NT';
-    } else {
-      plotTitle += 'AA';
+  const renderPlot = () => {
+    if (covidStore.selectedLocationIds.length == 0) {
+      return (
+        <EmptyPlot height={200}>
+          <p>
+            No locations selected. Please select one or more locations from the
+            sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+            <b>{covidStore.getGroupLabel()}</b> between them.
+          </p>
+        </EmptyPlot>
+      );
     }
-    plotTitle += ' SNVs';
-  }
-  if (covidStore.selectedGroups.length > 0) {
-    plotTitle += ' Only)';
-  } else {
-    plotTitle += ')';
-  }
+
+    if (covidStore.selectedGroups.length == 0) {
+      return (
+        <EmptyPlot height={200}>
+          <p>
+            Please select a <b>{covidStore.getGroupLabel()}</b> from the legend
+            (above) or the group plot (below), to compare its counts between the
+            selected locations.
+          </p>
+        </EmptyPlot>
+      );
+    }
+
+    return (
+      <>
+        <PlotOptions>
+          <span className="plot-title">{plotTitle}</span>
+          <SelectContainer>
+            <label>
+              <select value={state.countMode} onChange={onChangeCountMode}>
+                <option value="new">New</option>
+                <option value="cumulative">Cumulative</option>
+              </select>
+            </label>
+          </SelectContainer>
+          sequences, shown as{' '}
+          <SelectContainer>
+            <label>
+              <select value={state.normMode} onChange={onChangeNormMode}>
+                <option value="counts">Counts</option>
+                <option value="percentages">Percentages</option>
+              </select>
+            </label>
+          </SelectContainer>
+          grouped by{' '}
+          <SelectContainer>
+            <label>
+              <select value={state.dateBin} onChange={onChangeDateBin}>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+              </select>
+            </label>
+          </SelectContainer>
+        </PlotOptions>
+        <div style={{ width: `${width}` }}>
+          <VegaEmbed
+            ref={vegaRef}
+            data={state.data}
+            recreateOnDatasets={['selectedGroups']}
+            spec={state.spec}
+            signalListeners={state.signalListeners}
+            dataListeners={state.dataListeners}
+            width={width}
+            signals={{
+              hoverLocation: { location: covidStore.hoverLocation },
+              yField,
+              cumulativeWindow,
+              yLabel,
+            }}
+            actions={false}
+          />
+        </div>
+      </>
+    );
+  };
 
   return (
     <PlotContainer>
@@ -263,55 +304,7 @@ const LocationDatePlot = observer(({ width }) => {
           data and artefacts in this visualization. Please interpret this data
           with care."
       />
-
-      <PlotOptions>
-        <span className="plot-title">{plotTitle}</span>
-        <SelectContainer>
-          <label>
-            <select value={state.countMode} onChange={onChangeCountMode}>
-              <option value="new">New</option>
-              <option value="cumulative">Cumulative</option>
-            </select>
-          </label>
-        </SelectContainer>
-        sequences, shown as{' '}
-        <SelectContainer>
-          <label>
-            <select value={state.normMode} onChange={onChangeNormMode}>
-              <option value="counts">Counts</option>
-              <option value="percentages">Percentages</option>
-            </select>
-          </label>
-        </SelectContainer>
-        grouped by{' '}
-        <SelectContainer>
-          <label>
-            <select value={state.dateBin} onChange={onChangeDateBin}>
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-            </select>
-          </label>
-        </SelectContainer>
-      </PlotOptions>
-      <div style={{ width: `${width}` }}>
-        <VegaEmbed
-          ref={vegaRef}
-          data={state.data}
-          recreateOnDatasets={['selectedGroups']}
-          spec={state.spec}
-          signalListeners={state.signalListeners}
-          dataListeners={state.dataListeners}
-          width={width}
-          signals={{
-            hoverLocation: { location: covidStore.hoverLocation },
-            yField,
-            cumulativeWindow,
-            yLabel,
-          }}
-          actions={false}
-        />
-      </div>
+      {renderPlot()}
     </PlotContainer>
   );
 });

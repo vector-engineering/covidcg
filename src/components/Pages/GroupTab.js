@@ -3,14 +3,11 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/uiStore';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
-import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
 
 import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/VegaStackedBars';
@@ -32,50 +29,15 @@ const HelpText = styled.div`
   }
 `;
 
-const PlotContent = observer(({ width }) => {
-  const { covidStore, uiStore } = useStores();
+// const PlotContent = observer(({ width }) => {
+//   const { covidStore, uiStore } = useStores();
 
-  if (uiStore.caseDataState === asyncStates.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={400}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  } else {
-    return (
-      <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>Plot</span>
-          </AccordionTitle>
-        }
-        defaultCollapsed={false}
-        maxHeight={'1200px'}
-      >
-        <HelpText>
-          <p>
-            The plot shows sequences grouped by their respective{' '}
-            <b>{covidStore.getGroupLabel()}</b> and plotted over time. Click to
-            select one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {covidStore.getGroupLabel()}s. Selected {covidStore.getGroupLabel()}
-            s will be highlighted in the legend and table below, as well as in
-            the <TabIndicator>Compare Locations</TabIndicator> tab.
-          </p>
-        </HelpText>
-        <VegaStackedBars width={width - 150} />
-      </AccordionWrapper>
-    );
-  }
-});
+//   if (uiStore.caseDataState === asyncStates.STARTED) {
+//     return (
+
+//     );
+//   }
+// });
 
 const GroupTab = observer(({ width }) => {
   const { covidStore } = useStores();
@@ -103,7 +65,27 @@ const GroupTab = observer(({ width }) => {
         </HelpText>
         <VegaLegend />
       </AccordionWrapper>
-      <PlotContent width={width} />
+      <AccordionWrapper
+        title={
+          <AccordionTitle>
+            <span>Plot</span>
+          </AccordionTitle>
+        }
+        defaultCollapsed={false}
+        maxHeight={'1200px'}
+      >
+        <HelpText>
+          <p>
+            The plot shows sequences grouped by their respective{' '}
+            <b>{covidStore.getGroupLabel()}</b> and plotted over time. Click to
+            select one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
+            {covidStore.getGroupLabel()}s. Selected {covidStore.getGroupLabel()}
+            s will be highlighted in the legend and table below, as well as in
+            the <TabIndicator>Compare Locations</TabIndicator> tab.
+          </p>
+        </HelpText>
+        <VegaStackedBars width={width - 150} />
+      </AccordionWrapper>
       {/*covidStore.groupKey === 'lineage' && (
         <VegaTree width={width} data={covidStore.caseDataAggGroup} />
       )*/}
