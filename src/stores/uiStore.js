@@ -27,6 +27,7 @@ class ObservableUIStore {
   @observable sidebarSelectedGroupKeys = [];
   @observable caseDataState = STARTED;
   @observable aggCaseDataState = STARTED;
+  @observable activeTab = 'group';
 
   @action
   onCaseDataStateStarted = () => {
@@ -79,6 +80,11 @@ class ObservableUIStore {
       this.sidebarSelectedGroupKeys,
       groupKey
     );
+  }
+
+  @action
+  setActiveTab(tab) {
+    this.activeTab = tab;
   }
 }
 

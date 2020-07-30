@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
+import { useStores } from '../../stores/connect';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
-import { connect } from '../../stores/connect';
 
 import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -73,9 +72,9 @@ const PlotContainer = styled.div`
 
 const HomePage = observer(() => {
   const [ref, { width }] = useDimensions();
+  const { UIStore } = useStores();
 
   const [modalIsOpen, setIsOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('group');
   const openModal = (e) => {
     if (e !== undefined) {
       e.preventDefault();
@@ -92,15 +91,15 @@ const HomePage = observer(() => {
   };
 
   const onTabChange = (tab) => {
-    setActiveTab(tab);
+    UIStore.setActiveTab(tab);
   };
 
   const renderTab = () => {
-    if (activeTab === 'group') {
+    if (UIStore.activeTab === 'group') {
       return <GroupTab width={width} />;
-    } else if (activeTab === 'location') {
+    } else if (UIStore.activeTab === 'location') {
       return <LocationTab width={width} />;
-    } else if (activeTab === 'about') {
+    } else if (UIStore.activeTab === 'about') {
       return <AboutTab />;
     }
   };
@@ -159,7 +158,7 @@ const HomePage = observer(() => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <TabBar activeTab={activeTab} onTabChange={onTabChange} />
+          <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer openModal={openModal} />
         </PlotContainer>
@@ -168,9 +167,5 @@ const HomePage = observer(() => {
   );
 });
 
-HomePage.propTypes = {
-  router: PropTypes.object.isRequired,
-};
-
 // eslint-disable-next-line react/display-name
-export default connect(HomePage);
+export default HomePage;
