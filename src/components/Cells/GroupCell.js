@@ -34,7 +34,7 @@ const GroupCell = ({ text, color }) => {
 };
 GroupCell.displayName = 'GroupCell';
 GroupCell.propTypes = {
-  text: PropTypes.oneOf([PropTypes.string, PropTypes.number]),
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   color: PropTypes.string,
 };
 GroupCell.defaultProps = {
