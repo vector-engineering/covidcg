@@ -7,7 +7,7 @@ import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
-import initialSpec from '../../vega/location_date.vg.json';
+import initialSpec from '../../vega_specs/location_date.vg.json';
 
 const PlotContainer = styled.div``;
 

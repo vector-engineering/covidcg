@@ -6,7 +6,7 @@ import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
-import initialSpec from '../../vega/location_group.vg.json';
+import initialSpec from '../../vega_specs/location_group.vg.json';
 
 const PlotContainer = styled.div``;
 

@@ -11,7 +11,7 @@ import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 
 // import areaStackSpecInitial from '../vega/area_stack.vl.json';
-import initialSpec from '../../vega/bar_stack_v1.vg.json';
+import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
 
 const PlotOptions = styled.div`
   display: flex;
