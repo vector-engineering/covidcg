@@ -45,6 +45,7 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-y: hidden;
 
   .filter-sidebar-tooltip {
     background-color: #fff;

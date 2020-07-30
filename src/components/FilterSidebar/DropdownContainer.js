@@ -14,7 +14,8 @@ const ContainerDiv = styled.div`
   border-top: 1px solid #aaa;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  overflow-y: scroll;
 
   .location-tree-title {
     margin-left: 15px;
@@ -25,7 +26,8 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   flex-direction: column;
   display: flex;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  overflow-y: scroll;
 
   ul.tag-list {
     li:first-child {
@@ -161,7 +163,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     position: relative;
     flex-direction: column;
     display: flex;
-    overflow: hidden;
+    // overflow: hidden;
     align-items: stretch;
 
     a.dropdown-trigger {
