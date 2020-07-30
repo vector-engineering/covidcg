@@ -15,6 +15,7 @@ export const connect = (Component) => {
             dataStore={value.dataStore}
             router={value.router}
             UIStore={value.UIStore}
+            configStore={value.configStore}
             {...props}
           />
         )}

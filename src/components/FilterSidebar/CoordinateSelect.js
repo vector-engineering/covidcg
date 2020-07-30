@@ -253,7 +253,7 @@ const genes = getAllGenes();
 const proteins = getAllProteins();
 
 const CoordinateSelect = observer(() => {
-  const { dataStore } = useStores();
+  const { configStore } = useStores();
 
   // Create option elements
 
@@ -281,8 +281,8 @@ const CoordinateSelect = observer(() => {
     primerTreeData: Object.assign(getPrimerSelectTree()),
     selectedPrimers: [],
     primersChanged: false,
-    customStart: dataStore.customCoordinates[0],
-    customEnd: dataStore.customCoordinates[1],
+    customStart: configStore.customCoordinates[0],
+    customEnd: configStore.customCoordinates[1],
     customCoordinatesChanged: false,
   });
 
@@ -292,20 +292,20 @@ const CoordinateSelect = observer(() => {
   //   let _geneOptionElements = state.geneOptionElements;
   //   let _proteinOptionElements = state.proteinOptionElements;
 
-  //   if (dataStore.groupKey !== 'snp' && dataStore.dnaOrAa === 'aa') {
+  //   if (configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa') {
 
   //   }
 
-  // }, [dataStore.groupKey, dataStore.dnaOrAa]);
+  // }, [configStore.groupKey, configStore.dnaOrAa]);
 
   // Update custom coordinates from the store
   useEffect(() => {
     setState({
       ...state,
-      customStart: dataStore.customCoordinates[0],
-      customEnd: dataStore.customCoordinates[1],
+      customStart: configStore.customCoordinates[0],
+      customEnd: configStore.customCoordinates[1],
     });
-  }, [dataStore.customCoordinates]);
+  }, [configStore.customCoordinates]);
 
   const changeCoordinateMode = ({
     coordinateMode,
@@ -314,24 +314,26 @@ const CoordinateSelect = observer(() => {
     selectedPrimers,
     customCoordinates,
   }) => {
-    dataStore.changeCoordinateMode({
+    configStore.changeCoordinateMode({
       coordinateMode:
         coordinateMode === undefined
-          ? dataStore.coordinateMode
+          ? configStore.coordinateMode
           : coordinateMode,
       selectedGene:
-        selectedGene === undefined ? dataStore.selectedGene.gene : selectedGene,
+        selectedGene === undefined
+          ? configStore.selectedGene.gene
+          : selectedGene,
       selectedProtein:
         selectedProtein === undefined
-          ? dataStore.selectedProtein.protein
+          ? configStore.selectedProtein.protein
           : selectedProtein,
       selectedPrimers:
         selectedPrimers === undefined
-          ? dataStore.selectedPrimers
+          ? configStore.selectedPrimers
           : selectedPrimers,
       customCoordinates:
         customCoordinates === undefined
-          ? dataStore.customCoordinates
+          ? configStore.customCoordinates
           : customCoordinates,
     });
   };
@@ -356,7 +358,7 @@ const CoordinateSelect = observer(() => {
 
   const handleCustomCoordStartChange = (event) => {
     let customCoordinatesChanged = false;
-    if (dataStore.customCoordinates[0] != event.target.value) {
+    if (configStore.customCoordinates[0] != event.target.value) {
       customCoordinatesChanged = true;
     }
     setState({
@@ -367,7 +369,7 @@ const CoordinateSelect = observer(() => {
   };
   const handleCustomCoordEndChange = (event) => {
     let customCoordinatesChanged = false;
-    if (dataStore.customCoordinates[1] != event.target.value) {
+    if (configStore.customCoordinates[1] != event.target.value) {
       customCoordinatesChanged = true;
     }
     setState({
@@ -386,12 +388,12 @@ const CoordinateSelect = observer(() => {
   };
 
   const checkPrimersChanged = (selectedPrimers) => {
-    // Is the current dataStore.selectedPrimers the same as the current selection?
-    let changed = selectedPrimers.length !== dataStore.selectedPrimers.length;
+    // Is the current configStore.selectedPrimers the same as the current selection?
+    let changed = selectedPrimers.length !== configStore.selectedPrimers.length;
     if (!changed && selectedPrimers.length > 0) {
-      // Run through once - both selectedPrimers and the dataStore version are sorted
+      // Run through once - both selectedPrimers and the configStore version are sorted
       for (let i = 0; i < selectedPrimers.length; i++) {
-        if (!_.isEqual(selectedPrimers[i], dataStore.selectedPrimers[i])) {
+        if (!_.isEqual(selectedPrimers[i], configStore.selectedPrimers[i])) {
           changed = true;
           break;
         }
@@ -405,7 +407,7 @@ const CoordinateSelect = observer(() => {
       ...state,
       primersChanged: checkPrimersChanged(state.selectedPrimers),
     });
-  }, [dataStore.selectedPrimers]);
+  }, [configStore.selectedPrimers]);
 
   const onPrimerSelect = (currentNode, selectedNodes) => {
     // console.log(currentNode);
@@ -474,21 +476,21 @@ const CoordinateSelect = observer(() => {
               className="radio-input"
               type="radio"
               value="gene"
-              checked={dataStore.coordinateMode === 'gene'}
+              checked={configStore.coordinateMode === 'gene'}
               onChange={handleModeChange}
             />
             Gene
           </ModeLabel>
           <SelectForm>
             <select
-              value={dataStore.selectedGene.gene}
+              value={configStore.selectedGene.gene}
               onChange={handleGeneChange}
             >
               <option
                 key="All Genes"
                 value="All Genes"
                 disabled={
-                  dataStore.groupKey !== 'snp' && dataStore.dnaOrAa === 'aa'
+                  configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa'
                 }
               >
                 All Genes
@@ -503,21 +505,21 @@ const CoordinateSelect = observer(() => {
               className="radio-input"
               type="radio"
               value="protein"
-              checked={dataStore.coordinateMode === 'protein'}
+              checked={configStore.coordinateMode === 'protein'}
               onChange={handleModeChange}
             />
             Protein
           </ModeLabel>
           <SelectForm>
             <select
-              value={dataStore.selectedProtein.protein}
+              value={configStore.selectedProtein.protein}
               onChange={handleProteinChange}
             >
               <option
                 key="All Proteins"
                 value="All Proteins"
                 disabled={
-                  dataStore.groupKey !== 'snp' && dataStore.dnaOrAa === 'aa'
+                  configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa'
                 }
               >
                 All Proteins
@@ -533,7 +535,7 @@ const CoordinateSelect = observer(() => {
               className="radio-input"
               type="radio"
               value="primer"
-              checked={dataStore.coordinateMode === 'primer'}
+              checked={configStore.coordinateMode === 'primer'}
               onChange={handleModeChange}
             />
             Primers/Probes
@@ -562,14 +564,14 @@ const CoordinateSelect = observer(() => {
               className="radio-input"
               type="radio"
               value="custom"
-              checked={dataStore.coordinateMode === 'custom'}
+              checked={configStore.coordinateMode === 'custom'}
               onChange={handleModeChange}
             />
             <span>Custom Coordinates</span>
             <UpdateCoordButton
               show={
                 state.customCoordinatesChanged &&
-                dataStore.coordinateMode === 'custom'
+                configStore.coordinateMode === 'custom'
               }
               onClick={handleCustomCoordSubmit}
             >

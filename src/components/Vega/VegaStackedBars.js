@@ -51,47 +51,47 @@ const SelectContainer = styled.div`
 
 const VegaStackedBars = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, UIStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
     if (dateRange !== null) {
-      dataStore.selectDateRange([
+      configStore.selectDateRange([
         dateRange[0].getTime(),
         dateRange[1].getTime(),
       ]);
     } else {
       // Reset time range
-      dataStore.selectDateRange([-1, -1]);
+      configStore.selectDateRange([-1, -1]);
     }
   };
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === dataStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
 
     // console.log('Updating store hoverGroup from plot', hoverGroup);
     // console.log('state hovergroup', state.hoverGroup);
-    dataStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   const handleSelected = (...args) => {
     // console.log(args);
 
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], dataStore.selectedGroups)) {
+    if (_.isEqual(args[1], configStore.selectedGroups)) {
       return;
     }
 
-    dataStore.updateSelectedGroups(args[1]);
+    configStore.updateSelectedGroups(args[1]);
   };
 
   const handleDownloadSelect = (option) => {
     // console.log(option);
-    // TODO: use the plot options and dataStore options to build a more descriptive filename
+    // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === 'PNG') {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
@@ -108,7 +108,7 @@ const VegaStackedBars = observer(({ width }) => {
     showWarning: true,
     data: {
       cases_by_date_and_group: JSON.parse(JSON.stringify(dataStore.caseData)),
-      selected: JSON.parse(JSON.stringify(dataStore.selectedGroups)),
+      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
       detailDomain: _.debounce(handleBrush, 500),
@@ -179,10 +179,10 @@ const VegaStackedBars = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: JSON.parse(JSON.stringify(dataStore.selectedGroups)),
+        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [dataStore.selectedGroups]);
+  }, [configStore.selectedGroups]);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
@@ -193,21 +193,9 @@ const VegaStackedBars = observer(({ width }) => {
   } else if (state.countMode === 'new') {
     areaStackTitle += 'New ';
   }
-
-  if (dataStore.groupKey === 'lineage') {
-    areaStackTitle += 'Lineage ';
-  } else if (dataStore.groupKey === 'clade') {
-    areaStackTitle += 'Clade ';
-  } else if (dataStore.groupKey === 'snp') {
-    if (dataStore.dnaOrAa === 'dna') {
-      areaStackTitle += 'NT';
-    } else {
-      areaStackTitle += 'AA';
-    }
-    areaStackTitle += ' SNV ';
-  }
+  areaStackTitle += configStore.getGroupLabel();
   areaStackTitle +=
-    state.areaStackMode === 'percentages' ? 'Percentages' : 'Counts';
+    state.areaStackMode === 'percentages' ? ' Percentages' : ' Counts';
 
   if (state.dateBin === 'day') {
     areaStackTitle += ' by Day';
@@ -244,14 +232,7 @@ const VegaStackedBars = observer(({ width }) => {
   if (state.areaStackMode === 'percentages') {
     detailYLabel += '% ';
   }
-  if (dataStore.groupKey === 'lineage') {
-    detailYLabel += 'Sequences by Lineage';
-  } else if (dataStore.groupKey === 'clade') {
-    detailYLabel += 'Sequences by Clade';
-  } else if (dataStore.groupKey === 'snp') {
-    detailYLabel +=
-      'Sequences by ' + (dataStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
-  }
+  detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
 
   if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
@@ -270,13 +251,13 @@ const VegaStackedBars = observer(({ width }) => {
     );
   }
 
-  if (dataStore.selectedLocationIds.length === 0) {
+  if (configStore.selectedLocationIds.length === 0) {
     return (
       <EmptyPlot height={250}>
         <p>
           No locations selected. Please select one or more locations from the
           sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-          <b>{dataStore.getGroupLabel()}</b> between them.
+          <b>{configStore.getGroupLabel()}</b> between them.
         </p>
       </EmptyPlot>
     );
@@ -339,7 +320,7 @@ const VegaStackedBars = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            hoverBar: { group: dataStore.hoverGroup },
+            hoverBar: { group: configStore.hoverGroup },
             stackOffset,
             dateBin,
             cumulativeWindow,

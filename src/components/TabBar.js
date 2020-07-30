@@ -116,7 +116,7 @@ TabItem.defaultProps = {
 // };
 
 const TabBar = observer(({ activeTab, onTabChange }) => {
-  // const { dataStore } = useStores();
+  // const { dataStore, configStore } = useStores();
 
   const changeTab = (tab, e) => {
     e.preventDefault();
@@ -137,12 +137,12 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   // }
 
   // let groupName;
-  // if (dataStore.groupKey === 'lineage') {
+  // if (configStore.groupKey === 'lineage') {
   //   groupName = 'Lineage';
-  // } else if (dataStore.groupKey === 'clade') {
+  // } else if (configStore.groupKey === 'clade') {
   //   groupName = 'Clade';
-  // } else if (dataStore.groupKey === 'snp') {
-  //   if (dataStore.dnaOrAa === 'dna') {
+  // } else if (configStore.groupKey === 'snp') {
+  //   if (configStore.dnaOrAa === 'dna') {
   //     groupName = 'NT SNP';
   //   } else {
   //     groupName = 'AA SNP';
@@ -150,17 +150,17 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   // }
 
   // let selectedGroups = '';
-  // if (dataStore.selectedGroups.length > 0) {
-  //   selectedGroups = _.pluck(dataStore.selectedGroups, 'group').join(', ');
+  // if (configStore.selectedGroups.length > 0) {
+  //   selectedGroups = _.pluck(configStore.selectedGroups, 'group').join(', ');
   //   selectedGroups = <span className="content">({selectedGroups})</span>;
   // }
 
   // let selectedDates = 'No date range selected';
-  // if (dataStore.dateRange[0] !== -1 && dataStore.dateRange[1] !== -1) {
+  // if (configStore.dateRange[0] !== -1 && configStore.dateRange[1] !== -1) {
   //   selectedDates =
-  //     intToISO(dataStore.dateRange[0]) +
+  //     intToISO(configStore.dateRange[0]) +
   //     ' – ' +
-  //     intToISO(dataStore.dateRange[1] - 86400000);
+  //     intToISO(configStore.dateRange[1] - 86400000);
   // }
 
   return (
@@ -208,7 +208,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
           <div className="row-status-header">
             <span className="title">{groupName} Selection</span>
             <span className="subtitle">
-              ({dataStore.selectedGroups.length} selected)
+              ({configStore.selectedGroups.length} selected)
             </span>
           </div>
           {selectedGroups}

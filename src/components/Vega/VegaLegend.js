@@ -97,7 +97,7 @@ ColorCircle.defaultProps = {
 };
 
 const VegaLegend = observer(() => {
-  const { dataStore, UIStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
 
   const onKeyDown = (e) => {
@@ -158,11 +158,11 @@ const VegaLegend = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(dataStore.selectedGroups, { group: selectedGroup }) !==
+      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
       newGroups = _.reject(
-        dataStore.selectedGroups,
+        configStore.selectedGroups,
         (group) => group.group == selectedGroup
       );
     } else {
@@ -170,19 +170,19 @@ const VegaLegend = observer(() => {
       newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
       if (shiftKeyPressed) {
-        newGroups = newGroups.concat(dataStore.selectedGroups);
+        newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
-    dataStore.updateSelectedGroups(newGroups);
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
-    if (hoverGroup === dataStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-    dataStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   const renderLegendKeys = (groupObjs) => {
@@ -192,9 +192,9 @@ const VegaLegend = observer(() => {
       }
 
       let itemSelected = null;
-      if (dataStore.selectedGroups.length > 0) {
+      if (configStore.selectedGroups.length > 0) {
         if (
-          _.findWhere(dataStore.selectedGroups, { group: obj.group }) !==
+          _.findWhere(configStore.selectedGroups, { group: obj.group }) !==
           undefined
         ) {
           itemSelected = true;
@@ -209,7 +209,7 @@ const VegaLegend = observer(() => {
       return (
         <LegendItem
           key={`${Math.random()}${obj.color}`}
-          hovered={dataStore.hoverGroup === obj.group}
+          hovered={configStore.hoverGroup === obj.group}
           selected={itemSelected}
           onMouseEnter={onItemEnter.bind(this, obj.group)}
           onMouseLeave={onItemLeave}

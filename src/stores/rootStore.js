@@ -3,16 +3,19 @@ import React from 'react';
 import { RouterStore, startRouter } from 'mobx-router';
 import routes from '../routes';
 import ObservableDataStore from './dataStore';
-import ObservableUIStore from './uiStore';
+import ObservableUIStore from './UIStore';
+import ObservableConfigStore from './configStore';
 
+export const routerInstance = new RouterStore();
+export const configStoreInstance = new ObservableConfigStore();
 export const UIStoreInstance = new ObservableUIStore();
 export const dataStoreInstance = new ObservableDataStore();
-export const routerInstance = new RouterStore();
 
 export const rootStore = {
-  dataStore: dataStoreInstance,
   router: routerInstance,
+  configStore: configStoreInstance,
   UIStore: UIStoreInstance,
+  dataStore: dataStoreInstance,
 };
 
 export const storesContext = React.createContext(rootStore);

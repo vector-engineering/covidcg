@@ -1,11 +1,11 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
-import _ from 'underscore';
-import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
 import { asyncStates } from '../../stores/UIStore';
+
+import { loadSelectTree } from '../../utils/location';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;
@@ -252,15 +252,15 @@ const assignObjectPaths = (obj, stack) => {
   });
 };
 
+let initialData = Object.assign(loadSelectTree(), {
+  expanded: true,
+});
+assignObjectPaths(initialData);
+
 const DropdownContainer = () => {
-  const { dataStore, UIStore } = useStores();
+  const { UIStore, configStore } = useStores();
 
-  let initialData = Object.assign(toJS(dataStore.selectTree), {
-    expanded: true,
-  });
-  assignObjectPaths(initialData);
-
-  const [state, setState] = useState({
+  const [state] = useState({
     data: initialData,
     expanded: [],
   });
@@ -295,7 +295,7 @@ const DropdownContainer = () => {
     ) {
       return;
     }
-    dataStore.selectLocations(selectedNodeObjs);
+    configStore.selectLocations(selectedNodeObjs);
   };
   // const treeSelectOnAction = (node, action) => {
   //   console.log('onAction::', action, node);
@@ -303,20 +303,6 @@ const DropdownContainer = () => {
   // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
   //   console.log('onNodeToggle::', currentNode);
   // };
-
-  useEffect(() => {
-    if (!_.isEqual(dataStore.selectTree, state.data)) {
-      let data = Object.assign(toJS(dataStore.selectTree), {
-        expanded: true,
-      });
-      assignObjectPaths(data);
-
-      setState({
-        ...state,
-        data: data,
-      });
-    }
-  }, [dataStore.selectTree]);
 
   const dropdownContainer = useMemo(
     () => (

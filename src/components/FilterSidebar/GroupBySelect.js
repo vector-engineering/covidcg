@@ -72,34 +72,34 @@ const Link = styled(ExternalLink)`
 `;
 
 const GroupBySelect = observer(() => {
-  const { dataStore } = useStores();
+  const { configStore } = useStores();
 
   let handleGroupKeyChange = (event) => {
-    dataStore.changeGrouping(event.target.value, dataStore.dnaOrAa);
+    configStore.changeGrouping(event.target.value, configStore.dnaOrAa);
   };
 
   let handleDnaOrAaChange = (event) => {
-    dataStore.changeGrouping(dataStore.groupKey, event.target.value);
+    configStore.changeGrouping(configStore.groupKey, event.target.value);
   };
 
   let aaDisabledMessage = '';
   let aaDisabled = false;
   if (
-    dataStore.coordinateMode !== 'gene' &&
-    dataStore.coordinateMode !== 'protein'
+    configStore.coordinateMode !== 'gene' &&
+    configStore.coordinateMode !== 'protein'
   ) {
     aaDisabledMessage = ' (only for gene/protein)';
     aaDisabled = true;
-  } else if (dataStore.groupKey !== 'snp') {
+  } else if (configStore.groupKey !== 'snp') {
     if (
-      dataStore.coordinateMode === 'gene' &&
-      dataStore.selectedGene.gene === 'All Genes'
+      configStore.coordinateMode === 'gene' &&
+      configStore.selectedGene.gene === 'All Genes'
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select one gene)';
     } else if (
-      dataStore.coordinateMode === 'protein' &&
-      dataStore.selectedProtein.protein === 'All Proteins'
+      configStore.coordinateMode === 'protein' &&
+      configStore.selectedProtein.protein === 'All Proteins'
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select one protein)';
@@ -107,7 +107,7 @@ const GroupBySelect = observer(() => {
   }
 
   const renderLineageLink = () => {
-    if (dataStore.groupKey === 'lineage') {
+    if (configStore.groupKey === 'lineage') {
       return (
         <Link href="https://cov-lineages.org/descriptions.html">
           (Lineage Descriptions)
@@ -129,7 +129,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="lineage"
-                checked={dataStore.groupKey === 'lineage'}
+                checked={configStore.groupKey === 'lineage'}
                 onChange={handleGroupKeyChange}
               />
               <span>Lineage</span>
@@ -141,7 +141,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="clade"
-                checked={dataStore.groupKey === 'clade'}
+                checked={configStore.groupKey === 'clade'}
                 onChange={handleGroupKeyChange}
               />
               <span>Clade</span>
@@ -153,7 +153,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="snp"
-                checked={dataStore.groupKey === 'snp'}
+                checked={configStore.groupKey === 'snp'}
                 onChange={handleGroupKeyChange}
               />
               <span>SNV</span>
@@ -171,7 +171,7 @@ const GroupBySelect = observer(() => {
               id="dnaChoice"
               name="dnaOrAa"
               value="dna"
-              checked={dataStore.dnaOrAa === 'dna'}
+              checked={configStore.dnaOrAa === 'dna'}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="dnaChoice">NT</label>
@@ -182,7 +182,7 @@ const GroupBySelect = observer(() => {
               id="aaChoice"
               name="dnaOrAa"
               value="aa"
-              checked={dataStore.dnaOrAa === 'aa'}
+              checked={configStore.dnaOrAa === 'aa'}
               disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>

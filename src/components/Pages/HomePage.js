@@ -94,6 +94,8 @@ const HomePage = observer(() => {
     UIStore.setActiveTab(tab);
   };
 
+  console.log(UIStore);
+
   const renderTab = () => {
     if (UIStore.activeTab === 'group') {
       return <GroupTab width={width} />;

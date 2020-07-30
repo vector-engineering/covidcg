@@ -32,7 +32,7 @@ const HelpText = styled.div`
 `;
 
 const LocationDatePlotWrapper = observer(({ width }) => {
-  const { dataStore, UIStore } = useStores();
+  const { UIStore, configStore } = useStores();
   if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
@@ -58,7 +58,7 @@ const LocationDatePlotWrapper = observer(({ width }) => {
         <HelpText>
           <p>
             This plot compares the sequence counts or percentages, of the
-            selected <b>{dataStore.getGroupLabel()}s</b>, between the selected
+            selected <b>{configStore.getGroupLabel()}s</b>, between the selected
             locations. Click to highlight one, or hold <KBD>Shift</KBD> and
             click to highlight multiple locations. Highlighted locations will be
             shown in the plot below as well.
@@ -74,7 +74,7 @@ LocationDatePlotWrapper.propTypes = {
 };
 
 const LocationGroupPlotWrapper = observer(({ width }) => {
-  const { dataStore, UIStore } = useStores();
+  const { UIStore, configStore } = useStores();
   if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
@@ -100,10 +100,10 @@ const LocationGroupPlotWrapper = observer(({ width }) => {
         <HelpText>
           <p>
             This plot shows the cumulative proportion of{' '}
-            <b>{dataStore.getGroupLabel()}s</b> per location. Click to select
+            <b>{configStore.getGroupLabel()}s</b> per location. Click to select
             one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {dataStore.getGroupLabel()}s. Sequences from the selected{' '}
-            {dataStore.getGroupLabel()}s will be shown in the plot above.
+            {configStore.getGroupLabel()}s. Sequences from the selected{' '}
+            {configStore.getGroupLabel()}s will be shown in the plot above.
           </p>
         </HelpText>
         <LocationGroupPlot width={width - 300} />
@@ -116,7 +116,7 @@ LocationGroupPlotWrapper.propTypes = {
 };
 
 const LocationTab = observer(({ width }) => {
-  const { dataStore } = useStores();
+  const { configStore } = useStores();
 
   return (
     <LocationTabContainer>
@@ -127,10 +127,10 @@ const LocationTab = observer(({ width }) => {
       >
         <HelpText>
           <p>
-            Items in the legend represent <b>{dataStore.getGroupLabel()}s</b>.
+            Items in the legend represent <b>{configStore.getGroupLabel()}s</b>.
             Click to select one, or hold <KBD>Shift</KBD> and click to select
-            multiple {dataStore.getGroupLabel()}s. Sequence counts of the
-            selected {dataStore.getGroupLabel()}s will be compared between
+            multiple {configStore.getGroupLabel()}s. Sequence counts of the
+            selected {configStore.getGroupLabel()}s will be compared between
             locations in the plot below.
           </p>
         </HelpText>

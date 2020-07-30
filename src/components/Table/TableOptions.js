@@ -175,7 +175,7 @@ const TableOptions = observer(
     compareMode,
     compareColor,
   }) => {
-    const { dataStore } = useStores();
+    const { dataStore, configStore } = useStores();
 
     const handleDownloadSelect = (option) => {
       if (option === 'Acknowledgements') {
@@ -190,13 +190,13 @@ const TableOptions = observer(
     return (
       <DataTableOptions>
         <ColorModeSelect
-          dnaOrAa={dataStore.dnaOrAa}
+          dnaOrAa={configStore.dnaOrAa}
           colorMode={colorMode}
           handleChange={handleColorModeChange}
         />
         <CompareModeSelect
           disabled={colorMode === 'code'}
-          dnaOrAa={dataStore.dnaOrAa}
+          dnaOrAa={configStore.dnaOrAa}
           compareMode={compareMode}
           compareColor={compareColor}
           handleModeChange={handleCompareModeChange}

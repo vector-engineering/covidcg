@@ -64,7 +64,7 @@ const sortRows = (rows, sortFn) => {
 };
 
 const NewLineageDataTable = observer(() => {
-  const { dataStore, UIStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
 
   const [state, setState] = useState({
     // Color by 'compare': Comparison to reference, or 'code': With a defined color code
@@ -109,7 +109,7 @@ const NewLineageDataTable = observer(() => {
       compareMode: 'mismatch',
       compareColor: 'yellow',
     });
-  }, [dataStore.dnaOrAa]);
+  }, [configStore.dnaOrAa]);
 
   useEffect(() => {
     setState({
@@ -138,10 +138,11 @@ const NewLineageDataTable = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(dataStore.selectedGroups, { group: row.group }) !== undefined
+      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+      undefined
     ) {
       newGroups = _.reject(
-        dataStore.selectedGroups,
+        configStore.selectedGroups,
         (group) => group.group == row.group
       );
     } else {
@@ -149,11 +150,11 @@ const NewLineageDataTable = observer(() => {
       newGroups = [{ group: row.group }];
       // If shift is pressed, then add it to the existing selected groups
       if (state.shiftKeyPressed) {
-        newGroups = newGroups.concat(dataStore.selectedGroups);
+        newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
-    dataStore.updateSelectedGroups(newGroups);
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const renderTable = () => {
@@ -237,25 +238,25 @@ const NewLineageDataTable = observer(() => {
     const buildColumns = () => {
       let _columns = [];
       // For lineage grouping, add lineage column
-      if (dataStore.groupKey === 'lineage') {
+      if (configStore.groupKey === 'lineage') {
         _columns.push(lineageColumn(handleGridSort));
-      } else if (dataStore.groupKey === 'clade') {
+      } else if (configStore.groupKey === 'clade') {
         _columns.push(cladeColumn(handleGridSort));
       }
 
       // For SNP grouping, add each SNP chunk as its own column
-      if (dataStore.groupKey === 'snp') {
+      if (configStore.groupKey === 'snp') {
         // Add the gene column, if we're in AA mode
-        if (dataStore.dnaOrAa === 'aa') {
-          if (dataStore.coordinateMode === 'gene') {
+        if (configStore.dnaOrAa === 'aa') {
+          if (configStore.coordinateMode === 'gene') {
             _columns.push(geneColumn(handleGridSort));
-          } else if (dataStore.coordinateMode === 'protein') {
+          } else if (configStore.coordinateMode === 'protein') {
             _columns.push(proteinColumn(handleGridSort));
           }
         }
         // Add the position column
         // We don't need as much space for this, for AA mode
-        if (dataStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           _columns.push(positionColumn(handleGridSort));
         } else {
           _columns.push(indexColumn(handleGridSort));
@@ -297,7 +298,7 @@ const NewLineageDataTable = observer(() => {
         }
 
         let colors;
-        if (dataStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           colors = snapGeneNTColors;
         } else {
           if (state.compareColor === 'code' || state.colorMode === 'code') {
@@ -322,10 +323,10 @@ const NewLineageDataTable = observer(() => {
 
         // 0-indexed to 1-indexed
         let pos = parseInt(col.substring(4));
-        if (dataStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           pos += 1;
         }
-        if (dataStore.groupKey === 'snp' && dataStore.dnaOrAa === 'aa') {
+        if (configStore.groupKey === 'snp' && configStore.dnaOrAa === 'aa') {
           pos += 1;
         }
 
@@ -351,11 +352,14 @@ const NewLineageDataTable = observer(() => {
 
     let positionTitleOffset = 0;
     let posColOffset = 0;
-    if (dataStore.groupKey === 'lineage' || dataStore.groupKey === 'clade') {
+    if (
+      configStore.groupKey === 'lineage' ||
+      configStore.groupKey === 'clade'
+    ) {
       positionTitleOffset = 220;
       posColOffset = 4;
-    } else if (dataStore.groupKey === 'snp') {
-      if (dataStore.dnaOrAa === 'dna') {
+    } else if (configStore.groupKey === 'snp') {
+      if (configStore.dnaOrAa === 'dna') {
         positionTitleOffset = 280;
         posColOffset = 6;
       } else {
@@ -373,7 +377,9 @@ const NewLineageDataTable = observer(() => {
           className="position-title"
           style={{ marginLeft: positionTitleOffset }}
         >
-          {dataStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
+          {configStore.dnaOrAa === 'dna'
+            ? 'Genomic Coordinate'
+            : 'Residue Index'}
         </span>
         <div style={{ paddingLeft: '10px' }}>
           <DataTable
