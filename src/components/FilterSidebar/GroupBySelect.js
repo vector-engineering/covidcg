@@ -4,6 +4,8 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 
+import ExternalLink from '../Common/ExternalLink';
+
 const SelectContainer = styled.div`
   padding: 7px 13px 0px 13px;
   box-shadow: 0px 2px 4px #aaa;
@@ -64,6 +66,11 @@ const RadioForm = styled.form`
   }
 `;
 
+const Link = styled(ExternalLink)`
+  font-size: 0.9em;
+  margin-left: 10px;
+`;
+
 const GroupBySelect = observer(() => {
   const { covidStore } = useStores();
 
@@ -98,6 +105,18 @@ const GroupBySelect = observer(() => {
       aaDisabledMessage = ' (please select one protein)';
     }
   }
+
+  const renderLineageLink = () => {
+    if (covidStore.groupKey === 'lineage') {
+      return (
+        <Link href="https://cov-lineages.org/descriptions.html">
+          (Lineage Descriptions)
+        </Link>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <SelectContainer>
@@ -141,6 +160,7 @@ const GroupBySelect = observer(() => {
             </label>
           </div>
         </div>
+        {renderLineageLink()}
       </RadioForm>
       <RadioForm>
         <span>Mutation format</span>
