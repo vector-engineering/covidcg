@@ -1,7 +1,3 @@
-export const SHORTHAND_HEX_PATTERN = /^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/gi;
-export const REGULAR_HEX_PATTERN = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/gi;
-// export const
-
 export const incrementColor = function (color, step) {
   var colorToInt = parseInt(color.substr(1), 16), // Convert HEX color to integer
     nstep = parseInt(step); // Convert step to integer

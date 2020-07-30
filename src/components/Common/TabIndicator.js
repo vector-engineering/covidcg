@@ -17,7 +17,7 @@ const TabIndicatorBG = styled.span`
 
 const TabIndicatorFG = styled.span`
   font-size: 0.85em;
-  font-weight: bold;
+  font-weight: 500;
   background-color: #fff;
   border-radius: 5px 5px 0px 0px;
   text-align: center;
