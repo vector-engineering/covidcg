@@ -116,7 +116,7 @@ TabItem.defaultProps = {
 // };
 
 const TabBar = observer(({ activeTab, onTabChange }) => {
-  // const { covidStore } = useStores();
+  // const { dataStore } = useStores();
 
   const changeTab = (tab, e) => {
     e.preventDefault();
@@ -125,24 +125,24 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
 
   // let numSequencesBeforeMetadataFilteringText = '';
   // if (
-  //   covidStore.selectedRows.length !==
-  //   covidStore.numSequencesBeforeMetadataFiltering
+  //   dataStore.selectedRows.length !==
+  //   dataStore.numSequencesBeforeMetadataFiltering
   // ) {
   //   numSequencesBeforeMetadataFilteringText = (
   //     <span className="content">
-  //       ({covidStore.numSequencesBeforeMetadataFiltering} before metadata
+  //       ({dataStore.numSequencesBeforeMetadataFiltering} before metadata
   //       filtering)
   //     </span>
   //   );
   // }
 
   // let groupName;
-  // if (covidStore.groupKey === 'lineage') {
+  // if (dataStore.groupKey === 'lineage') {
   //   groupName = 'Lineage';
-  // } else if (covidStore.groupKey === 'clade') {
+  // } else if (dataStore.groupKey === 'clade') {
   //   groupName = 'Clade';
-  // } else if (covidStore.groupKey === 'snp') {
-  //   if (covidStore.dnaOrAa === 'dna') {
+  // } else if (dataStore.groupKey === 'snp') {
+  //   if (dataStore.dnaOrAa === 'dna') {
   //     groupName = 'NT SNP';
   //   } else {
   //     groupName = 'AA SNP';
@@ -150,17 +150,17 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   // }
 
   // let selectedGroups = '';
-  // if (covidStore.selectedGroups.length > 0) {
-  //   selectedGroups = _.pluck(covidStore.selectedGroups, 'group').join(', ');
+  // if (dataStore.selectedGroups.length > 0) {
+  //   selectedGroups = _.pluck(dataStore.selectedGroups, 'group').join(', ');
   //   selectedGroups = <span className="content">({selectedGroups})</span>;
   // }
 
   // let selectedDates = 'No date range selected';
-  // if (covidStore.dateRange[0] !== -1 && covidStore.dateRange[1] !== -1) {
+  // if (dataStore.dateRange[0] !== -1 && dataStore.dateRange[1] !== -1) {
   //   selectedDates =
-  //     intToISO(covidStore.dateRange[0]) +
+  //     intToISO(dataStore.dateRange[0]) +
   //     ' – ' +
-  //     intToISO(covidStore.dateRange[1] - 86400000);
+  //     intToISO(dataStore.dateRange[1] - 86400000);
   // }
 
   return (
@@ -199,7 +199,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
           <div className="row-status-header">
             <span className="title">Sequences</span>
             <span className="subtitle">
-              ({covidStore.selectedRows.length} selected)
+              ({dataStore.selectedRows.length} selected)
             </span>
           </div>
           {numSequencesBeforeMetadataFilteringText}
@@ -208,7 +208,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
           <div className="row-status-header">
             <span className="title">{groupName} Selection</span>
             <span className="subtitle">
-              ({covidStore.selectedGroups.length} selected)
+              ({dataStore.selectedGroups.length} selected)
             </span>
           </div>
           {selectedGroups}

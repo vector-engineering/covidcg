@@ -253,9 +253,9 @@ const assignObjectPaths = (obj, stack) => {
 };
 
 const DropdownContainer = () => {
-  const { covidStore, uiStore } = useStores();
+  const { dataStore, uiStore } = useStores();
 
-  let initialData = Object.assign(toJS(covidStore.selectTree), {
+  let initialData = Object.assign(toJS(dataStore.selectTree), {
     expanded: true,
   });
   assignObjectPaths(initialData);
@@ -295,7 +295,7 @@ const DropdownContainer = () => {
     ) {
       return;
     }
-    covidStore.selectLocations(selectedNodeObjs);
+    dataStore.selectLocations(selectedNodeObjs);
   };
   // const treeSelectOnAction = (node, action) => {
   //   console.log('onAction::', action, node);
@@ -305,8 +305,8 @@ const DropdownContainer = () => {
   // };
 
   useEffect(() => {
-    if (!_.isEqual(covidStore.selectTree, state.data)) {
-      let data = Object.assign(toJS(covidStore.selectTree), {
+    if (!_.isEqual(dataStore.selectTree, state.data)) {
+      let data = Object.assign(toJS(dataStore.selectTree), {
         expanded: true,
       });
       assignObjectPaths(data);
@@ -316,7 +316,7 @@ const DropdownContainer = () => {
         data: data,
       });
     }
-  }, [covidStore.selectTree]);
+  }, [dataStore.selectTree]);
 
   const dropdownContainer = useMemo(
     () => (

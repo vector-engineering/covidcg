@@ -58,7 +58,7 @@ RowWrapper.defaultProps = {
 };
 
 const RowRenderer = observer(({ row, ...rest }) => {
-  const { covidStore } = useStores();
+  const { dataStore } = useStores();
   // console.log(row.group);
 
   const onItemEnter = (hoverGroup, e) => {
@@ -75,16 +75,16 @@ const RowRenderer = observer(({ row, ...rest }) => {
 
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
-    if (hoverGroup === covidStore.hoverGroup) {
+    if (hoverGroup === dataStore.hoverGroup) {
       return;
     }
-    covidStore.updateHoverGroup(hoverGroup);
+    dataStore.updateHoverGroup(hoverGroup);
   };
 
   let rowSelected = null;
-  if (covidStore.selectedGroups.length > 0) {
+  if (dataStore.selectedGroups.length > 0) {
     if (
-      _.findWhere(covidStore.selectedGroups, { group: row.group }) !== undefined
+      _.findWhere(dataStore.selectedGroups, { group: row.group }) !== undefined
     ) {
       rowSelected = true;
     } else {
@@ -94,7 +94,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
 
   return (
     <RowWrapper
-      hovered={covidStore.hoverGroup === row.group}
+      hovered={dataStore.hoverGroup === row.group}
       selected={rowSelected}
       onMouseEnter={onItemEnter.bind(this, row.group)}
       onMouseLeave={onItemLeave}

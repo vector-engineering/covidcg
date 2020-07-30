@@ -175,28 +175,28 @@ const TableOptions = observer(
     compareMode,
     compareColor,
   }) => {
-    const { covidStore } = useStores();
+    const { dataStore } = useStores();
 
     const handleDownloadSelect = (option) => {
       if (option === 'Acknowledgements') {
-        covidStore.downloadAcknowledgements();
+        dataStore.downloadAcknowledgements();
       } else if (option === 'Aggregate Data') {
-        covidStore.downloadAggCaseData();
+        dataStore.downloadAggCaseData();
       } else if (option === 'Accession IDs') {
-        covidStore.downloadAccessionIds();
+        dataStore.downloadAccessionIds();
       }
     };
 
     return (
       <DataTableOptions>
         <ColorModeSelect
-          dnaOrAa={covidStore.dnaOrAa}
+          dnaOrAa={dataStore.dnaOrAa}
           colorMode={colorMode}
           handleChange={handleColorModeChange}
         />
         <CompareModeSelect
           disabled={colorMode === 'code'}
-          dnaOrAa={covidStore.dnaOrAa}
+          dnaOrAa={dataStore.dnaOrAa}
           compareMode={compareMode}
           compareColor={compareColor}
           handleModeChange={handleCompareModeChange}

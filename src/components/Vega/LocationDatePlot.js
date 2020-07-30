@@ -83,24 +83,24 @@ const SelectContainer = styled.div`
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { covidStore } = useStores();
+  const { dataStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
     let hoverLocation = args[1] === null ? null : args[1]['location'];
-    if (hoverLocation === covidStore.hoverLocation) {
+    if (hoverLocation === dataStore.hoverLocation) {
       return;
     }
-    covidStore.updateHoverLocation(hoverLocation);
+    dataStore.updateHoverLocation(hoverLocation);
   };
 
   const handleSelected = (...args) => {
     // console.log(args);
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], covidStore.focusedLocations)) {
+    if (_.isEqual(args[1], dataStore.focusedLocations)) {
       return;
     }
-    covidStore.updateFocusedLocations(args[1]);
+    dataStore.updateFocusedLocations(args[1]);
   };
 
   const [state, setState] = useState({
@@ -108,7 +108,7 @@ const LocationDatePlot = observer(({ width }) => {
     data: {
       location_data: [],
       selectedGroups: [],
-      selected: JSON.parse(JSON.stringify(covidStore.focusedLocations)),
+      selected: JSON.parse(JSON.stringify(dataStore.focusedLocations)),
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
@@ -165,21 +165,21 @@ const LocationDatePlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: JSON.parse(JSON.stringify(covidStore.focusedLocations)),
+        selected: JSON.parse(JSON.stringify(dataStore.focusedLocations)),
       },
     });
-  }, [covidStore.focusedLocations]);
+  }, [dataStore.focusedLocations]);
 
   useEffect(() => {
     setState({
       ...state,
       data: {
         ...state.data,
-        location_data: JSON.parse(JSON.stringify(covidStore.aggLocationData)),
-        selectedGroups: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+        location_data: JSON.parse(JSON.stringify(dataStore.aggLocationData)),
+        selectedGroups: JSON.parse(JSON.stringify(dataStore.selectedGroups)),
       },
     });
-  }, [covidStore.aggLocationData, covidStore.selectedGroups]);
+  }, [dataStore.aggLocationData, dataStore.selectedGroups]);
 
   // Set the normalization mode
   const yField =
@@ -194,7 +194,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (state.normMode === 'percentages') {
     yLabel += '% ';
   }
-  yLabel += 'Sequences by ' + covidStore.getGroupLabel();
+  yLabel += 'Sequences by ' + dataStore.getGroupLabel();
 
   let plotTitle = '';
   if (state.countMode === 'cumulative') {
@@ -202,7 +202,7 @@ const LocationDatePlot = observer(({ width }) => {
   } else if (state.countMode === 'new') {
     plotTitle += 'New ';
   }
-  plotTitle += covidStore.getGroupLabel();
+  plotTitle += dataStore.getGroupLabel();
   plotTitle += state.normMode === 'percentages' ? ' Percentages' : ' Counts';
 
   if (state.dateBin === 'day') {
@@ -212,28 +212,28 @@ const LocationDatePlot = observer(({ width }) => {
   } else if (state.dateBin === 'month') {
     plotTitle += ' by Month';
   }
-  if (covidStore.selectedGroups.length > 0) {
-    plotTitle += ' (Selected ' + covidStore.getGroupLabel() + 's Only)';
+  if (dataStore.selectedGroups.length > 0) {
+    plotTitle += ' (Selected ' + dataStore.getGroupLabel() + 's Only)';
   }
 
   const renderPlot = () => {
-    if (covidStore.selectedLocationIds.length == 0) {
+    if (dataStore.selectedLocationIds.length == 0) {
       return (
         <EmptyPlot height={200}>
           <p>
             No locations selected. Please select one or more locations from the
             sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-            <b>{covidStore.getGroupLabel()}</b> between them.
+            <b>{dataStore.getGroupLabel()}</b> between them.
           </p>
         </EmptyPlot>
       );
     }
 
-    if (covidStore.selectedGroups.length == 0) {
+    if (dataStore.selectedGroups.length == 0) {
       return (
         <EmptyPlot height={200}>
           <p>
-            Please select a <b>{covidStore.getGroupLabel()}</b> from the legend
+            Please select a <b>{dataStore.getGroupLabel()}</b> from the legend
             (above) or the group plot (below), to compare its counts between the
             selected locations.
           </p>
@@ -283,7 +283,7 @@ const LocationDatePlot = observer(({ width }) => {
             dataListeners={state.dataListeners}
             width={width}
             signals={{
-              hoverLocation: { location: covidStore.hoverLocation },
+              hoverLocation: { location: dataStore.hoverLocation },
               yField,
               cumulativeWindow,
               yLabel,

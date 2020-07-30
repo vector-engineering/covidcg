@@ -22,7 +22,7 @@ function removeItemAll(arr, value) {
   return arr;
 }
 
-class UiStore {
+class ObservableUIStore {
   @observable sidebarOpen = false;
   @observable sidebarSelectedGroupKeys = [];
   @observable caseDataState = STARTED;
@@ -82,4 +82,4 @@ class UiStore {
   }
 }
 
-export default UiStore;
+export default ObservableUIStore;

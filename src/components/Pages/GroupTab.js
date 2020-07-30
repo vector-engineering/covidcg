@@ -29,18 +29,8 @@ const HelpText = styled.div`
   }
 `;
 
-// const PlotContent = observer(({ width }) => {
-//   const { covidStore, uiStore } = useStores();
-
-//   if (uiStore.caseDataState === asyncStates.STARTED) {
-//     return (
-
-//     );
-//   }
-// });
-
 const GroupTab = observer(({ width }) => {
-  const { covidStore } = useStores();
+  const { dataStore } = useStores();
 
   return (
     <GroupTabContainer>
@@ -55,10 +45,10 @@ const GroupTab = observer(({ width }) => {
       >
         <HelpText>
           <p>
-            Items in the legend represent <b>{covidStore.getGroupLabel()}s</b>.
+            Items in the legend represent <b>{dataStore.getGroupLabel()}s</b>.
             Click to select one, or hold <KBD>Shift</KBD> and click to select
-            multiple {covidStore.getGroupLabel()}s. Selected{' '}
-            {covidStore.getGroupLabel()}s will be highlighted in the plot and
+            multiple {dataStore.getGroupLabel()}s. Selected{' '}
+            {dataStore.getGroupLabel()}s will be highlighted in the plot and
             table below, as well as in the{' '}
             <TabIndicator>Compare Locations</TabIndicator> tab.
           </p>
@@ -77,17 +67,17 @@ const GroupTab = observer(({ width }) => {
         <HelpText>
           <p>
             The plot shows sequences grouped by their respective{' '}
-            <b>{covidStore.getGroupLabel()}</b> and plotted over time. Click to
+            <b>{dataStore.getGroupLabel()}</b> and plotted over time. Click to
             select one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {covidStore.getGroupLabel()}s. Selected {covidStore.getGroupLabel()}
-            s will be highlighted in the legend and table below, as well as in
-            the <TabIndicator>Compare Locations</TabIndicator> tab.
+            {dataStore.getGroupLabel()}s. Selected {dataStore.getGroupLabel()}s
+            will be highlighted in the legend and table below, as well as in the{' '}
+            <TabIndicator>Compare Locations</TabIndicator> tab.
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
       </AccordionWrapper>
-      {/*covidStore.groupKey === 'lineage' && (
-        <VegaTree width={width} data={covidStore.caseDataAggGroup} />
+      {/*dataStore.groupKey === 'lineage' && (
+        <VegaTree width={width} data={dataStore.caseDataAggGroup} />
       )*/}
       <AccordionWrapper
         title={
@@ -101,10 +91,10 @@ const GroupTab = observer(({ width }) => {
         <HelpText>
           <p>
             The table shows the counts and associated mutations of each{' '}
-            <b>{covidStore.getGroupLabel()}</b>. Click a table row to select
-            one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {covidStore.getGroupLabel()}s. Selected {covidStore.getGroupLabel()}
-            s will be highlighted in the legend and plot, as well as in the{' '}
+            <b>{dataStore.getGroupLabel()}</b>. Click a table row to select one,
+            or hold <KBD>Shift</KBD> and click to select multiple{' '}
+            {dataStore.getGroupLabel()}s. Selected {dataStore.getGroupLabel()}s
+            will be highlighted in the legend and plot, as well as in the{' '}
             <TabIndicator>Compare Locations</TabIndicator> tab.
           </p>
         </HelpText>

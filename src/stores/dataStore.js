@@ -22,7 +22,7 @@ import {
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { uiStoreInstance } from './rootStore';
 
-class ObservableCovidStore {
+class ObservableDataStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
   @observable dnaOrAa = 'dna';
 
@@ -437,4 +437,4 @@ class ObservableCovidStore {
   }
 }
 
-export default ObservableCovidStore;
+export default ObservableDataStore;
