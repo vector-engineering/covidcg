@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import _ from 'underscore';
 import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;
@@ -253,7 +253,7 @@ const assignObjectPaths = (obj, stack) => {
 };
 
 const DropdownContainer = () => {
-  const { dataStore, uiStore } = useStores();
+  const { dataStore, UIStore } = useStores();
 
   let initialData = Object.assign(toJS(dataStore.selectTree), {
     expanded: true,
@@ -290,8 +290,8 @@ const DropdownContainer = () => {
     });
 
     if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === asyncStates.STARTED ||
+      UIStore.aggCaseDataState === asyncStates.STARTED
     ) {
       return;
     }

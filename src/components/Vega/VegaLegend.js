@@ -5,7 +5,7 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -97,7 +97,7 @@ ColorCircle.defaultProps = {
 };
 
 const VegaLegend = observer(() => {
-  const { dataStore, uiStore } = useStores();
+  const { dataStore, UIStore } = useStores();
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
 
   const onKeyDown = (e) => {
@@ -123,7 +123,7 @@ const VegaLegend = observer(() => {
     };
   });
 
-  if (uiStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
         style={{

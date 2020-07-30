@@ -30,7 +30,7 @@ import {
   getSinglePosColumn,
 } from './columnDefs';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
 
@@ -64,7 +64,7 @@ const sortRows = (rows, sortFn) => {
 };
 
 const NewLineageDataTable = observer(() => {
-  const { dataStore, uiStore } = useStores();
+  const { dataStore, UIStore } = useStores();
 
   const [state, setState] = useState({
     // Color by 'compare': Comparison to reference, or 'code': With a defined color code
@@ -158,8 +158,8 @@ const NewLineageDataTable = observer(() => {
 
   const renderTable = () => {
     if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === asyncStates.STARTED ||
+      UIStore.aggCaseDataState === asyncStates.STARTED
     ) {
       return (
         <div

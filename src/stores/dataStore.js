@@ -20,7 +20,7 @@ import {
   getLocationIds,
 } from '../utils/location';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { uiStoreInstance } from './rootStore';
+import { UIStoreInstance } from './rootStore';
 
 class ObservableDataStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
@@ -83,7 +83,7 @@ class ObservableDataStore {
     // console.log(this.selectedLocationIds);
     this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
 
-    uiStoreInstance.onCaseDataStateStarted();
+    UIStoreInstance.onCaseDataStateStarted();
 
     this.updateCaseData();
   }
@@ -266,7 +266,7 @@ class ObservableDataStore {
 
   @action
   updateAggCaseDataByGroup(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataStarted();
+    suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -285,8 +285,8 @@ class ObservableDataStore {
         this.groupsToKeep = groupsToKeepObj;
         // console.log('AGG_CASE_DATA FINISHED');
 
-        suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();
-        suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
+        suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataFinished();
+        suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateFinished();
       }
     );
   }
@@ -301,7 +301,7 @@ class ObservableDataStore {
 
   @action
   updateCaseData(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateStarted();
+    suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateStarted();
 
     processCaseData(
       {

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -51,7 +51,7 @@ const SelectContainer = styled.div`
 
 const VegaStackedBars = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, uiStore } = useStores();
+  const { dataStore, UIStore } = useStores();
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
@@ -253,7 +253,7 @@ const VegaStackedBars = observer(({ width }) => {
       'Sequences by ' + (dataStore.dnaOrAa === 'dna' ? 'NT' : 'AA') + ' SNV';
   }
 
-  if (uiStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
         style={{
