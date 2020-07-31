@@ -15,6 +15,8 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 
+import { LOW_FREQ_FILTER_TYPES } from './configStore';
+
 class ObservableDataStore {
   @observable caseData = [];
   @observable changingPositions = {};
@@ -37,11 +39,17 @@ class ObservableDataStore {
 
   @action
   updateGroupsToKeep() {
-    if (configStoreInstance.maxLineagesToShow > -1) {
+    if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+    ) {
       this.groupsToKeep = this.lineageCountArr
         .slice(0, configStoreInstance.maxLineagesToShow)
         .map((item) => item[0]);
-    } else {
+    } else if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+    ) {
       this.groupsToKeep = this.lineageCountArr
         .filter((item) => item[1] >= configStoreInstance.minLocalCountsToShow)
         .map((item) => item[0]);
