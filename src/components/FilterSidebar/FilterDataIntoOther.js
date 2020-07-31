@@ -27,6 +27,13 @@ const Radio = styled.label`
   margin-right: 5px;
 `;
 
+const RadioLabel = styled.span`
+  color: ${({ itemSelected }) => (itemSelected ? 'inherit' : '#AAA')};
+`;
+RadioLabel.defaultProps = {
+  itemSelected: false,
+};
+
 const Spacer = styled.div`
   flex-grow: 1;
 `;
@@ -61,7 +68,14 @@ const FilterDataIntoOther = observer(() => {
               LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
             }
           />
-          Minimum local counts
+          <RadioLabel
+            itemSelected={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+            }
+          >
+            Minimum local counts
+          </RadioLabel>
         </Radio>
         <Spacer />
         <NumberInput>
@@ -96,7 +110,14 @@ const FilterDataIntoOther = observer(() => {
               LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
             }
           />
-          Minimum global counts
+          <RadioLabel
+            itemSelected={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+            }
+          >
+            Minimum global counts
+          </RadioLabel>
         </Radio>
         <Spacer />
         <NumberInput>
@@ -131,7 +152,14 @@ const FilterDataIntoOther = observer(() => {
               LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
           />
-          Show Top N {configStore.getGroupLabel().toLowerCase()}s
+          <RadioLabel
+            itemSelected={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+            }
+          >
+            Show Top N {configStore.getGroupLabel().toLowerCase()}s
+          </RadioLabel>
         </Radio>
         <Spacer />
         <NumberInput>
