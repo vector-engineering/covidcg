@@ -243,8 +243,8 @@ class ObservableConfigStore {
   }
 
   @action
-  selectDateRange(_dateRange) {
-    this.dateRange = _dateRange;
+  selectDateRange(dateRange) {
+    this.dateRange = dateRange;
     dataStoreInstance.updateAggCaseDataByGroup();
   }
 

@@ -470,6 +470,8 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 }) {
+  // console.log(dateRange);
+
   const lineageCountObj = {};
   caseData.forEach((row) => {
     if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
@@ -494,16 +496,16 @@ function aggCaseDataByGroup({
 
   const MAX_LINEAGE_SIZE = 100;
   let groupsToKeepObj;
-  console.log(
-    'lineage count obj: ',
-    lineageCountObj,
-    Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
-  );
+  // console.log(
+  //   'lineage count obj: ',
+  //   lineageCountObj,
+  //   Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
+  // );
   if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
     lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
-    console.log('lineage count arr', lineageCountArr);
+    // console.log('lineage count arr', lineageCountArr);
     groupsToKeepObj = Object.fromEntries(lineageCountArr);
-    console.log('groups to keep', groupsToKeepObj);
+    // console.log('groups to keep', groupsToKeepObj);
   }
 
   // Aggregate case data by clade only (no dates)
@@ -649,7 +651,7 @@ function aggCaseDataByGroup({
     });
   changingPositions = changingPositionsOrdered;
 
-  console.log(Object.keys(changingPositions).length, 'changing positions');
+  // console.log(Object.keys(changingPositions).length, 'changing positions');
   //console.log(caseDataAggGroup);
 
   // Add each changing position as a new field for each row in caseDataAggGroup
