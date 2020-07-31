@@ -16,6 +16,9 @@ import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 
 import { LOW_FREQ_FILTER_TYPES } from './configStore';
+import { getGlobalGroupCounts } from '../utils/globalCounts';
+
+const globalGroupCounts = getGlobalGroupCounts();
 
 class ObservableDataStore {
   @observable caseData = [];
@@ -52,6 +55,33 @@ class ObservableDataStore {
     ) {
       this.groupsToKeep = this.lineageCountArr
         .filter((item) => item[1] >= configStoreInstance.minLocalCountsToShow)
+        .map((item) => item[0]);
+    } else if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+    ) {
+      let globalCounts;
+      if (configStoreInstance.groupKey === 'lineage') {
+        globalCounts = globalGroupCounts.lineage;
+      } else if (configStoreInstance.groupKey === 'clade') {
+        globalCounts = globalGroupCounts.clade;
+      } else if (configStoreInstance.groupKey === 'snp') {
+        if (configStoreInstance.dnaOrAa === 'dna') {
+          globalCounts = globalGroupCounts.dna_snp;
+        } else {
+          if (configStoreInstance.coordinateMode === 'gene') {
+            globalCounts = globalGroupCounts.gene_aa_snp;
+          } else if (configStoreInstance.coordinateRanges === 'protein') {
+            globalCounts = globalGroupCounts.protein_aa_snp;
+          }
+        }
+      }
+
+      this.groupsToKeep = this.lineageCountArr
+        .filter(
+          (item) =>
+            globalCounts[item[0]] >= configStoreInstance.minGlobalCountsToShow
+        )
         .map((item) => item[0]);
     }
     this.groupsToKeep.push('Reference');

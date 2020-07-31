@@ -55,6 +55,7 @@ class ObservableConfigStore {
   @observable lowFreqFilterType = LOCAL_COUNTS;
   @observable maxLineagesToShow = 10;
   @observable minLocalCountsToShow = 50;
+  @observable minGlobalCountsToShow = 50;
 
   constructor() {
     const selectTree = loadSelectTree();
@@ -298,6 +299,12 @@ class ObservableConfigStore {
   @action
   setMinLocalCounts(num) {
     this.minLocalCountsToShow = num;
+    dataStoreInstance.updateGroupsToKeep();
+  }
+
+  @action
+  setMinGlobalCounts(num) {
+    this.minGlobalCountsToShow = num;
     dataStoreInstance.updateGroupsToKeep();
   }
 }

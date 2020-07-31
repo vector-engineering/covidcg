@@ -79,6 +79,34 @@ const FilterDataIntoOther = observer(() => {
         <Radio>
           <input
             type="radio"
+            value={LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS}
+            onChange={setFilterType}
+            checked={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+            }
+          />
+          Minimum global counts
+        </Radio>
+        <Spacer />
+        <NumberInput>
+          <input
+            type="number"
+            value={configStore.minGlobalCountsToShow}
+            onChange={(e) => configStore.setMinGlobalCounts(e.target.value)}
+            disabled={
+              configStore.lowFreqFilterType !==
+              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+            }
+            min={1}
+            step={1}
+          />
+        </NumberInput>
+      </SelectItem>
+      <SelectItem>
+        <Radio>
+          <input
+            type="radio"
             value={LOW_FREQ_FILTER_TYPES.GROUP_COUNTS}
             onChange={setFilterType}
             checked={
