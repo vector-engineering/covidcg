@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
+import { LOW_FREQ_FILTER_TYPES } from '../../stores/configStore';
 
 export const SelectContainer = styled.div`
   padding: 3px 13px 5px 13px;
@@ -39,7 +40,10 @@ const NumberInput = styled.label`
 
 const FilterDataIntoOther = observer(() => {
   const { configStore } = useStores();
-  const [filterType, setFilterType] = useState('LOCAL_COUNTS');
+
+  const setFilterType = (e) => {
+    configStore.setLowFreqFilterType(e.target.value);
+  };
 
   return (
     <SelectContainer>
@@ -47,9 +51,12 @@ const FilterDataIntoOther = observer(() => {
         <Radio>
           <input
             type="radio"
-            value="LOCAL_COUNTS"
-            onChange={(e) => setFilterType(e.target.value)}
-            checked={filterType === 'LOCAL_COUNTS'}
+            value={LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS}
+            onChange={setFilterType}
+            checked={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+            }
           />
           Minimum local counts
         </Radio>
@@ -59,7 +66,10 @@ const FilterDataIntoOther = observer(() => {
             type="number"
             value={configStore.minLocalCountsToShow}
             onChange={(e) => configStore.setMinLocalCounts(e.target.value)}
-            disabled={filterType !== 'LOCAL_COUNTS'}
+            disabled={
+              configStore.lowFreqFilterType !==
+              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+            }
             min={1}
             step={1}
           />
@@ -69,9 +79,12 @@ const FilterDataIntoOther = observer(() => {
         <Radio>
           <input
             type="radio"
-            value="GROUP_COUNTS"
-            onChange={(e) => setFilterType(e.target.value)}
-            checked={filterType === 'GROUP_COUNTS'}
+            value={LOW_FREQ_FILTER_TYPES.GROUP_COUNTS}
+            onChange={setFilterType}
+            checked={
+              configStore.lowFreqFilterType ===
+              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+            }
           />
           Max shown {configStore.getGroupLabel().toLowerCase()}s
         </Radio>
@@ -81,7 +94,10 @@ const FilterDataIntoOther = observer(() => {
             type="number"
             value={configStore.maxLineagesToShow}
             onChange={(e) => configStore.setMaxLineages(e.target.value)}
-            disabled={filterType !== 'GROUP_COUNTS'}
+            disabled={
+              configStore.lowFreqFilterType !==
+              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+            }
             min={1}
             step={1}
           />

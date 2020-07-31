@@ -10,8 +10,15 @@ import {
   loadSelectTree,
 } from '../utils/location';
 
-export const DEFAULT_MAX_GROUPS_TO_SHOW = -1;
-export const DEFAULT_MIN_COUNTS_TO_SHOW = 50;
+const LOCAL_COUNTS = 'LOCAL_COUNTS';
+const GLOBAL_COUNTS = 'GLOBAL_COUNTS';
+const GROUP_COUNTS = 'GROUP_COUNTS';
+
+export const LOW_FREQ_FILTER_TYPES = {
+  LOCAL_COUNTS,
+  GLOBAL_COUNTS,
+  GROUP_COUNTS,
+};
 
 class ObservableConfigStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
@@ -45,8 +52,9 @@ class ObservableConfigStore {
   @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
 
-  @observable maxLineagesToShow = DEFAULT_MAX_GROUPS_TO_SHOW;
-  @observable minLocalCountsToShow = DEFAULT_MIN_COUNTS_TO_SHOW;
+  @observable lowFreqFilterType = LOCAL_COUNTS;
+  @observable maxLineagesToShow = 10;
+  @observable minLocalCountsToShow = 50;
 
   constructor() {
     const selectTree = loadSelectTree();
@@ -276,17 +284,20 @@ class ObservableConfigStore {
   }
 
   @action
+  setLowFreqFilterType(type) {
+    this.lowFreqFilterType = type;
+    dataStoreInstance.updateGroupsToKeep();
+  }
+
+  @action
   setMaxLineages(num) {
     this.maxLineagesToShow = num;
-    this.minLocalCountsToShow = -1;
     dataStoreInstance.updateGroupsToKeep();
   }
 
   @action
   setMinLocalCounts(num) {
     this.minLocalCountsToShow = num;
-    this.maxLineagesToShow = -1;
-
     dataStoreInstance.updateGroupsToKeep();
   }
 }
