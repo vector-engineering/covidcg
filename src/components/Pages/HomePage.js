@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { useStores } from '../../stores/connect';
+import { connect } from '../../stores/connect';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
@@ -71,9 +71,8 @@ const PlotContainer = styled.div`
   overflow-y: scroll;
 `;
 
-const HomePage = observer(() => {
+const HomePage = observer(({ UIStore }) => {
   const [ref, { width }] = useDimensions();
-  const { UIStore } = useStores();
 
   const [modalIsOpen, setIsOpen] = useState(true);
   const openModal = (e) => {
@@ -170,4 +169,4 @@ const HomePage = observer(() => {
 });
 
 // eslint-disable-next-line react/display-name
-export default HomePage;
+export default connect(HomePage);

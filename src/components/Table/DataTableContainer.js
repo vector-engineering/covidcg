@@ -136,18 +136,34 @@ const NewLineageDataTable = observer(() => {
 
     let newGroups;
 
+    let selectedGroup = row.group;
+    // If we selected a group that's grouped into 'other',
+    // then pretend like we're selecting 'other' instead
+    if (!dataStore.groupsToKeep.includes(row.group)) {
+      selectedGroup = 'other';
+    }
+
+    // If we selected the reference group, and we're in lineage/clade mode,
+    // then ignore
+    if (
+      selectedGroup === 'Reference' &&
+      (configStore.groupKey === 'lineage' || configStore.groupKey === 'clade')
+    ) {
+      return;
+    }
+
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
       newGroups = _.reject(
         configStore.selectedGroups,
-        (group) => group.group == row.group
+        (group) => group.group == selectedGroup
       );
     } else {
       // Otherwise, add it
-      newGroups = [{ group: row.group }];
+      newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
       if (state.shiftKeyPressed) {
         newGroups = newGroups.concat(configStore.selectedGroups);

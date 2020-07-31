@@ -88,6 +88,12 @@ const RowRenderer = observer(({ row, ...rest }) => {
       undefined
     ) {
       rowSelected = true;
+    } else if (
+      _.findWhere(configStore.selectedGroups, { group: 'other' }) !==
+        undefined &&
+      !dataStore.groupsToKeep.includes(row.group)
+    ) {
+      rowSelected = true;
     } else {
       rowSelected = false;
     }
