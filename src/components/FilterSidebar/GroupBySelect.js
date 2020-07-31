@@ -72,34 +72,34 @@ const Link = styled(ExternalLink)`
 `;
 
 const GroupBySelect = observer(() => {
-  const { covidStore } = useStores();
+  const { configStore } = useStores();
 
   let handleGroupKeyChange = (event) => {
-    covidStore.changeGrouping(event.target.value, covidStore.dnaOrAa);
+    configStore.changeGrouping(event.target.value, configStore.dnaOrAa);
   };
 
   let handleDnaOrAaChange = (event) => {
-    covidStore.changeGrouping(covidStore.groupKey, event.target.value);
+    configStore.changeGrouping(configStore.groupKey, event.target.value);
   };
 
   let aaDisabledMessage = '';
   let aaDisabled = false;
   if (
-    covidStore.coordinateMode !== 'gene' &&
-    covidStore.coordinateMode !== 'protein'
+    configStore.coordinateMode !== 'gene' &&
+    configStore.coordinateMode !== 'protein'
   ) {
     aaDisabledMessage = ' (only for gene/protein)';
     aaDisabled = true;
-  } else if (covidStore.groupKey !== 'snp') {
+  } else if (configStore.groupKey !== 'snp') {
     if (
-      covidStore.coordinateMode === 'gene' &&
-      covidStore.selectedGene.gene === 'All Genes'
+      configStore.coordinateMode === 'gene' &&
+      configStore.selectedGene.gene === 'All Genes'
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select one gene)';
     } else if (
-      covidStore.coordinateMode === 'protein' &&
-      covidStore.selectedProtein.protein === 'All Proteins'
+      configStore.coordinateMode === 'protein' &&
+      configStore.selectedProtein.protein === 'All Proteins'
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select one protein)';
@@ -107,7 +107,7 @@ const GroupBySelect = observer(() => {
   }
 
   const renderLineageLink = () => {
-    if (covidStore.groupKey === 'lineage') {
+    if (configStore.groupKey === 'lineage') {
       return (
         <Link href="https://cov-lineages.org/descriptions.html">
           (Lineage Descriptions)
@@ -129,7 +129,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="lineage"
-                checked={covidStore.groupKey === 'lineage'}
+                checked={configStore.groupKey === 'lineage'}
                 onChange={handleGroupKeyChange}
               />
               <span>Lineage</span>
@@ -141,7 +141,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="clade"
-                checked={covidStore.groupKey === 'clade'}
+                checked={configStore.groupKey === 'clade'}
                 onChange={handleGroupKeyChange}
               />
               <span>Clade</span>
@@ -153,7 +153,7 @@ const GroupBySelect = observer(() => {
                 className="radio-input"
                 type="radio"
                 value="snp"
-                checked={covidStore.groupKey === 'snp'}
+                checked={configStore.groupKey === 'snp'}
                 onChange={handleGroupKeyChange}
               />
               <span>SNV</span>
@@ -171,7 +171,7 @@ const GroupBySelect = observer(() => {
               id="dnaChoice"
               name="dnaOrAa"
               value="dna"
-              checked={covidStore.dnaOrAa === 'dna'}
+              checked={configStore.dnaOrAa === 'dna'}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="dnaChoice">NT</label>
@@ -182,7 +182,7 @@ const GroupBySelect = observer(() => {
               id="aaChoice"
               name="dnaOrAa"
               value="aa"
-              checked={covidStore.dnaOrAa === 'aa'}
+              checked={configStore.dnaOrAa === 'aa'}
               disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>

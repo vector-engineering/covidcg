@@ -22,11 +22,12 @@ function removeItemAll(arr, value) {
   return arr;
 }
 
-class UiStore {
+class ObservableUIStore {
   @observable sidebarOpen = false;
   @observable sidebarSelectedGroupKeys = [];
   @observable caseDataState = STARTED;
   @observable aggCaseDataState = STARTED;
+  @observable activeTab = 'group';
 
   @action
   onCaseDataStateStarted = () => {
@@ -80,6 +81,11 @@ class UiStore {
       groupKey
     );
   }
+
+  @action
+  setActiveTab(tab) {
+    this.activeTab = tab;
+  }
 }
 
-export default UiStore;
+export default ObservableUIStore;

@@ -13,41 +13,41 @@ const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { covidStore } = useStores();
+  const { dataStore, configStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
     let hoverLocation = args[1] === null ? null : args[1]['location'];
-    if (hoverLocation === covidStore.hoverLocation) {
+    if (hoverLocation === configStore.hoverLocation) {
       return;
     }
-    covidStore.updateHoverLocation(hoverLocation);
+    configStore.updateHoverLocation(hoverLocation);
   };
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === covidStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-    covidStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   const handleSelectedLocations = (...args) => {
     // console.log(args);
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], covidStore.focusedLocations)) {
+    if (_.isEqual(args[1], configStore.focusedLocations)) {
       return;
     }
-    covidStore.updateFocusedLocations(args[1]);
+    configStore.updateFocusedLocations(args[1]);
   };
 
   const handleSelectedGroups = (...args) => {
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], covidStore.selectedGroups)) {
+    if (_.isEqual(args[1], configStore.selectedGroups)) {
       return;
     }
-    covidStore.updateSelectedGroups(args[1]);
+    configStore.updateSelectedGroups(args[1]);
   };
 
   const [state, setState] = useState({
@@ -55,7 +55,7 @@ const LocationGroupPlot = observer(({ width }) => {
       location_by_group: [],
       selectedGroups: [],
       selectedLocations: JSON.parse(
-        JSON.stringify(covidStore.focusedLocations)
+        JSON.stringify(configStore.focusedLocations)
       ),
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
@@ -75,11 +75,11 @@ const LocationGroupPlot = observer(({ width }) => {
       data: {
         ...state.data,
         selectedLocations: JSON.parse(
-          JSON.stringify(covidStore.focusedLocations)
+          JSON.stringify(configStore.focusedLocations)
         ),
       },
     });
-  }, [covidStore.focusedLocations]);
+  }, [configStore.focusedLocations]);
 
   useEffect(() => {
     setState({
@@ -87,20 +87,20 @@ const LocationGroupPlot = observer(({ width }) => {
       data: {
         ...state.data,
         location_by_group: JSON.parse(
-          JSON.stringify(covidStore.aggLocationData)
+          JSON.stringify(dataStore.aggLocationData)
         ),
-        selectedGroups: JSON.parse(JSON.stringify(covidStore.selectedGroups)),
+        selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [covidStore.aggLocationData, covidStore.selectedGroups]);
+  }, [dataStore.aggLocationData, configStore.selectedGroups]);
 
   let xLabel = 'Sequences by ';
-  if (covidStore.groupKey === 'lineage') {
+  if (configStore.groupKey === 'lineage') {
     xLabel += 'Lineage ';
-  } else if (covidStore.groupKey === 'clade') {
+  } else if (configStore.groupKey === 'clade') {
     xLabel += 'Clade ';
-  } else if (covidStore.groupKey === 'snp') {
-    if (covidStore.dnaOrAa === 'dna') {
+  } else if (configStore.groupKey === 'snp') {
+    if (configStore.dnaOrAa === 'dna') {
       xLabel += 'NT';
     } else {
       xLabel += 'AA';
@@ -110,13 +110,13 @@ const LocationGroupPlot = observer(({ width }) => {
   xLabel += ' (Cumulative, All Sequences)';
 
   const renderPlot = () => {
-    if (covidStore.selectedLocationIds.length == 0) {
+    if (configStore.selectedLocationIds.length == 0) {
       return (
         <EmptyPlot height={100}>
           <p>
             No locations selected. Please select one or more locations from the
             sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-            <b>{covidStore.getGroupLabel()}</b> between them.
+            <b>{configStore.getGroupLabel()}</b> between them.
           </p>
         </EmptyPlot>
       );
@@ -131,8 +131,8 @@ const LocationGroupPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            hoverLocation: { location: covidStore.hoverLocation },
-            hoverGroup: { group: covidStore.hoverGroup },
+            hoverLocation: { location: configStore.hoverLocation },
+            hoverGroup: { group: configStore.hoverGroup },
             xLabel,
           }}
           width={width}

@@ -1,31 +1,20 @@
 import { observable, action, toJS } from 'mobx';
+import { dataStoreInstance } from './rootStore';
 import _ from 'underscore';
 
-import {
-  processCaseData,
-  aggCaseDataByGroup,
-} from '../utils/caseDataWorkerWrapper';
-import {
-  downloadAccessionIdsData,
-  downloadAcknowledgementsData,
-  downloadAggCaseData,
-} from '../utils/downloadWorkerWrapper';
-import { decryptAccessionIds } from '../utils/decrypt';
 import { getGene } from '../utils/gene';
 import { getProtein } from '../utils/protein';
-//import { getLineagesFromGene } from '../utils/lineageData';
 import {
-  loadSelectTree,
-  getLocationByNameAndLevel,
   getLocationIds,
+  getLocationByNameAndLevel,
+  loadSelectTree,
 } from '../utils/location';
-import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { uiStoreInstance } from './rootStore';
 
-class ObservableCovidStore {
+class ObservableConfigStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
   @observable dnaOrAa = 'dna';
 
+  // COORDINATE SETTINGS
   // Select the Spike gene and nsp13 protein by default
   @observable selectedGene = getGene('S');
   @observable selectedProtein = getProtein('nsp13');
@@ -36,35 +25,28 @@ class ObservableCovidStore {
   @observable coordinateMode = 'gene';
   @observable coordinateRanges = this.selectedGene.ranges;
 
-  @observable selectTree = loadSelectTree();
+  @observable dateRange = [-1, -1]; // No initial date range
+
   @observable selectedLocationNodes = [];
   @observable selectedLocationIds = [];
-  @observable caseData = [];
-  @observable changingPositions = {};
-  @observable caseDataAggGroup = [];
-  @observable dateRange = [-1, -1]; // No initial date range
-  @observable selectedRows = [];
-  @observable groupsToKeep = {};
 
   @observable hoverGroup = null;
   // @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
   @observable selectedGroups = [];
 
   // Metadata filtering
-  @observable numSequencesBeforeMetadataFiltering = 0;
-  @observable metadataCounts = {};
   @observable selectedMetadataFields = {};
   @observable ageRange = [null, null];
 
-  // For location tab
-  @observable aggLocationData = [];
+  // Location tab
   @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
 
   constructor() {
+    const selectTree = loadSelectTree();
     // Select NYC by default
     let NYCNode = getLocationByNameAndLevel(
-      this.selectTree,
+      selectTree,
       'New York City',
       'location'
     );
@@ -72,7 +54,7 @@ class ObservableCovidStore {
     let NYCLocationId = getLocationIds(NYCNode);
 
     let MassNode = getLocationByNameAndLevel(
-      this.selectTree,
+      selectTree,
       'Massachusetts',
       'division'
     );
@@ -82,30 +64,26 @@ class ObservableCovidStore {
     this.selectedLocationIds = NYCLocationId.concat(MassLocationId);
     // console.log(this.selectedLocationIds);
     this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
-
-    uiStoreInstance.onCaseDataStateStarted();
-
-    this.updateCaseData();
   }
 
   @action
-  changeGrouping(_groupKey, _dnaOrAa) {
+  changeGrouping(groupKey, dnaOrAa) {
     // console.log(
     //   'CHANGE GROUPING. GROUP KEY:',
-    //   _groupKey,
+    //   groupKey,
     //   'DNA OR AA:',
-    //   _dnaOrAa
+    //   dnaOrAa
     // );
 
     // Clear selected groups?
-    if (this.groupKey !== _groupKey) {
+    if (this.groupKey !== groupKey) {
       this.selectedGroups = [];
-    } else if (_groupKey === 'snp' && this.dnaOrAa !== _dnaOrAa) {
+    } else if (groupKey === 'snp' && this.dnaOrAa !== dnaOrAa) {
       this.selectedGroups = [];
     }
 
-    this.groupKey = _groupKey;
-    this.dnaOrAa = _dnaOrAa;
+    this.groupKey = groupKey;
+    this.dnaOrAa = dnaOrAa;
 
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
@@ -120,7 +98,7 @@ class ObservableCovidStore {
       }
     }
 
-    this.updateCaseData();
+    dataStoreInstance.updateCaseData();
   }
 
   // Get a pretty name for the group
@@ -233,7 +211,7 @@ class ObservableCovidStore {
     //       do this in a smarter way
     this.selectedGroups = [];
 
-    this.updateCaseData();
+    dataStoreInstance.updateCaseData();
   }
 
   @action
@@ -245,9 +223,9 @@ class ObservableCovidStore {
     this.selectedMetadataFields = {};
 
     if (!selectedNodes || !selectedNodes[0]) {
-      this.emptyCaseData();
+      dataStoreInstance.emptyCaseData();
     } else {
-      this.updateCaseData();
+      dataStoreInstance.updateCaseData();
     }
   }
 
@@ -255,84 +233,13 @@ class ObservableCovidStore {
   updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
     this.selectedMetadataFields = selectedMetadataFields;
     this.ageRange = ageRange;
-    this.updateCaseData();
+    dataStoreInstance.updateCaseData();
   }
 
   @action
   selectDateRange(_dateRange) {
     this.dateRange = _dateRange;
-    this.updateAggCaseDataByGroup();
-  }
-
-  @action
-  updateAggCaseDataByGroup(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataStarted();
-    aggCaseDataByGroup(
-      {
-        caseData: toJS(this.caseData),
-        coordinateMode: toJS(this.coordinateMode),
-        coordinateRanges: toJS(this.coordinateRanges),
-        selectedGene: toJS(this.selectedGene),
-        selectedProtein: toJS(this.selectedProtein),
-        groupKey: toJS(this.groupKey),
-        dnaOrAa: toJS(this.dnaOrAa),
-        dateRange: toJS(this.dateRange),
-      },
-      ({ caseDataAggGroup, changingPositions, groupsToKeepObj }) => {
-        // console.log(caseDataAggGroup);
-        this.caseDataAggGroup = caseDataAggGroup;
-        this.changingPositions = changingPositions;
-        this.groupsToKeep = groupsToKeepObj;
-        // console.log('AGG_CASE_DATA FINISHED');
-
-        suppressUIUpdate ? null : uiStoreInstance.onAggCaseDataFinished();
-        suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateFinished();
-      }
-    );
-  }
-
-  @action
-  emptyCaseData() {
-    this.caseData = [];
-    this.selectedRows = [];
-    this.caseDataAggGroup = [];
-    this.changingPositions = {};
-  }
-
-  @action
-  updateCaseData(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : uiStoreInstance.onCaseDataStateStarted();
-
-    processCaseData(
-      {
-        selectedLocationIds: toJS(this.selectedLocationIds),
-        coordinateMode: toJS(this.coordinateMode),
-        coordinateRanges: toJS(this.coordinateRanges),
-        selectedGene: toJS(this.selectedGene),
-        selectedProtein: toJS(this.selectedProtein),
-        groupKey: toJS(this.groupKey),
-        dnaOrAa: toJS(this.dnaOrAa),
-        selectedMetadataFields: toJS(this.selectedMetadataFields),
-        ageRange: toJS(this.ageRange),
-        selectedLocationNodes: toJS(this.selectedLocationNodes),
-      },
-      ({
-        aggCaseDataList,
-        selectedRows,
-        metadataCounts,
-        numSequencesBeforeMetadataFiltering,
-        aggLocationDataList,
-      }) => {
-        this.caseData = aggCaseDataList;
-        this.selectedRows = selectedRows;
-        this.metadataCounts = metadataCounts;
-        this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        this.aggLocationData = aggLocationDataList;
-        // console.log('CASE_DATA FINISHED');
-
-        this.updateAggCaseDataByGroup((suppressUIUpdate = false));
-      }
-    );
+    dataStoreInstance.updateAggCaseDataByGroup();
   }
 
   @action
@@ -355,86 +262,6 @@ class ObservableCovidStore {
   updateFocusedLocations(locations) {
     this.focusedLocations = locations;
   }
-
-  @action
-  downloadAccessionIds() {
-    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
-      (responseData) => {
-        downloadAccessionIdsData(
-          { accessionIds: responseData['accession_ids'] },
-          (res) => {
-            downloadBlobURL(
-              res.blobURL,
-              generateSelectionString(
-                'accession_ids',
-                'txt',
-                this.groupKey,
-                this.dnaOrAa,
-                this.selectedLocationIds,
-                this.dateRange
-              )
-            );
-          }
-        );
-      }
-    );
-  }
-
-  @action
-  downloadAcknowledgements() {
-    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
-
-    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
-      (responseData) => {
-        // Make a deep copy of the selected rows
-        let selectedRows = JSON.parse(JSON.stringify(toJS(this.selectedRows)));
-        // Overwrite the existing hashed Accession IDs with the real ones
-        for (let i = 0; i < selectedRows.length; i++) {
-          selectedRows[i]['Accession ID'] = responseData['accession_ids'][i];
-        }
-
-        downloadAcknowledgementsData({ selectedRows }, (res) => {
-          // console.log(res);
-          downloadBlobURL(
-            res.blobURL,
-            generateSelectionString(
-              'acknowledgements',
-              'csv',
-              this.groupKey,
-              this.dnaOrAa,
-              this.selectedLocationIds,
-              this.dateRange
-            )
-          );
-        });
-      }
-    );
-  }
-
-  @action
-  downloadAggCaseData() {
-    downloadAggCaseData(
-      {
-        groupKey: this.groupKey,
-        dnaOrAa: this.dnaOrAa,
-        coordinateMode: this.coordinateMode,
-        caseDataAggGroup: toJS(this.caseDataAggGroup),
-      },
-      (res) => {
-        downloadBlobURL(
-          res.blobURL,
-          generateSelectionString(
-            'agg_data',
-            'csv',
-            this.groupKey,
-            this.dnaOrAa,
-            this.selectedLocationIds,
-            this.dateRange
-          )
-        );
-      }
-    );
-  }
 }
 
-export default ObservableCovidStore;
+export default ObservableConfigStore;

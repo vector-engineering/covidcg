@@ -91,24 +91,24 @@ const LiteMolBlock = styled.div`
 
 const SideBar = observer(() => {
   const [widthDelta, setWidthDelta] = useState(400);
-  const { uiStore } = useStores();
+  const { UIStore } = useStores();
 
   const onOpenSidebar = () => {
     setWidthDelta(400);
-    uiStore.setSidebarOpen();
+    UIStore.setSidebarOpen();
   };
   const onCloseSidebar = () => {
     setWidthDelta(400);
-    uiStore.setSidebarClosed();
+    UIStore.setSidebarClosed();
   };
 
-  if (!uiStore.sidebarOpen) {
+  if (!UIStore.sidebarOpen) {
     return (
       <SideBarClosedContainer>
         <CloseOpenButton right={0} onClick={onOpenSidebar}>
           {'<'}
         </CloseOpenButton>
-        {uiStore.sidebarSelectedGroupKeys.map((groupKey) => (
+        {UIStore.sidebarSelectedGroupKeys.map((groupKey) => (
           <div key={groupKey}>{groupKey}</div>
         ))}
       </SideBarClosedContainer>
@@ -134,12 +134,12 @@ const SideBar = observer(() => {
             &gt;
           </CloseOpenButton>
           <ViewersContainer>
-            {uiStore.sidebarSelectedGroupKeys.map((groupKey) => (
+            {UIStore.sidebarSelectedGroupKeys.map((groupKey) => (
               <LiteMolBlock key={groupKey}>
                 <LiteMolBlockHeader>
                   {groupKey}
                   <button
-                    onClick={() => uiStore.onRemoveGroupFromSidebar(groupKey)}
+                    onClick={() => UIStore.onRemoveGroupFromSidebar(groupKey)}
                   >
                     x
                   </button>

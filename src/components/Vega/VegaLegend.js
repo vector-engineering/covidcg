@@ -5,7 +5,7 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -97,7 +97,7 @@ ColorCircle.defaultProps = {
 };
 
 const VegaLegend = observer(() => {
-  const { covidStore, uiStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
 
   const onKeyDown = (e) => {
@@ -123,7 +123,7 @@ const VegaLegend = observer(() => {
     };
   });
 
-  if (uiStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
         style={{
@@ -158,11 +158,11 @@ const VegaLegend = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(covidStore.selectedGroups, { group: selectedGroup }) !==
+      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
       newGroups = _.reject(
-        covidStore.selectedGroups,
+        configStore.selectedGroups,
         (group) => group.group == selectedGroup
       );
     } else {
@@ -170,19 +170,19 @@ const VegaLegend = observer(() => {
       newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
       if (shiftKeyPressed) {
-        newGroups = newGroups.concat(covidStore.selectedGroups);
+        newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
-    covidStore.updateSelectedGroups(newGroups);
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
-    if (hoverGroup === covidStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-    covidStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   const renderLegendKeys = (groupObjs) => {
@@ -192,9 +192,9 @@ const VegaLegend = observer(() => {
       }
 
       let itemSelected = null;
-      if (covidStore.selectedGroups.length > 0) {
+      if (configStore.selectedGroups.length > 0) {
         if (
-          _.findWhere(covidStore.selectedGroups, { group: obj.group }) !==
+          _.findWhere(configStore.selectedGroups, { group: obj.group }) !==
           undefined
         ) {
           itemSelected = true;
@@ -209,7 +209,7 @@ const VegaLegend = observer(() => {
       return (
         <LegendItem
           key={`${Math.random()}${obj.color}`}
-          hovered={covidStore.hoverGroup === obj.group}
+          hovered={configStore.hoverGroup === obj.group}
           selected={itemSelected}
           onMouseEnter={onItemEnter.bind(this, obj.group)}
           onMouseLeave={onItemLeave}
@@ -224,7 +224,7 @@ const VegaLegend = observer(() => {
   };
 
   // Make own copy of the elements, and sort by group
-  let legendItems = JSON.parse(JSON.stringify(covidStore.caseDataAggGroup));
+  let legendItems = JSON.parse(JSON.stringify(dataStore.caseDataAggGroup));
   legendItems = _.sortBy(legendItems, (row) => row.group);
 
   return <LegendList>{renderLegendKeys(legendItems)}</LegendList>;
