@@ -124,7 +124,13 @@ const HomePage = observer(({ UIStore }) => {
           />
           <Header />
           <GroupBySelect />
-          <FilterDataIntoOther />
+          <SidebarAccordionWrapper
+            title="Collapse low frequency data"
+            defaultCollapsed={false}
+            maxHeight={'250px'}
+          >
+            <FilterDataIntoOther />
+          </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
             title="Genomic coordinates"
             defaultCollapsed={false}

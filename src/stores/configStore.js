@@ -286,6 +286,7 @@ class ObservableConfigStore {
   setMinLocalCounts(num) {
     this.minLocalCountsToShow = num;
     this.maxLineagesToShow = -1;
+
     dataStoreInstance.updateGroupsToKeep();
   }
 }
