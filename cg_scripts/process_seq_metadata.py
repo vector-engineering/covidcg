@@ -210,7 +210,53 @@ def clean_comment_type_metadata(seq_meta_df):
     return seq_meta_df
 
 
-def clean_seq_metadata(seq_meta_df):
+def process_seq_metadata(seq_meta_files):
+    """Load and process sequencing technology metadata files
+    """
+
+    print(
+        "Loading {} sequencing technology metadata files...".format(
+            len(seq_meta_files)
+        ),
+        end="",
+        flush=True,
+    )
+
+    seq_meta_df = pd.DataFrame()
+    for f in seq_meta_files:
+        # Some files have a header, some don't
+        skiprows = 0
+        fp = open(f, "r")
+        if "Virus name" not in fp.readline():
+            skiprows = 2
+        fp.close()
+
+        seq_meta_df = pd.concat(
+            [seq_meta_df, pd.read_csv(f, sep="\t", skiprows=skiprows)],
+            ignore_index=True,
+        )
+
+    # Drop columns we don't need
+    # A lot of these we'll get from the patient metadata files instead
+    seq_meta_df = seq_meta_df.drop(
+        columns=[
+            "Virus name",
+            "Collection date",
+            "Location",
+            "Host",
+            "Passage",
+            "Specimen",
+            "Additional host information",
+            "Lineage",
+            "Clade",
+            "Comment",
+        ]
+    )
+
+    # Set Accession ID as index
+    seq_meta_df = seq_meta_df.set_index("Accession ID")
+
+    print("done", flush=True)
 
     seq_meta_df = clean_seq_tech_metadata(seq_meta_df)
     seq_meta_df = clean_assembly_metadata(seq_meta_df)

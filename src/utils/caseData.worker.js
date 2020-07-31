@@ -1,4 +1,4 @@
-import initialCaseData from '../../data/case_data2.json';
+import initialCaseData from '../../data/case_data.json';
 import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
 import {
   getDnaSnpsFromGroup,

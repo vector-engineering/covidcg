@@ -45,7 +45,7 @@ const sortRows = (rows, sortFn) => {
 };
 
 const AcknowledgementsTable = observer(() => {
-  const { covidStore } = useStores();
+  const { dataStore } = useStores();
 
   const [state, setState] = useState({
     rows: [],
@@ -54,7 +54,7 @@ const AcknowledgementsTable = observer(() => {
   });
 
   useEffect(() => {
-    let ackIds = _.pluck(covidStore.selectedRows, 'ack_id');
+    let ackIds = _.pluck(dataStore.selectedRows, 'ack_id');
     // Get unique acknowledgement IDs
     ackIds = Array.from(new Set(ackIds));
     // Remove null IDs
@@ -78,7 +78,7 @@ const AcknowledgementsTable = observer(() => {
         })
       ),
     });
-  }, [covidStore.caseDataAggGroup]);
+  }, [dataStore.caseDataAggGroup]);
 
   const handleGridSort = (sortColumn, sortDirection) => {
     let _sortDirection = sortDirection;

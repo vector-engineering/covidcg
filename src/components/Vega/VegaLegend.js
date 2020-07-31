@@ -5,8 +5,9 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 import { mergeGroupsIntoOther, mergeLegendItemsIntoOther } from './utils';
+import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
 const LegendList = styled.div`
   display: flex;
@@ -34,18 +35,37 @@ const LegendItem = styled.div`
   border-radius: 3px;
   margin: ${({ hovered, selected }) => {
     if (hovered || selected) {
-      return '0px 0px 0px 0px';
+      return '0px 4px 0px 1px';
     } else {
-      return '1px 1px 1px 1px';
+      return '1px 5px 1px 2px';
     }
   }};
-  background-color: ${({ hovered, selected }) => {
+  background-color: ${({ color, hovered, selected }) => {
     if (hovered) {
-      return 'rgba(0,0,0,0.05)';
+      return lighten(0.1, color);
+    } else if (selected === null) {
+      return color;
     } else if (selected) {
-      return 'rgba(0,0,0,0.1)';
+      return color;
     } else {
-      return 'transparent';
+      return transparentize(0.7, color);
+    }
+  }};
+
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ textColor, hovered, selected }) => {
+    if (hovered) {
+      return transparentize(0.1, textColor);
+    } else if (selected === null) {
+      return textColor;
+    } else if (selected) {
+      return textColor;
+    } else {
+      // Make the blacks a lot lighter
+      return textColor === '#fff'
+        ? transparentize(0.5, textColor)
+        : transparentize(0.8, textColor);
     }
   }};
 `;
@@ -53,6 +73,8 @@ const LegendItem = styled.div`
 LegendItem.defaultProps = {
   hovered: false,
   selected: null,
+  color: '#ccc',
+  textColor: '#fff',
 };
 
 const ColorCircle = styled.div`
@@ -74,13 +96,8 @@ ColorCircle.defaultProps = {
   selected: null,
 };
 
-const LegendText = styled.span`
-  font-size: 10px;
-  font-weight: 400;
-`;
-
 const VegaLegend = observer(() => {
-  const { covidStore, uiStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
 
   const onKeyDown = (e) => {
@@ -106,7 +123,7 @@ const VegaLegend = observer(() => {
     };
   });
 
-  if (uiStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === asyncStates.STARTED) {
     return (
       <div
         style={{
@@ -141,11 +158,11 @@ const VegaLegend = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(covidStore.selectedGroups, { group: selectedGroup }) !==
+      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
       newGroups = _.reject(
-        covidStore.selectedGroups,
+        configStore.selectedGroups,
         (group) => group.group == selectedGroup
       );
     } else {
@@ -153,19 +170,19 @@ const VegaLegend = observer(() => {
       newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
       if (shiftKeyPressed) {
-        newGroups = newGroups.concat(covidStore.selectedGroups);
+        newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
-    covidStore.updateSelectedGroups(newGroups);
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
-    if (hoverGroup === covidStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-    covidStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   const renderLegendKeys = (groupObjs) => {
@@ -175,9 +192,9 @@ const VegaLegend = observer(() => {
       }
 
       let itemSelected = null;
-      if (covidStore.selectedGroups.length > 0) {
+      if (configStore.selectedGroups.length > 0) {
         if (
-          _.findWhere(covidStore.selectedGroups, { group: obj.group }) !==
+          _.findWhere(configStore.selectedGroups, { group: obj.group }) !==
           undefined
         ) {
           itemSelected = true;
@@ -186,17 +203,21 @@ const VegaLegend = observer(() => {
         }
       }
 
+      const scores = meetsContrastGuidelines(obj.color, '#fff');
+      obj.textColor = scores['AALarge'] ? '#fff' : '#000';
+
       return (
         <LegendItem
           key={`${Math.random()}${obj.color}`}
-          hovered={covidStore.hoverGroup === obj.group}
+          hovered={configStore.hoverGroup === obj.group}
           selected={itemSelected}
           onMouseEnter={onItemEnter.bind(this, obj.group)}
           onMouseLeave={onItemLeave}
           onMouseDown={onItemSelect.bind(this, obj.group)}
+          color={obj.color}
+          textColor={obj.textColor}
         >
-          <ColorCircle color={obj.color} selected={itemSelected} />
-          <LegendText>{obj.group}</LegendText>
+          {obj.group}
         </LegendItem>
       );
     });
@@ -204,10 +225,10 @@ const VegaLegend = observer(() => {
 
   // Make own copy of the elements, and sort by group
   let legendItems = mergeLegendItemsIntoOther(
-    JSON.parse(JSON.stringify(covidStore.caseDataAggGroup)),
-    covidStore.groupsToKeep
+    JSON.parse(JSON.stringify(dataStore.caseDataAggGroup)),
+    dataStore.groupsToKeep
   );
-  console.log(legendItems, covidStore.caseDataAggGroup);
+  // console.log(legendItems, dataStore.caseDataAggGroup);
   legendItems = _.sortBy(legendItems, (row) => row.group);
 
   return <LegendList>{renderLegendKeys(legendItems)}</LegendList>;

@@ -3,9 +3,9 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
 const AddToSidepanelCheckbox = observer(({ groupKey }) => {
-  const { uiStore } = useStores();
+  const { UIStore } = useStores();
 
-  const isSelected = uiStore.sidebarSelectedGroupKeys.includes(groupKey);
+  const isSelected = UIStore.sidebarSelectedGroupKeys.includes(groupKey);
 
   return (
     <input
@@ -15,8 +15,8 @@ const AddToSidepanelCheckbox = observer(({ groupKey }) => {
       checked={isSelected}
       onChange={() => {
         isSelected
-          ? uiStore.onRemoveGroupFromSidebar(groupKey)
-          : uiStore.onSelectGroupForSidebar(groupKey);
+          ? UIStore.onRemoveGroupFromSidebar(groupKey)
+          : UIStore.onSelectGroupForSidebar(groupKey);
       }}
     ></input>
   );

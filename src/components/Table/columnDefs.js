@@ -1,5 +1,6 @@
 /* eslint-disable react/display-name */
 import React from 'react';
+import GroupCell from '../Cells/GroupCell';
 import LetterCell from '../Cells/LetterCell';
 import HeatmapCell from '../Cells/HeatmapCell';
 import PosHeaderCell from '../Cells/PosHeaderCell';
@@ -13,6 +14,9 @@ export const positionColumn = () => ({
   width: 70,
   cellClass: 'no-overflow',
   frozen: true,
+  formatter: (val) => (
+    <GroupCell text={val.row['pos']} color={val.row['color']} />
+  ),
 });
 
 export const indexColumn = () => ({
@@ -48,6 +52,9 @@ export const geneColumn = () => ({
   width: 65,
   cellClass: 'no-overflow',
   frozen: true,
+  formatter: (val) => (
+    <GroupCell text={val.row['gene']} color={val.row['color']} />
+  ),
 });
 
 export const proteinColumn = () => ({
@@ -57,6 +64,9 @@ export const proteinColumn = () => ({
   width: 65,
   cellClass: 'no-overflow',
   frozen: true,
+  formatter: (val) => (
+    <GroupCell text={val.row['protein']} color={val.row['color']} />
+  ),
 });
 
 export const lineageColumn = () => ({
@@ -66,6 +76,9 @@ export const lineageColumn = () => ({
   sortable: true,
   width: 85,
   frozen: true,
+  formatter: (val) => (
+    <GroupCell text={val.row['group']} color={val.row['color']} />
+  ),
 });
 
 export const cladeColumn = () => ({
@@ -75,6 +88,9 @@ export const cladeColumn = () => ({
   sortable: true,
   width: 85,
   frozen: true,
+  formatter: (val) => (
+    <GroupCell text={val.row['group']} color={val.row['color']} />
+  ),
 });
 
 const conditionCompare = (base, refBase, matchOrMismatch) => {
@@ -94,7 +110,7 @@ export const getSinglePosColumn = ({
   name: pos.toString(),
   key: col,
   cellClass: 'pos',
-  sortable: false,
+  sortable: true,
   width: 25,
   formatter: (val) => {
     // console.log(val);

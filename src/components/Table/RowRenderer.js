@@ -58,7 +58,7 @@ RowWrapper.defaultProps = {
 };
 
 const RowRenderer = observer(({ row, ...rest }) => {
-  const { covidStore } = useStores();
+  const { dataStore, configStore } = useStores();
   // console.log(row.group);
 
   const onItemEnter = (hoverGroup, e) => {
@@ -75,16 +75,17 @@ const RowRenderer = observer(({ row, ...rest }) => {
 
   const updateHoverGroup = (hoverGroup) => {
     // Don't fire the action if there's no change
-    if (hoverGroup === covidStore.hoverGroup) {
+    if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-    covidStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(hoverGroup);
   };
 
   let rowSelected = null;
-  if (covidStore.selectedGroups.length > 0) {
+  if (configStore.selectedGroups.length > 0) {
     if (
-      _.findWhere(covidStore.selectedGroups, { group: row.group }) !== undefined
+      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+      undefined
     ) {
       rowSelected = true;
     } else {
@@ -92,11 +93,11 @@ const RowRenderer = observer(({ row, ...rest }) => {
     }
   }
 
-  let hovered = covidStore.hoverGroup === row.group;
+  let hovered = configStore.hoverGroup === row.group;
 
   if (
-    !covidStore.groupsToKeep.includes(row.group) &&
-    covidStore.hoverGroup === 'other'
+    !dataStore.groupsToKeep.includes(row.group) &&
+    configStore.hoverGroup === 'other'
   ) {
     hovered = true;
   }

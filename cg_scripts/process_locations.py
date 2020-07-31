@@ -12,10 +12,13 @@ import numpy as np
 import pandas as pd
 
 from functools import reduce
-from util import human_format, data_dir, static_data_dir
+from cg_scripts.util import human_format
 
 
-def process_location_data(case_df):
+def process_location_metadata(case_df):
+
+    # Unset index for faster filtering
+    case_df = case_df.reset_index()
 
     print("Processing location data...", end="", flush=True)
     # Location data is stored in one column, "region / country / division / location"
@@ -45,18 +48,18 @@ def process_location_data(case_df):
         sep="/",
     )
 
-    unique_location_df = (
+    location_map_df = (
         location_df["loc_str"]
         .drop_duplicates()
         .sort_values(ignore_index=True)
         .reset_index()  # Produce an index column
     )
     # Location data is stored in one column, "region/country/division/location"
-    unique_location_df = pd.concat(
+    location_map_df = pd.concat(
         [
-            unique_location_df,
+            location_map_df,
             (
-                unique_location_df["loc_str"]
+                location_map_df["loc_str"]
                 .str.split("/", expand=True)
                 .iloc[:, :4]  # Only take 4 columns
                 # Rename columns
@@ -71,8 +74,7 @@ def process_location_data(case_df):
     # Map location IDs back to taxon_locations dataframe
     location_df["location_id"] = location_df["loc_str"].map(
         pd.Series(
-            unique_location_df["index"].values,
-            index=unique_location_df["loc_str"].values,
+            location_map_df["index"].values, index=location_map_df["loc_str"].values,
         )
     )
 
@@ -82,26 +84,11 @@ def process_location_data(case_df):
     ].reset_index(drop=True)
     print("done")
 
-    # print('Saving taxon locations')
-    # location_df.to_csv(data_dir / 'taxon_locations.csv', index=False)
-    # location_df.to_json(data_dir / 'taxon_locations.json', orient='records')
-
-    print("Saving unique locations")
-    unique_location_df.drop(columns=["loc_str"]).to_csv(
-        data_dir / "location_map.csv", index=False
-    )
-    unique_location_df.drop(columns=["loc_str"]).to_json(
-        data_dir / "location_map.json", orient="records"
-    )
-
-    # Build geo tree
-    select_tree = build_select_tree(location_df, unique_location_df)
-
     # Re-apply Accession ID index
     location_df["Accession ID"] = case_df["Accession ID"]
     location_df = location_df.set_index("Accession ID")
 
-    return location_df, unique_location_df
+    return location_df, location_map_df
 
 
 def clean_location_data(location_df):
@@ -3842,7 +3829,9 @@ def clean_location_data(location_df):
     return location_df
 
 
-def build_select_tree(location_df, unique_location_df):
+def build_select_tree(
+    location_df, location_map_df, emoji_map_file="static_data/country_to_emoji.xls"
+):
     """Build tree for ReactDropdownTreeSelect
 
     data
@@ -3916,7 +3905,7 @@ def build_select_tree(location_df, unique_location_df):
     )
 
     # Load country -> emoji map
-    emoji_map = pd.read_excel(static_data_dir / "country_to_emoji.xls", skiprows=1)
+    emoji_map = pd.read_excel(emoji_map_file, skiprows=1)
     # Expand country aliases, remove whitespace from each alias
     emoji_map["aliases"] = (
         emoji_map["aliases"].str.split(",").apply(lambda x: [y.strip() for y in x])
@@ -3925,7 +3914,7 @@ def build_select_tree(location_df, unique_location_df):
     # Root node
     select_tree = {"label": "All", "value": "All", "children": []}
 
-    for i, loc in unique_location_df.iterrows():
+    for i, loc in location_map_df.iterrows():
         # Add region node
         if loc["region"] == "-1":
             continue
@@ -3940,7 +3929,7 @@ def build_select_tree(location_df, unique_location_df):
                 "label": loc["region"],
                 "value": loc["region"],
                 "level": "region",
-                "location_id": loc['index'],
+                "location_id": loc["index"],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -3977,7 +3966,7 @@ def build_select_tree(location_df, unique_location_df):
                 "value": loc["country"],
                 "region": loc["region"],
                 "level": "country",
-                "location_id": loc['index'],
+                "location_id": loc["index"],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -4008,7 +3997,7 @@ def build_select_tree(location_df, unique_location_df):
                 "region": loc["region"],
                 "country": loc["country"],
                 "level": "division",
-                "location_id": loc['index'],
+                "location_id": loc["index"],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -4046,7 +4035,7 @@ def build_select_tree(location_df, unique_location_df):
                 "country": loc["country"],
                 "division": loc["division"],
                 "level": "location",
-                "location_id": loc['index'],
+                "location_id": loc["index"],
                 "actions": [
                     {
                         "className": "fa fa-info",
@@ -4077,17 +4066,11 @@ def build_select_tree(location_df, unique_location_df):
             }
             division_node["children"].append(location_node)
 
-    # Save tree as json file
-    print("Saving geo select tree")
-    select_tree_path = data_dir / "geo_select_tree.json"
-    with select_tree_path.open("w") as fp:
-        fp.write(json.dumps(select_tree))
-
     # print(loc_tree.nodes)
     # print(loc_tree.in_edges('New York'))
     return select_tree
 
 
-if __name__ == "__main__":
-    patient_meta_df = load_patient_metadata()
-    location_df, unique_location_df = process_location_data(patient_meta_df)
+# if __name__ == "__main__":
+#     patient_meta_df = load_patient_metadata()
+#     location_df, location_map_df = process_location_metadata(patient_meta_df)

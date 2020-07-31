@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
+import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -122,7 +123,7 @@ metadataFields.forEach((field) => {
 });
 
 const MetaFieldSelect = observer(() => {
-  const { covidStore } = useStores();
+  const { dataStore, configStore } = useStores();
 
   const [state, setState] = useState({
     fieldOptions: initialFieldOptions,
@@ -138,13 +139,13 @@ const MetaFieldSelect = observer(() => {
       fieldOptions[field] = [];
 
       if (
-        !Object.prototype.hasOwnProperty.call(covidStore.metadataCounts, field)
+        !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
       ) {
         return;
       }
 
-      Object.keys(covidStore.metadataCounts[field]).forEach((option) => {
-        let count = covidStore.metadataCounts[field][option];
+      Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
+        let count = dataStore.metadataCounts[field][option];
         fieldOptions[field].push({
           label:
             getMetadataValueFromId(field, option) +
@@ -157,17 +158,27 @@ const MetaFieldSelect = observer(() => {
     });
 
     setState({ ...state, fieldOptions });
-  }, [covidStore.metadataCounts]);
+  }, [dataStore.metadataCounts]);
 
   // When the selected fields are flushed to the store, see if we still need
   // to display the update button
   useEffect(() => {
-    // console.log('updated selected', covidStore.selectedMetadataFields);
+    // IDs back into options objects in state.fieldOptions
+    const fieldSelected = JSON.parse(
+      JSON.stringify(toJS(configStore.selectedMetadataFields))
+    );
+    Object.keys(fieldSelected).forEach((field) => {
+      fieldSelected[field] = fieldSelected[field].map((id) => {
+        return state.fieldOptions[field][id];
+      });
+    });
+
     setState({
       ...state,
-      changed: checkChanged(state.fieldSelected, state.ageRange),
+      fieldSelected,
+      changed: checkChanged(fieldSelected, state.ageRange),
     });
-  }, [covidStore.selectedMetadataFields, covidStore.ageRange]);
+  }, [configStore.selectedMetadataFields, configStore.ageRange]);
 
   const checkChanged = (fieldSelected, ageRange) => {
     // Is the current selection different than the selection in the store?
@@ -178,7 +189,7 @@ const MetaFieldSelect = observer(() => {
       // If this field isn't in the store's selected object, then return true
       if (
         !Object.prototype.hasOwnProperty.call(
-          covidStore.selectedMetadataFields,
+          configStore.selectedMetadataFields,
           field
         )
       ) {
@@ -192,7 +203,7 @@ const MetaFieldSelect = observer(() => {
       }
 
       // Sort both arrays so we can compare in one go
-      const storeSelectedOptions = covidStore.selectedMetadataFields[
+      const storeSelectedOptions = configStore.selectedMetadataFields[
         field
       ].sort((a, b) => a - b);
       // The local versions will be strings, so convert to integer IDs
@@ -221,7 +232,7 @@ const MetaFieldSelect = observer(() => {
 
     // Now check for age range
     // Empty values will be null in the store, and an empty string locally
-    let storeAgeRange = covidStore.ageRange;
+    let storeAgeRange = configStore.ageRange;
     // console.log(storeAgeRange, ageRange);
     if (
       !(
@@ -291,7 +302,7 @@ const MetaFieldSelect = observer(() => {
     }
 
     // console.log(selectedFields, ageRange);
-    covidStore.updateSelectedMetadataFields(selectedFields, ageRange);
+    configStore.updateSelectedMetadataFields(selectedFields, ageRange);
   };
 
   // Build all of the select components

@@ -37,7 +37,7 @@ export const mergeLegendItemsIntoOther = (data, _groupsToKeep) => {
     newCaseData = [];
     let alreadyPushedOther = false;
 
-    data.forEach((row, key) => {
+    data.forEach((row) => {
       if (!groupsToKeep.includes(row.group)) {
         row.group = 'other';
         row.color = '#aaa';

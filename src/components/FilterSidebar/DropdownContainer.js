@@ -1,11 +1,11 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
-import _ from 'underscore';
-import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
+
+import { loadSelectTree } from '../../utils/location';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;
@@ -14,7 +14,8 @@ const ContainerDiv = styled.div`
   border-top: 1px solid #aaa;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  overflow-y: scroll;
 
   .location-tree-title {
     margin-left: 15px;
@@ -25,7 +26,8 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   flex-direction: column;
   display: flex;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  overflow-y: scroll;
 
   ul.tag-list {
     li:first-child {
@@ -161,7 +163,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     position: relative;
     flex-direction: column;
     display: flex;
-    overflow: hidden;
+    // overflow: hidden;
     align-items: stretch;
 
     a.dropdown-trigger {
@@ -250,15 +252,15 @@ const assignObjectPaths = (obj, stack) => {
   });
 };
 
+let initialData = Object.assign(loadSelectTree(), {
+  expanded: true,
+});
+assignObjectPaths(initialData);
+
 const DropdownContainer = () => {
-  const { covidStore, uiStore } = useStores();
+  const { UIStore, configStore } = useStores();
 
-  let initialData = Object.assign(toJS(covidStore.selectTree), {
-    expanded: true,
-  });
-  assignObjectPaths(initialData);
-
-  const [state, setState] = useState({
+  const [state] = useState({
     data: initialData,
     expanded: [],
   });
@@ -266,6 +268,11 @@ const DropdownContainer = () => {
     // Since the tree is rendered in a flat state, we need to get all node
     // children from the original data, via. the node paths
     let selectedNodeObjs = selectedNodes.map((node) => {
+      // If the path doesn't exist, then we're at the root node
+      if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
+        return state.data;
+      }
+
       // Get children using the object path
       const pathChunks = node['path'].split('.');
       let nodeObj = state.data;
@@ -283,12 +290,12 @@ const DropdownContainer = () => {
     });
 
     if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === asyncStates.STARTED ||
+      UIStore.aggCaseDataState === asyncStates.STARTED
     ) {
       return;
     }
-    covidStore.selectLocations(selectedNodeObjs);
+    configStore.selectLocations(selectedNodeObjs);
   };
   // const treeSelectOnAction = (node, action) => {
   //   console.log('onAction::', action, node);
@@ -296,20 +303,6 @@ const DropdownContainer = () => {
   // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
   //   console.log('onNodeToggle::', currentNode);
   // };
-
-  useEffect(() => {
-    if (!_.isEqual(covidStore.selectTree, state.data)) {
-      let data = Object.assign(toJS(covidStore.selectTree), {
-        expanded: true,
-      });
-      assignObjectPaths(data);
-
-      setState({
-        ...state,
-        data: data,
-      });
-    }
-  }, [covidStore.selectTree]);
 
   const dropdownContainer = useMemo(
     () => (

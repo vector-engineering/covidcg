@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
+import { useStores } from '../../stores/connect';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
-import { connect } from '../../stores/connect';
 
+import ReactTooltip from 'react-tooltip';
+import QuestionButton from '../Buttons/QuestionButton';
 import Header from '../FilterSidebar/Header';
 import GroupBySelect from '../FilterSidebar/GroupBySelect';
 import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
@@ -15,7 +16,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 //import initial_entropy_spec from '../vega/barplot_v3.vl.json';
 // import SideBar from './Sidebar';
 // import VegaTree from './VegaTree';
-import StatusBar from '../StatusBar';
+import TabBar from '../TabBar';
 import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
 
 import GroupTab from './GroupTab';
@@ -44,6 +45,16 @@ const FilterSidebar = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-y: hidden;
+
+  .filter-sidebar-tooltip {
+    background-color: #fff;
+    font-weight: normal;
+    p {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+  }
 `;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
@@ -62,9 +73,9 @@ const PlotContainer = styled.div`
 
 const HomePage = observer(() => {
   const [ref, { width }] = useDimensions();
+  const { UIStore } = useStores();
 
   const [modalIsOpen, setIsOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('group');
   const openModal = (e) => {
     if (e !== undefined) {
       e.preventDefault();
@@ -81,15 +92,15 @@ const HomePage = observer(() => {
   };
 
   const onTabChange = (tab) => {
-    setActiveTab(tab);
+    UIStore.setActiveTab(tab);
   };
 
   const renderTab = () => {
-    if (activeTab === 'group') {
+    if (UIStore.activeTab === 'group') {
       return <GroupTab width={width} />;
-    } else if (activeTab === 'location') {
+    } else if (UIStore.activeTab === 'location') {
       return <LocationTab width={width} />;
-    } else if (activeTab === 'about') {
+    } else if (UIStore.activeTab === 'about') {
       return <AboutTab />;
     }
   };
@@ -104,6 +115,14 @@ const HomePage = observer(() => {
       <HomePageDiv>
         {/* <SideBar /> */}
         <FilterSidebar>
+          <ReactTooltip
+            className="filter-sidebar-tooltip"
+            id="tooltip-filter-sidebar"
+            type="light"
+            effect="solid"
+            border={true}
+            borderColor="#888"
+          />
           <Header />
           <GroupBySelect />
           <FilterDataIntoOther />
@@ -115,7 +134,16 @@ const HomePage = observer(() => {
             <CoordinateSelect />
           </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
-            title="Filter sequences by"
+            title={
+              <div>
+                Filter by metadata (advanced)
+                <QuestionButton
+                  data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p>'
+                  data-html={true}
+                  data-for="tooltip-filter-sidebar"
+                />
+              </div>
+            }
             defaultCollapsed={true}
             maxHeight={'240px'}
           >
@@ -132,7 +160,7 @@ const HomePage = observer(() => {
         </FilterSidebar>
 
         <PlotContainer ref={ref}>
-          <StatusBar activeTab={activeTab} onTabChange={onTabChange} />
+          <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer openModal={openModal} />
         </PlotContainer>
@@ -141,9 +169,5 @@ const HomePage = observer(() => {
   );
 });
 
-HomePage.propTypes = {
-  router: PropTypes.object.isRequired,
-};
-
 // eslint-disable-next-line react/display-name
-export default connect(HomePage);
+export default HomePage;

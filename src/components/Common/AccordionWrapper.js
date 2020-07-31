@@ -6,15 +6,14 @@ const LegendAndButtonWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin-top: 12px;
-  margin-bottom: 6px;
+  margin-top: 0px;
+  margin-bottom: 10px;
   margin-left: 24px;
   margin-right: 24px;
 `;
 
 const LegendContainer = styled.div`
   width: 100%;
-  padding: 4px 6px;
   transition: max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   align-self: center;
   border-radius: 2px;

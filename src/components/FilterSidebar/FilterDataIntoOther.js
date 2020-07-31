@@ -21,7 +21,7 @@ const SliderContainer = styled.div`
 `;
 
 const FilterDataIntoOther = observer(() => {
-  const { covidStore } = useStores();
+  const { configStore } = useStores();
   const [filterType, setFilterType] = useState('LOCAL_COUNTS');
 
   return (
@@ -38,12 +38,12 @@ const FilterDataIntoOther = observer(() => {
       </label>
       {filterType === 'LOCAL_COUNTS' && (
         <SliderContainer>
-          {covidStore.minLocalCountsToShow}
+          {configStore.minLocalCountsToShow}
           <Slider
             axis="x"
-            x={covidStore.minLocalCountsToShow}
+            x={configStore.minLocalCountsToShow}
             onChange={({ x }) => {
-              covidStore.setMinLocalCounts(x);
+              configStore.setMinLocalCounts(x);
             }}
             xmin={1}
             xmax={500}
@@ -61,12 +61,12 @@ const FilterDataIntoOther = observer(() => {
       </label>
       {filterType === 'GROUP_COUNTS' && (
         <SliderContainer>
-          {covidStore.maxLineagesToShow}
+          {configStore.maxLineagesToShow}
           <Slider
             axis="x"
-            x={covidStore.maxLineagesToShow}
+            x={configStore.maxLineagesToShow}
             onChange={({ x }) => {
-              covidStore.setMaxLineages(x);
+              configStore.setMaxLineages(x);
             }}
             xmin={2}
             xmax={50}

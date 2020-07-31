@@ -771,7 +771,43 @@ def clean_clade_metadata(patient_meta_df):
     return patient_meta_df
 
 
-def clean_patient_metadata(patient_meta_df):
+def process_patient_metadata(patient_meta_files):
+    """Load and process patient metadata files
+    """
+
+    print(
+        "Loading {} patient metadata files...".format(len(patient_meta_files)),
+        end="",
+        flush=True,
+    )
+    patient_meta_df = pd.DataFrame()
+    for f in patient_meta_files:
+        # Some files have a header, some don't
+        skiprows = 0
+        fp = open(f, "r")
+        if "Virus name" not in fp.readline():
+            skiprows = 2
+        fp.close()
+
+        patient_meta_df = pd.concat(
+            [patient_meta_df, pd.read_csv(f, sep="\t", skiprows=skiprows)],
+            ignore_index=True,
+        )
+
+    # Drop columns we don't need
+    patient_meta_df = patient_meta_df.drop(
+        columns=[
+            "Virus name",
+            "Host",
+            "Additional location information",
+            "Additional host information",
+        ]
+    )
+    # Set Accession ID as the index
+    patient_meta_df = patient_meta_df.set_index("Accession ID")
+
+    print("done", flush=True)
+
     patient_meta_df = clean_gender_metadata(patient_meta_df)
     patient_meta_df = clean_age_metadata(patient_meta_df)
     patient_meta_df = clean_patient_status_metadata(patient_meta_df)

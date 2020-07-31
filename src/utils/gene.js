@@ -1,8 +1,18 @@
 import _ from 'underscore';
 import genes from '../../static_data/genes.json';
 
+let processedGenes = genes;
+
+// Parse segments
+processedGenes = _.map(processedGenes, (gene) => {
+  gene.ranges = _.map(gene.segments.split(';'), (segment) => {
+    return _.map(segment.split('..'), (pos) => parseInt(pos));
+  });
+  return gene;
+});
+
 export function getAllGenes() {
-  return genes;
+  return processedGenes;
 }
 
 export function getGene(value) {

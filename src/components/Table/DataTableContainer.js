@@ -30,7 +30,7 @@ import {
   getSinglePosColumn,
 } from './columnDefs';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/uiStore';
+import { asyncStates } from '../../stores/UIStore';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
 
@@ -64,7 +64,7 @@ const sortRows = (rows, sortFn) => {
 };
 
 const NewLineageDataTable = observer(() => {
-  const { covidStore, uiStore } = useStores();
+  const { dataStore, UIStore, configStore } = useStores();
 
   const [state, setState] = useState({
     // Color by 'compare': Comparison to reference, or 'code': With a defined color code
@@ -72,7 +72,7 @@ const NewLineageDataTable = observer(() => {
     // 'match' or 'mismatch'
     compareMode: 'mismatch',
     compareColor: 'yellow',
-    rows: covidStore.caseDataAggGroup,
+    rows: dataStore.caseDataAggGroup,
     sortColumn: 'cases_sum',
     sortDirection: 'DESC',
 
@@ -109,20 +109,20 @@ const NewLineageDataTable = observer(() => {
       compareMode: 'mismatch',
       compareColor: 'yellow',
     });
-  }, [covidStore.dnaOrAa]);
+  }, [configStore.dnaOrAa]);
 
   useEffect(() => {
     setState({
       ...state,
       rows: sortRows(
-        covidStore.caseDataAggGroup,
+        dataStore.caseDataAggGroup,
         comparer({
           sortDirection: state.sortDirection,
           sortColumn: state.sortColumn,
         })
       ),
     });
-  }, [covidStore.caseDataAggGroup]);
+  }, [dataStore.caseDataAggGroup]);
 
   const handleColorModeChange = (event) =>
     setState({ ...state, colorMode: event.target.value });
@@ -138,10 +138,11 @@ const NewLineageDataTable = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(covidStore.selectedGroups, { group: row.group }) !== undefined
+      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+      undefined
     ) {
       newGroups = _.reject(
-        covidStore.selectedGroups,
+        configStore.selectedGroups,
         (group) => group.group == row.group
       );
     } else {
@@ -149,17 +150,17 @@ const NewLineageDataTable = observer(() => {
       newGroups = [{ group: row.group }];
       // If shift is pressed, then add it to the existing selected groups
       if (state.shiftKeyPressed) {
-        newGroups = newGroups.concat(covidStore.selectedGroups);
+        newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
-    covidStore.updateSelectedGroups(newGroups);
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const renderTable = () => {
     if (
-      uiStore.caseDataState === asyncStates.STARTED ||
-      uiStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === asyncStates.STARTED ||
+      UIStore.aggCaseDataState === asyncStates.STARTED
     ) {
       return (
         <div
@@ -190,22 +191,22 @@ const NewLineageDataTable = observer(() => {
     // Get the maximum and minimum cases_sum and cases_percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
     let maxCasesSum = _.reduce(
-      covidStore.caseDataAggGroup,
+      dataStore.caseDataAggGroup,
       (memo, group) => nanmax(memo, group.cases_sum),
       0
     );
     let minCasesSum = _.reduce(
-      covidStore.caseDataAggGroup,
+      dataStore.caseDataAggGroup,
       (memo, group) => nanmin(memo, group.cases_sum),
       0
     );
     let maxCasesPercent = _.reduce(
-      covidStore.caseDataAggGroup,
+      dataStore.caseDataAggGroup,
       (memo, group) => nanmax(memo, group.cases_percent),
       0
     );
     let minCasesPercent = _.reduce(
-      covidStore.caseDataAggGroup,
+      dataStore.caseDataAggGroup,
       (memo, group) => nanmin(memo, group.cases_percent),
       0
     );
@@ -237,25 +238,25 @@ const NewLineageDataTable = observer(() => {
     const buildColumns = () => {
       let _columns = [];
       // For lineage grouping, add lineage column
-      if (covidStore.groupKey === 'lineage') {
+      if (configStore.groupKey === 'lineage') {
         _columns.push(lineageColumn(handleGridSort));
-      } else if (covidStore.groupKey === 'clade') {
+      } else if (configStore.groupKey === 'clade') {
         _columns.push(cladeColumn(handleGridSort));
       }
 
       // For SNP grouping, add each SNP chunk as its own column
-      if (covidStore.groupKey === 'snp') {
+      if (configStore.groupKey === 'snp') {
         // Add the gene column, if we're in AA mode
-        if (covidStore.dnaOrAa === 'aa') {
-          if (covidStore.coordinateMode === 'gene') {
+        if (configStore.dnaOrAa === 'aa') {
+          if (configStore.coordinateMode === 'gene') {
             _columns.push(geneColumn(handleGridSort));
-          } else if (covidStore.coordinateMode === 'protein') {
+          } else if (configStore.coordinateMode === 'protein') {
             _columns.push(proteinColumn(handleGridSort));
           }
         }
         // Add the position column
         // We don't need as much space for this, for AA mode
-        if (covidStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           _columns.push(positionColumn(handleGridSort));
         } else {
           _columns.push(indexColumn(handleGridSort));
@@ -283,7 +284,7 @@ const NewLineageDataTable = observer(() => {
       );
 
       // Build a column for each changing position
-      let refRow = _.findWhere(covidStore.caseDataAggGroup, {
+      let refRow = _.findWhere(dataStore.caseDataAggGroup, {
         group: 'Reference',
       });
       if (!refRow) {
@@ -297,7 +298,7 @@ const NewLineageDataTable = observer(() => {
         }
 
         let colors;
-        if (covidStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           colors = snapGeneNTColors;
         } else {
           if (state.compareColor === 'code' || state.colorMode === 'code') {
@@ -322,10 +323,10 @@ const NewLineageDataTable = observer(() => {
 
         // 0-indexed to 1-indexed
         let pos = parseInt(col.substring(4));
-        if (covidStore.dnaOrAa === 'dna') {
+        if (configStore.dnaOrAa === 'dna') {
           pos += 1;
         }
-        if (covidStore.groupKey === 'snp' && covidStore.dnaOrAa === 'aa') {
+        if (configStore.groupKey === 'snp' && configStore.dnaOrAa === 'aa') {
           pos += 1;
         }
 
@@ -351,11 +352,14 @@ const NewLineageDataTable = observer(() => {
 
     let positionTitleOffset = 0;
     let posColOffset = 0;
-    if (covidStore.groupKey === 'lineage' || covidStore.groupKey === 'clade') {
+    if (
+      configStore.groupKey === 'lineage' ||
+      configStore.groupKey === 'clade'
+    ) {
       positionTitleOffset = 220;
       posColOffset = 4;
-    } else if (covidStore.groupKey === 'snp') {
-      if (covidStore.dnaOrAa === 'dna') {
+    } else if (configStore.groupKey === 'snp') {
+      if (configStore.dnaOrAa === 'dna') {
         positionTitleOffset = 280;
         posColOffset = 6;
       } else {
@@ -373,7 +377,7 @@ const NewLineageDataTable = observer(() => {
           className="position-title"
           style={{ marginLeft: positionTitleOffset }}
         >
-          {covidStore.dnaOrAa === 'dna'
+          {configStore.dnaOrAa === 'dna'
             ? 'Genomic Coordinate'
             : 'Residue Index'}
         </span>

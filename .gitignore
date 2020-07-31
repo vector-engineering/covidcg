@@ -81,3 +81,10 @@ versions/**
 
 # Server pycache
 server/decrypt_function/__pycache__/**
+
+# Snakemake files
+example_data/**
+.snakemake/**
+
+cg_scripts/__pycache__/**
+cg_script_tests.py
