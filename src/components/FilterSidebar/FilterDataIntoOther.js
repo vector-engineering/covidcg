@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import QuestionButton from '../Buttons/QuestionButton';
+
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { LOW_FREQ_FILTER_TYPES } from '../../stores/configStore';
@@ -31,7 +33,8 @@ const Spacer = styled.div`
 
 const NumberInput = styled.label`
   flex-shrink: 0;
-  width: 80px;
+  width: 50px;
+  margin-right: 5px;
 
   input {
     width: 100%;
@@ -74,6 +77,13 @@ const FilterDataIntoOther = observer(() => {
             step={1}
           />
         </NumberInput>
+        <QuestionButton
+          data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
+            configStore.minLocalCountsToShow
+          }</b> counts in the selected locations will be grouped into "Other"</p>`}
+          data-html="true"
+          data-for="tooltip-filter-sidebar"
+        />
       </SelectItem>
       <SelectItem>
         <Radio>
@@ -102,6 +112,13 @@ const FilterDataIntoOther = observer(() => {
             step={1}
           />
         </NumberInput>
+        <QuestionButton
+          data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
+            configStore.minGlobalCountsToShow
+          }</b> counts globally will be grouped into "Other"</p>`}
+          data-html="true"
+          data-for="tooltip-filter-sidebar"
+        />
       </SelectItem>
       <SelectItem>
         <Radio>
@@ -114,7 +131,7 @@ const FilterDataIntoOther = observer(() => {
               LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
           />
-          Max shown {configStore.getGroupLabel().toLowerCase()}s
+          Show Top N {configStore.getGroupLabel().toLowerCase()}s
         </Radio>
         <Spacer />
         <NumberInput>
@@ -130,6 +147,13 @@ const FilterDataIntoOther = observer(() => {
             step={1}
           />
         </NumberInput>
+        <QuestionButton
+          data-tip={`<p>Only show the top <b>${
+            configStore.maxLineagesToShow
+          }</b> <b>${configStore.getGroupLabel()}s</b> by counts in the selected locations</p>`}
+          data-html="true"
+          data-for="tooltip-filter-sidebar"
+        />
       </SelectItem>
     </SelectContainer>
   );
