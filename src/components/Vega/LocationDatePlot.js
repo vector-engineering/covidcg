@@ -5,6 +5,11 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 import { aggregate } from '../../utils/transform';
+import {
+  NORM_MODES,
+  COUNT_MODES,
+  DATE_BINS,
+} from '../../stores/plotSettingsStore';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -84,7 +89,7 @@ const SelectContainer = styled.div`
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore } = useStores();
+  const { dataStore, configStore, plotSettingsStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -118,9 +123,6 @@ const LocationDatePlot = observer(({ width }) => {
     dataListeners: {
       selected: handleSelected,
     },
-    normMode: 'counts', // 'percentages' or 'counts'
-    countMode: 'new', // 'new' or 'cumulative'
-    dateBin: 'day', // 'day', 'week', 'month'
   });
 
   const onDismissWarning = () => {
@@ -131,23 +133,30 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const onChangeNormMode = (event) =>
-    setState({ ...state, normMode: event.target.value });
+    plotSettingsStore.setLocationDateNormMode(event.target.value);
   const onChangeCountMode = (event) =>
-    setState({ ...state, countMode: event.target.value });
+    plotSettingsStore.setLocationDateCountMode(event.target.value);
+  const onChangeDateBin = (event) => {
+    plotSettingsStore.setLocationDateDateBin(event.target.value);
+  };
 
   // There's some weird data persistence things going on with the dateBin
   // in this plot... so instead of passing it as a signal, just modify the
   // spec and force a hard re-render
-  const onChangeDateBin = (event) => {
+  useEffect(() => {
     // setState({ ...state, dateBin: event.target.value })
     const spec = JSON.parse(JSON.stringify(initialSpec));
     // Set the date bin
     let dateBin;
-    if (event.target.value === 'day') {
+    if (plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_DAY) {
       dateBin = 1000 * 60 * 60 * 24;
-    } else if (event.target.value === 'week') {
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_WEEK
+    ) {
       dateBin = 1000 * 60 * 60 * 24 * 7;
-    } else if (event.target.value === 'month') {
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
+    ) {
       dateBin = 1000 * 60 * 60 * 24 * 30;
     }
 
@@ -156,10 +165,9 @@ const LocationDatePlot = observer(({ width }) => {
 
     setState({
       ...state,
-      dateBin: event.target.value,
       spec,
     });
-  };
+  }, [plotSettingsStore.locationDateDateBin]);
 
   useEffect(() => {
     setState({
@@ -204,33 +212,51 @@ const LocationDatePlot = observer(({ width }) => {
 
   // Set the normalization mode
   const yField =
-    state.normMode === 'percentages' ? 'cases_norm' : 'cases_sum_agg';
+    plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES
+      ? 'cases_norm'
+      : 'cases_sum_agg';
   // Set cumulative mode
-  const cumulativeWindow = state.countMode === 'new' ? [0, 0] : [null, 0];
+  const cumulativeWindow =
+    plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_NEW
+      ? [0, 0]
+      : [null, 0];
 
   let yLabel = '';
-  if (state.countMode === 'cumulative') {
+  if (
+    plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_CUMULATIVE
+  ) {
     yLabel += 'Cumulative ';
   }
-  if (state.normMode === 'percentages') {
+  if (plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES) {
     yLabel += '% ';
   }
   yLabel += 'Sequences by ' + configStore.getGroupLabel();
 
   let plotTitle = '';
-  if (state.countMode === 'cumulative') {
+  if (
+    plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_CUMULATIVE
+  ) {
     plotTitle += 'Cumulative ';
-  } else if (state.countMode === 'new') {
+  } else if (
+    plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_NEW
+  ) {
     plotTitle += 'New ';
   }
   plotTitle += configStore.getGroupLabel();
-  plotTitle += state.normMode === 'percentages' ? ' Percentages' : ' Counts';
+  plotTitle +=
+    plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES
+      ? ' Percentages'
+      : ' Counts';
 
-  if (state.dateBin === 'day') {
+  if (plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_DAY) {
     plotTitle += ' by Day';
-  } else if (state.dateBin === 'week') {
+  } else if (
+    plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_WEEK
+  ) {
     plotTitle += ' by Week';
-  } else if (state.dateBin === 'month') {
+  } else if (
+    plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
+  ) {
     plotTitle += ' by Month';
   }
   if (configStore.selectedGroups.length > 0) {
@@ -268,28 +294,37 @@ const LocationDatePlot = observer(({ width }) => {
           <span className="plot-title">{plotTitle}</span>
           <SelectContainer>
             <label>
-              <select value={state.countMode} onChange={onChangeCountMode}>
-                <option value="new">New</option>
-                <option value="cumulative">Cumulative</option>
+              <select
+                value={plotSettingsStore.locationDateCountMode}
+                onChange={onChangeCountMode}
+              >
+                <option value={COUNT_MODES.COUNT_NEW}>New</option>
+                <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
               </select>
             </label>
           </SelectContainer>
           sequences, shown as{' '}
           <SelectContainer>
             <label>
-              <select value={state.normMode} onChange={onChangeNormMode}>
-                <option value="counts">Counts</option>
-                <option value="percentages">Percentages</option>
+              <select
+                value={plotSettingsStore.locationDateNormMode}
+                onChange={onChangeNormMode}
+              >
+                <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+                <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
               </select>
             </label>
           </SelectContainer>
           grouped by{' '}
           <SelectContainer>
             <label>
-              <select value={state.dateBin} onChange={onChangeDateBin}>
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="month">Month</option>
+              <select
+                value={plotSettingsStore.locationDateDateBin}
+                onChange={onChangeDateBin}
+              >
+                <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+                <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+                <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
               </select>
             </label>
           </SelectContainer>

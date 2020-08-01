@@ -1,4 +1,4 @@
-import { observable, action, toJS } from 'mobx';
+import { observable, action } from 'mobx';
 
 const NORM_COUNTS = 'NORM_COUNTS';
 const NORM_PERCENTAGES = 'NORM_PERCENTAGES';
@@ -39,6 +39,23 @@ class ObservablePlotSettingsStore {
   @action
   setGroupStackDateBin(dateBin) {
     this.groupStackDateBin = dateBin;
+  }
+
+  @observable locationDateNormMode = NORM_MODES.NORM_COUNTS;
+  @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
+  @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
+
+  @action
+  setLocationDateNormMode(mode) {
+    this.locationDateNormMode = mode;
+  }
+  @action
+  setLocationDateCountMode(mode) {
+    this.locationDateCountMode = mode;
+  }
+  @action
+  setLocationDateDateBin(dateBin) {
+    this.locationDateDateBin = dateBin;
   }
 }
 
