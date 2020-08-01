@@ -287,8 +287,6 @@ function processCaseData({
 
   // For the location tab:
   const aggLocationData = {};
-  const aggLocationDataByDate = {}; // Group by location and date
-  const aggLocationDataByGroup = {}; // Group by location and group (lineage/clade/snp)
   const countsPerLocation = {};
 
   // Build a map of location_id --> node
@@ -299,8 +297,6 @@ function processCaseData({
     selectedLocationIds[i].forEach((locationId) => {
       locationIdToNodeMap[locationId] = selectedLocationNodes[i].value;
     });
-    aggLocationDataByDate[selectedLocationNodes[i].value] = {};
-    aggLocationDataByGroup[selectedLocationNodes[i].value] = {};
     countsPerLocation[selectedLocationNodes[i].value] = 0;
   }
 
@@ -339,13 +335,6 @@ function processCaseData({
       aggLocationData[location][row.collection_date][group] += 1;
     });
   });
-
-  // Compute total counts per group
-  // Object.keys(aggLocationDataByDate).forEach((location) => {
-  //   countsPerLocation[location] = Object.values(
-  //     aggLocationDataByDate[location]
-  //   ).reduce((memo, val) => memo + val, 0);
-  // });
 
   let getColorMethod;
   if (groupKey === 'lineage') {
@@ -472,18 +461,18 @@ function aggCaseDataByGroup({
 }) {
   // console.log(dateRange);
 
-  const lineageCountObj = {};
+  const groupCountObj = {};
   caseData.forEach((row) => {
-    if (lineageCountObj[row.group]) lineageCountObj[row.group] += row.cases_sum;
+    if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
     else {
-      lineageCountObj[row.group] = row.cases_sum;
+      groupCountObj[row.group] = row.cases_sum;
     }
   });
 
-  let lineageCountArr = Object.entries(lineageCountObj);
+  let groupCountArr = Object.entries(groupCountObj);
 
   // this will sort it so that 0 is the biggest
-  lineageCountArr.sort((a, b) => {
+  groupCountArr.sort((a, b) => {
     if (a[1] < b[1]) {
       return 1;
     }
@@ -493,20 +482,6 @@ function aggCaseDataByGroup({
       return 0;
     }
   });
-
-  const MAX_LINEAGE_SIZE = 100;
-  let groupsToKeepObj;
-  // console.log(
-  //   'lineage count obj: ',
-  //   lineageCountObj,
-  //   Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE
-  // );
-  if (Object.keys(lineageCountObj).length > MAX_LINEAGE_SIZE) {
-    lineageCountArr = lineageCountArr.slice(0, MAX_LINEAGE_SIZE);
-    // console.log('lineage count arr', lineageCountArr);
-    groupsToKeepObj = Object.fromEntries(lineageCountArr);
-    // console.log('groups to keep', groupsToKeepObj);
-  }
 
   // Aggregate case data by clade only (no dates)
   let caseDataAggGroup = {};
@@ -786,8 +761,7 @@ function aggCaseDataByGroup({
   return {
     caseDataAggGroup: caseDataAggGroup,
     changingPositions: changingPositions,
-    groupsToKeepObj,
-    lineageCountArr,
+    groupCountArr,
   };
 }
 

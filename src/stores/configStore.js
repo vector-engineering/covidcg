@@ -52,8 +52,8 @@ class ObservableConfigStore {
   @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
 
-  @observable lowFreqFilterType = LOCAL_COUNTS;
-  @observable maxLineagesToShow = 10;
+  @observable lowFreqFilterType = GROUP_COUNTS;
+  @observable maxGroupCounts = 15;
   @observable minLocalCountsToShow = 50;
   @observable minGlobalCountsToShow = 50;
 
@@ -291,8 +291,8 @@ class ObservableConfigStore {
   }
 
   @action
-  setMaxLineages(num) {
-    this.maxLineagesToShow = num;
+  setMaxGroupCounts(num) {
+    this.maxGroupCounts = num;
     dataStoreInstance.updateGroupsToKeep();
   }
 

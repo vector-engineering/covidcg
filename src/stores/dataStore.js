@@ -26,7 +26,7 @@ class ObservableDataStore {
   @observable caseDataAggGroup = [];
   @observable selectedRows = [];
   @observable groupsToKeep = [];
-  @observable lineageCountArr = {};
+  @observable groupCountArr = {};
 
   // Metadata filtering
   @observable numSequencesBeforeMetadataFiltering = 0;
@@ -46,14 +46,14 @@ class ObservableDataStore {
       configStoreInstance.lowFreqFilterType ===
       LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
     ) {
-      this.groupsToKeep = this.lineageCountArr
-        .slice(0, configStoreInstance.maxLineagesToShow)
+      this.groupsToKeep = this.groupCountArr
+        .slice(0, configStoreInstance.maxGroupCounts)
         .map((item) => item[0]);
     } else if (
       configStoreInstance.lowFreqFilterType ===
       LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
     ) {
-      this.groupsToKeep = this.lineageCountArr
+      this.groupsToKeep = this.groupCountArr
         .filter((item) => item[1] >= configStoreInstance.minLocalCountsToShow)
         .map((item) => item[0]);
     } else if (
@@ -77,7 +77,7 @@ class ObservableDataStore {
         }
       }
 
-      this.groupsToKeep = this.lineageCountArr
+      this.groupsToKeep = this.groupCountArr
         .filter(
           (item) =>
             globalCounts[item[0]] >= configStoreInstance.minGlobalCountsToShow
@@ -101,11 +101,11 @@ class ObservableDataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ caseDataAggGroup, changingPositions, lineageCountArr }) => {
+      ({ caseDataAggGroup, changingPositions, groupCountArr }) => {
         // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
-        this.lineageCountArr = lineageCountArr;
+        this.groupCountArr = groupCountArr;
         // console.log('AGG_CASE_DATA FINISHED');
 
         this.updateGroupsToKeep();

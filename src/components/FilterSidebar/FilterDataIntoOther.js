@@ -165,8 +165,8 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.maxLineagesToShow}
-            onChange={(e) => configStore.setMaxLineages(e.target.value)}
+            value={configStore.maxGroupCounts}
+            onChange={(e) => configStore.setMaxGroupCounts(e.target.value)}
             disabled={
               configStore.lowFreqFilterType !==
               LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
@@ -177,7 +177,7 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p>Only show the top <b>${
-            configStore.maxLineagesToShow
+            configStore.maxGroupCounts
           }</b> <b>${configStore.getGroupLabel()}s</b> by counts in the selected locations</p>`}
           data-html="true"
           data-for="tooltip-filter-sidebar"

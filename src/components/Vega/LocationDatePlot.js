@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
+import { aggregate } from '../../utils/transform';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -171,15 +172,35 @@ const LocationDatePlot = observer(({ width }) => {
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
+    let locationData = JSON.parse(JSON.stringify(dataStore.aggLocationData));
+
+    locationData.forEach((row) => {
+      if (!dataStore.groupsToKeep.includes(row.group)) {
+        row.group = 'other';
+      }
+    });
+
+    locationData = aggregate({
+      data: locationData,
+      groupby: ['location', 'date', 'group'],
+      fields: ['cases_sum'],
+      ops: ['sum'],
+      as: ['cases_sum'],
+    });
+
     setState({
       ...state,
       data: {
         ...state.data,
-        location_data: JSON.parse(JSON.stringify(dataStore.aggLocationData)),
+        location_data: locationData,
         selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [dataStore.aggLocationData, configStore.selectedGroups]);
+  }, [
+    dataStore.aggLocationData,
+    configStore.selectedGroups,
+    dataStore.groupsToKeep,
+  ]);
 
   // Set the normalization mode
   const yField =
