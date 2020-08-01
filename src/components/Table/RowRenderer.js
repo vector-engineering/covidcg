@@ -59,27 +59,6 @@ RowWrapper.defaultProps = {
 
 const RowRenderer = observer(({ row, ...rest }) => {
   const { dataStore, configStore } = useStores();
-  // console.log(row.group);
-
-  const onItemEnter = (hoverGroup, e) => {
-    // console.log('enter', hoverGroup, e);
-    e.preventDefault();
-    updateHoverGroup(hoverGroup);
-  };
-
-  const onItemLeave = (e) => {
-    // console.log('leave', e);
-    e.preventDefault();
-    updateHoverGroup(null);
-  };
-
-  const updateHoverGroup = (hoverGroup) => {
-    // Don't fire the action if there's no change
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
-  };
 
   let rowSelected = null;
   if (configStore.selectedGroups.length > 0) {
@@ -108,12 +87,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
     hovered = true;
   }
   return (
-    <RowWrapper
-      hovered={hovered}
-      selected={rowSelected}
-      onMouseEnter={onItemEnter.bind(this, row.group)}
-      onMouseLeave={onItemLeave}
-    >
+    <RowWrapper hovered={hovered} selected={rowSelected} data-group={row.group}>
       <div className="row-cover"></div>
       <Row row={row} {...rest} />
     </RowWrapper>

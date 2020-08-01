@@ -107,6 +107,47 @@ const NewLineageDataTable = observer(() => {
   const handleCompareColorChange = (event) =>
     setState({ ...state, compareColor: event.target.value });
 
+  // Recursively try to find the parent row element with the
+  // group data attribute
+  const MAX_RECURSION_DEPTH = 10;
+  const getRowGroup = (node, level = 1) => {
+    // If we end up hitting the root of the DOM tree,
+    // or if we exhaust the recursion depth,
+    // then return undefined
+    if (node === null || level > MAX_RECURSION_DEPTH) {
+      return undefined;
+    }
+
+    const group = node.getAttribute('data-group');
+    if (group === null) {
+      return getRowGroup(node.parentElement, (level = level + 1));
+    } else {
+      return group;
+    }
+  };
+
+  const onTableHover = (e) => {
+    // console.log(e);
+    const group = getRowGroup(e.target);
+
+    // We didn't find a parent row group,
+    // probably because we're hovering over the header
+    // or some other table element
+    if (group === undefined) {
+      updateHoverGroup(null);
+    }
+
+    updateHoverGroup(group);
+  };
+
+  const updateHoverGroup = (hoverGroup) => {
+    // Don't fire the action if there's no change
+    if (hoverGroup === configStore.hoverGroup) {
+      return;
+    }
+    configStore.updateHoverGroup(hoverGroup);
+  };
+
   const onRowClick = (rowIndex, row) => {
     //console.log(rowIndex, row, column);
 
@@ -373,7 +414,7 @@ const NewLineageDataTable = observer(() => {
             ? 'Genomic Coordinate'
             : 'Residue Index'}
         </span>
-        <div style={{ paddingLeft: '10px' }}>
+        <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
           <DataTable
             posColOffset={posColOffset}
             columns={columns}
