@@ -36,9 +36,9 @@ const LegendItem = styled.div`
   border-radius: 3px;
   margin: ${({ hovered, selected }) => {
     if (hovered || selected) {
-      return '0px 4px 0px 1px';
+      return '0px 4px 3px 1px';
     } else {
-      return '1px 5px 1px 2px';
+      return '1px 5px 4px 2px';
     }
   }};
   background-color: ${({ color, hovered, selected }) => {
