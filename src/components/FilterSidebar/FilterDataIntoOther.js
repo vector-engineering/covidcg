@@ -23,12 +23,17 @@ const SelectItem = styled.div`
 `;
 
 const Radio = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
   flex-shrink: 0;
   margin-right: 5px;
 `;
 
 const RadioLabel = styled.span`
   color: ${({ itemSelected }) => (itemSelected ? 'inherit' : '#AAA')};
+  margin-left: 3px;
 `;
 RadioLabel.defaultProps = {
   itemSelected: false,
@@ -158,7 +163,7 @@ const FilterDataIntoOther = observer(() => {
               LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
           >
-            Show Top N {configStore.getGroupLabel().toLowerCase()}s
+            Show Top N {configStore.getGroupLabel()}s
           </RadioLabel>
         </Radio>
         <Spacer />

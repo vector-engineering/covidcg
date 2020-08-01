@@ -126,7 +126,7 @@ const HomePage = observer(({ UIStore }) => {
           <GroupBySelect />
           <SidebarAccordionWrapper
             title="Collapse low frequency data"
-            defaultCollapsed={false}
+            defaultCollapsed={true}
             maxHeight={'250px'}
           >
             <FilterDataIntoOther />
