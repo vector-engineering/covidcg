@@ -24,6 +24,7 @@ import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
 import Footer from '../Footer';
 import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
+import KeyListener from '../KeyListener';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -106,6 +107,7 @@ const HomePage = observer(({ UIStore }) => {
 
   return (
     <>
+      <KeyListener />
       <SplashScreenModal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}

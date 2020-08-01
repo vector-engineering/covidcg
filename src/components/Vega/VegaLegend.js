@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -6,7 +7,7 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
 import { asyncStates } from '../../stores/UIStore';
-import { mergeGroupsIntoOther, mergeLegendItemsIntoOther } from './utils';
+import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
 const LegendList = styled.div`
@@ -96,47 +97,20 @@ ColorCircle.defaultProps = {
   selected: null,
 };
 
-const VegaLegend = observer(() => {
-  const { dataStore, UIStore, configStore } = useStores();
-  const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
-
-  const onKeyDown = (e) => {
-    // Shift key = 16
-    if (e.keyCode === 16) {
-      setShiftKeyPressed(true);
-    }
-  };
-
-  const onKeyUp = (e) => {
-    if (e.keyCode === 16) {
-      setShiftKeyPressed(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown, false);
-      document.removeEventListener('keyup', onKeyUp, false);
-    };
+const LegendItemWrapper = observer(({ group, color, onItemSelect }) => {
+  const { configStore } = useStores();
+  const [state, setState] = useState({
+    hovered: false,
+    selected: false,
   });
 
-  if (UIStore.caseDataState === asyncStates.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '0px',
-        }}
-      >
-        <SkeletonElement delay={1} height={50} />
-      </div>
-    );
-  }
+  const updateHoverGroup = (hoverGroup) => {
+    // Don't fire the action if there's no change
+    if (hoverGroup === configStore.hoverGroup) {
+      return;
+    }
+    configStore.updateHoverGroup(hoverGroup);
+  };
 
   const onItemEnter = (hoverGroup, e) => {
     // console.log('enter', hoverGroup, e);
@@ -149,6 +123,62 @@ const VegaLegend = observer(() => {
     e.preventDefault();
     updateHoverGroup(null);
   };
+
+  const handleItemSelect = (e) => {
+    onItemSelect(group, e);
+  };
+
+  useEffect(() => {
+    const hovered =
+      configStore.hoverGroup === null
+        ? false
+        : configStore.hoverGroup === group;
+    setState({ ...state, hovered });
+  }, [configStore.hoverGroup]);
+
+  useEffect(() => {
+    let selected = null;
+    if (configStore.selectedGroups.length > 0) {
+      if (
+        _.findWhere(configStore.selectedGroups, { group: group }) !== undefined
+      ) {
+        selected = true;
+      } else {
+        selected = false;
+      }
+    }
+    setState({ ...state, selected });
+  }, [configStore.selectedGroups]);
+
+  const scores = meetsContrastGuidelines(color, '#fff');
+  const textColor = scores['AALarge'] ? '#fff' : '#000';
+
+  return (
+    <LegendItem
+      hovered={state.hovered}
+      selected={state.selected}
+      onMouseEnter={onItemEnter.bind(this, group)}
+      onMouseLeave={onItemLeave}
+      onMouseDown={handleItemSelect}
+      color={color}
+      textColor={textColor}
+    >
+      {group}
+    </LegendItem>
+  );
+});
+LegendItemWrapper.propTypes = {
+  group: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  onItemSelect: PropTypes.func.isRequired,
+};
+
+const VegaLegend = observer(() => {
+  const { dataStore, UIStore, configStore } = useStores();
+
+  const [state, setState] = useState({
+    legendItems: [],
+  });
 
   const onItemSelect = (selectedGroup, e) => {
     // console.log('select', selectedGroup, e);
@@ -169,20 +199,12 @@ const VegaLegend = observer(() => {
       // Otherwise, add it
       newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
-      if (shiftKeyPressed) {
+      if (UIStore.isKeyPressed(16)) {
         newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
 
     configStore.updateSelectedGroups(newGroups);
-  };
-
-  const updateHoverGroup = (hoverGroup) => {
-    // Don't fire the action if there's no change
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
   };
 
   const renderLegendKeys = (groupObjs) => {
@@ -191,47 +213,47 @@ const VegaLegend = observer(() => {
         return null;
       }
 
-      let itemSelected = null;
-      if (configStore.selectedGroups.length > 0) {
-        if (
-          _.findWhere(configStore.selectedGroups, { group: obj.group }) !==
-          undefined
-        ) {
-          itemSelected = true;
-        } else {
-          itemSelected = false;
-        }
-      }
-
-      const scores = meetsContrastGuidelines(obj.color, '#fff');
-      obj.textColor = scores['AALarge'] ? '#fff' : '#000';
-
       return (
-        <LegendItem
-          key={`${Math.random()}${obj.color}`}
-          hovered={configStore.hoverGroup === obj.group}
-          selected={itemSelected}
-          onMouseEnter={onItemEnter.bind(this, obj.group)}
-          onMouseLeave={onItemLeave}
-          onMouseDown={onItemSelect.bind(this, obj.group)}
+        <LegendItemWrapper
+          key={`legend-item-${obj.group}`}
           color={obj.color}
-          textColor={obj.textColor}
-        >
-          {obj.group}
-        </LegendItem>
+          group={obj.group}
+          onItemSelect={onItemSelect}
+        />
       );
     });
   };
 
-  // Make own copy of the elements, and sort by group
-  let legendItems = mergeLegendItemsIntoOther(
-    JSON.parse(JSON.stringify(dataStore.caseDataAggGroup)),
-    dataStore.groupsToKeep
-  );
-  // console.log(legendItems, dataStore.caseDataAggGroup);
-  legendItems = _.sortBy(legendItems, (row) => row.group);
+  useEffect(() => {
+    // Make own copy of the elements, and sort by group
+    let legendItems = mergeLegendItemsIntoOther(
+      JSON.parse(JSON.stringify(dataStore.caseDataAggGroup)),
+      dataStore.groupsToKeep
+    );
+    // console.log(legendItems, dataStore.caseDataAggGroup);
+    legendItems = _.sortBy(legendItems, (row) => row.group);
 
-  return <LegendList>{renderLegendKeys(legendItems)}</LegendList>;
+    setState({ ...state, legendItems: renderLegendKeys(legendItems) });
+  }, [dataStore.caseDataAggGroup, dataStore.groupsToKeep]);
+
+  // console.log('RE-RENDERING LEGEND');
+
+  if (UIStore.caseDataState === asyncStates.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '0px',
+        }}
+      >
+        <SkeletonElement delay={1} height={50} />
+      </div>
+    );
+  }
+
+  return <LegendList>{state.legendItems}</LegendList>;
 });
 
 VegaLegend.displayName = 'VegaLegend';

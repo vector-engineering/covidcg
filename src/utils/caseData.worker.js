@@ -282,7 +282,7 @@ function processCaseData({
 
   // Get a list of Accession IDs and sample dates that are currently selected
   let selectedRows = _.map(caseData, (row) => {
-    return row;
+    return { 'Accession ID': row['Accession ID'], ack_id: row['ack_id'] };
   });
 
   // For the location tab:

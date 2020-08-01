@@ -75,30 +75,6 @@ const NewLineageDataTable = observer(() => {
     rows: dataStore.caseDataAggGroup,
     sortColumn: 'cases_sum',
     sortDirection: 'DESC',
-
-    shiftKeyPressed: false,
-  });
-
-  // Listen for shift key press
-  const onKeyDown = (e) => {
-    // Shift key = 16
-    if (e.keyCode === 16) {
-      setState({ ...state, shiftKeyPressed: true });
-    }
-  };
-  const onKeyUp = (e) => {
-    if (e.keyCode === 16) {
-      setState({ ...state, shiftKeyPressed: false });
-    }
-  };
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown, false);
-      document.removeEventListener('keyup', onKeyUp, false);
-    };
   });
 
   // Reset the coloring settings when dnaOrAa is changed
@@ -165,7 +141,7 @@ const NewLineageDataTable = observer(() => {
       // Otherwise, add it
       newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
-      if (state.shiftKeyPressed) {
+      if (UIStore.isKeyPressed(16)) {
         newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }

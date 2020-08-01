@@ -140,31 +140,6 @@ const VegaStackedBars = observer(({ width }) => {
 
   // Update internal caseData copy
   useEffect(() => {
-    // console.log('Update caseData');
-
-    // let newCaseData;
-
-    // if (dataStore.groupsToKeep) {
-    //   newCaseData = [];
-    //   const addedOthersByDate = {};
-
-    //   dataStore.caseData.forEach((row, key) => {
-    //     if (!dataStore.groupsToKeep[row.group]) {
-    //       row.group = 'other';
-    //       row.color = '#cccccc';
-    //       if (addedOthersByDate[row.date]) {
-    //         dataStore.caseData[addedOthersByDate[row.date]].cases_sum +=
-    //           row.cases_sum;
-    //       } else {
-    //         addedOthersByDate[row.date] = key;
-    //         newCaseData.push(row);
-    //       }
-    //     } else {
-    //       newCaseData.push(row);
-    //     }
-    //   });
-    // }
-
     setState({
       ...state,
       data: {
