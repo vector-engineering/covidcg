@@ -97,36 +97,12 @@ ColorCircle.defaultProps = {
   selected: null,
 };
 
-const LegendItemWrapper = observer(({ group, color, onItemSelect }) => {
+const LegendItemWrapper = observer(({ group, color }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     hovered: false,
     selected: false,
   });
-
-  const updateHoverGroup = (hoverGroup) => {
-    // Don't fire the action if there's no change
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
-  };
-
-  const onItemEnter = (hoverGroup, e) => {
-    // console.log('enter', hoverGroup, e);
-    e.preventDefault();
-    updateHoverGroup(hoverGroup);
-  };
-
-  const onItemLeave = (e) => {
-    // console.log('leave', e);
-    e.preventDefault();
-    updateHoverGroup(null);
-  };
-
-  const handleItemSelect = (e) => {
-    onItemSelect(group, e);
-  };
 
   useEffect(() => {
     const hovered =
@@ -157,11 +133,9 @@ const LegendItemWrapper = observer(({ group, color, onItemSelect }) => {
     <LegendItem
       hovered={state.hovered}
       selected={state.selected}
-      onMouseEnter={onItemEnter.bind(this, group)}
-      onMouseLeave={onItemLeave}
-      onMouseDown={handleItemSelect}
       color={color}
       textColor={textColor}
+      data-group={group}
     >
       {group}
     </LegendItem>
@@ -170,7 +144,6 @@ const LegendItemWrapper = observer(({ group, color, onItemSelect }) => {
 LegendItemWrapper.propTypes = {
   group: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
-  onItemSelect: PropTypes.func.isRequired,
 };
 
 const VegaLegend = observer(() => {
@@ -180,10 +153,8 @@ const VegaLegend = observer(() => {
     legendItems: [],
   });
 
-  const onItemSelect = (selectedGroup, e) => {
-    // console.log('select', selectedGroup, e);
-    e.preventDefault();
-
+  const onItemSelect = (e) => {
+    const selectedGroup = e.target.getAttribute('data-group');
     let newGroups;
 
     // If the item is already selected, then deselect it
@@ -207,6 +178,15 @@ const VegaLegend = observer(() => {
     configStore.updateSelectedGroups(newGroups);
   };
 
+  const onItemHover = (e) => {
+    // console.log('move', e);
+    const hoverGroup = e.target.getAttribute('data-group');
+    if (hoverGroup === configStore.hoverGroup) {
+      return;
+    }
+    configStore.updateHoverGroup(hoverGroup);
+  };
+
   const renderLegendKeys = (groupObjs) => {
     return groupObjs.map((obj) => {
       if (!obj.color) {
@@ -218,7 +198,6 @@ const VegaLegend = observer(() => {
           key={`legend-item-${obj.group}`}
           color={obj.color}
           group={obj.group}
-          onItemSelect={onItemSelect}
         />
       );
     });
@@ -253,7 +232,11 @@ const VegaLegend = observer(() => {
     );
   }
 
-  return <LegendList>{state.legendItems}</LegendList>;
+  return (
+    <LegendList onMouseMove={onItemHover} onMouseDown={onItemSelect}>
+      {state.legendItems}
+    </LegendList>
+  );
 });
 
 VegaLegend.displayName = 'VegaLegend';
