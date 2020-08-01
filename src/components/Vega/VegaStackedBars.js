@@ -5,6 +5,11 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { asyncStates } from '../../stores/UIStore';
+import {
+  NORM_MODES,
+  COUNT_MODES,
+  DATE_BINS,
+} from '../../stores/plotSettingsStore';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -51,7 +56,7 @@ const SelectContainer = styled.div`
 
 const VegaStackedBars = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, UIStore, configStore } = useStores();
+  const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
@@ -119,9 +124,6 @@ const VegaStackedBars = observer(({ width }) => {
     dataListeners: {
       selected: handleSelected,
     },
-    areaStackMode: 'counts', // 'percentages' or 'counts'
-    countMode: 'new', // 'new' or 'cumulative'
-    dateBin: 'day', // 'day', 'week', 'month'
   });
 
   const onDismissWarning = () => {
@@ -131,12 +133,12 @@ const VegaStackedBars = observer(({ width }) => {
     });
   };
 
-  const onChangeAreaStackMode = (event) =>
-    setState({ ...state, areaStackMode: event.target.value });
+  const onChangeNormMode = (event) =>
+    plotSettingsStore.setGroupStackNormMode(event.target.value);
   const onChangeCountMode = (event) =>
-    setState({ ...state, countMode: event.target.value });
+    plotSettingsStore.setGroupStackCountMode(event.target.value);
   const onChangeDateBin = (event) =>
-    setState({ ...state, dateBin: event.target.value });
+    plotSettingsStore.setGroupStackDateBin(event.target.value);
 
   // Update internal caseData copy
   useEffect(() => {
@@ -168,33 +170,37 @@ const VegaStackedBars = observer(({ width }) => {
   // console.log(JSON.stringify(caseData));
 
   let areaStackTitle = '';
-  if (state.countMode === 'cumulative') {
+  if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE) {
     areaStackTitle += 'Cumulative ';
-  } else if (state.countMode === 'new') {
+  } else if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_NEW) {
     areaStackTitle += 'New ';
   }
   areaStackTitle += configStore.getGroupLabel();
   areaStackTitle +=
-    state.areaStackMode === 'percentages' ? ' Percentages' : ' Counts';
+    plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_PERCENTAGES
+      ? ' Percentages'
+      : ' Counts';
 
-  if (state.dateBin === 'day') {
+  if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_DAY) {
     areaStackTitle += ' by Day';
-  } else if (state.dateBin === 'week') {
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_WEEK) {
     areaStackTitle += ' by Week';
-  } else if (state.dateBin === 'month') {
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     areaStackTitle += ' by Month';
   }
 
   // Set the stack offset mode
   const stackOffset =
-    state.areaStackMode === 'percentages' ? 'normalize' : 'zero';
+    plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_PERCENTAGES
+      ? 'normalize'
+      : 'zero';
   // Set the date bin
   let dateBin;
-  if (state.dateBin === 'day') {
+  if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_DAY) {
     dateBin = 1000 * 60 * 60 * 24;
-  } else if (state.dateBin === 'week') {
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_WEEK) {
     dateBin = 1000 * 60 * 60 * 24 * 7;
-  } else if (state.dateBin === 'month') {
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     dateBin = 1000 * 60 * 60 * 24 * 30;
   }
   // If running in cumulative mode, add the vega transformation
@@ -202,14 +208,16 @@ const VegaStackedBars = observer(({ width }) => {
   // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
   // column with this cumulative count
   const cumulativeWindow =
-    state.countMode === 'cumulative' ? [null, 0] : [0, 0];
+    plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE
+      ? [null, 0]
+      : [0, 0];
 
   // Adapt labels to groupings
   let detailYLabel = '';
-  if (state.countMode === 'cumulative') {
+  if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE) {
     detailYLabel += 'Cumulative ';
   }
-  if (state.areaStackMode === 'percentages') {
+  if (plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_PERCENTAGES) {
     detailYLabel += '% ';
   }
   detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
@@ -256,9 +264,12 @@ const VegaStackedBars = observer(({ width }) => {
         <span className="area-stack-title">{areaStackTitle}</span>
         <SelectContainer>
           <label>
-            <select value={state.countMode} onChange={onChangeCountMode}>
-              <option value="new">New</option>
-              <option value="cumulative">Cumulative</option>
+            <select
+              value={plotSettingsStore.groupStackCountMode}
+              onChange={onChangeCountMode}
+            >
+              <option value={COUNT_MODES.COUNT_NEW}>New</option>
+              <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
             </select>
           </label>
         </SelectContainer>
@@ -266,21 +277,24 @@ const VegaStackedBars = observer(({ width }) => {
         <SelectContainer>
           <label>
             <select
-              value={state.areaStackMode}
-              onChange={onChangeAreaStackMode}
+              value={plotSettingsStore.groupStackNormMode}
+              onChange={onChangeNormMode}
             >
-              <option value="counts">Counts</option>
-              <option value="percentages">Percentages</option>
+              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+              <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
             </select>
           </label>
         </SelectContainer>
         grouped by{' '}
         <SelectContainer>
           <label>
-            <select value={state.dateBin} onChange={onChangeDateBin}>
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
+            <select
+              value={plotSettingsStore.groupStackDateBin}
+              onChange={onChangeDateBin}
+            >
+              <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+              <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+              <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
             </select>
           </label>
         </SelectContainer>
