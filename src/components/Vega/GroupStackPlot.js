@@ -54,7 +54,7 @@ const SelectContainer = styled.div`
   }
 `;
 
-const VegaStackedBars = observer(({ width }) => {
+const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
@@ -329,8 +329,8 @@ const VegaStackedBars = observer(({ width }) => {
   );
 });
 
-VegaStackedBars.propTypes = {
+GroupStackPlot.propTypes = {
   width: PropTypes.number.isRequired,
 };
 
-export default VegaStackedBars;
+export default GroupStackPlot;

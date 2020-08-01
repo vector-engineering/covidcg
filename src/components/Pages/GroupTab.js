@@ -10,7 +10,7 @@ import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
 import VegaLegend from '../Vega/VegaLegend';
-import VegaStackedBars from '../Vega/VegaStackedBars';
+import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
