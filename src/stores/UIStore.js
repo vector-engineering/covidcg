@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 
 const STARTED = 'STARTED';
 const SUCCEEDED = 'SUCCEEDED';
@@ -28,6 +28,8 @@ class ObservableUIStore {
   @observable caseDataState = STARTED;
   @observable aggCaseDataState = STARTED;
   @observable activeTab = 'group';
+
+  @observable keysPressed = [];
 
   @action
   onCaseDataStateStarted = () => {
@@ -85,6 +87,25 @@ class ObservableUIStore {
   @action
   setActiveTab(tab) {
     this.activeTab = tab;
+  }
+
+  @action
+  setKeyPressed(keyCode, value) {
+    let keysPressed = toJS(this.keysPressed);
+    if (!keysPressed.includes(keyCode)) {
+      if (value) {
+        keysPressed.push(keyCode);
+      }
+    } else {
+      if (!value) {
+        keysPressed = keysPressed.filter((k) => k !== keyCode);
+      }
+    }
+    this.keysPressed = keysPressed;
+  }
+
+  isKeyPressed(keyCode) {
+    return this.keysPressed.includes(keyCode);
   }
 }
 

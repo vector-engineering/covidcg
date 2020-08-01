@@ -1,2 +1,3 @@
 src/litemol/*
 node_modules/*
+src/vega/bar_stack_standalone_v1.vg.json

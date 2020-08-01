@@ -29,16 +29,11 @@ function downloadAcknowledgementsData({ selectedRows }) {
   // Write to a CSV string
   // Accession ID and sample date first
   // Then acknowledgement texts
-  let csvString =
-    'Accession ID,Collection Date,Originating lab,Submitting lab,Authors\n';
+  let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
 
   for (let i = 0; i < selectedRows.length; i++) {
     // Write Accession ID
     csvString += selectedRows[i]['Accession ID'] + ',';
-    // Write Sample Date
-    // Get the date in ISO format, and chop off the time/timezone info at the end
-    // So that we get YYYY-MM-DD (the same as the original input format)
-    csvString += intToISO(selectedRows[i]['collection_date']) + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes

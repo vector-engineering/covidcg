@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { useStores } from '../../stores/connect';
+import { connect } from '../../stores/connect';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
@@ -23,6 +23,8 @@ import GroupTab from './GroupTab';
 import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
 import Footer from '../Footer';
+import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
+import KeyListener from '../KeyListener';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -70,9 +72,8 @@ const PlotContainer = styled.div`
   overflow-y: scroll;
 `;
 
-const HomePage = observer(() => {
+const HomePage = observer(({ UIStore }) => {
   const [ref, { width }] = useDimensions();
-  const { UIStore } = useStores();
 
   const [modalIsOpen, setIsOpen] = useState(true);
   const openModal = (e) => {
@@ -106,6 +107,7 @@ const HomePage = observer(() => {
 
   return (
     <>
+      <KeyListener />
       <SplashScreenModal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}
@@ -124,6 +126,13 @@ const HomePage = observer(() => {
           />
           <Header />
           <GroupBySelect />
+          <SidebarAccordionWrapper
+            title="Collapse low frequency data"
+            defaultCollapsed={true}
+            maxHeight={'250px'}
+          >
+            <FilterDataIntoOther />
+          </SidebarAccordionWrapper>
           <SidebarAccordionWrapper
             title="Genomic coordinates"
             defaultCollapsed={false}
@@ -168,4 +177,4 @@ const HomePage = observer(() => {
 });
 
 // eslint-disable-next-line react/display-name
-export default HomePage;
+export default connect(HomePage);

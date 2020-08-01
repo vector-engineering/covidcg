@@ -15,12 +15,18 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 
+import { LOW_FREQ_FILTER_TYPES } from './configStore';
+import { getGlobalGroupCounts } from '../utils/globalCounts';
+
+const globalGroupCounts = getGlobalGroupCounts();
+
 class ObservableDataStore {
   @observable caseData = [];
   @observable changingPositions = {};
   @observable caseDataAggGroup = [];
   @observable selectedRows = [];
-  @observable groupsToKeep = {};
+  @observable groupsToKeep = [];
+  @observable groupCountArr = {};
 
   // Metadata filtering
   @observable numSequencesBeforeMetadataFiltering = 0;
@@ -32,6 +38,53 @@ class ObservableDataStore {
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
     this.updateCaseData();
+  }
+
+  @action
+  updateGroupsToKeep() {
+    if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+    ) {
+      this.groupsToKeep = this.groupCountArr
+        .slice(0, configStoreInstance.maxGroupCounts)
+        .map((item) => item[0]);
+    } else if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+    ) {
+      this.groupsToKeep = this.groupCountArr
+        .filter((item) => item[1] >= configStoreInstance.minLocalCountsToShow)
+        .map((item) => item[0]);
+    } else if (
+      configStoreInstance.lowFreqFilterType ===
+      LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+    ) {
+      let globalCounts;
+      if (configStoreInstance.groupKey === 'lineage') {
+        globalCounts = globalGroupCounts.lineage;
+      } else if (configStoreInstance.groupKey === 'clade') {
+        globalCounts = globalGroupCounts.clade;
+      } else if (configStoreInstance.groupKey === 'snp') {
+        if (configStoreInstance.dnaOrAa === 'dna') {
+          globalCounts = globalGroupCounts.dna_snp;
+        } else {
+          if (configStoreInstance.coordinateMode === 'gene') {
+            globalCounts = globalGroupCounts.gene_aa_snp;
+          } else if (configStoreInstance.coordinateRanges === 'protein') {
+            globalCounts = globalGroupCounts.protein_aa_snp;
+          }
+        }
+      }
+
+      this.groupsToKeep = this.groupCountArr
+        .filter(
+          (item) =>
+            globalCounts[item[0]] >= configStoreInstance.minGlobalCountsToShow
+        )
+        .map((item) => item[0]);
+    }
+    this.groupsToKeep.push('Reference');
   }
 
   @action
@@ -48,12 +101,14 @@ class ObservableDataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ caseDataAggGroup, changingPositions, groupsToKeepObj }) => {
+      ({ caseDataAggGroup, changingPositions, groupCountArr }) => {
         // console.log(caseDataAggGroup);
         this.caseDataAggGroup = caseDataAggGroup;
         this.changingPositions = changingPositions;
-        this.groupsToKeep = groupsToKeepObj;
+        this.groupCountArr = groupCountArr;
         // console.log('AGG_CASE_DATA FINISHED');
+
+        this.updateGroupsToKeep();
 
         suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataFinished();
         suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateFinished();

@@ -14,7 +14,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
-// import areaStackSpecInitial from '../vega/area_stack.vl.json';
+import { mergeGroupsIntoOther } from './utils';
 import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
 
 const PlotOptions = styled.div`
@@ -72,7 +72,6 @@ const VegaStackedBars = observer(({ width }) => {
     if (hoverGroup === configStore.hoverGroup) {
       return;
     }
-
     // console.log('Updating store hoverGroup from plot', hoverGroup);
     // console.log('state hovergroup', state.hoverGroup);
     configStore.updateHoverGroup(hoverGroup);
@@ -107,7 +106,10 @@ const VegaStackedBars = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      cases_by_date_and_group: JSON.parse(JSON.stringify(dataStore.caseData)),
+      cases_by_date_and_group: mergeGroupsIntoOther(
+        JSON.parse(JSON.stringify(dataStore.caseData)),
+        dataStore.groupsToKeep
+      ),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -138,39 +140,17 @@ const VegaStackedBars = observer(({ width }) => {
 
   // Update internal caseData copy
   useEffect(() => {
-    // console.log('Update caseData');
-
-    // let newCaseData;
-
-    // if (dataStore.groupsToKeep) {
-    //   newCaseData = [];
-    //   const addedOthersByDate = {};
-
-    //   dataStore.caseData.forEach((row, key) => {
-    //     if (!dataStore.groupsToKeep[row.group]) {
-    //       row.group = 'other';
-    //       row.color = '#cccccc';
-    //       if (addedOthersByDate[row.date]) {
-    //         dataStore.caseData[addedOthersByDate[row.date]].cases_sum +=
-    //           row.cases_sum;
-    //       } else {
-    //         addedOthersByDate[row.date] = key;
-    //         newCaseData.push(row);
-    //       }
-    //     } else {
-    //       newCaseData.push(row);
-    //     }
-    //   });
-    // }
-
     setState({
       ...state,
       data: {
         ...state.data,
-        cases_by_date_and_group: JSON.parse(JSON.stringify(dataStore.caseData)),
+        cases_by_date_and_group: mergeGroupsIntoOther(
+          JSON.parse(JSON.stringify(dataStore.caseData)),
+          dataStore.groupsToKeep
+        ),
       },
     });
-  }, [dataStore.caseData]);
+  }, [dataStore.caseData, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {

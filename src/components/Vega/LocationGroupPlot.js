@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
+import { aggregate } from '../../utils/transform';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -82,17 +83,36 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
+    let locationData = JSON.parse(JSON.stringify(dataStore.aggLocationData));
+
+    locationData.forEach((row) => {
+      if (!dataStore.groupsToKeep.includes(row.group)) {
+        row.group = 'other';
+        row.color = '#aaa';
+      }
+    });
+
+    locationData = aggregate({
+      data: locationData,
+      groupby: ['location', 'date', 'group'],
+      fields: ['cases_sum', 'color'],
+      ops: ['sum', 'first'],
+      as: ['cases_sum', 'color'],
+    });
+
     setState({
       ...state,
       data: {
         ...state.data,
-        location_by_group: JSON.parse(
-          JSON.stringify(dataStore.aggLocationData)
-        ),
+        location_by_group: locationData,
         selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [dataStore.aggLocationData, configStore.selectedGroups]);
+  }, [
+    dataStore.aggLocationData,
+    configStore.selectedGroups,
+    dataStore.groupsToKeep,
+  ]);
 
   let xLabel = 'Sequences by ';
   if (configStore.groupKey === 'lineage') {

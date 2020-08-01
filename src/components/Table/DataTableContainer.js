@@ -75,30 +75,6 @@ const NewLineageDataTable = observer(() => {
     rows: dataStore.caseDataAggGroup,
     sortColumn: 'cases_sum',
     sortDirection: 'DESC',
-
-    shiftKeyPressed: false,
-  });
-
-  // Listen for shift key press
-  const onKeyDown = (e) => {
-    // Shift key = 16
-    if (e.keyCode === 16) {
-      setState({ ...state, shiftKeyPressed: true });
-    }
-  };
-  const onKeyUp = (e) => {
-    if (e.keyCode === 16) {
-      setState({ ...state, shiftKeyPressed: false });
-    }
-  };
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown, false);
-      document.removeEventListener('keyup', onKeyUp, false);
-    };
   });
 
   // Reset the coloring settings when dnaOrAa is changed
@@ -131,25 +107,82 @@ const NewLineageDataTable = observer(() => {
   const handleCompareColorChange = (event) =>
     setState({ ...state, compareColor: event.target.value });
 
+  // Recursively try to find the parent row element with the
+  // group data attribute
+  const MAX_RECURSION_DEPTH = 10;
+  const getRowGroup = (node, level = 1) => {
+    // If we end up hitting the root of the DOM tree,
+    // or if we exhaust the recursion depth,
+    // then return undefined
+    if (node === null || level > MAX_RECURSION_DEPTH) {
+      return undefined;
+    }
+
+    const group = node.getAttribute('data-group');
+    if (group === null) {
+      return getRowGroup(node.parentElement, (level = level + 1));
+    } else {
+      return group;
+    }
+  };
+
+  const onTableHover = (e) => {
+    // console.log(e);
+    const group = getRowGroup(e.target);
+
+    // We didn't find a parent row group,
+    // probably because we're hovering over the header
+    // or some other table element
+    if (group === undefined) {
+      updateHoverGroup(null);
+    }
+
+    updateHoverGroup(group);
+  };
+
+  const updateHoverGroup = (hoverGroup) => {
+    // Don't fire the action if there's no change
+    if (hoverGroup === configStore.hoverGroup) {
+      return;
+    }
+    configStore.updateHoverGroup(hoverGroup);
+  };
+
   const onRowClick = (rowIndex, row) => {
     //console.log(rowIndex, row, column);
 
     let newGroups;
 
+    let selectedGroup = row.group;
+    // If we selected a group that's grouped into 'other',
+    // then pretend like we're selecting 'other' instead
+    if (!dataStore.groupsToKeep.includes(row.group)) {
+      selectedGroup = 'other';
+    }
+
+    // If we selected the reference group, and we're in lineage/clade mode,
+    // then ignore
+    if (
+      selectedGroup === 'Reference' &&
+      (configStore.groupKey === 'lineage' || configStore.groupKey === 'clade')
+    ) {
+      return;
+    }
+
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
       newGroups = _.reject(
         configStore.selectedGroups,
-        (group) => group.group == row.group
+        (group) => group.group == selectedGroup
       );
     } else {
       // Otherwise, add it
-      newGroups = [{ group: row.group }];
+      newGroups = [{ group: selectedGroup }];
       // If shift is pressed, then add it to the existing selected groups
-      if (state.shiftKeyPressed) {
+      if (UIStore.isKeyPressed(16)) {
         newGroups = newGroups.concat(configStore.selectedGroups);
       }
     }
@@ -381,7 +414,7 @@ const NewLineageDataTable = observer(() => {
             ? 'Genomic Coordinate'
             : 'Residue Index'}
         </span>
-        <div style={{ paddingLeft: '10px' }}>
+        <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
           <DataTable
             posColOffset={posColOffset}
             columns={columns}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -58,47 +58,51 @@ RowWrapper.defaultProps = {
 };
 
 const RowRenderer = observer(({ row, ...rest }) => {
-  const { configStore } = useStores();
-  // console.log(row.group);
+  const { dataStore, configStore } = useStores();
+  const [state, setState] = useState({
+    hovered: false,
+    selected: null,
+  });
 
-  const onItemEnter = (hoverGroup, e) => {
-    // console.log('enter', hoverGroup, e);
-    e.preventDefault();
-    updateHoverGroup(hoverGroup);
-  };
-
-  const onItemLeave = (e) => {
-    // console.log('leave', e);
-    e.preventDefault();
-    updateHoverGroup(null);
-  };
-
-  const updateHoverGroup = (hoverGroup) => {
-    // Don't fire the action if there's no change
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
+  useEffect(() => {
+    let selected = null;
+    if (configStore.selectedGroups.length > 0) {
+      if (
+        _.findWhere(configStore.selectedGroups, { group: row.group }) !==
+        undefined
+      ) {
+        selected = true;
+      } else if (
+        _.findWhere(configStore.selectedGroups, { group: 'other' }) !==
+          undefined &&
+        !dataStore.groupsToKeep.includes(row.group)
+      ) {
+        selected = true;
+      } else {
+        selected = false;
+      }
     }
-    configStore.updateHoverGroup(hoverGroup);
-  };
+    setState({ ...state, selected });
+  }, [configStore.selectedGroups, dataStore.groupsToKeep]);
 
-  let rowSelected = null;
-  if (configStore.selectedGroups.length > 0) {
+  useEffect(() => {
+    let hovered = configStore.hoverGroup === row.group;
+
     if (
-      _.findWhere(configStore.selectedGroups, { group: row.group }) !==
-      undefined
+      !dataStore.groupsToKeep.includes(row.group) &&
+      configStore.hoverGroup === 'other'
     ) {
-      rowSelected = true;
-    } else {
-      rowSelected = false;
+      hovered = true;
     }
-  }
+
+    setState({ ...state, hovered });
+  }, [configStore.hoverGroup, dataStore.groupsToKeep]);
 
   return (
     <RowWrapper
-      hovered={configStore.hoverGroup === row.group}
-      selected={rowSelected}
-      onMouseEnter={onItemEnter.bind(this, row.group)}
-      onMouseLeave={onItemLeave}
+      hovered={state.hovered}
+      selected={state.selected}
+      data-group={row.group}
     >
       <div className="row-cover"></div>
       <Row row={row} {...rest} />

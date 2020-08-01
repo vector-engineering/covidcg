@@ -38,6 +38,7 @@
     "react-dom": "16.11.0",
     "react-draggable": "4.4.2",
     "react-dropdown-tree-select": "2.3.2",
+    "react-input-slider": "6.0.0",
     "react-modal": "3.11.2",
     "react-multi-select-component": "3.0.0",
     "react-tooltip": "4.2.7",

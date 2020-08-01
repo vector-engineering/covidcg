@@ -10,6 +10,16 @@ import {
   loadSelectTree,
 } from '../utils/location';
 
+const LOCAL_COUNTS = 'LOCAL_COUNTS';
+const GLOBAL_COUNTS = 'GLOBAL_COUNTS';
+const GROUP_COUNTS = 'GROUP_COUNTS';
+
+export const LOW_FREQ_FILTER_TYPES = {
+  LOCAL_COUNTS,
+  GLOBAL_COUNTS,
+  GROUP_COUNTS,
+};
+
 class ObservableConfigStore {
   @observable groupKey = 'lineage'; // lineage, clade, snp
   @observable dnaOrAa = 'dna';
@@ -41,6 +51,11 @@ class ObservableConfigStore {
   // Location tab
   @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
+
+  @observable lowFreqFilterType = GROUP_COUNTS;
+  @observable maxGroupCounts = 15;
+  @observable minLocalCountsToShow = 50;
+  @observable minGlobalCountsToShow = 50;
 
   constructor() {
     const selectTree = loadSelectTree();
@@ -237,15 +252,21 @@ class ObservableConfigStore {
   }
 
   @action
-  selectDateRange(_dateRange) {
-    this.dateRange = _dateRange;
+  selectDateRange(dateRange) {
+    this.dateRange = dateRange;
     dataStoreInstance.updateAggCaseDataByGroup();
   }
 
   @action
   updateHoverGroup(group) {
     // console.log('UPDATE HOVER GROUP', group);
-    this.hoverGroup = group;
+    if (group === null) {
+      this.hoverGroup = null;
+    } else if (!dataStoreInstance.groupsToKeep.includes(group)) {
+      this.hoverGroup = 'other';
+    } else {
+      this.hoverGroup = group;
+    }
   }
 
   @action
@@ -261,6 +282,30 @@ class ObservableConfigStore {
   @action
   updateFocusedLocations(locations) {
     this.focusedLocations = locations;
+  }
+
+  @action
+  setLowFreqFilterType(type) {
+    this.lowFreqFilterType = type;
+    dataStoreInstance.updateGroupsToKeep();
+  }
+
+  @action
+  setMaxGroupCounts(num) {
+    this.maxGroupCounts = num;
+    dataStoreInstance.updateGroupsToKeep();
+  }
+
+  @action
+  setMinLocalCounts(num) {
+    this.minLocalCountsToShow = num;
+    dataStoreInstance.updateGroupsToKeep();
+  }
+
+  @action
+  setMinGlobalCounts(num) {
+    this.minGlobalCountsToShow = num;
+    dataStoreInstance.updateGroupsToKeep();
   }
 }
 
