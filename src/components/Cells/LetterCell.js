@@ -21,10 +21,11 @@ const LetterCell = ({ value, bgColor }) => {
 };
 
 LetterCell.propTypes = {
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   bgColor: PropTypes.string,
 };
 LetterCell.defaultProps = {
+  value: '',
   bgColor: 'transparent',
 };
 
