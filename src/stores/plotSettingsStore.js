@@ -66,6 +66,15 @@ export const COMPARE_COLORS = {
   COMPARE_COLOR_DOTS,
 };
 
+const SORT_ASC = 'ASC';
+const SORT_DESC = 'DESC';
+const SORT_NONE = 'NONE';
+export const SORT_DIRECTIONS = {
+  SORT_ASC,
+  SORT_DESC,
+  SORT_NONE,
+};
+
 class ObservablePlotSettingsStore {
   @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
   @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
@@ -105,16 +114,25 @@ class ObservablePlotSettingsStore {
   @observable tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
   @observable tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
   @observable tableCompareColor = COMPARE_COLORS.COMPARE_COLOR_YELLOW;
+  @observable tableSortColumn = 'cases_sum';
+  @observable tableSortDirection = SORT_DIRECTIONS.SORT_DESC;
 
   @action
   setTableColorMode(mode) {
     this.tableColorMode = mode;
   }
+  @action
   setTableCompareMode(mode) {
     this.tableCompareMode = mode;
   }
+  @action
   setTableCompareColor(color) {
     this.tableCompareColor = color;
+  }
+  @action
+  setTableSort(col, dir) {
+    this.tableSortColumn = col;
+    this.tableSortDirection = dir;
   }
 }
 

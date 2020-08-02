@@ -18,8 +18,8 @@ import {
 } from '../../constants/colors';
 import {
   COLOR_MODES,
-  COMPARE_MODES,
   COMPARE_COLORS,
+  SORT_DIRECTIONS,
 } from '../../stores/plotSettingsStore';
 import TableOptions from './TableOptions';
 import {
@@ -71,24 +71,202 @@ const sortRows = (rows, sortFn) => {
 const NewLineageDataTable = observer(() => {
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
+  const calculatePosOffsets = () => {
+    let posTitleOffset = 0;
+    let posColOffset = 0;
+    if (
+      configStore.groupKey === 'lineage' ||
+      configStore.groupKey === 'clade'
+    ) {
+      posTitleOffset = 220;
+      posColOffset = 4;
+    } else if (configStore.groupKey === 'snp') {
+      if (configStore.dnaOrAa === 'dna') {
+        posTitleOffset = 280;
+        posColOffset = 6;
+      } else {
+        posTitleOffset = 325;
+        posColOffset = 7;
+      }
+    }
+    return { posTitleOffset, posColOffset };
+  };
+
+  const buildColumns = () => {
+    let _columns = [];
+    // For lineage grouping, add lineage column
+    if (configStore.groupKey === 'lineage') {
+      _columns.push(lineageColumn());
+    } else if (configStore.groupKey === 'clade') {
+      _columns.push(cladeColumn());
+    }
+
+    // For SNP grouping, add each SNP chunk as its own column
+    if (configStore.groupKey === 'snp') {
+      // Add the gene column, if we're in AA mode
+      if (configStore.dnaOrAa === 'aa') {
+        if (configStore.coordinateMode === 'gene') {
+          _columns.push(geneColumn());
+        } else if (configStore.coordinateMode === 'protein') {
+          _columns.push(proteinColumn());
+        }
+      }
+      // Add the position column
+      // We don't need as much space for this, for AA mode
+      if (configStore.dnaOrAa === 'dna') {
+        _columns.push(positionColumn());
+      } else {
+        _columns.push(indexColumn());
+      }
+      _columns.push(refColumn());
+      _columns.push(altColumn());
+    }
+
+    // Get the maximum and minimum cases_sum and cases_percent for the colormaps
+    // Ignore those values for the reference row (which are NaN)
+    let maxCasesSum = _.reduce(
+      dataStore.caseDataAggGroup,
+      (memo, group) => nanmax(memo, group.cases_sum),
+      0
+    );
+    let minCasesSum = _.reduce(
+      dataStore.caseDataAggGroup,
+      (memo, group) => nanmin(memo, group.cases_sum),
+      0
+    );
+    let maxCasesPercent = _.reduce(
+      dataStore.caseDataAggGroup,
+      (memo, group) => nanmax(memo, group.cases_percent),
+      0
+    );
+    let minCasesPercent = _.reduce(
+      dataStore.caseDataAggGroup,
+      (memo, group) => nanmin(memo, group.cases_percent),
+      0
+    );
+
+    // example row
+    // cases_percent: 0.6880290205562273
+    // cases_sum: 569
+    // group: "B.1"
+    // pos_23402: "G"
+    // pos_23730: "C"
+    // pos_24033: "C"
+
+    _columns = _columns.concat(
+      getDefaultColumns({
+        minCasesPercent,
+        maxCasesPercent,
+        minCasesSum,
+        maxCasesSum,
+      })
+    );
+
+    // Build a column for each changing position
+    let refRow = _.findWhere(dataStore.caseDataAggGroup, {
+      group: 'Reference',
+    });
+    if (!refRow) {
+      return null;
+    }
+
+    Object.keys(refRow).forEach((col) => {
+      // Only process columns starting with "pos_"
+      if (!col.startsWith('pos_')) {
+        return;
+      }
+
+      let colors;
+      if (configStore.dnaOrAa === 'dna') {
+        colors = snapGeneNTColors;
+      } else {
+        if (
+          plotSettingsStore.tableCompareColor ===
+            COMPARE_COLORS.COLOR_MODE_CODE ||
+          plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CODE
+        ) {
+          colors = shingAAColors;
+        } else if (
+          plotSettingsStore.tableCompareColor ===
+            COMPARE_COLORS.COLOR_MODE_CLUSTAL ||
+          plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CLUSTAL
+        ) {
+          colors = clustalXAAColors;
+        } else if (
+          plotSettingsStore.tableCompareColor ===
+            COMPARE_COLORS.COLOR_MODE_ZAPPO ||
+          plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_ZAPPO
+        ) {
+          colors = zappoAAColors;
+        } else if (
+          plotSettingsStore.tableCompareColor ===
+            COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON ||
+          plotSettingsStore.tableColorMode ===
+            COLOR_MODES.COLOR_MODE_ZHAO_LONDON
+        ) {
+          colors = transmembraneAAColors;
+        }
+      }
+
+      // 0-indexed to 1-indexed
+      let pos = parseInt(col.substring(4));
+      if (configStore.dnaOrAa === 'dna') {
+        pos += 1;
+      }
+      if (configStore.groupKey === 'snp' && configStore.dnaOrAa === 'aa') {
+        pos += 1;
+      }
+
+      _columns.push(
+        getSinglePosColumn({
+          pos,
+          col,
+          colorMode: plotSettingsStore.tableColorMode,
+          refRow,
+          compareMode: plotSettingsStore.tableCompareMode,
+          compareColor: plotSettingsStore.tableCompareColor,
+          colors,
+        })
+      );
+    });
+
+    // console.log(_columns);
+
+    return _columns;
+  };
+
+  const { initialPosColOffset, initialPosTitleOffset } = calculatePosOffsets();
   const [state, setState] = useState({
+    columns: buildColumns() || [],
     rows: dataStore.caseDataAggGroup,
-    sortColumn: 'cases_sum',
-    sortDirection: 'DESC',
+    posColOffset: initialPosColOffset,
+    posTitleOffset: initialPosTitleOffset,
   });
 
   useEffect(() => {
+    const { posColOffset, posTitleOffset } = calculatePosOffsets();
     setState({
       ...state,
       rows: sortRows(
         dataStore.caseDataAggGroup,
         comparer({
-          sortDirection: state.sortDirection,
-          sortColumn: state.sortColumn,
+          sortDirection: plotSettingsStore.tableSortDirection,
+          sortColumn: plotSettingsStore.tableSortColumn,
         })
       ),
+      columns: buildColumns(),
+      posTitleOffset,
+      posColOffset,
     });
-  }, [dataStore.caseDataAggGroup]);
+  }, [
+    dataStore.caseDataAggGroup,
+    configStore.groupKey,
+    configStore.dnaOrAa,
+    configStore.coordinateMode,
+    plotSettingsStore.tableColorMode,
+    plotSettingsStore.tableCompareMode,
+    plotSettingsStore.tableCompareColor,
+  ]);
 
   // Recursively try to find the parent row element with the
   // group data attribute
@@ -173,265 +351,91 @@ const NewLineageDataTable = observer(() => {
     configStore.updateSelectedGroups(newGroups);
   };
 
-  const renderTable = () => {
-    if (
-      UIStore.caseDataState === asyncStates.STARTED ||
-      UIStore.aggCaseDataState === asyncStates.STARTED
-    ) {
-      return (
-        <div
-          style={{
-            paddingRight: '24px',
-            paddingLeft: '12px',
-            paddingTop: '24px',
-            height: '100%',
-          }}
-        >
-          {_.times(20, (i) => (
-            <SkeletonElement
-              key={Math.random()}
-              delay={5 + i + (i % 2) * 12.5}
-              height={25}
-            />
-          ))}
-        </div>
-      );
-    }
+  const onSort = (sortColumn, sortDirection) => {
+    sortDirection =
+      sortDirection === SORT_DIRECTIONS.SORT_NONE
+        ? SORT_DIRECTIONS.SORT_ASC
+        : sortDirection;
+    console.log(sortColumn, sortDirection);
 
-    // If we have no rows, then return an empty element
-    // We'll always have the "reference" row, so no rows = 1 row
-    if (state.rows.length === 1) {
-      return <EmptyDataTable />;
-    }
-
-    // Get the maximum and minimum cases_sum and cases_percent for the colormaps
-    // Ignore those values for the reference row (which are NaN)
-    let maxCasesSum = _.reduce(
-      dataStore.caseDataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_sum),
-      0
-    );
-    let minCasesSum = _.reduce(
-      dataStore.caseDataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_sum),
-      0
-    );
-    let maxCasesPercent = _.reduce(
-      dataStore.caseDataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_percent),
-      0
-    );
-    let minCasesPercent = _.reduce(
-      dataStore.caseDataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_percent),
-      0
-    );
-
-    const handleGridSort = (sortColumn, sortDirection) => {
-      // console.log('handle grid sort', sortColumn, sortDirection);
-
-      let _sortDirection = sortDirection;
-      if (sortDirection === 'NONE') {
-        _sortDirection = 'ASC';
-      }
-
-      const _rows = sortRows(
-        state.rows,
-        comparer({
-          sortDirection: _sortDirection,
-          sortColumn: state.sortColumn,
-        })
-      );
-
-      setState({
-        ...state,
-        rows: _rows,
-        sortColumn,
-        sortDirection: _sortDirection,
-      });
-    };
-
-    const buildColumns = () => {
-      let _columns = [];
-      // For lineage grouping, add lineage column
-      if (configStore.groupKey === 'lineage') {
-        _columns.push(lineageColumn(handleGridSort));
-      } else if (configStore.groupKey === 'clade') {
-        _columns.push(cladeColumn(handleGridSort));
-      }
-
-      // For SNP grouping, add each SNP chunk as its own column
-      if (configStore.groupKey === 'snp') {
-        // Add the gene column, if we're in AA mode
-        if (configStore.dnaOrAa === 'aa') {
-          if (configStore.coordinateMode === 'gene') {
-            _columns.push(geneColumn(handleGridSort));
-          } else if (configStore.coordinateMode === 'protein') {
-            _columns.push(proteinColumn(handleGridSort));
-          }
-        }
-        // Add the position column
-        // We don't need as much space for this, for AA mode
-        if (configStore.dnaOrAa === 'dna') {
-          _columns.push(positionColumn(handleGridSort));
-        } else {
-          _columns.push(indexColumn(handleGridSort));
-        }
-        _columns.push(refColumn(handleGridSort));
-        _columns.push(altColumn(handleGridSort));
-      }
-
-      // example row
-      // cases_percent: 0.6880290205562273
-      // cases_sum: 569
-      // group: "B.1"
-      // pos_23402: "G"
-      // pos_23730: "C"
-      // pos_24033: "C"
-
-      _columns = _columns.concat(
-        getDefaultColumns({
-          minCasesPercent,
-          maxCasesPercent,
-          minCasesSum,
-          maxCasesSum,
-          handleGridSort,
-        })
-      );
-
-      // Build a column for each changing position
-      let refRow = _.findWhere(dataStore.caseDataAggGroup, {
-        group: 'Reference',
-      });
-      if (!refRow) {
-        return null;
-      }
-
-      Object.keys(refRow).forEach((col) => {
-        // Only process columns starting with "pos_"
-        if (!col.startsWith('pos_')) {
-          return;
-        }
-
-        let colors;
-        if (configStore.dnaOrAa === 'dna') {
-          colors = snapGeneNTColors;
-        } else {
-          if (
-            plotSettingsStore.tableCompareColor ===
-              COMPARE_COLORS.COLOR_MODE_CODE ||
-            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CODE
-          ) {
-            colors = shingAAColors;
-          } else if (
-            plotSettingsStore.tableCompareColor ===
-              COMPARE_COLORS.COLOR_MODE_CLUSTAL ||
-            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CLUSTAL
-          ) {
-            colors = clustalXAAColors;
-          } else if (
-            plotSettingsStore.tableCompareColor ===
-              COMPARE_COLORS.COLOR_MODE_ZAPPO ||
-            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_ZAPPO
-          ) {
-            colors = zappoAAColors;
-          } else if (
-            plotSettingsStore.tableCompareColor ===
-              COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON ||
-            plotSettingsStore.tableColorMode ===
-              COLOR_MODES.COLOR_MODE_ZHAO_LONDON
-          ) {
-            colors = transmembraneAAColors;
-          }
-        }
-
-        // 0-indexed to 1-indexed
-        let pos = parseInt(col.substring(4));
-        if (configStore.dnaOrAa === 'dna') {
-          pos += 1;
-        }
-        if (configStore.groupKey === 'snp' && configStore.dnaOrAa === 'aa') {
-          pos += 1;
-        }
-
-        _columns.push(
-          getSinglePosColumn({
-            pos,
-            col,
-            colorMode: plotSettingsStore.tableColorMode,
-            refRow,
-            compareMode: plotSettingsStore.tableCompareMode,
-            compareColor: plotSettingsStore.tableCompareColor,
-            colors,
-          })
-        );
-      });
-
-      // console.log(_columns);
-
-      return _columns;
-    };
-
-    const columns = buildColumns() || [];
-
-    let positionTitleOffset = 0;
-    let posColOffset = 0;
-    if (
-      configStore.groupKey === 'lineage' ||
-      configStore.groupKey === 'clade'
-    ) {
-      positionTitleOffset = 220;
-      posColOffset = 4;
-    } else if (configStore.groupKey === 'snp') {
-      if (configStore.dnaOrAa === 'dna') {
-        positionTitleOffset = 280;
-        posColOffset = 6;
-      } else {
-        positionTitleOffset = 325;
-        posColOffset = 7;
-      }
-    }
-
-    // console.log(state.sortColumn, state.sortDirection, columns);
-    // console.log(state.rows);
-
-    return (
-      <>
-        <span
-          className="position-title"
-          style={{ marginLeft: positionTitleOffset }}
-        >
-          {configStore.dnaOrAa === 'dna'
-            ? 'Genomic Coordinate'
-            : 'Residue Index'}
-        </span>
-        <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
-          <DataTable
-            posColOffset={posColOffset}
-            columns={columns}
-            rows={state.rows}
-            rowGetter={(i) => state.rows[i]}
-            rowsCount={state.rows ? state.rows.length : 0}
-            height={state.tableHeight}
-            headerRowHeight={45}
-            filterRowHeight={45}
-            rowHeight={25}
-            minColumnWidth={25}
-            sortColumn={state.sortColumn}
-            sortDirection={state.sortDirection}
-            onSort={handleGridSort}
-            rowRenderer={RowRenderer}
-            onRowClick={onRowClick}
-          />
-        </div>
-      </>
-    );
+    plotSettingsStore.setTableSort(sortColumn, sortDirection);
   };
+
+  useEffect(() => {
+    const rows = sortRows(
+      state.rows,
+      comparer({
+        sortDirection: plotSettingsStore.tableSortDirection,
+        sortColumn: plotSettingsStore.tableSortColumn,
+      })
+    );
+
+    setState({
+      ...state,
+      rows,
+    });
+  }, [plotSettingsStore.tableSortColumn, plotSettingsStore.tableSortDirection]);
+
+  if (
+    UIStore.caseDataState === asyncStates.STARTED ||
+    UIStore.aggCaseDataState === asyncStates.STARTED
+  ) {
+    return (
+      <div
+        style={{
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingTop: '24px',
+          height: '100%',
+        }}
+      >
+        {_.times(20, (i) => (
+          <SkeletonElement
+            key={Math.random()}
+            delay={5 + i + (i % 2) * 12.5}
+            height={25}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // If we have no rows, then return an empty element
+  // We'll always have the "reference" row, so no rows = 1 row
+  if (state.rows.length === 1) {
+    return <EmptyDataTable />;
+  }
+
+  // console.log(state.rows);
 
   return (
     <DataTableContainer>
       <TableOptions />
-      {renderTable()}
+      <span
+        className="position-title"
+        style={{ marginLeft: state.posTitleOffset }}
+      >
+        {configStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
+      </span>
+      <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
+        <DataTable
+          posColOffset={state.posColOffset}
+          columns={state.columns}
+          rows={state.rows}
+          rowGetter={(i) => state.rows[i]}
+          rowsCount={state.rows ? state.rows.length : 0}
+          height={state.tableHeight}
+          headerRowHeight={45}
+          filterRowHeight={45}
+          rowHeight={25}
+          minColumnWidth={25}
+          sortColumn={plotSettingsStore.tableSortColumn}
+          sortDirection={plotSettingsStore.tableSortDirection}
+          onSort={onSort}
+          rowRenderer={RowRenderer}
+          onRowClick={onRowClick}
+        />
+      </div>
     </DataTableContainer>
   );
 });
