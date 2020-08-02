@@ -23,6 +23,49 @@ export const DATE_BINS = {
   DATE_BIN_MONTH,
 };
 
+const COLOR_MODE_COMPARE = 'COLOR_MODE_COMPARE';
+const COLOR_MODE_CODE = 'COLOR_MODE_CODE';
+const COLOR_MODE_CLUSTAL = 'COLOR_MODE_CLUSTAL';
+const COLOR_MODE_ZAPPO = 'COLOR_MODE_ZAPPO';
+const COLOR_MODE_ZHAO_LONDON = 'COLOR_MODE_ZHAO_LONDON';
+export const COLOR_MODES = {
+  COLOR_MODE_COMPARE,
+  COLOR_MODE_CODE,
+  COLOR_MODE_CLUSTAL,
+  COLOR_MODE_ZAPPO,
+  COLOR_MODE_ZHAO_LONDON,
+};
+
+const COMPARE_MODE_MATCH = 'COMPARE_MODE_MATCH';
+const COMPARE_MODE_MISMATCH = 'COMPARE_MODE_MISMATCH';
+export const COMPARE_MODES = {
+  COMPARE_MODE_MATCH,
+  COMPARE_MODE_MISMATCH,
+};
+
+const COMPARE_COLOR_YELLOW = 'yellow';
+const COMPARE_COLOR_GREEN = 'green';
+const COMPARE_COLOR_BLUE = 'blue';
+const COMPARE_COLOR_PINK = 'pink';
+const COMPARE_COLOR_PURPLE = 'purple';
+const COMPARE_COLOR_ORANGE = 'orange';
+const COMPARE_COLOR_GRAY = 'gray';
+const COMPARE_COLOR_DOTS = 'dots';
+export const COMPARE_COLORS = {
+  COLOR_MODE_CODE,
+  COLOR_MODE_CLUSTAL,
+  COLOR_MODE_ZAPPO,
+  COLOR_MODE_ZHAO_LONDON,
+  COMPARE_COLOR_YELLOW,
+  COMPARE_COLOR_GREEN,
+  COMPARE_COLOR_BLUE,
+  COMPARE_COLOR_PINK,
+  COMPARE_COLOR_PURPLE,
+  COMPARE_COLOR_ORANGE,
+  COMPARE_COLOR_GRAY,
+  COMPARE_COLOR_DOTS,
+};
+
 class ObservablePlotSettingsStore {
   @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
   @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
@@ -56,6 +99,22 @@ class ObservablePlotSettingsStore {
   @action
   setLocationDateDateBin(dateBin) {
     this.locationDateDateBin = dateBin;
+  }
+
+  // Color by 'compare': Comparison to reference, or 'code': With a defined color code
+  @observable tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+  @observable tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
+  @observable tableCompareColor = COMPARE_COLORS.COMPARE_COLOR_YELLOW;
+
+  @action
+  setTableColorMode(mode) {
+    this.tableColorMode = mode;
+  }
+  setTableCompareMode(mode) {
+    this.tableCompareMode = mode;
+  }
+  setTableCompareColor(color) {
+    this.tableCompareColor = color;
   }
 }
 

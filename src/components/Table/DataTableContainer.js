@@ -16,6 +16,11 @@ import {
   zappoAAColors,
   transmembraneAAColors,
 } from '../../constants/colors';
+import {
+  COLOR_MODES,
+  COMPARE_MODES,
+  COMPARE_COLORS,
+} from '../../stores/plotSettingsStore';
 import TableOptions from './TableOptions';
 import {
   geneColumn,
@@ -64,28 +69,13 @@ const sortRows = (rows, sortFn) => {
 };
 
 const NewLineageDataTable = observer(() => {
-  const { dataStore, UIStore, configStore } = useStores();
+  const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
   const [state, setState] = useState({
-    // Color by 'compare': Comparison to reference, or 'code': With a defined color code
-    colorMode: 'compare',
-    // 'match' or 'mismatch'
-    compareMode: 'mismatch',
-    compareColor: 'yellow',
     rows: dataStore.caseDataAggGroup,
     sortColumn: 'cases_sum',
     sortDirection: 'DESC',
   });
-
-  // Reset the coloring settings when dnaOrAa is changed
-  useEffect(() => {
-    setState({
-      ...state,
-      colorMode: 'compare',
-      compareMode: 'mismatch',
-      compareColor: 'yellow',
-    });
-  }, [configStore.dnaOrAa]);
 
   useEffect(() => {
     setState({
@@ -99,13 +89,6 @@ const NewLineageDataTable = observer(() => {
       ),
     });
   }, [dataStore.caseDataAggGroup]);
-
-  const handleColorModeChange = (event) =>
-    setState({ ...state, colorMode: event.target.value });
-  const handleCompareModeChange = (event) =>
-    setState({ ...state, compareMode: event.target.value });
-  const handleCompareColorChange = (event) =>
-    setState({ ...state, compareColor: event.target.value });
 
   // Recursively try to find the parent row element with the
   // group data attribute
@@ -334,21 +317,29 @@ const NewLineageDataTable = observer(() => {
         if (configStore.dnaOrAa === 'dna') {
           colors = snapGeneNTColors;
         } else {
-          if (state.compareColor === 'code' || state.colorMode === 'code') {
+          if (
+            plotSettingsStore.tableCompareColor ===
+              COMPARE_COLORS.COLOR_MODE_CODE ||
+            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CODE
+          ) {
             colors = shingAAColors;
           } else if (
-            state.compareColor === 'clustal' ||
-            state.colorMode === 'clustal'
+            plotSettingsStore.tableCompareColor ===
+              COMPARE_COLORS.COLOR_MODE_CLUSTAL ||
+            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CLUSTAL
           ) {
             colors = clustalXAAColors;
           } else if (
-            state.compareColor === 'zappo' ||
-            state.colorMode === 'zappo'
+            plotSettingsStore.tableCompareColor ===
+              COMPARE_COLORS.COLOR_MODE_ZAPPO ||
+            plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_ZAPPO
           ) {
             colors = zappoAAColors;
           } else if (
-            state.compareColor === 'zhao-london' ||
-            state.colorMode === 'zhao-london'
+            plotSettingsStore.tableCompareColor ===
+              COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON ||
+            plotSettingsStore.tableColorMode ===
+              COLOR_MODES.COLOR_MODE_ZHAO_LONDON
           ) {
             colors = transmembraneAAColors;
           }
@@ -367,10 +358,10 @@ const NewLineageDataTable = observer(() => {
           getSinglePosColumn({
             pos,
             col,
-            colorMode: state.colorMode,
+            colorMode: plotSettingsStore.tableColorMode,
             refRow,
-            compareMode: state.compareMode,
-            compareColor: state.compareColor,
+            compareMode: plotSettingsStore.tableCompareMode,
+            compareColor: plotSettingsStore.tableCompareColor,
             colors,
           })
         );
@@ -439,14 +430,7 @@ const NewLineageDataTable = observer(() => {
 
   return (
     <DataTableContainer>
-      <TableOptions
-        handleColorModeChange={handleColorModeChange}
-        handleCompareModeChange={handleCompareModeChange}
-        handleCompareColorChange={handleCompareColorChange}
-        colorMode={state.colorMode}
-        compareColor={state.compareColor}
-        compareMode={state.compareMode}
-      />
+      <TableOptions />
       {renderTable()}
     </DataTableContainer>
   );

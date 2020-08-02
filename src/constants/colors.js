@@ -1,3 +1,5 @@
+import { COMPARE_COLORS } from '../stores/plotSettingsStore';
+
 export const incrementColor = function (color, step) {
   var colorToInt = parseInt(color.substr(1), 16), // Convert HEX color to integer
     nstep = parseInt(step); // Convert step to integer
@@ -172,15 +174,14 @@ export const snapGeneNTColors = {
   T: '#f096ac',
 };
 
-export const snapGeneHighlightColors = {
-  yellow: '#ffe928',
-  green: '#beed64',
-  blue: '#a9dfff',
-  pink: '#fdc2c3',
-  purple: '#d5ccff',
-  orange: '#ffd900', // more of a yellow than an orange...
-  gray: '#d1d1d1',
-};
+export const snapGeneHighlightColors = {};
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_YELLOW] = '#ffe928';
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_GREEN] = '#beed64';
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_BLUE] = '#a9dfff';
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_PINK] = '#fdc2c3';
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_PURPLE] = '#d5ccff';
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_ORANGE] = '#ffd900'; // more of a yellow than an orange...
+snapGeneHighlightColors[COMPARE_COLORS.COMPARE_COLOR_GRAY] = '#d1d1d1';
 
 export const shingAAColors = {
   R: '#E60606',

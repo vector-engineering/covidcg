@@ -1,5 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-import { dataStoreInstance } from './rootStore';
+import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
 import { getGene } from '../utils/gene';
@@ -9,6 +9,12 @@ import {
   getLocationByNameAndLevel,
   loadSelectTree,
 } from '../utils/location';
+
+import {
+  COLOR_MODES,
+  COMPARE_MODES,
+  COMPARE_COLORS,
+} from './plotSettingsStore';
 
 const LOCAL_COUNTS = 'LOCAL_COUNTS';
 const GLOBAL_COUNTS = 'GLOBAL_COUNTS';
@@ -112,6 +118,13 @@ class ObservableConfigStore {
         this.selectedProtein = getProtein('nsp13');
       }
     }
+
+    // Clear table coloring settings
+    plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+    plotSettingsStoreInstance.tableCompareMode =
+      COMPARE_MODES.COMPARE_MODE_MISMATCH;
+    plotSettingsStoreInstance.tableCompareColor =
+      COMPARE_COLORS.COMPARE_COLOR_YELLOW;
 
     dataStoreInstance.updateCaseData();
   }
