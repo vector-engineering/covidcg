@@ -41,7 +41,7 @@ class ObservablePlotSettingsStore {
     this.groupStackDateBin = dateBin;
   }
 
-  @observable locationDateNormMode = NORM_MODES.NORM_COUNTS;
+  @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
   @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
   @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
 
