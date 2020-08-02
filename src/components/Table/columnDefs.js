@@ -6,6 +6,11 @@ import HeatmapCell from '../Cells/HeatmapCell';
 import PosHeaderCell from '../Cells/PosHeaderCell';
 // import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
 import { snapGeneHighlightColors } from '../../constants/colors';
+import {
+  COLOR_MODES,
+  COMPARE_MODES,
+  COMPARE_COLORS,
+} from '../../stores/plotSettingsStore';
 
 export const positionColumn = () => ({
   name: 'Position',
@@ -95,7 +100,10 @@ export const cladeColumn = () => ({
 
 const conditionCompare = (base, refBase, matchOrMismatch) => {
   // Flip the XOR (XNOR)
-  return !((base === refBase) ^ (matchOrMismatch === 'match' ? true : false));
+  return !(
+    (base === refBase) ^
+    (matchOrMismatch === COMPARE_MODES.COMPARE_MODE_MATCH ? true : false)
+  );
 };
 
 export const getSinglePosColumn = ({
@@ -118,10 +126,10 @@ export const getSinglePosColumn = ({
     let letter = row[col];
     let cellBgColor = 'transparent';
     // Define the coloring behavior
-    if (colorMode === 'compare') {
+    if (colorMode === COLOR_MODES.COLOR_MODE_COMPARE) {
       if (conditionCompare(row[col], refRow[col], compareMode)) {
         // If in dots mode, change letters, not colors
-        if (compareColor === 'dots') {
+        if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
           if (row['group'] !== 'Reference') {
             letter = '.';

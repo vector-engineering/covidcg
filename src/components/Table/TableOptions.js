@@ -1,9 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import { snapGeneHighlightColors } from '../../constants/colors';
 import { capitalize } from '../../utils/string';
-import { connect, useStores } from '../../stores/connect';
+import { useStores } from '../../stores/connect';
+import {
+  COLOR_MODES,
+  COMPARE_MODES,
+  COMPARE_COLORS,
+} from '../../stores/plotSettingsStore';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
@@ -17,25 +21,45 @@ const ColorModeSelectLabel = styled.label`
   }
 `;
 
-const ColorModeSelect = ({ dnaOrAa, colorMode, handleChange }) => {
+const ColorModeSelect = observer(() => {
+  const { plotSettingsStore, configStore } = useStores();
+
+  const handleColorModeChange = (event) =>
+    plotSettingsStore.setTableColorMode(event.target.value);
+
   const colorModeElements = [
-    <option key="compare" value="compare">
+    <option
+      key={COLOR_MODES.COLOR_MODE_COMPARE}
+      value={COLOR_MODES.COLOR_MODE_COMPARE}
+    >
       Comparison to Reference
     </option>,
-    <option key="code" value="code">
-      {dnaOrAa === 'dna' ? '4' : '20'}-Color Code
+    <option
+      key={COLOR_MODES.COLOR_MODE_CODE}
+      value={COLOR_MODES.COLOR_MODE_CODE}
+    >
+      {configStore.dnaOrAa === 'dna' ? '4' : '20'}-Color Code
     </option>,
   ];
 
-  if (dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === 'aa') {
     colorModeElements.push(
-      <option key="clustal" value="clustal">
+      <option
+        key={COLOR_MODES.COLOR_MODE_CLUSTAL}
+        value={COLOR_MODES.COLOR_MODE_CLUSTAL}
+      >
         ClustalX (Properties)
       </option>,
-      <option key="zappo" value="zappo">
+      <option
+        key={COLOR_MODES.COLOR_MODE_ZAPPO}
+        value={COLOR_MODES.COLOR_MODE_ZAPPO}
+      >
         Zappo (Physiochemical Properties)
       </option>,
-      <option key="zhao-london" value="zhao-london">
+      <option
+        key={COLOR_MODES.COLOR_MODE_ZHAO_LONDON}
+        value={COLOR_MODES.COLOR_MODE_ZHAO_LONDON}
+      >
         Zhao and London (Transmembrane Tendency)
       </option>
     );
@@ -44,17 +68,15 @@ const ColorModeSelect = ({ dnaOrAa, colorMode, handleChange }) => {
   return (
     <ColorModeSelectLabel>
       Color by:
-      <select value={colorMode} onChange={handleChange}>
+      <select
+        value={plotSettingsStore.tableColorMode}
+        onChange={handleColorModeChange}
+      >
         {colorModeElements}
       </select>
     </ColorModeSelectLabel>
   );
-};
-ColorModeSelect.propTypes = {
-  dnaOrAa: PropTypes.string.isRequired,
-  colorMode: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired,
-};
+});
 
 const CompareModeSelectLabel = styled.label`
   select {
@@ -64,32 +86,44 @@ const CompareModeSelectLabel = styled.label`
   }
 `;
 
-const CompareModeSelect = ({
-  disabled,
-  dnaOrAa,
-  compareMode,
-  compareColor,
-  handleModeChange,
-  handleColorChange,
-}) => {
+const CompareModeSelect = observer(() => {
+  const { plotSettingsStore, configStore } = useStores();
+
+  const handleCompareModeChange = (event) =>
+    plotSettingsStore.setTableCompareMode(event.target.value);
+  const handleCompareColorChange = (event) =>
+    plotSettingsStore.setTableCompareColor(event.target.value);
+
   const colorOptions = Object.keys(snapGeneHighlightColors);
   const colorOptionElements = [];
   // Add the color-code option
   colorOptionElements.push(
-    <option key="code" value="code">
-      {dnaOrAa === 'dna' ? '4' : '20'}-color code
+    <option
+      key={COMPARE_COLORS.COLOR_MODE_CODE}
+      value={COMPARE_COLORS.COLOR_MODE_CODE}
+    >
+      {configStore.dnaOrAa === 'dna' ? '4' : '20'}-color code
     </option>
   );
 
-  if (dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === 'aa') {
     colorOptionElements.push(
-      <option key="clustal" value="clustal">
+      <option
+        key={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
+        value={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
+      >
         ClustalX (Properties)
       </option>,
-      <option key="zappo" value="zappo">
+      <option
+        key={COMPARE_COLORS.COLOR_MODE_ZAPPO}
+        value={COMPARE_COLORS.COLOR_MODE_ZAPPO}
+      >
         Zappo (Physiochemical Properties)
       </option>,
-      <option key="zhao-london" value="zhao-london">
+      <option
+        key={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
+        value={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
+      >
         Zhao and London (Transmembrane Tendency)
       </option>
     );
@@ -104,46 +138,43 @@ const CompareModeSelect = ({
   });
 
   // Push dots option
-  if (dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === 'aa') {
     colorOptionElements.push(
-      <option key="dots" value="dots">
+      <option
+        key={COMPARE_COLORS.COMPARE_COLOR_DOTS}
+        value={COMPARE_COLORS.COMPARE_COLOR_DOTS}
+      >
         Dots
       </option>
     );
   }
+
+  const disabled =
+    plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CODE;
 
   return (
     <CompareModeSelectLabel>
       Color bases that:
       <select
         disabled={disabled}
-        value={compareMode}
-        onChange={handleModeChange}
+        value={plotSettingsStore.tableCompareMode}
+        onChange={handleCompareModeChange}
       >
-        <option value="match">Match</option>
-        <option value="mismatch">Don&apos;t Match</option>
+        <option value={COMPARE_MODES.COMPARE_MODE_MATCH}>Match</option>
+        <option value={COMPARE_MODES.COMPARE_MODE_MISMATCH}>
+          Don&apos;t Match
+        </option>
       </select>
       <select
         disabled={disabled}
-        value={compareColor}
-        onChange={handleColorChange}
+        value={plotSettingsStore.tableCompareColor}
+        onChange={handleCompareColorChange}
       >
         {colorOptionElements}
       </select>
     </CompareModeSelectLabel>
   );
-};
-CompareModeSelect.propTypes = {
-  disabled: PropTypes.bool,
-  dnaOrAa: PropTypes.string.isRequired,
-  compareMode: PropTypes.string.isRequired,
-  compareColor: PropTypes.string.isRequired,
-  handleModeChange: PropTypes.func.isRequired,
-  handleColorChange: PropTypes.func.isRequired,
-};
-CompareModeSelect.defaultProps = {
-  disabled: false,
-};
+});
 
 const DataTableOptions = styled.div`
   display: flex;
@@ -166,60 +197,30 @@ const Spacer = styled.div`
   flex-grow: 1;
 `;
 
-const TableOptions = observer(
-  ({
-    handleColorModeChange,
-    handleCompareModeChange,
-    handleCompareColorChange,
-    colorMode,
-    compareMode,
-    compareColor,
-  }) => {
-    const { dataStore, configStore } = useStores();
+const TableOptions = observer(() => {
+  const { dataStore } = useStores();
 
-    const handleDownloadSelect = (option) => {
-      if (option === 'Acknowledgements') {
-        dataStore.downloadAcknowledgements();
-      } else if (option === 'Aggregate Data') {
-        dataStore.downloadAggCaseData();
-      } else if (option === 'Accession IDs') {
-        dataStore.downloadAccessionIds();
-      }
-    };
+  const handleDownloadSelect = (option) => {
+    if (option === 'Acknowledgements') {
+      dataStore.downloadAcknowledgements();
+    } else if (option === 'Aggregate Data') {
+      dataStore.downloadAggCaseData();
+    } else if (option === 'Accession IDs') {
+      dataStore.downloadAccessionIds();
+    }
+  };
 
-    return (
-      <DataTableOptions>
-        <ColorModeSelect
-          dnaOrAa={configStore.dnaOrAa}
-          colorMode={colorMode}
-          handleChange={handleColorModeChange}
-        />
-        <CompareModeSelect
-          disabled={colorMode === 'code'}
-          dnaOrAa={configStore.dnaOrAa}
-          compareMode={compareMode}
-          compareColor={compareColor}
-          handleModeChange={handleCompareModeChange}
-          handleColorChange={handleCompareColorChange}
-        />
-        <Spacer />
-        <DropdownButton
-          text={'Download'}
-          options={['Aggregate Data', 'Acknowledgements', 'Accession IDs']}
-          onSelect={handleDownloadSelect}
-        />
-      </DataTableOptions>
-    );
-  }
-);
-
-TableOptions.propTypes = {
-  handleColorModeChange: PropTypes.func.isRequired,
-  handleCompareModeChange: PropTypes.func.isRequired,
-  handleCompareColorChange: PropTypes.func.isRequired,
-  colorMode: PropTypes.string.isRequired,
-  compareMode: PropTypes.string.isRequired,
-  compareColor: PropTypes.string.isRequired,
-};
-
-export default connect(TableOptions);
+  return (
+    <DataTableOptions>
+      <ColorModeSelect />
+      <CompareModeSelect />
+      <Spacer />
+      <DropdownButton
+        text={'Download'}
+        options={['Aggregate Data', 'Acknowledgements', 'Accession IDs']}
+        onSelect={handleDownloadSelect}
+      />
+    </DataTableOptions>
+  );
+});
+export default TableOptions;
