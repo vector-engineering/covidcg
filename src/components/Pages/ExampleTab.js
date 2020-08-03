@@ -116,6 +116,14 @@ const exampleItems = [
     key: 'spike_d614g_na_eu',
     title: 'Emergence of Spike D614G in Europe/North America',
     settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+        groupStackCountMode: COUNT_MODES.COUNT_NEW,
+        groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
       config: {
         groupKey: GROUP_KEYS.GROUP_SNV,
         dnaOrAa: DNA_OR_AA.AA,
@@ -124,14 +132,6 @@ const exampleItems = [
         coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: [NorthAmericaNode, EuropeNode],
         selectedLocationIds: getLocationIds([NorthAmericaNode, EuropeNode]),
-      },
-      plotSettings: {
-        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
-        groupStackCountMode: COUNT_MODES.COUNT_NEW,
-        groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
-      },
-      UI: {
-        activeTab: TABS.TAB_GROUP,
       },
     },
   },

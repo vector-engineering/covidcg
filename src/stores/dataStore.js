@@ -111,8 +111,8 @@ class ObservableDataStore {
   }
 
   @action
-  updateAggCaseDataByGroup(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataStarted();
+  updateAggCaseDataByGroup(callback) {
+    UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
         caseData: toJS(this.caseData),
@@ -132,9 +132,13 @@ class ObservableDataStore {
         // console.log('AGG_CASE_DATA FINISHED');
 
         this.updateGroupsToKeep();
+        // Fire callback
+        if (callback !== undefined) {
+          callback();
+        }
 
-        suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataFinished();
-        suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateFinished();
+        UIStoreInstance.onAggCaseDataFinished();
+        UIStoreInstance.onCaseDataStateFinished();
       }
     );
   }
@@ -148,9 +152,8 @@ class ObservableDataStore {
   }
 
   @action
-  updateCaseData(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateStarted();
-
+  updateCaseData(callback) {
+    UIStoreInstance.onCaseDataStateStarted();
     processCaseData(
       {
         selectedLocationIds: toJS(configStoreInstance.selectedLocationIds),
@@ -180,7 +183,7 @@ class ObservableDataStore {
         this.aggLocationData = aggLocationDataList;
         // console.log('CASE_DATA FINISHED');
 
-        this.updateAggCaseDataByGroup((suppressUIUpdate = false));
+        this.updateAggCaseDataByGroup(callback);
       }
     );
   }

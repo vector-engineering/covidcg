@@ -38,16 +38,14 @@ let NYCNode = getLocationByNameAndLevel(
   'New York City',
   'location',
   true
-);
-let NYCLocationId = getLocationIds(NYCNode);
+)[0];
 
 let MassNode = getLocationByNameAndLevel(
   initialSelectTree,
   'Massachusetts',
   'division',
   true
-);
-let MassLocationId = getLocationIds(MassNode);
+)[0];
 
 export const initialConfigValues = {
   groupKey: GROUP_KEYS.GROUP_LINEAGE,
@@ -66,8 +64,8 @@ export const initialConfigValues = {
   dateRange: [-1, -1], // No initial date range
 
   selectTree: initialSelectTree,
-  selectedLocationNodes: [NYCNode[0], MassNode[0]],
-  selectedLocationIds: NYCLocationId.concat(MassLocationId),
+  selectedLocationNodes: [NYCNode, MassNode],
+  selectedLocationIds: getLocationIds([NYCNode, MassNode]),
 
   hoverGroup: null,
   selectedGroups: [],
@@ -141,8 +139,10 @@ class ObservableConfigStore {
       }
     });
     // Trigger data re-run
-    dataStoreInstance.updateCaseData();
-    dataStoreInstance.updateGroupsToKeep();
+    dataStoreInstance.updateCaseData(() => {
+      console.log('done');
+      console.log(dataStoreInstance.groupsToKeep);
+    });
   }
 
   @action
