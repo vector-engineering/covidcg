@@ -157,8 +157,12 @@ const VegaLegend = observer(() => {
     const selectedGroup = e.target.getAttribute('data-group');
     let newGroups;
 
+    // If the click was not on an item, then unset the selection
+    if (selectedGroup === null) {
+      newGroups = [];
+    }
     // If the item is already selected, then deselect it
-    if (
+    else if (
       _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
