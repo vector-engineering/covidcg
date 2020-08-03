@@ -20,13 +20,16 @@ export function getReferenceSequence() {
 
 function getGroup(groupKey, group) {
   let snpData;
+  let snpDataKey;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     snpData = lineageSnpData;
+    snpDataKey = 'lineage';
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     snpData = cladeSnpData;
+    snpDataKey = 'clade';
   }
   let findObj = {};
-  findObj[groupKey] = group;
+  findObj[snpDataKey] = group;
 
   return _.findWhere(snpData, findObj);
 }
