@@ -15,7 +15,7 @@ from cg_scripts.preprocess_sequences import preprocess_sequences
 from cg_scripts.util import hash_accession_id
 
 # For updating Accession ID hashmaps on GCS
-from snakemake.remote.GS import RemoteProvider as GSRemoteProvider
+# from snakemake.remote.GS import RemoteProvider as GSRemoteProvider
 
 data_folder = "data"
 static_data_folder = "static_data"
@@ -24,6 +24,18 @@ SAMPLES, = glob_wildcards(data_folder + "/fasta_raw/{sample}.fasta")
 
 rule all:
     input:
+        expand(
+            data_folder + "/dna_snp/{sample}_dna_snp.csv", 
+            sample=SAMPLES
+        ),
+        expand(
+            data_folder + "/gene_aa_snp/{sample}_gene_aa_snp.csv", 
+            sample=SAMPLES
+        ),
+        expand(
+            data_folder + "/protein_aa_snp/{sample}_protein_aa_snp.csv", 
+            sample=SAMPLES
+        ),
         data_folder + "/case_data.json",
         # Generate reference-related data
         static_data_folder + "/reference.json", 
@@ -68,8 +80,8 @@ rule align_sequences:
         bt2_2 = data_folder + "/reference_index/reference.2.bt2",
         bt2_3 = data_folder + "/reference_index/reference.3.bt2",
         bt2_4 = data_folder + "/reference_index/reference.4.bt2",
-        bt2_rev1=data_folder + "/reference_index/reference.rev1.bt2",
-        bt2_rev2=data_folder + "/reference_index/reference.rev2.bt2"
+        bt2_rev1=data_folder + "/reference_index/reference.rev.1.bt2",
+        bt2_rev2=data_folder + "/reference_index/reference.rev.2.bt2"
     params:
         index_name = data_folder + "/reference_index/reference"
     output:
@@ -511,15 +523,15 @@ rule process_artic_primers:
         artic_df.to_csv(output.artic_primers, index=False)
 
 
-# This is only for site maintainers
-if "upload_hashmap" in config and config["upload_hashmap"]:
-    GS = GSRemoteProvider()
-    rule update_gcs_hashmap:
-        input:
-            data_folder + "/accession_hashmap.csv"
-        output:
-            GS.remote("covid-cg/accession_hashmap.csv")
-        shell:
-            """
-            cp {input[0]} {output[0]}
-            """
+# # This is only for site maintainers
+# if "upload_hashmap" in config and config["upload_hashmap"]:
+#     GS = GSRemoteProvider()
+#     rule update_gcs_hashmap:
+#         input:
+#             data_folder + "/accession_hashmap.csv"
+#         output:
+#             GS.remote("covid-cg/accession_hashmap.csv")
+#         shell:
+#             """
+#             cp {input[0]} {output[0]}
+#             """
