@@ -110,7 +110,7 @@ const NewLineageDataTable = observer(() => {
     // For SNP grouping, add each SNP chunk as its own column
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       // Add the gene column, if we're in AA mode
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+      if (configStore.dnaOrAa === DNA_OR_AA.AA) {
         if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
           _columns.push(geneColumn());
         } else if (
