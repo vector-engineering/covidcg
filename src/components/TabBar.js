@@ -6,6 +6,7 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 
 // import { intToISO } from '../utils/date';
+import { TABS } from '../stores/UIStore';
 
 const TabBarContainer = styled.div`
   display: flex;
@@ -166,29 +167,29 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   return (
     <TabBarContainer>
       <TabBarList>
-        <TabItem active={activeTab === 'group'}>
+        <TabItem active={activeTab === TABS.TAB_GROUP}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'group')}
+            onClick={changeTab.bind(this, TABS.TAB_GROUP)}
           >
             <span>Main</span>
           </a>
         </TabItem>
-        <TabItem active={activeTab === 'location'}>
+        <TabItem active={activeTab === TABS.TAB_LOCATION}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'location')}
+            onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
           >
             <span>Compare locations</span>
           </a>
         </TabItem>
-        <TabItem active={activeTab === 'about'}>
+        <TabItem active={activeTab === TABS.TAB_ABOUT}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'about')}
+            onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
           >
             <span>About</span>
           </a>

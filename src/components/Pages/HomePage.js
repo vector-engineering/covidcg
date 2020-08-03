@@ -26,6 +26,8 @@ import Footer from '../Footer';
 import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
 import KeyListener from '../KeyListener';
 
+import { TABS } from '../../stores/UIStore';
+
 const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
@@ -96,11 +98,11 @@ const HomePage = observer(({ UIStore }) => {
   };
 
   const renderTab = () => {
-    if (UIStore.activeTab === 'group') {
+    if (UIStore.activeTab === TABS.TAB_GROUP) {
       return <GroupTab width={width} />;
-    } else if (UIStore.activeTab === 'location') {
+    } else if (UIStore.activeTab === TABS.TAB_LOCATION) {
       return <LocationTab width={width} />;
-    } else if (UIStore.activeTab === 'about') {
+    } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
       return <AboutTab />;
     }
   };

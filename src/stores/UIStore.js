@@ -10,6 +10,17 @@ export const asyncStates = {
   FAILED,
 };
 
+const TAB_GROUP = 'TAB_GROUP';
+const TAB_LOCATION = 'TAB_LOCATION';
+const TAB_EXAMPLE = 'TAB_EXAMPLE';
+const TAB_ABOUT = 'TAB_ABOUT';
+export const TABS = {
+  TAB_GROUP,
+  TAB_LOCATION,
+  TAB_EXAMPLE,
+  TAB_ABOUT,
+};
+
 function removeItemAll(arr, value) {
   var i = 0;
   while (i < arr.length) {
@@ -27,7 +38,7 @@ class ObservableUIStore {
   @observable sidebarSelectedGroupKeys = [];
   @observable caseDataState = STARTED;
   @observable aggCaseDataState = STARTED;
-  @observable activeTab = 'group';
+  @observable activeTab = TABS.TAB_GROUP;
 
   @observable keysPressed = [];
 
