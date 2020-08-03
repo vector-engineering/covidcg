@@ -95,7 +95,7 @@ const NewLineageDataTable = observer(() => {
         posColOffset = 7;
       }
     }
-    return { posTitleOffset, posColOffset };
+    return [posColOffset, posTitleOffset];
   };
 
   const buildColumns = () => {
@@ -246,7 +246,7 @@ const NewLineageDataTable = observer(() => {
     return _columns;
   };
 
-  const { initialPosColOffset, initialPosTitleOffset } = calculatePosOffsets(
+  const [initialPosColOffset, initialPosTitleOffset] = calculatePosOffsets(
     configStore.groupKey,
     configStore.dnaOrAa
   );
@@ -258,12 +258,15 @@ const NewLineageDataTable = observer(() => {
   });
 
   useEffect(() => {
-    const { posColOffset, posTitleOffset } = calculatePosOffsets(
+    const [posColOffset, posTitleOffset] = calculatePosOffsets(
       configStore.groupKey,
       configStore.dnaOrAa
     );
     setState({
       ...state,
+      columns: buildColumns() || [],
+      posTitleOffset: posTitleOffset,
+      posColOffset: posColOffset,
       rows: sortRows(
         dataStore.caseDataAggGroup,
         comparer({
@@ -271,9 +274,6 @@ const NewLineageDataTable = observer(() => {
           sortColumn: plotSettingsStore.tableSortColumn,
         })
       ),
-      columns: buildColumns(),
-      posTitleOffset,
-      posColOffset,
     });
   }, [
     dataStore.caseDataAggGroup,
