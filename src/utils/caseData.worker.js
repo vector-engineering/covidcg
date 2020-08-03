@@ -324,7 +324,10 @@ function processCaseData({
       // Replace the integer SNP ID with the actual SNP string
       if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
         group = intToDnaSnp(group).snp_str;
-      } else if (groupKey === GROUP_KEYS.SNV && dnaOrAa === DNA_OR_AA.AA) {
+      } else if (
+        groupKey === GROUP_KEYS.GROUP_SNV &&
+        dnaOrAa === DNA_OR_AA.AA
+      ) {
         if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
           group = intToGeneAaSnp(group).snp_str;
         } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
