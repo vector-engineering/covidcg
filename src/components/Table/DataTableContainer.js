@@ -77,17 +77,17 @@ const sortRows = (rows, sortFn) => {
 const NewLineageDataTable = observer(() => {
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
-  const calculatePosOffsets = () => {
+  const calculatePosOffsets = (groupKey, dnaOrAa) => {
     let posTitleOffset = 0;
     let posColOffset = 0;
     if (
-      configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-      configStore.groupKey === GROUP_KEYS.GROUP_CLADE
+      groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+      groupKey === GROUP_KEYS.GROUP_CLADE
     ) {
       posTitleOffset = 220;
       posColOffset = 4;
-    } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (dnaOrAa === DNA_OR_AA.DNA) {
         posTitleOffset = 280;
         posColOffset = 6;
       } else {
@@ -246,7 +246,10 @@ const NewLineageDataTable = observer(() => {
     return _columns;
   };
 
-  const { initialPosColOffset, initialPosTitleOffset } = calculatePosOffsets();
+  const { initialPosColOffset, initialPosTitleOffset } = calculatePosOffsets(
+    configStore.groupKey,
+    configStore.dnaOrAa
+  );
   const [state, setState] = useState({
     columns: buildColumns() || [],
     rows: dataStore.caseDataAggGroup,
@@ -255,7 +258,10 @@ const NewLineageDataTable = observer(() => {
   });
 
   useEffect(() => {
-    const { posColOffset, posTitleOffset } = calculatePosOffsets();
+    const { posColOffset, posTitleOffset } = calculatePosOffsets(
+      configStore.groupKey,
+      configStore.dnaOrAa
+    );
     setState({
       ...state,
       rows: sortRows(
@@ -419,7 +425,6 @@ const NewLineageDataTable = observer(() => {
   }
 
   // console.log(state.rows);
-
   return (
     <DataTableContainer>
       <TableOptions />
