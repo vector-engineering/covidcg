@@ -9,10 +9,27 @@ import {
   SORT_DIRECTIONS,
 } from '../constants/plotSettings';
 
+export const initialPlotSettingsValues = {
+  groupStackNormMode: NORM_MODES.NORM_COUNTS,
+  groupStackCountMode: COUNT_MODES.COUNT_NEW,
+  groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+
+  locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
+  locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
+  locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+
+  tableColorMode: COLOR_MODES.COLOR_MODE_COMPARE,
+  tableCompareMode: COMPARE_MODES.COMPARE_MODE_MISMATCH,
+  tableCompareColor: COMPARE_COLORS.COMPARE_COLOR_YELLOW,
+  tableSortColumn: 'cases_sum',
+  tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
+};
+
 class ObservablePlotSettingsStore {
-  @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
-  @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
-  @observable groupStackDateBin = DATE_BINS.DATE_BIN_DAY;
+  @observable groupStackNormMode = initialPlotSettingsValues.groupStackNormMode;
+  @observable groupStackCountMode =
+    initialPlotSettingsValues.groupStackCountMode;
+  @observable groupStackDateBin = initialPlotSettingsValues.groupStackDateBin;
 
   @action
   setGroupStackNormMode(mode) {
@@ -27,9 +44,12 @@ class ObservablePlotSettingsStore {
     this.groupStackDateBin = dateBin;
   }
 
-  @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
-  @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
-  @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
+  @observable locationDateNormMode =
+    initialPlotSettingsValues.locationDateNormMode;
+  @observable locationDateCountMode =
+    initialPlotSettingsValues.locationDateCountMode;
+  @observable locationDateDateBin =
+    initialPlotSettingsValues.locationDateDateBin;
 
   @action
   setLocationDateNormMode(mode) {
@@ -44,12 +64,11 @@ class ObservablePlotSettingsStore {
     this.locationDateDateBin = dateBin;
   }
 
-  // Color by 'compare': Comparison to reference, or 'code': With a defined color code
-  @observable tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-  @observable tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
-  @observable tableCompareColor = COMPARE_COLORS.COMPARE_COLOR_YELLOW;
-  @observable tableSortColumn = 'cases_sum';
-  @observable tableSortDirection = SORT_DIRECTIONS.SORT_DESC;
+  @observable tableColorMode = initialPlotSettingsValues.tableColorMode;
+  @observable tableCompareMode = initialPlotSettingsValues.tableCompareMode;
+  @observable tableCompareColor = initialPlotSettingsValues.tableCompareColor;
+  @observable tableSortColumn = initialPlotSettingsValues.tableSortColumn;
+  @observable tableSortDirection = initialPlotSettingsValues.tableSortDirection;
 
   @action
   setTableColorMode(mode) {
@@ -67,6 +86,17 @@ class ObservablePlotSettingsStore {
   setTableSort(col, dir) {
     this.tableSortColumn = col;
     this.tableSortDirection = dir;
+  }
+
+  @action
+  resetValues(values) {
+    Object.keys(initialPlotSettingsValues).forEach((key) => {
+      if (key in values) {
+        this[key] = values[key];
+      } else {
+        this[key] = initialPlotSettingsValues[key];
+      }
+    });
   }
 }
 

@@ -13,15 +13,34 @@ function removeItemAll(arr, value) {
   return arr;
 }
 
-class ObservableUIStore {
-  @observable sidebarOpen = false;
-  @observable sidebarSelectedGroupKeys = [];
-  @observable caseDataState = ASYNC_STATES.STARTED;
-  @observable aggCaseDataState = ASYNC_STATES.STARTED;
-  // @observable activeTab = TABS.TAB_GROUP;
-  @observable activeTab = TABS.TAB_EXAMPLE;
+export const initialUIValues = {
+  sidebarOpen: false,
+  sidebarSelectedGroupKeys: [],
+  caseDataState: ASYNC_STATES.STARTED,
+  aggCaseDataState: ASYNC_STATES.STARTED,
+  activeTab: TABS.TAB_EXAMPLE,
+  keysPressed: [],
+};
 
-  @observable keysPressed = [];
+class ObservableUIStore {
+  @observable sidebarOpen = initialUIValues.sidebarOpen;
+  @observable sidebarSelectedGroupKeys =
+    initialUIValues.sidebarSelectedGroupKeys;
+  @observable caseDataState = initialUIValues.caseDataState;
+  @observable aggCaseDataState = initialUIValues.aggCaseDataState;
+  @observable activeTab = initialUIValues.activeTab;
+  @observable keysPressed = initialUIValues.keysPressed;
+
+  @action
+  resetValues(values) {
+    Object.keys(initialUIValues).forEach((key) => {
+      if (key in values) {
+        this[key] = values[key];
+      } else {
+        this[key] = initialUIValues[key];
+      }
+    });
+  }
 
   @action
   onCaseDataStateStarted = () => {

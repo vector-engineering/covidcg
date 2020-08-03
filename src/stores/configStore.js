@@ -8,6 +8,9 @@ import {
   getLocationIds,
   getLocationByNameAndLevel,
   loadSelectTree,
+  assignObjectPaths,
+  getNodeFromPath,
+  deselectAll,
 } from '../utils/location';
 
 import {
@@ -22,65 +25,124 @@ import {
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/config';
 
-class ObservableConfigStore {
-  @observable groupKey = GROUP_KEYS.GROUP_LINEAGE; // lineage, clade, snp
-  @observable dnaOrAa = DNA_OR_AA.DNA;
+// Define initial values
 
-  // COORDINATE SETTINGS
+const initialSelectTree = Object.assign(loadSelectTree(), {
+  expanded: true,
+});
+assignObjectPaths(initialSelectTree);
+
+// Select NYC by default
+let NYCNode = getLocationByNameAndLevel(
+  initialSelectTree,
+  'New York City',
+  'location',
+  true
+);
+let NYCLocationId = getLocationIds(NYCNode);
+
+let MassNode = getLocationByNameAndLevel(
+  initialSelectTree,
+  'Massachusetts',
+  'division',
+  true
+);
+let MassLocationId = getLocationIds(MassNode);
+
+export const initialConfigValues = {
+  groupKey: GROUP_KEYS.GROUP_LINEAGE,
+  dnaOrAa: DNA_OR_AA.DNA,
+
   // Select the Spike gene and nsp13 protein by default
-  @observable selectedGene = getGene('S');
-  @observable selectedProtein = getProtein('nsp13');
-  @observable selectedPrimers = [];
-  @observable customCoordinates = [8000, 12000];
+  selectedGene: getGene('S'),
+  selectedProtein: getProtein('nsp13'),
+  selectedPrimers: [],
+  customCoordinates: [8000, 12000],
 
   // Selecting the gene as the coordinate range by default
-  @observable coordinateMode = COORDINATE_MODES.COORD_GENE;
-  @observable coordinateRanges = this.selectedGene.ranges;
+  coordinateMode: COORDINATE_MODES.COORD_GENE,
+  coordinateRanges: getGene('S').ranges,
 
-  @observable dateRange = [-1, -1]; // No initial date range
+  dateRange: [-1, -1], // No initial date range
 
-  @observable selectedLocationNodes = [];
-  @observable selectedLocationIds = [];
+  selectTree: initialSelectTree,
+  selectedLocationNodes: [NYCNode[0], MassNode[0]],
+  selectedLocationIds: NYCLocationId.concat(MassLocationId),
 
-  @observable hoverGroup = null;
-  // @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
-  @observable selectedGroups = [];
+  hoverGroup: null,
+  selectedGroups: [],
 
   // Metadata filtering
-  @observable selectedMetadataFields = {};
-  @observable ageRange = [null, null];
+  selectedMetadataFields: {},
+  ageRange: [null, null],
 
   // Location tab
-  @observable hoverLocation = null;
-  @observable focusedLocations = []; // Selected locations in the location tab
+  hoverLocation: null,
+  focusedLocations: [],
 
-  @observable lowFreqFilterType = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
-  @observable maxGroupCounts = 15;
-  @observable minLocalCountsToShow = 50;
-  @observable minGlobalCountsToShow = 50;
+  lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
+  maxGroupCounts: 15,
+  minLocalCountsToShow: 50,
+  minGlobalCountsToShow: 100,
+};
 
-  constructor() {
-    const selectTree = loadSelectTree();
-    // Select NYC by default
-    let NYCNode = getLocationByNameAndLevel(
-      selectTree,
-      'New York City',
-      'location'
-    );
-    NYCNode[0].checked = true;
-    let NYCLocationId = getLocationIds(NYCNode);
+class ObservableConfigStore {
+  @observable groupKey = initialConfigValues.groupKey;
+  @observable dnaOrAa = initialConfigValues.dnaOrAa;
+  @observable selectedGene = initialConfigValues.selectedGene;
+  @observable selectedProtein = initialConfigValues.selectedProtein;
+  @observable selectedPrimers = initialConfigValues.selectedPrimers;
+  @observable customCoordinates = initialConfigValues.customCoordinates;
+  @observable coordinateMode = initialConfigValues.coordinateMode;
+  @observable coordinateRanges = initialConfigValues.coordinateRanges;
+  @observable dateRange = initialConfigValues.dateRange;
+  @observable selectTree = initialConfigValues.selectTree;
+  @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
+  @observable selectedLocationIds = initialConfigValues.selectedLocationIds;
+  @observable hoverGroup = initialConfigValues.hoverGroup;
+  @observable selectedGroups = initialConfigValues.selectedGroups;
+  @observable selectedMetadataFields =
+    initialConfigValues.selectedMetadataFields;
+  @observable ageRange = initialConfigValues.ageRange;
+  @observable hoverLocation = initialConfigValues.hoverLocation;
+  @observable focusedLocations = initialConfigValues.focusedLocations;
+  @observable lowFreqFilterType = initialConfigValues.lowFreqFilterType;
+  @observable maxGroupCounts = initialConfigValues.maxGroupCounts;
+  @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
+  @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
-    let MassNode = getLocationByNameAndLevel(
-      selectTree,
-      'Massachusetts',
-      'division'
-    );
-    MassNode[0].checked = true;
-    let MassLocationId = getLocationIds(MassNode);
+  constructor() {}
 
-    this.selectedLocationIds = NYCLocationId.concat(MassLocationId);
-    // console.log(this.selectedLocationIds);
-    this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
+  @action
+  resetValues(values) {
+    Object.keys(initialConfigValues).forEach((key) => {
+      if (key in values) {
+        this[key] = values[key];
+      } else {
+        this[key] = initialConfigValues[key];
+      }
+
+      // Special actions for some keys
+      if (key === 'selectedLocationNodes') {
+        // Get the current tree
+        const selectTree = Object.assign({}, this.selectTree);
+        deselectAll(selectTree);
+
+        // Select the specified nodes
+        values[key].forEach((node) => {
+          const nodeObj =
+            'path' in node
+              ? getNodeFromPath(selectTree, node['path'])
+              : selectTree;
+          nodeObj.checked = true;
+        });
+
+        this.selectTree = selectTree;
+      }
+    });
+    // Trigger data re-run
+    dataStoreInstance.updateCaseData();
+    dataStoreInstance.updateGroupsToKeep();
   }
 
   @action

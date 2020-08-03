@@ -25,20 +25,33 @@ import { getGlobalGroupCounts } from '../utils/globalCounts';
 
 const globalGroupCounts = getGlobalGroupCounts();
 
-class ObservableDataStore {
-  @observable caseData = [];
-  @observable changingPositions = {};
-  @observable caseDataAggGroup = [];
-  @observable selectedRows = [];
-  @observable groupsToKeep = [];
-  @observable groupCountArr = {};
+export const initialDataValues = {
+  caseData: [],
+  changingPositions: {},
+  caseDataAggGroup: [],
+  selectedRows: [],
+  groupsToKeep: [],
+  groupCountArr: {},
 
   // Metadata filtering
-  @observable numSequencesBeforeMetadataFiltering = 0;
-  @observable metadataCounts = {};
+  numSequencesBeforeMetadataFiltering: 0,
+  metadataCounts: {},
 
   // For location tab
-  @observable aggLocationData = [];
+  aggLocationData: [],
+};
+
+class ObservableDataStore {
+  @observable caseData = initialDataValues.caseData;
+  @observable changingPositions = initialDataValues.changingPositions;
+  @observable caseDataAggGroup = initialDataValues.caseDataAggGroup;
+  @observable selectedRows = initialDataValues.selectedRows;
+  @observable groupsToKeep = initialDataValues.groupsToKeep;
+  @observable groupCountArr = initialDataValues.groupCountArr;
+  @observable numSequencesBeforeMetadataFiltering =
+    initialDataValues.numSequencesBeforeMetadataFiltering;
+  @observable metadataCounts = initialDataValues.metadataCounts;
+  @observable aggLocationData = initialDataValues.aggLocationData;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -79,7 +92,7 @@ class ObservableDataStore {
           ) {
             globalCounts = globalGroupCounts.gene_aa_snp;
           } else if (
-            configStoreInstance.coordinateRanges ===
+            configStoreInstance.coordinateMode ===
             COORDINATE_MODES.COORD_PROTEIN
           ) {
             globalCounts = globalGroupCounts.protein_aa_snp;

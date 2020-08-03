@@ -12,6 +12,24 @@ export function loadSelectTree() {
   return selectTree;
 }
 
+// https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme
+// https://dowjones.github.io/react-dropdown-tree-select/#/story/tree-node-paths-hoc
+// utility method to assign object paths.
+// this path can be used with lodash.get or similar
+// to retrieve a deeply nested object
+export function assignObjectPaths(obj, stack) {
+  const isArray = Array.isArray(obj);
+  Object.keys(obj).forEach((k) => {
+    const node = obj[k];
+    const key = isArray ? `[${k}]` : k;
+
+    if (typeof node === 'object') {
+      node.path = stack ? `${stack}.${key}` : key;
+      assignObjectPaths(node, node.path);
+    }
+  });
+}
+
 // Recursively look through children for location IDs
 function getLocationIdsFromNode(node) {
   return [node.location_id].concat(
@@ -33,7 +51,12 @@ export function getLocationIds(selectedNodes) {
   return locationIds;
 }
 
-export function getLocationByNameAndLevel(selectTree, name, level) {
+export function getLocationByNameAndLevel(
+  selectTree,
+  name,
+  level,
+  check = false
+) {
   // Traverse tree with recursion
   function traverseTree(nodes) {
     let validNodes = [];
@@ -47,6 +70,12 @@ export function getLocationByNameAndLevel(selectTree, name, level) {
 
       // Iterate over all children of child
       validNodes = validNodes.concat(traverseTree(node.children));
+    }
+
+    if (check) {
+      validNodes.forEach((node) => {
+        node.checked = true;
+      });
     }
 
     return validNodes;
@@ -65,6 +94,33 @@ export function getLocationNameByIds(locationIds) {
     out.push(locationIdToNameMap[locId]);
   });
   return out;
+}
+
+export function getNodeFromPath(rootNode, pathStr) {
+  // Get children using the object path
+  const pathChunks = pathStr.split('.');
+  let nodeObj = rootNode;
+  pathChunks.forEach((chunk) => {
+    // If this chunk is an array index:
+    if (chunk.charAt(0) === '[' && chunk.charAt(chunk.length - 1) === ']') {
+      const arrRx = /\[([0-9]*)\]/g;
+      const arrIndexMatch = arrRx.exec(chunk);
+      nodeObj = nodeObj[parseInt(arrIndexMatch[1])];
+    } else {
+      nodeObj = nodeObj[chunk];
+    }
+  });
+  return nodeObj;
+}
+
+export function deselectAll(selectTree) {
+  const traverseAndDeselect = (node) => {
+    node.checked = false;
+    node.children.forEach((child) => {
+      traverseAndDeselect(child);
+    });
+  };
+  traverseAndDeselect(selectTree);
 }
 
 // Given locObj (a row from location_map), get the name of the most
