@@ -1,4 +1,4 @@
-name: covid-ui
+name: covid-cg
 channels:
   - conda-forge
   - defaults
