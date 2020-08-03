@@ -1,4 +1,4 @@
-import { COMPARE_COLORS } from '../stores/plotSettingsStore';
+import { COMPARE_COLORS } from '../constants/plotSettings';
 
 export const incrementColor = function (color, step) {
   var colorToInt = parseInt(color.substr(1), 16), // Convert HEX color to integer

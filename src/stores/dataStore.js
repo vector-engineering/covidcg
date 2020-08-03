@@ -15,7 +15,12 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 
-import { LOW_FREQ_FILTER_TYPES } from './configStore';
+import {
+  LOW_FREQ_FILTER_TYPES,
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../constants/config';
 import { getGlobalGroupCounts } from '../utils/globalCounts';
 
 const globalGroupCounts = getGlobalGroupCounts();
@@ -61,17 +66,22 @@ class ObservableDataStore {
       LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
     ) {
       let globalCounts;
-      if (configStoreInstance.groupKey === 'lineage') {
+      if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
         globalCounts = globalGroupCounts.lineage;
-      } else if (configStoreInstance.groupKey === 'clade') {
+      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_CLADE) {
         globalCounts = globalGroupCounts.clade;
-      } else if (configStoreInstance.groupKey === 'snp') {
-        if (configStoreInstance.dnaOrAa === 'dna') {
+      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+        if (configStoreInstance.dnaOrAa === DNA_OR_AA.DNA) {
           globalCounts = globalGroupCounts.dna_snp;
         } else {
-          if (configStoreInstance.coordinateMode === 'gene') {
+          if (
+            configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
+          ) {
             globalCounts = globalGroupCounts.gene_aa_snp;
-          } else if (configStoreInstance.coordinateRanges === 'protein') {
+          } else if (
+            configStoreInstance.coordinateRanges ===
+            COORDINATE_MODES.COORD_PROTEIN
+          ) {
             globalCounts = globalGroupCounts.protein_aa_snp;
           }
         }

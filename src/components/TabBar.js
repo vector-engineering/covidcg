@@ -6,7 +6,8 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 
 // import { intToISO } from '../utils/date';
-import { TABS } from '../stores/UIStore';
+// import { GROUP_KEYS, DNA_OR_AA } from '../constants/config';
+import { TABS } from '../constants/UI';
 
 const TabBarContainer = styled.div`
   display: flex;
@@ -137,12 +138,12 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   // }
 
   // let groupName;
-  // if (configStore.groupKey === 'lineage') {
+  // if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
   //   groupName = 'Lineage';
-  // } else if (configStore.groupKey === 'clade') {
+  // } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
   //   groupName = 'Clade';
-  // } else if (configStore.groupKey === 'snp') {
-  //   if (configStore.dnaOrAa === 'dna') {
+  // } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+  //   if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
   //     groupName = 'NT SNP';
   //   } else {
   //     groupName = 'AA SNP';

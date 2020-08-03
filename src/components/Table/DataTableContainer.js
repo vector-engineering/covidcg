@@ -20,7 +20,7 @@ import {
   COLOR_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
-} from '../../stores/plotSettingsStore';
+} from '../../constants/plotSettings';
 import TableOptions from './TableOptions';
 import {
   geneColumn,
@@ -35,9 +35,15 @@ import {
   getSinglePosColumn,
 } from './columnDefs';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
+
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../../constants/config';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -75,13 +81,13 @@ const NewLineageDataTable = observer(() => {
     let posTitleOffset = 0;
     let posColOffset = 0;
     if (
-      configStore.groupKey === 'lineage' ||
-      configStore.groupKey === 'clade'
+      configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+      configStore.groupKey === GROUP_KEYS.GROUP_CLADE
     ) {
       posTitleOffset = 220;
       posColOffset = 4;
-    } else if (configStore.groupKey === 'snp') {
-      if (configStore.dnaOrAa === 'dna') {
+    } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         posTitleOffset = 280;
         posColOffset = 6;
       } else {
@@ -95,25 +101,27 @@ const NewLineageDataTable = observer(() => {
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (configStore.groupKey === 'lineage') {
+    if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
       _columns.push(lineageColumn());
-    } else if (configStore.groupKey === 'clade') {
+    } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
       _columns.push(cladeColumn());
     }
 
     // For SNP grouping, add each SNP chunk as its own column
-    if (configStore.groupKey === 'snp') {
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       // Add the gene column, if we're in AA mode
-      if (configStore.dnaOrAa === 'aa') {
-        if (configStore.coordinateMode === 'gene') {
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+        if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
           _columns.push(geneColumn());
-        } else if (configStore.coordinateMode === 'protein') {
+        } else if (
+          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+        ) {
           _columns.push(proteinColumn());
         }
       }
       // Add the position column
       // We don't need as much space for this, for AA mode
-      if (configStore.dnaOrAa === 'dna') {
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         _columns.push(positionColumn());
       } else {
         _columns.push(indexColumn());
@@ -177,7 +185,7 @@ const NewLineageDataTable = observer(() => {
       }
 
       let colors;
-      if (configStore.dnaOrAa === 'dna') {
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         colors = snapGeneNTColors;
       } else {
         if (
@@ -210,10 +218,13 @@ const NewLineageDataTable = observer(() => {
 
       // 0-indexed to 1-indexed
       let pos = parseInt(col.substring(4));
-      if (configStore.dnaOrAa === 'dna') {
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         pos += 1;
       }
-      if (configStore.groupKey === 'snp' && configStore.dnaOrAa === 'aa') {
+      if (
+        configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+        configStore.dnaOrAa === DNA_OR_AA.AA
+      ) {
         pos += 1;
       }
 
@@ -325,7 +336,8 @@ const NewLineageDataTable = observer(() => {
     // then ignore
     if (
       selectedGroup === 'Reference' &&
-      (configStore.groupKey === 'lineage' || configStore.groupKey === 'clade')
+      (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+        configStore.groupKey === GROUP_KEYS.GROUP_CLADE)
     ) {
       return;
     }
@@ -356,7 +368,7 @@ const NewLineageDataTable = observer(() => {
       sortDirection === SORT_DIRECTIONS.SORT_NONE
         ? SORT_DIRECTIONS.SORT_ASC
         : sortDirection;
-    console.log(sortColumn, sortDirection);
+    // console.log(sortColumn, sortDirection);
 
     plotSettingsStore.setTableSort(sortColumn, sortDirection);
   };
@@ -377,8 +389,8 @@ const NewLineageDataTable = observer(() => {
   }, [plotSettingsStore.tableSortColumn, plotSettingsStore.tableSortDirection]);
 
   if (
-    UIStore.caseDataState === asyncStates.STARTED ||
-    UIStore.aggCaseDataState === asyncStates.STARTED
+    UIStore.caseDataState === ASYNC_STATES.STARTED ||
+    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
   ) {
     return (
       <div
@@ -415,7 +427,9 @@ const NewLineageDataTable = observer(() => {
         className="position-title"
         style={{ marginLeft: state.posTitleOffset }}
       >
-        {configStore.dnaOrAa === 'dna' ? 'Genomic Coordinate' : 'Residue Index'}
+        {configStore.dnaOrAa === DNA_OR_AA.DNA
+          ? 'Genomic Coordinate'
+          : 'Residue Index'}
       </span>
       <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
         <DataTable

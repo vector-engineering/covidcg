@@ -4,8 +4,10 @@ import {
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
 } from './lineageData';
-import { intToISO } from './date';
+// import { intToISO } from './date';
 import _ from 'underscore';
+
+import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 
 function downloadAccessionIdsData({ accessionIds }) {
   // console.log(accessionIds);
@@ -73,14 +75,17 @@ function downloadAggCaseData({
   });
 
   // If we're in lineage mode, then we need to get SNPs for this lineage
-  if (groupKey === 'lineage' || groupKey === 'clade') {
+  if (
+    groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+    groupKey === GROUP_KEYS.GROUP_CLADE
+  ) {
     csvString = downloadAggCaseDataGroup({
       groupKey,
       caseDataAggGroup,
       changingPositions,
       coordinateMode,
     });
-  } else if (groupKey === 'snp') {
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     csvString = downloadAggCaseDataSnp(
       dnaOrAa,
       caseDataAggGroup,
@@ -146,9 +151,9 @@ function downloadAggCaseDataGroup({
 
     // Get AA SNPs
     let aaSnps = [];
-    if (coordinateMode === 'gene') {
+    if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       aaSnps = getGeneAaSnpsFromGroup(groupKey, row['group']);
-    } else if (coordinateMode === 'protein') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       aaSnps = getProteinAaSnpsFromGroup(groupKey, row['group']);
     }
     // Skip if it's empty
@@ -160,9 +165,9 @@ function downloadAggCaseDataGroup({
         // Format as gene|pos|ref|alt
         // Position is 0-indexed, so make it 1-indexed
         let label = '';
-        if (coordinateMode === 'gene') {
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
           label = snp['gene'];
-        } else if (coordinateMode === 'protein') {
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
           label = snp['protein'];
         }
         return (
@@ -196,7 +201,7 @@ function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
   // Write headers
   csvString = 'snp_str,';
   // Add DNA headers
-  if (dnaOrAa === 'dna') {
+  if (dnaOrAa === DNA_OR_AA.DNA) {
     csvString += 'pos,ref,alt,';
   }
   // Add AA headers - just DNA but with gene too
@@ -218,7 +223,7 @@ function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
     // For DNA, its pos|ref|alt
     // For AA, its gene|pos|ref|alt
     // And then write the SNP chunks
-    if (dnaOrAa === 'dna') {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
       // Handle reference row
       if (row['group'] === 'Reference') {
         csvString += 'Reference,,,,';

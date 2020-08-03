@@ -4,12 +4,12 @@ import styled from 'styled-components';
 // import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../stores/plotSettingsStore';
+} from '../../constants/plotSettings';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -222,7 +222,7 @@ const GroupStackPlot = observer(({ width }) => {
   }
   detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
 
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

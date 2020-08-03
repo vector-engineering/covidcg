@@ -17,6 +17,12 @@ import {
   getPrimersByGroup,
 } from '../../utils/primer';
 
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../../constants/config';
+
 const SelectContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -292,7 +298,7 @@ const CoordinateSelect = observer(() => {
   //   let _geneOptionElements = state.geneOptionElements;
   //   let _proteinOptionElements = state.proteinOptionElements;
 
-  //   if (configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa') {
+  //   if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
 
   //   }
 
@@ -344,14 +350,14 @@ const CoordinateSelect = observer(() => {
 
   const handleGeneChange = (event) => {
     changeCoordinateMode({
-      coordinateMode: 'gene',
+      coordinateMode: COORDINATE_MODES.COORD_GENE,
       selectedGene: event.target.value,
     });
   };
 
   const handleProteinChange = (event) => {
     changeCoordinateMode({
-      coordinateMode: 'protein',
+      coordinateMode: COORDINATE_MODES.COORD_PROTEIN,
       selectedProtein: event.target.value,
     });
   };
@@ -382,7 +388,7 @@ const CoordinateSelect = observer(() => {
     event.preventDefault();
     // Change to custom mode implicitly
     changeCoordinateMode({
-      coordinateMode: 'custom',
+      coordinateMode: COORDINATE_MODES.COORD_CUSTOM,
       customCoordinates: [state.customStart, state.customEnd],
     });
   };
@@ -439,7 +445,7 @@ const CoordinateSelect = observer(() => {
     // In addition to updating the selection, also
     // switch to primer mode here implicitly
     changeCoordinateMode({
-      coordinateMode: 'primer',
+      coordinateMode: COORDINATE_MODES.COORD_PRIMER,
       selectedPrimers: state.selectedPrimers,
     });
   };
@@ -475,8 +481,10 @@ const CoordinateSelect = observer(() => {
             <input
               className="radio-input"
               type="radio"
-              value="gene"
-              checked={configStore.coordinateMode === 'gene'}
+              value={COORDINATE_MODES.COORD_GENE}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
+              }
               onChange={handleModeChange}
             />
             Gene
@@ -490,7 +498,8 @@ const CoordinateSelect = observer(() => {
                 key="All Genes"
                 value="All Genes"
                 disabled={
-                  configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa'
+                  configStore.groupKey !== GROUP_KEYS.GROUP_SNV &&
+                  configStore.dnaOrAa === DNA_OR_AA.AA
                 }
               >
                 All Genes
@@ -504,8 +513,10 @@ const CoordinateSelect = observer(() => {
             <input
               className="radio-input"
               type="radio"
-              value="protein"
-              checked={configStore.coordinateMode === 'protein'}
+              value={COORDINATE_MODES.COORD_PROTEIN}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+              }
               onChange={handleModeChange}
             />
             Protein
@@ -519,7 +530,8 @@ const CoordinateSelect = observer(() => {
                 key="All Proteins"
                 value="All Proteins"
                 disabled={
-                  configStore.groupKey !== 'snp' && configStore.dnaOrAa === 'aa'
+                  configStore.groupKey !== GROUP_KEYS.GROUP_SNV &&
+                  configStore.dnaOrAa === DNA_OR_AA.AA
                 }
               >
                 All Proteins
@@ -534,8 +546,10 @@ const CoordinateSelect = observer(() => {
             <input
               className="radio-input"
               type="radio"
-              value="primer"
-              checked={configStore.coordinateMode === 'primer'}
+              value={COORDINATE_MODES.COORD_PRIMER}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER
+              }
               onChange={handleModeChange}
             />
             Primers/Probes
@@ -563,15 +577,17 @@ const CoordinateSelect = observer(() => {
             <input
               className="radio-input"
               type="radio"
-              value="custom"
-              checked={configStore.coordinateMode === 'custom'}
+              value={COORDINATE_MODES.COORD_CUSTOM}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
+              }
               onChange={handleModeChange}
             />
             <span>Custom Coordinates</span>
             <UpdateCoordButton
               show={
                 state.customCoordinatesChanged &&
-                configStore.coordinateMode === 'custom'
+                configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
               }
               onClick={handleCustomCoordSubmit}
             >

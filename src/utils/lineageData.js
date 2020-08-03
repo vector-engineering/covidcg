@@ -5,6 +5,8 @@ import refSeq from '../../static_data/reference.json';
 import _ from 'underscore';
 import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
 
+import { GROUP_KEYS } from '../constants/config';
+
 export function loadLineageSnp() {
   return lineageSnpData;
 }
@@ -18,9 +20,9 @@ export function getReferenceSequence() {
 
 function getGroup(groupKey, group) {
   let snpData;
-  if (groupKey === 'lineage') {
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     snpData = lineageSnpData;
-  } else if (groupKey === 'clade') {
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     snpData = cladeSnpData;
   }
   let findObj = {};

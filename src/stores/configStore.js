@@ -14,21 +14,17 @@ import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from './plotSettingsStore';
-
-const LOCAL_COUNTS = 'LOCAL_COUNTS';
-const GLOBAL_COUNTS = 'GLOBAL_COUNTS';
-const GROUP_COUNTS = 'GROUP_COUNTS';
-
-export const LOW_FREQ_FILTER_TYPES = {
-  LOCAL_COUNTS,
-  GLOBAL_COUNTS,
-  GROUP_COUNTS,
-};
+} from '../constants/plotSettings';
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  LOW_FREQ_FILTER_TYPES,
+} from '../constants/config';
 
 class ObservableConfigStore {
-  @observable groupKey = 'lineage'; // lineage, clade, snp
-  @observable dnaOrAa = 'dna';
+  @observable groupKey = GROUP_KEYS.GROUP_LINEAGE; // lineage, clade, snp
+  @observable dnaOrAa = DNA_OR_AA.DNA;
 
   // COORDINATE SETTINGS
   // Select the Spike gene and nsp13 protein by default
@@ -38,7 +34,7 @@ class ObservableConfigStore {
   @observable customCoordinates = [8000, 12000];
 
   // Selecting the gene as the coordinate range by default
-  @observable coordinateMode = 'gene';
+  @observable coordinateMode = COORDINATE_MODES.COORD_GENE;
   @observable coordinateRanges = this.selectedGene.ranges;
 
   @observable dateRange = [-1, -1]; // No initial date range
@@ -58,7 +54,7 @@ class ObservableConfigStore {
   @observable hoverLocation = null;
   @observable focusedLocations = []; // Selected locations in the location tab
 
-  @observable lowFreqFilterType = GROUP_COUNTS;
+  @observable lowFreqFilterType = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
   @observable maxGroupCounts = 15;
   @observable minLocalCountsToShow = 50;
   @observable minGlobalCountsToShow = 50;
@@ -99,7 +95,7 @@ class ObservableConfigStore {
     // Clear selected groups?
     if (this.groupKey !== groupKey) {
       this.selectedGroups = [];
-    } else if (groupKey === 'snp' && this.dnaOrAa !== dnaOrAa) {
+    } else if (groupKey === GROUP_KEYS.GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
       this.selectedGroups = [];
     }
 
@@ -108,7 +104,10 @@ class ObservableConfigStore {
 
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (this.groupKey !== 'snp' && this.dnaOrAa === 'aa') {
+    if (
+      this.groupKey !== GROUP_KEYS.GROUP_SNV &&
+      this.dnaOrAa === DNA_OR_AA.AA
+    ) {
       if (this.selectedGene.gene === 'All Genes') {
         // Switch back to S gene
         this.selectedGene = getGene('S');
@@ -131,12 +130,12 @@ class ObservableConfigStore {
 
   // Get a pretty name for the group
   getGroupLabel() {
-    if (this.groupKey === 'lineage') {
+    if (this.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
       return 'Lineage';
-    } else if (this.groupKey === 'clade') {
+    } else if (this.groupKey === GROUP_KEYS.GROUP_CLADE) {
       return 'Clade';
-    } else if (this.groupKey === 'snp') {
-      if (this.dnaOrAa === 'dna') {
+    } else if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (this.dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';
       } else {
         return 'AA SNV';
@@ -174,44 +173,44 @@ class ObservableConfigStore {
     this.customCoordinates = customCoordinates;
 
     // Set the coordinate range based off the coordinate mode
-    if (coordinateMode === 'gene') {
+    if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       this.coordinateRanges = this.selectedGene.ranges;
-    } else if (coordinateMode === 'protein') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       this.coordinateRanges = this.selectedProtein.ranges;
-    } else if (coordinateMode === 'primer') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       let ranges = [];
       this.selectedPrimers.forEach((primer) => {
         ranges.push([primer.Start, primer.End]);
       });
       this.coordinateRanges = ranges;
-    } else if (coordinateMode === 'custom') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
       this.coordinateRanges = [this.customCoordinates];
     }
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
     if (
-      this.dnaOrAa === 'aa' &&
-      this.coordinateMode !== 'gene' &&
-      this.coordinateMode !== 'protein'
+      this.dnaOrAa === DNA_OR_AA.AA &&
+      this.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+      this.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN
     ) {
-      this.dnaOrAa = 'dna';
+      this.dnaOrAa = DNA_OR_AA.DNA;
     }
 
     // If nothing changed, then skip the update
     if (this.coordinateMode !== initial.coordinateMode) {
       // Do nothing
     } else if (
-      this.coordinateMode === 'gene' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
       this.selectedGene.gene === initial.selectedGene.gene
     ) {
       return;
     } else if (
-      this.coordinateMode === 'protein' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
       this.selectedProtein.protein == initial.selectedProtein.protein
     ) {
       return;
-    } else if (this.coordinateMode === 'primer') {
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       let changed = false;
       if (this.selectedPrimers.length !== initial.selectedPrimers.length) {
         changed = true;
@@ -227,7 +226,7 @@ class ObservableConfigStore {
         return;
       }
     } else if (
-      this.coordinateMode === 'custom' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
       this.coordinateRanges[0][0] === initial.customCoordinates[0][0] &&
       this.coordinateRanges[0][1] === initial.customCoordinates[0][1]
     ) {

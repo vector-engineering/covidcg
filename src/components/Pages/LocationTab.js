@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -35,7 +35,7 @@ const HelpText = styled.div`
 
 const LocationDatePlotWrapper = observer(({ width }) => {
   const { UIStore, configStore } = useStores();
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
@@ -77,7 +77,7 @@ LocationDatePlotWrapper.propTypes = {
 
 const LocationGroupPlotWrapper = observer(({ width }) => {
   const { UIStore, configStore } = useStores();
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

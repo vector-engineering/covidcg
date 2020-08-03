@@ -1,25 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-
-const STARTED = 'STARTED';
-const SUCCEEDED = 'SUCCEEDED';
-const FAILED = 'FAILED';
-
-export const asyncStates = {
-  STARTED,
-  SUCCEEDED,
-  FAILED,
-};
-
-const TAB_GROUP = 'TAB_GROUP';
-const TAB_LOCATION = 'TAB_LOCATION';
-const TAB_EXAMPLE = 'TAB_EXAMPLE';
-const TAB_ABOUT = 'TAB_ABOUT';
-export const TABS = {
-  TAB_GROUP,
-  TAB_LOCATION,
-  TAB_EXAMPLE,
-  TAB_ABOUT,
-};
+import { ASYNC_STATES, TABS } from '../constants/UI';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -36,40 +16,41 @@ function removeItemAll(arr, value) {
 class ObservableUIStore {
   @observable sidebarOpen = false;
   @observable sidebarSelectedGroupKeys = [];
-  @observable caseDataState = STARTED;
-  @observable aggCaseDataState = STARTED;
-  @observable activeTab = TABS.TAB_GROUP;
+  @observable caseDataState = ASYNC_STATES.STARTED;
+  @observable aggCaseDataState = ASYNC_STATES.STARTED;
+  // @observable activeTab = TABS.TAB_GROUP;
+  @observable activeTab = TABS.TAB_EXAMPLE;
 
   @observable keysPressed = [];
 
   @action
   onCaseDataStateStarted = () => {
-    this.caseDataState = STARTED;
+    this.caseDataState = ASYNC_STATES.STARTED;
   };
 
   @action
   onCaseDataStateFinished = () => {
-    this.caseDataState = SUCCEEDED;
+    this.caseDataState = ASYNC_STATES.SUCCEEDED;
   };
 
   @action
   onCaseDataStateErr = () => {
-    this.caseDataState = FAILED;
+    this.caseDataState = ASYNC_STATES.FAILED;
   };
 
   @action
   onAggCaseDataStarted = () => {
-    this.aggCaseDataState = STARTED;
+    this.aggCaseDataState = ASYNC_STATES.STARTED;
   };
 
   @action
   onAggCaseDataFinished = () => {
-    this.aggCaseDataState = SUCCEEDED;
+    this.aggCaseDataState = ASYNC_STATES.SUCCEEDED;
   };
 
   @action
   onAggCaseDataErr = () => {
-    this.aggCaseDataState = FAILED;
+    this.aggCaseDataState = ASYNC_STATES.FAILED;
   };
 
   @action

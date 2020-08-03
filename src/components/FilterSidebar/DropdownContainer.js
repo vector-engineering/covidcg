@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 
 import { loadSelectTree } from '../../utils/location';
 
@@ -290,8 +290,8 @@ const DropdownContainer = () => {
     });
 
     if (
-      UIStore.caseDataState === asyncStates.STARTED ||
-      UIStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === ASYNC_STATES.STARTED ||
+      UIStore.aggCaseDataState === ASYNC_STATES.STARTED
     ) {
       return;
     }

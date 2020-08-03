@@ -15,6 +15,8 @@ import {
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
+import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+
 const processedCaseData = _.reject(
   _.map(initialCaseData, (row) => {
     row.collection_date = new Date(row.collection_date).getTime();
@@ -122,7 +124,7 @@ function filterByGeneOrProtein({
 }) {
   let newCaseData = [];
 
-  if (coordinateMode === 'gene') {
+  if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
     // Don't need to do this if we selected all genes
     if (selectedGene.gene === 'All Genes') {
       return caseData;
@@ -135,7 +137,7 @@ function filterByGeneOrProtein({
       });
       newCaseData.push(row);
     });
-  } else if (coordinateMode === 'protein') {
+  } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
     // Don't need to do this if we selected all proteins
     if (selectedProtein.protein === 'All Proteins') {
       return caseData;
@@ -209,20 +211,20 @@ function filterByMetadataFieldsAndAgeRange(
 function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
   // If we're grouping by lineage or SNP signature, then the group
   // keys are literal
-  if (groupKey === 'lineage') {
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     return [row['lineage']];
-  } else if (groupKey === 'clade') {
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     return [row['clade']];
   }
   // If we're grouping by SNP, then the value is a semicolon-delimited
   // list of SNPs that we should treat separately
-  else if (groupKey === 'snp') {
-    if (dnaOrAa === 'dna') {
+  else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
       return row['dna_snp_str'];
     } else {
-      if (coordinateMode === 'gene') {
+      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
         return row['gene_aa_snp_str'];
-      } else if (coordinateMode === 'protein') {
+      } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         return row['protein_aa_snp_str'];
       }
     }
@@ -249,7 +251,7 @@ function processCaseData({
   caseData = filterByLocation(caseData, selectedLocationIds);
   // console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by coordinate range (DNA mode only)
-  if (groupKey === 'snp' && dnaOrAa === 'dna') {
+  if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
     caseData = filterByCoordinateRange({ caseData, coordinateRanges });
     // console.log(
     //   caseData.length,
@@ -257,7 +259,7 @@ function processCaseData({
     // );
   }
   // Filter by gene/protein (AA mode only, gene or protein selected)
-  if (groupKey === 'snp' && dnaOrAa === 'aa') {
+  if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
     caseData = filterByGeneOrProtein({
       caseData,
       coordinateMode,
@@ -320,12 +322,12 @@ function processCaseData({
       (aggLocationData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
       // Replace the integer SNP ID with the actual SNP string
-      if (groupKey === 'snp' && dnaOrAa === 'dna') {
+      if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
         group = intToDnaSnp(group).snp_str;
-      } else if (groupKey === 'snp' && dnaOrAa === 'aa') {
-        if (coordinateMode === 'gene') {
+      } else if (groupKey === GROUP_KEYS.SNV && dnaOrAa === DNA_OR_AA.AA) {
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
           group = intToGeneAaSnp(group).snp_str;
-        } else if (coordinateMode === 'protein') {
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
           group = intToProteinAaSnp(group).snp_str;
         }
       }
@@ -337,11 +339,11 @@ function processCaseData({
   });
 
   let getColorMethod;
-  if (groupKey === 'lineage') {
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     getColorMethod = getLineageColor;
-  } else if (groupKey === 'clade') {
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
-  } else if (groupKey === 'snp') {
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = getSnpColor;
   }
 
@@ -382,12 +384,15 @@ function processCaseData({
 
     groupKeys.forEach((_groupKey) => {
       // Replace the integer SNP ID with the actual SNP string
-      if (groupKey === 'snp' && dnaOrAa === 'dna') {
+      if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
         _groupKey = intToDnaSnp(_groupKey).snp_str;
-      } else if (groupKey === 'snp' && dnaOrAa === 'aa') {
-        if (coordinateMode === 'gene') {
+      } else if (
+        groupKey === GROUP_KEYS.GROUP_SNV &&
+        dnaOrAa === DNA_OR_AA.AA
+      ) {
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
           _groupKey = intToGeneAaSnp(_groupKey).snp_str;
-        } else if (coordinateMode === 'protein') {
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
           _groupKey = intToProteinAaSnp(_groupKey).snp_str;
         }
       }
@@ -512,13 +517,16 @@ function aggCaseDataByGroup({
   // If we grouped by lineages/clades, then we need to find what SNPs
   // the lineages/clades correspond to, and add their SNP positions
   let groupSnpFunc = null;
-  if (groupKey === 'lineage' || groupKey === 'clade') {
-    if (dnaOrAa === 'dna') {
+  if (
+    groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+    groupKey === GROUP_KEYS.GROUP_CLADE
+  ) {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
       groupSnpFunc = getDnaSnpsFromGroup.bind(this, groupKey);
     } else {
-      if (coordinateMode === 'gene') {
+      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
         groupSnpFunc = getGeneAaSnpsFromGroup.bind(this, groupKey);
-      } else if (coordinateMode === 'protein') {
+      } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         groupSnpFunc = getProteinAaSnpsFromGroup.bind(this, groupKey);
       }
     }
@@ -527,7 +535,7 @@ function aggCaseDataByGroup({
     let inRange = false;
     Object.keys(caseDataAggGroup).forEach((group) => {
       let groupSnps = groupSnpFunc(group);
-      if (dnaOrAa === 'dna') {
+      if (dnaOrAa === DNA_OR_AA.DNA) {
         groupSnps.forEach((snp) => {
           inRange = _.some(coordinateRanges, (range) => {
             return snp.pos >= range[0] && snp.pos <= range[1];
@@ -549,9 +557,9 @@ function aggCaseDataByGroup({
       } else {
         // AA-mode
         groupSnps.forEach((snp) => {
-          if (coordinateMode === 'gene') {
+          if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
             inRange = snp.gene === selectedGene.gene;
-          } else if (coordinateMode === 'protein') {
+          } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
             inRange = snp.protein === selectedProtein.protein;
           }
 
@@ -561,9 +569,9 @@ function aggCaseDataByGroup({
               !Object.prototype.hasOwnProperty.call(changingPositions, snp.pos)
             ) {
               changingPositions[snp.pos] = {};
-              if (coordinateMode === 'gene') {
+              if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
                 changingPositions[snp.pos]['gene'] = snp.gene;
-              } else if (coordinateMode === 'protein') {
+              } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
                 changingPositions[snp.pos]['protein'] = snp.protein;
               }
               changingPositions[snp.pos]['ref'] = snp.ref;
@@ -572,11 +580,11 @@ function aggCaseDataByGroup({
         });
       }
     });
-  } else if (groupKey === 'snp') {
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     // If we're grouping by SNP, then just take the position embedded in each SNP string
     let snp_str_split = [];
     let pos = -1;
-    if (dnaOrAa === 'dna') {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
       // For DNA SNPs, the position is the first chunk (pos|ref|alt)
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(caseDataAggGroup).forEach((snp_str) => {
@@ -606,9 +614,9 @@ function aggCaseDataByGroup({
 
         if (!Object.prototype.hasOwnProperty.call(changingPositions, pos)) {
           changingPositions[pos] = {};
-          if (coordinateMode === 'gene') {
+          if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
             changingPositions[pos]['gene'] = snp_str_split[0];
-          } else if (coordinateMode === 'protein') {
+          } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
             changingPositions[pos]['protein'] = snp_str_split[0];
           }
           changingPositions[pos]['ref'] = snp_str_split[2];
@@ -643,7 +651,7 @@ function aggCaseDataByGroup({
   }
 
   // For SNP data, break out the (gene), position, ref, and alt
-  if (groupKey === 'snp') {
+  if (groupKey === GROUP_KEYS.GROUP_SNV) {
     let row_split;
     Object.keys(caseDataAggGroup).forEach((row) => {
       // Skip reference
@@ -651,12 +659,12 @@ function aggCaseDataByGroup({
         // Since we're going to display the gene or pos later
         // in the data table, put these here so the reference
         // row renders correctly
-        if (dnaOrAa == 'dna') {
+        if (dnaOrAa == DNA_OR_AA.DNA) {
           caseDataAggGroup[row]['pos'] = 'Reference';
         } else {
-          if (coordinateMode === 'gene') {
+          if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
             caseDataAggGroup[row]['gene'] = 'Reference';
-          } else if (coordinateMode === 'protein') {
+          } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
             caseDataAggGroup[row]['protein'] = 'Reference';
           }
         }
@@ -664,16 +672,16 @@ function aggCaseDataByGroup({
       }
 
       row_split = row.split('|');
-      if (dnaOrAa === 'dna') {
+      if (dnaOrAa === DNA_OR_AA.DNA) {
         // DNA SNP string: pos|ref|alt
         caseDataAggGroup[row]['pos'] = parseInt(row_split[0]);
         caseDataAggGroup[row]['ref'] = row_split[1];
         caseDataAggGroup[row]['alt'] = row_split[2];
       } else {
         // AA SNP string: gene|pos|ref|alt or protein|pos|ref|alt
-        if (coordinateMode === 'gene') {
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
           caseDataAggGroup[row]['gene'] = row_split[0];
-        } else if (coordinateMode === 'protein') {
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
           caseDataAggGroup[row]['protein'] = row_split[0];
         }
         caseDataAggGroup[row]['pos'] = parseInt(row_split[1]);
@@ -695,11 +703,14 @@ function aggCaseDataByGroup({
       }
       // If we grouped by lineage, use the lineage name
       // to find a potential SNP at this location
-      else if (groupKey === 'lineage' || groupKey === 'clade') {
+      else if (
+        groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+        groupKey === GROUP_KEYS.GROUP_CLADE
+      ) {
         // lineageSnpFunc is defined above
         let groupSnps = groupSnpFunc(group);
 
-        if (dnaOrAa === 'dna') {
+        if (dnaOrAa === DNA_OR_AA.DNA) {
           // The DNA SNPs are 0-indexed, so +1 to make it 1-indexed
           snpRow = _.findWhere(groupSnps, { pos: pos + 1 });
           if (snpRow !== undefined) {
@@ -715,9 +726,9 @@ function aggCaseDataByGroup({
       }
       // If we grouped by SNP, then the ref and alt base information
       // is embedded into the SNP string
-      else if (groupKey === 'snp') {
+      else if (groupKey === GROUP_KEYS.GROUP_SNV) {
         // DNA SNP string: pos|ref|alt
-        if (dnaOrAa === 'dna') {
+        if (dnaOrAa === DNA_OR_AA.DNA) {
           if (pos === caseDataAggGroup[group]['pos'] - 1) {
             alt_base = caseDataAggGroup[group]['alt'];
           }
@@ -735,11 +746,11 @@ function aggCaseDataByGroup({
   });
 
   let getColorMethod;
-  if (groupKey === 'lineage') {
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     getColorMethod = getLineageColor;
-  } else if (groupKey === 'clade') {
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
-  } else if (groupKey === 'snp') {
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = getSnpColor;
   }
 

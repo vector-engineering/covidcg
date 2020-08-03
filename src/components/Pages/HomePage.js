@@ -19,6 +19,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 import TabBar from '../TabBar';
 import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
 
+import ExampleTab from './ExampleTab';
 import GroupTab from './GroupTab';
 import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
@@ -26,7 +27,7 @@ import Footer from '../Footer';
 import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
 import KeyListener from '../KeyListener';
 
-import { TABS } from '../../stores/UIStore';
+import { TABS } from '../../constants/UI';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -102,6 +103,8 @@ const HomePage = observer(({ UIStore }) => {
       return <GroupTab width={width} />;
     } else if (UIStore.activeTab === TABS.TAB_LOCATION) {
       return <LocationTab width={width} />;
+    } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
+      return <ExampleTab width={width} />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
       return <AboutTab />;
     }

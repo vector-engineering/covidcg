@@ -6,7 +6,7 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -217,7 +217,7 @@ const VegaLegend = observer(() => {
 
   // console.log('RE-RENDERING LEGEND');
 
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

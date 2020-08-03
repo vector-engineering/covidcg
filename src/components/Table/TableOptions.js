@@ -7,7 +7,8 @@ import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../stores/plotSettingsStore';
+} from '../../constants/plotSettings';
+import { DNA_OR_AA } from '../../constants/config';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
@@ -38,11 +39,11 @@ const ColorModeSelect = observer(() => {
       key={COLOR_MODES.COLOR_MODE_CODE}
       value={COLOR_MODES.COLOR_MODE_CODE}
     >
-      {configStore.dnaOrAa === 'dna' ? '4' : '20'}-Color Code
+      {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-Color Code
     </option>,
   ];
 
-  if (configStore.dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorModeElements.push(
       <option
         key={COLOR_MODES.COLOR_MODE_CLUSTAL}
@@ -102,11 +103,11 @@ const CompareModeSelect = observer(() => {
       key={COMPARE_COLORS.COLOR_MODE_CODE}
       value={COMPARE_COLORS.COLOR_MODE_CODE}
     >
-      {configStore.dnaOrAa === 'dna' ? '4' : '20'}-color code
+      {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-color code
     </option>
   );
 
-  if (configStore.dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
         key={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
@@ -138,7 +139,7 @@ const CompareModeSelect = observer(() => {
   });
 
   // Push dots option
-  if (configStore.dnaOrAa === 'aa') {
+  if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
         key={COMPARE_COLORS.COMPARE_COLOR_DOTS}
