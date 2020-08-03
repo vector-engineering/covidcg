@@ -16,7 +16,9 @@ import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
-const LocationTabContainer = styled.div``;
+const LocationTabContainer = styled.div`
+  padding-top: 10px;
+`;
 
 const HelpText = styled.div`
   margin-bottom: 5px;

@@ -19,7 +19,6 @@ const TabBarContainer = styled.div`
 
   width: 100%;
   min-height: 30px;
-  margin-bottom: 10px;
   background-color: #eee;
 `;
 
@@ -183,6 +182,15 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
           >
             <span>Compare locations</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_EXAMPLE}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_EXAMPLE)}
+          >
+            <span>Example Analyses</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_ABOUT}>

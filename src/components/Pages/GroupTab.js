@@ -14,7 +14,9 @@ import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-const GroupTabContainer = styled.div``;
+const GroupTabContainer = styled.div`
+  padding-top: 10px;
+`;
 
 const HelpText = styled.div`
   margin-bottom: 5px;
