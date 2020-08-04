@@ -123,6 +123,16 @@ export function deselectAll(selectTree) {
   traverseAndDeselect(selectTree);
 }
 
+export function selectAll(rootNode) {
+  const traverseAndSelect = (node) => {
+    node.checked = true;
+    node.children.forEach((child) => {
+      traverseAndSelect(child);
+    });
+  };
+  traverseAndSelect(rootNode);
+}
+
 // Given locObj (a row from location_map), get the name of the most
 // specific level of the object, starting from location --> region
 // export function getMostSpecificLocationName(locObj) {

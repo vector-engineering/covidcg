@@ -11,6 +11,7 @@ import {
   assignObjectPaths,
   getNodeFromPath,
   deselectAll,
+  selectAll,
 } from '../utils/location';
 
 import {
@@ -132,17 +133,15 @@ class ObservableConfigStore {
             'path' in node
               ? getNodeFromPath(selectTree, node['path'])
               : selectTree;
-          nodeObj.checked = true;
+          // Select all of the nodes children
+          selectAll(nodeObj);
         });
 
         this.selectTree = selectTree;
       }
     });
     // Trigger data re-run
-    dataStoreInstance.updateCaseData(() => {
-      console.log('done');
-      console.log(dataStoreInstance.groupsToKeep);
-    });
+    dataStoreInstance.updateCaseData(() => {});
   }
 
   @action
