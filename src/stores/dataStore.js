@@ -42,9 +42,9 @@ export const initialDataValues = {
 };
 
 class ObservableDataStore {
-  @observable caseData = initialDataValues.caseData;
+  caseData = initialDataValues.caseData;
   @observable changingPositions = initialDataValues.changingPositions;
-  @observable caseDataAggGroup = initialDataValues.caseDataAggGroup;
+  caseDataAggGroup = initialDataValues.caseDataAggGroup;
   @observable selectedRows = initialDataValues.selectedRows;
   @observable groupsToKeep = initialDataValues.groupsToKeep;
   @observable groupCountArr = initialDataValues.groupCountArr;
@@ -115,7 +115,7 @@ class ObservableDataStore {
     UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
-        caseData: toJS(this.caseData),
+        caseData: this.caseData,
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.coordinateRanges),
         selectedGene: toJS(configStoreInstance.selectedGene),
@@ -250,7 +250,7 @@ class ObservableDataStore {
         groupKey: configStoreInstance.groupKey,
         dnaOrAa: configStoreInstance.dnaOrAa,
         coordinateMode: configStoreInstance.coordinateMode,
-        caseDataAggGroup: toJS(this.caseDataAggGroup),
+        caseDataAggGroup: this.caseDataAggGroup,
       },
       (res) => {
         downloadBlobURL(

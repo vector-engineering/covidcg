@@ -5,16 +5,16 @@ const caseDataWorker = new Worker();
 
 export const processCaseData = (pkg, callback) => {
   caseDataWorker.onmessage = (e) => {
-    callback(JSON.parse(e.data));
+    callback(e.data);
   };
   pkg.type = 'processCaseData';
-  caseDataWorker.postMessage(JSON.stringify(pkg)); // Send data to our worker.
+  caseDataWorker.postMessage(pkg); // Send data to our worker.
 };
 
 export const aggCaseDataByGroup = (pkg, callback) => {
   caseDataWorker.onmessage = (e) => {
-    callback(JSON.parse(e.data));
+    callback(e.data);
   };
   pkg.type = 'aggCaseDataByGroup';
-  caseDataWorker.postMessage(JSON.stringify(pkg));
+  caseDataWorker.postMessage(pkg);
 };

@@ -1,18 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!--
+  <!--
   **NOTE:** This is a template for index.html. It uses ejs and htmlWebpackPlugin to generate a different index.html for each environment. htmlWebpackPlugin will dynamically add references to the scripts and styles that it bundles to this file. The generated bundles have hash-based filenames, so it's necessary to add the references dynamically.
   For more info on ejs, see http://www.embeddedjs.com/. For examples of using it with htmlWebpackPlugin, see https://github.com/jaketrent/html-webpack-template/blob/master/index.ejs
   -->
-    <head>
-        <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
-        <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
-        <meta charset="utf-8"/>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-169218583-1"></script>
-        <script src="https://d3js.org/d3.v4.min.js"></script>
+  <head>
+    <meta
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+      name="viewport"
+    />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta charset="utf-8" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-169218583-1"
+    ></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="assets/images/favicon/site.webmanifest" />
 
-        <script>
+    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
@@ -21,10 +45,10 @@
 
       gtag("config", "UA-169218583-1");
     </script>
-        <title>COVID CG</title>
-    </head>
-    <body>
-        <div id="app"></div>
-        <a download hidden href="#" id="hidden-download-link"></a>
-    </body>
+    <title>COVID CG</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <a download hidden href="#" id="hidden-download-link"></a>
+  </body>
 </html>

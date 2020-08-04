@@ -808,7 +808,7 @@ function aggCaseDataByGroup({
 self.addEventListener(
   'message',
   function (e) {
-    const data = JSON.parse(e.data);
+    const data = e.data;
 
     let result;
     if (data.type === 'aggCaseDataByGroup') {
@@ -818,7 +818,7 @@ self.addEventListener(
       //console.log('into casedata for process', data);
       result = processCaseData(data);
     }
-    self.postMessage(JSON.stringify(result));
+    self.postMessage(result);
   },
   false
 );

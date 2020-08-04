@@ -424,7 +424,7 @@ const NewLineageDataTable = observer(() => {
     return <EmptyDataTable />;
   }
 
-  // console.log(state.rows);
+  //console.log(state.rows);
   return (
     <DataTableContainer>
       <TableOptions />
