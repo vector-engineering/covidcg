@@ -420,7 +420,7 @@ const NewLineageDataTable = observer(() => {
 
   // If we have no rows, then return an empty element
   // We'll always have the "reference" row, so no rows = 1 row
-  if (state.rows.length === 1) {
+  if (state.rows.length === 1 || configStore.selectedLocationIds.length === 0) {
     return <EmptyDataTable />;
   }
 
