@@ -12,6 +12,7 @@ import {
   getLocationByNameAndLevel,
   loadSelectTree,
 } from '../../utils/location';
+import { queryPrimers } from '../../utils/primer';
 
 import { TABS } from '../../constants/UI';
 import {
@@ -50,7 +51,7 @@ const ExampleItem = styled.a`
   align-items: stretch;
 
   width: 300px;
-  height: 300px;
+  height: 250px;
   margin: 10px;
   border: 1px solid #ccc;
   box-shadow: 0px 3px 4px #aaa;
@@ -70,19 +71,29 @@ const ExampleItemImage = styled.div`
 
   img {
     width: auto;
-    height: 240px;
+    height: 150px;
   }
 `;
 const ExampleItemFooter = styled.div`
-  height: 60px;
+  height: 100px;
   padding: 10px;
 
   border-top: 1px solid #aaa;
 
   .example-item-title {
-    font-size: 1.25em;
+    display: block;
+    font-size: 1.1em;
     font-weight: 700;
     color: #444;
+  }
+
+  .example-item-description {
+    display: block;
+    font-size: 0.85em;
+    font-weight: normal;
+    color: #888;
+    margin: 3px 0px;
+    line-height: normal;
   }
 `;
 
@@ -93,28 +104,162 @@ const NorthAmericaNode = getLocationByNameAndLevel(
   'region'
 )[0];
 const EuropeNode = getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0];
+const ChinaNode = getLocationByNameAndLevel(selectTree, 'China', 'country')[0];
 
-// // Select NYC by default
-// let NYCNode = getLocationByNameAndLevel(
-//   selectTree,
-//   'New York City',
-//   'location'
-// );
-// NYCNode[0].checked = true;
-// let NYCLocationId = getLocationIds(NYCNode);
+const WestCoastNodes = [
+  getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Oregon', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
+];
 
-// let MassNode = getLocationByNameAndLevel(
-//   selectTree,
-//   'Massachusetts',
-//   'division'
-// );
-// MassNode[0].checked = true;
-// let MassLocationId = getLocationIds(MassNode);
+const USStateNodes = [
+  getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Florida', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Massachusetts', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Michigan', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'New York', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Texas', 'division')[0],
+  getLocationByNameAndLevel(selectTree, 'Wisconsin', 'division')[0],
+];
+
+const USANode = getLocationByNameAndLevel(selectTree, 'USA', 'country')[0];
+
+const CDCPrimers = []
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-F' }))
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-R' }))
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-P' }))
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-F' }))
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-R' }))
+  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-P' }));
 
 const exampleItems = [
   {
-    key: 'spike_d614g_na_eu',
+    title: 'Global Lineages',
+    description: 'View the growth of the B lineage family over all locations',
+    settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+        groupStackCountMode: COUNT_MODES.COUNT_NEW,
+        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_LINEAGE,
+        dnaOrAa: DNA_OR_AA.DNA,
+        selectedGene: getGene('S'),
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+        coordinateRanges: getGene('S').ranges,
+        selectedLocationNodes: [selectTree], // select root
+        selectedLocationIds: getLocationIds([selectTree]),
+      },
+    },
+  },
+  {
+    title: 'Lineages in China - Beijing Xinfadi Market',
+    description:
+      "New lineages in uncovered in early June in Beijing's Xinfadi Market may have been circulating in China in March",
+    settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_COUNTS,
+        groupStackCountMode: COUNT_MODES.COUNT_NEW,
+        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_LINEAGE,
+        dnaOrAa: DNA_OR_AA.AA,
+        selectedGene: getGene('S'),
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+        coordinateRanges: getGene('S').ranges,
+        selectedLocationNodes: [ChinaNode],
+        selectedLocationIds: getLocationIds([ChinaNode]),
+      },
+    },
+  },
+  {
+    title: 'Rise of Spike D614G mutation in West Coast USA',
+    description:
+      'The Spike D614G mutation has accumulated in frequency in the West Coast states of the USA',
+    settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+        groupStackCountMode: COUNT_MODES.COUNT_NEW,
+        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_SNV,
+        dnaOrAa: DNA_OR_AA.AA,
+        selectedGene: getGene('S'),
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+        coordinateRanges: getGene('S').ranges,
+        selectedLocationNodes: WestCoastNodes,
+        selectedLocationIds: getLocationIds(WestCoastNodes),
+      },
+    },
+  },
+  {
+    title: 'Prevalence of Spike D614G in various US States',
+    description:
+      'The proportion of sequences with the Spike D614G mutation varies between US States',
+    settings: {
+      plotSettings: {
+        locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
+        locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
+        locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_LOCATION,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_SNV,
+        dnaOrAa: DNA_OR_AA.AA,
+        selectedGene: getGene('S'),
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+        coordinateRanges: getGene('S').ranges,
+        selectedLocationNodes: USStateNodes,
+        selectedLocationIds: getLocationIds(USStateNodes),
+        selectedGroups: [{ group: 'S|614|D|G' }],
+      },
+    },
+  },
+  {
+    title: 'Diagnostics: NT SNVs in US CDC qPCR primer/probe sequences',
+    description:
+      'Prevalence of any mutations present within the US CDC primer and probe sequences (N1 + N2), for sequences in the US',
+    settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+        groupStackCountMode: COUNT_MODES.COUNT_CUMULATIVE,
+        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_SNV,
+        dnaOrAa: DNA_OR_AA.DNA,
+        coordinateMode: COORDINATE_MODES.COORD_PRIMER,
+        coordinateRanges: CDCPrimers.map((primer) => [
+          primer.Start,
+          primer.End,
+        ]),
+        selectedLocationNodes: [USANode],
+        selectedLocationIds: getLocationIds([USANode]),
+        selectedPrimers: CDCPrimers,
+      },
+    },
+  },
+  {
     title: 'Emergence of Spike D614G in Europe/North America',
+    description: '',
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -135,28 +280,16 @@ const exampleItems = [
       },
     },
   },
-  // {
-  //   key: 'b',
-  //   title: 'Example B',
-  // },
-  // {
-  //   key: 'c',
-  //   title: 'Example C',
-  // },
-  // {
-  //   key: 'd',
-  //   title: 'Example D',
-  // },
 ];
 
 const ExampleTab = observer(() => {
   const { configStore, plotSettingsStore, UIStore } = useStores();
 
-  const onExampleClick = (key, e) => {
+  const onExampleClick = (title, e) => {
     e.preventDefault();
 
-    const exampleItem = _.findWhere(exampleItems, { key });
-    console.log(exampleItem);
+    const exampleItem = _.findWhere(exampleItems, { title });
+    // console.log(exampleItem);
 
     // Apply settings for each store
     Object.keys(exampleItem.settings).forEach((store) => {
@@ -175,15 +308,16 @@ const ExampleTab = observer(() => {
   exampleItems.forEach((exampleItem) => {
     exampleElements.push(
       <ExampleItem
-        key={`example-item-${exampleItem.key}`}
+        key={`example-item-${exampleItem.title}`}
         href="#"
-        onClick={onExampleClick.bind(this, exampleItem.key)}
+        onClick={onExampleClick.bind(this, exampleItem.title)}
       >
         <ExampleItemImage>
           <img src="assets/images/cg_short_v13@4x_square.png" />
         </ExampleItemImage>
         <ExampleItemFooter>
           <span className="example-item-title">{exampleItem.title}</span>
+          <p className="example-item-description">{exampleItem.description}</p>
         </ExampleItemFooter>
       </ExampleItem>
     );
