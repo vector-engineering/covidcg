@@ -426,7 +426,7 @@ const CoordinateSelect = observer(() => {
       ...state,
       primerTreeData,
       selectedPrimers,
-      primersChanged: checkPrimersChanged(state.selectedPrimers),
+      primersChanged: false,
     });
   }, [configStore.selectedPrimers]);
 
