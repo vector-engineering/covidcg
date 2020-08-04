@@ -26,6 +26,8 @@ import {
   DATE_BINS,
 } from '../../constants/plotSettings';
 
+import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
+
 const ExampleTabContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -313,7 +315,7 @@ const ExampleTab = observer(() => {
         onClick={onExampleClick.bind(this, exampleItem.title)}
       >
         <ExampleItemImage>
-          <img src="assets/images/cg_short_v13@4x_square.png" />
+          <img src={TempImage} />
         </ExampleItemImage>
         <ExampleItemFooter>
           <span className="example-item-title">{exampleItem.title}</span>
