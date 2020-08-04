@@ -8,83 +8,140 @@ import {
   getLocationIds,
   getLocationByNameAndLevel,
   loadSelectTree,
+  assignObjectPaths,
+  getNodeFromPath,
+  deselectAll,
+  selectAll,
 } from '../utils/location';
 
 import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from './plotSettingsStore';
+} from '../constants/plotSettings';
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  LOW_FREQ_FILTER_TYPES,
+} from '../constants/config';
 
-const LOCAL_COUNTS = 'LOCAL_COUNTS';
-const GLOBAL_COUNTS = 'GLOBAL_COUNTS';
-const GROUP_COUNTS = 'GROUP_COUNTS';
+// Define initial values
 
-export const LOW_FREQ_FILTER_TYPES = {
-  LOCAL_COUNTS,
-  GLOBAL_COUNTS,
-  GROUP_COUNTS,
+const initialSelectTree = Object.assign(loadSelectTree(), {
+  expanded: true,
+});
+assignObjectPaths(initialSelectTree);
+
+// Select NYC by default
+let NYCNode = getLocationByNameAndLevel(
+  initialSelectTree,
+  'New York City',
+  'location',
+  true
+)[0];
+
+let MassNode = getLocationByNameAndLevel(
+  initialSelectTree,
+  'Massachusetts',
+  'division',
+  true
+)[0];
+
+export const initialConfigValues = {
+  groupKey: GROUP_KEYS.GROUP_LINEAGE,
+  dnaOrAa: DNA_OR_AA.DNA,
+
+  // Select the Spike gene and nsp13 protein by default
+  selectedGene: getGene('S'),
+  selectedProtein: getProtein('nsp13'),
+  selectedPrimers: [],
+  customCoordinates: [8000, 12000],
+
+  // Selecting the gene as the coordinate range by default
+  coordinateMode: COORDINATE_MODES.COORD_GENE,
+  coordinateRanges: getGene('S').ranges,
+
+  dateRange: [-1, -1], // No initial date range
+
+  selectTree: initialSelectTree,
+  selectedLocationNodes: [NYCNode, MassNode],
+  selectedLocationIds: getLocationIds([NYCNode, MassNode]),
+
+  hoverGroup: null,
+  selectedGroups: [],
+
+  // Metadata filtering
+  selectedMetadataFields: {},
+  ageRange: [null, null],
+
+  // Location tab
+  hoverLocation: null,
+  focusedLocations: [],
+
+  lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
+  maxGroupCounts: 15,
+  minLocalCountsToShow: 50,
+  minGlobalCountsToShow: 100,
 };
 
 class ObservableConfigStore {
-  @observable groupKey = 'lineage'; // lineage, clade, snp
-  @observable dnaOrAa = 'dna';
+  @observable groupKey = initialConfigValues.groupKey;
+  @observable dnaOrAa = initialConfigValues.dnaOrAa;
+  @observable selectedGene = initialConfigValues.selectedGene;
+  @observable selectedProtein = initialConfigValues.selectedProtein;
+  @observable selectedPrimers = initialConfigValues.selectedPrimers;
+  @observable customCoordinates = initialConfigValues.customCoordinates;
+  @observable coordinateMode = initialConfigValues.coordinateMode;
+  @observable coordinateRanges = initialConfigValues.coordinateRanges;
+  @observable dateRange = initialConfigValues.dateRange;
+  @observable selectTree = initialConfigValues.selectTree;
+  @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
+  @observable selectedLocationIds = initialConfigValues.selectedLocationIds;
+  @observable hoverGroup = initialConfigValues.hoverGroup;
+  @observable selectedGroups = initialConfigValues.selectedGroups;
+  @observable selectedMetadataFields =
+    initialConfigValues.selectedMetadataFields;
+  @observable ageRange = initialConfigValues.ageRange;
+  @observable hoverLocation = initialConfigValues.hoverLocation;
+  @observable focusedLocations = initialConfigValues.focusedLocations;
+  @observable lowFreqFilterType = initialConfigValues.lowFreqFilterType;
+  @observable maxGroupCounts = initialConfigValues.maxGroupCounts;
+  @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
+  @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
-  // COORDINATE SETTINGS
-  // Select the Spike gene and nsp13 protein by default
-  @observable selectedGene = getGene('S');
-  @observable selectedProtein = getProtein('nsp13');
-  @observable selectedPrimers = [];
-  @observable customCoordinates = [8000, 12000];
+  constructor() {}
 
-  // Selecting the gene as the coordinate range by default
-  @observable coordinateMode = 'gene';
-  @observable coordinateRanges = this.selectedGene.ranges;
+  @action
+  resetValues(values) {
+    Object.keys(initialConfigValues).forEach((key) => {
+      if (key in values) {
+        this[key] = values[key];
+      } else {
+        this[key] = initialConfigValues[key];
+      }
 
-  @observable dateRange = [-1, -1]; // No initial date range
+      // Special actions for some keys
+      if (key === 'selectedLocationNodes') {
+        // Get the current tree
+        const selectTree = Object.assign({}, this.selectTree);
+        deselectAll(selectTree);
 
-  @observable selectedLocationNodes = [];
-  @observable selectedLocationIds = [];
+        // Select the specified nodes
+        values[key].forEach((node) => {
+          const nodeObj =
+            'path' in node
+              ? getNodeFromPath(selectTree, node['path'])
+              : selectTree;
+          // Select all of the nodes children
+          selectAll(nodeObj);
+        });
 
-  @observable hoverGroup = null;
-  // @observable selectedGroups = [{ group: 'B.1' }, { group: 'B.1.3' }];
-  @observable selectedGroups = [];
-
-  // Metadata filtering
-  @observable selectedMetadataFields = {};
-  @observable ageRange = [null, null];
-
-  // Location tab
-  @observable hoverLocation = null;
-  @observable focusedLocations = []; // Selected locations in the location tab
-
-  @observable lowFreqFilterType = GROUP_COUNTS;
-  @observable maxGroupCounts = 15;
-  @observable minLocalCountsToShow = 50;
-  @observable minGlobalCountsToShow = 50;
-
-  constructor() {
-    const selectTree = loadSelectTree();
-    // Select NYC by default
-    let NYCNode = getLocationByNameAndLevel(
-      selectTree,
-      'New York City',
-      'location'
-    );
-    NYCNode[0].checked = true;
-    let NYCLocationId = getLocationIds(NYCNode);
-
-    let MassNode = getLocationByNameAndLevel(
-      selectTree,
-      'Massachusetts',
-      'division'
-    );
-    MassNode[0].checked = true;
-    let MassLocationId = getLocationIds(MassNode);
-
-    this.selectedLocationIds = NYCLocationId.concat(MassLocationId);
-    // console.log(this.selectedLocationIds);
-    this.selectedLocationNodes = [NYCNode[0], MassNode[0]];
+        this.selectTree = selectTree;
+      }
+    });
+    // Trigger data re-run
+    dataStoreInstance.updateCaseData(() => {});
   }
 
   @action
@@ -99,7 +156,7 @@ class ObservableConfigStore {
     // Clear selected groups?
     if (this.groupKey !== groupKey) {
       this.selectedGroups = [];
-    } else if (groupKey === 'snp' && this.dnaOrAa !== dnaOrAa) {
+    } else if (groupKey === GROUP_KEYS.GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
       this.selectedGroups = [];
     }
 
@@ -108,7 +165,10 @@ class ObservableConfigStore {
 
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (this.groupKey !== 'snp' && this.dnaOrAa === 'aa') {
+    if (
+      this.groupKey !== GROUP_KEYS.GROUP_SNV &&
+      this.dnaOrAa === DNA_OR_AA.AA
+    ) {
       if (this.selectedGene.gene === 'All Genes') {
         // Switch back to S gene
         this.selectedGene = getGene('S');
@@ -131,12 +191,12 @@ class ObservableConfigStore {
 
   // Get a pretty name for the group
   getGroupLabel() {
-    if (this.groupKey === 'lineage') {
+    if (this.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
       return 'Lineage';
-    } else if (this.groupKey === 'clade') {
+    } else if (this.groupKey === GROUP_KEYS.GROUP_CLADE) {
       return 'Clade';
-    } else if (this.groupKey === 'snp') {
-      if (this.dnaOrAa === 'dna') {
+    } else if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (this.dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';
       } else {
         return 'AA SNV';
@@ -174,44 +234,44 @@ class ObservableConfigStore {
     this.customCoordinates = customCoordinates;
 
     // Set the coordinate range based off the coordinate mode
-    if (coordinateMode === 'gene') {
+    if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       this.coordinateRanges = this.selectedGene.ranges;
-    } else if (coordinateMode === 'protein') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       this.coordinateRanges = this.selectedProtein.ranges;
-    } else if (coordinateMode === 'primer') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       let ranges = [];
       this.selectedPrimers.forEach((primer) => {
         ranges.push([primer.Start, primer.End]);
       });
       this.coordinateRanges = ranges;
-    } else if (coordinateMode === 'custom') {
+    } else if (coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
       this.coordinateRanges = [this.customCoordinates];
     }
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
     if (
-      this.dnaOrAa === 'aa' &&
-      this.coordinateMode !== 'gene' &&
-      this.coordinateMode !== 'protein'
+      this.dnaOrAa === DNA_OR_AA.AA &&
+      this.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+      this.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN
     ) {
-      this.dnaOrAa = 'dna';
+      this.dnaOrAa = DNA_OR_AA.DNA;
     }
 
     // If nothing changed, then skip the update
     if (this.coordinateMode !== initial.coordinateMode) {
       // Do nothing
     } else if (
-      this.coordinateMode === 'gene' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
       this.selectedGene.gene === initial.selectedGene.gene
     ) {
       return;
     } else if (
-      this.coordinateMode === 'protein' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
       this.selectedProtein.protein == initial.selectedProtein.protein
     ) {
       return;
-    } else if (this.coordinateMode === 'primer') {
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       let changed = false;
       if (this.selectedPrimers.length !== initial.selectedPrimers.length) {
         changed = true;
@@ -227,7 +287,7 @@ class ObservableConfigStore {
         return;
       }
     } else if (
-      this.coordinateMode === 'custom' &&
+      this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
       this.coordinateRanges[0][0] === initial.customCoordinates[0][0] &&
       this.coordinateRanges[0][1] === initial.customCoordinates[0][1]
     ) {

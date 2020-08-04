@@ -6,7 +6,7 @@ import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -157,8 +157,12 @@ const VegaLegend = observer(() => {
     const selectedGroup = e.target.getAttribute('data-group');
     let newGroups;
 
+    // If the click was not on an item, then unset the selection
+    if (selectedGroup === null) {
+      newGroups = [];
+    }
     // If the item is already selected, then deselect it
-    if (
+    else if (
       _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
       undefined
     ) {
@@ -217,7 +221,7 @@ const VegaLegend = observer(() => {
 
   // console.log('RE-RENDERING LEGEND');
 
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

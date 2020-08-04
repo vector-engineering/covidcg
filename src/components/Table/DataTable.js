@@ -32,7 +32,6 @@ const DataGridContainer = styled.div`
     height: 45px;
     font-weight: 500;
     z-index: 4;
-    width: 100%;
 
     .rdg-cell {
       font-size: 12px;
@@ -40,6 +39,8 @@ const DataGridContainer = styled.div`
       &.rdg-cell-frozen-last {
         box-shadow: none;
       }
+    }
+    .rdg-cell-frozen {
     }
     /* Position columns */
     .rdg-cell:nth-child(n + ${(props) => props.posColOffset}) {

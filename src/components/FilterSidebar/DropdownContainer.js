@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 
-import { loadSelectTree } from '../../utils/location';
+import { getNodeFromPath } from '../../utils/location';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;
@@ -234,36 +234,17 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 `;
 
-// https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme
-// https://dowjones.github.io/react-dropdown-tree-select/#/story/tree-node-paths-hoc
-// utility method to assign object paths.
-// this path can be used with lodash.get or similar
-// to retrieve a deeply nested object
-const assignObjectPaths = (obj, stack) => {
-  const isArray = Array.isArray(obj);
-  Object.keys(obj).forEach((k) => {
-    const node = obj[k];
-    const key = isArray ? `[${k}]` : k;
-
-    if (typeof node === 'object') {
-      node.path = stack ? `${stack}.${key}` : key;
-      assignObjectPaths(node, node.path);
-    }
-  });
-};
-
-let initialData = Object.assign(loadSelectTree(), {
-  expanded: true,
-});
-assignObjectPaths(initialData);
-
 const DropdownContainer = () => {
   const { UIStore, configStore } = useStores();
 
-  const [state] = useState({
-    data: initialData,
-    expanded: [],
+  const [state, setState] = useState({
+    data: configStore.selectTree,
   });
+
+  useEffect(() => {
+    setState({ ...state, data: configStore.selectTree });
+  }, [configStore.selectTree]);
+
   const treeSelectOnChange = (currentNode, selectedNodes) => {
     // Since the tree is rendered in a flat state, we need to get all node
     // children from the original data, via. the node paths
@@ -273,25 +254,12 @@ const DropdownContainer = () => {
         return state.data;
       }
 
-      // Get children using the object path
-      const pathChunks = node['path'].split('.');
-      let nodeObj = state.data;
-      pathChunks.forEach((chunk) => {
-        // If this chunk is an array index:
-        if (chunk.charAt(0) === '[' && chunk.charAt(chunk.length - 1) === ']') {
-          const arrRx = /\[([0-9]*)\]/g;
-          const arrIndexMatch = arrRx.exec(chunk);
-          nodeObj = nodeObj[parseInt(arrIndexMatch[1])];
-        } else {
-          nodeObj = nodeObj[chunk];
-        }
-      });
-      return nodeObj;
+      return getNodeFromPath(state.data, node['path']);
     });
 
     if (
-      UIStore.caseDataState === asyncStates.STARTED ||
-      UIStore.aggCaseDataState === asyncStates.STARTED
+      UIStore.caseDataState === ASYNC_STATES.STARTED ||
+      UIStore.aggCaseDataState === ASYNC_STATES.STARTED
     ) {
       return;
     }

@@ -10,6 +10,8 @@ import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
+import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
+
 const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
@@ -115,12 +117,12 @@ const LocationGroupPlot = observer(({ width }) => {
   ]);
 
   let xLabel = 'Sequences by ';
-  if (configStore.groupKey === 'lineage') {
+  if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     xLabel += 'Lineage ';
-  } else if (configStore.groupKey === 'clade') {
+  } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
     xLabel += 'Clade ';
-  } else if (configStore.groupKey === 'snp') {
-    if (configStore.dnaOrAa === 'dna') {
+  } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       xLabel += 'NT';
     } else {
       xLabel += 'AA';

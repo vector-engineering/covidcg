@@ -23,8 +23,8 @@ const RowWrapper = styled.div`
     pointer-events: none; // allow clicking elements underneath
     top: 0;
     left: 1px;
-    width: 100%;
-    height: 100%;
+    width: var(--row-width);
+    height: var(--row-height);
     z-index: 3;
     outline: ${({ hovered, selected }) => {
       if (hovered) {

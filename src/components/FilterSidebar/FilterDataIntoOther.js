@@ -5,7 +5,7 @@ import QuestionButton from '../Buttons/QuestionButton';
 
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
-import { LOW_FREQ_FILTER_TYPES } from '../../stores/configStore';
+import { LOW_FREQ_FILTER_TYPES } from '../../constants/config';
 
 export const SelectContainer = styled.div`
   padding: 3px 13px 5px 13px;

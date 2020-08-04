@@ -15,25 +15,43 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 
-import { LOW_FREQ_FILTER_TYPES } from './configStore';
+import {
+  LOW_FREQ_FILTER_TYPES,
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../constants/config';
 import { getGlobalGroupCounts } from '../utils/globalCounts';
 
 const globalGroupCounts = getGlobalGroupCounts();
 
-class ObservableDataStore {
-  @observable caseData = [];
-  @observable changingPositions = {};
-  @observable caseDataAggGroup = [];
-  @observable selectedRows = [];
-  @observable groupsToKeep = [];
-  @observable groupCountArr = {};
+export const initialDataValues = {
+  caseData: [],
+  changingPositions: {},
+  caseDataAggGroup: [],
+  selectedRows: [],
+  groupsToKeep: [],
+  groupCountArr: {},
 
   // Metadata filtering
-  @observable numSequencesBeforeMetadataFiltering = 0;
-  @observable metadataCounts = {};
+  numSequencesBeforeMetadataFiltering: 0,
+  metadataCounts: {},
 
   // For location tab
-  @observable aggLocationData = [];
+  aggLocationData: [],
+};
+
+class ObservableDataStore {
+  caseData = initialDataValues.caseData;
+  @observable changingPositions = initialDataValues.changingPositions;
+  caseDataAggGroup = initialDataValues.caseDataAggGroup;
+  @observable selectedRows = initialDataValues.selectedRows;
+  @observable groupsToKeep = initialDataValues.groupsToKeep;
+  @observable groupCountArr = initialDataValues.groupCountArr;
+  @observable numSequencesBeforeMetadataFiltering =
+    initialDataValues.numSequencesBeforeMetadataFiltering;
+  @observable metadataCounts = initialDataValues.metadataCounts;
+  @observable aggLocationData = initialDataValues.aggLocationData;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -61,17 +79,22 @@ class ObservableDataStore {
       LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
     ) {
       let globalCounts;
-      if (configStoreInstance.groupKey === 'lineage') {
+      if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
         globalCounts = globalGroupCounts.lineage;
-      } else if (configStoreInstance.groupKey === 'clade') {
+      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_CLADE) {
         globalCounts = globalGroupCounts.clade;
-      } else if (configStoreInstance.groupKey === 'snp') {
-        if (configStoreInstance.dnaOrAa === 'dna') {
+      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+        if (configStoreInstance.dnaOrAa === DNA_OR_AA.DNA) {
           globalCounts = globalGroupCounts.dna_snp;
         } else {
-          if (configStoreInstance.coordinateMode === 'gene') {
+          if (
+            configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
+          ) {
             globalCounts = globalGroupCounts.gene_aa_snp;
-          } else if (configStoreInstance.coordinateRanges === 'protein') {
+          } else if (
+            configStoreInstance.coordinateMode ===
+            COORDINATE_MODES.COORD_PROTEIN
+          ) {
             globalCounts = globalGroupCounts.protein_aa_snp;
           }
         }
@@ -88,11 +111,11 @@ class ObservableDataStore {
   }
 
   @action
-  updateAggCaseDataByGroup(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataStarted();
+  updateAggCaseDataByGroup(callback) {
+    UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
-        caseData: toJS(this.caseData),
+        caseData: this.caseData,
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.coordinateRanges),
         selectedGene: toJS(configStoreInstance.selectedGene),
@@ -109,9 +132,13 @@ class ObservableDataStore {
         // console.log('AGG_CASE_DATA FINISHED');
 
         this.updateGroupsToKeep();
+        // Fire callback
+        if (callback !== undefined) {
+          callback();
+        }
 
-        suppressUIUpdate ? null : UIStoreInstance.onAggCaseDataFinished();
-        suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateFinished();
+        UIStoreInstance.onAggCaseDataFinished();
+        UIStoreInstance.onCaseDataStateFinished();
       }
     );
   }
@@ -125,9 +152,8 @@ class ObservableDataStore {
   }
 
   @action
-  updateCaseData(suppressUIUpdate = false) {
-    suppressUIUpdate ? null : UIStoreInstance.onCaseDataStateStarted();
-
+  updateCaseData(callback) {
+    UIStoreInstance.onCaseDataStateStarted();
     processCaseData(
       {
         selectedLocationIds: toJS(configStoreInstance.selectedLocationIds),
@@ -157,7 +183,7 @@ class ObservableDataStore {
         this.aggLocationData = aggLocationDataList;
         // console.log('CASE_DATA FINISHED');
 
-        this.updateAggCaseDataByGroup((suppressUIUpdate = false));
+        this.updateAggCaseDataByGroup(callback);
       }
     );
   }
@@ -224,7 +250,7 @@ class ObservableDataStore {
         groupKey: configStoreInstance.groupKey,
         dnaOrAa: configStoreInstance.dnaOrAa,
         coordinateMode: configStoreInstance.coordinateMode,
-        caseDataAggGroup: toJS(this.caseDataAggGroup),
+        caseDataAggGroup: this.caseDataAggGroup,
       },
       (res) => {
         downloadBlobURL(

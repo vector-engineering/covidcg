@@ -9,7 +9,7 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../stores/plotSettingsStore';
+} from '../../constants/plotSettings';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { toJS } from 'mobx';
 import AccordionWrapper from '../Common/AccordionWrapper';
-import { asyncStates } from '../../stores/UIStore';
+import { ASYNC_STATES } from '../../constants/UI';
 import SkeletonElement from '../Common/SkeletonElement';
 import { useStores } from '../../stores/connect';
 
@@ -22,7 +22,7 @@ const VegaTree = ({ data, width }) => {
   const _data = [...toJS(data)];
   const { UIStore } = useStores();
 
-  if (UIStore.caseDataState === asyncStates.STARTED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

@@ -1,0 +1,19 @@
+const STARTED = 'STARTED';
+const SUCCEEDED = 'SUCCEEDED';
+const FAILED = 'FAILED';
+export const ASYNC_STATES = {
+  STARTED,
+  SUCCEEDED,
+  FAILED,
+};
+
+const TAB_GROUP = 'TAB_GROUP';
+const TAB_LOCATION = 'TAB_LOCATION';
+const TAB_EXAMPLE = 'TAB_EXAMPLE';
+const TAB_ABOUT = 'TAB_ABOUT';
+export const TABS = {
+  TAB_GROUP,
+  TAB_LOCATION,
+  TAB_EXAMPLE,
+  TAB_ABOUT,
+};

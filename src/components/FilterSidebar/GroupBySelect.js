@@ -6,6 +6,12 @@ import styled from 'styled-components';
 
 import ExternalLink from '../Common/ExternalLink';
 
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../../constants/config';
+
 const SelectContainer = styled.div`
   padding: 7px 13px 0px 13px;
   box-shadow: 0px 2px 4px #aaa;
@@ -85,20 +91,20 @@ const GroupBySelect = observer(() => {
   let aaDisabledMessage = '';
   let aaDisabled = false;
   if (
-    configStore.coordinateMode !== 'gene' &&
-    configStore.coordinateMode !== 'protein'
+    configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+    configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN
   ) {
     aaDisabledMessage = ' (only for gene/protein)';
     aaDisabled = true;
-  } else if (configStore.groupKey !== 'snp') {
+  } else if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
     if (
-      configStore.coordinateMode === 'gene' &&
+      configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
       configStore.selectedGene.gene === 'All Genes'
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select one gene)';
     } else if (
-      configStore.coordinateMode === 'protein' &&
+      configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
       configStore.selectedProtein.protein === 'All Proteins'
     ) {
       aaDisabled = true;
@@ -107,7 +113,7 @@ const GroupBySelect = observer(() => {
   }
 
   const renderLineageLink = () => {
-    if (configStore.groupKey === 'lineage') {
+    if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
       return (
         <Link href="https://cov-lineages.org/descriptions.html">
           (Lineage Descriptions)
@@ -128,8 +134,8 @@ const GroupBySelect = observer(() => {
               <input
                 className="radio-input"
                 type="radio"
-                value="lineage"
-                checked={configStore.groupKey === 'lineage'}
+                value={GROUP_KEYS.GROUP_LINEAGE}
+                checked={configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE}
                 onChange={handleGroupKeyChange}
               />
               <span>Lineage</span>
@@ -140,8 +146,8 @@ const GroupBySelect = observer(() => {
               <input
                 className="radio-input"
                 type="radio"
-                value="clade"
-                checked={configStore.groupKey === 'clade'}
+                value={GROUP_KEYS.GROUP_CLADE}
+                checked={configStore.groupKey === GROUP_KEYS.GROUP_CLADE}
                 onChange={handleGroupKeyChange}
               />
               <span>Clade</span>
@@ -152,8 +158,8 @@ const GroupBySelect = observer(() => {
               <input
                 className="radio-input"
                 type="radio"
-                value="snp"
-                checked={configStore.groupKey === 'snp'}
+                value={GROUP_KEYS.GROUP_SNV}
+                checked={configStore.groupKey === GROUP_KEYS.GROUP_SNV}
                 onChange={handleGroupKeyChange}
               />
               <span>SNV</span>
@@ -170,8 +176,8 @@ const GroupBySelect = observer(() => {
               type="radio"
               id="dnaChoice"
               name="dnaOrAa"
-              value="dna"
-              checked={configStore.dnaOrAa === 'dna'}
+              value={DNA_OR_AA.DNA}
+              checked={configStore.dnaOrAa === DNA_OR_AA.DNA}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="dnaChoice">NT</label>
@@ -181,8 +187,8 @@ const GroupBySelect = observer(() => {
               type="radio"
               id="aaChoice"
               name="dnaOrAa"
-              value="aa"
-              checked={configStore.dnaOrAa === 'aa'}
+              value={DNA_OR_AA.AA}
+              checked={configStore.dnaOrAa === DNA_OR_AA.AA}
               disabled={aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>

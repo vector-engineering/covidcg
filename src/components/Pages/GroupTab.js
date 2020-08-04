@@ -14,7 +14,11 @@ import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-const GroupTabContainer = styled.div``;
+// import { GROUP_KEYS } from '../../constants/config';
+
+const GroupTabContainer = styled.div`
+  padding-top: 10px;
+`;
 
 const HelpText = styled.div`
   margin-bottom: 5px;
@@ -77,7 +81,7 @@ const GroupTab = observer(({ width }) => {
         </HelpText>
         <VegaStackedBars width={width - 150} />
       </AccordionWrapper>
-      {/*configStore.groupKey === 'lineage' && (
+      {/*configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
         <VegaTree width={width} data={dataStore.caseDataAggGroup} />
       )*/}
       <AccordionWrapper

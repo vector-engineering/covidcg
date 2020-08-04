@@ -1,14 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-
-const STARTED = 'STARTED';
-const SUCCEEDED = 'SUCCEEDED';
-const FAILED = 'FAILED';
-
-export const asyncStates = {
-  STARTED,
-  SUCCEEDED,
-  FAILED,
-};
+import { ASYNC_STATES, TABS } from '../constants/UI';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -22,43 +13,63 @@ function removeItemAll(arr, value) {
   return arr;
 }
 
-class ObservableUIStore {
-  @observable sidebarOpen = false;
-  @observable sidebarSelectedGroupKeys = [];
-  @observable caseDataState = STARTED;
-  @observable aggCaseDataState = STARTED;
-  @observable activeTab = 'group';
+export const initialUIValues = {
+  sidebarOpen: false,
+  sidebarSelectedGroupKeys: [],
+  caseDataState: ASYNC_STATES.STARTED,
+  aggCaseDataState: ASYNC_STATES.STARTED,
+  activeTab: TABS.TAB_EXAMPLE,
+  keysPressed: [],
+};
 
-  @observable keysPressed = [];
+class ObservableUIStore {
+  @observable sidebarOpen = initialUIValues.sidebarOpen;
+  @observable sidebarSelectedGroupKeys =
+    initialUIValues.sidebarSelectedGroupKeys;
+  @observable caseDataState = initialUIValues.caseDataState;
+  @observable aggCaseDataState = initialUIValues.aggCaseDataState;
+  @observable activeTab = initialUIValues.activeTab;
+  @observable keysPressed = initialUIValues.keysPressed;
+
+  @action
+  resetValues(values) {
+    Object.keys(initialUIValues).forEach((key) => {
+      if (key in values) {
+        this[key] = values[key];
+      } else {
+        this[key] = initialUIValues[key];
+      }
+    });
+  }
 
   @action
   onCaseDataStateStarted = () => {
-    this.caseDataState = STARTED;
+    this.caseDataState = ASYNC_STATES.STARTED;
   };
 
   @action
   onCaseDataStateFinished = () => {
-    this.caseDataState = SUCCEEDED;
+    this.caseDataState = ASYNC_STATES.SUCCEEDED;
   };
 
   @action
   onCaseDataStateErr = () => {
-    this.caseDataState = FAILED;
+    this.caseDataState = ASYNC_STATES.FAILED;
   };
 
   @action
   onAggCaseDataStarted = () => {
-    this.aggCaseDataState = STARTED;
+    this.aggCaseDataState = ASYNC_STATES.STARTED;
   };
 
   @action
   onAggCaseDataFinished = () => {
-    this.aggCaseDataState = SUCCEEDED;
+    this.aggCaseDataState = ASYNC_STATES.SUCCEEDED;
   };
 
   @action
   onAggCaseDataErr = () => {
-    this.aggCaseDataState = FAILED;
+    this.aggCaseDataState = ASYNC_STATES.FAILED;
   };
 
   @action

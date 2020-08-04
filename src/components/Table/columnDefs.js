@@ -10,7 +10,7 @@ import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../stores/plotSettingsStore';
+} from '../../constants/plotSettings';
 
 export const positionColumn = () => ({
   name: 'Position',

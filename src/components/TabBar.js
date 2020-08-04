@@ -6,6 +6,8 @@ import styled from 'styled-components';
 // import _ from 'underscore';
 
 // import { intToISO } from '../utils/date';
+// import { GROUP_KEYS, DNA_OR_AA } from '../constants/config';
+import { TABS } from '../constants/UI';
 
 const TabBarContainer = styled.div`
   display: flex;
@@ -18,7 +20,6 @@ const TabBarContainer = styled.div`
 
   width: 100%;
   min-height: 30px;
-  margin-bottom: 10px;
   background-color: #eee;
 `;
 
@@ -137,12 +138,12 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   // }
 
   // let groupName;
-  // if (configStore.groupKey === 'lineage') {
+  // if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
   //   groupName = 'Lineage';
-  // } else if (configStore.groupKey === 'clade') {
+  // } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
   //   groupName = 'Clade';
-  // } else if (configStore.groupKey === 'snp') {
-  //   if (configStore.dnaOrAa === 'dna') {
+  // } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+  //   if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
   //     groupName = 'NT SNP';
   //   } else {
   //     groupName = 'AA SNP';
@@ -166,29 +167,38 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   return (
     <TabBarContainer>
       <TabBarList>
-        <TabItem active={activeTab === 'group'}>
+        <TabItem active={activeTab === TABS.TAB_GROUP}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'group')}
+            onClick={changeTab.bind(this, TABS.TAB_GROUP)}
           >
             <span>Main</span>
           </a>
         </TabItem>
-        <TabItem active={activeTab === 'location'}>
+        <TabItem active={activeTab === TABS.TAB_LOCATION}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'location')}
+            onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
           >
             <span>Compare locations</span>
           </a>
         </TabItem>
-        <TabItem active={activeTab === 'about'}>
+        <TabItem active={activeTab === TABS.TAB_EXAMPLE}>
           <a
             href="#"
             className="tab-link"
-            onClick={changeTab.bind(this, 'about')}
+            onClick={changeTab.bind(this, TABS.TAB_EXAMPLE)}
+          >
+            <span>Example Analyses</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_ABOUT}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
           >
             <span>About</span>
           </a>
