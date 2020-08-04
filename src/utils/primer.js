@@ -42,3 +42,7 @@ export function getPrimerByName(primerName) {
 export function getPrimersByGroup(groupName) {
   return _.where(processedPrimers, { Institution: groupName });
 }
+
+export function queryPrimers(queryObj) {
+  return _.where(processedPrimers, queryObj);
+}
