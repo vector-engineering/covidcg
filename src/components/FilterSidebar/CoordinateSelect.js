@@ -409,8 +409,23 @@ const CoordinateSelect = observer(() => {
   };
 
   useEffect(() => {
+    // Check all selected primers
+    const primerTreeData = state.primerTreeData;
+    const selectedPrimers = configStore.selectedPrimers;
+    selectedPrimers.forEach((primer) => {
+      const institutionNode = _.findWhere(primerTreeData, {
+        value: primer.Institution,
+      });
+      const primerNode = _.findWhere(institutionNode.children, {
+        value: primer.Name,
+      });
+      primerNode.checked = true;
+    });
+
     setState({
       ...state,
+      primerTreeData,
+      selectedPrimers,
       primersChanged: checkPrimersChanged(state.selectedPrimers),
     });
   }, [configStore.selectedPrimers]);
