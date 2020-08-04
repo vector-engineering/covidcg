@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
@@ -234,7 +235,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   }
 `;
 
-const DropdownContainer = () => {
+const DropdownContainer = observer(() => {
   const { UIStore, configStore } = useStores();
 
   const [state, setState] = useState({
@@ -301,7 +302,7 @@ const DropdownContainer = () => {
       {dropdownContainer}
     </ContainerDiv>
   );
-};
+});
 
 DropdownContainer.defaultProps = {
   data: {},
