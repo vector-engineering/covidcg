@@ -808,10 +808,7 @@ function aggCaseDataByGroup({
 self.addEventListener(
   'message',
   function (e) {
-    console.log(e);
     const data = e.data;
-
-    console.log('on message: ', data.type);
 
     let result;
     if (data.type === 'aggCaseDataByGroup') {
