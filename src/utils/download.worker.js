@@ -21,21 +21,22 @@ function downloadAccessionIdsData({ accessionIds }) {
   };
 }
 
-function downloadAcknowledgementsData({ selectedRows }) {
-  let ackIds = _.pluck(selectedRows, 'ack_id');
-
+function downloadAcknowledgementsData({
+  selectedAccessionIds,
+  selectedAckIds,
+}) {
   // Get the list of selected Accession IDs, and map to
   // acknowledgement texts
-  let ackTexts = getAckTextsFromAckIds(ackIds);
+  const ackTexts = getAckTextsFromAckIds(selectedAckIds);
 
   // Write to a CSV string
   // Accession ID and sample date first
   // Then acknowledgement texts
   let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
 
-  for (let i = 0; i < selectedRows.length; i++) {
+  for (let i = 0; i < selectedAccessionIds.length; i++) {
     // Write Accession ID
-    csvString += selectedRows[i]['Accession ID'] + ',';
+    csvString += selectedAccessionIds[i] + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes

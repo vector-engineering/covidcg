@@ -133,22 +133,22 @@ const NewLineageDataTable = observer(() => {
     // Get the maximum and minimum cases_sum and cases_percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
     let maxCasesSum = _.reduce(
-      dataStore.caseDataAggGroup,
+      dataStore.dataAggGroup,
       (memo, group) => nanmax(memo, group.cases_sum),
       0
     );
     let minCasesSum = _.reduce(
-      dataStore.caseDataAggGroup,
+      dataStore.dataAggGroup,
       (memo, group) => nanmin(memo, group.cases_sum),
       0
     );
     let maxCasesPercent = _.reduce(
-      dataStore.caseDataAggGroup,
+      dataStore.dataAggGroup,
       (memo, group) => nanmax(memo, group.cases_percent),
       0
     );
     let minCasesPercent = _.reduce(
-      dataStore.caseDataAggGroup,
+      dataStore.dataAggGroup,
       (memo, group) => nanmin(memo, group.cases_percent),
       0
     );
@@ -171,7 +171,7 @@ const NewLineageDataTable = observer(() => {
     );
 
     // Build a column for each changing position
-    let refRow = _.findWhere(dataStore.caseDataAggGroup, {
+    let refRow = _.findWhere(dataStore.dataAggGroup, {
       group: 'Reference',
     });
     if (!refRow) {
@@ -252,7 +252,7 @@ const NewLineageDataTable = observer(() => {
   );
   const [state, setState] = useState({
     columns: buildColumns() || [],
-    rows: dataStore.caseDataAggGroup,
+    rows: dataStore.dataAggGroup,
     posColOffset: initialPosColOffset,
     posTitleOffset: initialPosTitleOffset,
   });
@@ -268,7 +268,7 @@ const NewLineageDataTable = observer(() => {
       posTitleOffset: posTitleOffset,
       posColOffset: posColOffset,
       rows: sortRows(
-        dataStore.caseDataAggGroup,
+        dataStore.dataAggGroup,
         comparer({
           sortDirection: plotSettingsStore.tableSortDirection,
           sortColumn: plotSettingsStore.tableSortColumn,
@@ -276,7 +276,7 @@ const NewLineageDataTable = observer(() => {
       ),
     });
   }, [
-    dataStore.caseDataAggGroup,
+    dataStore.selectedRowsAndDateHash,
     configStore.groupKey,
     configStore.dnaOrAa,
     configStore.coordinateMode,

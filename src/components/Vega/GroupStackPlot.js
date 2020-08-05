@@ -109,19 +109,11 @@ const GroupStackPlot = observer(({ width }) => {
     }
   };
 
-  const initialData = aggregate({
-    data: toJS(dataStore.caseData),
-    groupby: ['date', 'group'],
-    fields: ['cases_sum', 'color'],
-    ops: ['sum', 'max'],
-    as: ['cases_sum', 'color'],
-  });
-
   const [state, setState] = useState({
     showWarning: true,
     data: {
       cases_by_date_and_group: mergeGroupsIntoOther(
-        initialData,
+        JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
         dataStore.groupsToKeep
       ),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
@@ -156,18 +148,12 @@ const GroupStackPlot = observer(({ width }) => {
       data: {
         ...state.data,
         cases_by_date_and_group: mergeGroupsIntoOther(
-          aggregate({
-            data: toJS(dataStore.caseData),
-            groupby: ['date', 'group'],
-            fields: ['cases_sum', 'color'],
-            ops: ['sum', 'max'],
-            as: ['cases_sum', 'color'],
-          }),
+          JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
           dataStore.groupsToKeep
         ),
       },
     });
-  }, [dataStore.caseData, dataStore.groupsToKeep]);
+  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {

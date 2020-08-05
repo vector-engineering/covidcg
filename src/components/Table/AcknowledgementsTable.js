@@ -54,9 +54,8 @@ const AcknowledgementsTable = observer(() => {
   });
 
   useEffect(() => {
-    let ackIds = _.pluck(dataStore.selectedRows, 'ack_id');
     // Get unique acknowledgement IDs
-    ackIds = Array.from(new Set(ackIds));
+    let ackIds = Array.from(new Set(dataStore.selectedAckIds));
     // Remove null IDs
     ackIds = _.reject(ackIds, (ackId) => ackId == -1);
 
@@ -78,7 +77,7 @@ const AcknowledgementsTable = observer(() => {
         })
       ),
     });
-  }, [dataStore.caseDataAggGroup]);
+  }, [dataStore.selectedRowsHash]);
 
   const handleGridSort = (sortColumn, sortDirection) => {
     let _sortDirection = sortDirection;

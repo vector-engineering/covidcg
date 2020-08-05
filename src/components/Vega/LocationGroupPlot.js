@@ -85,7 +85,9 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
-    let locationData = JSON.parse(JSON.stringify(dataStore.aggLocationData));
+    let locationData = JSON.parse(
+      JSON.stringify(dataStore.dataAggLocationGroupDate)
+    );
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
@@ -111,7 +113,7 @@ const LocationGroupPlot = observer(({ width }) => {
       },
     });
   }, [
-    dataStore.aggLocationData,
+    dataStore.selectedRowsHash,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
