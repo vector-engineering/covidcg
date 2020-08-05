@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -10,7 +9,6 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
-import { aggregate } from '../../utils/transform';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -240,7 +238,7 @@ const GroupStackPlot = observer(({ width }) => {
     );
   }
 
-  if (configStore.selectedLocationIds.length === 0) {
+  if (configStore.selectedLocationNodes.length === 0) {
     return (
       <EmptyPlot height={250}>
         <p>

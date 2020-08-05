@@ -266,7 +266,7 @@ const LocationDatePlot = observer(({ width }) => {
   }
 
   const renderPlot = () => {
-    if (configStore.selectedLocationIds.length == 0) {
+    if (configStore.selectedLocationNodes.length == 0) {
       return (
         <EmptyPlot height={200}>
           <p>

@@ -6,7 +6,6 @@ import { observer } from 'mobx-react';
 import { ASYNC_STATES } from '../../constants/UI';
 
 import KBD from '../Common/KBD';
-import TabIndicator from '../Common/TabIndicator';
 import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 import SkeletonElement from '../Common/SkeletonElement';

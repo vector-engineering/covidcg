@@ -10,7 +10,6 @@ import { ASYNC_STATES, TABS } from '../../constants/UI';
 import { getGene } from '../../utils/gene';
 import { getProtein } from '../../utils/protein';
 import {
-  getLocationIds,
   getLocationByNameAndLevel,
   loadSelectTree,
 } from '../../utils/location';
@@ -28,7 +27,7 @@ import {
 } from '../../constants/plotSettings';
 
 import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
+// import LoadingSpinner from '../Common/LoadingSpinner';
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
 const ExampleTabContainer = styled.div`
@@ -156,9 +155,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.DNA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: [selectTree], // select root
-        selectedLocationIds: getLocationIds([selectTree]),
       },
     },
   },
@@ -180,9 +177,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: [ChinaNode],
-        selectedLocationIds: getLocationIds([ChinaNode]),
       },
     },
   },
@@ -204,9 +199,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: WestCoastNodes,
-        selectedLocationIds: getLocationIds(WestCoastNodes),
       },
     },
   },
@@ -228,9 +221,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: USStateNodes,
-        selectedLocationIds: getLocationIds(USStateNodes),
         selectedGroups: [{ group: 'S|614|D|G' }],
       },
     },
@@ -252,12 +243,7 @@ const exampleItems = [
         groupKey: GROUP_KEYS.GROUP_SNV,
         dnaOrAa: DNA_OR_AA.DNA,
         coordinateMode: COORDINATE_MODES.COORD_PRIMER,
-        coordinateRanges: CDCPrimers.map((primer) => [
-          primer.Start,
-          primer.End,
-        ]),
         selectedLocationNodes: [USANode],
-        selectedLocationIds: getLocationIds([USANode]),
         selectedPrimers: CDCPrimers,
       },
     },
@@ -279,9 +265,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        coordinateRanges: getGene('S').ranges,
         selectedLocationNodes: [NorthAmericaNode, EuropeNode],
-        selectedLocationIds: getLocationIds([NorthAmericaNode, EuropeNode]),
       },
     },
   },

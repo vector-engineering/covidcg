@@ -1,6 +1,4 @@
 import { observable, action, toJS } from 'mobx';
-import _ from 'underscore';
-
 import {
   processCaseData,
   aggCaseDataByGroup,
@@ -14,7 +12,6 @@ import { aggregate } from '../utils/transform';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
-
 import {
   LOW_FREQ_FILTER_TYPES,
   GROUP_KEYS,
@@ -128,7 +125,7 @@ class ObservableDataStore {
       {
         dataAggGroupDate: this.dataAggGroupDate,
         coordinateMode: toJS(configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(configStoreInstance.coordinateRanges),
+        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
         selectedProtein: toJS(configStoreInstance.selectedProtein),
         groupKey: toJS(configStoreInstance.groupKey),
@@ -146,7 +143,7 @@ class ObservableDataStore {
         this.selectedRowsAndDateHash =
           this.selectedRowsHash +
           toJS(configStoreInstance.coordinateMode) +
-          toJS(configStoreInstance.coordinateRanges).toString() +
+          toJS(configStoreInstance.getCoordinateRanges()).toString() +
           configStoreInstance.selectedGene.gene +
           configStoreInstance.selectedProtein.protein +
           configStoreInstance.groupKey +
@@ -183,9 +180,9 @@ class ObservableDataStore {
     UIStoreInstance.onCaseDataStateStarted();
     processCaseData(
       {
-        selectedLocationIds: toJS(configStoreInstance.selectedLocationIds),
+        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(configStoreInstance.coordinateRanges),
+        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
         selectedProtein: toJS(configStoreInstance.selectedProtein),
         groupKey: toJS(configStoreInstance.groupKey),
@@ -194,7 +191,6 @@ class ObservableDataStore {
           configStoreInstance.selectedMetadataFields
         ),
         ageRange: toJS(configStoreInstance.ageRange),
-        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
         dateRange: toJS(configStoreInstance.dateRange),
       },
       ({
@@ -237,10 +233,10 @@ class ObservableDataStore {
             generateSelectionString(
               'accession_ids',
               'txt',
-              configStoreInstance.groupKey,
-              configStoreInstance.dnaOrAa,
-              configStoreInstance.selectedLocationIds,
-              configStoreInstance.dateRange
+              toJS(configStoreInstance.groupKey),
+              toJS(configStoreInstance.dnaOrAa),
+              toJS(configStoreInstance.selectedLocationNodes),
+              toJS(configStoreInstance.dateRange)
             )
           );
         }
@@ -265,10 +261,10 @@ class ObservableDataStore {
             generateSelectionString(
               'acknowledgements',
               'csv',
-              configStoreInstance.groupKey,
-              configStoreInstance.dnaOrAa,
-              configStoreInstance.selectedLocationIds,
-              configStoreInstance.dateRange
+              toJS(configStoreInstance.groupKey),
+              toJS(configStoreInstance.dnaOrAa),
+              toJS(configStoreInstance.selectedLocationNodes),
+              toJS(configStoreInstance.dateRange)
             )
           );
         }
@@ -291,10 +287,10 @@ class ObservableDataStore {
           generateSelectionString(
             'agg_data',
             'csv',
-            configStoreInstance.groupKey,
-            configStoreInstance.dnaOrAa,
-            configStoreInstance.selectedLocationIds,
-            configStoreInstance.dateRange
+            toJS(configStoreInstance.groupKey),
+            toJS(configStoreInstance.dnaOrAa),
+            toJS(configStoreInstance.selectedLocationNodes),
+            toJS(configStoreInstance.dateRange)
           )
         );
       }

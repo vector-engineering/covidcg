@@ -5,6 +5,7 @@ import {
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
 } from './lineageData';
+import { getLocationIds } from './location';
 import { hashCode } from './string';
 import {
   warmColors,
@@ -233,7 +234,7 @@ function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
 }
 
 function processCaseData({
-  selectedLocationIds,
+  selectedLocationNodes,
   coordinateMode,
   coordinateRanges,
   selectedGene,
@@ -242,14 +243,13 @@ function processCaseData({
   dnaOrAa,
   selectedMetadataFields,
   ageRange,
-  selectedLocationNodes,
   dateRange,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
-  //console.log('filtering by selectedLocationIds', selectedLocationIds);
 
   // Filter by location
+  const selectedLocationIds = getLocationIds(selectedLocationNodes);
   caseData = filterByLocation(caseData, selectedLocationIds);
   // console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by coordinate range (DNA mode only)
