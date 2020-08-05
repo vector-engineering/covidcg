@@ -56,6 +56,10 @@ class ObservableDataStore {
 
   @action
   updateGroupsToKeep() {
+    if (this.groupCountArr === undefined) {
+      return;
+    }
+
     if (
       configStoreInstance.lowFreqFilterType ===
       LOW_FREQ_FILTER_TYPES.GROUP_COUNTS

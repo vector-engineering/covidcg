@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
+import { ASYNC_STATES, TABS } from '../../constants/UI';
+
 import { getGene } from '../../utils/gene';
 import { getProtein } from '../../utils/protein';
 import {
@@ -14,7 +16,6 @@ import {
 } from '../../utils/location';
 import { queryPrimers } from '../../utils/primer';
 
-import { TABS } from '../../constants/UI';
 import {
   GROUP_KEYS,
   DNA_OR_AA,
@@ -26,6 +27,8 @@ import {
   DATE_BINS,
 } from '../../constants/plotSettings';
 
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
 const ExampleTabContainer = styled.div`
@@ -324,6 +327,24 @@ const ExampleTab = observer(() => {
       </ExampleItem>
     );
   });
+
+  // Hide the examples while the app is still initializing
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={400}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
 
   return (
     <ExampleTabContainer>
