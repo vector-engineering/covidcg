@@ -328,23 +328,28 @@ const ExampleTab = observer(() => {
     );
   });
 
-  // Hide the examples while the app is still initializing
-  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={400}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  }
+  const renderExamples = () => {
+    // Hide the examples while the app is still initializing
+    if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+      const skeletonList = [];
+      for (let i = 0; i < exampleElements.length; i++) {
+        skeletonList.push(
+          <SkeletonElement
+            key={`example-loading-${i}`}
+            delay={2}
+            width="300px"
+            height={250}
+            style={{
+              margin: '10px',
+            }}
+          />
+        );
+      }
+      return skeletonList;
+    }
+
+    return exampleElements;
+  };
 
   return (
     <ExampleTabContainer>
@@ -352,7 +357,7 @@ const ExampleTab = observer(() => {
         <ExampleTitle>Example Analyses</ExampleTitle>
         <p>Get started with a bunch of example analyses</p>
       </ExampleHeader>
-      <ExampleList>{exampleElements}</ExampleList>
+      <ExampleList>{renderExamples()}</ExampleList>
     </ExampleTabContainer>
   );
 });
