@@ -31,7 +31,7 @@ export const initialDataValues = {
   caseDataAggGroup: [],
   selectedRows: [],
   groupsToKeep: [],
-  groupCountArr: {},
+  groupCountArr: [],
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
