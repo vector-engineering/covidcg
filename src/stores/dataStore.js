@@ -36,9 +36,6 @@ export const initialDataValues = {
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
-
-  // For location tab
-  aggLocationData: [],
 };
 
 class ObservableDataStore {
@@ -51,7 +48,6 @@ class ObservableDataStore {
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
-  @observable aggLocationData = initialDataValues.aggLocationData;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -174,13 +170,11 @@ class ObservableDataStore {
         selectedRows,
         metadataCounts,
         numSequencesBeforeMetadataFiltering,
-        aggLocationDataList,
       }) => {
         this.caseData = aggCaseDataList;
         this.selectedRows = selectedRows;
         this.metadataCounts = metadataCounts;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        this.aggLocationData = aggLocationDataList;
         // console.log('CASE_DATA FINISHED');
 
         this.updateAggCaseDataByGroup(callback);

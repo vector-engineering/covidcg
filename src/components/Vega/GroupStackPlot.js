@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-// import { toJS } from 'mobx';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -10,6 +10,7 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { aggregate } from '../../utils/transform';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -108,11 +109,19 @@ const GroupStackPlot = observer(({ width }) => {
     }
   };
 
+  const initialData = aggregate({
+    data: toJS(dataStore.caseData),
+    groupby: ['date', 'group'],
+    fields: ['cases_sum', 'color'],
+    ops: ['sum', 'max'],
+    as: ['cases_sum', 'color'],
+  });
+
   const [state, setState] = useState({
     showWarning: true,
     data: {
       cases_by_date_and_group: mergeGroupsIntoOther(
-        JSON.parse(JSON.stringify(dataStore.caseData)),
+        initialData,
         dataStore.groupsToKeep
       ),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
@@ -147,7 +156,13 @@ const GroupStackPlot = observer(({ width }) => {
       data: {
         ...state.data,
         cases_by_date_and_group: mergeGroupsIntoOther(
-          JSON.parse(JSON.stringify(dataStore.caseData)),
+          aggregate({
+            data: toJS(dataStore.caseData),
+            groupby: ['date', 'group'],
+            fields: ['cases_sum', 'color'],
+            ops: ['sum', 'max'],
+            as: ['cases_sum', 'color'],
+          }),
           dataStore.groupsToKeep
         ),
       },

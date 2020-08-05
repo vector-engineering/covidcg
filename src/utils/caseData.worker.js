@@ -5,6 +5,7 @@ import {
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
 } from './lineageData';
+import { aggregate } from './transform';
 import {
   warmColors,
   coolColors,
@@ -288,7 +289,7 @@ function processCaseData({
   });
 
   // For the location tab:
-  const aggLocationData = {};
+  const aggCaseData = {};
   const countsPerLocation = {};
 
   // Build a map of location_id --> node
@@ -317,9 +318,9 @@ function processCaseData({
     }
 
     location = locationIdToNodeMap[row.location_id];
-    !(location in aggLocationData) && (aggLocationData[location] = {});
-    !(row.collection_date in aggLocationData[location]) &&
-      (aggLocationData[location][row.collection_date] = {});
+    !(location in aggCaseData) && (aggCaseData[location] = {});
+    !(row.collection_date in aggCaseData[location]) &&
+      (aggCaseData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
       // Replace the integer SNP ID with the actual SNP string
       if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
@@ -335,9 +336,9 @@ function processCaseData({
         }
       }
 
-      !(group in aggLocationData[location][row.collection_date]) &&
-        (aggLocationData[location][row.collection_date][group] = 0);
-      aggLocationData[location][row.collection_date][group] += 1;
+      !(group in aggCaseData[location][row.collection_date]) &&
+        (aggCaseData[location][row.collection_date][group] = 0);
+      aggCaseData[location][row.collection_date][group] += 1;
     });
   });
 
@@ -350,107 +351,29 @@ function processCaseData({
     getColorMethod = getSnpColor;
   }
 
-  const aggLocationDataList = [];
-  Object.keys(aggLocationData).forEach((location) => {
-    const dates = Object.keys(aggLocationData[location]);
+  const aggCaseDataList = [];
+  Object.keys(aggCaseData).forEach((location) => {
+    const dates = Object.keys(aggCaseData[location]);
     dates.forEach((date) => {
-      groupKeys = Object.keys(aggLocationData[location][date]);
+      groupKeys = Object.keys(aggCaseData[location][date]);
       groupKeys.forEach((group) => {
-        aggLocationDataList.push({
+        aggCaseDataList.push({
           location: location,
           date: parseInt(date),
           group: group,
-          cases_sum: aggLocationData[location][date][group],
+          cases_sum: aggCaseData[location][date][group],
           location_counts: countsPerLocation[location],
           color: getColorMethod(group),
         });
       });
     });
   });
-  // console.log(aggLocationDataList);
-
-  // Group by grouping key and sample date
-  // console.log('Grouping by', groupKey, 'and sample date');
-  const aggCaseData = {};
-  let row = {};
-  // let groupKeys = [];
-  for (let i = 0; i < caseData.length; i++) {
-    row = caseData[i];
-    groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
-
-    // If groupKeys is empty, that means that it's a sequence
-    // that had its SNPs filtered out. We'll replace it with an "empty"
-    // placeholder object to group by
-    if (groupKeys.length === 0) {
-      groupKeys = [-1];
-    }
-
-    groupKeys.forEach((_groupKey) => {
-      // Replace the integer SNP ID with the actual SNP string
-      if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
-        _groupKey = intToDnaSnp(_groupKey).snp_str;
-      } else if (
-        groupKey === GROUP_KEYS.GROUP_SNV &&
-        dnaOrAa === DNA_OR_AA.AA
-      ) {
-        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          _groupKey = intToGeneAaSnp(_groupKey).snp_str;
-        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-          _groupKey = intToProteinAaSnp(_groupKey).snp_str;
-        }
-      }
-
-      // Create an entry for the group, if it doesn't already exist
-      if (!Object.prototype.hasOwnProperty.call(aggCaseData, _groupKey)) {
-        aggCaseData[_groupKey] = {};
-      }
-      // Create a date key, if it doesn't already exist
-      if (
-        !Object.prototype.hasOwnProperty.call(
-          aggCaseData[_groupKey],
-          row.collection_date
-        )
-      ) {
-        aggCaseData[_groupKey][row.collection_date] = 0;
-      }
-      // Add case count
-      aggCaseData[_groupKey][row.collection_date] += 1;
-    });
-  }
-
-  // console.log(aggCaseData);
-
-  // Compute total counts per group
-  const countsPerGroup = {};
-  Object.keys(aggCaseData).forEach((group) => {
-    countsPerGroup[group] = Object.values(aggCaseData[group]).reduce(
-      (memo, val) => memo + val,
-      0
-    );
-  });
-
-  // Expand obj of objs back into a list of objects
-  const aggCaseDataList = [];
-  Object.keys(aggCaseData).forEach((group) => {
-    const dates = Object.keys(aggCaseData[group]);
-    dates.forEach((date) => {
-      aggCaseDataList.push({
-        group: group,
-        date: parseInt(date),
-        cases_sum: aggCaseData[group][date],
-        color: getColorMethod(group),
-      });
-    });
-  });
-
-  // console.log(aggCaseDataList);
 
   return {
     aggCaseDataList,
     numSequencesBeforeMetadataFiltering,
     selectedRows,
     metadataCounts,
-    aggLocationDataList,
   };
 }
 
