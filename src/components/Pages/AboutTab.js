@@ -107,7 +107,6 @@ const AboutTab = () => {
                   alinac@broadinstitute.org
                 </a>
               </p>
-              <p>A manuscript for this project is currently being prepared.</p>
             </div>
             <div className="content-images">
               <ImageRow>
@@ -140,6 +139,21 @@ const AboutTab = () => {
                 </ExternalLink>
               </ImageRow>
             </div>
+          </div>
+        </ContentSection>
+
+        <ContentSection>
+          <a id="citing-covid-cg"></a>
+          <span className="section-title">Citing COVID-19 CG:</span>
+          <div className="content-block">
+            <div className="content-text">
+              <p>
+                Chen AT, Altschuler K, Chan AY, Zhan SH, Deverman BE (2020).
+                COVID-19 CG: Tracking SARS-CoV-2 by mutation, location, and date
+                of interest. <i>bioRxiv</i>. DOI: ...
+              </p>
+            </div>
+            <div className="content-images"></div>
           </div>
         </ContentSection>
 
