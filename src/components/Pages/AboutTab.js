@@ -150,17 +150,44 @@ const AboutTab = () => {
           <div className="content-block">
             <div className="content-text">
               <p>
-                We are extremely grateful for{' '}
+                We gratefully acknowledge the authors, originating and
+                submitting laboratories of the genetic sequence and metadata
+                made available through{' '}
                 <ExternalLink href="https://www.gisaid.org/">
                   GISAID
                 </ExternalLink>{' '}
-                for sharing all 50K+ SARS-CoV-2 sequences. This project would
-                not be possible without their EpiCov™ database, associated
-                tooling, and data from originating laboratories. Detailed
-                acknowledgements for each dataset can be found on the bottom of
-                the page they are displayed in, under the
-                &quot;Acknowledgements&quot; table.
+                on which this research is based
               </p>
+              <p>
+                To cite GISAID as a reference in a publication, use either of
+                the following references:
+              </p>
+              <ul>
+                <li>
+                  Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
+                  diplomacy: GISAID’s innovative contribution to global health.
+                  Global Challenges, 1:33-46. DOI:
+                  <ExternalLink href="http://dx.doi.org/10.1002/gch2.1018">
+                    10.1002/gch2.1018
+                  </ExternalLink>{' '}
+                  PMCID:{' '}
+                  <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
+                    31565258
+                  </ExternalLink>
+                </li>
+                <li>
+                  Shu, Y., McCauley, J. (2017) GISAID: Global initiative on
+                  sharing all influenza data – from vision to reality.
+                  EuroSurveillance, 22(13) DOI:
+                  <ExternalLink href="http://dx.doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
+                    10.2807/1560-7917.ES.2017.22.13.30494
+                  </ExternalLink>{' '}
+                  PMCID:{' '}
+                  <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/">
+                    PMC5388101
+                  </ExternalLink>
+                </li>
+              </ul>
               <p>
                 All data use on COVID CG is subject to the GISAID EpiCov™{' '}
                 <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
