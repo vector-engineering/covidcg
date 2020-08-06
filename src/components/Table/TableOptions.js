@@ -10,7 +10,8 @@ import {
 } from '../../constants/plotSettings';
 import { DNA_OR_AA } from '../../constants/config';
 
-import DropdownButton from '../Buttons/DropdownButton';
+// import DropdownButton from '../Buttons/DropdownButton';
+import Button from '../Buttons/Button';
 import { observer } from 'mobx-react';
 
 const ColorModeSelectLabel = styled.label`
@@ -201,14 +202,19 @@ const Spacer = styled.div`
 const TableOptions = observer(() => {
   const { dataStore } = useStores();
 
-  const handleDownloadSelect = (option) => {
-    if (option === 'Acknowledgements') {
-      dataStore.downloadAcknowledgements();
-    } else if (option === 'Aggregate Data') {
-      dataStore.downloadAggCaseData();
-    } else if (option === 'Accession IDs') {
-      dataStore.downloadAccessionIds();
-    }
+  // const handleDownloadSelect = (option) => {
+  //   if (option === 'Acknowledgements') {
+  //     dataStore.downloadAcknowledgements();
+  //   } else if (option === 'Aggregate Data') {
+  //     dataStore.downloadAggCaseData();
+  //   } else if (option === 'Accession IDs') {
+  //     dataStore.downloadAccessionIds();
+  //   }
+  // };
+
+  const onDownload = (e) => {
+    e.preventDefault();
+    dataStore.downloadAggCaseData();
   };
 
   return (
@@ -216,11 +222,12 @@ const TableOptions = observer(() => {
       <ColorModeSelect />
       <CompareModeSelect />
       <Spacer />
-      <DropdownButton
+      {/* <DropdownButton
         text={'Download'}
         options={['Aggregate Data', 'Acknowledgements', 'Accession IDs']}
         onSelect={handleDownloadSelect}
-      />
+      /> */}
+      <Button onClick={onDownload}>Download Aggregate Data</Button>
     </DataTableOptions>
   );
 });
