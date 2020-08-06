@@ -36,7 +36,7 @@ const TabItem = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  width: 180px;
+  width: 160px;
 
   a.tab-link {
     display: flex;
@@ -200,7 +200,16 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
           >
-            <span>About</span>
+            <span>Acknowledgements</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_RELATED}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_RELATED)}
+          >
+            <span>Related Projects</span>
           </a>
         </TabItem>
       </TabBarList>
