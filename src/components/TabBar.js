@@ -15,8 +15,6 @@ const TabBarContainer = styled.div`
   align-items: stretch;
 
   padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
 
   width: 100%;
   min-height: 30px;
@@ -29,6 +27,9 @@ const TabBarList = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   flex-grow: 1;
+
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 const TabItem = styled.div`
