@@ -80,6 +80,7 @@ const PlotOptions = styled.div`
 `;
 
 const SelectContainer = styled.div`
+  flex-shrink: 0;
   margin-right: 8px;
   font-weight: normal;
   select {
@@ -281,7 +282,9 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
   if (configStore.selectedGroups.length > 0) {
-    plotTitle += ' (Selected ' + configStore.getGroupLabel() + 's Only)';
+    plotTitle += ` (${configStore.selectedGroups
+      .map((group) => group.group)
+      .join(', ')})`;
   }
 
   const renderPlot = () => {
