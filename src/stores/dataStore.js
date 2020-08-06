@@ -279,7 +279,7 @@ class ObservableDataStore {
         groupKey: configStoreInstance.groupKey,
         dnaOrAa: configStoreInstance.dnaOrAa,
         coordinateMode: configStoreInstance.coordinateMode,
-        caseDataAggGroup: this.caseDataAggGroup,
+        dataAggGroup: this.dataAggGroup,
       },
       (res) => {
         downloadBlobURL(
