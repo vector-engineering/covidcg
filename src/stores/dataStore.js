@@ -323,6 +323,32 @@ class ObservableDataStore {
       )
     );
   }
+
+  @action
+  downloadDataAggLocationGroupDate() {
+    // console.log(this.dataAggLocationGroupDate);
+    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count\n`;
+    this.dataAggLocationGroupDate.forEach((row) => {
+      csvString += `${row.location},${intToISO(parseInt(row.date))},${
+        row.group
+      },${row.cases_sum}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'data_agg_location_group_date',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
 }
 
 export default ObservableDataStore;
