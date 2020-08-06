@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 import { ASYNC_STATES } from '../../constants/UI';
 
+import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
@@ -14,6 +15,8 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
+
+import { GROUP_KEYS } from '../../constants/config';
 
 const LocationTabContainer = styled.div`
   padding-top: 10px;
@@ -133,6 +136,14 @@ const LocationTab = observer(({ width }) => {
             multiple {configStore.getGroupLabel()}s. Sequence counts of the
             selected {configStore.getGroupLabel()}s will be compared between
             locations in the plot below.
+            {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+              <>
+                {' '}
+                <ExternalLink href="https://cov-lineages.org/descriptions.html">
+                  (Lineage Descriptions)
+                </ExternalLink>
+              </>
+            )}
           </p>
         </HelpText>
         <VegaLegend />

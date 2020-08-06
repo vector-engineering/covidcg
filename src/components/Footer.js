@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { NOOP } from '../constants/functions';
 
+import ExternalLink from './Common/ExternalLink';
+
 const FooterContainer = styled.div`
   margin-top: auto;
   display: flex;
@@ -26,22 +28,10 @@ const Footer = ({ openModal }) => {
   return (
     <FooterContainer>
       <div className="gisaid-daa">
-        Data use subject to the{' '}
-        <a
-          href="https://www.gisaid.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GISAID
-        </a>{' '}
-        EpiCov™{' '}
-        <a
-          href="https://www.gisaid.org/registration/terms-of-use/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Database Access Agreement
-        </a>
+        GISAID data provided on this website is subject to{' '}
+        <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
+          GISAID’s Terms and Conditions
+        </ExternalLink>
       </div>
       <a href="#" onClick={openModal}>
         Show Splash Screen

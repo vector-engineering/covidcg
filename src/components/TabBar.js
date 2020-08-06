@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-// import { useStores } from '../stores/connect';
+import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 // import _ from 'underscore';
 
@@ -15,8 +15,6 @@ const TabBarContainer = styled.div`
   align-items: stretch;
 
   padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
 
   width: 100%;
   min-height: 30px;
@@ -29,6 +27,9 @@ const TabBarList = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   flex-grow: 1;
+
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 const TabItem = styled.div`
@@ -36,7 +37,7 @@ const TabItem = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  width: 180px;
+  width: 160px;
 
   a.tab-link {
     display: flex;
@@ -117,7 +118,7 @@ TabItem.defaultProps = {
 // };
 
 const TabBar = observer(({ activeTab, onTabChange }) => {
-  // const { dataStore, configStore } = useStores();
+  const { configStore } = useStores();
 
   const changeTab = (tab, e) => {
     e.preventDefault();
@@ -173,7 +174,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_GROUP)}
           >
-            <span>Main</span>
+            <span>Compare {configStore.getGroupLabel()}s</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_LOCATION}>
@@ -182,7 +183,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
           >
-            <span>Compare locations</span>
+            <span>Compare Locations</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_EXAMPLE}>
@@ -200,7 +201,25 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
           >
-            <span>About</span>
+            <span>Acknowledgements</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_METHODOLOGY}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_METHODOLOGY)}
+          >
+            <span>Methodology</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_RELATED}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_RELATED)}
+          >
+            <span>Related Projects</span>
           </a>
         </TabItem>
       </TabBarList>
