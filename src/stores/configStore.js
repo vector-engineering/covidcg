@@ -295,7 +295,7 @@ class ObservableConfigStore {
         coordinateRanges.push([primer.Start, primer.End]);
       });
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
-      coordinateRanges = [this.customCoordinates];
+      coordinateRanges = [toJS(this.customCoordinates)];
     }
     return coordinateRanges;
   }
