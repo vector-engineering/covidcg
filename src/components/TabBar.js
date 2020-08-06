@@ -203,6 +203,15 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             <span>Acknowledgements</span>
           </a>
         </TabItem>
+        <TabItem active={activeTab === TABS.TAB_METHODOLOGY}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_METHODOLOGY)}
+          >
+            <span>Methodology</span>
+          </a>
+        </TabItem>
         <TabItem active={activeTab === TABS.TAB_RELATED}>
           <a
             href="#"

@@ -10,12 +10,7 @@ import UCLLogo from '../../assets/images/university-college-london-ucl-vector-lo
 import COGUKLogo from '../../assets/images/logo-cog-uk.png';
 import JHULogo from '../../assets/images/jhu_logo.jpg';
 
-import {
-  TabContainer,
-  Content,
-  ContentSection,
-  ImageRow,
-} from './TextTab.styles';
+import { TabContainer, Content, ContentSection } from './TextTab.styles';
 
 const RelatedProjectsTab = () => {
   return (
