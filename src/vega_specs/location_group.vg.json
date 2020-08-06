@@ -244,9 +244,7 @@
       "orient": "bottom",
       "scale": "xscale",
       "zindex": 1,
-      "labelFontSize": 14,
-
-      "format": "%",
+      "labels": false,
 
       "title": { "signal": "xLabel" },
       "titleFontSize": 14,
