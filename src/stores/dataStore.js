@@ -9,6 +9,7 @@ import {
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
 import { aggregate } from '../utils/transform';
+import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
@@ -294,6 +295,58 @@ class ObservableDataStore {
           )
         );
       }
+    );
+  }
+
+  @action
+  downloadDataAggGroupDate() {
+    // Write to a CSV string
+    let csvString = `collection_date,${configStoreInstance.getGroupLabel()},count\n`;
+    this.dataAggGroupDate.forEach((row) => {
+      csvString += `${intToISO(parseInt(row.date))},${row.group},${
+        row.cases_sum
+      }\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'data_agg_group_date',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
+
+  @action
+  downloadDataAggLocationGroupDate() {
+    // console.log(this.dataAggLocationGroupDate);
+    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count\n`;
+    this.dataAggLocationGroupDate.forEach((row) => {
+      csvString += `${row.location},${intToISO(parseInt(row.date))},${
+        row.group
+      },${row.cases_sum}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'data_agg_location_group_date',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
     );
   }
 }

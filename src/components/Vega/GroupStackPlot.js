@@ -9,6 +9,7 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -96,13 +97,15 @@ const GroupStackPlot = observer(({ width }) => {
     // console.log(option);
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
-    if (option === 'PNG') {
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      dataStore.downloadDataAggGroupDate();
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
-    } else if (option === 'PNG (2X)') {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 2);
-    } else if (option === 'PNG (4X)') {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 4);
-    } else if (option === 'SVG') {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
     }
   };
@@ -300,7 +303,13 @@ const GroupStackPlot = observer(({ width }) => {
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}
-          options={['PNG', 'PNG (2X)', 'PNG (4X)', 'SVG']}
+          options={[
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+          ]}
           onSelect={handleDownloadSelect}
         />
       </PlotOptions>

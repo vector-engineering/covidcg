@@ -10,10 +10,12 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
+import DropdownButton from '../Buttons/DropdownButton';
 import initialSpec from '../../vega_specs/location_date.vg.json';
 
 const PlotContainer = styled.div``;
@@ -138,6 +140,23 @@ const LocationDatePlot = observer(({ width }) => {
     plotSettingsStore.setLocationDateCountMode(event.target.value);
   const onChangeDateBin = (event) => {
     plotSettingsStore.setLocationDateDateBin(event.target.value);
+  };
+
+  const handleDownloadSelect = (option) => {
+    // console.log(option);
+    // TODO: use the plot options and configStore options to build a more descriptive filename
+    //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      dataStore.downloadDataAggLocationGroupDate();
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 1);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 2);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 4);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
+      vegaRef.current.downloadImage('svg', 'vega-export.svg');
+    }
   };
 
   // There's some weird data persistence things going on with the dateBin
@@ -330,6 +349,18 @@ const LocationDatePlot = observer(({ width }) => {
               </select>
             </label>
           </SelectContainer>
+          <div className="spacer"></div>
+          <DropdownButton
+            text={'Download'}
+            options={[
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+            ]}
+            onSelect={handleDownloadSelect}
+          />
         </PlotOptions>
         <div style={{ width: `${width}` }}>
           <VegaEmbed
