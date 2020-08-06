@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 
+import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import AccordionTitle from '../Common/AccordionTitle';
@@ -13,6 +14,8 @@ import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
+
+import { GROUP_KEYS } from '../../constants/config';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -53,6 +56,14 @@ const GroupTab = observer(({ width }) => {
             {configStore.getGroupLabel()}s will be highlighted in the plot and
             table below, as well as in the{' '}
             <TabIndicator>Compare Locations</TabIndicator> tab.
+            {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+              <>
+                {' '}
+                <ExternalLink href="https://cov-lineages.org/descriptions.html">
+                  (Lineage Descriptions)
+                </ExternalLink>
+              </>
+            )}
           </p>
         </HelpText>
         <VegaLegend />
