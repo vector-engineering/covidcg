@@ -17,7 +17,7 @@ const loadingAnim = keyframes`
 
 const SkeletonContainer = styled.div`
   height: ${({ height }) => height}px;
-  width: 100%;
+  width: ${({ width }) => width};
   background-color: #eee;
   animation-name: ${loadingAnim};
   animation-duration: 2250ms;
@@ -30,10 +30,15 @@ const SkeletonContainer = styled.div`
 `;
 
 // eslint-disable-next-line react/prop-types
-const SkeletonElement = memo(({ height, delay, children }) => {
+const SkeletonElement = memo(({ width, height, delay, style, children }) => {
   // console.log('render: ', delay);
   return (
-    <SkeletonContainer height={height} delay={delay}>
+    <SkeletonContainer
+      width={width}
+      height={height}
+      delay={delay}
+      style={style}
+    >
       {children}
     </SkeletonContainer>
   );
@@ -43,8 +48,14 @@ SkeletonElement.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
+  width: PropTypes.string,
   height: PropTypes.number.isRequired,
   delay: PropTypes.number.isRequired,
+  style: PropTypes.object,
+};
+SkeletonElement.defaultProps = {
+  width: '100%',
+  style: {},
 };
 
 SkeletonElement.displayName = 'SkeletonElement';

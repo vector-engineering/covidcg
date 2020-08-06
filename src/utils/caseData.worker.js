@@ -5,6 +5,8 @@ import {
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
 } from './lineageData';
+import { getLocationIds } from './location';
+import { hashCode } from './string';
 import {
   warmColors,
   coolColors,
@@ -161,11 +163,11 @@ function filterByGeneOrProtein({
 }
 
 // dateRange is an array, [start, end]
-function filterByDate(caseData, dateRange) {
+function filterByDate(caseData, dateRange, dateKey = 'date') {
   // Filter by date
   if (dateRange[0] > -1 && dateRange[1] > -1) {
     return _.filter(caseData, (row) => {
-      return row.date >= dateRange[0] && row.date <= dateRange[1];
+      return row[dateKey] >= dateRange[0] && row[dateKey] <= dateRange[1];
     });
   }
 
@@ -232,7 +234,7 @@ function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
 }
 
 function processCaseData({
-  selectedLocationIds,
+  selectedLocationNodes,
   coordinateMode,
   coordinateRanges,
   selectedGene,
@@ -241,13 +243,13 @@ function processCaseData({
   dnaOrAa,
   selectedMetadataFields,
   ageRange,
-  selectedLocationNodes,
+  dateRange,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
-  //console.log('filtering by selectedLocationIds', selectedLocationIds);
 
   // Filter by location
+  const selectedLocationIds = getLocationIds(selectedLocationNodes);
   caseData = filterByLocation(caseData, selectedLocationIds);
   // console.log(caseData.length, 'rows remaining after location filtering');
   // Filter by coordinate range (DNA mode only)
@@ -282,13 +284,8 @@ function processCaseData({
   );
   // console.log(caseData.length, 'rows remaining after metadata filtering');
 
-  // Get a list of Accession IDs and sample dates that are currently selected
-  let selectedRows = _.map(caseData, (row) => {
-    return { 'Accession ID': row['Accession ID'], ack_id: row['ack_id'] };
-  });
-
   // For the location tab:
-  const aggLocationData = {};
+  const aggCaseData = {};
   const countsPerLocation = {};
 
   // Build a map of location_id --> node
@@ -317,9 +314,9 @@ function processCaseData({
     }
 
     location = locationIdToNodeMap[row.location_id];
-    !(location in aggLocationData) && (aggLocationData[location] = {});
-    !(row.collection_date in aggLocationData[location]) &&
-      (aggLocationData[location][row.collection_date] = {});
+    !(location in aggCaseData) && (aggCaseData[location] = {});
+    !(row.collection_date in aggCaseData[location]) &&
+      (aggCaseData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
       // Replace the integer SNP ID with the actual SNP string
       if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
@@ -335,9 +332,9 @@ function processCaseData({
         }
       }
 
-      !(group in aggLocationData[location][row.collection_date]) &&
-        (aggLocationData[location][row.collection_date][group] = 0);
-      aggLocationData[location][row.collection_date][group] += 1;
+      !(group in aggCaseData[location][row.collection_date]) &&
+        (aggCaseData[location][row.collection_date][group] = 0);
+      aggCaseData[location][row.collection_date][group] += 1;
     });
   });
 
@@ -350,107 +347,41 @@ function processCaseData({
     getColorMethod = getSnpColor;
   }
 
-  const aggLocationDataList = [];
-  Object.keys(aggLocationData).forEach((location) => {
-    const dates = Object.keys(aggLocationData[location]);
+  const aggCaseDataList = [];
+  Object.keys(aggCaseData).forEach((location) => {
+    const dates = Object.keys(aggCaseData[location]);
     dates.forEach((date) => {
-      groupKeys = Object.keys(aggLocationData[location][date]);
+      groupKeys = Object.keys(aggCaseData[location][date]);
       groupKeys.forEach((group) => {
-        aggLocationDataList.push({
+        aggCaseDataList.push({
           location: location,
           date: parseInt(date),
           group: group,
-          cases_sum: aggLocationData[location][date][group],
+          cases_sum: aggCaseData[location][date][group],
           location_counts: countsPerLocation[location],
           color: getColorMethod(group),
         });
       });
     });
   });
-  // console.log(aggLocationDataList);
 
-  // Group by grouping key and sample date
-  // console.log('Grouping by', groupKey, 'and sample date');
-  const aggCaseData = {};
-  let row = {};
-  // let groupKeys = [];
-  for (let i = 0; i < caseData.length; i++) {
-    row = caseData[i];
-    groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
-
-    // If groupKeys is empty, that means that it's a sequence
-    // that had its SNPs filtered out. We'll replace it with an "empty"
-    // placeholder object to group by
-    if (groupKeys.length === 0) {
-      groupKeys = [-1];
-    }
-
-    groupKeys.forEach((_groupKey) => {
-      // Replace the integer SNP ID with the actual SNP string
-      if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
-        _groupKey = intToDnaSnp(_groupKey).snp_str;
-      } else if (
-        groupKey === GROUP_KEYS.GROUP_SNV &&
-        dnaOrAa === DNA_OR_AA.AA
-      ) {
-        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          _groupKey = intToGeneAaSnp(_groupKey).snp_str;
-        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-          _groupKey = intToProteinAaSnp(_groupKey).snp_str;
-        }
-      }
-
-      // Create an entry for the group, if it doesn't already exist
-      if (!Object.prototype.hasOwnProperty.call(aggCaseData, _groupKey)) {
-        aggCaseData[_groupKey] = {};
-      }
-      // Create a date key, if it doesn't already exist
-      if (
-        !Object.prototype.hasOwnProperty.call(
-          aggCaseData[_groupKey],
-          row.collection_date
-        )
-      ) {
-        aggCaseData[_groupKey][row.collection_date] = 0;
-      }
-      // Add case count
-      aggCaseData[_groupKey][row.collection_date] += 1;
-    });
-  }
-
-  // console.log(aggCaseData);
-
-  // Compute total counts per group
-  const countsPerGroup = {};
-  Object.keys(aggCaseData).forEach((group) => {
-    countsPerGroup[group] = Object.values(aggCaseData[group]).reduce(
-      (memo, val) => memo + val,
-      0
-    );
+  // Get a list of Accession IDs and sample dates that are currently selected
+  const selectedAccessionIds = [];
+  const selectedAckIds = [];
+  caseData = filterByDate(caseData, dateRange, 'collection_date');
+  caseData.forEach((row) => {
+    selectedAccessionIds.push(row['Accession ID']);
+    selectedAckIds.push(row['ack_id']);
   });
-
-  // Expand obj of objs back into a list of objects
-  const aggCaseDataList = [];
-  Object.keys(aggCaseData).forEach((group) => {
-    const dates = Object.keys(aggCaseData[group]);
-    dates.forEach((date) => {
-      aggCaseDataList.push({
-        group: group,
-        date: parseInt(date),
-        cases_sum: aggCaseData[group][date],
-        color: getColorMethod(group),
-      });
-    });
-  });
-
-  // console.log(aggCaseDataList);
+  const selectedRowsHash = hashCode(selectedAccessionIds.join(''));
 
   return {
     aggCaseDataList,
     numSequencesBeforeMetadataFiltering,
-    selectedRows,
     metadataCounts,
-    aggLocationDataList,
+    selectedRowsHash,
+    selectedAccessionIds,
+    selectedAckIds,
   };
 }
 
@@ -458,7 +389,7 @@ function processCaseData({
 // i.e., collapse the date field for cases, so we can display group-wise stats
 // in the data table
 function aggCaseDataByGroup({
-  caseData,
+  dataAggGroupDate,
   coordinateMode,
   coordinateRanges,
   selectedGene,
@@ -470,7 +401,7 @@ function aggCaseDataByGroup({
   // console.log(dateRange);
 
   const groupCountObj = {};
-  caseData.forEach((row) => {
+  dataAggGroupDate.forEach((row) => {
     if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
     else {
       groupCountObj[row.group] = row.cases_sum;
@@ -492,27 +423,27 @@ function aggCaseDataByGroup({
   });
 
   // Aggregate case data by clade only (no dates)
-  let caseDataAggGroup = {};
+  let dataAggGroup = {};
   let totalCaseCount = 0;
 
   // Filter by date
-  caseData = filterByDate(caseData, dateRange);
+  dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
 
-  caseData.forEach((row) => {
-    if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, row.group)) {
-      caseDataAggGroup[row.group] = {};
-      caseDataAggGroup[row.group]['cases_sum'] = 0;
+  dataAggGroupDate.forEach((row) => {
+    if (!Object.prototype.hasOwnProperty.call(dataAggGroup, row.group)) {
+      dataAggGroup[row.group] = {};
+      dataAggGroup[row.group]['cases_sum'] = 0;
     }
-    caseDataAggGroup[row.group]['cases_sum'] += row.cases_sum;
+    dataAggGroup[row.group]['cases_sum'] += row.cases_sum;
     // Add to total case count
     totalCaseCount += row.cases_sum;
   });
 
   // Calculate percentages for cases
   // TODO: calculate growth rates
-  Object.keys(caseDataAggGroup).forEach((row) => {
-    caseDataAggGroup[row]['cases_percent'] =
-      caseDataAggGroup[row]['cases_sum'] / totalCaseCount;
+  Object.keys(dataAggGroup).forEach((row) => {
+    dataAggGroup[row]['cases_percent'] =
+      dataAggGroup[row]['cases_sum'] / totalCaseCount;
   });
 
   // We need a list of 0-indexed positions for the data table
@@ -536,7 +467,7 @@ function aggCaseDataByGroup({
 
     // For each lineage/clade, add its changing positions
     let inRange = false;
-    Object.keys(caseDataAggGroup).forEach((group) => {
+    Object.keys(dataAggGroup).forEach((group) => {
       let groupSnps = groupSnpFunc(group);
       if (dnaOrAa === DNA_OR_AA.DNA) {
         groupSnps.forEach((snp) => {
@@ -590,7 +521,7 @@ function aggCaseDataByGroup({
     if (dnaOrAa === DNA_OR_AA.DNA) {
       // For DNA SNPs, the position is the first chunk (pos|ref|alt)
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
-      Object.keys(caseDataAggGroup).forEach((snp_str) => {
+      Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
         if (snp_str === 'Reference') {
           return;
@@ -606,7 +537,7 @@ function aggCaseDataByGroup({
     } else {
       // For AA SNPs, the position is the second chunk (gene|pos|ref|alt)
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
-      Object.keys(caseDataAggGroup).forEach((snp_str) => {
+      Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
         if (snp_str === 'Reference') {
           return;
@@ -638,16 +569,16 @@ function aggCaseDataByGroup({
   changingPositions = changingPositionsOrdered;
 
   // console.log(Object.keys(changingPositions).length, 'changing positions');
-  //console.log(caseDataAggGroup);
+  //console.log(dataAggGroup);
 
-  // Add each changing position as a new field for each row in caseDataAggGroup
+  // Add each changing position as a new field for each row in dataAggGroup
   let ref_base = '';
   let alt_base = '';
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(caseDataAggGroup, 'Reference')) {
-    caseDataAggGroup['Reference'] = {
+  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, 'Reference')) {
+    dataAggGroup['Reference'] = {
       cases_sum: NaN,
       cases_percent: NaN,
     };
@@ -656,19 +587,19 @@ function aggCaseDataByGroup({
   // For SNP data, break out the (gene), position, ref, and alt
   if (groupKey === GROUP_KEYS.GROUP_SNV) {
     let row_split;
-    Object.keys(caseDataAggGroup).forEach((row) => {
+    Object.keys(dataAggGroup).forEach((row) => {
       // Skip reference
       if (row === 'Reference') {
         // Since we're going to display the gene or pos later
         // in the data table, put these here so the reference
         // row renders correctly
         if (dnaOrAa == DNA_OR_AA.DNA) {
-          caseDataAggGroup[row]['pos'] = 'Reference';
+          dataAggGroup[row]['pos'] = 'Reference';
         } else {
           if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-            caseDataAggGroup[row]['gene'] = 'Reference';
+            dataAggGroup[row]['gene'] = 'Reference';
           } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-            caseDataAggGroup[row]['protein'] = 'Reference';
+            dataAggGroup[row]['protein'] = 'Reference';
           }
         }
         return;
@@ -677,24 +608,24 @@ function aggCaseDataByGroup({
       row_split = row.split('|');
       if (dnaOrAa === DNA_OR_AA.DNA) {
         // DNA SNP string: pos|ref|alt
-        caseDataAggGroup[row]['pos'] = parseInt(row_split[0]);
-        caseDataAggGroup[row]['ref'] = row_split[1];
-        caseDataAggGroup[row]['alt'] = row_split[2];
+        dataAggGroup[row]['pos'] = parseInt(row_split[0]);
+        dataAggGroup[row]['ref'] = row_split[1];
+        dataAggGroup[row]['alt'] = row_split[2];
       } else {
         // AA SNP string: gene|pos|ref|alt or protein|pos|ref|alt
         if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          caseDataAggGroup[row]['gene'] = row_split[0];
+          dataAggGroup[row]['gene'] = row_split[0];
         } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-          caseDataAggGroup[row]['protein'] = row_split[0];
+          dataAggGroup[row]['protein'] = row_split[0];
         }
-        caseDataAggGroup[row]['pos'] = parseInt(row_split[1]);
-        caseDataAggGroup[row]['ref'] = row_split[2];
-        caseDataAggGroup[row]['alt'] = row_split[3];
+        dataAggGroup[row]['pos'] = parseInt(row_split[1]);
+        dataAggGroup[row]['ref'] = row_split[2];
+        dataAggGroup[row]['alt'] = row_split[3];
       }
     });
   }
 
-  Object.keys(caseDataAggGroup).forEach((group) => {
+  Object.keys(dataAggGroup).forEach((group) => {
     Object.keys(changingPositions).forEach((pos) => {
       ref_base = changingPositions[pos]['ref'];
       alt_base = ref_base; // Default to same as reference
@@ -732,19 +663,19 @@ function aggCaseDataByGroup({
       else if (groupKey === GROUP_KEYS.GROUP_SNV) {
         // DNA SNP string: pos|ref|alt
         if (dnaOrAa === DNA_OR_AA.DNA) {
-          if (pos === caseDataAggGroup[group]['pos'] - 1) {
-            alt_base = caseDataAggGroup[group]['alt'];
+          if (pos === dataAggGroup[group]['pos'] - 1) {
+            alt_base = dataAggGroup[group]['alt'];
           }
         }
         // AA SNP string: gene|pos|ref|alt
         else {
-          if (pos === caseDataAggGroup[group]['pos'] - 1) {
-            alt_base = caseDataAggGroup[group]['alt'];
+          if (pos === dataAggGroup[group]['pos'] - 1) {
+            alt_base = dataAggGroup[group]['alt'];
           }
         }
       }
 
-      caseDataAggGroup[group]['pos_' + pos.toString()] = alt_base;
+      dataAggGroup[group]['pos_' + pos.toString()] = alt_base;
     });
   });
 
@@ -758,22 +689,22 @@ function aggCaseDataByGroup({
   }
 
   // Object -> List of records
-  Object.keys(caseDataAggGroup).forEach((group) => {
-    caseDataAggGroup[group]['group'] = group;
-    caseDataAggGroup[group]['color'] = getColorMethod(group);
+  Object.keys(dataAggGroup).forEach((group) => {
+    dataAggGroup[group]['group'] = group;
+    dataAggGroup[group]['color'] = getColorMethod(group);
     const parentkey = getParent(group);
-    if (caseDataAggGroup[parentkey] && parentkey !== group) {
-      caseDataAggGroup[group].parent = parentkey;
+    if (dataAggGroup[parentkey] && parentkey !== group) {
+      dataAggGroup[group].parent = parentkey;
     } else if (group !== 'Reference') {
-      caseDataAggGroup[group].parent = 'Reference';
+      dataAggGroup[group].parent = 'Reference';
     }
-    caseDataAggGroup[group].name = group;
-    caseDataAggGroup[group].id = group;
+    dataAggGroup[group].name = group;
+    dataAggGroup[group].id = group;
   });
-  caseDataAggGroup = Object.values(caseDataAggGroup);
+  dataAggGroup = Object.values(dataAggGroup);
 
   return {
-    caseDataAggGroup: caseDataAggGroup,
+    dataAggGroup: dataAggGroup,
     changingPositions: changingPositions,
     groupCountArr,
   };

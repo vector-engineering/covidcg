@@ -210,14 +210,14 @@ const VegaLegend = observer(() => {
   useEffect(() => {
     // Make own copy of the elements, and sort by group
     let legendItems = mergeLegendItemsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.caseDataAggGroup)),
+      JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
       dataStore.groupsToKeep
     );
-    // console.log(legendItems, dataStore.caseDataAggGroup);
+    // console.log(legendItems, dataStore.dataAggGroup);
     legendItems = _.sortBy(legendItems, (row) => row.group);
 
     setState({ ...state, legendItems: renderLegendKeys(legendItems) });
-  }, [dataStore.caseDataAggGroup, dataStore.groupsToKeep]);
+  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
 
   // console.log('RE-RENDERING LEGEND');
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-// import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -112,7 +111,7 @@ const GroupStackPlot = observer(({ width }) => {
     showWarning: true,
     data: {
       cases_by_date_and_group: mergeGroupsIntoOther(
-        JSON.parse(JSON.stringify(dataStore.caseData)),
+        JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
         dataStore.groupsToKeep
       ),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
@@ -147,12 +146,12 @@ const GroupStackPlot = observer(({ width }) => {
       data: {
         ...state.data,
         cases_by_date_and_group: mergeGroupsIntoOther(
-          JSON.parse(JSON.stringify(dataStore.caseData)),
+          JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
           dataStore.groupsToKeep
         ),
       },
     });
-  }, [dataStore.caseData, dataStore.groupsToKeep]);
+  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -239,7 +238,7 @@ const GroupStackPlot = observer(({ width }) => {
     );
   }
 
-  if (configStore.selectedLocationIds.length === 0) {
+  if (configStore.selectedLocationNodes.length === 0) {
     return (
       <EmptyPlot height={250}>
         <p>

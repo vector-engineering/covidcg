@@ -85,7 +85,9 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
-    let locationData = JSON.parse(JSON.stringify(dataStore.aggLocationData));
+    let locationData = JSON.parse(
+      JSON.stringify(dataStore.dataAggLocationGroupDate)
+    );
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
@@ -111,7 +113,7 @@ const LocationGroupPlot = observer(({ width }) => {
       },
     });
   }, [
-    dataStore.aggLocationData,
+    dataStore.selectedRowsHash,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
@@ -132,7 +134,7 @@ const LocationGroupPlot = observer(({ width }) => {
   xLabel += ' (Cumulative, All Sequences)';
 
   const renderPlot = () => {
-    if (configStore.selectedLocationIds.length == 0) {
+    if (configStore.selectedLocationNodes.length == 0) {
       return (
         <EmptyPlot height={100}>
           <p>

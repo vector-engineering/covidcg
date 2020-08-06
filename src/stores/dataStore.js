@@ -1,6 +1,4 @@
 import { observable, action, toJS } from 'mobx';
-import _ from 'underscore';
-
 import {
   processCaseData,
   aggCaseDataByGroup,
@@ -10,11 +8,10 @@ import {
   downloadAcknowledgementsData,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
+import { aggregate } from '../utils/transform';
 import { decryptAccessionIds } from '../utils/decrypt';
-//import { getLineagesFromGene } from '../utils/lineageData';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
-
 import {
   LOW_FREQ_FILTER_TYPES,
   GROUP_KEYS,
@@ -26,32 +23,39 @@ import { getGlobalGroupCounts } from '../utils/globalCounts';
 const globalGroupCounts = getGlobalGroupCounts();
 
 export const initialDataValues = {
-  caseData: [],
+  dataAggLocationGroupDate: [],
+  dataAggGroupDate: [],
+  dataAggGroup: [],
   changingPositions: {},
-  caseDataAggGroup: [],
-  selectedRows: [],
   groupsToKeep: [],
-  groupCountArr: {},
+  groupCountArr: [],
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
 
-  // For location tab
-  aggLocationData: [],
+  selectedRowsHash: '',
+  selectedRowsAndDateHash: '',
+  selectedAccessionIds: [],
+  selectedAckIds: [],
 };
 
 class ObservableDataStore {
-  caseData = initialDataValues.caseData;
+  dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
+  dataAggGroupDate = initialDataValues.dataAggGroupDate;
+  dataAggGroup = initialDataValues.dataAggGroup;
   @observable changingPositions = initialDataValues.changingPositions;
-  caseDataAggGroup = initialDataValues.caseDataAggGroup;
-  @observable selectedRows = initialDataValues.selectedRows;
   @observable groupsToKeep = initialDataValues.groupsToKeep;
   @observable groupCountArr = initialDataValues.groupCountArr;
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
-  @observable aggLocationData = initialDataValues.aggLocationData;
+
+  @observable selectedRowsHash = initialDataValues.selectedRowsHash;
+  @observable selectedRowsAndDateHash =
+    initialDataValues.selectedRowsAndDateHash;
+  selectedAccessionIds = initialDataValues.selectedAccessionIds;
+  selectedAckIds = initialDataValues.selectedAckIds;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -60,6 +64,10 @@ class ObservableDataStore {
 
   @action
   updateGroupsToKeep() {
+    if (this.groupCountArr === undefined) {
+      return;
+    }
+
     if (
       configStoreInstance.lowFreqFilterType ===
       LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
@@ -115,21 +123,34 @@ class ObservableDataStore {
     UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
-        caseData: this.caseData,
+        dataAggGroupDate: this.dataAggGroupDate,
         coordinateMode: toJS(configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(configStoreInstance.coordinateRanges),
+        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
         selectedProtein: toJS(configStoreInstance.selectedProtein),
         groupKey: toJS(configStoreInstance.groupKey),
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ caseDataAggGroup, changingPositions, groupCountArr }) => {
+      ({ dataAggGroup, changingPositions, groupCountArr }) => {
         // console.log(caseDataAggGroup);
-        this.caseDataAggGroup = caseDataAggGroup;
+        this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
         this.groupCountArr = groupCountArr;
         // console.log('AGG_CASE_DATA FINISHED');
+
+        // Update hash for any listeners
+        this.selectedRowsAndDateHash =
+          this.selectedRowsHash +
+          toJS(configStoreInstance.coordinateMode) +
+          toJS(configStoreInstance.getCoordinateRanges()).toString() +
+          configStoreInstance.selectedGene.gene +
+          configStoreInstance.selectedProtein.protein +
+          configStoreInstance.groupKey +
+          configStoreInstance.dnaOrAa +
+          toJS(configStoreInstance.dateRange)
+            .map((date) => date.toString())
+            .join(',');
 
         this.updateGroupsToKeep();
         // Fire callback
@@ -145,10 +166,13 @@ class ObservableDataStore {
 
   @action
   emptyCaseData() {
-    this.caseData = [];
-    this.selectedRows = [];
-    this.caseDataAggGroup = [];
+    this.dataAggLocationGroupDate = [];
+    this.dataAggGroupDate = [];
+    this.dataAggGroup = [];
     this.changingPositions = {};
+    this.selectedRowsHash = '';
+    this.selectedAccessionIds = [];
+    this.selectedAckIds = [];
   }
 
   @action
@@ -156,9 +180,9 @@ class ObservableDataStore {
     UIStoreInstance.onCaseDataStateStarted();
     processCaseData(
       {
-        selectedLocationIds: toJS(configStoreInstance.selectedLocationIds),
+        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(configStoreInstance.coordinateRanges),
+        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
         selectedProtein: toJS(configStoreInstance.selectedProtein),
         groupKey: toJS(configStoreInstance.groupKey),
@@ -167,21 +191,31 @@ class ObservableDataStore {
           configStoreInstance.selectedMetadataFields
         ),
         ageRange: toJS(configStoreInstance.ageRange),
-        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
+        dateRange: toJS(configStoreInstance.dateRange),
       },
       ({
         aggCaseDataList,
-        selectedRows,
         metadataCounts,
         numSequencesBeforeMetadataFiltering,
-        aggLocationDataList,
+        selectedRowsHash,
+        selectedAccessionIds,
+        selectedAckIds,
       }) => {
-        this.caseData = aggCaseDataList;
-        this.selectedRows = selectedRows;
+        this.dataAggLocationGroupDate = aggCaseDataList;
+        this.dataAggGroupDate = aggregate({
+          data: aggCaseDataList,
+          groupby: ['date', 'group'],
+          fields: ['cases_sum', 'color'],
+          ops: ['sum', 'max'],
+          as: ['cases_sum', 'color'],
+        });
         this.metadataCounts = metadataCounts;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        this.aggLocationData = aggLocationDataList;
         // console.log('CASE_DATA FINISHED');
+
+        this.selectedRowsHash = selectedRowsHash;
+        this.selectedAccessionIds = selectedAccessionIds;
+        this.selectedAckIds = selectedAckIds;
 
         this.updateAggCaseDataByGroup(callback);
       }
@@ -190,57 +224,52 @@ class ObservableDataStore {
 
   @action
   downloadAccessionIds() {
-    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
-      (responseData) => {
-        downloadAccessionIdsData(
-          { accessionIds: responseData['accession_ids'] },
-          (res) => {
-            downloadBlobURL(
-              res.blobURL,
-              generateSelectionString(
-                'accession_ids',
-                'txt',
-                configStoreInstance.groupKey,
-                configStoreInstance.dnaOrAa,
-                configStoreInstance.selectedLocationIds,
-                configStoreInstance.dateRange
-              )
-            );
-          }
-        );
-      }
-    );
+    decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
+      downloadAccessionIdsData(
+        { accessionIds: responseData['accession_ids'] },
+        (res) => {
+          downloadBlobURL(
+            res.blobURL,
+            generateSelectionString(
+              'accession_ids',
+              'txt',
+              toJS(configStoreInstance.groupKey),
+              toJS(configStoreInstance.dnaOrAa),
+              toJS(configStoreInstance.selectedLocationNodes),
+              toJS(configStoreInstance.dateRange)
+            )
+          );
+        }
+      );
+    });
   }
 
   @action
   downloadAcknowledgements() {
     // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
 
-    decryptAccessionIds(_.pluck(this.selectedRows, 'Accession ID')).then(
-      (responseData) => {
-        // Make a deep copy of the selected rows
-        let selectedRows = JSON.parse(JSON.stringify(toJS(this.selectedRows)));
-        // Overwrite the existing hashed Accession IDs with the real ones
-        for (let i = 0; i < selectedRows.length; i++) {
-          selectedRows[i]['Accession ID'] = responseData['accession_ids'][i];
-        }
-
-        downloadAcknowledgementsData({ selectedRows }, (res) => {
+    decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
+      downloadAcknowledgementsData(
+        {
+          selectedAccessionIds: responseData['accession_ids'],
+          selectedAckIds: this.selectedAckIds,
+        },
+        (res) => {
           // console.log(res);
           downloadBlobURL(
             res.blobURL,
             generateSelectionString(
               'acknowledgements',
               'csv',
-              configStoreInstance.groupKey,
-              configStoreInstance.dnaOrAa,
-              configStoreInstance.selectedLocationIds,
-              configStoreInstance.dateRange
+              toJS(configStoreInstance.groupKey),
+              toJS(configStoreInstance.dnaOrAa),
+              toJS(configStoreInstance.selectedLocationNodes),
+              toJS(configStoreInstance.dateRange)
             )
           );
-        });
-      }
-    );
+        }
+      );
+    });
   }
 
   @action
@@ -250,7 +279,7 @@ class ObservableDataStore {
         groupKey: configStoreInstance.groupKey,
         dnaOrAa: configStoreInstance.dnaOrAa,
         coordinateMode: configStoreInstance.coordinateMode,
-        caseDataAggGroup: this.caseDataAggGroup,
+        dataAggGroup: this.dataAggGroup,
       },
       (res) => {
         downloadBlobURL(
@@ -258,10 +287,10 @@ class ObservableDataStore {
           generateSelectionString(
             'agg_data',
             'csv',
-            configStoreInstance.groupKey,
-            configStoreInstance.dnaOrAa,
-            configStoreInstance.selectedLocationIds,
-            configStoreInstance.dateRange
+            toJS(configStoreInstance.groupKey),
+            toJS(configStoreInstance.dnaOrAa),
+            toJS(configStoreInstance.selectedLocationNodes),
+            toJS(configStoreInstance.dateRange)
           )
         );
       }

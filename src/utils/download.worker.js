@@ -21,21 +21,22 @@ function downloadAccessionIdsData({ accessionIds }) {
   };
 }
 
-function downloadAcknowledgementsData({ selectedRows }) {
-  let ackIds = _.pluck(selectedRows, 'ack_id');
-
+function downloadAcknowledgementsData({
+  selectedAccessionIds,
+  selectedAckIds,
+}) {
   // Get the list of selected Accession IDs, and map to
   // acknowledgement texts
-  let ackTexts = getAckTextsFromAckIds(ackIds);
+  const ackTexts = getAckTextsFromAckIds(selectedAckIds);
 
   // Write to a CSV string
   // Accession ID and sample date first
   // Then acknowledgement texts
   let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
 
-  for (let i = 0; i < selectedRows.length; i++) {
+  for (let i = 0; i < selectedAccessionIds.length; i++) {
     // Write Accession ID
-    csvString += selectedRows[i]['Accession ID'] + ',';
+    csvString += selectedAccessionIds[i] + ',';
 
     // Write Acknowledgement texts
     // Since these can contain commas, wrap each in double quotes
@@ -56,18 +57,18 @@ function downloadAggCaseData({
   groupKey,
   dnaOrAa,
   coordinateMode,
-  caseDataAggGroup,
+  dataAggGroup,
 }) {
-  // console.log(groupKey, dnaOrAa, caseDataAggGroup);
+  // console.log(groupKey, dnaOrAa, dataAggGroup);
 
   let csvString = '';
 
   // Get list of changing positions.
   // We don't need to pass the store variable in. the positions will be
-  // encoded onto each row of caseDataAggGroup, so just grab one row
+  // encoded onto each row of dataAggGroup, so just grab one row
   // to see what's there
   const changingPositions = [];
-  Object.keys(caseDataAggGroup[0]).forEach((key) => {
+  Object.keys(dataAggGroup[0]).forEach((key) => {
     if (key.slice(0, 4) === 'pos_') {
       // Changing positions are 0-indexed
       changingPositions.push(parseInt(key.slice(4)));
@@ -81,14 +82,14 @@ function downloadAggCaseData({
   ) {
     csvString = downloadAggCaseDataGroup({
       groupKey,
-      caseDataAggGroup,
+      dataAggGroup,
       changingPositions,
       coordinateMode,
     });
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     csvString = downloadAggCaseDataSnp(
       dnaOrAa,
-      caseDataAggGroup,
+      dataAggGroup,
       changingPositions
     );
   }
@@ -103,7 +104,7 @@ function downloadAggCaseData({
 
 function downloadAggCaseDataGroup({
   groupKey,
-  caseDataAggGroup,
+  dataAggGroup,
   changingPositions,
   coordinateMode,
 }) {
@@ -117,8 +118,8 @@ function downloadAggCaseDataGroup({
   );
   csvString += '\n';
 
-  for (let i = 0; i < caseDataAggGroup.length; i++) {
-    let row = caseDataAggGroup[i];
+  for (let i = 0; i < dataAggGroup.length; i++) {
+    let row = dataAggGroup[i];
     // Skip if it's the reference row
     if (row['group'] === 'Reference') {
       continue;
@@ -195,7 +196,7 @@ function downloadAggCaseDataGroup({
   return csvString;
 }
 
-function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
+function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
   let csvString = '';
 
   // Write headers
@@ -216,8 +217,8 @@ function downloadAggCaseDataSnp(dnaOrAa, caseDataAggGroup, changingPositions) {
   );
   csvString += '\n';
 
-  for (let i = 0; i < caseDataAggGroup.length; i++) {
-    let row = caseDataAggGroup[i];
+  for (let i = 0; i < dataAggGroup.length; i++) {
+    let row = dataAggGroup[i];
 
     // Write the SNP string
     // For DNA, its pos|ref|alt

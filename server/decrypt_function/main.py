@@ -7,15 +7,6 @@ client = storage.Client()
 DATA_BUCKET = "covid-cg"
 bucket = client.get_bucket(DATA_BUCKET)
 
-blob = bucket.get_blob("accession_hashmap.csv")
-csvdata = blob.download_as_string().decode("utf-8")
-
-accession_id_map = {}
-csvreader = csv.reader(csvdata.splitlines(), delimiter=",", quotechar='"')
-for row in csvreader:
-    # Map hash --> real Accession ID
-    accession_id_map[row[1]] = row[0]
-
 
 def decrypt_accession_id(request):
     """HTTP Cloud Function.
@@ -27,6 +18,15 @@ def decrypt_accession_id(request):
         Response object using `make_response`
         <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>.
     """
+
+    blob = bucket.get_blob("accession_hashmap.csv")
+    csvdata = blob.download_as_string().decode("utf-8")
+
+    accession_id_map = {}
+    csvreader = csv.reader(csvdata.splitlines(), delimiter=",", quotechar='"')
+    for row in csvreader:
+        # Map hash --> real Accession ID
+        accession_id_map[row[1]] = row[0]
 
     # For more information about CORS and CORS preflight requests, see
     # https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request

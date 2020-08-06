@@ -5,7 +5,6 @@ import _ from 'underscore';
 import { getGene } from '../utils/gene';
 import { getProtein } from '../utils/protein';
 import {
-  getLocationIds,
   getLocationByNameAndLevel,
   loadSelectTree,
   assignObjectPaths,
@@ -60,13 +59,11 @@ export const initialConfigValues = {
 
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
-  coordinateRanges: getGene('S').ranges,
 
   dateRange: [-1, -1], // No initial date range
 
   selectTree: initialSelectTree,
   selectedLocationNodes: [NYCNode, MassNode],
-  selectedLocationIds: getLocationIds([NYCNode, MassNode]),
 
   hoverGroup: null,
   selectedGroups: [],
@@ -93,11 +90,9 @@ class ObservableConfigStore {
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
   @observable customCoordinates = initialConfigValues.customCoordinates;
   @observable coordinateMode = initialConfigValues.coordinateMode;
-  @observable coordinateRanges = initialConfigValues.coordinateRanges;
   @observable dateRange = initialConfigValues.dateRange;
   @observable selectTree = initialConfigValues.selectTree;
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
-  @observable selectedLocationIds = initialConfigValues.selectedLocationIds;
   @observable hoverGroup = initialConfigValues.hoverGroup;
   @observable selectedGroups = initialConfigValues.selectedGroups;
   @observable selectedMetadataFields =
@@ -233,21 +228,6 @@ class ObservableConfigStore {
     this.selectedPrimers = selectedPrimers;
     this.customCoordinates = customCoordinates;
 
-    // Set the coordinate range based off the coordinate mode
-    if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      this.coordinateRanges = this.selectedGene.ranges;
-    } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      this.coordinateRanges = this.selectedProtein.ranges;
-    } else if (coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
-      let ranges = [];
-      this.selectedPrimers.forEach((primer) => {
-        ranges.push([primer.Start, primer.End]);
-      });
-      this.coordinateRanges = ranges;
-    } else if (coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
-      this.coordinateRanges = [this.customCoordinates];
-    }
-
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
     if (
@@ -288,8 +268,8 @@ class ObservableConfigStore {
       }
     } else if (
       this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
-      this.coordinateRanges[0][0] === initial.customCoordinates[0][0] &&
-      this.coordinateRanges[0][1] === initial.customCoordinates[0][1]
+      this.customCoordinates[0][0] === initial.customCoordinates[0][0] &&
+      this.customCoordinates[0][1] === initial.customCoordinates[0][1]
     ) {
       return;
     }
@@ -302,10 +282,27 @@ class ObservableConfigStore {
     dataStoreInstance.updateCaseData();
   }
 
+  getCoordinateRanges() {
+    let coordinateRanges;
+    // Set the coordinate range based off the coordinate mode
+    if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      coordinateRanges = this.selectedGene.ranges;
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      coordinateRanges = this.selectedProtein.ranges;
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
+      coordinateRanges = [];
+      this.selectedPrimers.forEach((primer) => {
+        coordinateRanges.push([primer.Start, primer.End]);
+      });
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
+      coordinateRanges = [toJS(this.customCoordinates)];
+    }
+    return coordinateRanges;
+  }
+
   @action
   selectLocations(selectedNodes) {
     this.selectedLocationNodes = selectedNodes;
-    this.selectedLocationIds = getLocationIds(selectedNodes);
 
     // Clear metadata fields
     this.selectedMetadataFields = {};

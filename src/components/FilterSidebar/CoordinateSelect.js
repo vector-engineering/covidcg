@@ -410,7 +410,9 @@ const CoordinateSelect = observer(() => {
 
   useEffect(() => {
     // Check all selected primers
-    const primerTreeData = state.primerTreeData;
+    // Make a deep copy of the primer tree data - so we trigger an update
+    // in the memoized primer tree element
+    const primerTreeData = state.primerTreeData.slice();
     const selectedPrimers = configStore.selectedPrimers;
     selectedPrimers.forEach((primer) => {
       const institutionNode = _.findWhere(primerTreeData, {
@@ -468,8 +470,8 @@ const CoordinateSelect = observer(() => {
   // This component needs to be in a memoized function
   // since it manages its own local state. It should never be re-rendered
   // forcefully
-  const primerDropdown = useMemo(
-    () => (
+  const primerDropdown = useMemo(() => {
+    return (
       <PrimerSelect
         data={state.primerTreeData}
         className="primer-dropdown-tree-select"
@@ -484,9 +486,8 @@ const CoordinateSelect = observer(() => {
         }}
         onChange={onPrimerSelect}
       />
-    ),
-    [state.primerTreeData]
-  );
+    );
+  }, [state.primerTreeData]);
 
   return (
     <SelectContainer>

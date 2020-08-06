@@ -126,7 +126,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
 
   // let numSequencesBeforeMetadataFilteringText = '';
   // if (
-  //   dataStore.selectedRows.length !==
+  //   dataStore.selectedAccessionIds.length !==
   //   dataStore.numSequencesBeforeMetadataFiltering
   // ) {
   //   numSequencesBeforeMetadataFilteringText = (
@@ -209,7 +209,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
           <div className="row-status-header">
             <span className="title">Sequences</span>
             <span className="subtitle">
-              ({dataStore.selectedRows.length} selected)
+              ({dataStore.selectedAccessionIds.length} selected)
             </span>
           </div>
           {numSequencesBeforeMetadataFilteringText}

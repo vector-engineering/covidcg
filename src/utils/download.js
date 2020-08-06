@@ -1,6 +1,4 @@
 // Download utilities
-
-import { getLocationNameByIds } from './location';
 import { intToISO } from './date';
 import { GROUP_KEYS } from '../constants/config';
 
@@ -18,7 +16,7 @@ export function generateSelectionString(
   suffix,
   groupKey,
   dnaOrAa,
-  selectedLocationIds,
+  selectedLocationNodes,
   dateRange
 ) {
   let out = prefix + '_';
@@ -31,8 +29,12 @@ export function generateSelectionString(
   }
 
   // Add locations
-  let locNames = getLocationNameByIds(selectedLocationIds);
-  console.log(locNames);
+  selectedLocationNodes.forEach((node) => {
+    if ('label' in node) {
+      out += node.label;
+      out += '_';
+    }
+  });
   // Don't add them as text, that will take up way too much space
   // Need to find a better way to embed location here
 
