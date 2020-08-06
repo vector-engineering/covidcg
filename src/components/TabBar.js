@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-// import { useStores } from '../stores/connect';
+import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 // import _ from 'underscore';
 
@@ -117,7 +117,7 @@ TabItem.defaultProps = {
 // };
 
 const TabBar = observer(({ activeTab, onTabChange }) => {
-  // const { dataStore, configStore } = useStores();
+  const { configStore } = useStores();
 
   const changeTab = (tab, e) => {
     e.preventDefault();
@@ -173,7 +173,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_GROUP)}
           >
-            <span>Main</span>
+            <span>Compare {configStore.getGroupLabel()}s</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_LOCATION}>
@@ -182,7 +182,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
           >
-            <span>Compare locations</span>
+            <span>Compare Locations</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_EXAMPLE}>
