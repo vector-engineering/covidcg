@@ -12,9 +12,7 @@ import AccordionWrapper from '../Common/AccordionWrapper';
 import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
-import AcknowledgementsTable from '../Table/AcknowledgementsTable';
-
-// import { GROUP_KEYS } from '../../constants/config';
+// import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -106,13 +104,13 @@ const GroupTab = observer(({ width }) => {
         </HelpText>
         <DataTableContainer />
       </AccordionWrapper>
-      <AccordionWrapper
+      {/* <AccordionWrapper
         title="acknowledgements"
         defaultCollapsed={true}
         maxHeight={'1200px'}
       >
         <AcknowledgementsTable />
-      </AccordionWrapper>
+      </AccordionWrapper> */}
     </GroupTabContainer>
   );
 });
