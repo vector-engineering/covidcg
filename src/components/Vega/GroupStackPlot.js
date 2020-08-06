@@ -9,6 +9,7 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -20,19 +21,6 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 
 import { mergeGroupsIntoOther } from './utils';
 import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
-
-const DOWNLOAD_DATA = 'Plot Data';
-const DOWNLOAD_PNG = 'PNG';
-const DOWNLOAD_PNG_2X = 'PNG (2X)';
-const DOWNLOAD_PNG_4X = 'PNG (4X)';
-const DOWNLOAD_SVG = 'SVG';
-const DOWNLOAD_OPTIONS = {
-  DOWNLOAD_DATA,
-  DOWNLOAD_PNG,
-  DOWNLOAD_PNG_2X,
-  DOWNLOAD_PNG_4X,
-  DOWNLOAD_SVG,
-};
 
 const PlotOptions = styled.div`
   display: flex;
@@ -109,15 +97,15 @@ const GroupStackPlot = observer(({ width }) => {
     // console.log(option);
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
-    if (option === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
       dataStore.downloadDataAggGroupDate();
-    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
-    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 2);
-    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X) {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 4);
-    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
     }
   };
@@ -316,11 +304,11 @@ const GroupStackPlot = observer(({ width }) => {
         <DropdownButton
           text={'Download'}
           options={[
-            DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-            DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-            DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-            DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-            DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
           ]}
           onSelect={handleDownloadSelect}
         />
