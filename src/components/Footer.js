@@ -65,9 +65,9 @@ const Footer = ({ openModal }) => {
   return (
     <FooterContainer>
       <div className="gisaid-daa">
-        GISAID data provided on this website is subject to{' '}
+        GISAID data provided on this website is subject to GISAID’s{' '}
         <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
-          GISAID’s Terms and Conditions
+          Terms and Conditions
         </ExternalLink>
       </div>
       <a href="#" onClick={openModal}>
