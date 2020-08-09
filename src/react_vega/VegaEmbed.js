@@ -419,7 +419,7 @@ VegaEmbed.propTypes = {
 
   className: PropTypes.string,
   spec: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
+  data: PropTypes.object,
   recreateOnDatasets: PropTypes.arrayOf(PropTypes.string),
   signals: PropTypes.object,
   cheapSignals: PropTypes.arrayOf(PropTypes.string),
@@ -433,6 +433,7 @@ VegaEmbed.propTypes = {
 VegaEmbed.defaultProps = {
   mode: 'vega',
   className: 'vega-embed',
+  data: {},
   recreateOnDatasets: [],
   signals: {},
   cheapSignals: [],
