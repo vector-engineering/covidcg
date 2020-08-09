@@ -1,0 +1,638 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An interactive world map supporting pan and zoom.",
+  "width": 1000,
+  "height": 1300,
+  "padding": 5,
+
+  "signals": [
+    { "name": "mapWidth", "update": "width / 2" },
+    { "name": "mapHeight", "update": "height - 1000" },
+    { "name": "chartWidth", "update": "mapWidth - 50" },
+    { "name": "chartHeight", "update": "height - 300" },
+    { "name": "chartX", "update": "mapWidth + 50" },
+    { "name": "chartY", "update": "mapHeight + 20" },
+    { "name": "tx", "update": "mapWidth / 2" },
+    { "name": "ty", "update": "mapHeight / 2" },
+    {
+      "name": "scale",
+      "value": 70,
+      "on": [
+        {
+          "events": "[@seqMap:mouseover, @seqMap:mouseout] > wheel!, [@seqMapRect:mouseover, @seqMapRect:mouseout] > wheel!, [@turnaroundMap:mouseover, @turnaroundMap:mouseout] > wheel!, [@turnaroundMapRect:mouseover, @turnaroundMapRect:mouseout] > wheel!",
+          "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 70, 3000)"
+        }
+      ]
+    },
+    {
+      "name": "angles",
+      "value": [0, 0],
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "[rotateX, centerY]"
+        }
+      ]
+    },
+    {
+      "name": "cloned",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "copy('projection')"
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "drag",
+      "value": null,
+      "on": [
+        {
+          "events": "[@seqMapRect:mousedown, window:mouseup] > window:mousemove, [@seqMap:mousedown, window:mouseup] > window:mousemove, [@turnaroundMapRect:mousedown, window:mouseup] > window:mousemove, [@turnaroundMap:mousedown, window:mouseup] > window:mousemove",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "delta",
+      "value": null,
+      "on": [
+        {
+          "events": { "signal": "drag" },
+          "update": "[drag[0] - start[0], start[1] - drag[1]]"
+        }
+      ]
+    },
+    {
+      "name": "rotateX",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "angles[0] + delta[0]"
+        }
+      ]
+    },
+    {
+      "name": "centerY",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "clamp(angles[1] + delta[1], -60, 60)"
+        }
+      ]
+    },
+    {
+      "name": "hoverCountry",
+      "value": null,
+      "on": [
+        {
+          "events": "@seqMap:mouseover, @turnaroundMap:mouseover, rect:mouseover",
+          "update": "datum['Country_Region']"
+        },
+        {
+          "events": "@seqMap:mouseout, @turnaroundMap:mouseout, rect:mouseout",
+          "update": "null"
+        },
+        {
+          "events": "@seqLabels:mouseover, @turnaroundLabels:mouseover",
+          "update": "datum.value"
+        },
+        {
+          "events": "@seqLabels:mouseout, @turnaroundLabels:mouseout",
+          "update": "null"
+        }
+      ]
+    }
+  ],
+
+  "projections": [
+    {
+      "name": "projection",
+      "type": "mercator",
+      "scale": { "signal": "scale" },
+      "rotate": [{ "signal": "rotateX" }, 0, 0],
+      "center": [0, { "signal": "centerY" }],
+      "translate": [{ "signal": "tx" }, { "signal": "ty" }]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "scores"
+    },
+    {
+      "name": "world",
+      "url": "https://cdn.jsdelivr.net/npm/vega-datasets@1.31/data/world-110m.json",
+      "format": {
+        "type": "topojson",
+        "feature": "countries"
+      },
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "scores",
+          "key": "UID",
+          "fields": ["id"],
+          "values": [
+            "cases",
+            "sequences_per_case",
+            "Country_Region",
+            "median_turnaround_days"
+          ]
+        },
+        {
+          "type": "formula",
+          "as": "sequences_per_1000cases",
+          "expr": "datum.sequences_per_case * 1000"
+        },
+        {
+          "type": "formula",
+          "as": "log_sequences_per_1000cases",
+          "expr": "log(datum.sequences_per_1000cases) / LN10"
+        }
+      ]
+    },
+    {
+      "name": "seqData",
+      "source": "world",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.cases > 500"
+        },
+        {
+          "type": "filter",
+          "expr": "datum.sequences_per_case != null"
+        },
+        {
+          "type": "filter",
+          "expr": "datum.sequences_per_1000cases > 0.01"
+        },
+        {
+          "type": "collect",
+          "sort": { "field": "sequences_per_case" }
+        }
+      ]
+    },
+    {
+      "name": "turnaroundData",
+      "source": "world",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.cases > 500"
+        },
+        {
+          "type": "filter",
+          "expr": "datum.median_turnaround_days != null"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": ["median_turnaround_days"],
+            "order": ["descending"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "graticule",
+      "transform": [{ "type": "graticule", "step": [15, 15] }]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "sequence_color",
+      "type": "quantize",
+      "domain": [-2, 3],
+      "range": { "scheme": "yellowgreenblue", "count": 10 }
+    },
+    {
+      "name": "turnaround_color",
+      "type": "quantize",
+      "domain": [10, 100],
+      "range": { "scheme": "blues", "count": 9 },
+      "reverse": true
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": { "signal": "width" },
+          "height": { "signal": "height" }
+        }
+      },
+      "marks": [
+        {
+          "name": "seqMapGroup",
+          "type": "group",
+          "signals": [
+            { "name": "width", "update": "mapWidth" },
+            { "name": "height", "update": "mapHeight" }
+          ],
+          "encode": {
+            "enter": {
+              "clip": { "value": true }
+            },
+            "update": {
+              "x": { "value": 0 },
+              "width": { "signal": "mapWidth" },
+              "height": { "signal": "mapHeight" }
+            }
+          },
+          "marks": [
+            {
+              "name": "seqMapRect",
+              "type": "rect",
+              "encode": {
+                "enter": {
+                  "x": { "value": 0 },
+                  "y": { "value": 0 },
+                  "fill": { "value": "#fff" }
+                },
+                "update": {
+                  "width": { "signal": "mapWidth" },
+                  "height": { "signal": "mapHeight" }
+                }
+              }
+            },
+            {
+              "name": "seqMap",
+              "type": "shape",
+              "from": { "data": "world" },
+              "encode": {
+                "update": {
+                  "tooltip": {
+                    "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"
+                  },
+                  "fill": [
+                    {
+                      "test": "datum.sequences_per_case === null",
+                      "value": "#AAA"
+                    },
+                    {
+                      "scale": "sequence_color",
+                      "field": "log_sequences_per_1000cases"
+                    }
+                  ],
+                  "strokeWidth": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": 1
+                    },
+                    { "value": 0.5 }
+                  ],
+                  "stroke": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": "#444"
+                    },
+                    { "value": "#bbb" }
+                  ],
+                  "zindex": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": 3
+                    },
+                    { "value": 1 }
+                  ]
+                }
+              },
+              "transform": [{ "type": "geoshape", "projection": "projection" }]
+            }
+          ],
+          "legends": [
+            {
+              "title": "Log10 sequences per 1000 cases",
+              "fill": "sequence_color",
+              "orient": "bottom-left",
+              "offset": 5,
+              "type": "gradient",
+              "gradientLength": 250,
+              "gradientThickness": 12,
+              "titlePadding": 10,
+              "titleOrient": "left",
+              "titleAnchor": "end",
+              "direction": "horizontal"
+            }
+          ]
+        },
+        {
+          "name": "turnaroundMapGroup",
+          "type": "group",
+          "signals": [
+            { "name": "width", "update": "mapWidth" },
+            { "name": "height", "update": "mapHeight" }
+          ],
+          "encode": {
+            "enter": {
+              "clip": { "value": true }
+            },
+            "update": {
+              "x": { "signal": "mapWidth" },
+              "width": { "signal": "mapWidth" },
+              "height": { "signal": "mapHeight" }
+            }
+          },
+          "marks": [
+            {
+              "name": "turnaroundMapRect",
+              "type": "rect",
+              "encode": {
+                "enter": {
+                  "x": { "value": 0 },
+                  "y": { "value": 0 },
+                  "fill": { "value": "#fff" }
+                },
+                "update": {
+                  "width": { "signal": "mapWidth" },
+                  "height": { "signal": "mapHeight" }
+                }
+              }
+            },
+            {
+              "name": "turnaroundMap",
+              "type": "shape",
+              "from": { "data": "world" },
+              "encode": {
+                "update": {
+                  "tooltip": {
+                    "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"
+                  },
+                  "fill": [
+                    {
+                      "test": "datum.median_turnaround_days === null",
+                      "value": "#AAA"
+                    },
+                    {
+                      "scale": "turnaround_color",
+                      "field": "median_turnaround_days"
+                    }
+                  ],
+                  "strokeWidth": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": 1
+                    },
+                    { "value": 0.5 }
+                  ],
+                  "stroke": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": "#444"
+                    },
+                    { "value": "#bbb" }
+                  ],
+                  "zindex": [
+                    {
+                      "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                      "value": 3
+                    },
+                    { "value": 1 }
+                  ]
+                }
+              },
+              "transform": [{ "type": "geoshape", "projection": "projection" }]
+            }
+          ],
+          "legends": [
+            {
+              "title": "Median days to deposition",
+              "fill": "turnaround_color",
+              "orient": "bottom-left",
+              "offset": 5,
+              "type": "gradient",
+              "gradientLength": 250,
+              "gradientThickness": 12,
+              "titlePadding": 10,
+              "titleOrient": "left",
+              "titleAnchor": "end",
+              "direction": "horizontal"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "encode": {
+            "enter": {
+              "x": { "value": 0 },
+              "clip": { "value": false }
+            },
+            "update": {
+              "y": { "signal": "chartY" },
+              "width": { "signal": "chartWidth" },
+              "height": { "signal": "chartHeight" }
+            }
+          },
+
+          "scales": [
+            {
+              "type": "log",
+              "base": 10,
+              "name": "xscale",
+              "domain": [0.01, 1000],
+              "nice": true,
+              "range": [0, { "signal": "chartWidth" }]
+            },
+            {
+              "name": "yscale",
+              "type": "band",
+              "range": [{ "signal": "chartHeight" }, 0],
+              "domain": { "data": "seqData", "field": "Country_Region" }
+            }
+          ],
+
+          "axes": [
+            {
+              "orient": "bottom",
+              "scale": "xscale",
+              "title": "Sequences per 1000 cases"
+            },
+            {
+              "orient": "left",
+              "scale": "yscale",
+
+              "encode": {
+                "labels": {
+                  "name": "seqLabels",
+                  "interactive": true,
+                  "update": {
+                    "fontWeight": [
+                      {
+                        "test": "hoverCountry === datum.value",
+                        "value": "bold"
+                      },
+                      { "value": "normal" }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+
+          "marks": [
+            {
+              "type": "rect",
+              "from": { "data": "seqData" },
+              "encode": {
+                "enter": {
+                  "x": { "scale": "xscale", "value": 0.01 },
+                  "x2": {
+                    "scale": "xscale",
+                    "field": "sequences_per_1000cases"
+                  },
+                  "y": { "scale": "yscale", "field": "Country_Region" },
+                  "height": { "scale": "yscale", "band": 1 },
+                  "fill": {
+                    "scale": "sequence_color",
+                    "field": "log_sequences_per_1000cases"
+                  },
+                  "stroke": { "value": "#000" },
+                  "tooltip": {
+                    "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"
+                  }
+                },
+                "update": {
+                  "strokeWidth": [
+                    {
+                      "test": "hoverCountry === datum['Country_Region']",
+                      "value": 1
+                    },
+                    { "value": 0 }
+                  ],
+                  "zindex": [
+                    {
+                      "test": "hoverCountry === datum['Country_Region']",
+                      "value": 3
+                    },
+                    { "value": 1 }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "encode": {
+            "enter": {
+              "clip": { "value": false }
+            },
+            "update": {
+              "x": { "signal": "chartX" },
+              "y": { "signal": "chartY" },
+              "width": { "signal": "chartWidth" },
+              "height": { "signal": "chartHeight" }
+            }
+          },
+
+          "scales": [
+            {
+              "name": "xscale",
+              "domain": [10, 150],
+              "nice": true,
+              "range": [0, { "signal": "chartWidth" }]
+            },
+            {
+              "name": "yscale",
+              "type": "band",
+              "range": [{ "signal": "chartHeight" }, 0],
+              "domain": { "data": "turnaroundData", "field": "Country_Region" }
+            }
+          ],
+
+          "axes": [
+            {
+              "orient": "bottom",
+              "scale": "xscale",
+              "title": "Median days from collection to deposition"
+            },
+            {
+              "orient": "left",
+              "scale": "yscale",
+
+              "encode": {
+                "labels": {
+                  "name": "turnaroundLabels",
+                  "interactive": true,
+                  "update": {
+                    "fontWeight": [
+                      {
+                        "test": "hoverCountry === datum.value",
+                        "value": "bold"
+                      },
+                      { "value": "normal" }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+
+          "marks": [
+            {
+              "type": "rect",
+              "from": { "data": "turnaroundData" },
+              "encode": {
+                "enter": {
+                  "x": { "scale": "xscale", "value": 0.01 },
+                  "x2": {
+                    "scale": "xscale",
+                    "field": "median_turnaround_days"
+                  },
+                  "y": { "scale": "yscale", "field": "Country_Region" },
+                  "height": { "scale": "yscale", "band": 1 },
+                  "fill": {
+                    "scale": "turnaround_color",
+                    "field": "median_turnaround_days"
+                  },
+                  "stroke": { "value": "#000" },
+                  "tooltip": {
+                    "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"
+                  }
+                },
+                "update": {
+                  "strokeWidth": [
+                    {
+                      "test": "hoverCountry === datum['Country_Region']",
+                      "value": 1
+                    },
+                    { "value": 0 }
+                  ],
+                  "zindex": [
+                    {
+                      "test": "hoverCountry === datum['Country_Region']",
+                      "value": 3
+                    },
+                    { "value": 1 }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "config": {
+    "legend": { "layout": { "anchor": "middle" } }
+  }
+}
