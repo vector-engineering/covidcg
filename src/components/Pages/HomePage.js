@@ -25,6 +25,7 @@ import LocationTab from './LocationTab';
 import AboutTab from './AboutTab';
 import MethodologyTab from './MethodologyTab';
 import RelatedProjectsTab from './RelatedProjectsTab';
+import SequencingEffortsTab from './SequencingEffortsTab';
 import Footer from '../Footer';
 import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
 import KeyListener from '../KeyListener';
@@ -113,6 +114,8 @@ const HomePage = observer(({ UIStore }) => {
       return <MethodologyTab />;
     } else if (UIStore.activeTab === TABS.TAB_RELATED) {
       return <RelatedProjectsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
+      return <SequencingEffortsTab width={width} />;
     }
   };
 

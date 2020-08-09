@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import numpy as np
 
 from cg_scripts.fasta import read_fasta_file
 from cg_scripts.get_aa_snps import get_aa_snps
@@ -47,6 +48,8 @@ rule all:
         data_folder + "/clade_snp.json",
         # Get global group counts
         data_folder + "/global_group_counts.json"
+        # Calculate global sequencing stats?
+        country_seq_stats = data_folder + '/country_score.json'
 
 rule preprocess_sequences:
     input:
@@ -523,6 +526,119 @@ rule process_artic_primers:
             input.reference_file
         )
         artic_df.to_csv(output.artic_primers, index=False)
+
+
+NEXTMETA, = glob_wildcards(data_folder + "/nextmeta_{nextmeta}.tsv")
+latest_nextmeta_file = data_folder + '/nextmeta_' + sorted(NEXTMETA)[-1] + '.tsv'
+
+rule calc_global_sequencing_efforts:
+    input:
+        nextmeta = latest_nextmeta_file
+    output:
+        country_seq_stats = data_folder + '/country_score.json'
+    run:
+        # Load case counts by country
+        case_count_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv')
+        # Group by country/region
+        case_count_df = (
+            case_count_df
+            .drop(columns=['Lat', 'Long'])
+            .groupby('Country/Region')
+            .agg(np.sum)
+            .reset_index()
+        )
+        # Unpivot table
+        case_count_df = pd.melt(
+            case_count_df, 
+            id_vars=['Country/Region'], 
+            var_name='date', 
+            value_name='cumulative_cases'
+        )
+        # Convert date strings to datetime objects
+        case_count_df['date'] = pd.to_datetime(case_count_df['date'])
+        case_count_df['month'] = case_count_df['date'].dt.to_period('M')
+
+        # Load nextmeta file
+        nextmeta_df = pd.read_csv(input.nextmeta, sep='\t')
+        nextmeta_df['date'] = pd.to_datetime(nextmeta_df['date'], errors='coerce')
+        nextmeta_df['date_submitted'] = pd.to_datetime(
+            nextmeta_df['date_submitted'], errors='coerce'
+        )
+        # Remove failed date parsing
+        nextmeta_df = nextmeta_df.loc[
+            (~pd.isnull(nextmeta_df['date'])) & 
+            (~pd.isnull(nextmeta_df['date_submitted']))
+        ]
+        # Only take dates from 2019-12-15
+        nextmeta_df = nextmeta_df.loc[
+            nextmeta_df['date'] > pd.to_datetime('2019-12-15')
+        ]
+        # Reset index
+        nextmeta_df = nextmeta_df.reset_index(drop=True)
+
+        # Calculate time deltas
+        nextmeta_df['turnaround_days'] = (
+            nextmeta_df['date_submitted'] - nextmeta_df['date']
+        ).dt.days
+        # Extract month
+        nextmeta_df['year_month'] = nextmeta_df['date'].dt.to_period('M')
+
+        # Remove invalid submission dates (negative turnaround times)
+        nextmeta_df = (
+            nextmeta_df
+            .loc[nextmeta_df['turnaround_days'] >= 0]
+            .reset_index(drop=True)
+        )
+
+        # Load UID ISO FIPS lookup table
+        iso_lookup_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv')
+        # Only take countries, then set as the index
+        iso_lookup_df = iso_lookup_df.loc[pd.isnull(iso_lookup_df['Province_State'])]
+        iso_lookup_df = iso_lookup_df.set_index('Country_Region')
+
+        # Combine everything together
+        country_df = (
+            nextmeta_df
+            .loc[
+                (nextmeta_df['date'] > pd.to_datetime('2020-03-01')) &
+                (nextmeta_df['date'] < pd.to_datetime('2020-06-01'))
+            ]
+            .groupby('country').agg(
+                median_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.median),
+                min_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.min),
+                max_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.max),
+                num_sequences=pd.NamedAgg(column='strain', aggfunc='count')
+            ).rename({
+                'USA': 'US',
+                'Democratic Republic of the Congo': 'Congo (Kinshasa)',
+                'Republic of the Congo': 'Congo (Brazzaville)',
+                'South Korea': 'Korea, South',
+                'Taiwan': 'Taiwan*',
+                'Czech Republic': 'Czechia',
+                'Myanmar': 'Burma'
+            }).join(
+                case_count_df
+                .groupby('Country/Region')
+                ['cumulative_cases']
+                .agg(np.max)
+            ).join(
+                iso_lookup_df, 
+                how='right'
+            )
+            .reset_index()
+            .rename(columns={
+                'index': 'country',
+                'cumulative_cases': 'cases'
+            })
+        )
+        # Fill some column's missing values with 0
+        country_df['num_sequences'] = country_df['num_sequences'].fillna(0)
+        country_df['sequences_per_case'] = (
+            country_df['num_sequences'] / country_df['cases']
+        ).fillna(0)
+
+        # Write to disk
+        country_df.to_json(output.country_seq_stats, orient='records')
 
 
 # # This is only for site maintainers
