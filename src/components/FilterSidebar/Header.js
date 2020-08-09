@@ -15,23 +15,25 @@ const HeaderDiv = styled.div`
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 5px;
+  align-items: center;
   border-bottom: 1px solid #aaa;
+  padding: 5px 0px;
 
   background-color: #fff;
 
   h1 {
     font-weight: 700;
-    font-size: 1.25em;
+    font-size: 1.1em;
     margin: 0px;
-    line-height: 30px;
-    margin-left: 12px;
+    line-height: normal;
   }
+`;
 
+const ImageContainer = styled.div`
+  margin-bottom: 2px;
   img {
     width: auto;
-    margin-left: auto;
+    height: 60px;
   }
 `;
 
@@ -39,21 +41,21 @@ const GISAIDContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
 
-  font-weight: normal;
-  font-size: 1em;
+  font-weight: bold;
+  font-size: 1.1em;
 
-  margin-bottom: 7px;
-  margin-left: 12px;
+  margin: 5px 12px;
 
   a {
     display: flex;
     flex-direction: row;
     align-items: center;
 
-    margin-left: 2px;
+    margin-left: 5px;
     img {
-      height: 24px;
+      height: 36px;
     }
   }
 `;
@@ -62,11 +64,13 @@ const Header = () => {
   return (
     <HeaderDiv>
       <TitleContainer>
-        <img height={78} src={CGLogo}></img>
+        <ImageContainer>
+          <img src={CGLogo}></img>
+        </ImageContainer>
         <h1>COVID-19 CoV Genetics</h1>
       </TitleContainer>
       <GISAIDContainer>
-        SARS-CoV-2 sequences from:&nbsp;
+        Enabled by data from:&nbsp;
         <ExternalLink href="https://www.gisaid.org/">
           <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
         </ExternalLink>
