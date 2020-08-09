@@ -70,7 +70,7 @@ const Header = () => {
         <h1>COVID-19 CoV Genetics</h1>
       </TitleContainer>
       <GISAIDContainer>
-        Enabled by data from:&nbsp;
+        Enabled by data from&nbsp;
         <ExternalLink href="https://www.gisaid.org/">
           <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
         </ExternalLink>
