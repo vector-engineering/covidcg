@@ -127,19 +127,22 @@ export const getSinglePosColumn = ({
     let cellBgColor = 'transparent';
     // Define the coloring behavior
     if (colorMode === COLOR_MODES.COLOR_MODE_COMPARE) {
-      if (conditionCompare(row[col], refRow[col], compareMode)) {
+      // Only color cells that meet the comparison condition (match/mismatch)
+      // OR, if we're coloring by code, then always color the reference row
+      if (
+        conditionCompare(row[col], refRow[col], compareMode) ||
+        (row['group'] === 'Reference' && colors !== null)
+      ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
           if (row['group'] !== 'Reference') {
             letter = '.';
           }
+        } else if (colors === null) {
+          cellBgColor = snapGeneHighlightColors[compareColor];
         } else {
-          cellBgColor = Object.keys(snapGeneHighlightColors).includes(
-            compareColor
-          )
-            ? snapGeneHighlightColors[compareColor]
-            : colors[row[col]];
+          cellBgColor = colors[row[col]];
         }
       }
     }

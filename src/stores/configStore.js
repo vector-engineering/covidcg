@@ -148,11 +148,29 @@ class ObservableConfigStore {
     //   dnaOrAa
     // );
 
-    // Clear selected groups?
     if (this.groupKey !== groupKey) {
+      // If groupings were changed, then clear selected groups
       this.selectedGroups = [];
     } else if (groupKey === GROUP_KEYS.GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
+      // While in SNV mode, if we switched from DNA to AA, or vice-versa,
+      // then clear selected groups
       this.selectedGroups = [];
+    }
+
+    // Change table coloring settings when switching from DNA <-> AA
+    if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
+      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStoreInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStoreInstance.tableCompareColor =
+        COMPARE_COLORS.COLOR_MODE_ZAPPO;
+    } else {
+      // Clear table coloring settings
+      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStoreInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStoreInstance.tableCompareColor =
+        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
     this.groupKey = groupKey;
@@ -173,13 +191,6 @@ class ObservableConfigStore {
         this.selectedProtein = getProtein('nsp13');
       }
     }
-
-    // Clear table coloring settings
-    plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-    plotSettingsStoreInstance.tableCompareMode =
-      COMPARE_MODES.COMPARE_MODE_MISMATCH;
-    plotSettingsStoreInstance.tableCompareColor =
-      COMPARE_COLORS.COMPARE_COLOR_YELLOW;
 
     dataStoreInstance.updateCaseData();
   }

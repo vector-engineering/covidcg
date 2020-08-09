@@ -184,8 +184,13 @@ const NewLineageDataTable = observer(() => {
         return;
       }
 
-      let colors;
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+      let colors = null;
+      if (
+        configStore.dnaOrAa === DNA_OR_AA.DNA &&
+        (plotSettingsStore.tableCompareColor ===
+          COMPARE_COLORS.COLOR_MODE_CODE ||
+          plotSettingsStore.tableColorMode === COLOR_MODES.COLOR_MODE_CODE)
+      ) {
         colors = snapGeneNTColors;
       } else {
         if (
