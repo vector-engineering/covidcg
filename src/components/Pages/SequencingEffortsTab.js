@@ -7,6 +7,7 @@ import SequencingMapPlot from '../Vega/SequencingMapPlot';
 
 const Container = styled.div`
   padding-top: 20px;
+  overflow-x: hidden;
 `;
 
 const Header = styled.div`
