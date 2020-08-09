@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
-import { version, dataDate } from '../../utils/version';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -59,40 +58,6 @@ const GISAIDContainer = styled.div`
   }
 `;
 
-const VersionDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-left: 12px;
-  margin-bottom: 7px;
-
-  // height: 30px;
-  // border-top: 1px solid #ccc;
-
-  font-weight: normal;
-  font-size: 0.75em;
-  color: #666666;
-
-  .version {
-    line-height: normal;
-    margin-bottom: 2px;
-    span.version-num {
-      font-weight: bold;
-    }
-
-    a {
-      margin-left: 3px;
-    }
-  }
-  .data-date {
-    line-height: normal;
-    span.date {
-      font-weight: bold;
-    }
-  }
-`;
-
 const Header = () => {
   return (
     <HeaderDiv>
@@ -106,20 +71,6 @@ const Header = () => {
           <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
         </ExternalLink>
       </GISAIDContainer>
-      <VersionDiv>
-        <div className="version">
-          Version: <span className="version-num">{version}</span>{' '}
-          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG/releases">
-            (Changelog)
-          </ExternalLink>
-          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG">
-            [GitHub]
-          </ExternalLink>
-        </div>
-        <div className="data-date">
-          Sequences Analyzed: Up to <span className="date">{dataDate}</span>
-        </div>
-      </VersionDiv>
     </HeaderDiv>
   );
 };
