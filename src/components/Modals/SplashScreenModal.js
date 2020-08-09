@@ -67,12 +67,13 @@ const SplashScreenContent = ({ onRequestClose }) => {
           </b>
         </p>
         <p>
-          Being able to track SARS-CoV-2 evolution - updated daily using{' '}
-          <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>{' '}
-          virus data! - according to user-defined locations, dates, and
-          mutations is very important for scientists and public health
-          professionals, as well as developers of vaccines, diagnostics, and
-          therapeutics.
+          Tracking the evolution of the emerging coronavirus is essential for
+          scientists and public health professionals, as well as developers of
+          vaccines, diagnostics, and therapeutics to user-defined locations.
+          This work is enabled by data generously shared from contributors
+          across the world via{' '}
+          <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>, on
+          which this research is based.
         </p>
         <p>
           COVID-19 CG helps users to quickly find answers to questions including
@@ -80,12 +81,12 @@ const SplashScreenContent = ({ onRequestClose }) => {
         </p>
         <ol>
           <li>
-            Which SARS-CoV-2 lineages are present in a given city or region
+            Which clades and lineages are present in a given city or region
             within a user-specified period of time?
           </li>
           <li>
-            Which SARS-CoV-2 variants should I test my therapeutic, antibody, or
-            diagnostic on before implementation in a specific region?
+            Which variants should I test my therapeutic, antibody, or diagnostic
+            on before implementation in a specific region?
           </li>
           <li>
             What are the community outcomes after particular policies, vaccines,
@@ -116,10 +117,12 @@ const SplashScreenContent = ({ onRequestClose }) => {
         </p>
         <p>
           Towards this goal, we strongly advocate that countries continue to
-          sequence SARS-CoV-2 isolates from their patients (and infected
-          animals) and share this data in a timely manner via GISAID so that
-          scientists worldwide are maximally informed about developments in the
-          spread of SARS-CoV-2.
+          generate data sampled from patients, animals, and environments and
+          share their data in a timely manner via{' '}
+          <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>, so
+          that scientists across the world are maximally informed about
+          developments in the spread of the emerging coronavirus responsible for
+          COVID-19.
         </p>
         <p>
           Reach out to us{' '}

@@ -39,7 +39,7 @@ const AboutTab = () => {
         </TOC>*/}
         <ContentSection>
           <a id="contributors"></a>
-          <span className="section-title">Contributors</span>
+          <span className="section-title">COVID-CG is developed by</span>
 
           <div className="content-block">
             <div className="content-text">
@@ -159,53 +159,55 @@ const AboutTab = () => {
 
         <ContentSection>
           <a id="sequence-data"></a>
-          <span className="section-title">Sequence Data</span>
+          <span className="section-title">Data enabling COVID-CG</span>
 
           <div className="content-block">
             <div className="content-text">
               <p>
-                We gratefully acknowledge the authors, originating and
-                submitting laboratories of the genetic sequence and metadata
-                made available through{' '}
+                We are extremely grateful to the{' '}
                 <ExternalLink href="https://www.gisaid.org/">
-                  GISAID
+                  GISAID Initiative
                 </ExternalLink>{' '}
-                on which this research is based
+                and all its data contributors, i.e. the Authors from the
+                Originating laboratories responsible for obtaining the
+                speciments and the Submitting laboratories where genetic
+                sequence data were generated and shared via the GISAID
+                Initiative, on which this research is based.
               </p>
               <p>
-                To cite GISAID as a reference in a publication, use either of
-                the following references:
+                Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
+                diplomacy: GISAID’s innovative contribution to global health.
+                Global Challenges, 1:33-46. DOI:
+                <ExternalLink href="http://dx.doi.org/10.1002/gch2.1018">
+                  10.1002/gch2.1018
+                </ExternalLink>{' '}
+                PMCID:{' '}
+                <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
+                  31565258
+                </ExternalLink>
               </p>
-              <ul>
-                <li>
-                  Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
-                  diplomacy: GISAID’s innovative contribution to global health.
-                  Global Challenges, 1:33-46. DOI:
-                  <ExternalLink href="http://dx.doi.org/10.1002/gch2.1018">
-                    10.1002/gch2.1018
-                  </ExternalLink>{' '}
-                  PMCID:{' '}
-                  <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
-                    31565258
-                  </ExternalLink>
-                </li>
-                <li>
-                  Shu, Y., McCauley, J. (2017) GISAID: Global initiative on
-                  sharing all influenza data – from vision to reality.
-                  EuroSurveillance, 22(13) DOI:
-                  <ExternalLink href="http://dx.doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
-                    10.2807/1560-7917.ES.2017.22.13.30494
-                  </ExternalLink>{' '}
-                  PMCID:{' '}
-                  <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/">
-                    PMC5388101
-                  </ExternalLink>
-                </li>
-              </ul>
               <p>
-                All data use on COVID CG is subject to the GISAID EpiCov™{' '}
-                <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
-                  Database Access Agreement
+                Note: When using results from these analyses in your manuscript,
+                ensure that you acknowledge the contributors of data, i.e.{' '}
+                <i>
+                  We gratefully acknowledge all the Authors from the Originating
+                  laboratories responsible for obtaining the speciments and the
+                  Submitting laboratories where genetic sequence data were
+                  generated and shared via the GISAID Initiative, on which this
+                  research is based.
+                </i>
+              </p>
+              <p>and cite the following reference:</p>
+              <p>
+                Shu, Y., McCauley, J. (2017) GISAID: Global initiative on
+                sharing all influenza data – from vision to reality.
+                EuroSurveillance, 22(13) DOI:
+                <ExternalLink href="http://dx.doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
+                  10.2807/1560-7917.ES.2017.22.13.30494
+                </ExternalLink>{' '}
+                PMCID:{' '}
+                <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/">
+                  PMC5388101
                 </ExternalLink>
               </p>
             </div>
