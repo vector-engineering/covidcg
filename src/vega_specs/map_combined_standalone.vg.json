@@ -1,0 +1,611 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "An interactive world map supporting pan and zoom.",
+    "width": 1000,
+    "height": 1300,
+    "padding": 5,
+  
+    "signals": [
+      { "name": "mapWidth", "update": "width / 2"},
+      { "name": "mapHeight", "update": "height - 1000"},
+      { "name": "chartWidth", "update": "mapWidth - 50"},
+      { "name": "chartHeight", "update": "height - 300"},
+      { "name": "chartX", "update": "mapWidth + 50"},
+      { "name": "chartY", "update": "mapHeight + 20"},
+      { "name": "tx", "update": "mapWidth / 2" },
+      { "name": "ty", "update": "mapHeight / 2" },
+      {
+        "name": "scale",
+        "value": 70,
+        "on": [{
+          "events": "[@seqMap:mouseover, @seqMap:mouseout] > wheel!, [@seqMapRect:mouseover, @seqMapRect:mouseout] > wheel!, [@turnaroundMap:mouseover, @turnaroundMap:mouseout] > wheel!, [@turnaroundMapRect:mouseover, @turnaroundMapRect:mouseout] > wheel!",
+          "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 70, 3000)"
+        }]
+      },
+      {
+        "name": "angles",
+        "value": [0, 0],
+        "on": [{
+          "events": "mousedown",
+          "update": "[rotateX, centerY]"
+        }]
+      },
+      {
+        "name": "cloned",
+        "value": null,
+        "on": [{
+          "events": "mousedown",
+          "update": "copy('projection')"
+        }]
+      },
+      {
+        "name": "start",
+        "value": null,
+        "on": [{
+          "events": "mousedown",
+          "update": "invert(cloned, xy())"
+        }]
+      },
+      {
+        "name": "drag", "value": null,
+        "on": [{
+          "events": "[@seqMapRect:mousedown, window:mouseup] > window:mousemove, [@seqMap:mousedown, window:mouseup] > window:mousemove, [@turnaroundMapRect:mousedown, window:mouseup] > window:mousemove, [@turnaroundMap:mousedown, window:mouseup] > window:mousemove",
+          "update": "invert(cloned, xy())"
+        }]
+      },
+      {
+        "name": "delta", "value": null,
+        "on": [{
+          "events": {"signal": "drag"},
+          "update": "[drag[0] - start[0], start[1] - drag[1]]"
+        }]
+      },
+      {
+        "name": "rotateX", "value": 0,
+        "on": [{
+          "events": {"signal": "delta"},
+          "update": "angles[0] + delta[0]"
+        }]
+      },
+      {
+        "name": "centerY", "value": 0,
+        "on": [{
+          "events": {"signal": "delta"},
+          "update": "clamp(angles[1] + delta[1], -60, 60)"
+        }]
+      },
+      {
+        "name": "hoverCountry",
+        "value": null,
+        "on": [
+          {
+            "events": "@seqMap:mouseover, @turnaroundMap:mouseover, rect:mouseover",
+            "update": "datum['Country_Region']"
+          },
+          {
+            "events": "@seqMap:mouseout, @turnaroundMap:mouseout, rect:mouseout",
+            "update": "null"
+          },
+          {
+            "events": "@seqLabels:mouseover, @turnaroundLabels:mouseover",
+            "update": "datum.value"
+          },
+          {
+            "events": "@seqLabels:mouseout, @turnaroundLabels:mouseout",
+            "update": "null"
+          }
+        ]
+      }
+    ],
+  
+    "projections": [
+      {
+        "name": "projection",
+        "type": "mercator",
+        "scale": {"signal": "scale"},
+        "rotate": [{"signal": "rotateX"}, 0, 0],
+        "center": [0, {"signal": "centerY"}],
+        "translate": [{"signal": "tx"}, {"signal": "ty"}]
+      }
+    ],
+  
+    "data": [
+      {
+        "name": "scores",
+        "values": [{"Country_Region":"Afghanistan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":4,"iso2":"AF","iso3":"AFG","code3":4.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":33.93911,"Long_":67.709953,"Combined_Key":"Afghanistan","Population":38928341.0},{"Country_Region":"Albania","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":8,"iso2":"AL","iso3":"ALB","code3":8.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.1533,"Long_":20.1683,"Combined_Key":"Albania","Population":2877800.0},{"Country_Region":"Algeria","median_turnaround_days":27.0,"min_turnaround_days":21.0,"max_turnaround_days":33.0,"num_sequences":3.0,"cases":33055.0,"sequences_per_case":0.0000907578,"UID":12,"iso2":"DZ","iso3":"DZA","code3":12.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":28.0339,"Long_":1.6596,"Combined_Key":"Algeria","Population":43851043.0},{"Country_Region":"Andorra","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":20,"iso2":"AD","iso3":"AND","code3":20.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":42.5063,"Long_":1.5218,"Combined_Key":"Andorra","Population":77265.0},{"Country_Region":"Angola","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":24,"iso2":"AO","iso3":"AGO","code3":24.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-11.2027,"Long_":17.8739,"Combined_Key":"Angola","Population":32866268.0},{"Country_Region":"Antigua and Barbuda","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":28,"iso2":"AG","iso3":"ATG","code3":28.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":17.0608,"Long_":-61.7964,"Combined_Key":"Antigua and Barbuda","Population":97928.0},{"Country_Region":"Argentina","median_turnaround_days":27.0,"min_turnaround_days":8.0,"max_turnaround_days":104.0,"num_sequences":37.0,"cases":220682.0,"sequences_per_case":0.0001676621,"UID":32,"iso2":"AR","iso3":"ARG","code3":32.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-38.4161,"Long_":-63.6167,"Combined_Key":"Argentina","Population":45195777.0},{"Country_Region":"Armenia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":51,"iso2":"AM","iso3":"ARM","code3":51.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":40.0691,"Long_":45.0382,"Combined_Key":"Armenia","Population":2963234.0},{"Country_Region":"Austria","median_turnaround_days":64.0,"min_turnaround_days":10.0,"max_turnaround_days":112.0,"num_sequences":418.0,"cases":21566.0,"sequences_per_case":0.0193823611,"UID":40,"iso2":"AT","iso3":"AUT","code3":40.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":47.5162,"Long_":14.5501,"Combined_Key":"Austria","Population":9006400.0},{"Country_Region":"Azerbaijan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":31,"iso2":"AZ","iso3":"AZE","code3":31.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":40.1431,"Long_":47.5769,"Combined_Key":"Azerbaijan","Population":10139175.0},{"Country_Region":"Bahamas","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":44,"iso2":"BS","iso3":"BHS","code3":44.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":25.025885,"Long_":-78.035889,"Combined_Key":"Bahamas","Population":393248.0},{"Country_Region":"Bahrain","median_turnaround_days":94.0,"min_turnaround_days":90.0,"max_turnaround_days":122.0,"num_sequences":27.0,"cases":42514.0,"sequences_per_case":0.0006350849,"UID":48,"iso2":"BH","iso3":"BHR","code3":48.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":26.0275,"Long_":50.55,"Combined_Key":"Bahrain","Population":1701583.0},{"Country_Region":"Bangladesh","median_turnaround_days":26.0,"min_turnaround_days":7.0,"max_turnaround_days":110.0,"num_sequences":88.0,"cases":246674.0,"sequences_per_case":0.0003567462,"UID":50,"iso2":"BD","iso3":"BGD","code3":50.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":23.685,"Long_":90.3563,"Combined_Key":"Bangladesh","Population":164689383.0},{"Country_Region":"Barbados","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":52,"iso2":"BB","iso3":"BRB","code3":52.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":13.1939,"Long_":-59.5432,"Combined_Key":"Barbados","Population":287371.0},{"Country_Region":"Belarus","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":112,"iso2":"BY","iso3":"BLR","code3":112.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":53.7098,"Long_":27.9534,"Combined_Key":"Belarus","Population":9449321.0},{"Country_Region":"Belgium","median_turnaround_days":35.5,"min_turnaround_days":0.0,"max_turnaround_days":125.0,"num_sequences":890.0,"cases":71158.0,"sequences_per_case":0.0125073779,"UID":56,"iso2":"BE","iso3":"BEL","code3":56.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":50.8333,"Long_":4.469936,"Combined_Key":"Belgium","Population":11589616.0},{"Country_Region":"Belize","median_turnaround_days":131.0,"min_turnaround_days":118.0,"max_turnaround_days":138.0,"num_sequences":3.0,"cases":86.0,"sequences_per_case":0.0348837209,"UID":84,"iso2":"BZ","iso3":"BLZ","code3":84.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":17.1899,"Long_":-88.4976,"Combined_Key":"Belize","Population":397621.0},{"Country_Region":"Benin","median_turnaround_days":96.0,"min_turnaround_days":72.0,"max_turnaround_days":103.0,"num_sequences":12.0,"cases":1936.0,"sequences_per_case":0.0061983471,"UID":204,"iso2":"BJ","iso3":"BEN","code3":204.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":9.3077,"Long_":2.3158,"Combined_Key":"Benin","Population":12123198.0},{"Country_Region":"Bhutan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":64,"iso2":"BT","iso3":"BTN","code3":64.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":27.5142,"Long_":90.4336,"Combined_Key":"Bhutan","Population":771612.0},{"Country_Region":"Bolivia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":68,"iso2":"BO","iso3":"BOL","code3":68.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-16.2902,"Long_":-63.5887,"Combined_Key":"Bolivia","Population":11673029.0},{"Country_Region":"Bosnia and Herzegovina","median_turnaround_days":74.0,"min_turnaround_days":12.0,"max_turnaround_days":83.0,"num_sequences":31.0,"cases":13138.0,"sequences_per_case":0.0023595677,"UID":70,"iso2":"BA","iso3":"BIH","code3":70.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":43.9159,"Long_":17.6791,"Combined_Key":"Bosnia and Herzegovina","Population":3280815.0},{"Country_Region":"Botswana","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":72,"iso2":"BW","iso3":"BWA","code3":72.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-22.3285,"Long_":24.6849,"Combined_Key":"Botswana","Population":2351625.0},{"Country_Region":"Brazil","median_turnaround_days":82.0,"min_turnaround_days":6.0,"max_turnaround_days":135.0,"num_sequences":682.0,"cases":2859073.0,"sequences_per_case":0.0002385389,"UID":76,"iso2":"BR","iso3":"BRA","code3":76.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-14.235,"Long_":-51.9253,"Combined_Key":"Brazil","Population":212559409.0},{"Country_Region":"Brunei","median_turnaround_days":55.0,"min_turnaround_days":45.0,"max_turnaround_days":62.0,"num_sequences":5.0,"cases":141.0,"sequences_per_case":0.0354609929,"UID":96,"iso2":"BN","iso3":"BRN","code3":96.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":4.5353,"Long_":114.7277,"Combined_Key":"Brunei","Population":437483.0},{"Country_Region":"Bulgaria","median_turnaround_days":67.0,"min_turnaround_days":45.0,"max_turnaround_days":113.0,"num_sequences":15.0,"cases":12717.0,"sequences_per_case":0.0011795235,"UID":100,"iso2":"BG","iso3":"BGR","code3":100.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":42.7339,"Long_":25.4858,"Combined_Key":"Bulgaria","Population":6948445.0},{"Country_Region":"Burkina Faso","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":854,"iso2":"BF","iso3":"BFA","code3":854.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.2383,"Long_":-1.5616,"Combined_Key":"Burkina Faso","Population":20903278.0},{"Country_Region":"Burma","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":104,"iso2":"MM","iso3":"MMR","code3":104.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":21.9162,"Long_":95.956,"Combined_Key":"Burma","Population":54409794.0},{"Country_Region":"Burundi","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":108,"iso2":"BI","iso3":"BDI","code3":108.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-3.3731,"Long_":29.9189,"Combined_Key":"Burundi","Population":11890781.0},{"Country_Region":"Cabo Verde","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":132,"iso2":"CV","iso3":"CPV","code3":132.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":16.5388,"Long_":-23.0418,"Combined_Key":"Cabo Verde","Population":555988.0},{"Country_Region":"Cambodia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":116,"iso2":"KH","iso3":"KHM","code3":116.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":11.55,"Long_":104.9167,"Combined_Key":"Cambodia","Population":16718971.0},{"Country_Region":"Cameroon","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":120,"iso2":"CM","iso3":"CMR","code3":120.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":3.848,"Long_":11.5021,"Combined_Key":"Cameroon","Population":26545864.0},{"Country_Region":"Central African Republic","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":140,"iso2":"CF","iso3":"CAF","code3":140.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":6.6111,"Long_":20.9394,"Combined_Key":"Central African Republic","Population":4829764.0},{"Country_Region":"Chad","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":148,"iso2":"TD","iso3":"TCD","code3":148.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.4542,"Long_":18.7322,"Combined_Key":"Chad","Population":16425859.0},{"Country_Region":"Chile","median_turnaround_days":57.0,"min_turnaround_days":8.0,"max_turnaround_days":95.0,"num_sequences":167.0,"cases":364723.0,"sequences_per_case":0.0004578817,"UID":152,"iso2":"CL","iso3":"CHL","code3":152.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-35.6751,"Long_":-71.543,"Combined_Key":"Chile","Population":19116209.0},{"Country_Region":"Colombia","median_turnaround_days":51.0,"min_turnaround_days":16.0,"max_turnaround_days":138.0,"num_sequences":149.0,"cases":345714.0,"sequences_per_case":0.0004309921,"UID":170,"iso2":"CO","iso3":"COL","code3":170.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":4.5709,"Long_":-74.2973,"Combined_Key":"Colombia","Population":50882884.0},{"Country_Region":"Congo (Brazzaville)","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":178,"iso2":"CG","iso3":"COG","code3":178.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-0.228,"Long_":15.8277,"Combined_Key":"Congo (Brazzaville)","Population":5518092.0},{"Country_Region":"Congo (Kinshasa)","median_turnaround_days":23.0,"min_turnaround_days":6.0,"max_turnaround_days":86.0,"num_sequences":190.0,"cases":9253.0,"sequences_per_case":0.0205338809,"UID":180,"iso2":"CD","iso3":"COD","code3":180.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-4.0383,"Long_":21.7587,"Combined_Key":"Congo (Kinshasa)","Population":89561404.0},{"Country_Region":"Comoros","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":174,"iso2":"KM","iso3":"COM","code3":174.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-11.6455,"Long_":43.3333,"Combined_Key":"Comoros","Population":869595.0},{"Country_Region":"Costa Rica","median_turnaround_days":112.0,"min_turnaround_days":35.0,"max_turnaround_days":133.0,"num_sequences":45.0,"cases":20417.0,"sequences_per_case":0.0022040456,"UID":188,"iso2":"CR","iso3":"CRI","code3":188.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":9.7489,"Long_":-83.7534,"Combined_Key":"Costa Rica","Population":5094114.0},{"Country_Region":"Cote d'Ivoire","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":384,"iso2":"CI","iso3":"CIV","code3":384.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":7.54,"Long_":-5.5471,"Combined_Key":"Cote d'Ivoire","Population":26378275.0},{"Country_Region":"Croatia","median_turnaround_days":68.0,"min_turnaround_days":37.0,"max_turnaround_days":84.0,"num_sequences":15.0,"cases":5376.0,"sequences_per_case":0.0027901786,"UID":191,"iso2":"HR","iso3":"HRV","code3":191.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":45.1,"Long_":15.2,"Combined_Key":"Croatia","Population":4105268.0},{"Country_Region":"Cuba","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":192,"iso2":"CU","iso3":"CUB","code3":192.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":21.521757,"Long_":-77.781167,"Combined_Key":"Cuba","Population":11326616.0},{"Country_Region":"Cyprus","median_turnaround_days":73.5,"min_turnaround_days":44.0,"max_turnaround_days":91.0,"num_sequences":8.0,"cases":1195.0,"sequences_per_case":0.0066945607,"UID":196,"iso2":"CY","iso3":"CYP","code3":196.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":35.1264,"Long_":33.4299,"Combined_Key":"Cyprus","Population":1207361.0},{"Country_Region":"Czechia","median_turnaround_days":29.0,"min_turnaround_days":15.0,"max_turnaround_days":120.0,"num_sequences":46.0,"cases":17529.0,"sequences_per_case":0.0026242227,"UID":203,"iso2":"CZ","iso3":"CZE","code3":203.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":49.8175,"Long_":15.473,"Combined_Key":"Czechia","Population":10708982.0},{"Country_Region":"Denmark","median_turnaround_days":44.0,"min_turnaround_days":15.0,"max_turnaround_days":84.0,"num_sequences":739.0,"cases":14440.0,"sequences_per_case":0.0511772853,"UID":208,"iso2":"DK","iso3":"DNK","code3":208.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":56.2639,"Long_":9.5018,"Combined_Key":"Denmark","Population":5792203.0},{"Country_Region":"Diamond Princess","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":9999,"iso2":null,"iso3":null,"code3":null,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":null,"Long_":null,"Combined_Key":"Diamond Princess","Population":null},{"Country_Region":"Djibouti","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":262,"iso2":"DJ","iso3":"DJI","code3":262.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":11.8251,"Long_":42.5903,"Combined_Key":"Djibouti","Population":988002.0},{"Country_Region":"Dominica","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":212,"iso2":"DM","iso3":"DMA","code3":212.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.415,"Long_":-61.371,"Combined_Key":"Dominica","Population":71991.0},{"Country_Region":"Dominican Republic","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":214,"iso2":"DO","iso3":"DOM","code3":214.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":18.7357,"Long_":-70.1627,"Combined_Key":"Dominican Republic","Population":10847904.0},{"Country_Region":"Ecuador","median_turnaround_days":70.0,"min_turnaround_days":12.0,"max_turnaround_days":101.0,"num_sequences":29.0,"cases":88866.0,"sequences_per_case":0.000326334,"UID":218,"iso2":"EC","iso3":"ECU","code3":218.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-1.8312,"Long_":-78.1834,"Combined_Key":"Ecuador","Population":17643060.0},{"Country_Region":"Egypt","median_turnaround_days":54.0,"min_turnaround_days":23.0,"max_turnaround_days":83.0,"num_sequences":53.0,"cases":94875.0,"sequences_per_case":0.0005586298,"UID":818,"iso2":"EG","iso3":"EGY","code3":818.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":26.820553,"Long_":30.802498,"Combined_Key":"Egypt","Population":102334403.0},{"Country_Region":"El Salvador","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":222,"iso2":"SV","iso3":"SLV","code3":222.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":13.7942,"Long_":-88.8965,"Combined_Key":"El Salvador","Population":6486201.0},{"Country_Region":"Equatorial Guinea","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":226,"iso2":"GQ","iso3":"GNQ","code3":226.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":1.6508,"Long_":10.2679,"Combined_Key":"Equatorial Guinea","Population":1402985.0},{"Country_Region":"Eritrea","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":232,"iso2":"ER","iso3":"ERI","code3":232.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.1794,"Long_":39.7823,"Combined_Key":"Eritrea","Population":3546427.0},{"Country_Region":"Estonia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":233,"iso2":"EE","iso3":"EST","code3":233.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":58.5953,"Long_":25.0136,"Combined_Key":"Estonia","Population":1326539.0},{"Country_Region":"Eswatini","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":748,"iso2":"SZ","iso3":"SWZ","code3":748.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-26.5225,"Long_":31.4659,"Combined_Key":"Eswatini","Population":1160164.0},{"Country_Region":"Ethiopia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":231,"iso2":"ET","iso3":"ETH","code3":231.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":9.145,"Long_":40.4897,"Combined_Key":"Ethiopia","Population":114963583.0},{"Country_Region":"Fiji","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":242,"iso2":"FJ","iso3":"FJI","code3":242.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-17.7134,"Long_":178.065,"Combined_Key":"Fiji","Population":896444.0},{"Country_Region":"Finland","median_turnaround_days":77.0,"min_turnaround_days":5.0,"max_turnaround_days":112.0,"num_sequences":263.0,"cases":7512.0,"sequences_per_case":0.0350106496,"UID":246,"iso2":"FI","iso3":"FIN","code3":246.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":61.92411,"Long_":25.748151,"Combined_Key":"Finland","Population":5540718.0},{"Country_Region":"France","median_turnaround_days":30.0,"min_turnaround_days":9.0,"max_turnaround_days":155.0,"num_sequences":428.0,"cases":228576.0,"sequences_per_case":0.0018724626,"UID":250,"iso2":"FR","iso3":"FRA","code3":250.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":46.2276,"Long_":2.2137,"Combined_Key":"France","Population":65273512.0},{"Country_Region":"Gabon","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":266,"iso2":"GA","iso3":"GAB","code3":266.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-0.8037,"Long_":11.6094,"Combined_Key":"Gabon","Population":2225728.0},{"Country_Region":"Gambia","median_turnaround_days":46.0,"min_turnaround_days":2.0,"max_turnaround_days":91.0,"num_sequences":17.0,"cases":799.0,"sequences_per_case":0.0212765957,"UID":270,"iso2":"GM","iso3":"GMB","code3":270.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":13.4432,"Long_":-15.3101,"Combined_Key":"Gambia","Population":2416664.0},{"Country_Region":"Georgia","median_turnaround_days":12.5,"min_turnaround_days":4.0,"max_turnaround_days":69.0,"num_sequences":18.0,"cases":1197.0,"sequences_per_case":0.015037594,"UID":268,"iso2":"GE","iso3":"GEO","code3":268.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":42.3154,"Long_":43.3569,"Combined_Key":"Georgia","Population":3989175.0},{"Country_Region":"Germany","median_turnaround_days":47.0,"min_turnaround_days":10.0,"max_turnaround_days":113.0,"num_sequences":307.0,"cases":214113.0,"sequences_per_case":0.0014338223,"UID":276,"iso2":"DE","iso3":"DEU","code3":276.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":51.165691,"Long_":10.451526,"Combined_Key":"Germany","Population":83783945.0},{"Country_Region":"Ghana","median_turnaround_days":12.0,"min_turnaround_days":10.0,"max_turnaround_days":17.0,"num_sequences":15.0,"cases":39075.0,"sequences_per_case":0.0003838772,"UID":288,"iso2":"GH","iso3":"GHA","code3":288.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":7.9465,"Long_":-1.0232,"Combined_Key":"Ghana","Population":31072945.0},{"Country_Region":"Greece","median_turnaround_days":58.0,"min_turnaround_days":12.0,"max_turnaround_days":126.0,"num_sequences":129.0,"cases":4974.0,"sequences_per_case":0.0259348613,"UID":300,"iso2":"GR","iso3":"GRC","code3":300.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":39.0742,"Long_":21.8243,"Combined_Key":"Greece","Population":10423056.0},{"Country_Region":"Grenada","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":308,"iso2":"GD","iso3":"GRD","code3":308.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.1165,"Long_":-61.679,"Combined_Key":"Grenada","Population":112519.0},{"Country_Region":"Guatemala","median_turnaround_days":142.0,"min_turnaround_days":137.0,"max_turnaround_days":145.0,"num_sequences":10.0,"cases":53509.0,"sequences_per_case":0.0001868844,"UID":320,"iso2":"GT","iso3":"GTM","code3":320.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.7835,"Long_":-90.2308,"Combined_Key":"Guatemala","Population":17915567.0},{"Country_Region":"Guinea","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":324,"iso2":"GN","iso3":"GIN","code3":324.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":9.9456,"Long_":-9.6966,"Combined_Key":"Guinea","Population":13132792.0},{"Country_Region":"Guinea-Bissau","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":624,"iso2":"GW","iso3":"GNB","code3":624.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":11.8037,"Long_":-15.1804,"Combined_Key":"Guinea-Bissau","Population":1967998.0},{"Country_Region":"Guyana","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":328,"iso2":"GY","iso3":"GUY","code3":328.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":4.860416,"Long_":-58.93018,"Combined_Key":"Guyana","Population":786559.0},{"Country_Region":"Haiti","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":332,"iso2":"HT","iso3":"HTI","code3":332.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":18.9712,"Long_":-72.2852,"Combined_Key":"Haiti","Population":11402533.0},{"Country_Region":"Holy See","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":336,"iso2":"VA","iso3":"VAT","code3":336.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.9029,"Long_":12.4534,"Combined_Key":"Holy See","Population":809.0},{"Country_Region":"Honduras","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":340,"iso2":"HN","iso3":"HND","code3":340.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.2,"Long_":-86.2419,"Combined_Key":"Honduras","Population":9904608.0},{"Country_Region":"Hungary","median_turnaround_days":45.0,"min_turnaround_days":3.0,"max_turnaround_days":113.0,"num_sequences":61.0,"cases":4564.0,"sequences_per_case":0.0133654689,"UID":348,"iso2":"HU","iso3":"HUN","code3":348.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":47.1625,"Long_":19.5033,"Combined_Key":"Hungary","Population":9660350.0},{"Country_Region":"Iceland","median_turnaround_days":16.5,"min_turnaround_days":9.0,"max_turnaround_days":26.0,"num_sequences":578.0,"cases":1926.0,"sequences_per_case":0.3001038422,"UID":352,"iso2":"IS","iso3":"ISL","code3":352.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":64.9631,"Long_":-19.0208,"Combined_Key":"Iceland","Population":341250.0},{"Country_Region":"India","median_turnaround_days":40.0,"min_turnaround_days":7.0,"max_turnaround_days":127.0,"num_sequences":1513.0,"cases":1964536.0,"sequences_per_case":0.0007701564,"UID":356,"iso2":"IN","iso3":"IND","code3":356.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":20.593684,"Long_":78.96288,"Combined_Key":"India","Population":1380004385.0},{"Country_Region":"Indonesia","median_turnaround_days":47.0,"min_turnaround_days":24.0,"max_turnaround_days":87.0,"num_sequences":16.0,"cases":116871.0,"sequences_per_case":0.0001369031,"UID":360,"iso2":"ID","iso3":"IDN","code3":360.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-0.7893,"Long_":113.9213,"Combined_Key":"Indonesia","Population":273523621.0},{"Country_Region":"Iran","median_turnaround_days":48.0,"min_turnaround_days":35.0,"max_turnaround_days":92.0,"num_sequences":7.0,"cases":317483.0,"sequences_per_case":0.0000220484,"UID":364,"iso2":"IR","iso3":"IRN","code3":364.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":32.427908,"Long_":53.688046,"Combined_Key":"Iran","Population":83992953.0},{"Country_Region":"Iraq","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":368,"iso2":"IQ","iso3":"IRQ","code3":368.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":33.223191,"Long_":43.679291,"Combined_Key":"Iraq","Population":40222503.0},{"Country_Region":"Ireland","median_turnaround_days":32.0,"min_turnaround_days":8.0,"max_turnaround_days":70.0,"num_sequences":26.0,"cases":26303.0,"sequences_per_case":0.0009884804,"UID":372,"iso2":"IE","iso3":"IRL","code3":372.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":53.1424,"Long_":-7.6921,"Combined_Key":"Ireland","Population":4937796.0},{"Country_Region":"Israel","median_turnaround_days":52.0,"min_turnaround_days":25.0,"max_turnaround_days":113.0,"num_sequences":289.0,"cases":77919.0,"sequences_per_case":0.0037089798,"UID":376,"iso2":"IL","iso3":"ISR","code3":376.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":31.046051,"Long_":34.851612,"Combined_Key":"Israel","Population":8655541.0},{"Country_Region":"Italy","median_turnaround_days":61.0,"min_turnaround_days":2.0,"max_turnaround_days":139.0,"num_sequences":149.0,"cases":248803.0,"sequences_per_case":0.0005988674,"UID":380,"iso2":"IT","iso3":"ITA","code3":380.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.87194,"Long_":12.56738,"Combined_Key":"Italy","Population":60461828.0},{"Country_Region":"Jamaica","median_turnaround_days":68.0,"min_turnaround_days":66.0,"max_turnaround_days":74.0,"num_sequences":8.0,"cases":928.0,"sequences_per_case":0.0086206897,"UID":388,"iso2":"JM","iso3":"JAM","code3":388.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":18.1096,"Long_":-77.2975,"Combined_Key":"Jamaica","Population":2961161.0},{"Country_Region":"Japan","median_turnaround_days":93.0,"min_turnaround_days":11.0,"max_turnaround_days":121.0,"num_sequences":467.0,"cases":42686.0,"sequences_per_case":0.0109403552,"UID":392,"iso2":"JP","iso3":"JPN","code3":392.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":36.204824,"Long_":138.252924,"Combined_Key":"Japan","Population":126476458.0},{"Country_Region":"Jordan","median_turnaround_days":37.0,"min_turnaround_days":20.0,"max_turnaround_days":44.0,"num_sequences":28.0,"cases":1231.0,"sequences_per_case":0.0227457352,"UID":400,"iso2":"JO","iso3":"JOR","code3":400.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":31.24,"Long_":36.51,"Combined_Key":"Jordan","Population":10203140.0},{"Country_Region":"Kazakhstan","median_turnaround_days":32.0,"min_turnaround_days":11.0,"max_turnaround_days":64.0,"num_sequences":53.0,"cases":95942.0,"sequences_per_case":0.0005524171,"UID":398,"iso2":"KZ","iso3":"KAZ","code3":398.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":48.0196,"Long_":66.9237,"Combined_Key":"Kazakhstan","Population":18776707.0},{"Country_Region":"Kenya","median_turnaround_days":46.0,"min_turnaround_days":11.0,"max_turnaround_days":80.0,"num_sequences":103.0,"cases":23873.0,"sequences_per_case":0.0043144975,"UID":404,"iso2":"KE","iso3":"KEN","code3":404.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-0.0236,"Long_":37.9062,"Combined_Key":"Kenya","Population":53771300.0},{"Country_Region":"Korea, South","median_turnaround_days":131.0,"min_turnaround_days":83.0,"max_turnaround_days":149.0,"num_sequences":109.0,"cases":14499.0,"sequences_per_case":0.0075177598,"UID":410,"iso2":"KR","iso3":"KOR","code3":410.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":35.907757,"Long_":127.766922,"Combined_Key":"Korea, South","Population":51269183.0},{"Country_Region":"Kosovo","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":383,"iso2":"XK","iso3":"XKS","code3":383.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":42.602636,"Long_":20.902977,"Combined_Key":"Kosovo","Population":1810366.0},{"Country_Region":"Kuwait","median_turnaround_days":22.5,"min_turnaround_days":20.0,"max_turnaround_days":26.0,"num_sequences":8.0,"cases":69425.0,"sequences_per_case":0.0001152323,"UID":414,"iso2":"KW","iso3":"KWT","code3":414.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":29.31166,"Long_":47.481766,"Combined_Key":"Kuwait","Population":4270563.0},{"Country_Region":"Kyrgyzstan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":417,"iso2":"KG","iso3":"KGZ","code3":417.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.20438,"Long_":74.766098,"Combined_Key":"Kyrgyzstan","Population":6524191.0},{"Country_Region":"Laos","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":418,"iso2":"LA","iso3":"LAO","code3":418.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":19.85627,"Long_":102.495496,"Combined_Key":"Laos","Population":7275556.0},{"Country_Region":"Latvia","median_turnaround_days":62.0,"min_turnaround_days":15.0,"max_turnaround_days":117.0,"num_sequences":53.0,"cases":1257.0,"sequences_per_case":0.0421638823,"UID":428,"iso2":"LV","iso3":"LVA","code3":428.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":56.8796,"Long_":24.6032,"Combined_Key":"Latvia","Population":1886202.0},{"Country_Region":"Lebanon","median_turnaround_days":78.0,"min_turnaround_days":67.0,"max_turnaround_days":131.0,"num_sequences":13.0,"cases":5417.0,"sequences_per_case":0.0023998523,"UID":422,"iso2":"LB","iso3":"LBN","code3":422.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":33.8547,"Long_":35.8623,"Combined_Key":"Lebanon","Population":6825442.0},{"Country_Region":"Lesotho","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":426,"iso2":"LS","iso3":"LSO","code3":426.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-29.61,"Long_":28.2336,"Combined_Key":"Lesotho","Population":2142252.0},{"Country_Region":"Liberia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":430,"iso2":"LR","iso3":"LBR","code3":430.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":6.428055,"Long_":-9.429499,"Combined_Key":"Liberia","Population":5057677.0},{"Country_Region":"Libya","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":434,"iso2":"LY","iso3":"LBY","code3":434.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":26.3351,"Long_":17.228331,"Combined_Key":"Libya","Population":6871287.0},{"Country_Region":"Liechtenstein","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":438,"iso2":"LI","iso3":"LIE","code3":438.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":47.14,"Long_":9.55,"Combined_Key":"Liechtenstein","Population":38137.0},{"Country_Region":"Lithuania","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":440,"iso2":"LT","iso3":"LTU","code3":440.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":55.1694,"Long_":23.8813,"Combined_Key":"Lithuania","Population":2722291.0},{"Country_Region":"Luxembourg","median_turnaround_days":22.0,"min_turnaround_days":6.0,"max_turnaround_days":66.0,"num_sequences":269.0,"cases":7007.0,"sequences_per_case":0.0383901812,"UID":442,"iso2":"LU","iso3":"LUX","code3":442.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":49.8153,"Long_":6.1296,"Combined_Key":"Luxembourg","Population":625976.0},{"Country_Region":"Madagascar","median_turnaround_days":136.0,"min_turnaround_days":135.0,"max_turnaround_days":137.0,"num_sequences":2.0,"cases":12222.0,"sequences_per_case":0.0001636393,"UID":450,"iso2":"MG","iso3":"MDG","code3":450.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-18.766947,"Long_":46.869107,"Combined_Key":"Madagascar","Population":27691019.0},{"Country_Region":"Malawi","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":454,"iso2":"MW","iso3":"MWI","code3":454.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-13.2543,"Long_":34.3015,"Combined_Key":"Malawi","Population":19129955.0},{"Country_Region":"Malaysia","median_turnaround_days":116.0,"min_turnaround_days":5.0,"max_turnaround_days":149.0,"num_sequences":93.0,"cases":9023.0,"sequences_per_case":0.0103069932,"UID":458,"iso2":"MY","iso3":"MYS","code3":458.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":4.210484,"Long_":101.975766,"Combined_Key":"Malaysia","Population":32365998.0},{"Country_Region":"Maldives","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":462,"iso2":"MV","iso3":"MDV","code3":462.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":3.2028,"Long_":73.2207,"Combined_Key":"Maldives","Population":540542.0},{"Country_Region":"Mali","median_turnaround_days":95.0,"min_turnaround_days":91.0,"max_turnaround_days":99.0,"num_sequences":21.0,"cases":2546.0,"sequences_per_case":0.0082482325,"UID":466,"iso2":"ML","iso3":"MLI","code3":466.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":17.570692,"Long_":-3.996166,"Combined_Key":"Mali","Population":20250834.0},{"Country_Region":"Malta","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":470,"iso2":"MT","iso3":"MLT","code3":470.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":35.9375,"Long_":14.3754,"Combined_Key":"Malta","Population":441539.0},{"Country_Region":"Mauritania","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":478,"iso2":"MR","iso3":"MRT","code3":478.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":21.0079,"Long_":-10.9408,"Combined_Key":"Mauritania","Population":4649660.0},{"Country_Region":"Mauritius","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":480,"iso2":"MU","iso3":"MUS","code3":480.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-20.348404,"Long_":57.552152,"Combined_Key":"Mauritius","Population":1271767.0},{"Country_Region":"Mexico","median_turnaround_days":86.0,"min_turnaround_days":28.0,"max_turnaround_days":121.0,"num_sequences":80.0,"cases":456100.0,"sequences_per_case":0.0001754001,"UID":484,"iso2":"MX","iso3":"MEX","code3":484.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":23.6345,"Long_":-102.5528,"Combined_Key":"Mexico","Population":127792286.0},{"Country_Region":"Moldova","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":498,"iso2":"MD","iso3":"MDA","code3":498.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":47.4116,"Long_":28.3699,"Combined_Key":"Moldova","Population":4033963.0},{"Country_Region":"Monaco","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":492,"iso2":"MC","iso3":"MCO","code3":492.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":43.7333,"Long_":7.4167,"Combined_Key":"Monaco","Population":39244.0},{"Country_Region":"Mongolia","median_turnaround_days":82.0,"min_turnaround_days":82.0,"max_turnaround_days":82.0,"num_sequences":1.0,"cases":293.0,"sequences_per_case":0.0034129693,"UID":496,"iso2":"MN","iso3":"MNG","code3":496.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":46.8625,"Long_":103.8467,"Combined_Key":"Mongolia","Population":3278292.0},{"Country_Region":"Montenegro","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":499,"iso2":"ME","iso3":"MNE","code3":499.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":42.708678,"Long_":19.37439,"Combined_Key":"Montenegro","Population":628062.0},{"Country_Region":"Morocco","median_turnaround_days":74.0,"min_turnaround_days":19.0,"max_turnaround_days":95.0,"num_sequences":47.0,"cases":28500.0,"sequences_per_case":0.0016491228,"UID":504,"iso2":"MA","iso3":"MAR","code3":504.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":31.7917,"Long_":-7.0926,"Combined_Key":"Morocco","Population":36910558.0},{"Country_Region":"Mozambique","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":508,"iso2":"MZ","iso3":"MOZ","code3":508.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-18.665695,"Long_":35.529562,"Combined_Key":"Mozambique","Population":31255435.0},{"Country_Region":"MS Zaandam","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":8888,"iso2":null,"iso3":null,"code3":null,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":null,"Long_":null,"Combined_Key":"MS Zaandam","Population":null},{"Country_Region":"Namibia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":516,"iso2":null,"iso3":"NAM","code3":516.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-22.9576,"Long_":18.4904,"Combined_Key":"Namibia","Population":2540916.0},{"Country_Region":"Nepal","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":524,"iso2":"NP","iso3":"NPL","code3":524.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":28.1667,"Long_":84.25,"Combined_Key":"Nepal","Population":29136808.0},{"Country_Region":"Netherlands","median_turnaround_days":34.0,"min_turnaround_days":3.0,"max_turnaround_days":125.0,"num_sequences":1468.0,"cases":56750.0,"sequences_per_case":0.0258678414,"UID":528,"iso2":"NL","iso3":"NLD","code3":528.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":52.1326,"Long_":5.2913,"Combined_Key":"Netherlands","Population":17134873.0},{"Country_Region":"New Zealand","median_turnaround_days":64.0,"min_turnaround_days":8.0,"max_turnaround_days":106.0,"num_sequences":255.0,"cases":1569.0,"sequences_per_case":0.1625239006,"UID":554,"iso2":"NZ","iso3":"NZL","code3":554.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-40.9006,"Long_":174.886,"Combined_Key":"New Zealand","Population":4822233.0},{"Country_Region":"Nicaragua","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":558,"iso2":"NI","iso3":"NIC","code3":558.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.865416,"Long_":-85.207229,"Combined_Key":"Nicaragua","Population":6624554.0},{"Country_Region":"Niger","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":562,"iso2":"NE","iso3":"NER","code3":562.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":17.607789,"Long_":8.081666,"Combined_Key":"Niger","Population":24206636.0},{"Country_Region":"Nigeria","median_turnaround_days":61.0,"min_turnaround_days":45.0,"max_turnaround_days":88.0,"num_sequences":39.0,"cases":44890.0,"sequences_per_case":0.0008687904,"UID":566,"iso2":"NG","iso3":"NGA","code3":566.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":9.082,"Long_":8.6753,"Combined_Key":"Nigeria","Population":206139587.0},{"Country_Region":"North Macedonia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":807,"iso2":"MK","iso3":"MKD","code3":807.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.6086,"Long_":21.7453,"Combined_Key":"North Macedonia","Population":2083380.0},{"Country_Region":"Norway","median_turnaround_days":47.0,"min_turnaround_days":19.0,"max_turnaround_days":106.0,"num_sequences":61.0,"cases":9409.0,"sequences_per_case":0.0064831544,"UID":578,"iso2":"NO","iso3":"NOR","code3":578.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":60.472,"Long_":8.4689,"Combined_Key":"Norway","Population":5421242.0},{"Country_Region":"Oman","median_turnaround_days":69.0,"min_turnaround_days":25.0,"max_turnaround_days":112.0,"num_sequences":145.0,"cases":80286.0,"sequences_per_case":0.0018060434,"UID":512,"iso2":"OM","iso3":"OMN","code3":512.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":21.512583,"Long_":55.923255,"Combined_Key":"Oman","Population":5106622.0},{"Country_Region":"Pakistan","median_turnaround_days":22.0,"min_turnaround_days":21.0,"max_turnaround_days":66.0,"num_sequences":3.0,"cases":281136.0,"sequences_per_case":0.000010671,"UID":586,"iso2":"PK","iso3":"PAK","code3":586.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":30.3753,"Long_":69.3451,"Combined_Key":"Pakistan","Population":220892331.0},{"Country_Region":"Panama","median_turnaround_days":119.0,"min_turnaround_days":10.0,"max_turnaround_days":142.0,"num_sequences":300.0,"cases":70231.0,"sequences_per_case":0.0042716179,"UID":591,"iso2":"PA","iso3":"PAN","code3":591.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":8.538,"Long_":-80.7821,"Combined_Key":"Panama","Population":4314768.0},{"Country_Region":"Papua New Guinea","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":598,"iso2":"PG","iso3":"PNG","code3":598.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-6.314993,"Long_":143.95555,"Combined_Key":"Papua New Guinea","Population":8947027.0},{"Country_Region":"Paraguay","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":600,"iso2":"PY","iso3":"PRY","code3":600.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-23.4425,"Long_":-58.4438,"Combined_Key":"Paraguay","Population":7132530.0},{"Country_Region":"Peru","median_turnaround_days":113.0,"min_turnaround_days":9.0,"max_turnaround_days":132.0,"num_sequences":35.0,"cases":447624.0,"sequences_per_case":0.0000781906,"UID":604,"iso2":"PE","iso3":"PER","code3":604.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-9.19,"Long_":-75.0152,"Combined_Key":"Peru","Population":32971846.0},{"Country_Region":"Philippines","median_turnaround_days":38.0,"min_turnaround_days":33.0,"max_turnaround_days":135.0,"num_sequences":19.0,"cases":115980.0,"sequences_per_case":0.0001638213,"UID":608,"iso2":"PH","iso3":"PHL","code3":608.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.879721,"Long_":121.774017,"Combined_Key":"Philippines","Population":109581085.0},{"Country_Region":"Poland","median_turnaround_days":49.0,"min_turnaround_days":14.0,"max_turnaround_days":113.0,"num_sequences":87.0,"cases":48789.0,"sequences_per_case":0.0017831888,"UID":616,"iso2":"PL","iso3":"POL","code3":616.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":51.9194,"Long_":19.1451,"Combined_Key":"Poland","Population":37846605.0},{"Country_Region":"Portugal","median_turnaround_days":59.0,"min_turnaround_days":11.0,"max_turnaround_days":80.0,"num_sequences":707.0,"cases":51848.0,"sequences_per_case":0.013636013,"UID":620,"iso2":"PT","iso3":"PRT","code3":620.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":39.3999,"Long_":-8.2245,"Combined_Key":"Portugal","Population":10196707.0},{"Country_Region":"Qatar","median_turnaround_days":26.0,"min_turnaround_days":26.0,"max_turnaround_days":26.0,"num_sequences":16.0,"cases":111805.0,"sequences_per_case":0.0001431063,"UID":634,"iso2":"QA","iso3":"QAT","code3":634.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":25.3548,"Long_":51.1839,"Combined_Key":"Qatar","Population":2881060.0},{"Country_Region":"Romania","median_turnaround_days":80.5,"min_turnaround_days":13.0,"max_turnaround_days":102.0,"num_sequences":66.0,"cases":56550.0,"sequences_per_case":0.0011671088,"UID":642,"iso2":"RO","iso3":"ROU","code3":642.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":45.9432,"Long_":24.9668,"Combined_Key":"Romania","Population":19237682.0},{"Country_Region":"Russia","median_turnaround_days":31.0,"min_turnaround_days":4.0,"max_turnaround_days":141.0,"num_sequences":339.0,"cases":864948.0,"sequences_per_case":0.0003919311,"UID":643,"iso2":"RU","iso3":"RUS","code3":643.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":61.52401,"Long_":105.318756,"Combined_Key":"Russia","Population":145934460.0},{"Country_Region":"Rwanda","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":646,"iso2":"RW","iso3":"RWA","code3":646.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-1.9403,"Long_":29.8739,"Combined_Key":"Rwanda","Population":12952209.0},{"Country_Region":"Saint Kitts and Nevis","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":659,"iso2":"KN","iso3":"KNA","code3":659.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":17.357822,"Long_":-62.782998,"Combined_Key":"Saint Kitts and Nevis","Population":53192.0},{"Country_Region":"Saint Lucia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":662,"iso2":"LC","iso3":"LCA","code3":662.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":13.9094,"Long_":-60.9789,"Combined_Key":"Saint Lucia","Population":183629.0},{"Country_Region":"Saint Vincent and the Grenadines","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":670,"iso2":"VC","iso3":"VCT","code3":670.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.9843,"Long_":-61.2872,"Combined_Key":"Saint Vincent and the Grenadines","Population":110947.0},{"Country_Region":"San Marino","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":674,"iso2":"SM","iso3":"SMR","code3":674.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":43.9424,"Long_":12.4578,"Combined_Key":"San Marino","Population":33938.0},{"Country_Region":"Sao Tome and Principe","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":678,"iso2":"ST","iso3":"STP","code3":678.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":0.1864,"Long_":6.6131,"Combined_Key":"Sao Tome and Principe","Population":219161.0},{"Country_Region":"Saudi Arabia","median_turnaround_days":40.0,"min_turnaround_days":12.0,"max_turnaround_days":147.0,"num_sequences":154.0,"cases":282824.0,"sequences_per_case":0.0005445082,"UID":682,"iso2":"SA","iso3":"SAU","code3":682.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":23.885942,"Long_":45.079162,"Combined_Key":"Saudi Arabia","Population":34813867.0},{"Country_Region":"Senegal","median_turnaround_days":78.0,"min_turnaround_days":15.0,"max_turnaround_days":103.0,"num_sequences":67.0,"cases":10538.0,"sequences_per_case":0.0063579427,"UID":686,"iso2":"SN","iso3":"SEN","code3":686.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":14.4974,"Long_":-14.4524,"Combined_Key":"Senegal","Population":16743930.0},{"Country_Region":"Serbia","median_turnaround_days":39.5,"min_turnaround_days":26.0,"max_turnaround_days":91.0,"num_sequences":12.0,"cases":27033.0,"sequences_per_case":0.0004439019,"UID":688,"iso2":"RS","iso3":"SRB","code3":688.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":44.0165,"Long_":21.0059,"Combined_Key":"Serbia","Population":8737370.0},{"Country_Region":"Seychelles","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":690,"iso2":"SC","iso3":"SYC","code3":690.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-4.6796,"Long_":55.492,"Combined_Key":"Seychelles","Population":98340.0},{"Country_Region":"Sierra Leone","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":694,"iso2":"SL","iso3":"SLE","code3":694.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":8.460555,"Long_":-11.779889,"Combined_Key":"Sierra Leone","Population":7976985.0},{"Country_Region":"Singapore","median_turnaround_days":64.0,"min_turnaround_days":7.0,"max_turnaround_days":142.0,"num_sequences":609.0,"cases":54254.0,"sequences_per_case":0.0112249788,"UID":702,"iso2":"SG","iso3":"SGP","code3":702.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":1.2833,"Long_":103.8333,"Combined_Key":"Singapore","Population":5850343.0},{"Country_Region":"Slovakia","median_turnaround_days":20.5,"min_turnaround_days":19.0,"max_turnaround_days":21.0,"num_sequences":4.0,"cases":2417.0,"sequences_per_case":0.0016549441,"UID":703,"iso2":"SK","iso3":"SVK","code3":703.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":48.669,"Long_":19.699,"Combined_Key":"Slovakia","Population":5459643.0},{"Country_Region":"Slovenia","median_turnaround_days":30.0,"min_turnaround_days":13.0,"max_turnaround_days":32.0,"num_sequences":5.0,"cases":2208.0,"sequences_per_case":0.0022644928,"UID":705,"iso2":"SI","iso3":"SVN","code3":705.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":46.1512,"Long_":14.9955,"Combined_Key":"Slovenia","Population":2078932.0},{"Country_Region":"Somalia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":706,"iso2":"SO","iso3":"SOM","code3":706.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":5.152149,"Long_":46.199616,"Combined_Key":"Somalia","Population":15893219.0},{"Country_Region":"South Africa","median_turnaround_days":63.0,"min_turnaround_days":8.0,"max_turnaround_days":86.0,"num_sequences":174.0,"cases":529877.0,"sequences_per_case":0.0003283781,"UID":710,"iso2":"ZA","iso3":"ZAF","code3":710.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-30.5595,"Long_":22.9375,"Combined_Key":"South Africa","Population":59308690.0},{"Country_Region":"South Sudan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":728,"iso2":"SS","iso3":"SSD","code3":728.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":6.877,"Long_":31.307,"Combined_Key":"South Sudan","Population":11193729.0},{"Country_Region":"Spain","median_turnaround_days":78.0,"min_turnaround_days":4.0,"max_turnaround_days":150.0,"num_sequences":2274.0,"cases":305767.0,"sequences_per_case":0.0074370354,"UID":724,"iso2":"ES","iso3":"ESP","code3":724.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":40.463667,"Long_":-3.74922,"Combined_Key":"Spain","Population":46754783.0},{"Country_Region":"Sri Lanka","median_turnaround_days":34.5,"min_turnaround_days":21.0,"max_turnaround_days":42.0,"num_sequences":4.0,"cases":2839.0,"sequences_per_case":0.0014089468,"UID":144,"iso2":"LK","iso3":"LKA","code3":144.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":7.873054,"Long_":80.771797,"Combined_Key":"Sri Lanka","Population":21413250.0},{"Country_Region":"Sudan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":729,"iso2":"SD","iso3":"SDN","code3":729.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":12.8628,"Long_":30.2176,"Combined_Key":"Sudan","Population":43849269.0},{"Country_Region":"Suriname","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":740,"iso2":"SR","iso3":"SUR","code3":740.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":3.9193,"Long_":-56.0278,"Combined_Key":"Suriname","Population":586634.0},{"Country_Region":"Sweden","median_turnaround_days":79.0,"min_turnaround_days":9.0,"max_turnaround_days":129.0,"num_sequences":510.0,"cases":81540.0,"sequences_per_case":0.006254599,"UID":752,"iso2":"SE","iso3":"SWE","code3":752.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":60.128161,"Long_":18.643501,"Combined_Key":"Sweden","Population":10099270.0},{"Country_Region":"Switzerland","median_turnaround_days":60.0,"min_turnaround_days":8.0,"max_turnaround_days":144.0,"num_sequences":631.0,"cases":35927.0,"sequences_per_case":0.0175633924,"UID":756,"iso2":"CH","iso3":"CHE","code3":756.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":46.8182,"Long_":8.2275,"Combined_Key":"Switzerland","Population":8654618.0},{"Country_Region":"Syria","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":760,"iso2":"SY","iso3":"SYR","code3":760.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":34.802075,"Long_":38.996815,"Combined_Key":"Syria","Population":17500657.0},{"Country_Region":"Taiwan*","median_turnaround_days":34.0,"min_turnaround_days":5.0,"max_turnaround_days":127.0,"num_sequences":107.0,"cases":476.0,"sequences_per_case":0.224789916,"UID":158,"iso2":"TW","iso3":"TWN","code3":158.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":23.7,"Long_":121.0,"Combined_Key":"Taiwan*","Population":23816775.0},{"Country_Region":"Tajikistan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":762,"iso2":"TJ","iso3":"TJK","code3":762.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":38.861,"Long_":71.2761,"Combined_Key":"Tajikistan","Population":9537642.0},{"Country_Region":"Tanzania","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":834,"iso2":"TZ","iso3":"TZA","code3":834.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-6.369028,"Long_":34.888822,"Combined_Key":"Tanzania","Population":59734213.0},{"Country_Region":"Thailand","median_turnaround_days":59.5,"min_turnaround_days":19.0,"max_turnaround_days":140.0,"num_sequences":166.0,"cases":3328.0,"sequences_per_case":0.0498798077,"UID":764,"iso2":"TH","iso3":"THA","code3":764.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.870032,"Long_":100.992541,"Combined_Key":"Thailand","Population":69799978.0},{"Country_Region":"Timor-Leste","median_turnaround_days":51.0,"min_turnaround_days":45.0,"max_turnaround_days":82.0,"num_sequences":18.0,"cases":25.0,"sequences_per_case":0.72,"UID":626,"iso2":"TL","iso3":"TLS","code3":626.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-8.874217,"Long_":125.727539,"Combined_Key":"Timor-Leste","Population":1318442.0},{"Country_Region":"Togo","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":768,"iso2":"TG","iso3":"TGO","code3":768.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":8.6195,"Long_":0.8248,"Combined_Key":"Togo","Population":8278737.0},{"Country_Region":"Trinidad and Tobago","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":780,"iso2":"TT","iso3":"TTO","code3":780.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":10.6918,"Long_":-61.2225,"Combined_Key":"Trinidad and Tobago","Population":1399491.0},{"Country_Region":"Tunisia","median_turnaround_days":53.5,"min_turnaround_days":49.0,"max_turnaround_days":74.0,"num_sequences":8.0,"cases":1601.0,"sequences_per_case":0.004996877,"UID":788,"iso2":"TN","iso3":"TUN","code3":788.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":33.886917,"Long_":9.537499,"Combined_Key":"Tunisia","Population":11818618.0},{"Country_Region":"Turkey","median_turnaround_days":57.0,"min_turnaround_days":3.0,"max_turnaround_days":134.0,"num_sequences":186.0,"cases":236112.0,"sequences_per_case":0.0007877617,"UID":792,"iso2":"TR","iso3":"TUR","code3":792.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":38.9637,"Long_":35.2433,"Combined_Key":"Turkey","Population":84339067.0},{"Country_Region":"Uganda","median_turnaround_days":54.0,"min_turnaround_days":22.0,"max_turnaround_days":62.0,"num_sequences":20.0,"cases":1213.0,"sequences_per_case":0.0164880462,"UID":800,"iso2":"UG","iso3":"UGA","code3":800.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":1.373333,"Long_":32.290275,"Combined_Key":"Uganda","Population":45741000.0},{"Country_Region":"Ukraine","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":804,"iso2":"UA","iso3":"UKR","code3":804.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":48.3794,"Long_":31.1656,"Combined_Key":"Ukraine","Population":43733759.0},{"Country_Region":"United Arab Emirates","median_turnaround_days":52.0,"min_turnaround_days":45.0,"max_turnaround_days":86.0,"num_sequences":24.0,"cases":61606.0,"sequences_per_case":0.0003895724,"UID":784,"iso2":"AE","iso3":"ARE","code3":784.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":23.424076,"Long_":53.847818,"Combined_Key":"United Arab Emirates","Population":9890400.0},{"Country_Region":"United Kingdom","median_turnaround_days":44.0,"min_turnaround_days":3.0,"max_turnaround_days":154.0,"num_sequences":32574.0,"cases":308832.0,"sequences_per_case":0.1054748213,"UID":826,"iso2":"GB","iso3":"GBR","code3":826.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":55.3781,"Long_":-3.436,"Combined_Key":"United Kingdom","Population":67886004.0},{"Country_Region":"Uruguay","median_turnaround_days":66.0,"min_turnaround_days":29.0,"max_turnaround_days":106.0,"num_sequences":74.0,"cases":1309.0,"sequences_per_case":0.0565317036,"UID":858,"iso2":"UY","iso3":"URY","code3":858.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-32.5228,"Long_":-55.7658,"Combined_Key":"Uruguay","Population":3473727.0},{"Country_Region":"Uzbekistan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":860,"iso2":"UZ","iso3":"UZB","code3":860.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":41.377491,"Long_":64.585262,"Combined_Key":"Uzbekistan","Population":33469199.0},{"Country_Region":"Venezuela","median_turnaround_days":77.0,"min_turnaround_days":77.0,"max_turnaround_days":84.0,"num_sequences":3.0,"cases":22299.0,"sequences_per_case":0.0001345352,"UID":862,"iso2":"VE","iso3":"VEN","code3":862.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":6.4238,"Long_":-66.5897,"Combined_Key":"Venezuela","Population":28435943.0},{"Country_Region":"Vietnam","median_turnaround_days":70.0,"min_turnaround_days":14.0,"max_turnaround_days":133.0,"num_sequences":73.0,"cases":717.0,"sequences_per_case":0.1018131102,"UID":704,"iso2":"VN","iso3":"VNM","code3":704.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":14.058324,"Long_":108.277199,"Combined_Key":"Vietnam","Population":97338583.0},{"Country_Region":"West Bank and Gaza","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":275,"iso2":"PS","iso3":"PSE","code3":275.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":31.9522,"Long_":35.2332,"Combined_Key":"West Bank and Gaza","Population":5101416.0},{"Country_Region":"Western Sahara","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":732,"iso2":"EH","iso3":"ESH","code3":732.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":24.2155,"Long_":-12.8858,"Combined_Key":"Western Sahara","Population":597330.0},{"Country_Region":"Yemen","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":887,"iso2":"YE","iso3":"YEM","code3":887.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":15.552727,"Long_":48.516388,"Combined_Key":"Yemen","Population":29825968.0},{"Country_Region":"Zambia","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":894,"iso2":"ZM","iso3":"ZMB","code3":894.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-13.133897,"Long_":27.849332,"Combined_Key":"Zambia","Population":18383956.0},{"Country_Region":"Zimbabwe","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null,"UID":716,"iso2":"ZW","iso3":"ZWE","code3":716.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-19.015438,"Long_":29.154857,"Combined_Key":"Zimbabwe","Population":14862927.0},{"Country_Region":"Australia","median_turnaround_days":27.0,"min_turnaround_days":4.0,"max_turnaround_days":144.0,"num_sequences":2403.0,"cases":19890.0,"sequences_per_case":0.1208144796,"UID":36,"iso2":"AU","iso3":"AUS","code3":36.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":-25.0,"Long_":133.0,"Combined_Key":"Australia","Population":25459700.0},{"Country_Region":"Canada","median_turnaround_days":71.0,"min_turnaround_days":10.0,"max_turnaround_days":124.0,"num_sequences":832.0,"cases":120033.0,"sequences_per_case":0.0069314272,"UID":124,"iso2":"CA","iso3":"CAN","code3":124.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":60.0,"Long_":-95.0,"Combined_Key":"Canada","Population":37855702.0},{"Country_Region":"China","median_turnaround_days":75.0,"min_turnaround_days":2.0,"max_turnaround_days":121.0,"num_sequences":165.0,"cases":88328.0,"sequences_per_case":0.0018680373,"UID":156,"iso2":"CN","iso3":"CHN","code3":156.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":30.5928,"Long_":114.3055,"Combined_Key":"China","Population":1404676330.0},{"Country_Region":"US","median_turnaround_days":55.0,"min_turnaround_days":3.0,"max_turnaround_days":151.0,"num_sequences":14991.0,"cases":4823890.0,"sequences_per_case":0.0031076579,"UID":840,"iso2":"US","iso3":"USA","code3":840.0,"FIPS":null,"Admin2":null,"Province_State":null,"Lat":40.0,"Long_":-100.0,"Combined_Key":"US","Population":329466283.0}]
+      },
+      {
+        "name": "world",
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@1.31/data/world-110m.json",
+        "format": {
+          "type": "topojson",
+          "feature": "countries"
+        },
+        "transform": [
+          { 
+            "type": "lookup", 
+            "from": "scores", 
+            "key": "UID", 
+            "fields": ["id"], 
+            "values": ["cases", "sequences_per_case", "Country_Region", "median_turnaround_days"] 
+          },
+          {
+            "type": "formula",
+            "as": "sequences_per_1000cases",
+            "expr": "datum.sequences_per_case * 1000"
+          },
+          {
+            "type": "formula",
+            "as": "log_sequences_per_1000cases",
+            "expr": "log(datum.sequences_per_1000cases) / LN10"
+          }
+        ]
+      },
+      {
+        "name": "seqData",
+        "source": "world",
+        "transform": [
+          {
+            "type": "filter",
+            "expr": "datum.cases > 500"
+          },
+          {
+            "type": "filter",
+            "expr": "datum.sequences_per_case != null"
+          },
+          {
+            "type": "filter",
+            "expr": "datum.sequences_per_1000cases > 0.01"
+          },
+          {
+            "type": "collect",
+            "sort": {"field": "sequences_per_case"}
+          }
+        ]
+      },
+      {
+        "name": "turnaroundData",
+        "source": "world",
+        "transform": [
+          {
+            "type": "filter",
+            "expr": "datum.cases > 500"
+          },
+          {
+            "type": "filter",
+            "expr": "datum.median_turnaround_days != null"
+          },
+          {
+            "type": "collect",
+            "sort": {
+              "field": ["median_turnaround_days"],
+              "order": ["descending"]
+            }
+          }
+        ]
+      },
+      {
+        "name": "graticule",
+        "transform": [
+          { "type": "graticule", "step": [15, 15] }
+        ]
+      }
+    ],
+  
+    "scales": [
+      {
+        "name": "sequence_color",
+        "type": "quantize",
+        "domain": [-2, 3],
+        "range": {"scheme": "yellowgreenblue", "count": 10}
+      },
+      {
+        "name": "turnaround_color",
+        "type": "quantize",
+        "domain": [10, 100],
+        "range": {"scheme": "blues", "count": 9},
+        "reverse": true
+      }
+    ],
+  
+    "marks": [
+      {
+        "type": "group",
+        "encode": {
+          "update": {
+            "width": {"signal": "width"},
+            "height": {"signal": "height"}
+          }
+        },
+        "marks": [
+          {
+            "name": "seqMapGroup",
+            "type": "group",
+            "signals": [
+              {"name": "width", "update": "mapWidth"},
+              {"name": "height", "update": "mapHeight"}
+            ],
+            "encode": {
+              "enter": {
+                "clip": {"value": true}
+              },
+              "update": {
+                "x": {"value": 0},
+                "width": {"signal": "mapWidth"},
+                "height": {"signal": "mapHeight"}
+              }
+            },
+            "marks": [
+              {
+                "name": "seqMapRect",
+                "type": "rect",
+                "encode": {
+                  "enter": {
+                    "x": {"value": 0},
+                    "y": {"value": 0},
+                    "fill": {"value": "#fff"}
+                  },
+                  "update": {
+                    "width": {"signal": "mapWidth"},
+                    "height": {"signal": "mapHeight"}
+                  }
+                }
+              },
+              {
+                "name": "seqMap",
+                "type": "shape",
+                "from": {"data": "world"},
+                "encode": {
+                  "enter": {
+                    "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
+                    "fill": [
+                      {
+                        "test": "datum.sequences_per_case === null",
+                        "value": "#AAA"
+                      },
+                      {
+                        "scale": "sequence_color", 
+                        "field": "log_sequences_per_1000cases"
+                      }
+                    ]
+                  },
+                  "update": {
+                    "strokeWidth": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": 1
+                      },
+                      {"value": 0.5}
+                    ],
+                    "stroke": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": "#444"
+                      },
+                      {"value": "#bbb"}
+                    ],
+                    "zindex": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": 3
+                      },
+                      {"value": 1}
+                    ]
+                  }
+                },
+                "transform": [
+                  { "type": "geoshape", "projection": "projection" }
+                ]
+              }
+            ],
+            "legends": [
+              {
+                "title": "Log10 sequences per 1000 cases",
+                "fill": "sequence_color",
+                "orient": "bottom-left",
+                "offset": 5,
+                "type": "gradient",
+                "gradientLength": 250,
+                "gradientThickness": 12,
+                "titlePadding": 10,
+                "titleOrient": "left",
+                "titleAnchor": "end",
+                "direction": "horizontal"
+              }
+            ]
+          },
+          {
+            "name": "turnaroundMapGroup",
+            "type": "group",
+            "signals": [
+              {"name": "width", "update": "mapWidth"},
+              {"name": "height", "update": "mapHeight"}
+            ],
+            "encode": {
+              "enter": {
+                "clip": {"value": true}
+              },
+              "update": {
+                "x": {"signal": "mapWidth"},
+                "width": {"signal": "mapWidth"},
+                "height": {"signal": "mapHeight"}
+              }
+            },
+            "marks": [
+              {
+                "name": "turnaroundMapRect",
+                "type": "rect",
+                "encode": {
+                  "enter": {
+                    "x": {"value": 0},
+                    "y": {"value": 0},
+                    "fill": {"value": "#fff"}
+                  },
+                  "update": {
+                    "width": {"signal": "mapWidth"},
+                    "height": {"signal": "mapHeight"}
+                  }
+                }
+              },
+              {
+                "name": "turnaroundMap",
+                "type": "shape",
+                "from": {"data": "world"},
+                "encode": {
+                  "enter": {
+                    "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
+                    "fill": [
+                      {
+                        "test": "datum.median_turnaround_days === null",
+                        "value": "#AAA"
+                      },
+                      {
+                        "scale": "turnaround_color", 
+                        "field": "median_turnaround_days"
+                      }
+                    ]
+                  },
+                  "update": {
+                    "strokeWidth": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": 1
+                      },
+                      {"value": 0.5}
+                    ],
+                    "stroke": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": "#444"
+                      },
+                      {"value": "#bbb"}
+                    ],
+                    "zindex": [
+                      {
+                        "test": "datum['Country_Region'] !== null && hoverCountry === datum['Country_Region']",
+                        "value": 3
+                      },
+                      {"value": 1}
+                    ]
+                  }
+                },
+                "transform": [
+                  { "type": "geoshape", "projection": "projection" }
+                ]
+              }
+            ],
+            "legends": [
+              {
+                "title": "Median days to deposition",
+                "fill": "turnaround_color",
+                "orient": "bottom-left",
+                "offset": 5,
+                "type": "gradient",
+                "gradientLength": 250,
+                "gradientThickness": 12,
+                "titlePadding": 10,
+                "titleOrient": "left",
+                "titleAnchor": "end",
+                "direction": "horizontal"
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "encode": {
+              "enter": {
+                "x": {"value": 0},
+                "clip": {"value": false}
+              },
+              "update": {
+                "y": {"signal": "chartY"},
+                "width": {"signal": "chartWidth"},
+                "height": {"signal": "chartHeight"}
+              }
+            },
+  
+            "scales": [
+              {
+                "type": "log",
+                "base": 10,
+                "name": "xscale",
+                "domain": [0.01, 1000],
+                "nice": true,
+                "range": [0, {"signal": "chartWidth"}]
+              },
+              {
+                "name": "yscale",
+                "type": "band",
+                "range": [{"signal": "chartHeight"}, 0],
+                "domain": {"data": "seqData", "field": "Country_Region"}
+              }
+            ],
+  
+            "axes": [
+              { 
+                "orient": "bottom", 
+                "scale": "xscale",
+                "title": "Sequences per 1000 cases"
+              },
+              {
+                "orient": "left", 
+                "scale": "yscale",
+  
+                "encode": {
+                  "labels": {
+                    "name": "seqLabels",
+                    "interactive": true,
+                    "update": {
+                      "fontWeight": [
+                        {
+                          "test": "hoverCountry === datum.value",
+                          "value": "bold"
+                        },
+                        {"value": "normal"}
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            
+            "marks": [
+              {
+                "type": "rect",
+                "from": { "data": "seqData" },
+                "encode": {
+                  "enter": {
+                    "x": {"scale": "xscale", "value": 0.01},
+                    "x2": {"scale": "xscale", "field": "sequences_per_1000cases"},
+                    "y": {"scale": "yscale", "field": "Country_Region"},
+                    "height": {"scale": "yscale", "band": 1},
+                    "fill": {
+                      "scale": "sequence_color", 
+                      "field": "log_sequences_per_1000cases"
+                    },
+                    "stroke": {"value": "#000"},
+                    "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
+                  },
+                  "update": {
+                    "strokeWidth": [
+                      {
+                        "test": "hoverCountry === datum['Country_Region']",
+                        "value": 1
+                      },
+                      {"value": 0}
+                    ],
+                    "zindex": [
+                      {
+                        "test": "hoverCountry === datum['Country_Region']",
+                        "value": 3
+                      },
+                      {"value": 1}
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "encode": {
+              "enter": {
+                "clip": {"value": false}
+              },
+              "update": {
+                "x": {"signal": "chartX"},
+                "y": {"signal": "chartY"},
+                "width": {"signal": "chartWidth"},
+                "height": {"signal": "chartHeight"}
+              }
+            },
+  
+            "scales": [
+              {
+                "name": "xscale",
+                "domain": [10, 150],
+                "nice": true,
+                "range": [0, {"signal": "chartWidth"}]
+              },
+              {
+                "name": "yscale",
+                "type": "band",
+                "range": [{"signal": "chartHeight"}, 0],
+                "domain": {"data": "turnaroundData", "field": "Country_Region"}
+              }
+            ],
+  
+            "axes": [
+              { 
+                "orient": "bottom", 
+                "scale": "xscale",
+                "title": "Median days from collection to deposition"
+              },
+              {
+                "orient": "left", 
+                "scale": "yscale",
+  
+                "encode": {
+                  "labels": {
+                    "name": "turnaroundLabels",
+                    "interactive": true,
+                    "update": {
+                      "fontWeight": [
+                        {
+                          "test": "hoverCountry === datum.value",
+                          "value": "bold"
+                        },
+                        {"value": "normal"}
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            
+            "marks": [
+              {
+                "type": "rect",
+                "from": { "data": "turnaroundData" },
+                "encode": {
+                  "enter": {
+                    "x": {"scale": "xscale", "value": 0.01},
+                    "x2": {"scale": "xscale", "field": "median_turnaround_days"},
+                    "y": {"scale": "yscale", "field": "Country_Region"},
+                    "height": {"scale": "yscale", "band": 1},
+                    "fill": {
+                      "scale": "turnaround_color", 
+                      "field": "median_turnaround_days"
+                    },
+                    "stroke": {"value": "#000"},
+                    "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
+                  },
+                  "update": {
+                    "strokeWidth": [
+                      {
+                        "test": "hoverCountry === datum['Country_Region']",
+                        "value": 1
+                      },
+                      {"value": 0}
+                    ],
+                    "zindex": [
+                      {
+                        "test": "hoverCountry === datum['Country_Region']",
+                        "value": 3
+                      },
+                      {"value": 1}
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+  
+    "config": {
+      "legend": {"layout": {"anchor": "middle"}}
+    }
+  }
+  

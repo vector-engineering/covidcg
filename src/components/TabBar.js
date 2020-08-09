@@ -37,7 +37,7 @@ const TabItem = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  width: 160px;
+  max-width: 160px;
 
   a.tab-link {
     display: flex;
@@ -47,11 +47,13 @@ const TabItem = styled.div`
 
     flex-grow: 1;
     text-decoration: none;
-    color: #000;
+    color: ${({ active }) => (active ? '#000' : '#888')};
     text-align: center;
     border-radius: 10px 10px 0px 0px;
     background-color: ${({ active }) => (active ? '#fff' : 'transparent')};
     transition: 0.1s all ease-in-out;
+
+    padding: 0px 15px;
 
     &:hover {
       color: #666;
@@ -62,7 +64,7 @@ const TabItem = styled.div`
     }
 
     span {
-      border-right: ${({ active }) => (active ? 'none' : '1px solid #ccc')};
+      // border-right: ${({ active }) => (active ? 'none' : '1px solid #ccc')};
     }
   }
 `;
@@ -192,7 +194,16 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_EXAMPLE)}
           >
-            <span>Example Analyses</span>
+            <span>Analyses</span>
+          </a>
+        </TabItem>
+        <TabItem active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+          >
+            <span>Sequencing Efforts</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_ABOUT}>
@@ -210,7 +221,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_METHODOLOGY)}
           >
-            <span>Methodology</span>
+            <span>Methods</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_RELATED}>
