@@ -122,11 +122,11 @@ const HomePage = observer(({ UIStore }) => {
   return (
     <>
       <KeyListener />
-      {/* <SplashScreenModal
+      <SplashScreenModal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
-      /> */}
+      />
       <HomePageDiv>
         {/* <SideBar /> */}
         <FilterSidebar>

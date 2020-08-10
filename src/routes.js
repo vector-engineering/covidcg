@@ -21,9 +21,7 @@ const routes = {
     path: publicPath + 'index.html',
     component: <HomePage />,
     onEnter: (route, params, store, queryParams) => {
-      //store.gallery.fetchImages();
-      console.log(route, params, store, queryParams);
-      console.log('current query params are -> ', queryParams);
+      store.gallery.fetchImages();
     },
   }),
   notFound: new Route({
