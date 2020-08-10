@@ -59,7 +59,7 @@ export const initialConfigValues = {
   selectedGene: getGene('S'),
   selectedProtein: getProtein('nsp13'),
   selectedPrimers: [],
-  customCoordinates: [8000, 12000],
+  customCoordinates: [[8000, 12000]],
 
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -305,8 +305,7 @@ class ObservableConfigStore {
       }
     } else if (
       this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
-      this.customCoordinates[0][0] === initial.customCoordinates[0][0] &&
-      this.customCoordinates[0][1] === initial.customCoordinates[0][1]
+      _.isEqual(toJS(this.customCoordinates), initial.customCoordinates)
     ) {
       return;
     }
@@ -332,7 +331,7 @@ class ObservableConfigStore {
         coordinateRanges.push([primer.Start, primer.End]);
       });
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
-      coordinateRanges = [toJS(this.customCoordinates)];
+      coordinateRanges = toJS(this.customCoordinates);
     }
     return coordinateRanges;
   }

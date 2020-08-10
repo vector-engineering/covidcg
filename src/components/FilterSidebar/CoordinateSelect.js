@@ -237,7 +237,7 @@ const CoordForm = styled.form`
   }
   input {
     margin-right: 5px;
-    max-width: 4rem;
+    max-width: 15rem;
   }
   button {
     flex-grow: 1;
@@ -287,8 +287,10 @@ const CoordinateSelect = observer(() => {
     primerTreeData: Object.assign(getPrimerSelectTree()),
     selectedPrimers: [],
     primersChanged: false,
-    customStart: configStore.customCoordinates[0],
-    customEnd: configStore.customCoordinates[1],
+    customCoordText: configStore.customCoordinates
+      .map((range) => range.join('..'))
+      .join(';'),
+    validCustomCoords: true,
     customCoordinatesChanged: false,
   });
 
@@ -308,8 +310,11 @@ const CoordinateSelect = observer(() => {
   useEffect(() => {
     setState({
       ...state,
-      customStart: configStore.customCoordinates[0],
-      customEnd: configStore.customCoordinates[1],
+      customCoordText: configStore.customCoordinates
+        .map((range) => range.join('..'))
+        .join(';'),
+      customCoordinatesChanged: false,
+      validCustomCoords: true,
     });
   }, [configStore.customCoordinates]);
 
@@ -362,34 +367,46 @@ const CoordinateSelect = observer(() => {
     });
   };
 
-  const handleCustomCoordStartChange = (event) => {
-    let customCoordinatesChanged = false;
-    if (configStore.customCoordinates[0] != event.target.value) {
-      customCoordinatesChanged = true;
-    }
+  // Use a regex to match numbers, since just because JS
+  // can parse an integer, doesn't mean it should...
+  const numPattern = /^([0-9]+)$/;
+  const handleCustomCoordChange = (event) => {
+    // Serialize custom coordinates of the store
+    const storeCustomCoords = configStore.customCoordinates
+      .map((range) => range.join('..'))
+      .join(';');
+
+    // Parse current custom coordinates
+    const curCustomCoords = event.target.value
+      .split(';')
+      .map((range) => range.split('..'));
+    // Check that these are valid
+    const validCustomCoords = !curCustomCoords.some((range) => {
+      // Return true if invalid
+      return (
+        range.length !== 2 ||
+        numPattern.exec(range[0]) === null ||
+        numPattern.exec(range[1]) === null ||
+        parseInt(range[0]) > parseInt(range[1])
+      );
+    });
+
     setState({
       ...state,
-      customCoordinatesChanged,
-      customStart: event.target.value,
+      validCustomCoords,
+      customCoordinatesChanged: storeCustomCoords !== event.target.value,
+      customCoordText: event.target.value,
     });
   };
-  const handleCustomCoordEndChange = (event) => {
-    let customCoordinatesChanged = false;
-    if (configStore.customCoordinates[1] != event.target.value) {
-      customCoordinatesChanged = true;
-    }
-    setState({
-      ...state,
-      customCoordinatesChanged,
-      customEnd: event.target.value,
-    });
-  };
+
   const handleCustomCoordSubmit = (event) => {
     event.preventDefault();
     // Change to custom mode implicitly
     changeCoordinateMode({
       coordinateMode: COORDINATE_MODES.COORD_CUSTOM,
-      customCoordinates: [state.customStart, state.customEnd],
+      customCoordinates: state.customCoordText
+        .split(';')
+        .map((range) => range.split('..').map((coord) => parseInt(coord))),
     });
   };
 
@@ -605,32 +622,20 @@ const CoordinateSelect = observer(() => {
                 state.customCoordinatesChanged &&
                 configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
               }
+              disabled={!state.validCustomCoords}
               onClick={handleCustomCoordSubmit}
             >
               Confirm
             </UpdateCoordButton>
           </ModeLabel>
           <CoordForm>
-            <span>From</span>
             <input
-              type="number"
-              min={1}
-              max={29903}
-              step={1}
-              value={state.customStart}
-              onChange={handleCustomCoordStartChange}
-            />
-            <span>To</span>
-            <input
-              type="number"
-              min={1}
-              max={29903}
-              step={1}
-              value={state.customEnd}
-              onChange={handleCustomCoordEndChange}
+              type="text"
+              value={state.customCoordText}
+              onChange={handleCustomCoordChange}
             />
             <QuestionButton
-              data-tip="<p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />

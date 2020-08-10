@@ -18,7 +18,6 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import initialSpec from '../../vega_specs/location_date.vg.json';
-import { plotSettingsStoreInstance } from '../../stores/rootStore';
 
 const PlotContainer = styled.div``;
 
