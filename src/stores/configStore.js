@@ -1,4 +1,4 @@
-import { observable, action, toJS } from 'mobx';
+import { observable, action, toJS, intercept, autorun } from 'mobx';
 import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
@@ -24,6 +24,8 @@ import {
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/config';
+import { updateQueryStringParam } from '../utils/updateQueryParam';
+import { PARAMS_TO_TRACK } from './paramsToTrack';
 
 // Define initial values
 
@@ -82,6 +84,15 @@ export const initialConfigValues = {
   minGlobalCountsToShow: 100,
 };
 
+const urlParams = new URLSearchParams(window.location.search);
+
+const defaultsFromParams = {};
+
+PARAMS_TO_TRACK.forEach((param) => {
+  console.log('getting: ', param, urlParams.get(param));
+  defaultsFromParams[param] = urlParams.get(param);
+});
+
 class ObservableConfigStore {
   @observable groupKey = initialConfigValues.groupKey;
   @observable dnaOrAa = initialConfigValues.dnaOrAa;
@@ -105,7 +116,20 @@ class ObservableConfigStore {
   @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
   @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
-  constructor() {}
+  constructor() {
+    PARAMS_TO_TRACK.forEach((param) => {
+      if (defaultsFromParams[param]) {
+        console.log('setting: ', param, urlParams.get(param));
+        this[param] = defaultsFromParams[param];
+      }
+    });
+  }
+
+  modifyQueryParams = autorun(() => {
+    PARAMS_TO_TRACK.forEach((param) => {
+      updateQueryStringParam(param, JSON.stringify(this[param]));
+    });
+  });
 
   @action
   resetValues(values) {

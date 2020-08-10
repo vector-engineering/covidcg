@@ -8,6 +8,7 @@ import styled from 'styled-components';
 // import { intToISO } from '../utils/date';
 // import { GROUP_KEYS, DNA_OR_AA } from '../constants/config';
 import { TABS } from '../constants/UI';
+import { updateQueryStringParam } from '../utils/updateQueryParam';
 
 const TabBarContainer = styled.div`
   display: flex;
@@ -125,6 +126,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
   const changeTab = (tab, e) => {
     e.preventDefault();
     onTabChange(tab);
+    updateQueryStringParam('tab', tab);
   };
 
   // let numSequencesBeforeMetadataFilteringText = '';
