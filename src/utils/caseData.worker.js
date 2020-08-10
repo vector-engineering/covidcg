@@ -12,7 +12,6 @@ import {
   coolColors,
   snpColorArray,
   cladeColorArray,
-  incrementColor,
 } from '../constants/colors';
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
@@ -30,38 +29,46 @@ const processedCaseData = _.reject(
   }
 );
 
-let _warmColors = Object.assign({}, warmColors);
-let _coolColors = Object.assign({}, coolColors);
-let _snpColorArray = [...snpColorArray];
-let _cladeColorArray = [...cladeColorArray];
-
-function iterateAndGetColor(colorobj, iter, i = 0) {
-  if (i < iter) {
-    return iterateAndGetColor(colorobj.child, iter, i + 1);
-  } else {
-    colorobj.colors.push(incrementColor(colorobj.colors.shift(), 1));
-    return colorobj.colors[0];
-  }
-}
-
+let coolColorInd = 0;
+let warmColorInd = 0;
 const getLineageColor = _.memoize((group) => {
-  const match = group.match(/\./g);
-  const dots = match ? match.length : 0;
+  let color;
   if (group.charAt(0) === 'A') {
-    return iterateAndGetColor(_warmColors, dots);
+    color = warmColors[warmColorInd++];
+
+    if (warmColorInd === warmColors.length) {
+      warmColorInd = 0;
+    }
   } else if (group.charAt(0) === 'B') {
-    return iterateAndGetColor(_coolColors, dots);
+    color = coolColors[coolColorInd++];
+
+    if (coolColorInd === coolColors.length) {
+      coolColorInd = 0;
+    }
   }
+  return color;
 });
 
+let snpColorInd = 0;
 const getSnpColor = _.memoize(() => {
-  _snpColorArray.push(incrementColor(_snpColorArray.shift(), 1));
-  return _snpColorArray[0];
+  const color = snpColorArray[snpColorInd++];
+
+  if (snpColorInd === snpColorArray.length) {
+    snpColorInd = 0;
+  }
+
+  return color;
 });
 
+let cladeColorInd = 0;
 const getCladeColor = _.memoize(() => {
-  _cladeColorArray.push(incrementColor(_cladeColorArray.shift(), 1));
-  return _cladeColorArray[0];
+  const color = cladeColorArray[cladeColorInd++];
+  // If we're at the end, then loop back to the beginning
+  if (cladeColorInd === cladeColorArray.length) {
+    cladeColorInd = 0;
+  }
+
+  return color;
 });
 
 function convertToObj(list) {
@@ -300,6 +307,7 @@ function processCaseData({
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
+  const uniqueGroupKeys = new Set();
   let groupKeys = [];
   let location;
   caseData.forEach((row) => {
@@ -335,6 +343,8 @@ function processCaseData({
       !(group in aggCaseData[location][row.collection_date]) &&
         (aggCaseData[location][row.collection_date][group] = 0);
       aggCaseData[location][row.collection_date][group] += 1;
+
+      uniqueGroupKeys.add(group);
     });
   });
 
@@ -346,6 +356,10 @@ function processCaseData({
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = getSnpColor;
   }
+
+  Array.from(uniqueGroupKeys).sort().forEach((group) => {
+    getColorMethod(group);
+  });
 
   const aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((location) => {
