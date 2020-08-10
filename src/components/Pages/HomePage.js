@@ -167,6 +167,7 @@ const HomePage = observer(({ UIStore }) => {
             }
             defaultCollapsed={true}
             maxHeight={'240px'}
+            allowOverflow={true}
           >
             <MetaFieldSelect />
           </SidebarAccordionWrapper>
