@@ -16,6 +16,7 @@ import {
   getPrimerByName,
   getPrimersByGroup,
 } from '../../utils/primer';
+import { referenceSequenceIncludes } from '../../utils/reference';
 
 import {
   GROUP_KEYS,
@@ -236,24 +237,50 @@ const CoordForm = styled.form`
     margin-right: 5px;
   }
   input {
+    flex-grow: 1;
     margin-right: 5px;
-    max-width: 4rem;
+    max-width: 15rem;
   }
   button {
     flex-grow: 1;
   }
 `;
 
-const UpdateCoordButton = styled(Button)`
+const UpdateButton = styled(Button)`
   display: ${(props) => (props.show ? 'block' : 'none')};
   font-size: 0.9em;
   padding: 3px 8px;
   margin-left: 10px;
 `;
-
-UpdateCoordButton.defaultProps = {
+UpdateButton.defaultProps = {
   show: false,
 };
+
+const ValidationInput = styled.input`
+  border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+  &:focus {
+    border: 2px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+  }
+`;
+ValidationInput.defaultProps = {
+  invalid: false,
+};
+
+const InvalidText = styled.span`
+  margin-left: 20px;
+  font-size: 0.9em;
+  font-weight: normal;
+  line-height: normal;
+  color: #dc3545;
+`;
+
+const RangesText = styled.span`
+  margin-left: 20px;
+  font-size: 0.9em;
+  font-weight: normal;
+  line-height: normal;
+  color: #888;
+`;
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
@@ -287,9 +314,15 @@ const CoordinateSelect = observer(() => {
     primerTreeData: Object.assign(getPrimerSelectTree()),
     selectedPrimers: [],
     primersChanged: false,
-    customStart: configStore.customCoordinates[0],
-    customEnd: configStore.customCoordinates[1],
+    customCoordText: configStore.customCoordinates
+      .map((range) => range.join('..'))
+      .join(';'),
+    validCustomCoords: true,
     customCoordinatesChanged: false,
+
+    customSequences: configStore.customSequences.join(';'),
+    validCustomSequences: true,
+    customSequencesChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -297,21 +330,31 @@ const CoordinateSelect = observer(() => {
   // useEffect(() => {
   //   let _geneOptionElements = state.geneOptionElements;
   //   let _proteinOptionElements = state.proteinOptionElements;
-
   //   if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
-
   //   }
-
   // }, [configStore.groupKey, configStore.dnaOrAa]);
 
   // Update custom coordinates from the store
   useEffect(() => {
     setState({
       ...state,
-      customStart: configStore.customCoordinates[0],
-      customEnd: configStore.customCoordinates[1],
+      customCoordText: configStore.customCoordinates
+        .map((range) => range.join('..'))
+        .join(';'),
+      customCoordinatesChanged: false,
+      validCustomCoords: true,
     });
   }, [configStore.customCoordinates]);
+
+  // Update custom sequences from the store
+  useEffect(() => {
+    setState({
+      ...state,
+      customSequences: configStore.customSequences.join(';'),
+      customSequencesChanged: false,
+      validCustomSequences: true,
+    });
+  }, [configStore.customSequences]);
 
   const changeCoordinateMode = ({
     coordinateMode,
@@ -319,6 +362,7 @@ const CoordinateSelect = observer(() => {
     selectedProtein,
     selectedPrimers,
     customCoordinates,
+    customSequences,
   }) => {
     configStore.changeCoordinateMode({
       coordinateMode:
@@ -341,6 +385,10 @@ const CoordinateSelect = observer(() => {
         customCoordinates === undefined
           ? configStore.customCoordinates
           : customCoordinates,
+      customSequences:
+        customSequences === undefined
+          ? configStore.customSequences
+          : customSequences,
     });
   };
 
@@ -362,34 +410,81 @@ const CoordinateSelect = observer(() => {
     });
   };
 
-  const handleCustomCoordStartChange = (event) => {
-    let customCoordinatesChanged = false;
-    if (configStore.customCoordinates[0] != event.target.value) {
-      customCoordinatesChanged = true;
-    }
+  // Use a regex to match numbers, since just because JS
+  // can parse an integer, doesn't mean it should...
+  const numPattern = /^([0-9]+)$/;
+  const handleCustomCoordChange = (event) => {
+    // Serialize custom coordinates of the store
+    const storeCustomCoords = configStore.customCoordinates
+      .map((range) => range.join('..'))
+      .join(';');
+
+    // Parse current custom coordinates
+    const curCustomCoords = event.target.value
+      .split(';')
+      .map((range) => range.split('..'));
+    // Check that these are valid
+    const validCustomCoords = !curCustomCoords.some((range) => {
+      // Return true if invalid
+      return (
+        range.length !== 2 ||
+        numPattern.exec(range[0]) === null ||
+        numPattern.exec(range[1]) === null ||
+        parseInt(range[0]) > parseInt(range[1])
+      );
+    });
+
     setState({
       ...state,
-      customCoordinatesChanged,
-      customStart: event.target.value,
+      validCustomCoords,
+      customCoordinatesChanged: storeCustomCoords !== event.target.value,
+      customCoordText: event.target.value,
     });
   };
-  const handleCustomCoordEndChange = (event) => {
-    let customCoordinatesChanged = false;
-    if (configStore.customCoordinates[1] != event.target.value) {
-      customCoordinatesChanged = true;
-    }
-    setState({
-      ...state,
-      customCoordinatesChanged,
-      customEnd: event.target.value,
-    });
-  };
+
   const handleCustomCoordSubmit = (event) => {
     event.preventDefault();
     // Change to custom mode implicitly
     changeCoordinateMode({
       coordinateMode: COORDINATE_MODES.COORD_CUSTOM,
-      customCoordinates: [state.customStart, state.customEnd],
+      customCoordinates: state.customCoordText
+        .split(';')
+        .map((range) => range.split('..').map((coord) => parseInt(coord))),
+    });
+  };
+
+  const handleCustomSequencesChange = (event) => {
+    const curText = event.target.value.toUpperCase();
+    const sequences = curText.split(';');
+    // Check that all bases are valid and that
+    // the reference sequence includes the sequence
+    // TODO: support for denegerate bases
+    const validBases = ['A', 'T', 'C', 'G'];
+    const validCustomSequences = !sequences.some((seq) => {
+      // Fails if any conditions are met
+      return (
+        seq.length === 0 ||
+        Array.from(seq).some((base) => !validBases.includes(base)) ||
+        !referenceSequenceIncludes(seq)
+      );
+    });
+    const customSequencesChanged =
+      curText !== configStore.customSequences.join(';');
+
+    setState({
+      ...state,
+      customSequences: curText,
+      validCustomSequences,
+      customSequencesChanged,
+    });
+  };
+
+  const handleCustomSequencesSubmit = (event) => {
+    event.preventDefault();
+    // Change to sequences mode implicitly
+    changeCoordinateMode({
+      coordinateMode: COORDINATE_MODES.COORD_SEQUENCE,
+      customSequences: state.customSequences.split(';'),
     });
   };
 
@@ -600,41 +695,78 @@ const CoordinateSelect = observer(() => {
               onChange={handleModeChange}
             />
             <span>Custom Coordinates</span>
-            <UpdateCoordButton
+            <UpdateButton
               show={
                 state.customCoordinatesChanged &&
                 configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
               }
+              disabled={!state.validCustomCoords}
               onClick={handleCustomCoordSubmit}
             >
               Confirm
-            </UpdateCoordButton>
+            </UpdateButton>
           </ModeLabel>
           <CoordForm>
-            <span>From</span>
             <input
-              type="number"
-              min={1}
-              max={29903}
-              step={1}
-              value={state.customStart}
-              onChange={handleCustomCoordStartChange}
-            />
-            <span>To</span>
-            <input
-              type="number"
-              min={1}
-              max={29903}
-              step={1}
-              value={state.customEnd}
-              onChange={handleCustomCoordEndChange}
+              type="text"
+              value={state.customCoordText}
+              onChange={handleCustomCoordChange}
             />
             <QuestionButton
-              data-tip="<p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />
           </CoordForm>
+        </ModeRadioVertical>
+        <ModeRadioVertical>
+          <ModeLabel>
+            <input
+              className="radio-input"
+              type="radio"
+              value={COORDINATE_MODES.COORD_SEQUENCE}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE
+              }
+              onChange={handleModeChange}
+            />
+            <span>Match Sequences</span>
+            <UpdateButton
+              show={
+                state.customSequencesChanged &&
+                configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE
+              }
+              disabled={!state.validCustomSequences}
+              onClick={handleCustomSequencesSubmit}
+            >
+              Confirm
+            </UpdateButton>
+          </ModeLabel>
+          <CoordForm>
+            <ValidationInput
+              type="text"
+              value={state.customSequences}
+              onChange={handleCustomSequencesChange}
+              invalid={!state.validCustomSequences}
+            />
+            <QuestionButton
+              data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
+              data-html="true"
+              data-for="tooltip-filter-sidebar"
+            />
+          </CoordForm>
+          {!state.validCustomSequences && (
+            <InvalidText>One or more sequences are invalid</InvalidText>
+          )}
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE && (
+            <RangesText>
+              Coordinates:{' '}
+              {configStore
+                .getCoordinateRanges()
+                .map((range) => range.join('..'))
+                .join(';')}
+            </RangesText>
+          )}
         </ModeRadioVertical>
       </ModeSelectForm>
     </SelectContainer>
