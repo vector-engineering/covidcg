@@ -750,7 +750,7 @@ const CoordinateSelect = observer(() => {
               invalid={!state.validCustomSequences}
             />
             <QuestionButton
-              data-tip="<p></p><p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />
