@@ -17,3 +17,16 @@ export function hashCode(str) {
   }
   return hash;
 }
+
+const basePairMap = {
+  A: 'T',
+  T: 'A',
+  C: 'G',
+  G: 'C',
+};
+export function reverseComplement(str) {
+  return Array.from(str)
+    .reverse()
+    .map((char) => basePairMap[char])
+    .join('');
+}

@@ -356,6 +356,10 @@ const GroupStackPlot = observer(({ width }) => {
             dateBin,
             cumulativeWindow,
             detailYLabel,
+            yFormat:
+              plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_COUNTS
+                ? 's'
+                : '%',
           }}
           cheapSignals={['hoverBar']}
           width={width}

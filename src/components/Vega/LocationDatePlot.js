@@ -380,6 +380,11 @@ const LocationDatePlot = observer(({ width }) => {
               yField,
               cumulativeWindow,
               yLabel,
+              yFormat:
+                plotSettingsStore.locationDateNormMode ===
+                NORM_MODES.NORM_COUNTS
+                  ? 's'
+                  : '%',
             }}
             actions={false}
           />

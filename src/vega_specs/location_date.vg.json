@@ -79,6 +79,7 @@
     { "name": "cumulativeWindow", "value": [0, 0] },
     { "name": "yField", "value": "cases_sum_agg" },
     { "name": "yLabel", "value": "% Sequences" },
+    { "name": "yFormat", "value": "s" },
     {
       "name": "clear",
       "value": true,
@@ -281,6 +282,7 @@
     {
       "orient": "left",
       "scale": "yscale",
+      "format": { "signal": "yFormat" },
 
       "grid": true,
       "gridScale": "xscale",

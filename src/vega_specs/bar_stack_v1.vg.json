@@ -131,6 +131,10 @@
       "comment": "Y-axis label of the detail (upper) panel"
     },
     {
+      "name": "yFormat",
+      "value": "s"
+    },
+    {
       "name": "stackOffset",
       "value": "zero",
       "comment": "Whether to show the counts as percentages ('normalize') or as absolute counts ('zero'). This is passed to the stack transform of cases_by_date_and_group"
@@ -281,6 +285,7 @@
         {
           "orient": "left",
           "scale": "y",
+          "format": { "signal": "yFormat" },
           "zindex": 0,
           "grid": true,
           "gridColor": "#DDD",

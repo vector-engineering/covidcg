@@ -22,9 +22,7 @@ export function getGene(value) {
     value === 'All Genes'
       ? {
           gene: 'All Genes',
-          start: 1,
-          // Find the largest end position out of all genes
-          end: _.reduce(genes, (memo, opt) => Math.max(memo, opt.end), 1),
+          ranges: [[1, 30000]],
         }
       : _.findWhere(genes, { gene: value })
   );
