@@ -3,7 +3,7 @@
   "description": "A basic stacked bar chart example.",
   "comment": "These will be overridden by the container of this vega plot",
   "width": 700,
-  "height": 360,
+  "height": 380,
   "padding": 5,
 
   "data": [
@@ -271,8 +271,12 @@
           "gridScale": "y",
           "gridColor": "#DDD",
 
-          "labelFontSize": 12,
-          "labelPadding": 3
+          "labelAngle": 310,
+          "labelAlign": "right",
+          "labelBaseline": "middle",
+          "labelPadding": 5,
+
+          "labelFontSize": 12
         },
         {
           "orient": "left",
@@ -361,7 +365,7 @@
         "comment": "The width should be overridden by the plot container",
         "update": {
           "x": { "value": 0 },
-          "y": { "value": 300 },
+          "y": { "value": 320 },
           "width": { "signal": "width" },
           "height": { "value": 60 },
           "fill": { "value": "transparent" }
@@ -510,8 +514,12 @@
           "gridColor": "#DDD",
           "gridScale": "yOverview",
 
+          "labelAngle": 310,
+          "labelAlign": "right",
+          "labelBaseline": "middle",
+          "labelPadding": 5,
+
           "labelFontSize": 12,
-          "labelPadding": 3,
 
           "tickCount": "week"
         },
