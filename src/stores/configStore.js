@@ -48,8 +48,8 @@ let MassNode = getLocationByNameAndLevel(
 )[0];
 
 export const initialConfigValues = {
-  groupKey: GROUP_KEYS.GROUP_LINEAGE,
-  dnaOrAa: DNA_OR_AA.DNA,
+  groupKey: GROUP_KEYS.GROUP_SNV,
+  dnaOrAa: DNA_OR_AA.AA,
 
   // Select the Spike gene and nsp13 protein by default
   selectedGene: getGene('S'),
