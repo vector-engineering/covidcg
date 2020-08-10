@@ -11,6 +11,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
 } from '../../constants/plotSettings';
+import { REFERENCE_GROUP } from '../../constants/groups';
 
 export const positionColumn = () => ({
   name: 'Position',
@@ -133,12 +134,12 @@ export const getSinglePosColumn = ({
       // OR, if we're coloring by code, then always color the reference row
       if (
         conditionCompare(row[col], refRow[col], compareMode) ||
-        (row['group'] === 'Reference' && colors !== null)
+        (row['group'] === REFERENCE_GROUP && colors !== null)
       ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
-          if (row['group'] !== 'Reference') {
+          if (row['group'] !== REFERENCE_GROUP) {
             letter = '.';
           }
         } else if (colors === null) {

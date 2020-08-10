@@ -6,6 +6,8 @@ import geneAaSnpMap from '../../data/gene_aa_snp_map.json';
 import proteinAaSnpMap from '../../data/protein_aa_snp_map.json';
 import dnaSnpMap from '../../data/dna_snp_map.json';
 
+import { REFERENCE_GROUP } from '../constants/groups';
+
 // export function loadAaSnpMap() {
 //   return aaSnpMap;
 // }
@@ -73,19 +75,19 @@ Object.keys(proteinAaSnpMap).forEach((snp) => {
 
 export function intToDnaSnp(dnaSnpId) {
   if (dnaSnpId === -1) {
-    return { snp_str: 'Reference' };
+    return { snp_str: REFERENCE_GROUP };
   }
   return intToDnaSnpMap[dnaSnpId];
 }
 export function intToGeneAaSnp(aaSnpId) {
   if (aaSnpId === -1) {
-    return { snp_str: 'Reference' };
+    return { snp_str: REFERENCE_GROUP };
   }
   return intToGeneAaSnpMap[aaSnpId];
 }
 export function intToProteinAaSnp(aaSnpId) {
   if (aaSnpId === -1) {
-    return { snp_str: 'Reference' };
+    return { snp_str: REFERENCE_GROUP };
   }
   return intToProteinAaSnpMap[aaSnpId];
 }

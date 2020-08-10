@@ -8,6 +8,8 @@ import { Row } from 'react-data-grid';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { OTHER_GROUP } from '../../constants/groups';
+
 const RowWrapper = styled.div`
   position: relative;
 
@@ -73,7 +75,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
       ) {
         selected = true;
       } else if (
-        _.findWhere(configStore.selectedGroups, { group: 'Other' }) !==
+        _.findWhere(configStore.selectedGroups, { group: OTHER_GROUP }) !==
           undefined &&
         !dataStore.groupsToKeep.includes(row.group)
       ) {
@@ -90,7 +92,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
 
     if (
       !dataStore.groupsToKeep.includes(row.group) &&
-      configStore.hoverGroup === 'Other'
+      configStore.hoverGroup === OTHER_GROUP
     ) {
       hovered = true;
     }

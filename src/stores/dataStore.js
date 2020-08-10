@@ -19,6 +19,7 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 import { getGlobalGroupCounts } from '../utils/globalCounts';
 
 const globalGroupCounts = getGlobalGroupCounts();
@@ -116,7 +117,7 @@ class ObservableDataStore {
         )
         .map((item) => item[0]);
     }
-    this.groupsToKeep.push('Reference');
+    this.groupsToKeep.push(REFERENCE_GROUP);
   }
 
   @action

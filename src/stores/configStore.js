@@ -24,6 +24,7 @@ import {
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/config';
+import { OTHER_GROUP } from '../constants/groups';
 
 // Define initial values
 
@@ -344,7 +345,7 @@ class ObservableConfigStore {
     if (group === null) {
       this.hoverGroup = null;
     } else if (!dataStoreInstance.groupsToKeep.includes(group)) {
-      this.hoverGroup = 'Other';
+      this.hoverGroup = OTHER_GROUP;
     } else {
       this.hoverGroup = group;
     }

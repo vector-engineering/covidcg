@@ -17,6 +17,7 @@ import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 
 const processedCaseData = _.reject(
   _.map(initialCaseData, (row) => {
@@ -543,7 +544,7 @@ function aggCaseDataByGroup({
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === 'Reference') {
+        if (snp_str === REFERENCE_GROUP) {
           return;
         }
         snp_str_split = snp_str.split('|');
@@ -559,7 +560,7 @@ function aggCaseDataByGroup({
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === 'Reference') {
+        if (snp_str === REFERENCE_GROUP) {
           return;
         }
 
@@ -597,8 +598,8 @@ function aggCaseDataByGroup({
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, 'Reference')) {
-    dataAggGroup['Reference'] = {
+  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, REFERENCE_GROUP)) {
+    dataAggGroup[REFERENCE_GROUP] = {
       cases_sum: NaN,
       cases_percent: NaN,
     };
@@ -609,17 +610,17 @@ function aggCaseDataByGroup({
     let row_split;
     Object.keys(dataAggGroup).forEach((row) => {
       // Skip reference
-      if (row === 'Reference') {
+      if (row === REFERENCE_GROUP) {
         // Since we're going to display the gene or pos later
         // in the data table, put these here so the reference
         // row renders correctly
         if (dnaOrAa == DNA_OR_AA.DNA) {
-          dataAggGroup[row]['pos'] = 'Reference';
+          dataAggGroup[row]['pos'] = REFERENCE_GROUP;
         } else {
           if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-            dataAggGroup[row]['gene'] = 'Reference';
+            dataAggGroup[row]['gene'] = REFERENCE_GROUP;
           } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-            dataAggGroup[row]['protein'] = 'Reference';
+            dataAggGroup[row]['protein'] = REFERENCE_GROUP;
           }
         }
         return;
@@ -652,7 +653,7 @@ function aggCaseDataByGroup({
       pos = parseInt(pos);
 
       // Ignore finding alternate bases for the ref sequence
-      if (group === 'Reference') {
+      if (group === REFERENCE_GROUP) {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
@@ -715,8 +716,8 @@ function aggCaseDataByGroup({
     const parentkey = getParent(group);
     if (dataAggGroup[parentkey] && parentkey !== group) {
       dataAggGroup[group].parent = parentkey;
-    } else if (group !== 'Reference') {
-      dataAggGroup[group].parent = 'Reference';
+    } else if (group !== REFERENCE_GROUP) {
+      dataAggGroup[group].parent = REFERENCE_GROUP;
     }
     dataAggGroup[group].name = group;
     dataAggGroup[group].id = group;

@@ -45,6 +45,7 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
+import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -68,8 +69,8 @@ const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
 
 const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list
-  let refRow = _.findWhere(rows, { group: 'Reference' });
-  rows = _.reject(rows, (row) => row.group == 'Reference');
+  let refRow = _.findWhere(rows, { group: REFERENCE_GROUP });
+  rows = _.reject(rows, (row) => row.group == REFERENCE_GROUP);
   rows = rows.sort(sortFn);
   rows.unshift(refRow);
   return rows;
@@ -173,7 +174,7 @@ const NewLineageDataTable = observer(() => {
 
     // Build a column for each changing position
     let refRow = _.findWhere(dataStore.dataAggGroup, {
-      group: 'Reference',
+      group: REFERENCE_GROUP,
     });
     if (!refRow) {
       return null;
@@ -350,16 +351,16 @@ const NewLineageDataTable = observer(() => {
     let newGroups;
 
     let selectedGroup = row.group;
-    // If we selected a group that's grouped into 'Other',
-    // then pretend like we're selecting 'Other' instead
+    // If we selected a group that's grouped into Other,
+    // then pretend like we're selecting Other instead
     if (!dataStore.groupsToKeep.includes(row.group)) {
-      selectedGroup = 'Other';
+      selectedGroup = OTHER_GROUP;
     }
 
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore
     if (
-      selectedGroup === 'Reference' &&
+      selectedGroup === REFERENCE_GROUP &&
       (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE ||
         configStore.groupKey === GROUP_KEYS.GROUP_CLADE)
     ) {

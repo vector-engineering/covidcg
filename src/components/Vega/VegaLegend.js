@@ -7,6 +7,7 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
 import { ASYNC_STATES } from '../../constants/UI';
+import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -218,11 +219,11 @@ const VegaLegend = observer(() => {
     // Also set aside the "Other" group, if it exists
     // Sort the list, then add the reference back to the beginning
     // and add the other group back to the end
-    const refItem = _.findWhere(legendItems, { group: 'Reference' });
-    const otherItem = _.findWhere(legendItems, { group: 'Other' });
+    const refItem = _.findWhere(legendItems, { group: REFERENCE_GROUP });
+    const otherItem = _.findWhere(legendItems, { group: OTHER_GROUP });
     legendItems = _.reject(
       legendItems,
-      (item) => item.group === 'Reference' || item.group === 'Other'
+      (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
     );
     legendItems = legendItems.sort((a, b) => (a.group > b.group ? 1 : -1));
     if (refItem !== undefined) {

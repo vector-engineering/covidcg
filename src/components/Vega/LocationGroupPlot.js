@@ -11,6 +11,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
+import { OTHER_GROUP } from '../../constants/groups';
 
 const PlotContainer = styled.div``;
 
@@ -91,7 +92,7 @@ const LocationGroupPlot = observer(({ width }) => {
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = 'Other';
+        row.group = OTHER_GROUP;
         row.color = '#aaa';
       }
     });
