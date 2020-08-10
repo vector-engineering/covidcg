@@ -1,21 +1,38 @@
 import { COMPARE_COLORS } from '../constants/plotSettings';
 
 export const warmColors = [
-  '#ff1818',
-  '#ff3838',
-  '#ff5656',
-  '#ff7474',
-  '#ff9393',
-  '#ffb2b2',
+  // autumn palette, [0, 1, 0.15]
+  '#ff0000',
+  '#ff2600',
+  '#ff4c00',
+  '#ff7300',
+  '#ff9900',
+  '#ffc000',
+  '#ffe600',
 ];
 
 export const coolColors = [
+  // bwr palette, [0, 0.4, 0.07]
   '#0000ff',
   '#2222ff',
   '#4646ff',
   '#6969ff',
   '#8e8eff',
   '#b2b2ff',
+  // cool palette, [0.2, 0.8, 0.05]
+  '#33ccff',
+  '#40bfff',
+  '#4cb3ff',
+  '#59a6ff',
+  '#6699ff',
+  '#738cff',
+  '#7f80ff',
+  '#8c72ff',
+  '#9966ff',
+  '#a659ff',
+  '#b34cff',
+  '#bf40ff',
+  '#cc32ff',
 ];
 
 // from https://personal.sron.nl/~pault/#sec:qualitative
