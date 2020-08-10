@@ -24,6 +24,8 @@ import {
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/config';
+
+import { OTHER_GROUP } from '../constants/groups';
 import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 
@@ -50,8 +52,8 @@ let MassNode = getLocationByNameAndLevel(
 )[0];
 
 export const initialConfigValues = {
-  groupKey: GROUP_KEYS.GROUP_LINEAGE,
-  dnaOrAa: DNA_OR_AA.DNA,
+  groupKey: GROUP_KEYS.GROUP_SNV,
+  dnaOrAa: DNA_OR_AA.AA,
 
   // Select the Spike gene and nsp13 protein by default
   selectedGene: getGene('S'),
@@ -79,7 +81,7 @@ export const initialConfigValues = {
   focusedLocations: [],
 
   lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  maxGroupCounts: 15,
+  maxGroupCounts: 30,
   minLocalCountsToShow: 50,
   minGlobalCountsToShow: 100,
 };
@@ -172,11 +174,29 @@ class ObservableConfigStore {
     //   dnaOrAa
     // );
 
-    // Clear selected groups?
     if (this.groupKey !== groupKey) {
+      // If groupings were changed, then clear selected groups
       this.selectedGroups = [];
     } else if (groupKey === GROUP_KEYS.GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
+      // While in SNV mode, if we switched from DNA to AA, or vice-versa,
+      // then clear selected groups
       this.selectedGroups = [];
+    }
+
+    // Change table coloring settings when switching from DNA <-> AA
+    if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
+      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStoreInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStoreInstance.tableCompareColor =
+        COMPARE_COLORS.COLOR_MODE_ZAPPO;
+    } else {
+      // Clear table coloring settings
+      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStoreInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStoreInstance.tableCompareColor =
+        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
     this.groupKey = groupKey;
@@ -197,13 +217,6 @@ class ObservableConfigStore {
         this.selectedProtein = getProtein('nsp13');
       }
     }
-
-    // Clear table coloring settings
-    plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-    plotSettingsStoreInstance.tableCompareMode =
-      COMPARE_MODES.COMPARE_MODE_MISMATCH;
-    plotSettingsStoreInstance.tableCompareColor =
-      COMPARE_COLORS.COMPARE_COLOR_YELLOW;
 
     dataStoreInstance.updateCaseData();
   }
@@ -357,7 +370,7 @@ class ObservableConfigStore {
     if (group === null) {
       this.hoverGroup = null;
     } else if (!dataStoreInstance.groupsToKeep.includes(group)) {
-      this.hoverGroup = 'other';
+      this.hoverGroup = OTHER_GROUP;
     } else {
       this.hoverGroup = group;
     }

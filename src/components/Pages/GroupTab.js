@@ -13,6 +13,7 @@ import AccordionWrapper from '../Common/AccordionWrapper';
 import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
+import LocationGroupPlot from '../Vega/LocationGroupPlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_KEYS } from '../../constants/config';
@@ -71,7 +72,7 @@ const GroupTab = observer(({ width }) => {
       <AccordionWrapper
         title={
           <AccordionTitle>
-            <span>Plot</span>
+            <span>{configStore.getGroupLabel()} Plot</span>
           </AccordionTitle>
         }
         defaultCollapsed={false}
@@ -85,10 +86,13 @@ const GroupTab = observer(({ width }) => {
             {configStore.getGroupLabel()}s. Selected{' '}
             {configStore.getGroupLabel()}s will be highlighted in the legend and
             table below, as well as in the{' '}
-            <TabIndicator>Compare Locations</TabIndicator> tab.
+            <TabIndicator>Compare Locations</TabIndicator> tab. Click and drag
+            on the lower plot (&quot;All Seqs&quot;) to zoom in on a specific
+            date range.
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
+        <LocationGroupPlot width={width - 150} />
       </AccordionWrapper>
       {/*configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
         <VegaTree width={width} data={dataStore.caseDataAggGroup} />

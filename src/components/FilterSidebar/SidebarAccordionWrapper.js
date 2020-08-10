@@ -22,8 +22,11 @@ const CollapseContent = styled.div`
     }
     return maxHeight ? `${maxHeight}` : '100px';
   }};
-  overflow-y: scroll;
+  overflow-y: ${({ allowOverflow }) => (allowOverflow ? 'unset' : 'scroll')};
 `;
+CollapseContent.defaultProps = {
+  allowOverflow: false,
+};
 
 const CollapseButton = styled.button`
   border: none;
@@ -53,6 +56,7 @@ const SidebarAccordionWrapper = ({
   title,
   maxHeight,
   defaultCollapsed,
+  allowOverflow,
 }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   return (
@@ -67,7 +71,11 @@ const SidebarAccordionWrapper = ({
         </CollapseButton>
         {title}
       </Title>
-      <CollapseContent maxHeight={maxHeight} collapsed={collapsed}>
+      <CollapseContent
+        maxHeight={maxHeight}
+        collapsed={collapsed}
+        allowOverflow={!collapsed && allowOverflow}
+      >
         {children}
       </CollapseContent>
     </AccordionContainer>
@@ -82,6 +90,10 @@ SidebarAccordionWrapper.propTypes = {
   maxHeight: PropTypes.string.isRequired,
   title: PropTypes.node.isRequired,
   defaultCollapsed: PropTypes.bool.isRequired,
+  allowOverflow: PropTypes.bool,
+};
+SidebarAccordionWrapper.defaultProps = {
+  allowOverflow: false,
 };
 
 export default SidebarAccordionWrapper;

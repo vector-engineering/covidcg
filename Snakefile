@@ -47,7 +47,7 @@ rule all:
         data_folder + "/lineage_snp.json", 
         data_folder + "/clade_snp.json",
         # Get global group counts
-        data_folder + "/global_group_counts.json"
+        data_folder + "/global_group_counts.json",
         # Calculate global sequencing stats?
         country_seq_stats = data_folder + '/country_score.json'
 

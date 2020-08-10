@@ -11,6 +11,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
 } from '../../constants/plotSettings';
+import { REFERENCE_GROUP } from '../../constants/groups';
 
 export const positionColumn = () => ({
   name: 'Position',
@@ -114,6 +115,7 @@ export const getSinglePosColumn = ({
   compareMode,
   compareColor,
   colors,
+  textColors,
 }) => ({
   name: pos.toString(),
   key: col,
@@ -125,21 +127,26 @@ export const getSinglePosColumn = ({
     const row = val.row;
     let letter = row[col];
     let cellBgColor = 'transparent';
+    let textColor = '#000';
     // Define the coloring behavior
     if (colorMode === COLOR_MODES.COLOR_MODE_COMPARE) {
-      if (conditionCompare(row[col], refRow[col], compareMode)) {
+      // Only color cells that meet the comparison condition (match/mismatch)
+      // OR, if we're coloring by code, then always color the reference row
+      if (
+        conditionCompare(row[col], refRow[col], compareMode) ||
+        (row['group'] === REFERENCE_GROUP && colors !== null)
+      ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
-          if (row['group'] !== 'Reference') {
+          if (row['group'] !== REFERENCE_GROUP) {
             letter = '.';
           }
+        } else if (colors === null) {
+          cellBgColor = snapGeneHighlightColors[compareColor];
         } else {
-          cellBgColor = Object.keys(snapGeneHighlightColors).includes(
-            compareColor
-          )
-            ? snapGeneHighlightColors[compareColor]
-            : colors[row[col]];
+          cellBgColor = colors[row[col]];
+          textColor = textColors[row[col]];
         }
       }
     }
@@ -148,7 +155,9 @@ export const getSinglePosColumn = ({
       cellBgColor = colors[row[col]];
     }
 
-    return <LetterCell value={letter} bgColor={cellBgColor} />;
+    return (
+      <LetterCell value={letter} bgColor={cellBgColor} textColor={textColor} />
+    );
   },
   headerRenderer: (val) => {
     return <PosHeaderCell pos={val.column.name} />;

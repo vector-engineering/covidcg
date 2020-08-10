@@ -30,17 +30,30 @@ const PlotOptions = styled.div`
   margin-bottom: 10px;
   padding-right: 10px;
 
-  .area-stack-title {
-    font-size: 1.25em;
-    margin-right: 10px;
-    padding-right: 10px;
-    padding-left: 18px;
-
-    border-right: 1px solid #ccc;
-  }
-
   .spacer {
     flex-grow: 1;
+  }
+`;
+
+const PlotTitle = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  border-right: 1px solid #ccc;
+  margin-right: 10px;
+  padding-right: 10px;
+  padding-left: 18px;
+
+  line-height: normal;
+
+  .title {
+    font-size: 1.25em;
+  }
+  .subtitle {
+    font-size: 0.9em;
+    font-weight: normal;
   }
 `;
 
@@ -171,24 +184,37 @@ const GroupStackPlot = observer(({ width }) => {
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
 
-  let areaStackTitle = '';
+  let plotTitle = '';
   if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE) {
-    areaStackTitle += 'Cumulative ';
+    plotTitle += 'Cumulative ';
   } else if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_NEW) {
-    areaStackTitle += 'New ';
+    plotTitle += 'New ';
   }
-  areaStackTitle += configStore.getGroupLabel();
-  areaStackTitle +=
+  plotTitle += configStore.getGroupLabel();
+  plotTitle +=
     plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_PERCENTAGES
       ? ' Percentages'
       : ' Counts';
 
   if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_DAY) {
-    areaStackTitle += ' by Day';
+    plotTitle += ' by Day';
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_WEEK) {
-    areaStackTitle += ' by Week';
+    plotTitle += ' by Week';
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
-    areaStackTitle += ' by Month';
+    plotTitle += ' by Month';
+  }
+
+  const maxShownLocations = 4;
+  let selectedLocationsText =
+    '(' +
+    configStore.selectedLocationNodes
+      .slice(0, maxShownLocations)
+      .map((node) => node.value)
+      .join(', ');
+  if (configStore.selectedLocationNodes.length > maxShownLocations) {
+    selectedLocationsText += ', ...)';
+  } else {
+    selectedLocationsText += ')';
   }
 
   // Set the stack offset mode
@@ -263,7 +289,10 @@ const GroupStackPlot = observer(({ width }) => {
           with care."
       />
       <PlotOptions>
-        <span className="area-stack-title">{areaStackTitle}</span>
+        <PlotTitle>
+          <span className="title">{plotTitle}</span>
+          <span className="subtitle">{selectedLocationsText}</span>
+        </PlotTitle>
         <SelectContainer>
           <label>
             <select

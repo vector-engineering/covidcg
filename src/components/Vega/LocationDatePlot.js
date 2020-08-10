@@ -11,6 +11,7 @@ import {
   DATE_BINS,
 } from '../../constants/plotSettings';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { OTHER_GROUP } from '../../constants/groups';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -206,7 +207,7 @@ const LocationDatePlot = observer(({ width }) => {
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = 'other';
+        row.group = OTHER_GROUP;
       }
     });
 

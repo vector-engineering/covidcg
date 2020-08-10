@@ -12,12 +12,12 @@ import {
   coolColors,
   snpColorArray,
   cladeColorArray,
-  incrementColor,
 } from '../constants/colors';
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 
 const processedCaseData = _.reject(
   _.map(initialCaseData, (row) => {
@@ -30,38 +30,46 @@ const processedCaseData = _.reject(
   }
 );
 
-let _warmColors = Object.assign({}, warmColors);
-let _coolColors = Object.assign({}, coolColors);
-let _snpColorArray = [...snpColorArray];
-let _cladeColorArray = [...cladeColorArray];
-
-function iterateAndGetColor(colorobj, iter, i = 0) {
-  if (i < iter) {
-    return iterateAndGetColor(colorobj.child, iter, i + 1);
-  } else {
-    colorobj.colors.push(incrementColor(colorobj.colors.shift(), 1));
-    return colorobj.colors[0];
-  }
-}
-
+let coolColorInd = 0;
+let warmColorInd = 0;
 const getLineageColor = _.memoize((group) => {
-  const match = group.match(/\./g);
-  const dots = match ? match.length : 0;
+  let color;
   if (group.charAt(0) === 'A') {
-    return iterateAndGetColor(_warmColors, dots);
+    color = warmColors[warmColorInd++];
+
+    if (warmColorInd === warmColors.length) {
+      warmColorInd = 0;
+    }
   } else if (group.charAt(0) === 'B') {
-    return iterateAndGetColor(_coolColors, dots);
+    color = coolColors[coolColorInd++];
+
+    if (coolColorInd === coolColors.length) {
+      coolColorInd = 0;
+    }
   }
+  return color;
 });
 
+let snpColorInd = 0;
 const getSnpColor = _.memoize(() => {
-  _snpColorArray.push(incrementColor(_snpColorArray.shift(), 1));
-  return _snpColorArray[0];
+  const color = snpColorArray[snpColorInd++];
+
+  if (snpColorInd === snpColorArray.length) {
+    snpColorInd = 0;
+  }
+
+  return color;
 });
 
+let cladeColorInd = 0;
 const getCladeColor = _.memoize(() => {
-  _cladeColorArray.push(incrementColor(_cladeColorArray.shift(), 1));
-  return _cladeColorArray[0];
+  const color = cladeColorArray[cladeColorInd++];
+  // If we're at the end, then loop back to the beginning
+  if (cladeColorInd === cladeColorArray.length) {
+    cladeColorInd = 0;
+  }
+
+  return color;
 });
 
 function convertToObj(list) {
@@ -284,6 +292,8 @@ function processCaseData({
   );
   // console.log(caseData.length, 'rows remaining after metadata filtering');
 
+  const metadataCountsAfterFiltering = countMetadataFields(caseData);
+
   // For the location tab:
   const aggCaseData = {};
   const countsPerLocation = {};
@@ -300,6 +310,7 @@ function processCaseData({
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
+  const uniqueGroupKeys = new Set();
   let groupKeys = [];
   let location;
   caseData.forEach((row) => {
@@ -335,6 +346,8 @@ function processCaseData({
       !(group in aggCaseData[location][row.collection_date]) &&
         (aggCaseData[location][row.collection_date][group] = 0);
       aggCaseData[location][row.collection_date][group] += 1;
+
+      uniqueGroupKeys.add(group);
     });
   });
 
@@ -346,6 +359,16 @@ function processCaseData({
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = getSnpColor;
   }
+
+  // Trigger the memoized color function for these items in order,
+  // So that we get the appropriate color separation, instead of
+  // two items being potentially close to each other with the
+  // same color
+  Array.from(uniqueGroupKeys)
+    .sort()
+    .forEach((group) => {
+      getColorMethod(group);
+    });
 
   const aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((location) => {
@@ -379,6 +402,7 @@ function processCaseData({
     aggCaseDataList,
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
+    metadataCountsAfterFiltering,
     selectedRowsHash,
     selectedAccessionIds,
     selectedAckIds,
@@ -523,7 +547,7 @@ function aggCaseDataByGroup({
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === 'Reference') {
+        if (snp_str === REFERENCE_GROUP) {
           return;
         }
         snp_str_split = snp_str.split('|');
@@ -539,7 +563,7 @@ function aggCaseDataByGroup({
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === 'Reference') {
+        if (snp_str === REFERENCE_GROUP) {
           return;
         }
 
@@ -577,8 +601,8 @@ function aggCaseDataByGroup({
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, 'Reference')) {
-    dataAggGroup['Reference'] = {
+  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, REFERENCE_GROUP)) {
+    dataAggGroup[REFERENCE_GROUP] = {
       cases_sum: NaN,
       cases_percent: NaN,
     };
@@ -589,17 +613,17 @@ function aggCaseDataByGroup({
     let row_split;
     Object.keys(dataAggGroup).forEach((row) => {
       // Skip reference
-      if (row === 'Reference') {
+      if (row === REFERENCE_GROUP) {
         // Since we're going to display the gene or pos later
         // in the data table, put these here so the reference
         // row renders correctly
         if (dnaOrAa == DNA_OR_AA.DNA) {
-          dataAggGroup[row]['pos'] = 'Reference';
+          dataAggGroup[row]['pos'] = REFERENCE_GROUP;
         } else {
           if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-            dataAggGroup[row]['gene'] = 'Reference';
+            dataAggGroup[row]['gene'] = REFERENCE_GROUP;
           } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-            dataAggGroup[row]['protein'] = 'Reference';
+            dataAggGroup[row]['protein'] = REFERENCE_GROUP;
           }
         }
         return;
@@ -632,7 +656,7 @@ function aggCaseDataByGroup({
       pos = parseInt(pos);
 
       // Ignore finding alternate bases for the ref sequence
-      if (group === 'Reference') {
+      if (group === REFERENCE_GROUP) {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
@@ -695,8 +719,8 @@ function aggCaseDataByGroup({
     const parentkey = getParent(group);
     if (dataAggGroup[parentkey] && parentkey !== group) {
       dataAggGroup[group].parent = parentkey;
-    } else if (group !== 'Reference') {
-      dataAggGroup[group].parent = 'Reference';
+    } else if (group !== REFERENCE_GROUP) {
+      dataAggGroup[group].parent = REFERENCE_GROUP;
     }
     dataAggGroup[group].name = group;
     dataAggGroup[group].id = group;

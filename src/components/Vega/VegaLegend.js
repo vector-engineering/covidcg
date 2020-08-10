@@ -7,6 +7,7 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
 import { ASYNC_STATES } from '../../constants/UI';
+import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
@@ -213,8 +214,24 @@ const VegaLegend = observer(() => {
       JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
       dataStore.groupsToKeep
     );
-    // console.log(legendItems, dataStore.dataAggGroup);
-    legendItems = _.sortBy(legendItems, (row) => row.group);
+
+    // Set aside the reference, and remove it from the rows list
+    // Also set aside the "Other" group, if it exists
+    // Sort the list, then add the reference back to the beginning
+    // and add the other group back to the end
+    const refItem = _.findWhere(legendItems, { group: REFERENCE_GROUP });
+    const otherItem = _.findWhere(legendItems, { group: OTHER_GROUP });
+    legendItems = _.reject(
+      legendItems,
+      (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
+    );
+    legendItems = legendItems.sort((a, b) => (a.group > b.group ? 1 : -1));
+    if (refItem !== undefined) {
+      legendItems.unshift(refItem);
+    }
+    if (otherItem !== undefined) {
+      legendItems.push(otherItem);
+    }
 
     setState({ ...state, legendItems: renderLegendKeys(legendItems) });
   }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);

@@ -145,12 +145,19 @@ const MetaFieldSelect = observer(() => {
       }
 
       Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
-        let count = dataStore.metadataCounts[field][option];
+        let initialCount = dataStore.metadataCounts[field][option];
+        let afterFilteringCount =
+          dataStore.metadataCountsAfterFiltering[field][option];
+        if (afterFilteringCount === undefined) {
+          afterFilteringCount = 0;
+        }
         fieldOptions[field].push({
           label:
             getMetadataValueFromId(field, option) +
             ' [' +
-            count.toString() +
+            initialCount.toString() +
+            ' > ' +
+            afterFilteringCount.toString() +
             ']',
           value: option,
         });
@@ -158,7 +165,7 @@ const MetaFieldSelect = observer(() => {
     });
 
     setState({ ...state, fieldOptions });
-  }, [dataStore.metadataCounts]);
+  }, [dataStore.metadataCounts, dataStore.metadataCountsAfterFiltering]);
 
   // When the selected fields are flushed to the store, see if we still need
   // to display the update button

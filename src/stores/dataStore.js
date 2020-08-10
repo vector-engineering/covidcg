@@ -19,6 +19,7 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 import { getGlobalGroupCounts } from '../utils/globalCounts';
 
 const globalGroupCounts = getGlobalGroupCounts();
@@ -34,6 +35,7 @@ export const initialDataValues = {
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
+  metadataCountsAfterFiltering: {},
 
   selectedRowsHash: '',
   selectedRowsAndDateHash: '',
@@ -51,6 +53,8 @@ class ObservableDataStore {
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
+  @observable metadataCountsAfterFiltering =
+    initialDataValues.metadataCountsAfterFiltering;
 
   @observable selectedRowsHash = initialDataValues.selectedRowsHash;
   @observable selectedRowsAndDateHash =
@@ -116,7 +120,7 @@ class ObservableDataStore {
         )
         .map((item) => item[0]);
     }
-    this.groupsToKeep.push('Reference');
+    this.groupsToKeep.push(REFERENCE_GROUP);
   }
 
   @action
@@ -197,6 +201,7 @@ class ObservableDataStore {
       ({
         aggCaseDataList,
         metadataCounts,
+        metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
         selectedRowsHash,
         selectedAccessionIds,
@@ -211,6 +216,7 @@ class ObservableDataStore {
           as: ['cases_sum', 'color'],
         });
         this.metadataCounts = metadataCounts;
+        this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         // console.log('CASE_DATA FINISHED');
 

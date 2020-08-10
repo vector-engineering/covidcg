@@ -8,6 +8,7 @@ import {
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 
 function downloadAccessionIdsData({ accessionIds }) {
   // console.log(accessionIds);
@@ -121,7 +122,7 @@ function downloadAggCaseDataGroup({
   for (let i = 0; i < dataAggGroup.length; i++) {
     let row = dataAggGroup[i];
     // Skip if it's the reference row
-    if (row['group'] === 'Reference') {
+    if (row['group'] === REFERENCE_GROUP) {
       continue;
     }
 
@@ -226,7 +227,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     // And then write the SNP chunks
     if (dnaOrAa === DNA_OR_AA.DNA) {
       // Handle reference row
-      if (row['group'] === 'Reference') {
+      if (row['group'] === REFERENCE_GROUP) {
         csvString += 'Reference,,,,';
       } else {
         csvString += [row['pos'], row['ref'], row['alt']].join('|') + ',';
@@ -234,7 +235,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
       }
     } else {
       // Handle reference row
-      if (row['group'] === 'Reference') {
+      if (row['group'] === REFERENCE_GROUP) {
         csvString += 'Reference,,,,,';
       } else {
         csvString +=
