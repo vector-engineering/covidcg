@@ -76,10 +76,10 @@ const Footer = ({ openModal }) => {
       <Version>
         <div className="version">
           Version: <span className="version-num">{version}</span>{' '}
-          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG/releases">
+          <ExternalLink href="https://github.com/vector-engineering/covidcg/releases">
             (Changelog)
           </ExternalLink>
-          <ExternalLink href="https://github.com/vector-engineering/COVID19-CG">
+          <ExternalLink href="https://github.com/vector-engineering/covidcg">
             [GitHub]
           </ExternalLink>
         </div>
