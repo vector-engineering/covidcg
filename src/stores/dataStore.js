@@ -35,6 +35,7 @@ export const initialDataValues = {
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
+  metadataCountsAfterFiltering: {},
 
   selectedRowsHash: '',
   selectedRowsAndDateHash: '',
@@ -52,6 +53,8 @@ class ObservableDataStore {
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
+  @observable metadataCountsAfterFiltering =
+    initialDataValues.metadataCountsAfterFiltering;
 
   @observable selectedRowsHash = initialDataValues.selectedRowsHash;
   @observable selectedRowsAndDateHash =
@@ -198,6 +201,7 @@ class ObservableDataStore {
       ({
         aggCaseDataList,
         metadataCounts,
+        metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
         selectedRowsHash,
         selectedAccessionIds,
@@ -212,6 +216,7 @@ class ObservableDataStore {
           as: ['cases_sum', 'color'],
         });
         this.metadataCounts = metadataCounts;
+        this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         // console.log('CASE_DATA FINISHED');
 

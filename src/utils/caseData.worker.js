@@ -292,6 +292,8 @@ function processCaseData({
   );
   // console.log(caseData.length, 'rows remaining after metadata filtering');
 
+  const metadataCountsAfterFiltering = countMetadataFields(caseData);
+
   // For the location tab:
   const aggCaseData = {};
   const countsPerLocation = {};
@@ -400,6 +402,7 @@ function processCaseData({
     aggCaseDataList,
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
+    metadataCountsAfterFiltering,
     selectedRowsHash,
     selectedAccessionIds,
     selectedAckIds,
