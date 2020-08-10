@@ -127,11 +127,11 @@ class ObservableConfigStore {
     });
   }
 
-  modifyQueryParams = autorun(() => {
-    PARAMS_TO_TRACK.forEach((param) => {
-      updateQueryStringParam(param, JSON.stringify(this[param]));
-    });
-  });
+  // modifyQueryParams = autorun(() => {
+  //   PARAMS_TO_TRACK.forEach((param) => {
+  //     updateQueryStringParam(param, JSON.stringify(this[param]));
+  //   });
+  // });
 
   @action
   resetValues(values) {
