@@ -10,7 +10,7 @@ export const mergeGroupsIntoOther = (data, _groupsToKeep) => {
 
     data.forEach((row, key) => {
       if (!groupsToKeep.includes(row.group)) {
-        row.group = 'other';
+        row.group = 'Other';
         row.color = '#aaa';
         if (addedOthersByDate[row.date]) {
           data[addedOthersByDate[row.date]].cases_sum += row.cases_sum;
@@ -39,7 +39,7 @@ export const mergeLegendItemsIntoOther = (data, _groupsToKeep) => {
 
     data.forEach((row) => {
       if (!groupsToKeep.includes(row.group)) {
-        row.group = 'other';
+        row.group = 'Other';
         row.color = '#aaa';
 
         if (!alreadyPushedOther) {

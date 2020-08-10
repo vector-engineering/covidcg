@@ -213,8 +213,24 @@ const VegaLegend = observer(() => {
       JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
       dataStore.groupsToKeep
     );
-    // console.log(legendItems, dataStore.dataAggGroup);
-    legendItems = _.sortBy(legendItems, (row) => row.group);
+
+    // Set aside the reference, and remove it from the rows list
+    // Also set aside the "Other" group, if it exists
+    // Sort the list, then add the reference back to the beginning
+    // and add the other group back to the end
+    const refItem = _.findWhere(legendItems, { group: 'Reference' });
+    const otherItem = _.findWhere(legendItems, { group: 'Other' });
+    legendItems = _.reject(
+      legendItems,
+      (item) => item.group === 'Reference' || item.group === 'Other'
+    );
+    legendItems = legendItems.sort((a, b) => (a.group > b.group ? 1 : -1));
+    if (refItem !== undefined) {
+      legendItems.unshift(refItem);
+    }
+    if (otherItem !== undefined) {
+      legendItems.push(otherItem);
+    }
 
     setState({ ...state, legendItems: renderLegendKeys(legendItems) });
   }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);

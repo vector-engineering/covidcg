@@ -357,9 +357,15 @@ function processCaseData({
     getColorMethod = getSnpColor;
   }
 
-  Array.from(uniqueGroupKeys).sort().forEach((group) => {
-    getColorMethod(group);
-  });
+  // Trigger the memoized color function for these items in order,
+  // So that we get the appropriate color separation, instead of
+  // two items being potentially close to each other with the
+  // same color
+  Array.from(uniqueGroupKeys)
+    .sort()
+    .forEach((group) => {
+      getColorMethod(group);
+    });
 
   const aggCaseDataList = [];
   Object.keys(aggCaseData).forEach((location) => {

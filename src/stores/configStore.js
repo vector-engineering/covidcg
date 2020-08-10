@@ -344,7 +344,7 @@ class ObservableConfigStore {
     if (group === null) {
       this.hoverGroup = null;
     } else if (!dataStoreInstance.groupsToKeep.includes(group)) {
-      this.hoverGroup = 'other';
+      this.hoverGroup = 'Other';
     } else {
       this.hoverGroup = group;
     }

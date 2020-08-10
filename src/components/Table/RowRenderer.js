@@ -73,7 +73,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
       ) {
         selected = true;
       } else if (
-        _.findWhere(configStore.selectedGroups, { group: 'other' }) !==
+        _.findWhere(configStore.selectedGroups, { group: 'Other' }) !==
           undefined &&
         !dataStore.groupsToKeep.includes(row.group)
       ) {
@@ -90,7 +90,7 @@ const RowRenderer = observer(({ row, ...rest }) => {
 
     if (
       !dataStore.groupsToKeep.includes(row.group) &&
-      configStore.hoverGroup === 'other'
+      configStore.hoverGroup === 'Other'
     ) {
       hovered = true;
     }

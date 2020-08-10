@@ -206,7 +206,7 @@ const LocationDatePlot = observer(({ width }) => {
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = 'other';
+        row.group = 'Other';
       }
     });
 
