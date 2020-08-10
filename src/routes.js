@@ -20,9 +20,6 @@ const routes = {
   home_index: new Route({
     path: publicPath + 'index.html',
     component: <HomePage />,
-    onEnter: (route, params, store, queryParams) => {
-      store.gallery.fetchImages();
-    },
   }),
   notFound: new Route({
     path: '*',
