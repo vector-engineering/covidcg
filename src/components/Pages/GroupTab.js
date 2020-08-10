@@ -85,7 +85,9 @@ const GroupTab = observer(({ width }) => {
             {configStore.getGroupLabel()}s. Selected{' '}
             {configStore.getGroupLabel()}s will be highlighted in the legend and
             table below, as well as in the{' '}
-            <TabIndicator>Compare Locations</TabIndicator> tab.
+            <TabIndicator>Compare Locations</TabIndicator> tab. Click and drag
+            on the lower plot (&quot;All Seqs&quot;) to zoom in on a specific
+            date range.
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
