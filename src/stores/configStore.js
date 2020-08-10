@@ -337,7 +337,7 @@ class ObservableConfigStore {
       return this.selectedProtein.ranges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       return this.selectedPrimers.map((primer) => {
-        [primer.Start, primer.End];
+        return [primer.Start, primer.End];
       });
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
       return toJS(this.customCoordinates);
