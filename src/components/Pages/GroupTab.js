@@ -13,6 +13,7 @@ import AccordionWrapper from '../Common/AccordionWrapper';
 import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
+import LocationGroupPlot from '../Vega/LocationGroupPlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_KEYS } from '../../constants/config';
@@ -91,6 +92,7 @@ const GroupTab = observer(({ width }) => {
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
+        <LocationGroupPlot width={width - 150} />
       </AccordionWrapper>
       {/*configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
         <VegaTree width={width} data={dataStore.caseDataAggGroup} />
