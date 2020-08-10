@@ -30,6 +30,13 @@ import SkeletonElement from '../Common/SkeletonElement';
 // import LoadingSpinner from '../Common/LoadingSpinner';
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
+import GlobalLineagesImage from '../../assets/analysis_screens/global_lineages.png';
+import XinfadiImage from '../../assets/analysis_screens/xinfadi.png';
+import D614GWestCoastImage from '../../assets/analysis_screens/d614g_west_coast.png';
+import D614GUSStatesImage from '../../assets/analysis_screens/d614g_us_states.png';
+import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
+import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
+
 const ExampleTabContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -72,6 +79,7 @@ const ExampleItemImage = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 
   img {
     width: auto;
@@ -141,6 +149,7 @@ const exampleItems = [
   {
     title: 'Global Lineages',
     description: 'View the growth of the B lineage family over all locations',
+    image: GlobalLineagesImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -163,6 +172,7 @@ const exampleItems = [
     title: 'Lineages in China - Beijing Xinfadi Market',
     description:
       "New lineages in uncovered in early June in Beijing's Xinfadi Market may have been circulating in China in March",
+    image: XinfadiImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_COUNTS,
@@ -185,6 +195,7 @@ const exampleItems = [
     title: 'Rise of Spike D614G mutation in West Coast USA',
     description:
       'The Spike D614G mutation has accumulated in frequency in the West Coast states of the USA',
+    image: D614GWestCoastImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -207,6 +218,7 @@ const exampleItems = [
     title: 'Prevalence of Spike D614G in various US States',
     description:
       'The proportion of sequences with the Spike D614G mutation varies between US States',
+    image: D614GUSStatesImage,
     settings: {
       plotSettings: {
         locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -230,6 +242,7 @@ const exampleItems = [
     title: 'Diagnostics: NT SNVs in US CDC qPCR primer/probe sequences',
     description:
       'Prevalence of any mutations present within the US CDC primer and probe sequences (N1 + N2), for sequences in the US',
+    image: USCDCPrimerImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -251,6 +264,7 @@ const exampleItems = [
   {
     title: 'Emergence of Spike D614G in Europe/North America',
     description: '',
+    image: D614GEuropeNAImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -302,7 +316,11 @@ const ExampleTab = observer(() => {
         onClick={onExampleClick.bind(this, exampleItem.title)}
       >
         <ExampleItemImage>
-          <img src={TempImage} />
+          <img
+            src={
+              exampleItem.image === undefined ? TempImage : exampleItem.image
+            }
+          />
         </ExampleItemImage>
         <ExampleItemFooter>
           <span className="example-item-title">{exampleItem.title}</span>
