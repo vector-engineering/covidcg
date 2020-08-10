@@ -91,7 +91,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const defaultsFromParams = {};
 
 PARAMS_TO_TRACK.forEach((param) => {
-  console.log('getting: ', param, urlParams.get(param));
+  // console.log('getting: ', param, urlParams.get(param));
   defaultsFromParams[param] = urlParams.get(param);
 });
 
@@ -121,7 +121,7 @@ class ObservableConfigStore {
   constructor() {
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
-        console.log('setting: ', param, urlParams.get(param));
+        // console.log('setting: ', param, urlParams.get(param));
         this[param] = defaultsFromParams[param];
       }
     });
