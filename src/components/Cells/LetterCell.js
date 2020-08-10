@@ -12,21 +12,28 @@ const LetterCellDiv = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  background-color: ${({ bgColor }) => bgColor};
+  color: ${({ textColor }) => textColor};
 `;
 
-const LetterCell = ({ value, bgColor }) => {
+const LetterCell = ({ value, bgColor, textColor }) => {
   return (
-    <LetterCellDiv style={{ backgroundColor: bgColor }}>{value}</LetterCellDiv>
+    <LetterCellDiv bgColor={bgColor} textColor={textColor}>
+      {value}
+    </LetterCellDiv>
   );
 };
 
 LetterCell.propTypes = {
   value: PropTypes.string,
   bgColor: PropTypes.string,
+  textColor: PropTypes.string,
 };
 LetterCell.defaultProps = {
   value: '',
   bgColor: 'transparent',
+  textColor: '#000',
 };
 
 export default LetterCell;

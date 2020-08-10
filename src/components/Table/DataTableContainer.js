@@ -8,6 +8,7 @@ import { observer } from 'mobx-react';
 import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
+import { meetsContrastGuidelines } from 'polished';
 import { nanmax, nanmin } from '../../utils/math';
 import {
   snapGeneNTColors,
@@ -185,6 +186,7 @@ const NewLineageDataTable = observer(() => {
       }
 
       let colors = null;
+      let textColors = null;
       if (
         configStore.dnaOrAa === DNA_OR_AA.DNA &&
         (plotSettingsStore.tableCompareColor ===
@@ -221,6 +223,16 @@ const NewLineageDataTable = observer(() => {
         }
       }
 
+      // Calculate text colorings
+      if (colors !== null) {
+        textColors = {};
+        let scores;
+        Object.keys(colors).forEach((key) => {
+          scores = meetsContrastGuidelines(colors[key], '#fff');
+          textColors[key] = scores['AALarge'] ? '#fff' : '#000';
+        });
+      }
+
       // 0-indexed to 1-indexed
       let pos = parseInt(col.substring(4));
       if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
@@ -242,6 +254,7 @@ const NewLineageDataTable = observer(() => {
           compareMode: plotSettingsStore.tableCompareMode,
           compareColor: plotSettingsStore.tableCompareColor,
           colors,
+          textColors,
         })
       );
     });

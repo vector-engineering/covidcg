@@ -114,6 +114,7 @@ export const getSinglePosColumn = ({
   compareMode,
   compareColor,
   colors,
+  textColors,
 }) => ({
   name: pos.toString(),
   key: col,
@@ -125,6 +126,7 @@ export const getSinglePosColumn = ({
     const row = val.row;
     let letter = row[col];
     let cellBgColor = 'transparent';
+    let textColor = '#000';
     // Define the coloring behavior
     if (colorMode === COLOR_MODES.COLOR_MODE_COMPARE) {
       // Only color cells that meet the comparison condition (match/mismatch)
@@ -143,6 +145,7 @@ export const getSinglePosColumn = ({
           cellBgColor = snapGeneHighlightColors[compareColor];
         } else {
           cellBgColor = colors[row[col]];
+          textColor = textColors[row[col]];
         }
       }
     }
@@ -151,7 +154,9 @@ export const getSinglePosColumn = ({
       cellBgColor = colors[row[col]];
     }
 
-    return <LetterCell value={letter} bgColor={cellBgColor} />;
+    return (
+      <LetterCell value={letter} bgColor={cellBgColor} textColor={textColor} />
+    );
   },
   headerRenderer: (val) => {
     return <PosHeaderCell pos={val.column.name} />;
