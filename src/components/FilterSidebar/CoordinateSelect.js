@@ -16,6 +16,7 @@ import {
   getPrimerByName,
   getPrimersByGroup,
 } from '../../utils/primer';
+import { referenceSequenceIncludes } from '../../utils/reference';
 
 import {
   GROUP_KEYS,
@@ -236,6 +237,7 @@ const CoordForm = styled.form`
     margin-right: 5px;
   }
   input {
+    flex-grow: 1;
     margin-right: 5px;
     max-width: 15rem;
   }
@@ -244,14 +246,14 @@ const CoordForm = styled.form`
   }
 `;
 
-const UpdateCoordButton = styled(Button)`
+const UpdateButton = styled(Button)`
   display: ${(props) => (props.show ? 'block' : 'none')};
   font-size: 0.9em;
   padding: 3px 8px;
   margin-left: 10px;
 `;
 
-UpdateCoordButton.defaultProps = {
+UpdateButton.defaultProps = {
   show: false,
 };
 
@@ -292,6 +294,10 @@ const CoordinateSelect = observer(() => {
       .join(';'),
     validCustomCoords: true,
     customCoordinatesChanged: false,
+
+    customSequences: configStore.customSequences.join(';'),
+    validCustomSequences: true,
+    customSequencesChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -299,11 +305,8 @@ const CoordinateSelect = observer(() => {
   // useEffect(() => {
   //   let _geneOptionElements = state.geneOptionElements;
   //   let _proteinOptionElements = state.proteinOptionElements;
-
   //   if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
-
   //   }
-
   // }, [configStore.groupKey, configStore.dnaOrAa]);
 
   // Update custom coordinates from the store
@@ -318,12 +321,23 @@ const CoordinateSelect = observer(() => {
     });
   }, [configStore.customCoordinates]);
 
+  // Update custom sequences from the store
+  useEffect(() => {
+    setState({
+      ...state,
+      customSequences: configStore.customSequences.join(';'),
+      customSequencesChanged: false,
+      validCustomSequences: true,
+    });
+  }, [configStore.customSequences]);
+
   const changeCoordinateMode = ({
     coordinateMode,
     selectedGene,
     selectedProtein,
     selectedPrimers,
     customCoordinates,
+    customSequences,
   }) => {
     configStore.changeCoordinateMode({
       coordinateMode:
@@ -346,6 +360,10 @@ const CoordinateSelect = observer(() => {
         customCoordinates === undefined
           ? configStore.customCoordinates
           : customCoordinates,
+      customSequences:
+        customSequences === undefined
+          ? configStore.customSequences
+          : customSequences,
     });
   };
 
@@ -407,6 +425,40 @@ const CoordinateSelect = observer(() => {
       customCoordinates: state.customCoordText
         .split(';')
         .map((range) => range.split('..').map((coord) => parseInt(coord))),
+    });
+  };
+
+  const handleCustomSequencesChange = (event) => {
+    const sequences = event.target.value.split(';');
+    // Check that all bases are valid and that
+    // the reference sequence includes the sequence
+    // TODO: support for denegerate bases
+    const validBases = ['A', 'T', 'C', 'G'];
+    const validCustomSequences = !sequences.some((seq) => {
+      // Fails if any conditions are met
+      return (
+        seq.length === 0 ||
+        Array.from(seq).some((base) => !validBases.includes(base)) ||
+        !referenceSequenceIncludes(seq)
+      );
+    });
+    const customSequencesChanged =
+      event.target.value !== configStore.customSequences.join(';');
+
+    setState({
+      ...state,
+      customSequences: event.target.value,
+      validCustomSequences,
+      customSequencesChanged,
+    });
+  };
+
+  const handleCustomSequencesSubmit = (event) => {
+    event.preventDefault();
+    // Change to sequences mode implicitly
+    changeCoordinateMode({
+      coordinateMode: COORDINATE_MODES.COORD_SEQUENCE,
+      customSequences: state.customSequences.split(';'),
     });
   };
 
@@ -617,7 +669,7 @@ const CoordinateSelect = observer(() => {
               onChange={handleModeChange}
             />
             <span>Custom Coordinates</span>
-            <UpdateCoordButton
+            <UpdateButton
               show={
                 state.customCoordinatesChanged &&
                 configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
@@ -626,7 +678,7 @@ const CoordinateSelect = observer(() => {
               onClick={handleCustomCoordSubmit}
             >
               Confirm
-            </UpdateCoordButton>
+            </UpdateButton>
           </ModeLabel>
           <CoordForm>
             <input
@@ -636,6 +688,42 @@ const CoordinateSelect = observer(() => {
             />
             <QuestionButton
               data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
+              data-html="true"
+              data-for="tooltip-filter-sidebar"
+            />
+          </CoordForm>
+        </ModeRadioVertical>
+        <ModeRadioVertical>
+          <ModeLabel>
+            <input
+              className="radio-input"
+              type="radio"
+              value={COORDINATE_MODES.COORD_SEQUENCE}
+              checked={
+                configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE
+              }
+              onChange={handleModeChange}
+            />
+            <span>Match Sequences</span>
+            <UpdateButton
+              show={
+                state.customSequencesChanged &&
+                configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE
+              }
+              disabled={!state.validCustomSequences}
+              onClick={handleCustomSequencesSubmit}
+            >
+              Confirm
+            </UpdateButton>
+          </ModeLabel>
+          <CoordForm>
+            <input
+              type="text"
+              value={state.customSequences}
+              onChange={handleCustomSequencesChange}
+            />
+            <QuestionButton
+              data-tip="<p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />

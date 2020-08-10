@@ -12,6 +12,7 @@ import {
   deselectAll,
   selectAll,
 } from '../utils/location';
+import { queryReferenceSequence } from '../utils/reference';
 
 import {
   COLOR_MODES,
@@ -60,6 +61,7 @@ export const initialConfigValues = {
   selectedProtein: getProtein('nsp13'),
   selectedPrimers: [],
   customCoordinates: [[8000, 12000]],
+  customSequences: ['GACCCCAAAATCAGCGAAAT'],
 
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -102,6 +104,7 @@ class ObservableConfigStore {
   @observable selectedProtein = initialConfigValues.selectedProtein;
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
   @observable customCoordinates = initialConfigValues.customCoordinates;
+  @observable customSequences = initialConfigValues.customSequences;
   @observable coordinateMode = initialConfigValues.coordinateMode;
   @observable dateRange = initialConfigValues.dateRange;
   @observable selectTree = initialConfigValues.selectTree;
@@ -243,6 +246,7 @@ class ObservableConfigStore {
     selectedProtein,
     selectedPrimers,
     customCoordinates,
+    customSequences,
   }) {
     // console.log('CHANGE COORDINATE MODE', coordinateMode);
     // console.log('SELECTED GENE:', selectedGene);
@@ -256,6 +260,7 @@ class ObservableConfigStore {
       selectedProtein: toJS(this.selectedProtein),
       selectedPrimers: toJS(this.selectedPrimers),
       customCoordinates: toJS(this.customCoordinates),
+      customSequences: toJS(this.customSequences),
     });
     // console.log(initial);
 
@@ -264,6 +269,7 @@ class ObservableConfigStore {
     this.selectedProtein = getProtein(selectedProtein);
     this.selectedPrimers = selectedPrimers;
     this.customCoordinates = customCoordinates;
+    this.customSequences = customSequences;
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
@@ -308,6 +314,11 @@ class ObservableConfigStore {
       _.isEqual(toJS(this.customCoordinates), initial.customCoordinates)
     ) {
       return;
+    } else if (
+      this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE &&
+      _.isEqual(toJS(this.customSequences), initial.customSequences)
+    ) {
+      return;
     }
 
     // Clear selected groups?
@@ -319,21 +330,22 @@ class ObservableConfigStore {
   }
 
   getCoordinateRanges() {
-    let coordinateRanges;
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      coordinateRanges = this.selectedGene.ranges;
+      return this.selectedGene.ranges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      coordinateRanges = this.selectedProtein.ranges;
+      return this.selectedProtein.ranges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
-      coordinateRanges = [];
-      this.selectedPrimers.forEach((primer) => {
-        coordinateRanges.push([primer.Start, primer.End]);
+      return this.selectedPrimers.map((primer) => {
+        [primer.Start, primer.End];
       });
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
-      coordinateRanges = toJS(this.customCoordinates);
+      return toJS(this.customCoordinates);
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
+      return this.customSequences.map((seq) => {
+        return queryReferenceSequence(seq);
+      });
     }
-    return coordinateRanges;
   }
 
   @action
