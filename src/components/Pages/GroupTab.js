@@ -71,7 +71,7 @@ const GroupTab = observer(({ width }) => {
       <AccordionWrapper
         title={
           <AccordionTitle>
-            <span>Plot</span>
+            <span>{configStore.getGroupLabel()} Plot</span>
           </AccordionTitle>
         }
         defaultCollapsed={false}
