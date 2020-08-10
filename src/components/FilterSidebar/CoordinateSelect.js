@@ -252,10 +252,35 @@ const UpdateButton = styled(Button)`
   padding: 3px 8px;
   margin-left: 10px;
 `;
-
 UpdateButton.defaultProps = {
   show: false,
 };
+
+const ValidationInput = styled.input`
+  border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+  &:focus {
+    border: 2px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+  }
+`;
+ValidationInput.defaultProps = {
+  invalid: false,
+};
+
+const InvalidText = styled.span`
+  margin-left: 20px;
+  font-size: 0.9em;
+  font-weight: normal;
+  line-height: normal;
+  color: #dc3545;
+`;
+
+const RangesText = styled.span`
+  margin-left: 20px;
+  font-size: 0.9em;
+  font-weight: normal;
+  line-height: normal;
+  color: #888;
+`;
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
@@ -429,7 +454,8 @@ const CoordinateSelect = observer(() => {
   };
 
   const handleCustomSequencesChange = (event) => {
-    const sequences = event.target.value.split(';');
+    const curText = event.target.value.toUpperCase();
+    const sequences = curText.split(';');
     // Check that all bases are valid and that
     // the reference sequence includes the sequence
     // TODO: support for denegerate bases
@@ -443,11 +469,11 @@ const CoordinateSelect = observer(() => {
       );
     });
     const customSequencesChanged =
-      event.target.value !== configStore.customSequences.join(';');
+      curText !== configStore.customSequences.join(';');
 
     setState({
       ...state,
-      customSequences: event.target.value,
+      customSequences: curText,
       validCustomSequences,
       customSequencesChanged,
     });
@@ -717,17 +743,30 @@ const CoordinateSelect = observer(() => {
             </UpdateButton>
           </ModeLabel>
           <CoordForm>
-            <input
+            <ValidationInput
               type="text"
               value={state.customSequences}
               onChange={handleCustomSequencesChange}
+              invalid={!state.validCustomSequences}
             />
             <QuestionButton
-              data-tip="<p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
+              data-tip="<p></p><p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>"
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />
           </CoordForm>
+          {!state.validCustomSequences && (
+            <InvalidText>One or more sequences are invalid</InvalidText>
+          )}
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE && (
+            <RangesText>
+              Coordinates:{' '}
+              {configStore
+                .getCoordinateRanges()
+                .map((range) => range.join('..'))
+                .join(';')}
+            </RangesText>
+          )}
         </ModeRadioVertical>
       </ModeSelectForm>
     </SelectContainer>
