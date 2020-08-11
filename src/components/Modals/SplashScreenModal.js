@@ -61,9 +61,9 @@ const SplashScreenContent = ({ onRequestClose }) => {
         <p>
           <b>
             The COVID-19 CoV Genetics browser was designed to empower diverse
-            projects on SARS-CoV-2 transmission, evolution, emergence, immune
-            interactions, diagnostics, therapeutics, vaccines, and tracking of
-            interventions.
+            projects on hCoV-19 (SARS-CoV-2) transmission, evolution, emergence,
+            immune interactions, diagnostics, therapeutics, vaccines, and
+            tracking of interventions.
           </b>
         </p>
         <p>
@@ -104,10 +104,10 @@ const SplashScreenContent = ({ onRequestClose }) => {
           generation or anti-COVID-19 product development. For example, COVID-19
           CG enables users to evaluate commonly used or custom primers/probes or
           targets/epitopes based on their location and dates of interest. As
-          sequencing efforts start to include details about SARS-CoV-2 isolates,
-          users can also sort virus data according to patient characteristics
-          such as age, gender, clinical status, isolate type, as well as
-          passaging, sequencing, and assembly method.
+          sequencing efforts start to include details about hCoV-19 (SARS-CoV-2)
+          isolates, users can also sort virus data according to patient
+          characteristics such as age, gender, clinical status, isolate type, as
+          well as passaging, sequencing, and assembly method.
         </p>
         <p>
           To accelerate COVID-19 research and public health efforts, COVID-19 CG

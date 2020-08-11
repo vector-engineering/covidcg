@@ -30,7 +30,9 @@ const RelatedProjectsTab = () => {
       <Content>
         <ContentSection>
           <a id="genomics-projects"></a>
-          <span className="section-title">SARS-CoV-2 Genomics Projects</span>
+          <span className="section-title">
+            Other Analysis/Visualization Efforts
+          </span>
 
           <div className="content-block">
             <div className="content-text">

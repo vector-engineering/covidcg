@@ -38,7 +38,7 @@ const SequencingEffortsTab = ({ width }) => {
   return (
     <Container>
       <Header>
-        <Title>Global SARS-CoV-2 Sequencing Efforts</Title>
+        <Title>Global hCoV-19 Sequencing Efforts</Title>
         <p>
           Sequencing data is taken from the GISAID EpiCov™ database (nextmeta
           file), and case data is obtained from{' '}

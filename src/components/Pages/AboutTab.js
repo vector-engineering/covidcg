@@ -229,7 +229,7 @@ const AboutTab = () => {
           <div className="content-block">
             <div className="content-text">
               <p>
-                All SARS-CoV-2 sequences are aligned to the Wuhan-Hu-1 reference
+                All hCoV-19 sequences are aligned to the Wuhan-Hu-1 reference
                 sequence (
                 <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2">
                   NCBI: NC_045512.2
