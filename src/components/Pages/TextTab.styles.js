@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 
 export const TabContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-
   background-color: #f8f8f8;
 `;
 

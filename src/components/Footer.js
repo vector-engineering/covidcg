@@ -8,6 +8,8 @@ import { version, dataDate } from '../utils/version';
 import ExternalLink from './Common/ExternalLink';
 
 const FooterContainer = styled.div`
+  flex-shrink: 0;
+
   margin-top: auto;
   display: flex;
   flex-direction: row;
