@@ -1,4 +1,9 @@
-import { observable, action, toJS, intercept, autorun } from 'mobx';
+import {
+  observable,
+  action,
+  toJS,
+  //intercept, autorun
+} from 'mobx';
 import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
@@ -27,7 +32,7 @@ import {
 } from '../constants/config';
 
 import { OTHER_GROUP } from '../constants/groups';
-import { updateQueryStringParam } from '../utils/updateQueryParam';
+// import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 
 // Define initial values

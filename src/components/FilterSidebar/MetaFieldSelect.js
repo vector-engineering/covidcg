@@ -81,26 +81,26 @@ const SelectContainer = styled.form`
   }
 `;
 
-const PatientAgeContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+// const PatientAgeContainer = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   align-items: center;
 
-  width: ${formWidth};
-  // padding-left: 5px;
+//   width: ${formWidth};
+//   // padding-left: 5px;
 
-  span {
-    font-weight: normal;
-  }
-  span.from-label {
-  }
-  span.to-label {
-    margin-left: 5px;
-  }
-  input {
-    margin-left: 5px;
-  }
-`;
+//   span {
+//     font-weight: normal;
+//   }
+//   span.from-label {
+//   }
+//   span.to-label {
+//     margin-left: 5px;
+//   }
+//   input {
+//     margin-left: 5px;
+//   }
+// `;
 
 const UpdateSelectionButton = styled(Button)`
   display: ${(props) => (props.show ? 'block' : 'none')};
@@ -273,17 +273,17 @@ const MetaFieldSelect = observer(() => {
     });
   };
 
-  const onChangeAgeRange = (ind, e) => {
-    // console.log(ind, e.target.value);
-    let ageRange = state.ageRange;
-    ageRange[ind] = e.target.value;
+  // const onChangeAgeRange = (ind, e) => {
+  //   // console.log(ind, e.target.value);
+  //   let ageRange = state.ageRange;
+  //   ageRange[ind] = e.target.value;
 
-    setState({
-      ...state,
-      ageRange,
-      changed: checkChanged(state.fieldSelected, ageRange),
-    });
-  };
+  //   setState({
+  //     ...state,
+  //     ageRange,
+  //     changed: checkChanged(state.fieldSelected, ageRange),
+  //   });
+  // };
 
   // Flush changes to the store
   const updateSelectedMetadataFields = () => {

@@ -6,7 +6,7 @@ import {
   TabContainer,
   Content,
   ContentSection,
-  ImageRow,
+  // ImageRow,
 } from './TextTab.styles';
 
 import WorkflowImage from '../../assets/images/Fig2_workflow.svg';

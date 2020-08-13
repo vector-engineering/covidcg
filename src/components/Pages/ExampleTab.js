@@ -8,7 +8,7 @@ import _ from 'underscore';
 import { ASYNC_STATES, TABS } from '../../constants/UI';
 
 import { getGene } from '../../utils/gene';
-import { getProtein } from '../../utils/protein';
+// import { getProtein } from '../../utils/protein';
 import {
   getLocationByNameAndLevel,
   loadSelectTree,
@@ -357,7 +357,7 @@ const ExampleTab = observer(() => {
     <ExampleTabContainer>
       <ExampleHeader>
         <ExampleTitle>Example Analyses</ExampleTitle>
-        <p>Get started with a bunch of example analyses</p>
+        <p>Get started with these example analyses</p>
       </ExampleHeader>
       <ExampleList>{renderExamples()}</ExampleList>
     </ExampleTabContainer>
