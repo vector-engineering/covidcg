@@ -16,6 +16,8 @@ import CVRBioInfoLogo from '../../assets/images/CVRBioInfo_logo.png';
 import UGlasgowLogo from '../../assets/images/uglasgow_logo.png';
 import MRCLogo from '../../assets/images/mrc_logo.png';
 import KaustLogo from '../../assets/images/kaust_logo.png';
+import NIAIDLogo from '../../assets/images/niaid_logo.png';
+import VIPRLogo from '../../assets/images/vipr_logo@4x.png';
 
 import {
   TabContainer,
@@ -33,7 +35,6 @@ const RelatedProjectsTab = () => {
           <span className="section-title">
             Other Analysis/Visualization Efforts
           </span>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -62,7 +63,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -118,7 +118,6 @@ const RelatedProjectsTab = () => {
               </ImageRow>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -149,7 +148,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -176,7 +174,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -219,7 +216,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -256,7 +252,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -283,7 +278,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -314,7 +308,6 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -352,7 +345,39 @@ const RelatedProjectsTab = () => {
               </ExternalLink>
             </div>
           </div>
-
+          https://www.viprbrc.org/
+          <div className="content-block">
+            <div className="content-text">
+              <p>
+                <b>
+                  <ExternalLink href="https://www.viprbrc.org/brc/home.spg?decorator=vipr">
+                    ViPR
+                  </ExternalLink>
+                  : Virus Pathogen Resource
+                </b>
+              </p>
+              <p>
+                &quot;The Influenza Research Database (IRD) and Virus Pathogen
+                Resource (ViPR) are freely available, NIAID-funded resources
+                that support the research of viral pathogens in the NIAID
+                Category A-C Priority Pathogen lists and those causing
+                (re)emerging infectious diseases. IRD and ViPR integrate data
+                from external sources (GenBank, UniProt, Immune Epitope
+                Database, Protein Data Bank, etc.), direct submissions, and
+                internal curation and analysis pipelines, and provide a suite of
+                bioinformatics analysis and visualization tools to expedite
+                virology research.&quot;
+              </p>
+            </div>
+            <div className="content-images">
+              <ExternalLink href="https://www.viprbrc.org/brc/home.spg?decorator=vipr">
+                <img src={VIPRLogo} height="60" />
+              </ExternalLink>
+              <ExternalLink href="https://www.niaid.nih.gov/">
+                <img src={NIAIDLogo} height="60" />
+              </ExternalLink>
+            </div>
+          </div>
           <div className="content-block">
             <div className="content-text">
               <p>

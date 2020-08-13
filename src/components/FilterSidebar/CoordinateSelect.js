@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
 
+import ExternalLink from '../Common/ExternalLink';
 import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -663,8 +664,16 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            Primers/Probes
+            <span>Primers/Probes</span>
           </ModeLabel>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
+            <ExternalLink
+              href="https://github.com/vector-engineering/covidcg/blob/master/static_data/primers.csv"
+              style={{ marginLeft: '20px' }}
+            >
+              (Primer/probe definitions)
+            </ExternalLink>
+          )}
           <UpdatePrimersButton
             show={state.primersChanged}
             onClick={updatePrimerSelection}

@@ -64,6 +64,10 @@ const DataGridContainer = styled.div`
 
   /* All other rows */
   .rdg-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
     background-color: transparent;
 
     /* First column */

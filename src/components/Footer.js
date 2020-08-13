@@ -8,6 +8,8 @@ import { version, dataDate } from '../utils/version';
 import ExternalLink from './Common/ExternalLink';
 
 const FooterContainer = styled.div`
+  flex-shrink: 0;
+
   margin-top: auto;
   display: flex;
   flex-direction: row;
@@ -65,7 +67,7 @@ const Footer = ({ openModal }) => {
   return (
     <FooterContainer>
       <div className="gisaid-daa">
-        GISAID data provided on this website is subject to GISAID’s{' '}
+        GISAID data provided on this website are subject to GISAID’s{' '}
         <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
           Terms and Conditions
         </ExternalLink>

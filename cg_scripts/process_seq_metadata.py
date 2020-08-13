@@ -205,7 +205,7 @@ def clean_assembly_metadata(seq_meta_df):
 def clean_comment_type_metadata(seq_meta_df):
     seq_meta_df["comment_type"] = seq_meta_df["Comment type"].str.strip()
 
-    seq_meta_df["comment_type"] = seq_meta_df["comment_type"].fillna("Unknown")
+    seq_meta_df["comment_type"] = seq_meta_df["comment_type"].fillna("None")
 
     return seq_meta_df
 

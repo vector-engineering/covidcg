@@ -445,6 +445,9 @@ def clean_passage_metadata(patient_meta_df):
 
     patient_meta_df["passage"] = patient_meta_df["passage"].fillna("Unknown")
 
+    # Only keep rows that are Original (throw out unknown as well)
+    patient_meta_df = patient_meta_df.loc[patient_meta_df["passage"] == "Original"]
+
     return patient_meta_df
 
 

@@ -341,7 +341,7 @@ const MetaFieldSelect = observer(() => {
   return (
     <MetaFieldSelectContainer>
       <SelectList>
-        <SelectContainer>
+        {/* <SelectContainer>
           <label>Patient Age:</label>
           <div className="spacer"></div>
           <PatientAgeContainer>
@@ -364,7 +364,7 @@ const MetaFieldSelect = observer(() => {
               onChange={onChangeAgeRange.bind(this, 1)}
             ></input>
           </PatientAgeContainer>
-        </SelectContainer>
+        </SelectContainer> */}
         {fieldSelects}
       </SelectList>
       <UpdateSelectionButton

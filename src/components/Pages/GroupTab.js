@@ -92,7 +92,7 @@ const GroupTab = observer(({ width }) => {
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
-        <LocationGroupPlot width={width - 150} />
+        <LocationGroupPlot width={width - 250} />
       </AccordionWrapper>
       {/*configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
         <VegaTree width={width} data={dataStore.caseDataAggGroup} />
