@@ -340,10 +340,9 @@ rule generate_ui_data:
             location_df[["location_id"]], on="Accession ID", how="inner", sort=False
         ).drop(columns=["Location"])
 
-        # Hash Accession IDs
-        df["hashed_id"] = df.index.to_series().apply(hash_accession_id)
-        # Only take the first 8 chars, that's good enough
-        df["hashed_id"] = df["hashed_id"].str.slice(stop=8)
+        # Hash Accession IDs. Only take the first 8 chars, that's good enough
+        df["hashed_id"] = np.random.rand(len(df))
+        df["hashed_id"] = df["hashed_id"].astype(str).apply(hash_accession_id).str.slice(stop=8)
         # Create map of hash -> Accession ID
         accession_hash_df = df[["hashed_id"]]
         accession_hash_df.to_csv(output.accession_hashmap, index_label="Accession ID")
