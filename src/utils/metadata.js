@@ -1,10 +1,10 @@
 import metadataMap from '../../data/metadata_map.json';
 
 const metadataFields = [
-  'gender_id',
-  'patient_status_id',
-  'passage_id',
-  'specimen_id',
+  // 'gender_id',
+  // 'patient_status_id',
+  // 'passage_id',
+  // 'specimen_id',
   'sequencing_tech_id',
   'assembly_method_id',
   'comment_type_id',
