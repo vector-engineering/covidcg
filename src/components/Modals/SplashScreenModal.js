@@ -129,12 +129,15 @@ const SplashScreenContent = ({ onRequestClose }) => {
           <ExternalLink href="https://twitter.com/covidcg">
             @covidcg
           </ExternalLink>{' '}
-          on twitter.
+          on twitter, or email us at{' '}
+          <ExternalLink href="mailto:covidcg@broadinstitute.org">
+            covidcg@broadinstitute.org
+          </ExternalLink>
         </p>
-        <p>
+        {/* <p>
           Find out more about how you can use COVID-19 CG in our preprint: URL
           and maybe youtube video
-        </p>
+        </p> */}
       </Content>
     </Wrapper>
   );
