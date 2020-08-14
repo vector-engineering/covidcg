@@ -7,26 +7,31 @@ import {
 } from './lineageData';
 import { getLocationIds } from './location';
 import { hashCode } from './string';
+import { dataDate } from './version';
+
+import { countMetadataFields } from './metadata';
+import _ from 'underscore';
+
+import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { REFERENCE_GROUP } from '../constants/groups';
 import {
   warmColors,
   coolColors,
   snpColorArray,
   cladeColorArray,
 } from '../constants/colors';
-import { countMetadataFields } from './metadata';
-import _ from 'underscore';
 
-import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { REFERENCE_GROUP } from '../constants/groups';
-
+const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
   _.map(initialCaseData, (row) => {
     row.collection_date = new Date(row.collection_date).getTime();
     return row;
   }),
   (row) => {
-    // Remove cases before 2019-12-15
-    return row.collection_date < 1576368000000;
+    // Remove cases before 2019-12-15 and after the dataDate
+    return (
+      row.collection_date < 1576368000000 || row.collection_date > dataDateInt
+    );
   }
 );
 
