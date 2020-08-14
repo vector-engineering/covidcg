@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
+import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -72,7 +73,7 @@ const Header = () => {
       <GISAIDContainer>
         Enabled by data from&nbsp;
         <ExternalLink href="https://www.gisaid.org/">
-          <img src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"></img>
+          <img src={GISAIDLogo}></img>
         </ExternalLink>
       </GISAIDContainer>
     </HeaderDiv>
