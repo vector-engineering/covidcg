@@ -26,6 +26,7 @@ import {
   DATE_BINS,
 } from '../../constants/plotSettings';
 
+import ExternalLink from '../Common/ExternalLink';
 import SkeletonElement from '../Common/SkeletonElement';
 // import LoadingSpinner from '../Common/LoadingSpinner';
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
@@ -47,6 +48,11 @@ const ExampleTabContainer = styled.div`
 
 const ExampleHeader = styled.div`
   padding-left: 10px;
+
+  p {
+    font-weight: normal;
+    line-height: normal;
+  }
 `;
 
 const ExampleTitle = styled.h2``;
@@ -357,7 +363,18 @@ const ExampleTab = observer(() => {
     <ExampleTabContainer>
       <ExampleHeader>
         <ExampleTitle>Example Analyses</ExampleTitle>
-        <p>Get started with these example analyses</p>
+        <p>
+          Use these example analyses to get started and explore the features of
+          this application. If you would like to add an analysis to this list,
+          please{' '}
+          <ExternalLink href="https://github.com/vector-engineering/covidcg">
+            submit a pull request on our GitHub
+          </ExternalLink>
+          , or contact us at{' '}
+          <ExternalLink href="mailto:covidcg@broadinstitute.org">
+            covidcg@broadinstitute.org
+          </ExternalLink>
+        </p>
       </ExampleHeader>
       <ExampleList>{renderExamples()}</ExampleList>
     </ExampleTabContainer>
