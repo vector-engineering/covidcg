@@ -93,14 +93,17 @@ const MethodologyTab = () => {
               <p>
                 SNVs at the nucleotide and amino acid level will be determined
                 by aligning each sequence to the{' '}
-                <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2">
-                  Wuhan-Hu-1 reference
+                <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/MN996528">
+                  WIV04 reference sequence
                 </ExternalLink>{' '}
-                (as NextStrain has done; Wuhan-Hu-1 is 100% identical to a high
-                quality December, 2019 isolate, WIV04/EPI_ISL_402124 recommended
-                by GISAID) using bowtie2. Spurious SNVs and probable sequencing
-                errors are filtered out prior to downstream analysis. SNVs
-                involving ambiguous base calls are ignored.
+                (WIV04 is 100% identical to a high quality December, 2019
+                isolate, Wuhan-Hu-1/
+                <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2">
+                  NC_045512.2
+                </ExternalLink>{' '}
+                used by NextStrain) using bowtie2. Spurious SNVs and probable
+                sequencing errors are filtered out prior to downstream analysis.
+                SNVs involving ambiguous base calls are ignored.
               </p>
             </div>
           </div>

@@ -722,7 +722,7 @@ const CoordinateSelect = observer(() => {
               onChange={handleCustomCoordChange}
             />
             <QuestionButton
-              data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
+              data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (MN996528.1/EPI_ISL_402124)</p>'
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />
@@ -759,7 +759,7 @@ const CoordinateSelect = observer(() => {
               invalid={!state.validCustomSequences}
             />
             <QuestionButton
-              data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to Wuhan-Hu-1 reference sequence (NC_045512.2)</p>'
+              data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (MN996528.1/EPI_ISL_402124)</p>'
               data-html="true"
               data-for="tooltip-filter-sidebar"
             />
