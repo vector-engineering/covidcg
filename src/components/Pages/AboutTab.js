@@ -141,10 +141,17 @@ const AboutTab = () => {
           <span className="section-title">Citing COVID-19 CG:</span>
           <div className="content-block">
             <div className="content-text">
-              <p>
+              {/* <p>
                 Chen AT, Altschuler K, Chan AY, Zhan SH, Deverman BE (2020).
                 COVID-19 CG: Tracking SARS-CoV-2 by mutation, location, and date
                 of interest. <i>bioRxiv</i>. DOI: ...
+              </p> */}
+              <p>
+                Users are encouraged to share, download, and further analyze
+                data from this site. Plots can be downloaded as PNG or SVG
+                files, and the data powering the plots and tables can be
+                downloaded as well. Please attribute any data/images to{' '}
+                <a href="https://covidcg.org">covidcg.org</a>.
               </p>
             </div>
             <div className="content-images"></div>
