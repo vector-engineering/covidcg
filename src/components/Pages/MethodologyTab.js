@@ -9,7 +9,7 @@ import {
   // ImageRow,
 } from './TextTab.styles';
 
-import WorkflowImage from '../../assets/images/Fig2_workflow.svg';
+import WorkflowImage from '../../assets/images/Fig2_workflow_V4.svg';
 
 const MethodologyTab = () => {
   return (
@@ -98,10 +98,11 @@ const MethodologyTab = () => {
                   Wuhan-Hu-1 reference
                 </ExternalLink>{' '}
                 (as NextStrain has done; Wuhan-Hu-1 is 100% identical to a high
-                quality December, 2019 isolate, WIV04 recommended by GISAID)
-                using bowtie2. Importantly, spurious SNVs and probable
-                sequencing errors will be filtered out prior to downstream
-                analysis. SNVs involving ambiguous base calls are ignored.
+                quality December, 2019 isolate, WIV04/EPI_ISL_402124 recommended
+                by GISAID) using bowtie2. Importantly, spurious SNVs and
+                probable sequencing errors will be filtered out prior to
+                downstream analysis. SNVs involving ambiguous base calls are
+                ignored.
               </p>
             </div>
           </div>
