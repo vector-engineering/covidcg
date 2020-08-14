@@ -9,7 +9,7 @@ import {
   // ImageRow,
 } from './TextTab.styles';
 
-import WorkflowImage from '../../assets/images/Fig2_workflow.svg';
+import WorkflowImage from '../../assets/images/Fig2_workflow_V4.svg';
 
 const MethodologyTab = () => {
   return (
@@ -62,16 +62,15 @@ const MethodologyTab = () => {
                 versions to end users.
               </p>
               <p>
-                Patient and sequencing metadata is cleaned to remove obvious
-                typos, and to unify labels with the same meaning, e.g.,
-                &quot;MinION&quot; and &quot;Nanopore MinION&quot;, or
-                &quot;F&quot; and &quot;Female&quot;.
+                Sequence metadata is cleaned to remove obvious typos, and to
+                unify labels with the same meaning, e.g., &quot;MinION&quot; and
+                &quot;Nanopore MinION&quot;.
               </p>
-              <p>
+              {/* <p>
                 Patient ages are transformed into ranges, in order to work
                 across the many levels of detail present in patient age data.
                 For example &quot;65&quot; will be interpreted as [65, 66)
-              </p>
+              </p> */}
               <p>
                 Location metadata is cleaned with the goal of simplifying the
                 location selector in the sidebar. Locations with excessive
@@ -98,10 +97,10 @@ const MethodologyTab = () => {
                   Wuhan-Hu-1 reference
                 </ExternalLink>{' '}
                 (as NextStrain has done; Wuhan-Hu-1 is 100% identical to a high
-                quality December, 2019 isolate, WIV04 recommended by GISAID)
-                using bowtie2. Importantly, spurious SNVs and probable
-                sequencing errors will be filtered out prior to downstream
-                analysis. SNVs involving ambiguous base calls are ignored.
+                quality December, 2019 isolate, WIV04/EPI_ISL_402124 recommended
+                by GISAID) using bowtie2. Spurious SNVs and probable sequencing
+                errors are filtered out prior to downstream analysis. SNVs
+                involving ambiguous base calls are ignored.
               </p>
             </div>
           </div>
@@ -114,10 +113,13 @@ const MethodologyTab = () => {
           <div className="content-block">
             <div className="content-text">
               <p>
-                Viral lineages, defined by the pangolin tool, and clades will be
-                provided by GISAID. In accordance with pangolin, SNVs present in
-                &gt;90% of sequences within each lineage/clade will be assigned
-                as lineage/clade-defining SNVs.
+                Viral lineages (as defined by the{' '}
+                <ExternalLink href="https://github.com/cov-lineages/pangolin">
+                  pangolin
+                </ExternalLink>{' '}
+                tool), and clades will be provided by GISAID. In accordance with
+                pangolin, SNVs present in &gt;90% of sequences within each
+                lineage/clade will be assigned as lineage/clade-defining SNVs.
               </p>
             </div>
           </div>

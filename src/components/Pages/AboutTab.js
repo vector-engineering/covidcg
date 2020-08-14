@@ -3,11 +3,14 @@ import styled from 'styled-components';
 
 import ExternalLink from '../Common/ExternalLink';
 
-import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
-import ReactLogo from '../../assets/images/React-icon.svg';
-import MobXLogo from '../../assets/images/mobx.png';
-import IDLLogo from '../../assets/images/idl-logo.png';
-import UBCLogo from '../../assets/images/ubc_logo.png';
+// import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
+// import ReactLogo from '../../assets/images/React-icon.svg';
+// import MobXLogo from '../../assets/images/mobx.png';
+// import IDLLogo from '../../assets/images/idl-logo.png';
+// import UBCLogo from '../../assets/images/ubc_logo.png';
+import VELogo from '../../assets/images/ve_logo.png';
+import BroadLogo from '../../assets/images/BroadLogo_RGB_forDigital.png';
+import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 
 import {
   TabContainer,
@@ -58,25 +61,7 @@ const AboutTab = () => {
                 </ExternalLink>
                 ), by:
               </p>
-              <p>
-                <b>Dr. Benjamin Deverman</b> is the director of the vector
-                engineering research group at the Stanley Center for Psychiatric
-                Research at the Broad Institute of MIT and Harvard. The Deverman
-                lab develops innovative gene delivery solutions to expand the
-                impact of gene therapy and for studying the central nervous
-                system, with the aim of uncovering new avenues for treating
-                psychiatric disorders. Ben was surprise-nominated by his lab and
-                won the Excellence in Mentorship award at the Broad last year.
-              </p>
-              <p>
-                <b>Dr. Shing Hei Zhan</b> is a recent graduate from the
-                University of British Columbia’s Department of Zoology &amp; the
-                Biodiversity Research Centre. Shing is also co-founder and lead
-                bioinformatics scientist at Fusion Genomics Corporation, which
-                develops molecular diagnostic assays for infectious diseases,
-                including COVID-19. Fusion Genomics was recently awarded XXX by
-                the Government of Canada to XXX.
-              </p>
+
               <p>
                 <b>Albert Tian Chen</b> is an associate computational biologist
                 in the Deverman group who designed, built, and will continue to
@@ -88,56 +73,65 @@ const AboutTab = () => {
                 <b>Kevin Altschuler</b> is an experienced web developer with
                 previous positions at Google and Uber Advanced Technologies
                 Group (ATG). Kevin has architected the application to streamline
-                development and improve performance. If the site doesn’t crash,
-                that is thanks to Kevin’s efforts.
+                development and improve performance.
               </p>
               <p>
                 <b>Dr. Alina Chan</b> is a postdoc in the Deverman group who
                 asked too many questions about SARS-CoV-2 and realized that we
                 needed a browser like COVID-19 CG.
               </p>
+              <p>
+                <b>Dr. Shing Hei Zhan</b> is a recent graduate from the
+                University of British Columbia’s Department of Zoology &amp; the
+                Biodiversity Research Centre. Shing is also co-founder and lead
+                bioinformatics scientist at Fusion Genomics Corporation, which
+                develops molecular diagnostic assays for infectious diseases,
+                including COVID-19.
+              </p>
+              <p>
+                <b>Dr. Benjamin Deverman</b> is the director of the vector
+                engineering research group at the Stanley Center for Psychiatric
+                Research at the Broad Institute of MIT and Harvard. The Deverman
+                Lab develops innovative gene delivery solutions to expand the
+                impact of gene therapy and for studying the central nervous
+                system, with the aim of uncovering new avenues for treating
+                psychiatric disorders.
+              </p>
 
               <p>
                 Contact the authors by email:{' '}
-                <a href="mailto:bdeverma@broadinstitute.org">
-                  bdeverma@broadinstitute.org
-                </a>
-                , <a href="mailto:zhan@zoology.ubc.ca">zhan@zoology.ubc.ca</a>,{' '}
-                <a href="mailto:alinac@broadinstitute.org">
-                  alinac@broadinstitute.org
+                <a href="mailto:covidcg@broadinstitute.org">
+                  covidcg@broadinstitute.org
                 </a>
               </p>
             </div>
             <div className="content-images">
               <ImageRow>
-                <ExternalLink href="https://vector-engineering.github.io/">
-                  <img
-                    src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/ve_logo.png"
-                    height="40"
-                  ></img>
+                <ExternalLink href="https://vector.engineering">
+                  <img src={VELogo} height="40"></img>
                 </ExternalLink>
                 <VELogoText>Vector Engineering Lab</VELogoText>
               </ImageRow>
               <ImageRow>
                 <ExternalLink href="https://www.broadinstitute.org/">
                   <img
-                    src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/BroadLogo_RGB_forDigital.png"
+                    src={BroadLogo}
                     height="40"
                     style={{ marginRight: '10px' }}
                   ></img>
                 </ExternalLink>
-                <ExternalLink href="https://www.broadinstitute.org/stanley">
+                {/* <ExternalLink href="https://www.broadinstitute.org/stanley">
                   <img
                     src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/StanleyCenterLogo_RGB_forDigital.png"
                     height="50"
                   ></img>
-                </ExternalLink>
+                </ExternalLink> */}
               </ImageRow>
-              <ImageRow>
+              {/* <ImageRow>
                 <ExternalLink href="https://www.ubc.ca/">
                   <img src={UBCLogo} height="60"></img>
                 </ExternalLink>
-              </ImageRow>
+              </ImageRow> */}
             </div>
           </div>
         </ContentSection>
@@ -147,10 +141,17 @@ const AboutTab = () => {
           <span className="section-title">Citing COVID-19 CG:</span>
           <div className="content-block">
             <div className="content-text">
-              <p>
+              {/* <p>
                 Chen AT, Altschuler K, Chan AY, Zhan SH, Deverman BE (2020).
                 COVID-19 CG: Tracking SARS-CoV-2 by mutation, location, and date
                 of interest. <i>bioRxiv</i>. DOI: ...
+              </p> */}
+              <p>
+                Users are encouraged to share, download, and further analyze
+                data from this site. Plots can be downloaded as PNG or SVG
+                files, and the data powering the plots and tables can be
+                downloaded as well. Please attribute any data/images to{' '}
+                <a href="https://covidcg.org">covidcg.org</a>.
               </p>
             </div>
             <div className="content-images"></div>
@@ -178,7 +179,7 @@ const AboutTab = () => {
                 Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
                 diplomacy: GISAID’s innovative contribution to global health.
                 Global Challenges, 1:33-46. DOI:
-                <ExternalLink href="http://dx.doi.org/10.1002/gch2.1018">
+                <ExternalLink href="https://doi.org/10.1002/gch2.1018">
                   10.1002/gch2.1018
                 </ExternalLink>{' '}
                 PMCID:{' '}
@@ -202,7 +203,7 @@ const AboutTab = () => {
                 Shu, Y., McCauley, J. (2017) GISAID: Global initiative on
                 sharing all influenza data – from vision to reality.
                 EuroSurveillance, 22(13) DOI:
-                <ExternalLink href="http://dx.doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
+                <ExternalLink href="https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
                   10.2807/1560-7917.ES.2017.22.13.30494
                 </ExternalLink>{' '}
                 PMCID:{' '}
@@ -213,10 +214,7 @@ const AboutTab = () => {
             </div>
             <div className="content-images">
               <ExternalLink href="https://www.gisaid.org/">
-                <img
-                  src="https://storage.googleapis.com/ve-public/covid_ui/assets/img/gisaid.png"
-                  height="60"
-                ></img>
+                <img src={GISAIDLogo} height="60"></img>
               </ExternalLink>
             </div>
           </div>
@@ -256,7 +254,7 @@ const AboutTab = () => {
         </ContentSection>
         */}
 
-        <ContentSection>
+        {/* <ContentSection>
           <a id="code"></a>
           <span className="section-title">Open-source Code</span>
 
@@ -353,7 +351,7 @@ const AboutTab = () => {
             <div className="content-text"></div>
             <div className="content-images"></div>
           </div>
-        </ContentSection>
+        </ContentSection> */}
       </Content>
     </TabContainer>
   );
