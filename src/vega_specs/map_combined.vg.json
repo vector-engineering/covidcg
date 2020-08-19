@@ -8,7 +8,8 @@
   "signals": [
     { "name": "mapWidth", "update": "width / 2" },
     { "name": "mapHeight", "update": "height - 1000" },
-    { "name": "chartWidth", "update": "mapWidth - 50" },
+    { "name": "chartXRange", "update": "[0, (width / 2) - 50]" },
+    { "name": "chartWidth", "update": "(width / 2) - 50" },
     { "name": "chartHeight", "update": "height - 300" },
     { "name": "chartX", "update": "mapWidth + 50" },
     { "name": "chartY", "update": "mapHeight + 20" },
@@ -218,7 +219,7 @@
     {
       "name": "sequence_color",
       "type": "quantize",
-      "domain": [-2, 3],
+      "domain": [0, 20],
       "range": { "scheme": "yellowgreenblue", "count": 10 }
     },
     {
@@ -284,12 +285,12 @@
                   },
                   "fill": [
                     {
-                      "test": "datum.sequences_per_case === null",
+                      "test": "datum.sequences_per_case === null || datum.sequences_per_case === 0",
                       "value": "#AAA"
                     },
                     {
                       "scale": "sequence_color",
-                      "field": "log_sequences_per_1000cases"
+                      "field": "sequences_per_1000cases"
                     }
                   ],
                   "strokeWidth": [
@@ -320,8 +321,9 @@
           ],
           "legends": [
             {
-              "title": "Log10 sequences per 1000 cases",
+              "title": "Sequences per 1000 cases",
               "fill": "sequence_color",
+              "format": "d",
               "orient": "bottom-left",
               "offset": 5,
               "type": "gradient",
@@ -432,10 +434,10 @@
           "type": "group",
           "encode": {
             "enter": {
-              "x": { "value": 0 },
               "clip": { "value": false }
             },
             "update": {
+              "x": { "value": 0 },
               "y": { "signal": "chartY" },
               "width": { "signal": "chartWidth" },
               "height": { "signal": "chartHeight" }
@@ -444,12 +446,10 @@
 
           "scales": [
             {
-              "type": "log",
-              "base": 10,
               "name": "xscale",
-              "domain": [0.01, 1000],
+              "domain": [0, 50],
               "nice": true,
-              "range": [0, { "signal": "chartWidth" }]
+              "range": [0, 500]
             },
             {
               "name": "yscale",
@@ -491,6 +491,7 @@
             {
               "type": "rect",
               "from": { "data": "seqData" },
+              "clip": true,
               "encode": {
                 "enter": {
                   "x": { "scale": "xscale", "value": 0.01 },
@@ -502,7 +503,7 @@
                   "height": { "scale": "yscale", "band": 1 },
                   "fill": {
                     "scale": "sequence_color",
-                    "field": "log_sequences_per_1000cases"
+                    "field": "sequences_per_1000cases"
                   },
                   "stroke": { "value": "#000" },
                   "tooltip": {
@@ -548,7 +549,7 @@
               "name": "xscale",
               "domain": [10, 150],
               "nice": true,
-              "range": [0, { "signal": "chartWidth" }]
+              "range": [0, 500]
             },
             {
               "name": "yscale",
