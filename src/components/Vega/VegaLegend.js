@@ -7,6 +7,11 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import SkeletonElement from '../Common/SkeletonElement';
 import { ASYNC_STATES } from '../../constants/UI';
+import {
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../../constants/config';
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import { mergeLegendItemsIntoOther } from './utils';
 import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
@@ -208,6 +213,44 @@ const VegaLegend = observer(() => {
     });
   };
 
+  const sortLegendItems = (groupKey, dnaOrAa, coordinateMode, a, b) => {
+    // If we're grouping by lineage or clade, then sort alphabetically
+    // on the lineage/clade
+    if (
+      groupKey === GROUP_KEYS.GROUP_LINEAGE ||
+      groupKey === GROUP_KEYS.GROUP_CLADE
+    ) {
+      return a.group > b.group ? 1 : -1;
+    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+      // If we're grouping by SNV, figure out whether we're in DNA or AA mode
+      if (dnaOrAa === DNA_OR_AA.DNA) {
+        // If we're grouping by DNA SNV, then sort by position
+        return a.pos > b.pos ? 1 : -1;
+      } else {
+        // If we're grouping by AA SNV, determine if we're in gene/protein mode
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
+          // If the same gene, then sort by position
+          if (a.gene === b.gene) {
+            return a.pos > b.pos ? 1 : -1;
+          }
+          // Otherwise, sort by gene
+          else {
+            return a.gene > b.gene ? 1 : -1;
+          }
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+          // If the same protein, then sort by position
+          if (a.protein === b.protein) {
+            return a.pos > b.pos ? 1 : -1;
+          }
+          // Otherwise, sort by protein
+          else {
+            return a.protein.toLowerCase() > b.protein.toLowerCase() ? 1 : -1;
+          }
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     // Make own copy of the elements, and sort by group
     let legendItems = mergeLegendItemsIntoOther(
@@ -225,7 +268,14 @@ const VegaLegend = observer(() => {
       legendItems,
       (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
     );
-    legendItems = legendItems.sort((a, b) => (a.group > b.group ? 1 : -1));
+    legendItems = legendItems.sort(
+      sortLegendItems.bind(
+        this,
+        configStore.groupKey,
+        configStore.dnaOrAa,
+        configStore.coordinateMode
+      )
+    );
     if (refItem !== undefined) {
       legendItems.unshift(refItem);
     }
