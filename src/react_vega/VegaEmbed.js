@@ -343,7 +343,6 @@ const VegaEmbed = forwardRef(
           view.height(height);
         }
         view.run();
-        console.log(view.getState());
       });
     }, [width, height]);
 
