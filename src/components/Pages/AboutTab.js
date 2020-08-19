@@ -108,13 +108,13 @@ const AboutTab = () => {
                 <img src={VELogo} height="40"></img>
               </ExternalLink>
               <VELogoText>Vector Engineering Lab</VELogoText>
-              <ExternalLink href="https://www.broadinstitute.org/">
+              {/* <ExternalLink href="https://www.broadinstitute.org/">
                 <img
                   src={BroadLogo}
                   height="40"
                   style={{ marginLeft: '20px' }}
                 ></img>
-              </ExternalLink>
+              </ExternalLink> */}
             </ImageRow>
             <ImageRow>
               {/* <ExternalLink href="https://www.broadinstitute.org/stanley">
