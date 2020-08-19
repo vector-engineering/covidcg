@@ -32,7 +32,8 @@ import SkeletonElement from '../Common/SkeletonElement';
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
 import GlobalLineagesImage from '../../assets/analysis_screens/global_lineages.png';
-import XinfadiImage from '../../assets/analysis_screens/xinfadi.png';
+// import XinfadiImage from '../../assets/analysis_screens/xinfadi.png';
+import IcelandImage from '../../assets/analysis_screens/iceland.png';
 import D614GWestCoastImage from '../../assets/analysis_screens/d614g_west_coast.png';
 import D614GUSStatesImage from '../../assets/analysis_screens/d614g_us_states.png';
 import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
@@ -122,7 +123,12 @@ const NorthAmericaNode = getLocationByNameAndLevel(
   'region'
 )[0];
 const EuropeNode = getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0];
-const ChinaNode = getLocationByNameAndLevel(selectTree, 'China', 'country')[0];
+// const ChinaNode = getLocationByNameAndLevel(selectTree, 'China', 'country')[0];
+const IcelandNode = getLocationByNameAndLevel(
+  selectTree,
+  'Iceland',
+  'country'
+)[0];
 
 const WestCoastNodes = [
   getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
@@ -174,11 +180,34 @@ const exampleItems = [
       },
     },
   },
+  // {
+  //   title: 'Lineages in China - Beijing Xinfadi Market',
+  //   description:
+  //     "New lineages in uncovered in early June in Beijing's Xinfadi Market may have been circulating in China in March",
+  //   image: XinfadiImage,
+  //   settings: {
+  //     plotSettings: {
+  //       groupStackNormMode: NORM_MODES.NORM_COUNTS,
+  //       groupStackCountMode: COUNT_MODES.COUNT_NEW,
+  //       groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+  //     },
+  //     UI: {
+  //       activeTab: TABS.TAB_GROUP,
+  //     },
+  //     config: {
+  //       groupKey: GROUP_KEYS.GROUP_LINEAGE,
+  //       dnaOrAa: DNA_OR_AA.AA,
+  //       selectedGene: getGene('S'),
+  //       coordinateMode: COORDINATE_MODES.COORD_GENE,
+  //       selectedLocationNodes: [ChinaNode],
+  //     },
+  //   },
+  // },
   {
-    title: 'Lineages in China - Beijing Xinfadi Market',
+    title: 'Lineages in Iceland',
     description:
-      "New lineages in uncovered in early June in Beijing's Xinfadi Market may have been circulating in China in March",
-    image: XinfadiImage,
+      'Lineages sequenced in Iceland during the early stages of the pandemic',
+    image: IcelandImage,
     settings: {
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_COUNTS,
@@ -193,7 +222,7 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        selectedLocationNodes: [ChinaNode],
+        selectedLocationNodes: [IcelandNode],
       },
     },
   },
