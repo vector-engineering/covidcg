@@ -1,0 +1,14 @@
+Submit a build
+--------------
+
+  gcloud builds submit --tag gcr.io/[PROJECT-ID]/[IMAGE-NAME]
+
+Deploy a build
+--------------
+
+  gcloud run deploy --image gcr.io/[PROJECT-ID]/[IMAGE-NAME] --platform managed
+
+Update an existing service
+--------------------------
+
+  gcloud run deploy [SERVICE-NAME] --image gcr.io/[PROJECT-ID]/[IMAGE]

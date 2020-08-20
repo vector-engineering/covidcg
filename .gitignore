@@ -88,3 +88,10 @@ example_data/**
 
 cg_scripts/__pycache__/**
 cg_script_tests.py
+
+# Ignore data folder/links
+data/**
+data_link
+
+# Ignore server passwords
+server/htpasswd
