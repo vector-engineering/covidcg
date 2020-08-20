@@ -128,6 +128,7 @@ class ObservableDataStore {
     UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
+        totalSequenceCount: this.selectedAccessionIds.length,
         dataAggGroupDate: this.dataAggGroupDate,
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),

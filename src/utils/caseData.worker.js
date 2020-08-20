@@ -418,6 +418,7 @@ function processCaseData({
 // i.e., collapse the date field for cases, so we can display group-wise stats
 // in the data table
 function aggCaseDataByGroup({
+  totalSequenceCount,
   dataAggGroupDate,
   coordinateMode,
   coordinateRanges,
@@ -432,9 +433,7 @@ function aggCaseDataByGroup({
   const groupCountObj = {};
   dataAggGroupDate.forEach((row) => {
     if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
-    else {
-      groupCountObj[row.group] = row.cases_sum;
-    }
+    else groupCountObj[row.group] = row.cases_sum;
   });
 
   let groupCountArr = Object.entries(groupCountObj);
@@ -453,7 +452,6 @@ function aggCaseDataByGroup({
 
   // Aggregate case data by clade only (no dates)
   let dataAggGroup = {};
-  let totalCaseCount = 0;
 
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
@@ -464,15 +462,13 @@ function aggCaseDataByGroup({
       dataAggGroup[row.group]['cases_sum'] = 0;
     }
     dataAggGroup[row.group]['cases_sum'] += row.cases_sum;
-    // Add to total case count
-    totalCaseCount += row.cases_sum;
   });
 
   // Calculate percentages for cases
   // TODO: calculate growth rates
   Object.keys(dataAggGroup).forEach((row) => {
     dataAggGroup[row]['cases_percent'] =
-      dataAggGroup[row]['cases_sum'] / totalCaseCount;
+      dataAggGroup[row]['cases_sum'] / totalSequenceCount;
   });
 
   // We need a list of 0-indexed positions for the data table
