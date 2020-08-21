@@ -14,12 +14,7 @@ import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { REFERENCE_GROUP } from '../constants/groups';
-import {
-  warmColors,
-  coolColors,
-  snpColorArray,
-  cladeColorArray,
-} from '../constants/colors';
+import { getLineageColor, getCladeColor, getSnvColor } from './color';
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -34,48 +29,6 @@ const processedCaseData = _.reject(
     );
   }
 );
-
-let coolColorInd = 0;
-let warmColorInd = 0;
-const getLineageColor = _.memoize((group) => {
-  let color;
-  if (group.charAt(0) === 'A') {
-    color = warmColors[warmColorInd++];
-
-    if (warmColorInd === warmColors.length) {
-      warmColorInd = 0;
-    }
-  } else if (group.charAt(0) === 'B') {
-    color = coolColors[coolColorInd++];
-
-    if (coolColorInd === coolColors.length) {
-      coolColorInd = 0;
-    }
-  }
-  return color;
-});
-
-let snpColorInd = 0;
-const getSnpColor = _.memoize(() => {
-  const color = snpColorArray[snpColorInd++];
-
-  if (snpColorInd === snpColorArray.length) {
-    snpColorInd = 0;
-  }
-
-  return color;
-});
-
-let cladeColorInd = 0;
-const getCladeColor = _.memoize(() => {
-  const color = cladeColorArray[cladeColorInd++];
-  // If we're at the end, then loop back to the beginning
-  if (cladeColorInd === cladeColorArray.length) {
-    cladeColorInd = 0;
-  }
-
-  return color;
-});
 
 function convertToObj(list) {
   const obj = {};
@@ -257,6 +210,7 @@ function processCaseData({
   selectedMetadataFields,
   ageRange,
   dateRange,
+  selectedGroups,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
@@ -362,7 +316,7 @@ function processCaseData({
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnpColor;
+    getColorMethod = getSnvColor;
   }
 
   // Trigger the memoized color function for these items in order,
@@ -375,13 +329,13 @@ function processCaseData({
       getColorMethod(group);
     });
 
-  const aggCaseDataList = [];
+  const dataAggLocationGroupDate = [];
   Object.keys(aggCaseData).forEach((location) => {
     const dates = Object.keys(aggCaseData[location]);
     dates.forEach((date) => {
       groupKeys = Object.keys(aggCaseData[location][date]);
       groupKeys.forEach((group) => {
-        aggCaseDataList.push({
+        dataAggLocationGroupDate.push({
           location: location,
           date: parseInt(date),
           group: group,
@@ -404,7 +358,8 @@ function processCaseData({
   const selectedRowsHash = hashCode(selectedAccessionIds.join(''));
 
   return {
-    aggCaseDataList,
+    filteredCaseData: caseData,
+    dataAggLocationGroupDate,
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
     metadataCountsAfterFiltering,
@@ -430,6 +385,15 @@ function aggCaseDataByGroup({
 }) {
   // console.log(dateRange);
 
+  let getColorMethod;
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
+    getColorMethod = getLineageColor;
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
+    getColorMethod = getCladeColor;
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    getColorMethod = getSnvColor;
+  }
+
   const groupCountObj = {};
   dataAggGroupDate.forEach((row) => {
     if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
@@ -437,6 +401,9 @@ function aggCaseDataByGroup({
   });
 
   let groupCountArr = Object.entries(groupCountObj);
+  groupCountArr.forEach((item) => {
+    item.push(getColorMethod(item[0]));
+  });
 
   // this will sort it so that 0 is the biggest
   groupCountArr.sort((a, b) => {
@@ -703,15 +670,6 @@ function aggCaseDataByGroup({
       dataAggGroup[group]['pos_' + pos.toString()] = alt_base;
     });
   });
-
-  let getColorMethod;
-  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = getLineageColor;
-  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = getCladeColor;
-  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnpColor;
-  }
 
   // Object -> List of records
   Object.keys(dataAggGroup).forEach((group) => {

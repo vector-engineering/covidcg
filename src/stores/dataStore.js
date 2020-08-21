@@ -3,6 +3,7 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
+import { processSelectedSnvs } from '../utils/snpDataWorkerWrapper';
 import {
   downloadAccessionIdsData,
   downloadAcknowledgementsData,
@@ -25,6 +26,7 @@ import { getGlobalGroupCounts } from '../utils/globalCounts';
 const globalGroupCounts = getGlobalGroupCounts();
 
 export const initialDataValues = {
+  filteredCaseData: [],
   dataAggLocationGroupDate: [],
   dataAggGroupDate: [],
   dataAggGroup: [],
@@ -44,6 +46,7 @@ export const initialDataValues = {
 };
 
 class ObservableDataStore {
+  filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
@@ -198,9 +201,11 @@ class ObservableDataStore {
         ),
         ageRange: toJS(configStoreInstance.ageRange),
         dateRange: toJS(configStoreInstance.dateRange),
+        selectedGroups: toJS(configStoreInstance.selectedGroups),
       },
       ({
-        aggCaseDataList,
+        filteredCaseData,
+        dataAggLocationGroupDate,
         metadataCounts,
         metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
@@ -208,9 +213,10 @@ class ObservableDataStore {
         selectedAccessionIds,
         selectedAckIds,
       }) => {
-        this.dataAggLocationGroupDate = aggCaseDataList;
+        this.filteredCaseData = filteredCaseData;
+        this.dataAggLocationGroupDate = dataAggLocationGroupDate;
         this.dataAggGroupDate = aggregate({
-          data: aggCaseDataList,
+          data: dataAggLocationGroupDate,
           groupby: ['date', 'group'],
           fields: ['cases_sum', 'color'],
           ops: ['sum', 'max'],
@@ -225,7 +231,26 @@ class ObservableDataStore {
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
 
+        this.processSelectedSnvs();
         this.updateAggCaseDataByGroup(callback);
+      }
+    );
+  }
+
+  @action
+  processSelectedSnvs() {
+    processSelectedSnvs(
+      {
+        dnaOrAa: toJS(configStoreInstance.dnaOrAa),
+        coordinateMode: toJS(configStoreInstance.coordinateMode),
+        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
+        filteredCaseData: this.filteredCaseData,
+        selectedGroups: toJS(configStoreInstance.selectedGroups).map(
+          (item) => item.group
+        ),
+      },
+      (res) => {
+        console.log(res);
       }
     );
   }

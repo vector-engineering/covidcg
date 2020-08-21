@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { toJS } from 'mobx';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
@@ -9,7 +10,13 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { GROUP_KEYS } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import {
+  dnaSnpToInt,
+  geneAaSnpToInt,
+  proteinAaSnpToInt,
+} from '../../utils/snpData';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -171,7 +178,6 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update internal selected groups copy
   useEffect(() => {
-    // console.log('Update selectedGroups');
     setState({
       ...state,
       data: {
@@ -351,6 +357,8 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
+            detailHeight:
+              configStore.groupKey === GROUP_KEYS.GROUP_SNV ? 0 : 280,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,
             dateBin,
@@ -363,6 +371,7 @@ const GroupStackPlot = observer(({ width }) => {
           }}
           cheapSignals={['hoverBar']}
           width={width}
+          height={configStore.groupKey === GROUP_KEYS.GROUP_SNV ? 60 : 380}
           actions={false}
         />
       </div>

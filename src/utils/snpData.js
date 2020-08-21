@@ -91,3 +91,13 @@ export function intToProteinAaSnp(aaSnpId) {
   }
   return intToProteinAaSnpMap[aaSnpId];
 }
+
+export function dnaSnpToInt(dnaSnp) {
+  return dnaSnpMap[dnaSnp];
+}
+export function geneAaSnpToInt(geneAaSnp) {
+  return geneAaSnpMap[geneAaSnp];
+}
+export function proteinAaSnpToInt(proteinAaSnp) {
+  return proteinAaSnpMap[proteinAaSnp];
+}

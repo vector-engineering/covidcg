@@ -14,6 +14,7 @@ import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
+import EntropyPlot from '../Vega/EntropyPlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_KEYS } from '../../constants/config';
@@ -37,6 +38,22 @@ const HelpText = styled.div`
 
 const GroupTab = observer(({ width }) => {
   const { configStore } = useStores();
+
+  const renderEntropyPlot = () => {
+    return (
+      <AccordionWrapper
+        title={
+          <AccordionTitle>
+            <span>Entropy Plot</span>
+          </AccordionTitle>
+        }
+        defaultCollapsed={false}
+        maxHeight={'1200px'}
+      >
+        <EntropyPlot width={width - 150} />
+      </AccordionWrapper>
+    );
+  };
 
   return (
     <GroupTabContainer>
@@ -69,6 +86,7 @@ const GroupTab = observer(({ width }) => {
         </HelpText>
         <VegaLegend />
       </AccordionWrapper>
+      {renderEntropyPlot()}
       <AccordionWrapper
         title={
           <AccordionTitle>
@@ -92,7 +110,7 @@ const GroupTab = observer(({ width }) => {
           </p>
         </HelpText>
         <VegaStackedBars width={width - 150} />
-        <LocationGroupPlot width={width - 250} />
+        {/* <LocationGroupPlot width={width - 250} /> */}
       </AccordionWrapper>
       {/*configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
         <VegaTree width={width} data={dataStore.caseDataAggGroup} />

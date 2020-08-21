@@ -1,0 +1,211 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic bar chart example, with value labels shown upon mouse hover.",
+  "width": 700,
+  "height": 150,
+  "padding": 5,
+
+  "signals": [
+    { "name": "posField", "value": 1 },
+    { "name": "rectWidth", "update": "invert('xscale', invert('xscale', 0) + max(span(range('xscale')) / 200, 5))" },
+    { "name": "xLabel", "value": "S Gene (AA)" },
+    { "name": "yLabel", "value": "# SNVs" },
+    { 
+      "name": "hoverGroup", "value": null,
+      "on": [
+        {
+          "events": "@entropybars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@entropybars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "clear", "value": true,
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift", "value": false,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "event.shiftKey",
+          "force":  true
+        }
+      ]
+    },
+    {
+      "name": "clicked", "value": null,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "{group: datum.snv}",
+          "force":  true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "table",
+      "values": [["S|614|D|G",982,"#cc3311"],["Reference",77,"#0077bb"],["S|5|L|F",8,"#ee7733"],["S|145|Y|H",6,"#aa4499"],["S|98|S|F",3,"#cc6677"],["S|812|P|L",3,"#ee7733"],["S|655|H|Y",2,"#44aa99"],["S|583|E|D",2,"#009988"],["S|243|A|S",2,"#cc3311"],["S|631|P|S",2,"#332288"],["S|323|T|I",2,"#44aa99"],["S|384|P|S",2,"#999933"],["S|647|A|S",2,"#88ccee"],["S|215|D|Y",2,"#ee7733"],["S|1101|H|Y",2,"#009988"],["S|1104|V|L",1,"#ee7733"],["S|618|T|I",1,"#ee3377"],["S|153|M|V",1,"#0077bb"],["S|483|V|F",1,"#ddcc77"],["S|845|A|S",1,"#332288"],["S|27|A|V",1,"#332288"],["S|1020|A|S",1,"#33bbee"],["S|1176|V|F",1,"#88ccee"],["S|90|V|F",1,"#88ccee"],["S|679|N|K",1,"#ddcc77"],["S|83|V|F",1,"#ee3377"],["S|1162|P|L",1,"#ee3377"],["S|778|T|I",1,"#0077bb"],["S|67|A|V",1,"#cc6677"],["S|80|D|N",1,"#009988"],["S|522|A|S",1,"#aa4499"],["S|1248|C|F",1,"#ddcc77"],["S|1203|L|F",1,"#117733"],["S|1252|S|F",1,"#cc6677"],["S|214|R|L",1,"#009988"],["S|1237|M|I",1,"#999933"],["S|520|A|S",1,"#882255"],["S|950|D|H",1,"#999933"],["S|127|V|F",1,"#882255"],["S|677|Q|H",1,"#999933"],["S|680|S|F",1,"#882255"],["S|309|E|Q",1,"#88ccee"],["S|554|E|D",1,"#33bbee"],["S|1133|V|F",1,"#cc3311"],["S|359|S|N",1,"#117733"],["S|181|G|V",1,"#33bbee"],["S|94|S|F",1,"#117733"],["S|54|L|F",1,"#0077bb"],["S|1191|K|N",1,"#44aa99"],["S|809|P|S",1,"#33bbee"],["S|501|N|Y",1,"#cc6677"],["S|253|D|G",1,"#ee3377"],["S|659|S|L",1,"#117733"],["S|769|G|V",1,"#aa4499"],["S|95|T|I",1,"#ddcc77"],["S|1163|D|Y",1,"#332288"],["S|830|D|G",1,"#cc3311"],["S|941|T|I",1,"#44aa99"]],
+      "format": {
+        "type": "json",
+        "parse": {
+          "0": "string",
+          "1": "number",
+          "2": "string"
+        }
+      },
+      "transform": [
+        {
+          "type": "project",
+          "fields": ["0", "1", "2"],
+          "as": ["snv", "count", "color"]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.snv !== 'Reference'"
+        },
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "as": "pos"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "values": [
+        {"group": "S|614|D|G"}
+      ],
+      "on": [
+        {"trigger": "clear", "remove": true},
+        {"trigger": "!shift", "remove": true},
+        {"trigger": "!shift && clicked", "insert": "clicked"},
+        {"trigger": "shift && clicked", "toggle": "clicked"}
+      ],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.group, '|')[1])",
+          "as": "pos"
+        },
+        {
+          "type": "lookup",
+          "from": "table",
+          "key": "snv",
+          "values": ["color"],
+          "fields": ["group"],
+          "as": ["color"]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "linear",
+      "domain": {"data": "table", "field": "pos"},
+      "range": "width",
+      "padding": 0.05,
+      "round": true
+    },
+    {
+      "name": "yscale",
+      "type": "linear",
+      "domain": {"data": "table", "field": "count"},
+      "range": "height"
+    }
+  ],
+
+  "axes": [
+    { 
+      "orient": "bottom", 
+      "scale": "xscale",
+      "format": "d",
+      "title": {"signal": "xLabel"}
+    },
+    { 
+      "orient": "left", 
+      "scale": "yscale",
+      "title": {"signal": "yLabel"}
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": {"signal": "width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "marks": [
+        {
+          "name": "entropymark",
+          "type": "rule",
+          "from": {"data": "selected"},
+          "encode": {
+            "enter": {
+              "zindex": {"value": 1}
+            },
+            "update": {
+              "x": {"scale": "xscale", "field": "pos"},
+              "x2": {"scale": "xscale", "field": "pos"},
+              "y": {"value": 0},
+              "y2": {"signal": "height"},
+              "stroke": {"field": "color"}
+            }
+          }
+        },
+        {
+          "name": "entropybars",
+          "type": "rect",
+          "from": {"data":"table"},
+          "encode": {
+            "enter": {
+              "stroke": {"value": "#000"}
+            },
+            "update": {
+              "xc": {"scale": "xscale", "field": "pos"},
+              "width": {"scale": "xscale", "signal": "rectWidth"},
+              "y": {"scale": "yscale", "field": "count"},
+              "y2": {"scale": "yscale", "value": 0},
+              "tooltip": {
+                "signal": "{title: datum.snv, 'Count': datum.count}"
+              },
+              "fill": {"field": "color"},
+              "strokeWidth": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 1
+                },
+                {"value": 0}
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 3
+                },
+                {"value": 2}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -395,6 +395,7 @@ class ObservableConfigStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
+    dataStoreInstance.processSelectedSnvs();
   }
 
   @action
