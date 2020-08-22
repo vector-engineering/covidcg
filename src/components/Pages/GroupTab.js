@@ -44,7 +44,7 @@ const GroupTab = observer(({ width }) => {
       <AccordionWrapper
         title={
           <AccordionTitle>
-            <span>Entropy Plot</span>
+            <span>SNV Frequencies</span>
           </AccordionTitle>
         }
         defaultCollapsed={false}

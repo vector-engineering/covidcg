@@ -9,6 +9,7 @@ import _ from 'underscore';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
+import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
 
 const PlotContainer = styled.div``;
 
@@ -29,14 +30,20 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const handleSelected = (...args) => {
+    // console.log(args[1], toJS(configStore.selectedGroups));
+    const curSelectedGroups = args[1].map((item) => {
+      return { group: item.group };
+    });
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.selectedGroups)) {
+    if (_.isEqual(curSelectedGroups, configStore.selectedGroups)) {
       return;
+    } else {
+      configStore.updateSelectedGroups(curSelectedGroups);
     }
-    configStore.updateSelectedGroups(args[1]);
   };
 
   const [state, setState] = useState({
+    xRange: [0, 100],
     data: {
       table: processData(dataStore.groupCountArr),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
@@ -50,8 +57,41 @@ const EntropyPlot = observer(({ width }) => {
   });
 
   useEffect(() => {
+    // Apply xRange
+    let xRange;
+    if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+      const coordRanges = toJS(configStore.getCoordinateRanges());
+      xRange = [
+        coordRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
+        coordRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
+      ];
+    } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+      // Get the extent of the selected gene/protein
+      let residueRanges;
+      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        residueRanges = configStore.selectedGene.ranges;
+      } else if (
+        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        residueRanges = configStore.selectedProtein.ranges;
+      }
+      // Convert NT indices to AA residue indices
+      const startNTInd = residueRanges.reduce(
+        (memo, rng) => Math.min(...rng, memo),
+        30000
+      );
+      residueRanges = residueRanges.map((rng) =>
+        rng.map((ind) => (ind - startNTInd) / 3)
+      );
+      xRange = [
+        residueRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
+        residueRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
+      ];
+    }
+
     setState({
       ...state,
+      xRange,
       data: {
         ...state.data,
         table: processData(dataStore.groupCountArr),
@@ -70,6 +110,20 @@ const EntropyPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
+  // Generate x-axis title
+  let xLabel = 'WIV04';
+  if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    xLabel += ', ' + configStore.selectedGene.gene + ' Gene';
+  } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+    xLabel += ', ' + configStore.selectedProtein.protein + ' Protein';
+  }
+
+  if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+    xLabel += ' (NT)';
+  } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+    xLabel += ' (AA residue)';
+  }
+
   return (
     <PlotContainer>
       <VegaEmbed
@@ -77,8 +131,10 @@ const EntropyPlot = observer(({ width }) => {
         data={state.data}
         width={width}
         signals={{
-          xLabel: configStore.coordinateMode,
+          xLabel,
+          xRange: state.xRange,
           hoverGroup: { group: configStore.hoverGroup },
+          posField: configStore.dnaOrAa === DNA_OR_AA.DNA ? 0 : 1,
         }}
         signalListeners={state.signalListeners}
         dataListeners={state.dataListeners}
