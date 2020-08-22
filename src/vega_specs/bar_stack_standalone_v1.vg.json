@@ -6,105 +6,12 @@
   "height": 380,
   "padding": 5,
 
-  "data": [
-    {
-      "name": "cases_by_date_and_group",
-      "comment": "Main data object, same as caseData in store",
-      "format": {
-        "parse": {
-          "group": "string",
-          "cases_sum": "number",
-          "date": "date:'%Q'"
-        }
-      },
-      "values": [{"group":"B.1","date":1584316800000,"cases_sum":37,"color":"#007a81"},{"group":"B.1","date":1584403200000,"cases_sum":43,"color":"#007a81"},{"group":"B.1","date":1584144000000,"cases_sum":10,"color":"#007a81"},{"group":"B.1","date":1584230400000,"cases_sum":28,"color":"#007a81"},{"group":"B.1","date":1584489600000,"cases_sum":81,"color":"#007a81"},{"group":"B.1","date":1584576000000,"cases_sum":51,"color":"#007a81"},{"group":"B.1","date":1584057600000,"cases_sum":19,"color":"#007a81"},{"group":"B.1","date":1584748800000,"cases_sum":25,"color":"#007a81"},{"group":"B.1","date":1584662400000,"cases_sum":42,"color":"#007a81"},{"group":"B.1","date":1584835200000,"cases_sum":11,"color":"#007a81"},{"group":"B.1","date":1585612800000,"cases_sum":5,"color":"#007a81"},{"group":"B.1","date":1585699200000,"cases_sum":49,"color":"#007a81"},{"group":"B.1","date":1583625600000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1585872000000,"cases_sum":26,"color":"#007a81"},{"group":"B.1","date":1583971200000,"cases_sum":11,"color":"#007a81"},{"group":"B.1","date":1586131200000,"cases_sum":18,"color":"#007a81"},{"group":"B.1","date":1586044800000,"cases_sum":19,"color":"#007a81"},{"group":"B.1","date":1585785600000,"cases_sum":22,"color":"#007a81"},{"group":"B.1","date":1585958400000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1586476800000,"cases_sum":9,"color":"#007a81"},{"group":"B.1","date":1585526400000,"cases_sum":62,"color":"#007a81"},{"group":"B.1","date":1586736000000,"cases_sum":9,"color":"#007a81"},{"group":"B.1","date":1586304000000,"cases_sum":18,"color":"#007a81"},{"group":"B.1","date":1586217600000,"cases_sum":5,"color":"#007a81"},{"group":"B.1","date":1586390400000,"cases_sum":6,"color":"#007a81"},{"group":"B.1","date":1586649600000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1587513600000,"cases_sum":4,"color":"#007a81"},{"group":"B.1","date":1587340800000,"cases_sum":11,"color":"#007a81"},{"group":"B.1","date":1586822400000,"cases_sum":2,"color":"#007a81"},{"group":"B.1","date":1587427200000,"cases_sum":5,"color":"#007a81"},{"group":"B.1","date":1587686400000,"cases_sum":2,"color":"#007a81"},{"group":"B.1","date":1586908800000,"cases_sum":5,"color":"#007a81"},{"group":"B.1","date":1586995200000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1583712000000,"cases_sum":7,"color":"#007a81"},{"group":"B.1","date":1583798400000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1585440000000,"cases_sum":4,"color":"#007a81"},{"group":"B.1","date":1585008000000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1583884800000,"cases_sum":2,"color":"#007a81"},{"group":"B.1","date":1583280000000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1585180800000,"cases_sum":19,"color":"#007a81"},{"group":"B.1","date":1585267200000,"cases_sum":15,"color":"#007a81"},{"group":"B.1","date":1585094400000,"cases_sum":11,"color":"#007a81"},{"group":"B.1","date":1587772800000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1587081600000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1588464000000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1588896000000,"cases_sum":4,"color":"#007a81"},{"group":"B.1","date":1588204800000,"cases_sum":3,"color":"#007a81"},{"group":"B.1","date":1589068800000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1588032000000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1588982400000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1587859200000,"cases_sum":2,"color":"#007a81"},{"group":"B.1","date":1587945600000,"cases_sum":1,"color":"#007a81"},{"group":"B.1","date":1588809600000,"cases_sum":2,"color":"#007a81"},{"group":"B.1.3","date":1584403200000,"cases_sum":10,"color":"#038060"},{"group":"B.1.3","date":1584489600000,"cases_sum":27,"color":"#038060"},{"group":"B.1.3","date":1584576000000,"cases_sum":11,"color":"#038060"},{"group":"B.1.3","date":1584144000000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1584316800000,"cases_sum":7,"color":"#038060"},{"group":"B.1.3","date":1584748800000,"cases_sum":5,"color":"#038060"},{"group":"B.1.3","date":1584835200000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1584662400000,"cases_sum":8,"color":"#038060"},{"group":"B.1.3","date":1585699200000,"cases_sum":15,"color":"#038060"},{"group":"B.1.3","date":1585872000000,"cases_sum":5,"color":"#038060"},{"group":"B.1.3","date":1584230400000,"cases_sum":4,"color":"#038060"},{"group":"B.1.3","date":1585526400000,"cases_sum":10,"color":"#038060"},{"group":"B.1.3","date":1586131200000,"cases_sum":4,"color":"#038060"},{"group":"B.1.3","date":1586044800000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1585958400000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1586304000000,"cases_sum":3,"color":"#038060"},{"group":"B.1.3","date":1585612800000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1586217600000,"cases_sum":2,"color":"#038060"},{"group":"B.1.3","date":1586390400000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1586476800000,"cases_sum":4,"color":"#038060"},{"group":"B.1.3","date":1586736000000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1586995200000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1586908800000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1587340800000,"cases_sum":5,"color":"#038060"},{"group":"B.1.3","date":1583366400000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1583712000000,"cases_sum":2,"color":"#038060"},{"group":"B.1.3","date":1583798400000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1585440000000,"cases_sum":3,"color":"#038060"},{"group":"B.1.3","date":1585785600000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1584057600000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1583971200000,"cases_sum":1,"color":"#038060"},{"group":"B.1.3","date":1585180800000,"cases_sum":2,"color":"#038060"},{"group":"B.1.3","date":1585267200000,"cases_sum":2,"color":"#038060"},{"group":"B.1.3","date":1585094400000,"cases_sum":4,"color":"#038060"},{"group":"B.1.3","date":1587859200000,"cases_sum":1,"color":"#038060"},{"group":"B.2.1","date":1584403200000,"cases_sum":1,"color":"#069471"},{"group":"B.2.1","date":1584489600000,"cases_sum":1,"color":"#069471"},{"group":"A","date":1584489600000,"cases_sum":3,"color":"#821b2a"},{"group":"A","date":1584144000000,"cases_sum":1,"color":"#821b2a"},{"group":"A","date":1584748800000,"cases_sum":1,"color":"#821b2a"},{"group":"A","date":1584057600000,"cases_sum":1,"color":"#821b2a"},{"group":"A","date":1585526400000,"cases_sum":1,"color":"#821b2a"},{"group":"A","date":1583971200000,"cases_sum":1,"color":"#821b2a"},{"group":"A","date":1584576000000,"cases_sum":1,"color":"#821b2a"},{"group":"B.2","date":1584489600000,"cases_sum":6,"color":"#008f96"},{"group":"B.2","date":1584403200000,"cases_sum":6,"color":"#008f96"},{"group":"B.2","date":1584316800000,"cases_sum":5,"color":"#008f96"},{"group":"B.2","date":1584662400000,"cases_sum":4,"color":"#008f96"},{"group":"B.2","date":1585699200000,"cases_sum":2,"color":"#008f96"},{"group":"B.2","date":1585872000000,"cases_sum":3,"color":"#008f96"},{"group":"B.2","date":1584057600000,"cases_sum":2,"color":"#008f96"},{"group":"B.2","date":1584230400000,"cases_sum":1,"color":"#008f96"},{"group":"B.2","date":1586131200000,"cases_sum":1,"color":"#008f96"},{"group":"B.2","date":1585526400000,"cases_sum":1,"color":"#008f96"},{"group":"B.2","date":1583712000000,"cases_sum":5,"color":"#008f96"},{"group":"B.2","date":1584576000000,"cases_sum":3,"color":"#008f96"},{"group":"B.2","date":1584748800000,"cases_sum":1,"color":"#008f96"},{"group":"B.2","date":1585180800000,"cases_sum":1,"color":"#008f96"},{"group":"B.1.26","date":1584489600000,"cases_sum":3,"color":"#08a982"},{"group":"B.1.26","date":1584230400000,"cases_sum":1,"color":"#08a982"},{"group":"B.1.26","date":1586131200000,"cases_sum":1,"color":"#08a982"},{"group":"B.1.26","date":1585526400000,"cases_sum":5,"color":"#08a982"},{"group":"B.1.26","date":1586736000000,"cases_sum":1,"color":"#08a982"},{"group":"B.1.26","date":1584403200000,"cases_sum":1,"color":"#08a982"},{"group":"B.1.26","date":1585785600000,"cases_sum":1,"color":"#08a982"},{"group":"B.1.26","date":1585180800000,"cases_sum":2,"color":"#08a982"},{"group":"B.1.1","date":1584576000000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1584489600000,"cases_sum":4,"color":"#0abe94"},{"group":"B.1.1","date":1583884800000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1584144000000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1584662400000,"cases_sum":4,"color":"#0abe94"},{"group":"B.1.1","date":1584835200000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1585699200000,"cases_sum":3,"color":"#0abe94"},{"group":"B.1.1","date":1585872000000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1584230400000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1584316800000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1586304000000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1586563200000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1586736000000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1586908800000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1585526400000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1585612800000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1585785600000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1583971200000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1584057600000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1585440000000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1585180800000,"cases_sum":2,"color":"#0abe94"},{"group":"B.1.1","date":1585094400000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1587686400000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1","date":1587945600000,"cases_sum":1,"color":"#0abe94"},{"group":"B.1.1.9","date":1584489600000,"cases_sum":1,"color":"#1b8018"},{"group":"B.1.1.9","date":1584576000000,"cases_sum":1,"color":"#1b8018"},{"group":"A.1","date":1584403200000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1584489600000,"cases_sum":3,"color":"#f45455"},{"group":"A.1","date":1583971200000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1584057600000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1584144000000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1583280000000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1583712000000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1585526400000,"cases_sum":2,"color":"#f45455"},{"group":"A.1","date":1583884800000,"cases_sum":2,"color":"#f45455"},{"group":"A.1","date":1584576000000,"cases_sum":1,"color":"#f45455"},{"group":"A.1","date":1584662400000,"cases_sum":1,"color":"#f45455"},{"group":"A.5","date":1584489600000,"cases_sum":1,"color":"#e9494c"},{"group":"B.1.p2","date":1584489600000,"cases_sum":1,"color":"#0ad3a7"},{"group":"B.1.p2","date":1585699200000,"cases_sum":1,"color":"#0ad3a7"},{"group":"A.2","date":1584662400000,"cases_sum":1,"color":"#de3e42"},{"group":"B.1.29","date":1584748800000,"cases_sum":1,"color":"#07e9ba"},{"group":"B.1.29","date":1584230400000,"cases_sum":2,"color":"#07e9ba"},{"group":"B.1.29","date":1586131200000,"cases_sum":1,"color":"#07e9ba"},{"group":"B.1.29","date":1586304000000,"cases_sum":1,"color":"#07e9ba"},{"group":"B.1.1.1","date":1585699200000,"cases_sum":1,"color":"#2a9424"},{"group":"A.3","date":1584316800000,"cases_sum":1,"color":"#d4333a"},{"group":"A.3","date":1585526400000,"cases_sum":1,"color":"#d4333a"},{"group":"A.3","date":1584576000000,"cases_sum":1,"color":"#d4333a"},{"group":"A.3","date":1588204800000,"cases_sum":1,"color":"#d4333a"},{"group":"B","date":1585526400000,"cases_sum":2,"color":"#006386"},{"group":"B","date":1583107200000,"cases_sum":1,"color":"#006386"},{"group":"B","date":1583712000000,"cases_sum":2,"color":"#006386"},{"group":"B","date":1584403200000,"cases_sum":1,"color":"#006386"},{"group":"B.1.5","date":1585872000000,"cases_sum":1,"color":"#00ffce"},{"group":"B.1.5","date":1583971200000,"cases_sum":1,"color":"#00ffce"},{"group":"B.1.5","date":1585267200000,"cases_sum":1,"color":"#00ffce"},{"group":"B.1.5","date":1584489600000,"cases_sum":1,"color":"#00ffce"},{"group":"B.1.41","date":1586131200000,"cases_sum":1,"color":"#006d51"}],
-      "transform": [
-        {
-            "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
-            "type": "joinaggregate",
-            "ops": ["sum"],
-            "fields": ["cases_sum"],
-            "as": ["group_counts"],
-            "groupby": ["group"]
-          },
-        {
-          "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
-          "type": "bin",
-          "field": "date",
-          "extent": [{"signal": "dateRangeStart"}, {"signal": "dateRangeEnd"}],
-          "step": {"signal": "dateBin"},
-          "as": ["day_start", "day_end"]
-        },
-        {
-          "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
-          "type": "aggregate",
-          "groupby": ["group", "day_start", "day_end"],
-          "fields": ["cases_sum", "group_counts", "color"],
-          "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "group_counts", "color"]
-        },
-        {
-          "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
-          "type": "impute",
-          "field": "cases_sum",
-          "key": "day_start",
-          "groupby": ["group", "color", "group_counts"],
-          "value": 0
-        },
-        {
-          "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
-          "type": "formula",
-          "expr": "datum.day_start + dateBin",
-          "as": "day_end"
-        },
-        {
-          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
-          "type": "window",
-          "sort": {"field": "day_start"},
-          "groupby": ["group"],
-          "ops": ["sum"],
-          "fields": ["cases_sum"],
-          "as": ["cases_sum_new"],
-          "frame": {"signal": "cumulativeWindow"}
-        },
-        {
-          "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
-          "type": "stack",
-          "groupby": ["day_start"],
-          "sort": {"field": "group"},
-          "field": "cases_sum_new",
-          "offset": {"signal": "stackOffset"}
-        }
-      ]
-    },
-    {
-      "name": "cases_by_date",
-      "source": "cases_by_date_and_group",
-      "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
-      "transform": [
-        {
-          "type": "aggregate",
-          "groupby": ["day_start", "day_end"],
-          "fields": ["cases_sum"],
-          "ops": ["sum"],
-          "as": ["cases_sum_by_date"]
-        }
-      ]
-    },
-    {
-      "name": "selected",
-      "comment": "A list of groups that are selected",
-      "on": [
-        {"trigger": "clear", "remove": true},
-        {"trigger": "!shift", "remove": true},
-        {"trigger": "!shift && clicked", "insert": "clicked"},
-        {"trigger": "shift && clicked", "toggle": "clicked"}
-      ]
-    }
-  ],
-
   "signals": [
-
+    { "name": "disableSelectionColoring", "value": true },
+    { "name": "detailHeight", "value": 280 },
+    { "name": "detailClip", "update": "detailHeight == 0" },
+    { "name": "overviewY", "update": "detailHeight == 0 ? 0 : detailHeight + 40" },
+    { "name": "overviewHeight", "value": 60 },
     {
       "name": "dateRangeStart", "value": 1575158400000,
       "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
@@ -194,6 +101,106 @@
     }
   ],
 
+  "data": [
+    {
+      "name": "selected",
+      "comment": "A list of groups that are selected",
+      "values": [
+        {"group": "S|614|D|G"}
+      ],
+      "on": [
+        {"trigger": "clear", "remove": true},
+        {"trigger": "!shift", "remove": true},
+        {"trigger": "!shift && clicked", "insert": "clicked"},
+        {"trigger": "shift && clicked", "toggle": "clicked"}
+      ]
+    },
+    {
+      "name": "cases_by_date_and_group",
+      "comment": "Main data object, same as caseData in store",
+      "format": {
+        "parse": {
+          "group": "string",
+          "cases_sum": "number",
+          "date": "date:'%Q'"
+        }
+      },
+      "values": [{"date":"1584316800000","group":"S|614|D|G","cases_sum":46,"color":"#cc3311"},{"date":"1584316800000","group":"S|145|Y|H","cases_sum":1,"color":"#aa4499"},{"date":"1584316800000","group":"Reference","cases_sum":6,"color":"#0077bb"},{"date":"1584316800000","group":"S|243|A|S","cases_sum":1,"color":"#cc3311"},{"date":"1584316800000","group":"S|1020|A|S","cases_sum":1,"color":"#33bbee"},{"date":"1584403200000","group":"S|614|D|G","cases_sum":54,"color":"#cc3311"},{"date":"1584403200000","group":"S|145|Y|H","cases_sum":1,"color":"#aa4499"},{"date":"1584403200000","group":"S|5|L|F","cases_sum":1,"color":"#ee7733"},{"date":"1584403200000","group":"Reference","cases_sum":7,"color":"#0077bb"},{"date":"1584403200000","group":"S|845|A|S","cases_sum":1,"color":"#332288"},{"date":"1584403200000","group":"S|27|A|V","cases_sum":1,"color":"#332288"},{"date":"1584144000000","group":"S|614|D|G","cases_sum":13,"color":"#cc3311"},{"date":"1584144000000","group":"S|655|H|Y","cases_sum":1,"color":"#44aa99"},{"date":"1584144000000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1584230400000","group":"S|614|D|G","cases_sum":36,"color":"#cc3311"},{"date":"1584230400000","group":"S|583|E|D","cases_sum":2,"color":"#009988"},{"date":"1584230400000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1584489600000","group":"Reference","cases_sum":13,"color":"#0077bb"},{"date":"1584489600000","group":"S|614|D|G","cases_sum":118,"color":"#cc3311"},{"date":"1584489600000","group":"S|1176|V|F","cases_sum":1,"color":"#88ccee"},{"date":"1584489600000","group":"S|631|P|S","cases_sum":1,"color":"#332288"},{"date":"1584489600000","group":"S|90|V|F","cases_sum":1,"color":"#88ccee"},{"date":"1584489600000","group":"S|679|N|K","cases_sum":1,"color":"#ddcc77"},{"date":"1584489600000","group":"S|5|L|F","cases_sum":1,"color":"#ee7733"},{"date":"1584489600000","group":"S|83|V|F","cases_sum":1,"color":"#ee3377"},{"date":"1584489600000","group":"S|243|A|S","cases_sum":1,"color":"#cc3311"},{"date":"1584489600000","group":"S|1162|P|L","cases_sum":1,"color":"#ee3377"},{"date":"1584489600000","group":"S|778|T|I","cases_sum":1,"color":"#0077bb"},{"date":"1584576000000","group":"S|614|D|G","cases_sum":64,"color":"#cc3311"},{"date":"1584576000000","group":"Reference","cases_sum":6,"color":"#0077bb"},{"date":"1584576000000","group":"S|67|A|V","cases_sum":1,"color":"#cc6677"},{"date":"1584576000000","group":"S|80|D|N","cases_sum":1,"color":"#009988"},{"date":"1584576000000","group":"S|145|Y|H","cases_sum":2,"color":"#aa4499"},{"date":"1583884800000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1583884800000","group":"Reference","cases_sum":2,"color":"#0077bb"},{"date":"1584057600000","group":"S|614|D|G","cases_sum":22,"color":"#cc3311"},{"date":"1584057600000","group":"Reference","cases_sum":4,"color":"#0077bb"},{"date":"1584748800000","group":"S|522|A|S","cases_sum":1,"color":"#aa4499"},{"date":"1584748800000","group":"S|614|D|G","cases_sum":31,"color":"#cc3311"},{"date":"1584748800000","group":"S|323|T|I","cases_sum":1,"color":"#44aa99"},{"date":"1584748800000","group":"S|1248|C|F","cases_sum":1,"color":"#ddcc77"},{"date":"1584748800000","group":"S|631|P|S","cases_sum":1,"color":"#332288"},{"date":"1584748800000","group":"Reference","cases_sum":2,"color":"#0077bb"},{"date":"1584662400000","group":"S|614|D|G","cases_sum":54,"color":"#cc3311"},{"date":"1584662400000","group":"Reference","cases_sum":6,"color":"#0077bb"},{"date":"1584662400000","group":"S|618|T|I","cases_sum":1,"color":"#ee3377"},{"date":"1584662400000","group":"S|153|M|V","cases_sum":1,"color":"#0077bb"},{"date":"1584835200000","group":"S|614|D|G","cases_sum":13,"color":"#cc3311"},{"date":"1585612800000","group":"S|614|D|G","cases_sum":7,"color":"#cc3311"},{"date":"1585612800000","group":"S|384|P|S","cases_sum":1,"color":"#999933"},{"date":"1585699200000","group":"S|5|L|F","cases_sum":2,"color":"#ee7733"},{"date":"1585699200000","group":"S|614|D|G","cases_sum":69,"color":"#cc3311"},{"date":"1585699200000","group":"Other","cases_sum":2,"color":"#aaa"},{"date":"1585699200000","group":"S|655|H|Y","cases_sum":1,"color":"#44aa99"},{"date":"1585699200000","group":"Reference","cases_sum":2,"color":"#0077bb"},{"date":"1583625600000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1585872000000","group":"S|614|D|G","cases_sum":34,"color":"#cc3311"},{"date":"1585872000000","group":"Reference","cases_sum":3,"color":"#0077bb"},{"date":"1585872000000","group":"Other","cases_sum":3,"color":"#aaa"},{"date":"1585872000000","group":"S|323|T|I","cases_sum":1,"color":"#44aa99"},{"date":"1583971200000","group":"S|614|D|G","cases_sum":14,"color":"#cc3311"},{"date":"1583971200000","group":"Reference","cases_sum":2,"color":"#0077bb"},{"date":"1585526400000","group":"S|614|D|G","cases_sum":78,"color":"#cc3311"},{"date":"1585526400000","group":"Reference","cases_sum":6,"color":"#0077bb"},{"date":"1585526400000","group":"S|145|Y|H","cases_sum":1,"color":"#aa4499"},{"date":"1585526400000","group":"S|5|L|F","cases_sum":2,"color":"#ee7733"},{"date":"1585526400000","group":"S|98|S|F","cases_sum":1,"color":"#cc6677"},{"date":"1585526400000","group":"Other","cases_sum":2,"color":"#aaa"},{"date":"1585526400000","group":"S|384|P|S","cases_sum":1,"color":"#999933"},{"date":"1586131200000","group":"S|614|D|G","cases_sum":25,"color":"#cc3311"},{"date":"1586131200000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1586044800000","group":"S|614|D|G","cases_sum":20,"color":"#cc3311"},{"date":"1586044800000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1586044800000","group":"S|98|S|F","cases_sum":1,"color":"#cc6677"},{"date":"1585785600000","group":"S|614|D|G","cases_sum":26,"color":"#cc3311"},{"date":"1585785600000","group":"S|812|P|L","cases_sum":1,"color":"#ee7733"},{"date":"1585785600000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1585958400000","group":"S|614|D|G","cases_sum":2,"color":"#cc3311"},{"date":"1586476800000","group":"S|614|D|G","cases_sum":13,"color":"#cc3311"},{"date":"1586476800000","group":"S|5|L|F","cases_sum":1,"color":"#ee7733"},{"date":"1586476800000","group":"Other","cases_sum":4,"color":"#aaa"},{"date":"1586476800000","group":"S|647|A|S","cases_sum":1,"color":"#88ccee"},{"date":"1586304000000","group":"S|614|D|G","cases_sum":23,"color":"#cc3311"},{"date":"1586304000000","group":"S|215|D|Y","cases_sum":1,"color":"#ee7733"},{"date":"1586736000000","group":"S|614|D|G","cases_sum":12,"color":"#cc3311"},{"date":"1586736000000","group":"S|98|S|F","cases_sum":1,"color":"#cc6677"},{"date":"1586736000000","group":"Other","cases_sum":3,"color":"#aaa"},{"date":"1586217600000","group":"S|614|D|G","cases_sum":7,"color":"#cc3311"},{"date":"1586390400000","group":"S|614|D|G","cases_sum":7,"color":"#cc3311"},{"date":"1586390400000","group":"S|215|D|Y","cases_sum":1,"color":"#ee7733"},{"date":"1586563200000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1586649600000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1587513600000","group":"S|614|D|G","cases_sum":4,"color":"#cc3311"},{"date":"1587513600000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1587340800000","group":"S|614|D|G","cases_sum":16,"color":"#cc3311"},{"date":"1587340800000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1586822400000","group":"S|614|D|G","cases_sum":2,"color":"#cc3311"},{"date":"1586995200000","group":"S|614|D|G","cases_sum":4,"color":"#cc3311"},{"date":"1587427200000","group":"S|614|D|G","cases_sum":5,"color":"#cc3311"},{"date":"1587427200000","group":"Other","cases_sum":2,"color":"#aaa"},{"date":"1586908800000","group":"S|614|D|G","cases_sum":7,"color":"#cc3311"},{"date":"1586908800000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1586908800000","group":"S|1101|H|Y","cases_sum":1,"color":"#009988"},{"date":"1587686400000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1587686400000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1583280000000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1583280000000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1583366400000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1583712000000","group":"Reference","cases_sum":6,"color":"#0077bb"},{"date":"1583712000000","group":"S|614|D|G","cases_sum":11,"color":"#cc3311"},{"date":"1583712000000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1583712000000","group":"S|812|P|L","cases_sum":2,"color":"#ee7733"},{"date":"1583107200000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1583798400000","group":"S|614|D|G","cases_sum":4,"color":"#cc3311"},{"date":"1585440000000","group":"S|145|Y|H","cases_sum":1,"color":"#aa4499"},{"date":"1585440000000","group":"S|614|D|G","cases_sum":8,"color":"#cc3311"},{"date":"1585008000000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1585180800000","group":"S|614|D|G","cases_sum":25,"color":"#cc3311"},{"date":"1585180800000","group":"S|647|A|S","cases_sum":1,"color":"#88ccee"},{"date":"1585180800000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1585180800000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1585267200000","group":"S|614|D|G","cases_sum":18,"color":"#cc3311"},{"date":"1585094400000","group":"S|614|D|G","cases_sum":16,"color":"#cc3311"},{"date":"1585094400000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1587772800000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1587081600000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1587945600000","group":"S|614|D|G","cases_sum":2,"color":"#cc3311"},{"date":"1588464000000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1588896000000","group":"S|614|D|G","cases_sum":4,"color":"#cc3311"},{"date":"1588896000000","group":"S|1101|H|Y","cases_sum":1,"color":"#009988"},{"date":"1588204800000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1588204800000","group":"Reference","cases_sum":1,"color":"#0077bb"},{"date":"1589068800000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1588032000000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1588982400000","group":"S|614|D|G","cases_sum":1,"color":"#cc3311"},{"date":"1587859200000","group":"S|614|D|G","cases_sum":3,"color":"#cc3311"},{"date":"1587859200000","group":"Other","cases_sum":1,"color":"#aaa"},{"date":"1588809600000","group":"S|614|D|G","cases_sum":2,"color":"#cc3311"}],
+      "transform": [
+        {
+          "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
+          "type": "joinaggregate",
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": ["group_counts"],
+          "groupby": ["group"]
+        },
+        {
+          "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
+          "type": "bin",
+          "field": "date",
+          "extent": [{"signal": "dateRangeStart"}, {"signal": "dateRangeEnd"}],
+          "step": {"signal": "dateBin"},
+          "as": ["day_start", "day_end"]
+        },
+        {
+          "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
+          "type": "aggregate",
+          "groupby": ["group", "new_group", "day_start", "day_end"],
+          "fields": ["cases_sum", "group_counts", "color"],
+          "ops": ["sum", "max", "max"],
+          "as": ["cases_sum", "group_counts", "color"]
+        },
+        {
+          "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
+          "type": "impute",
+          "field": "cases_sum",
+          "key": "day_start",
+          "groupby": ["group", "color", "group_counts"],
+          "value": 0
+        },
+        {
+          "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
+          "type": "formula",
+          "expr": "datum.day_start + dateBin",
+          "as": "day_end"
+        },
+        {
+          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
+          "type": "window",
+          "sort": {"field": "day_start"},
+          "groupby": ["group"],
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": ["cases_sum_new"],
+          "frame": {"signal": "cumulativeWindow"}
+        },
+        {
+          "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
+          "type": "stack",
+          "groupby": ["day_start"],
+          "sort": {"field": "group"},
+          "field": "cases_sum_new",
+          "offset": {"signal": "stackOffset"}
+        }
+      ]
+    },
+    {
+      "name": "cases_by_date",
+      "source": "cases_by_date_and_group",
+      "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["day_start", "day_end"],
+          "fields": ["cases_sum"],
+          "ops": ["sum"],
+          "as": ["cases_sum_by_date"]
+        }
+      ]
+    }
+  ],
+
   "marks": [
     {
       "type": "group",
@@ -202,7 +209,7 @@
       "encode": {
         "comment": "The width and height should be overridden by the plot's container",
         "update": {
-          "height": {"value": 280},
+          "height": {"signal": "detailHeight"},
           "width": {"signal": "width"}
         }
       },
@@ -241,44 +248,9 @@
           "name": "y",
           "comment": "Scale the y axis from 0 to the highest bar height",
           "type": "linear",
-          "range": [280, 0],
+          "range": [{"signal": "detailHeight"}, 0],
           "nice": true, "zero": true,
           "domain": {"data": "cases_by_date_and_group", "field": "y1"}
-        }
-      ],
-      "axes": [
-        {
-          "orient": "bottom", 
-          "scale": "x", 
-          "zindex": 0, 
-          "format": "%m-%d", 
-          "tickCount": "week",
-          "grid": true,
-          "gridScale": "y",
-          "gridColor": "#DDD",
-
-          "labelAngle": 310,
-          "labelAlign": "right",
-          "labelBaseline": "middle",
-          "labelPadding": 5,
-
-          "labelFontSize": 12
-        },
-        {
-          "orient": "left", 
-          "scale": "y", 
-          "format": { "signal": "yFormat" },
-          "zindex": 0,
-          "grid": true,
-          "gridColor": "#DDD",
-
-          "title": {"signal": "detailYLabel"},
-          "titleFontSize": 14,
-          "titlePadding": 10,
-          
-          "labelFontSize": 14,
-          "labelPadding": 5,
-          "tickCount": 5
         }
       ],
       "marks": [
@@ -287,11 +259,47 @@
           "comment": "Not sure why we need a group mark here, but this is how it is in the example plot, so I didn't change it",
           "encode": {
             "update": {
+              "clip": {"signal": "detailClip"},
               "height": {"field": {"group": "height"}},
-              "width": {"field": {"group": "width"}},
-              "clip": {"value": true}
+              "width": {"field": {"group": "width"}} 
             }
           },
+          "axes": [
+            {
+              "orient": "bottom", 
+              "scale": "x", 
+              "zindex": 0, 
+              "format": "%m-%d", 
+              "tickCount": "week",
+              "grid": true,
+              "gridScale": "y",
+              "gridColor": "#DDD",
+
+              "labelAngle": 310,
+              "labelAlign": "right",
+              "labelBaseline": "middle",
+              "labelPadding": 5,
+
+              "labelFontSize": 12
+            },
+            {
+              "orient": "left", 
+              "scale": "y", 
+              "format": { "signal": "yFormat" },
+              "zindex": 0,
+              "grid": true,
+              "gridColor": "#DDD",
+
+              "title": {"signal": "detailYLabel"},
+              "titleFontSize": 14,
+              "titlePadding": 10,
+              
+              "labelFontSize": 14,
+              "labelPadding": 5,
+              "tickCount": 5
+            }
+          ],
+
           "marks": [
             {
               "type": "rect",
@@ -312,7 +320,7 @@
                   "y2": {"scale": "y", "field": "y1"},
                   "fill": [
                     {
-                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
+                      "test": "disableSelectionColoring || (!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
                       "field": "color",
                       "comment": "If this group is selected, or if nothing is selected, then color it normally."
                     },
@@ -352,9 +360,9 @@
         "comment": "The width should be overridden by the plot container",
         "update": {
           "x": {"value": 0},
-          "y": {"value": 320},
+          "y": {"signal": "overviewY"},
           "width": {"signal": "width"},
-          "height": {"value": 60},
+          "height": {"signal": "overviewHeight"},
           "fill": {"value": "transparent"}
         }
       },
@@ -477,7 +485,7 @@
         {
           "name": "yOverview",
           "type": "linear",
-          "range": [60, 0],
+          "range": [{"signal": "overviewHeight"}, 0],
           "domain": {"data": "cases_by_date", "field": "cases_sum_by_date"},
           "nice": true, "zero": true
         }
@@ -548,7 +556,7 @@
           "encode": {
             "enter": {
               "y": {"value": 0},
-              "height": {"value": 60},
+              "height": {"signal": "overviewHeight"},
               "fill": {"value": "#333"},
               "fillOpacity": {"value": 0.2}
             },
@@ -565,7 +573,7 @@
           "encode": {
             "enter": {
               "y": {"value": 0},
-              "height": {"value": 60},
+              "height": {"signal": "overviewHeight"},
               "width": {"value": 1},
               "fill": {"value": "firebrick"}
             },
@@ -581,7 +589,7 @@
           "encode": {
             "enter": {
               "y": {"value": 0},
-              "height": {"value": 60},
+              "height": {"signal": "overviewHeight"},
               "width": {"value": 1},
               "fill": {"value": "firebrick"}
             },

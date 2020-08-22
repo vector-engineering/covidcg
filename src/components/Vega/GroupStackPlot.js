@@ -61,6 +61,11 @@ const GroupStackPlot = observer(({ width }) => {
   const handleSelected = (...args) => {
     // console.log(args);
 
+    // Ignore selections in SNV mode
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
+
     // Don't fire if the selection is the same
     if (_.isEqual(args[1], configStore.selectedGroups)) {
       return;
@@ -86,13 +91,21 @@ const GroupStackPlot = observer(({ width }) => {
     }
   };
 
+  const processData = () => {
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
+    }
+
+    return mergeGroupsIntoOther(
+      JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
+      dataStore.groupsToKeep
+    );
+  };
+
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      cases_by_date_and_group: mergeGroupsIntoOther(
-        JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-        dataStore.groupsToKeep
-      ),
+      cases_by_date_and_group: processData(),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -124,16 +137,18 @@ const GroupStackPlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        cases_by_date_and_group: mergeGroupsIntoOther(
-          JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-          dataStore.groupsToKeep
-        ),
+        cases_by_date_and_group: processData(),
       },
     });
   }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {
+    // Skip this update if we're in SNV mode
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
+
     setState({
       ...state,
       data: {
@@ -143,8 +158,58 @@ const GroupStackPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
+  useEffect(() => {
+    // Skip this if we're not in SNV mode
+    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
+
+    // Skip unless the SNV data finished processing
+    if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        cases_by_date_and_group: processData(),
+        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+      },
+    });
+  }, [UIStore.snvDataState]);
+
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
+
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={400}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
+
+  if (configStore.selectedLocationNodes.length === 0) {
+    return (
+      <EmptyPlot height={250}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{configStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
+  }
 
   let plotTitle = '';
   if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE) {
@@ -212,34 +277,13 @@ const GroupStackPlot = observer(({ width }) => {
   }
   detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
 
-  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={400}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  }
-
-  if (configStore.selectedLocationNodes.length === 0) {
-    return (
-      <EmptyPlot height={250}>
-        <p>
-          No locations selected. Please select one or more locations from the
-          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-          <b>{configStore.getGroupLabel()}</b> between them.
-        </p>
-      </EmptyPlot>
-    );
-  }
+  // Hide the detail view in SNV mode when there's no selections
+  // Also disable the plot options when the detail panel is hidden
+  const hideDetail =
+    configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+    configStore.selectedGroups.length === 0;
+  const detailHeight = hideDetail ? 0 : 280;
+  const height = hideDetail ? 60 : 380;
 
   return (
     <div>
@@ -250,60 +294,71 @@ const GroupStackPlot = observer(({ width }) => {
           data and artefacts in this visualization. Please interpret this data
           with care."
       />
-      <PlotOptions>
-        <PlotTitle>
-          <span className="title">{plotTitle}</span>
-          <span className="subtitle">{selectedLocationsText}</span>
-        </PlotTitle>
-        <OptionSelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackCountMode}
-              onChange={onChangeCountMode}
-            >
-              <option value={COUNT_MODES.COUNT_NEW}>New</option>
-              <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
-            </select>
-          </label>
-        </OptionSelectContainer>
-        sequences, shown as{' '}
-        <OptionSelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackNormMode}
-              onChange={onChangeNormMode}
-            >
-              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
-              <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
-            </select>
-          </label>
-        </OptionSelectContainer>
-        grouped by{' '}
-        <OptionSelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackDateBin}
-              onChange={onChangeDateBin}
-            >
-              <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
-              <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
-              <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
-            </select>
-          </label>
-        </OptionSelectContainer>
-        <div className="spacer"></div>
-        <DropdownButton
-          text={'Download'}
-          options={[
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-          ]}
-          onSelect={handleDownloadSelect}
-        />
-      </PlotOptions>
+      {hideDetail && (
+        <EmptyPlot height={100}>
+          <p>
+            No {configStore.getGroupLabel()}s selected. Please select one or
+            more {configStore.getGroupLabel()}s from the legend, frequency plot,
+            or table.
+          </p>
+        </EmptyPlot>
+      )}
+      {!hideDetail && (
+        <PlotOptions>
+          <PlotTitle>
+            <span className="title">{plotTitle}</span>
+            <span className="subtitle">{selectedLocationsText}</span>
+          </PlotTitle>
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackCountMode}
+                onChange={onChangeCountMode}
+              >
+                <option value={COUNT_MODES.COUNT_NEW}>New</option>
+                <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          sequences, shown as{' '}
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackNormMode}
+                onChange={onChangeNormMode}
+              >
+                <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+                <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          grouped by{' '}
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackDateBin}
+                onChange={onChangeDateBin}
+              >
+                <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+                <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+                <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          <div className="spacer"></div>
+          <DropdownButton
+            text={'Download'}
+            options={[
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+            ]}
+            onSelect={handleDownloadSelect}
+          />
+        </PlotOptions>
+      )}
 
       <div style={{ width: `${width}px` }}>
         <VegaEmbed
@@ -313,8 +368,9 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            detailHeight:
-              configStore.groupKey === GROUP_KEYS.GROUP_SNV ? 0 : 280,
+            disableSelectionColoring:
+              configStore.groupKey === GROUP_KEYS.GROUP_SNV,
+            detailHeight,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,
             dateBin,
@@ -327,7 +383,7 @@ const GroupStackPlot = observer(({ width }) => {
           }}
           cheapSignals={['hoverBar']}
           width={width}
-          height={configStore.groupKey === GROUP_KEYS.GROUP_SNV ? 60 : 380}
+          height={height}
           actions={false}
         />
       </div>

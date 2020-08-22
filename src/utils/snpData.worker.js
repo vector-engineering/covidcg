@@ -1,4 +1,3 @@
-import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { getLocationIds } from './location';
 import {
   dnaSnpToInt,
@@ -9,6 +8,10 @@ import {
   intToProteinAaSnp,
   getSnvColor,
 } from './snpData';
+import { aggregate } from './transform';
+
+import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { GROUPS } from '../constants/groups';
 
 function getCombinations(arr) {
   var result = [];
@@ -98,8 +101,8 @@ function processSelectedSnvs({
       selectedGroupIds.has(snvId)
     );
     let group;
-    if (matchingSnvIds.length === 0) {
-      group = 'Other';
+    if (matchingSnvIds.length != selectedGroupIds.size) {
+      group = GROUPS.OTHER_GROUP;
     } else {
       group = matchingSnvIds.map((id) => intToSnvFunc(id).snp_str).join(' + ');
     }
@@ -120,12 +123,28 @@ function processSelectedSnvs({
           date: parseInt(date),
           group: group,
           cases_sum: dataAggLocationSnvDateObj[location][date][group],
-          // color: getColorMethod(group),
+          // For multiple SNVs, just use this nice blue color
+          color:
+            selectedGroupIds.size > 1 && group !== GROUPS.OTHER_GROUP
+              ? '#07B'
+              : getSnvColor(group),
         });
       });
     });
   });
-  //console.log(dataAggLocationSnvDate);
+
+  // Aggregate by SNV and date
+  const dataAggSnvDate = aggregate({
+    data: dataAggLocationSnvDate,
+    groupby: ['date', 'group'],
+    fields: ['cases_sum', 'color'],
+    ops: ['sum', 'max'],
+    as: ['cases_sum', 'color'],
+  });
+  // Convert dates back into ints
+  dataAggSnvDate.forEach((row) => {
+    row.date = parseInt(row.date);
+  });
 
   // Co-occurrence data
   // Count SNVs for each single or combination of SNVs
@@ -177,6 +196,7 @@ function processSelectedSnvs({
 
   return {
     dataAggLocationSnvDate,
+    dataAggSnvDate,
     snvCooccurrence: snvCooccurrenceList,
   };
 }

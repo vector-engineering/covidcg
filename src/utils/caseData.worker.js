@@ -15,6 +15,7 @@ import {
 import { getLocationIds } from './location';
 import { hashCode } from './string';
 import { dataDate } from './version';
+import { aggregate } from './transform';
 
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
@@ -362,9 +363,19 @@ function processCaseData({
   });
   const selectedRowsHash = hashCode(selectedAccessionIds.join(''));
 
+  // Aggregate by group and date
+  const dataAggGroupDate = aggregate({
+    data: dataAggLocationGroupDate,
+    groupby: ['date', 'group'],
+    fields: ['cases_sum', 'color'],
+    ops: ['sum', 'max'],
+    as: ['cases_sum', 'color'],
+  });
+
   return {
     filteredCaseData: caseData,
     dataAggLocationGroupDate,
+    dataAggGroupDate,
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
     metadataCountsAfterFiltering,

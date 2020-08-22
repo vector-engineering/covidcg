@@ -8,7 +8,6 @@ import _ from 'underscore';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
 import DropdownButton from '../Buttons/DropdownButton';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
@@ -104,9 +103,7 @@ const CooccurrencePlot = observer(({ width }) => {
           paddingBottom: '24px',
         }}
       >
-        <SkeletonElement delay={2} height={100}>
-          <LoadingSpinner />
-        </SkeletonElement>
+        <SkeletonElement delay={2} height={70} />
       </div>
     );
   }
@@ -116,7 +113,7 @@ const CooccurrencePlot = observer(({ width }) => {
     dataStore.snvCooccurrence.length === 0
   ) {
     return (
-      <EmptyPlot height={100}>
+      <EmptyPlot height={70}>
         <p>
           No SNVs selected. Please select one or more SNVs from the legend,
           frequency plot, or table.

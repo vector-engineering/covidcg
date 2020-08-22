@@ -9,7 +9,6 @@ import _ from 'underscore';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
 import DropdownButton from '../Buttons/DropdownButton';
 import { PlotTitle, PlotOptions } from './Plot.styles';
 
@@ -169,9 +168,7 @@ const EntropyPlot = observer(({ width }) => {
           paddingBottom: '24px',
         }}
       >
-        <SkeletonElement delay={2} height={150}>
-          <LoadingSpinner />
-        </SkeletonElement>
+        <SkeletonElement delay={2} height={150} />
       </div>
     );
   }

@@ -46,6 +46,7 @@ export const initialDataValues = {
   selectedAckIds: [],
 
   dataAggLocationSnvDate: [],
+  dataAggSnvDate: [],
   snvCooccurrence: [],
 };
 
@@ -71,6 +72,7 @@ class ObservableDataStore {
   selectedAckIds = initialDataValues.selectedAckIds;
 
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
+  dataAggSnvDate = initialDataValues.dataAggSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
 
   constructor() {
@@ -221,6 +223,7 @@ class ObservableDataStore {
       ({
         filteredCaseData,
         dataAggLocationGroupDate,
+        dataAggGroupDate,
         metadataCounts,
         metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
@@ -230,13 +233,7 @@ class ObservableDataStore {
       }) => {
         this.filteredCaseData = filteredCaseData;
         this.dataAggLocationGroupDate = dataAggLocationGroupDate;
-        this.dataAggGroupDate = aggregate({
-          data: dataAggLocationGroupDate,
-          groupby: ['date', 'group'],
-          fields: ['cases_sum', 'color'],
-          ops: ['sum', 'max'],
-          as: ['cases_sum', 'color'],
-        });
+        this.dataAggGroupDate = dataAggGroupDate;
         this.metadataCounts = metadataCounts;
         this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
@@ -265,8 +262,9 @@ class ObservableDataStore {
         ),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggLocationSnvDate, snvCooccurrence }) => {
+      ({ dataAggLocationSnvDate, dataAggSnvDate, snvCooccurrence }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
+        this.dataAggSnvDate = dataAggSnvDate;
         this.snvCooccurrence = snvCooccurrence;
         UIStoreInstance.onSnvDataFinished();
       }
