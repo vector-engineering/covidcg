@@ -111,7 +111,10 @@ const CooccurrencePlot = observer(({ width }) => {
     );
   }
 
-  if (configStore.selectedGroups.length === 0) {
+  if (
+    configStore.selectedGroups.length === 0 ||
+    dataStore.snvCooccurrence.length === 0
+  ) {
     return (
       <EmptyPlot height={100}>
         <p>

@@ -67,7 +67,7 @@ const GroupTab = observer(({ width }) => {
         defaultCollapsed={false}
         maxHeight={'1200px'}
       >
-        <CooccurrencePlot width={width - 200} />
+        <CooccurrencePlot width={width - 300} />
       </AccordionWrapper>
     );
   };

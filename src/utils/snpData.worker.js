@@ -33,16 +33,22 @@ function processSelectedSnvs({
   let snvEntry;
   let intToSnvFunc;
   if (dnaOrAa === DNA_OR_AA.DNA) {
-    selectedGroupIds = selectedGroups.map((item) => dnaSnpToInt(item));
+    selectedGroupIds = selectedGroups
+      .map((item) => dnaSnpToInt(item))
+      .filter((snpId) => snpId !== undefined);
     snvEntry = 'dna_snp_str';
     intToSnvFunc = intToDnaSnp;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      selectedGroupIds = selectedGroups.map((item) => geneAaSnpToInt(item));
+      selectedGroupIds = selectedGroups
+        .map((item) => geneAaSnpToInt(item))
+        .filter((snpId) => snpId !== undefined);
       snvEntry = 'gene_aa_snp_str';
       intToSnvFunc = intToGeneAaSnp;
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      selectedGroupIds = selectedGroups.map((item) => proteinAaSnpToInt(item));
+      selectedGroupIds = selectedGroups
+        .map((item) => proteinAaSnpToInt(item))
+        .filter((snpId) => snpId !== undefined);
       snvEntry = 'protein_aa_snp_str';
       intToSnvFunc = intToProteinAaSnp;
     }
