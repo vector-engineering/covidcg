@@ -422,12 +422,33 @@ function aggCaseDataByGroup({
     }
   });
 
-  // Aggregate case data by clade only (no dates)
-  let dataAggGroup = {};
-
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
 
+  // Create the same group count object, but after date filtering
+  const groupCountDateFilteredObj = {};
+  dataAggGroupDate.forEach((row) => {
+    if (groupCountDateFilteredObj[row.group])
+      groupCountDateFilteredObj[row.group] += row.cases_sum;
+    else groupCountDateFilteredObj[row.group] = row.cases_sum;
+  });
+  let groupCountDateFilteredArr = Object.entries(groupCountDateFilteredObj);
+  groupCountDateFilteredArr.forEach((item) => {
+    item.push(getColorMethod(item[0]));
+  });
+  groupCountDateFilteredArr.sort((a, b) => {
+    if (a[1] < b[1]) {
+      return 1;
+    }
+    if (a[1] > b[1]) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+
+  // Aggregate case data by clade only (no dates)
+  let dataAggGroup = {};
   dataAggGroupDate.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(dataAggGroup, row.group)) {
       dataAggGroup[row.group] = {};
@@ -695,6 +716,7 @@ function aggCaseDataByGroup({
     dataAggGroup: dataAggGroup,
     changingPositions: changingPositions,
     groupCountArr,
+    groupCountDateFilteredArr,
   };
 }
 

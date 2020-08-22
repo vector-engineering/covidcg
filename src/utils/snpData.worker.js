@@ -175,37 +175,9 @@ function processSelectedSnvs({
   });
   // console.log(JSON.stringify(snvCooccurrenceList));
 
-  // Count SNVs
-  const snvCountsObj = {};
-  filteredCaseData.forEach((row) => {
-    row[snvEntry].forEach((snvId) => {
-      if (snvCountsObj[intToSnvFunc(snvId).snp_str])
-        snvCountsObj[intToSnvFunc(snvId).snp_str] += 1;
-      else snvCountsObj[intToSnvFunc(snvId).snp_str] = 1;
-    });
-  });
-
-  const snvCounts = Object.entries(snvCountsObj);
-  snvCounts.forEach((item) => {
-    item.push(getSnvColor(item[0]));
-  });
-
-  // this will sort it so that 0 is the biggest
-  snvCounts.sort((a, b) => {
-    if (a[1] < b[1]) {
-      return 1;
-    }
-    if (a[1] > b[1]) {
-      return -1;
-    } else {
-      return 0;
-    }
-  });
-
   return {
     dataAggLocationSnvDate,
     snvCooccurrence: snvCooccurrenceList,
-    snvCounts,
   };
 }
 

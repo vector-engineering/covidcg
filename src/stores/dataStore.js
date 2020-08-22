@@ -33,6 +33,7 @@ export const initialDataValues = {
   changingPositions: {},
   groupsToKeep: [],
   groupCountArr: [],
+  groupCountDateFilteredArr: [],
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
@@ -46,7 +47,6 @@ export const initialDataValues = {
 
   dataAggLocationSnvDate: [],
   snvCooccurrence: [],
-  snvCounts: [],
 };
 
 class ObservableDataStore {
@@ -57,6 +57,7 @@ class ObservableDataStore {
   @observable changingPositions = initialDataValues.changingPositions;
   @observable groupsToKeep = initialDataValues.groupsToKeep;
   @observable groupCountArr = initialDataValues.groupCountArr;
+  groupCountDateFilteredArr = initialDataValues.groupCountDateFilteredArr;
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
@@ -71,7 +72,6 @@ class ObservableDataStore {
 
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
-  snvCounts = initialDataValues.snvCounts;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -150,11 +150,17 @@ class ObservableDataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggGroup, changingPositions, groupCountArr }) => {
+      ({
+        dataAggGroup,
+        changingPositions,
+        groupCountArr,
+        groupCountDateFilteredArr,
+      }) => {
         // console.log(caseDataAggGroup);
         this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
         this.groupCountArr = groupCountArr;
+        this.groupCountDateFilteredArr = groupCountDateFilteredArr;
         // console.log('AGG_CASE_DATA FINISHED');
 
         // Update hash for any listeners
@@ -259,10 +265,9 @@ class ObservableDataStore {
         ),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggLocationSnvDate, snvCooccurrence, snvCounts }) => {
+      ({ dataAggLocationSnvDate, snvCooccurrence }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
         this.snvCooccurrence = snvCooccurrence;
-        this.snvCounts = snvCounts;
         UIStoreInstance.onSnvDataFinished();
       }
     );
