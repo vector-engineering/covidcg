@@ -6,12 +6,13 @@
   "padding": 5,
 
   "signals": [
+    { "name": "totalSequences", "value": 1000 },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
       "update": "invert('xscale', 3)"
     },
-    { "name": "xRange", "value": [0, 100] },
+    { "name": "xRange", "value": [0, 1200] },
     { "name": "xLabel", "value": "S Gene (AA)" },
     { "name": "yLabel", "value": "# SNVs" },
     {
@@ -148,6 +149,11 @@
           "type": "formula",
           "expr": "parseInt(split(datum.snv, '|')[posField])",
           "as": "pos"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.count / totalSequences",
+          "as": "percent"
         }
       ]
     },
@@ -182,7 +188,7 @@
     {
       "name": "xscale",
       "type": "linear",
-      "domain": { "signal": "xRange" },
+      "domain": {"signal": "xRange"},
       "range": "width",
       "padding": 0.05,
       "round": true,
@@ -253,7 +259,7 @@
               "y": { "scale": "yscale", "field": "count" },
               "y2": { "scale": "yscale", "value": 0 },
               "tooltip": {
-                "signal": "{title: datum.snv, 'Count': datum.count}"
+                "signal": "{title: datum.snv, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
               },
               "fill": { "field": "color" },
               "strokeWidth": [

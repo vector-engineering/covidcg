@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { toJS } from 'mobx';
@@ -7,14 +7,39 @@ import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
+import EmptyPlot from '../Common/EmptyPlot';
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
+import DropdownButton from '../Buttons/DropdownButton';
+import { PlotTitle, PlotOptions } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
+import { ASYNC_STATES } from '../../constants/UI';
 import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
+import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
-  const { configStore, dataStore } = useStores();
+  const vegaRef = useRef();
+  const { configStore, dataStore, UIStore } = useStores();
+
+  const handleDownloadSelect = (option) => {
+    // console.log(option);
+    // TODO: use the plot options and configStore options to build a more descriptive filename
+    //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      dataStore.downloadSnvFrequencies();
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 1);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 2);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X) {
+      vegaRef.current.downloadImage('png', 'vega-export.png', 4);
+    } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
+      vegaRef.current.downloadImage('svg', 'vega-export.svg');
+    }
+  };
 
   const processData = (groupCountArr) => {
     return groupCountArr;
@@ -127,13 +152,64 @@ const EntropyPlot = observer(({ width }) => {
     xLabel += ' (AA residue)';
   }
 
+  if (
+    UIStore.caseDataState === ASYNC_STATES.STARTED ||
+    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
+  ) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={150}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
+
+  // If we have no rows, then return an empty element
+  // We'll always have the "reference" row, so no rows = 1 row
+  if (dataStore.selectedAccessionIds.length === 0) {
+    return (
+      <EmptyPlot height={150}>
+        <p>No sequences selected</p>
+      </EmptyPlot>
+    );
+  }
+
   return (
     <PlotContainer>
+      <PlotOptions>
+        <PlotTitle>
+          <span className="title">
+            {configStore.getGroupLabel()} Frequencies
+          </span>
+        </PlotTitle>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+          ]}
+          onSelect={handleDownloadSelect}
+        />
+      </PlotOptions>
       <VegaEmbed
+        ref={vegaRef}
         spec={initialSpec}
         data={state.data}
         width={width}
         signals={{
+          totalSequences: dataStore.selectedAccessionIds.length,
           xLabel,
           xRange: state.xRange,
           hoverGroup: { group: configStore.hoverGroup },
@@ -141,6 +217,7 @@ const EntropyPlot = observer(({ width }) => {
         }}
         signalListeners={state.signalListeners}
         dataListeners={state.dataListeners}
+        actions={false}
       />
     </PlotContainer>
   );

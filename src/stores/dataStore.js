@@ -392,6 +392,29 @@ class ObservableDataStore {
   }
 
   @action
+  downloadSnvFrequencies() {
+    let csvString = 'snv,count\n';
+    this.groupCountArr.forEach((item) => {
+      csvString += `${item[0]},${item[1]}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'snv_frequencies',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
+
+  @action
   downloadSnvCooccurrence() {
     let csvString = 'combination,snv,count\n';
     this.snvCooccurrence.forEach((row) => {

@@ -95,11 +95,23 @@
           "sort": { "field": "snv" },
           "field": "count",
           "offset": { "signal": "stackOffset" }
+        },
+        {
+          "type": "joinaggregate",
+          "groupby": ["combi"],
+          "fields": ["count"],
+          "ops": ["sum"],
+          "as": ["combi_count"]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.count / datum.combi_count",
+          "as": "combi_percent"
         }
       ]
     },
     {
-      "name": "location_bars",
+      "name": "combi_bars",
       "source": "cooccurrence_data",
       "transform": [
         {
@@ -130,7 +142,7 @@
       "type": "band",
       "round": true,
       "range": { "step": { "signal": "rangeStep" } },
-      "domain": { "data": "location_bars", "field": "combi" },
+      "domain": { "data": "combi_bars", "field": "combi" },
       "paddingInner": { "signal": "innerPadding" },
       "paddingOuter": { "signal": "outerPadding" }
     },
@@ -186,7 +198,7 @@
               "strokeWidth": { "value": 2 },
               "fill": {"field": "color"},
               "tooltip": {
-                "signal": "{title: datum.snv}"
+                "signal": "{title: datum.combi, 'Co-occurring SNV': datum.snv, 'Count': datum.count, '%': format(datum.combi_percent, '.1%')}"
               }
             },
             "update": {
