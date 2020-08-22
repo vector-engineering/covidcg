@@ -43,6 +43,9 @@ export const initialDataValues = {
   selectedRowsAndDateHash: '',
   selectedAccessionIds: [],
   selectedAckIds: [],
+
+  dataAggLocationSnvDate: [],
+  snvCooccurrence: [],
 };
 
 class ObservableDataStore {
@@ -64,6 +67,9 @@ class ObservableDataStore {
     initialDataValues.selectedRowsAndDateHash;
   selectedAccessionIds = initialDataValues.selectedAccessionIds;
   selectedAckIds = initialDataValues.selectedAckIds;
+
+  dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
+  snvCooccurrence = initialDataValues.snvCooccurrence;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -239,6 +245,7 @@ class ObservableDataStore {
 
   @action
   processSelectedSnvs() {
+    UIStoreInstance.onSnvDataStarted();
     processSelectedSnvs(
       {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
@@ -249,8 +256,10 @@ class ObservableDataStore {
           (item) => item.group
         ),
       },
-      (res) => {
-        console.log(res);
+      ({ dataAggLocationSnvDate, snvCooccurrence }) => {
+        this.dataAggLocationSnvDate = dataAggLocationSnvDate;
+        this.snvCooccurrence = snvCooccurrence;
+        UIStoreInstance.onSnvDataFinished();
       }
     );
   }
@@ -373,6 +382,29 @@ class ObservableDataStore {
       url,
       generateSelectionString(
         'data_agg_location_group_date',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
+
+  @action
+  downloadSnvCooccurrence() {
+    let csvString = 'combination,snv,count\n';
+    this.snvCooccurrence.forEach((row) => {
+      csvString += `${row.combi},${row.snv},${row.count}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'snv_cooccurrence',
         'csv',
         toJS(configStoreInstance.groupKey),
         toJS(configStoreInstance.dnaOrAa),

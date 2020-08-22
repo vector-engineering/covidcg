@@ -182,7 +182,7 @@
     {
       "name": "xscale",
       "type": "linear",
-      "domain": {"signal": "xRange"},
+      "domain": { "signal": "xRange" },
       "range": "width",
       "padding": 0.05,
       "round": true,

@@ -1,0 +1,243 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 500,
+  "padding": 5,
+  "autosize": "pad",
+
+  "signals": [
+    { "name": "rangeStep", "value": 20 },
+    { "name": "innerPadding", "value": 0.2 },
+    { "name": "outerPadding", "value": 0.1 },
+    { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
+    { "name": "xFormat", "value": "%" },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@locationbars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@locationbars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "clearGroup",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftGroup",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedGroups",
+      "value": null,
+      "comment": "Track clicks on the location bars, for selection purposes",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "{group: datum.snv}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "selectedGroups",
+      "values": [
+        {"group": "N|62|E|V"}
+      ],
+      "on": [
+        { "trigger": "clearGroup", "remove": true },
+        { "trigger": "!shiftGroup", "remove": true },
+        { "trigger": "!shiftGroup && clickedGroups", "insert": "clickedGroups" },
+        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+      ]
+    },
+    {
+      "name": "cooccurrence_data",
+      "format": {
+        "parse": {
+          "combi": "string",
+          "snv": "string",
+          "count": "number"
+        }
+      },
+      "values": [{"combi":"N|203|R|K","snv":"None","color":"#AAA","count":2084},{"combi":"N|203|R|K","snv":"N|204|G|R","color":"#cc6677","count":2077},{"combi":"N|203|R|K","snv":"N|292|I|T","color":"#cc3311","count":25},{"combi":"N|203|R|K","snv":"N|366|T|I","color":"#009988","count":2},{"combi":"N|203|R|K","snv":"N|151|P|S","color":"#ee3377","count":1},{"combi":"N|203|R|K","snv":"N|191|R|L","color":"#44aa99","count":1},{"combi":"N|203|R|K","snv":"N|193|S|I","color":"#ddcc77","count":13},{"combi":"N|203|R|K","snv":"N|30|G|R","color":"#cc6677","count":7},{"combi":"N|203|R|K","snv":"N|232|S|T","color":"#ddcc77","count":1},{"combi":"N|203|R|K","snv":"N|187|S|L","color":"#cc6677","count":1},{"combi":"N|203|R|K","snv":"N|243|G|C","color":"#44aa99","count":3},{"combi":"N|203|R|K","snv":"N|80|P|S","color":"#aa4499","count":1},{"combi":"N|203|R|K","snv":"N|300|H|Q","color":"#44aa99","count":1},{"combi":"N|203|R|K","snv":"N|103|D|Y","color":"#ddcc77","count":1},{"combi":"N|203|R|K","snv":"N|169|K|R","color":"#cc3311","count":4},{"combi":"N|203|R|K","snv":"N|185|R|C","color":"#332288","count":1},{"combi":"N|203|R|K","snv":"N|416|S|L","color":"#ddcc77","count":1},{"combi":"N|203|R|K","snv":"N|144|D|H","color":"#999933","count":1},{"combi":"N|203|R|K","snv":"N|182|A|S","color":"#009988","count":4},{"combi":"N|203|R|K","snv":"N|229|Q|H","color":"#ee3377","count":41},{"combi":"N|203|R|K","snv":"N|24|T|I","color":"#aa4499","count":1},{"combi":"N|203|R|K","snv":"N|37|S|L","color":"#aa4499","count":1},{"combi":"N|203|R|K","snv":"N|208|A|G","color":"#cc3311","count":1},{"combi":"N|203|R|K","snv":"N|156|A|S","color":"#117733","count":3},{"combi":"N|203|R|K","snv":"N|385|R|I","color":"#999933","count":1},{"combi":"N|203|R|K","snv":"N|93|R|L","color":"#44aa99","count":1},{"combi":"N|203|R|K","snv":"N|271|T|I","color":"#ee3377","count":1},{"combi":"N|203|R|K","snv":"N|14|R|H","color":"#009988","count":5},{"combi":"N|203|R|K","snv":"N|199|P|S","color":"#999933","count":1},{"combi":"N|203|R|K","snv":"N|329|T|M","color":"#aa4499","count":2},{"combi":"N|203|R|K","snv":"N|151|P|L","color":"#cc3311","count":8},{"combi":"N|203|R|K","snv":"N|334|T|I","color":"#332288","count":1},{"combi":"N|203|R|K","snv":"N|119|A|V","color":"#0077bb","count":1},{"combi":"N|203|R|K","snv":"N|373|K|N","color":"#33bbee","count":2},{"combi":"N|203|R|K","snv":"N|46|P|S","color":"#332288","count":1},{"combi":"N|203|R|K","snv":"N|155|A|V","color":"#44aa99","count":3},{"combi":"N|203|R|K","snv":"N|294|Q|L","color":"#ee3377","count":2},{"combi":"N|203|R|K","snv":"N|134|A|V","color":"#882255","count":3},{"combi":"N|203|R|K","snv":"N|251|A|S","color":"#33bbee","count":1},{"combi":"N|203|R|K","snv":"N|202|S|C","color":"#ee7733","count":1},{"combi":"N|203|R|K","snv":"N|202|S|T","color":"#88ccee","count":1},{"combi":"N|203|R|K","snv":"N|325|T|I","color":"#117733","count":3},{"combi":"N|203|R|K","snv":"N|238|G|S","color":"#cc3311","count":5},{"combi":"N|203|R|K","snv":"N|139|L|F","color":"#009988","count":3},{"combi":"N|203|R|K","snv":"N|382|L|S","color":"#ee3377","count":1},{"combi":"N|203|R|K","snv":"N|76|T|I","color":"#44aa99","count":1},{"combi":"N|203|R|K","snv":"N|386|Q|H","color":"#ddcc77","count":2},{"combi":"N|203|R|K","snv":"N|144|D|Y","color":"#cc6677","count":1},{"combi":"N|203|R|K","snv":"N|19|G|E","color":"#cc6677","count":1},{"combi":"N|203|R|K","snv":"N|326|P|L","color":"#999933","count":1},{"combi":"N|203|R|K","snv":"N|398|A|V","color":"#ddcc77","count":1},{"combi":"N|203|R|K","snv":"N|122|P|H","color":"#ee3377","count":4},{"combi":"N|203|R|K","snv":"N|377|D|Y","color":"#44aa99","count":6},{"combi":"N|203|R|K","snv":"N|326|P|S","color":"#ddcc77","count":1},{"combi":"N|203|R|K","snv":"N|212|G|V","color":"#009988","count":1},{"combi":"N|203|R|K","snv":"N|210|M|I","color":"#cc6677","count":2},{"combi":"N|203|R|K","snv":"N|145|H|Y","color":"#aa4499","count":2},{"combi":"N|203|R|K","snv":"N|251|A|V","color":"#009988","count":9},{"combi":"N|203|R|K","snv":"N|362|T|I","color":"#999933","count":1},{"combi":"N|203|R|K","snv":"N|195|R|T","color":"#cc3311","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"None","color":"#AAA","count":4154},{"combi":"N|203|R|K + N|204|G|R","snv":"N|292|I|T","color":"#cc3311","count":25},{"combi":"N|203|R|K + N|204|G|R","snv":"N|366|T|I","color":"#009988","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|151|P|S","color":"#ee3377","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|191|R|L","color":"#44aa99","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|193|S|I","color":"#ddcc77","count":13},{"combi":"N|203|R|K + N|204|G|R","snv":"N|30|G|R","color":"#cc6677","count":7},{"combi":"N|203|R|K + N|204|G|R","snv":"N|187|S|L","color":"#cc6677","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|243|G|C","color":"#44aa99","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|80|P|S","color":"#aa4499","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|300|H|Q","color":"#44aa99","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|103|D|Y","color":"#ddcc77","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|169|K|R","color":"#cc3311","count":4},{"combi":"N|203|R|K + N|204|G|R","snv":"N|185|R|C","color":"#332288","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|416|S|L","color":"#ddcc77","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|144|D|H","color":"#999933","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|229|Q|H","color":"#ee3377","count":41},{"combi":"N|203|R|K + N|204|G|R","snv":"N|182|A|S","color":"#009988","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|24|T|I","color":"#aa4499","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|208|A|G","color":"#cc3311","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|156|A|S","color":"#117733","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|385|R|I","color":"#999933","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|93|R|L","color":"#44aa99","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|271|T|I","color":"#ee3377","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|14|R|H","color":"#009988","count":5},{"combi":"N|203|R|K + N|204|G|R","snv":"N|199|P|S","color":"#999933","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|329|T|M","color":"#aa4499","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|151|P|L","color":"#cc3311","count":8},{"combi":"N|203|R|K + N|204|G|R","snv":"N|334|T|I","color":"#332288","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|119|A|V","color":"#0077bb","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|373|K|N","color":"#33bbee","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|46|P|S","color":"#332288","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|155|A|V","color":"#44aa99","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|294|Q|L","color":"#ee3377","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|134|A|V","color":"#882255","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|251|A|S","color":"#33bbee","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|202|S|C","color":"#ee7733","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|202|S|T","color":"#88ccee","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|325|T|I","color":"#117733","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|238|G|S","color":"#cc3311","count":5},{"combi":"N|203|R|K + N|204|G|R","snv":"N|139|L|F","color":"#009988","count":3},{"combi":"N|203|R|K + N|204|G|R","snv":"N|382|L|S","color":"#ee3377","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|76|T|I","color":"#44aa99","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|386|Q|H","color":"#ddcc77","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|144|D|Y","color":"#cc6677","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|19|G|E","color":"#cc6677","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|326|P|L","color":"#999933","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|398|A|V","color":"#ddcc77","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|122|P|H","color":"#ee3377","count":4},{"combi":"N|203|R|K + N|204|G|R","snv":"N|377|D|Y","color":"#44aa99","count":6},{"combi":"N|203|R|K + N|204|G|R","snv":"N|326|P|S","color":"#ddcc77","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|212|G|V","color":"#009988","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|210|M|I","color":"#cc6677","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|145|H|Y","color":"#aa4499","count":2},{"combi":"N|203|R|K + N|204|G|R","snv":"N|251|A|V","color":"#009988","count":9},{"combi":"N|203|R|K + N|204|G|R","snv":"N|362|T|I","color":"#999933","count":1},{"combi":"N|203|R|K + N|204|G|R","snv":"N|195|R|T","color":"#cc3311","count":1},{"combi":"N|204|G|R","snv":"N|203|R|K","color":"#117733","count":2077},{"combi":"N|204|G|R","snv":"None","color":"#AAA","count":2084},{"combi":"N|204|G|R","snv":"N|292|I|T","color":"#cc3311","count":25},{"combi":"N|204|G|R","snv":"N|366|T|I","color":"#009988","count":2},{"combi":"N|204|G|R","snv":"N|151|P|S","color":"#ee3377","count":1},{"combi":"N|204|G|R","snv":"N|185|R|C","color":"#332288","count":3},{"combi":"N|204|G|R","snv":"N|191|R|L","color":"#44aa99","count":1},{"combi":"N|204|G|R","snv":"N|193|S|I","color":"#ddcc77","count":13},{"combi":"N|204|G|R","snv":"N|30|G|R","color":"#cc6677","count":7},{"combi":"N|204|G|R","snv":"N|187|S|L","color":"#cc6677","count":1},{"combi":"N|204|G|R","snv":"N|243|G|C","color":"#44aa99","count":3},{"combi":"N|204|G|R","snv":"N|80|P|S","color":"#aa4499","count":1},{"combi":"N|204|G|R","snv":"N|300|H|Q","color":"#44aa99","count":1},{"combi":"N|204|G|R","snv":"N|103|D|Y","color":"#ddcc77","count":1},{"combi":"N|204|G|R","snv":"N|169|K|R","color":"#cc3311","count":4},{"combi":"N|204|G|R","snv":"N|416|S|L","color":"#ddcc77","count":1},{"combi":"N|204|G|R","snv":"N|144|D|H","color":"#999933","count":1},{"combi":"N|204|G|R","snv":"N|229|Q|H","color":"#ee3377","count":41},{"combi":"N|204|G|R","snv":"N|182|A|S","color":"#009988","count":3},{"combi":"N|204|G|R","snv":"N|24|T|I","color":"#aa4499","count":1},{"combi":"N|204|G|R","snv":"N|208|A|G","color":"#cc3311","count":1},{"combi":"N|204|G|R","snv":"N|156|A|S","color":"#117733","count":3},{"combi":"N|204|G|R","snv":"N|385|R|I","color":"#999933","count":1},{"combi":"N|204|G|R","snv":"N|9|Q|H","color":"#cc6677","count":1},{"combi":"N|204|G|R","snv":"N|93|R|L","color":"#44aa99","count":1},{"combi":"N|204|G|R","snv":"N|271|T|I","color":"#ee3377","count":1},{"combi":"N|204|G|R","snv":"N|14|R|H","color":"#009988","count":5},{"combi":"N|204|G|R","snv":"N|199|P|S","color":"#999933","count":1},{"combi":"N|204|G|R","snv":"N|329|T|M","color":"#aa4499","count":2},{"combi":"N|204|G|R","snv":"N|151|P|L","color":"#cc3311","count":8},{"combi":"N|204|G|R","snv":"N|334|T|I","color":"#332288","count":1},{"combi":"N|204|G|R","snv":"N|119|A|V","color":"#0077bb","count":1},{"combi":"N|204|G|R","snv":"N|373|K|N","color":"#33bbee","count":2},{"combi":"N|204|G|R","snv":"N|46|P|S","color":"#332288","count":1},{"combi":"N|204|G|R","snv":"N|155|A|V","color":"#44aa99","count":3},{"combi":"N|204|G|R","snv":"N|294|Q|L","color":"#ee3377","count":2},{"combi":"N|204|G|R","snv":"N|134|A|V","color":"#882255","count":3},{"combi":"N|204|G|R","snv":"N|251|A|S","color":"#33bbee","count":1},{"combi":"N|204|G|R","snv":"N|202|S|C","color":"#ee7733","count":1},{"combi":"N|204|G|R","snv":"N|202|S|T","color":"#88ccee","count":1},{"combi":"N|204|G|R","snv":"N|325|T|I","color":"#117733","count":3},{"combi":"N|204|G|R","snv":"N|238|G|S","color":"#cc3311","count":5},{"combi":"N|204|G|R","snv":"N|139|L|F","color":"#009988","count":3},{"combi":"N|204|G|R","snv":"N|382|L|S","color":"#ee3377","count":1},{"combi":"N|204|G|R","snv":"N|76|T|I","color":"#44aa99","count":1},{"combi":"N|204|G|R","snv":"N|386|Q|H","color":"#ddcc77","count":2},{"combi":"N|204|G|R","snv":"N|144|D|Y","color":"#cc6677","count":1},{"combi":"N|204|G|R","snv":"N|19|G|E","color":"#cc6677","count":1},{"combi":"N|204|G|R","snv":"N|326|P|L","color":"#999933","count":1},{"combi":"N|204|G|R","snv":"N|398|A|V","color":"#ddcc77","count":1},{"combi":"N|204|G|R","snv":"N|122|P|H","color":"#ee3377","count":4},{"combi":"N|204|G|R","snv":"N|377|D|Y","color":"#44aa99","count":6},{"combi":"N|204|G|R","snv":"N|326|P|S","color":"#ddcc77","count":1},{"combi":"N|204|G|R","snv":"N|212|G|V","color":"#009988","count":1},{"combi":"N|204|G|R","snv":"N|210|M|I","color":"#cc6677","count":2},{"combi":"N|204|G|R","snv":"N|145|H|Y","color":"#aa4499","count":2},{"combi":"N|204|G|R","snv":"N|251|A|V","color":"#009988","count":9},{"combi":"N|204|G|R","snv":"N|362|T|I","color":"#999933","count":1},{"combi":"N|204|G|R","snv":"N|195|R|T","color":"#cc3311","count":1},{"combi":"N|194|S|L","snv":"None","color":"#AAA","count":662},{"combi":"N|194|S|L","snv":"N|34|G|W","color":"#cc3311","count":1},{"combi":"N|194|S|L","snv":"N|365|P|L","color":"#0077bb","count":2},{"combi":"N|194|S|L","snv":"N|62|E|V","color":"#ddcc77","count":8},{"combi":"N|194|S|L","snv":"N|413|S|I","color":"#88ccee","count":1},{"combi":"N|194|S|L","snv":"N|251|A|S","color":"#33bbee","count":1},{"combi":"N|194|S|L","snv":"N|205|T|I","color":"#aa4499","count":10},{"combi":"N|194|S|L","snv":"N|343|D|Y","color":"#cc6677","count":1},{"combi":"N|194|S|L","snv":"N|367|E|D","color":"#cc3311","count":3},{"combi":"N|194|S|L","snv":"N|234|M|I","color":"#cc6677","count":2},{"combi":"N|194|S|L","snv":"N|282|T|I","color":"#882255","count":2},{"combi":"N|194|S|L","snv":"N|383|P|S","color":"#44aa99","count":1},{"combi":"N|194|S|L","snv":"N|20|P|L","color":"#999933","count":1},{"combi":"N|194|S|L","snv":"N|348|D|H","color":"#0077bb","count":1},{"combi":"N|194|S|L","snv":"N|377|D|Y","color":"#44aa99","count":2},{"combi":"N|194|S|L","snv":"N|270|V|L","color":"#ee7733","count":1},{"combi":"N|194|S|L","snv":"N|7|Q|K","color":"#ddcc77","count":1},{"combi":"N|194|S|L","snv":"N|289|Q|H","color":"#aa4499","count":1},{"combi":"N|194|S|L","snv":"N|9|Q|H","color":"#cc6677","count":2},{"combi":"N|194|S|L","snv":"N|393|T|I","color":"#ee3377","count":2},{"combi":"N|194|S|L","snv":"N|334|T|K","color":"#88ccee","count":7},{"combi":"N|194|S|L","snv":"N|239|Q|L","color":"#ee3377","count":1},{"combi":"N|194|S|L","snv":"N|128|D|H","color":"#44aa99","count":2},{"combi":"N|194|S|L","snv":"N|142|P|S","color":"#117733","count":2},{"combi":"N|194|S|L","snv":"N|238|G|C","color":"#ee7733","count":2},{"combi":"N|194|S|L","snv":"N|119|A|S","color":"#aa4499","count":1},{"combi":"N|194|S|L","snv":"N|329|T|M","color":"#aa4499","count":1},{"combi":"N|194|S|L + N|393|T|I","snv":"N|62|E|V","color":"#ddcc77","count":2},{"combi":"N|194|S|L + N|393|T|I","snv":"None","color":"#AAA","count":4},{"combi":"N|393|T|I","snv":"N|208|A|G","color":"#cc3311","count":75},{"combi":"N|393|T|I","snv":"None","color":"#AAA","count":79},{"combi":"N|393|T|I","snv":"N|63|D|N","color":"#cc6677","count":1},{"combi":"N|393|T|I","snv":"N|62|E|V","color":"#ddcc77","count":2},{"combi":"N|393|T|I","snv":"N|194|S|L","color":"#0077bb","count":2}],
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": ["combi"],
+          "sort": { "field": "snv" },
+          "field": "count",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "location_bars",
+      "source": "cooccurrence_data",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["combi"]
+        },
+        {
+          "type": "formula",
+          "as": "span",
+          "expr": "rangeStep * bandspace(1, innerPadding, outerPadding)"
+        },
+        {
+          "type": "stack",
+          "field": "span"
+        },
+        {
+          "type": "extent",
+          "field": "y1",
+          "signal": "yExtent"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "yscale",
+      "type": "band",
+      "round": true,
+      "range": { "step": { "signal": "rangeStep" } },
+      "domain": { "data": "location_bars", "field": "combi" },
+      "paddingInner": { "signal": "innerPadding" },
+      "paddingOuter": { "signal": "outerPadding" }
+    },
+    {
+      "name": "xscale",
+      "type": "linear",
+      "range": "width",
+      "nice": true,
+      "zero": true,
+      "domain": { "data": "cooccurrence_data", "field": "y1" }
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "zindex": 1,
+      "format": { "signal": "xFormat" },
+
+      "title": { "signal": "xLabel" },
+      "titleFontSize": 14,
+      "titlePadding": 10
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "domain": false,
+      "zindex": 1,
+      "labelFontSize": 14,
+      "labelLimit": 200,
+      "labelPadding": 4
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "layer0",
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": {"signal": "width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "marks": [
+        {
+          "name": "locationbars",
+          "type": "rect",
+          "from": { "data": "cooccurrence_data" },
+          "encode": {
+            "enter": {
+              "strokeWidth": { "value": 2 },
+              "fill": {"field": "color"},
+              "tooltip": {
+                "signal": "{title: datum.snv}"
+              }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "combi" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "field": "y1" },
+              "x2": { "scale": "xscale", "field": "y0" },
+              "fillOpacity": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 0.7
+                },
+                {
+                  "test": "!length(data('selectedGroups')) || indata('selectedGroups', 'group', datum.snv)",
+                  "value": 1.0
+                },
+                { "value": 0.3 }
+              ],
+              "stroke": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": "#333"
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.snv)",
+                  "value": "#000"
+                },
+                { "value": "transparent" }
+              ],
+              "strokeDash": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": [4, 4]
+                },
+                {"value": [0, 0]}
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 4
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.snv)",
+                  "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

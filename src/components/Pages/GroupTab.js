@@ -15,6 +15,7 @@ import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import EntropyPlot from '../Vega/EntropyPlot';
+import CooccurrencePlot from '../Vega/CooccurrencePlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_KEYS } from '../../constants/config';
@@ -55,6 +56,22 @@ const GroupTab = observer(({ width }) => {
     );
   };
 
+  const renderCooccurrencePlot = () => {
+    return (
+      <AccordionWrapper
+        title={
+          <AccordionTitle>
+            <span>SNV Co-occurrence</span>
+          </AccordionTitle>
+        }
+        defaultCollapsed={false}
+        maxHeight={'1200px'}
+      >
+        <CooccurrencePlot width={width - 200} />
+      </AccordionWrapper>
+    );
+  };
+
   return (
     <GroupTabContainer>
       <AccordionWrapper
@@ -87,6 +104,7 @@ const GroupTab = observer(({ width }) => {
         <VegaLegend />
       </AccordionWrapper>
       {renderEntropyPlot()}
+      {renderCooccurrencePlot()}
       <AccordionWrapper
         title={
           <AccordionTitle>

@@ -23,6 +23,8 @@ export const initialPlotSettingsValues = {
   tableCompareColor: COMPARE_COLORS.COLOR_MODE_ZAPPO,
   tableSortColumn: 'cases_sum',
   tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
+
+  cooccurrenceNormMode: NORM_MODES.NORM_PERCENTAGES,
 };
 
 class ObservablePlotSettingsStore {
@@ -86,6 +88,14 @@ class ObservablePlotSettingsStore {
   setTableSort(col, dir) {
     this.tableSortColumn = col;
     this.tableSortDirection = dir;
+  }
+
+  @observable cooccurrenceNormMode =
+    initialPlotSettingsValues.cooccurrenceNormMode;
+
+  @action
+  setCooccurrenceNormMode(mode) {
+    this.cooccurrenceNormMode = mode;
   }
 
   @action

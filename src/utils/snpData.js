@@ -2,11 +2,44 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
+import dnaSnpMap from '../../data/dna_snp_map.json';
 import geneAaSnpMap from '../../data/gene_aa_snp_map.json';
 import proteinAaSnpMap from '../../data/protein_aa_snp_map.json';
-import dnaSnpMap from '../../data/dna_snp_map.json';
 
-import { REFERENCE_GROUP } from '../constants/groups';
+import _ from 'underscore';
+
+import { snpColorArray } from '../constants/colors';
+
+import { GROUPS } from '../constants/groups';
+
+// Make a SNV -> color map
+
+let snvColorInd = 0;
+const _getSnvColor = _.memoize(() => {
+  const color = snpColorArray[snvColorInd++];
+  if (snvColorInd === snpColorArray.length) {
+    snvColorInd = 0;
+  }
+  return color;
+});
+
+const snvColorMap = {};
+snvColorMap[GROUPS.REFERENCE_GROUP] = _getSnvColor('Reference');
+snvColorMap[GROUPS.OTHER_GROUP] = '#AAA';
+snvColorMap[GROUPS.NONE_GROUP] = '#AAA';
+Object.keys(dnaSnpMap).forEach((snv) => {
+  snvColorMap[snv] = _getSnvColor(snv);
+});
+Object.keys(geneAaSnpMap).forEach((snv) => {
+  snvColorMap[snv] = _getSnvColor(snv);
+});
+Object.keys(proteinAaSnpMap).forEach((snv) => {
+  snvColorMap[snv] = _getSnvColor(snv);
+});
+
+export const getSnvColor = (snv) => {
+  return snvColorMap[snv];
+};
 
 // export function loadAaSnpMap() {
 //   return aaSnpMap;
@@ -75,19 +108,19 @@ Object.keys(proteinAaSnpMap).forEach((snp) => {
 
 export function intToDnaSnp(dnaSnpId) {
   if (dnaSnpId === -1) {
-    return { snp_str: REFERENCE_GROUP };
+    return { snp_str: GROUPS.REFERENCE_GROUP };
   }
   return intToDnaSnpMap[dnaSnpId];
 }
 export function intToGeneAaSnp(aaSnpId) {
   if (aaSnpId === -1) {
-    return { snp_str: REFERENCE_GROUP };
+    return { snp_str: GROUPS.REFERENCE_GROUP };
   }
   return intToGeneAaSnpMap[aaSnpId];
 }
 export function intToProteinAaSnp(aaSnpId) {
   if (aaSnpId === -1) {
-    return { snp_str: REFERENCE_GROUP };
+    return { snp_str: GROUPS.REFERENCE_GROUP };
   }
   return intToProteinAaSnpMap[aaSnpId];
 }

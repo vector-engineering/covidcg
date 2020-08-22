@@ -1,9 +1,16 @@
 import initialCaseData from '../../data/case_data.json';
-import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
+import {
+  intToDnaSnp,
+  intToGeneAaSnp,
+  intToProteinAaSnp,
+  getSnvColor,
+} from './snpData';
 import {
   getDnaSnpsFromGroup,
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
+  getLineageColor,
+  getCladeColor,
 } from './lineageData';
 import { getLocationIds } from './location';
 import { hashCode } from './string';
@@ -14,7 +21,6 @@ import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { REFERENCE_GROUP } from '../constants/groups';
-import { getLineageColor, getCladeColor, getSnvColor } from './color';
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(

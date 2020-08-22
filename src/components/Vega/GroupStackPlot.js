@@ -25,54 +25,10 @@ import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import { mergeGroupsIntoOther } from './utils';
 import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
-
-const PlotOptions = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-  padding-right: 10px;
-
-  .spacer {
-    flex-grow: 1;
-  }
-`;
-
-const PlotTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-
-  border-right: 1px solid #ccc;
-  margin-right: 10px;
-  padding-right: 10px;
-  padding-left: 18px;
-
-  line-height: normal;
-
-  .title {
-    font-size: 1.25em;
-  }
-  .subtitle {
-    font-size: 0.9em;
-    font-weight: normal;
-  }
-`;
-
-const SelectContainer = styled.div`
-  margin-right: 8px;
-  font-weight: normal;
-  select {
-    margin-left: 0.65em;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-`;
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
@@ -299,7 +255,7 @@ const GroupStackPlot = observer(({ width }) => {
           <span className="title">{plotTitle}</span>
           <span className="subtitle">{selectedLocationsText}</span>
         </PlotTitle>
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.groupStackCountMode}
@@ -309,9 +265,9 @@ const GroupStackPlot = observer(({ width }) => {
               <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         sequences, shown as{' '}
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.groupStackNormMode}
@@ -321,9 +277,9 @@ const GroupStackPlot = observer(({ width }) => {
               <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         grouped by{' '}
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.groupStackDateBin}
@@ -334,7 +290,7 @@ const GroupStackPlot = observer(({ width }) => {
               <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

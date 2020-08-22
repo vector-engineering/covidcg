@@ -1,0 +1,243 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 500,
+  "padding": 5,
+  "autosize": "pad",
+
+  "signals": [
+    { "name": "rangeStep", "value": 20 },
+    { "name": "innerPadding", "value": 0.2 },
+    { "name": "outerPadding", "value": 0.1 },
+    { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
+    { "name": "xFormat", "value": "%" },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@locationbars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@locationbars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "clearGroup",
+      "value": true,
+      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftGroup",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedGroups",
+      "value": null,
+      "comment": "Track clicks on the location bars, for selection purposes",
+      "on": [
+        {
+          "events": "@locationbars:click",
+          "update": "{group: datum.snv}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "selectedGroups",
+      "values": [{ "group": "N|62|E|V" }],
+      "on": [
+        { "trigger": "clearGroup", "remove": true },
+        { "trigger": "!shiftGroup", "remove": true },
+        {
+          "trigger": "!shiftGroup && clickedGroups",
+          "insert": "clickedGroups"
+        },
+        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+      ]
+    },
+    {
+      "name": "cooccurrence_data",
+      "format": {
+        "parse": {
+          "combi": "string",
+          "snv": "string",
+          "count": "number"
+        }
+      },
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": ["combi"],
+          "sort": { "field": "snv" },
+          "field": "count",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "location_bars",
+      "source": "cooccurrence_data",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["combi"]
+        },
+        {
+          "type": "formula",
+          "as": "span",
+          "expr": "rangeStep * bandspace(1, innerPadding, outerPadding)"
+        },
+        {
+          "type": "stack",
+          "field": "span"
+        },
+        {
+          "type": "extent",
+          "field": "y1",
+          "signal": "yExtent"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "yscale",
+      "type": "band",
+      "round": true,
+      "range": { "step": { "signal": "rangeStep" } },
+      "domain": { "data": "location_bars", "field": "combi" },
+      "paddingInner": { "signal": "innerPadding" },
+      "paddingOuter": { "signal": "outerPadding" }
+    },
+    {
+      "name": "xscale",
+      "type": "linear",
+      "range": "width",
+      "nice": true,
+      "zero": true,
+      "domain": { "data": "cooccurrence_data", "field": "y1" }
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "zindex": 1,
+      "format": { "signal": "xFormat" },
+
+      "title": { "signal": "xLabel" },
+      "titleFontSize": 14,
+      "titlePadding": 10
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "domain": false,
+      "zindex": 1,
+      "labelFontSize": 14,
+      "labelLimit": 200,
+      "labelPadding": 4
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "layer0",
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": { "signal": "width" },
+          "height": { "signal": "height" }
+        }
+      },
+      "marks": [
+        {
+          "name": "locationbars",
+          "type": "rect",
+          "from": { "data": "cooccurrence_data" },
+          "encode": {
+            "enter": {
+              "strokeWidth": { "value": 2 },
+              "fill": { "field": "color" },
+              "tooltip": {
+                "signal": "{title: datum.snv}"
+              }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "combi" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "field": "y1" },
+              "x2": { "scale": "xscale", "field": "y0" },
+              "fillOpacity": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 0.7
+                },
+                {
+                  "test": "!length(data('selectedGroups')) || indata('selectedGroups', 'group', datum.snv)",
+                  "value": 1.0
+                },
+                { "value": 0.3 }
+              ],
+              "stroke": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": "#333"
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.snv)",
+                  "value": "#000"
+                },
+                { "value": "transparent" }
+              ],
+              "strokeDash": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": [4, 4]
+                },
+                { "value": [0, 0] }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 4
+                },
+                {
+                  "test": "indata('selectedGroups', 'group', datum.snv)",
+                  "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import {
   intToDnaSnp,
   intToGeneAaSnp,
   intToProteinAaSnp,
+  getSnvColor,
 } from './snpData';
 
 function getCombinations(arr) {
@@ -136,11 +137,25 @@ function processSelectedSnvs({
       });
     });
   });
-  //console.log(snvCooccurrence);
+
+  // Obj to list
+  // This should also filter out any non-occurring combinations
+  const snvCooccurrenceList = [];
+  Object.keys(snvCooccurrence).forEach((combi) => {
+    Object.keys(snvCooccurrence[combi]).forEach((snv) => {
+      snvCooccurrenceList.push({
+        combi: combi,
+        snv: snv,
+        color: getSnvColor(snv),
+        count: snvCooccurrence[combi][snv],
+      });
+    });
+  });
+  // console.log(JSON.stringify(snvCooccurrenceList));
 
   return {
     dataAggLocationSnvDate,
-    snvCooccurrence,
+    snvCooccurrence: snvCooccurrenceList,
   };
 }
 
