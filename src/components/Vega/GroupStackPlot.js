@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { toJS } from 'mobx';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -12,11 +10,6 @@ import {
 } from '../../constants/plotSettings';
 import { GROUP_KEYS } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import {
-  dnaSnpToInt,
-  geneAaSnpToInt,
-  proteinAaSnpToInt,
-} from '../../utils/snpData';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -28,7 +21,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import { mergeGroupsIntoOther } from './utils';
-import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
+import initialSpec from '../../vega_specs/group_stack.vg.json';
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
