@@ -42,21 +42,7 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
-  const [state, setState] = useState({
-    xRange: [0, 100],
-    data: {
-      table: processData(dataStore.groupCountArr),
-      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
-    },
-    signalListeners: {
-      hoverGroup: _.throttle(handleHoverGroup, 100),
-    },
-    dataListeners: {
-      selected: handleSelected,
-    },
-  });
-
-  useEffect(() => {
+  const getXRange = () => {
     // Apply xRange
     let xRange;
     if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
@@ -88,10 +74,27 @@ const EntropyPlot = observer(({ width }) => {
         residueRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
       ];
     }
+    return xRange;
+  };
 
+  const [state, setState] = useState({
+    xRange: getXRange(),
+    data: {
+      table: processData(dataStore.groupCountArr),
+      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+    },
+    signalListeners: {
+      hoverGroup: _.throttle(handleHoverGroup, 100),
+    },
+    dataListeners: {
+      selected: handleSelected,
+    },
+  });
+
+  useEffect(() => {
     setState({
       ...state,
-      xRange,
+      xRange: getXRange(),
       data: {
         ...state.data,
         table: processData(dataStore.groupCountArr),
