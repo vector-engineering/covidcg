@@ -46,6 +46,7 @@ export const initialDataValues = {
 
   dataAggLocationSnvDate: [],
   snvCooccurrence: [],
+  snvCounts: [],
 };
 
 class ObservableDataStore {
@@ -70,6 +71,7 @@ class ObservableDataStore {
 
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
+  snvCounts = initialDataValues.snvCounts;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -135,6 +137,7 @@ class ObservableDataStore {
   @action
   updateAggCaseDataByGroup(callback) {
     UIStoreInstance.onAggCaseDataStarted();
+    this.processSelectedSnvs();
     aggCaseDataByGroup(
       {
         totalSequenceCount: this.selectedAccessionIds.length,
@@ -237,7 +240,6 @@ class ObservableDataStore {
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
 
-        this.processSelectedSnvs();
         this.updateAggCaseDataByGroup(callback);
       }
     );
@@ -255,10 +257,12 @@ class ObservableDataStore {
         selectedGroups: toJS(configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
+        dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggLocationSnvDate, snvCooccurrence }) => {
+      ({ dataAggLocationSnvDate, snvCooccurrence, snvCounts }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
         this.snvCooccurrence = snvCooccurrence;
+        this.snvCounts = snvCounts;
         UIStoreInstance.onSnvDataFinished();
       }
     );

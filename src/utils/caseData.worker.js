@@ -216,7 +216,6 @@ function processCaseData({
   selectedMetadataFields,
   ageRange,
   dateRange,
-  selectedGroups,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));

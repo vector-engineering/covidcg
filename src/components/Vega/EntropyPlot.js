@@ -41,8 +41,8 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
-  const processData = (groupCountArr) => {
-    return groupCountArr;
+  const processData = (snvCounts) => {
+    return snvCounts;
   };
 
   const handleHoverGroup = (...args) => {
@@ -105,7 +105,7 @@ const EntropyPlot = observer(({ width }) => {
   const [state, setState] = useState({
     xRange: getXRange(),
     data: {
-      table: processData(dataStore.groupCountArr),
+      table: processData(dataStore.snvCounts),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -117,15 +117,19 @@ const EntropyPlot = observer(({ width }) => {
   });
 
   useEffect(() => {
+    if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     setState({
       ...state,
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(dataStore.groupCountArr),
+        table: processData(toJS(dataStore.snvCounts)),
       },
     });
-  }, [dataStore.selectedRowsAndDateHash]);
+  }, [UIStore.snvDataState]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -152,10 +156,7 @@ const EntropyPlot = observer(({ width }) => {
     xLabel += ' (AA residue)';
   }
 
-  if (
-    UIStore.caseDataState === ASYNC_STATES.STARTED ||
-    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-  ) {
+  if (UIStore.snvDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
