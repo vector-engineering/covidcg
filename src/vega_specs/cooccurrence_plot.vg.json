@@ -6,6 +6,7 @@
   "autosize": "pad",
 
   "signals": [
+    { "name": "combiLabelsSignal", "update": "data('combi_labels')" },
     { "name": "rangeStep", "value": 20 },
     { "name": "innerPadding", "value": 0.2 },
     { "name": "outerPadding", "value": 0.1 },
@@ -94,8 +95,10 @@
       "format": {
         "parse": {
           "combi": "string",
+          "combiName": "string",
           "snv": "string",
-          "count": "number"
+          "count": "number",
+          "snvName": "string"
         }
       },
       "transform": [
@@ -114,7 +117,7 @@
       "transform": [
         {
           "type": "aggregate",
-          "groupby": ["combi"]
+          "groupby": ["combi", "combiName"]
         },
         {
           "type": "formula",
@@ -131,6 +134,11 @@
           "signal": "yExtent"
         }
       ]
+    },
+    {
+      "name": "combi_labels",
+      "source": "combi_bars",
+      "transform": [{ "type": "project", "fields": ["combiName"] }]
     }
   ],
 
@@ -151,6 +159,12 @@
       "nice": true,
       "zero": true,
       "domain": { "data": "cooccurrence_data", "field": "y1" }
+    },
+    {
+      "name": "yLabels",
+      "type": "ordinal",
+      "domain": { "data": "combi_bars", "field": "combi" },
+      "range": { "signal": "combiLabelsSignal" }
     }
   ],
 
@@ -179,6 +193,7 @@
           "name": "yAxisLabels",
           "interactive": true,
           "update": {
+            "text": { "signal": "scale('yLabels', datum.value).combiName" },
             "opacity": { "value": 1.0 }
           },
           "hover": {
@@ -209,7 +224,7 @@
               "strokeWidth": { "value": 2 },
               "fill": { "field": "color" },
               "tooltip": {
-                "signal": "{title: datum.snv, 'Co-occurs with': datum.combi, 'Count': datum.count}"
+                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
               }
             },
             "update": {

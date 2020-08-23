@@ -4,6 +4,7 @@ import {
   intToGeneAaSnp,
   intToProteinAaSnp,
   getSnvColor,
+  formatSnv,
 } from './snpData';
 import {
   getDnaSnpsFromGroup,
@@ -13,7 +14,6 @@ import {
   getCladeColor,
 } from './lineageData';
 import { getLocationIds } from './location';
-import { hashCode } from './string';
 import { dataDate } from './version';
 import { aggregate } from './transform';
 
@@ -359,6 +359,10 @@ function processCaseData({
           location: location,
           date: parseInt(date),
           group: group,
+          groupName:
+            groupKey === GROUP_KEYS.GROUP_SNV
+              ? formatSnv(group, dnaOrAa)
+              : group,
           cases_sum: aggCaseData[location][date][group],
           location_counts: countsPerLocation[location],
           color: getColorMethod(group),
@@ -379,7 +383,7 @@ function processCaseData({
   // Aggregate by group and date
   const dataAggGroupDate = aggregate({
     data: dataAggLocationGroupDate,
-    groupby: ['date', 'group'],
+    groupby: ['date', 'group', 'groupName'],
     fields: ['cases_sum', 'color', 'location_counts'],
     ops: ['sum', 'max', 'max'],
     as: ['cases_sum', 'color', 'location_counts'],
@@ -435,6 +439,10 @@ function aggCaseDataByGroup({
   let groupCountArr = Object.entries(groupCountObj);
   groupCountArr.forEach((item) => {
     item.push(getColorMethod(item[0]));
+    // Push the formatted group/SNV
+    item.push(
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
+    );
   });
 
   // this will sort it so that 0 is the biggest
@@ -462,6 +470,10 @@ function aggCaseDataByGroup({
   let groupCountDateFilteredArr = Object.entries(groupCountDateFilteredObj);
   groupCountDateFilteredArr.forEach((item) => {
     item.push(getColorMethod(item[0]));
+    // Push the formatted group/SNV
+    item.push(
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
+    );
   });
   groupCountDateFilteredArr.sort((a, b) => {
     if (a[1] < b[1]) {
@@ -727,6 +739,8 @@ function aggCaseDataByGroup({
   // Object -> List of records
   Object.keys(dataAggGroup).forEach((group) => {
     dataAggGroup[group]['group'] = group;
+    dataAggGroup[group]['groupName'] =
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(group, dnaOrAa) : group;
     dataAggGroup[group]['color'] = getColorMethod(group);
     const parentkey = getParent(group);
     if (dataAggGroup[parentkey] && parentkey !== group) {

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import _ from 'underscore';
 import { aggregate } from '../../utils/transform';
+import { formatSnv } from '../../utils/snpData';
+import _ from 'underscore';
 
 import {
   NORM_MODES,
@@ -127,7 +128,7 @@ const LocationDatePlot = observer(({ width }) => {
       );
       // Filter out 'Other' group
       locationData = locationData.filter((row) => {
-        return row.group !== GROUPS.OTHER_GROUP;
+        return row.group !== GROUPS.ALL_OTHER_GROUP;
       });
     } else {
       locationData = JSON.parse(
@@ -143,7 +144,7 @@ const LocationDatePlot = observer(({ width }) => {
 
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group'],
+      groupby: ['location', 'date', 'group', 'groupName'],
       fields: ['cases_sum', 'location_counts'],
       ops: ['sum', 'max'],
       as: ['cases_sum', 'location_counts'],
@@ -388,7 +389,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       plotTitle += ` (${configStore.selectedGroups
-        .map((group) => group.group)
+        .map((group) => formatSnv(group.group, configStore.dnaOrAa))
         .join(' & ')})`;
     } else {
       plotTitle += ` (${configStore.selectedGroups

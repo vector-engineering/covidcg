@@ -72,14 +72,15 @@
         "parse": {
           "0": "string",
           "1": "number",
-          "2": "string"
+          "2": "string",
+          "3": "string"
         }
       },
       "transform": [
         {
           "type": "project",
-          "fields": ["0", "1", "2"],
-          "as": ["snv", "count", "color"]
+          "fields": ["0", "1", "2", "3"],
+          "as": ["snv", "count", "color", "snvName"]
         },
         {
           "type": "filter",
@@ -199,7 +200,7 @@
               "y": { "scale": "yscale", "field": "count" },
               "y2": { "scale": "yscale", "value": 0 },
               "tooltip": {
-                "signal": "{title: datum.snv, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
               },
               "fill": { "field": "color" },
               "strokeWidth": [

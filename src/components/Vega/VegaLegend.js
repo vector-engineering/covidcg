@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { mergeLegendItemsIntoOther } from './utils';
+import { formatSnv } from '../../utils/snpData';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
@@ -20,6 +21,10 @@ import { LegendList, LegendItem } from './Legend.styles';
 const LegendItemWrapper = observer(({ group, color }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
+    text:
+      configStore.groupKey === GROUP_KEYS.GROUP_SNV
+        ? formatSnv(group, configStore.dnaOrAa)
+        : group,
     hovered: false,
     selected: false,
   });
@@ -57,7 +62,7 @@ const LegendItemWrapper = observer(({ group, color }) => {
       textColor={textColor}
       data-group={group}
     >
-      {group}
+      {state.text}
     </LegendItem>
   );
 });

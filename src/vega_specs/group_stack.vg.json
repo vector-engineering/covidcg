@@ -149,7 +149,7 @@
           "ops": ["sum"],
           "fields": ["cases_sum"],
           "as": ["group_counts"],
-          "groupby": ["group"]
+          "groupby": ["group", "groupName"]
         },
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
@@ -165,7 +165,13 @@
         {
           "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
           "type": "aggregate",
-          "groupby": ["group", "new_group", "day_start", "day_end"],
+          "groupby": [
+            "group",
+            "groupName",
+            "new_group",
+            "day_start",
+            "day_end"
+          ],
           "fields": ["cases_sum", "group_counts", "color"],
           "ops": ["sum", "max", "max"],
           "as": ["cases_sum", "group_counts", "color"]
@@ -175,7 +181,7 @@
           "type": "impute",
           "field": "cases_sum",
           "key": "day_start",
-          "groupby": ["group", "color", "group_counts"],
+          "groupby": ["group", "groupName", "color", "group_counts"],
           "value": 0
         },
         {
@@ -188,7 +194,7 @@
           "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
           "type": "window",
           "sort": { "field": "day_start" },
-          "groupby": ["group"],
+          "groupby": ["group", "groupName"],
           "ops": ["sum"],
           "fields": ["cases_sum"],
           "as": ["cases_sum_new"],
@@ -330,7 +336,7 @@
                 "enter": {
                   "strokeWidth": { "value": 1 },
                   "tooltip": {
-                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   }
                 },
                 "update": {

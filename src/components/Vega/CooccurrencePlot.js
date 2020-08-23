@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { formatSnv } from '../../utils/snpData';
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -189,7 +190,7 @@ const CooccurrencePlot = observer(({ width }) => {
   const maxShownSnvs = 4;
   let subtitle = configStore.selectedGroups
     .slice(0, maxShownSnvs)
-    .map((item) => item.group)
+    .map((item) => formatSnv(item.group, configStore.dnaOrAa))
     .join(', ');
   if (configStore.selectedGroups.length > maxShownSnvs) {
     subtitle += ', ...';

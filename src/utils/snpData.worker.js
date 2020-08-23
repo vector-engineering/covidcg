@@ -7,6 +7,7 @@ import {
   intToGeneAaSnp,
   intToProteinAaSnp,
   getSnvColor,
+  formatSnv,
 } from './snpData';
 import { aggregate } from './transform';
 
@@ -75,6 +76,15 @@ function processSelectedSnvs({
   // Array to Set
   selectedGroupIds = new Set(selectedGroupIds);
 
+  // If no SNVs are selected, then return empty arrays now
+  if (selectedGroupIds.size === 0) {
+    return {
+      dataAggLocationSnvDate: [],
+      dataAggSnvDate: [],
+      snvCooccurrence: [],
+    };
+  }
+
   const dataAggLocationSnvDateObj = {};
   // Build a map of location_id --> node
   // Also while we're at it, create an entry for this node
@@ -122,10 +132,14 @@ function processSelectedSnvs({
           location: location,
           date: parseInt(date),
           group: group,
+          groupName: group
+            .split(' + ')
+            .map((group) => formatSnv(group, dnaOrAa))
+            .join(' + '),
           cases_sum: dataAggLocationSnvDateObj[location][date][group],
           // For multiple SNVs, just use this nice blue color
           color:
-            selectedGroupIds.size > 1 && group !== GROUPS.OTHER_GROUP
+            selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
               ? '#07B'
               : getSnvColor(group),
         });
@@ -136,7 +150,7 @@ function processSelectedSnvs({
   // Aggregate by SNV and date
   const dataAggSnvDate = aggregate({
     data: dataAggLocationSnvDate,
-    groupby: ['date', 'group'],
+    groupby: ['date', 'group', 'groupName'],
     fields: ['cases_sum', 'color'],
     ops: ['sum', 'max'],
     as: ['cases_sum', 'color'],
@@ -187,7 +201,12 @@ function processSelectedSnvs({
     Object.keys(snvCooccurrence[combi]).forEach((snv) => {
       snvCooccurrenceList.push({
         combi: combi,
+        combiName: combi
+          .split(' + ')
+          .map((snv) => formatSnv(snv, dnaOrAa))
+          .join(' + '),
         snv: snv,
+        snvName: formatSnv(snv, dnaOrAa),
         color: getSnvColor(snv),
         count: snvCooccurrence[combi][snv],
       });
