@@ -48,6 +48,9 @@ export const initialDataValues = {
   dataAggLocationSnvDate: [],
   dataAggSnvDate: [],
   snvCooccurrence: [],
+
+  countsPerLocation: {},
+  countsPerLocationDate: {},
 };
 
 class ObservableDataStore {
@@ -74,6 +77,9 @@ class ObservableDataStore {
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
   dataAggSnvDate = initialDataValues.dataAggSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
+
+  countsPerLocation = initialDataValues.countsPerLocation;
+  countsPerLocationDate = initialDataValues.countsPerLocationDate;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -230,6 +236,8 @@ class ObservableDataStore {
         selectedRowsHash,
         selectedAccessionIds,
         selectedAckIds,
+        countsPerLocation,
+        countsPerLocationDate,
       }) => {
         this.filteredCaseData = filteredCaseData;
         this.dataAggLocationGroupDate = dataAggLocationGroupDate;
@@ -242,6 +250,9 @@ class ObservableDataStore {
         this.selectedRowsHash = selectedRowsHash;
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
+
+        this.countsPerLocation = countsPerLocation;
+        this.countsPerLocationDate = countsPerLocationDate;
 
         this.updateAggCaseDataByGroup(callback);
       }

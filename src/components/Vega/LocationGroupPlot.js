@@ -100,9 +100,9 @@ const LocationGroupPlot = observer(({ width }) => {
     locationData = aggregate({
       data: locationData,
       groupby: ['location', 'date', 'group'],
-      fields: ['cases_sum', 'color'],
-      ops: ['sum', 'first'],
-      as: ['cases_sum', 'color'],
+      fields: ['cases_sum', 'color', 'location_counts'],
+      ops: ['sum', 'first', 'max'],
+      as: ['cases_sum', 'color', 'location_counts'],
     });
 
     setState({
@@ -119,7 +119,19 @@ const LocationGroupPlot = observer(({ width }) => {
     dataStore.groupsToKeep,
   ]);
 
-  let xLabel = 'Sequences by ';
+  if (configStore.selectedLocationNodes.length == 0) {
+    return (
+      <EmptyPlot height={100}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{configStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
+  }
+
+  let xLabel, xLabelFormat, stackOffset;
   if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     xLabel += 'Lineage ';
   } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
@@ -134,20 +146,18 @@ const LocationGroupPlot = observer(({ width }) => {
   }
   xLabel += ' (Cumulative, All Sequences)';
 
-  const renderPlot = () => {
-    if (configStore.selectedLocationNodes.length == 0) {
-      return (
-        <EmptyPlot height={100}>
-          <p>
-            No locations selected. Please select one or more locations from the
-            sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-            <b>{configStore.getGroupLabel()}</b> between them.
-          </p>
-        </EmptyPlot>
-      );
-    }
+  if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    xLabelFormat = 's';
+    stackOffset = 'zero';
+    xLabel = `# Sequences with ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
+  } else {
+    xLabelFormat = '%';
+    stackOffset = 'normalize';
+    xLabel = `% Sequences by ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
+  }
 
-    return (
+  return (
+    <PlotContainer>
       <div style={{ width: `${width}` }}>
         <VegaEmbed
           ref={vegaRef}
@@ -159,15 +169,15 @@ const LocationGroupPlot = observer(({ width }) => {
             hoverLocation: { location: configStore.hoverLocation },
             hoverGroup: { group: configStore.hoverGroup },
             xLabel,
+            xLabelFormat,
+            stackOffset,
           }}
           width={width}
           actions={false}
         />
       </div>
-    );
-  };
-
-  return <PlotContainer>{renderPlot()}</PlotContainer>;
+    </PlotContainer>
+  );
 });
 LocationGroupPlot.propTypes = {
   width: PropTypes.number,

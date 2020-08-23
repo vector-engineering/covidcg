@@ -6,19 +6,11 @@
   "autosize": "pad",
 
   "signals": [
-    {
-      "name": "rangeStep",
-      "value": 20
-    },
-    {
-      "name": "innerPadding",
-      "value": 0.2
-    },
-    {
-      "name": "outerPadding",
-      "value": 0.1
-    },
+    { "name": "rangeStep", "value": 20 },
+    { "name": "innerPadding", "value": 0.2 },
+    { "name": "outerPadding", "value": 0.1 },
     { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabelFormat", "value": "%" },
     {
       "name": "xLabel",
       "value": "Sequences by Lineage (Cumulative, All Sequences)"
@@ -180,9 +172,9 @@
         {
           "type": "aggregate",
           "groupby": ["location", "group"],
-          "fields": ["cases_sum", "color"],
-          "ops": ["sum", "max"],
-          "as": ["cases_sum", "color"]
+          "fields": ["cases_sum", "color", "location_counts"],
+          "ops": ["sum", "max", "max"],
+          "as": ["cases_sum", "color", "location_counts"]
         },
         {
           "type": "stack",
@@ -190,6 +182,11 @@
           "sort": { "field": "group" },
           "field": "cases_sum",
           "offset": { "signal": "stackOffset" }
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cases_sum / datum.location_counts",
+          "as": "percent"
         }
       ]
     },
@@ -244,6 +241,7 @@
       "orient": "bottom",
       "scale": "xscale",
       "zindex": 1,
+      "format": { "signal": "xLabelFormat" },
       "labels": false,
 
       "title": { "signal": "xLabel" },
@@ -301,7 +299,7 @@
               "strokeWidth": { "value": 2 },
               "fill": { "field": "color" },
               "tooltip": {
-                "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts}"
+                "signal": "{title: datum.group, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
               }
             },
             "update": {

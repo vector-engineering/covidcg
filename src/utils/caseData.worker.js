@@ -262,6 +262,7 @@ function processCaseData({
   // For the location tab:
   const aggCaseData = {};
   const countsPerLocation = {};
+  const countsPerLocationDate = {};
 
   // Build a map of location_id --> node
   // Also while we're at it, create an entry for this node
@@ -272,6 +273,7 @@ function processCaseData({
       locationIdToNodeMap[locationId] = selectedLocationNodes[i].value;
     });
     countsPerLocation[selectedLocationNodes[i].value] = 0;
+    countsPerLocationDate[selectedLocationNodes[i].value] = {};
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
@@ -280,6 +282,16 @@ function processCaseData({
   let location;
   caseData.forEach((row) => {
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
+    !(
+      row.collection_date in
+      countsPerLocationDate[locationIdToNodeMap[row.location_id]]
+    ) &&
+      (countsPerLocationDate[locationIdToNodeMap[row.location_id]][
+        row.collection_date
+      ] = 0);
+    countsPerLocationDate[locationIdToNodeMap[row.location_id]][
+      row.collection_date
+    ] += 1;
     groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
 
     // If groupKeys is empty, that means that it's a sequence
@@ -316,6 +328,18 @@ function processCaseData({
     });
   });
 
+  // Process the object of counts per location, per date
+  // const countsPerLocationDateList = [];
+  // Object.keys(countsPerLocationDate).forEach((location) => {
+  //   Object.keys(countsPerLocationDate[location]).forEach((date) => {
+  //     countsPerLocationDateList.push({
+  //       location: location,
+  //       date: parseInt(date),
+  //       count: countsPerLocationDate[location][date],
+  //     });
+  //   });
+  // });
+
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     getColorMethod = getLineageColor;
@@ -324,16 +348,6 @@ function processCaseData({
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = getSnvColor;
   }
-
-  // Trigger the memoized color function for these items in order,
-  // So that we get the appropriate color separation, instead of
-  // two items being potentially close to each other with the
-  // same color
-  Array.from(uniqueGroupKeys)
-    .sort()
-    .forEach((group) => {
-      getColorMethod(group);
-    });
 
   const dataAggLocationGroupDate = [];
   Object.keys(aggCaseData).forEach((location) => {
@@ -367,9 +381,9 @@ function processCaseData({
   const dataAggGroupDate = aggregate({
     data: dataAggLocationGroupDate,
     groupby: ['date', 'group'],
-    fields: ['cases_sum', 'color'],
-    ops: ['sum', 'max'],
-    as: ['cases_sum', 'color'],
+    fields: ['cases_sum', 'color', 'location_counts'],
+    ops: ['sum', 'max', 'max'],
+    as: ['cases_sum', 'color', 'location_counts'],
   });
 
   return {
@@ -382,6 +396,10 @@ function processCaseData({
     selectedRowsHash,
     selectedAccessionIds,
     selectedAckIds,
+
+    countsPerLocation,
+    //countsPerLocationDate: countsPerLocationDateList,
+    countsPerLocationDate,
   };
 }
 

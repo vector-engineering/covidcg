@@ -18,6 +18,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import initialSpec from '../../vega_specs/location_date.vg.json';
+import { GROUP_KEYS } from '../../constants/config';
 
 const PlotContainer = styled.div``;
 
@@ -214,10 +215,18 @@ const LocationDatePlot = observer(({ width }) => {
     locationData = aggregate({
       data: locationData,
       groupby: ['location', 'date', 'group'],
-      fields: ['cases_sum'],
-      ops: ['sum'],
-      as: ['cases_sum'],
+      fields: ['cases_sum', 'location_counts'],
+      ops: ['sum', 'max'],
+      as: ['cases_sum', 'location_counts'],
     });
+
+    // Manually join the countsPerLocationDate to locationData
+    locationData.forEach((row) => {
+      row.location_date_count =
+        dataStore.countsPerLocationDate[row.location][row.date.toString()];
+    });
+
+    console.log(JSON.stringify(locationData));
 
     setState({
       ...state,
@@ -232,6 +241,30 @@ const LocationDatePlot = observer(({ width }) => {
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
+
+  if (configStore.selectedLocationNodes.length == 0) {
+    return (
+      <EmptyPlot height={200}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{configStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
+  }
+
+  if (configStore.selectedGroups.length == 0) {
+    return (
+      <EmptyPlot height={200}>
+        <p>
+          Please select a <b>{configStore.getGroupLabel()}</b> from the legend
+          (above) or the group plot (below), to compare its counts between the
+          selected locations.
+        </p>
+      </EmptyPlot>
+    );
+  }
 
   // Set the normalization mode
   const yField =
@@ -253,7 +286,11 @@ const LocationDatePlot = observer(({ width }) => {
   if (plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES) {
     yLabel += '% ';
   }
-  yLabel += 'Sequences by ' + configStore.getGroupLabel();
+  if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    yLabel += 'Sequences with this ' + configStore.getGroupLabel();
+  } else {
+    yLabel += 'Sequences by ' + configStore.getGroupLabel();
+  }
 
   let plotTitle = '';
   if (
@@ -288,111 +325,6 @@ const LocationDatePlot = observer(({ width }) => {
       .join(', ')})`;
   }
 
-  const renderPlot = () => {
-    if (configStore.selectedLocationNodes.length == 0) {
-      return (
-        <EmptyPlot height={200}>
-          <p>
-            No locations selected. Please select one or more locations from the
-            sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-            <b>{configStore.getGroupLabel()}</b> between them.
-          </p>
-        </EmptyPlot>
-      );
-    }
-
-    if (configStore.selectedGroups.length == 0) {
-      return (
-        <EmptyPlot height={200}>
-          <p>
-            Please select a <b>{configStore.getGroupLabel()}</b> from the legend
-            (above) or the group plot (below), to compare its counts between the
-            selected locations.
-          </p>
-        </EmptyPlot>
-      );
-    }
-
-    return (
-      <>
-        <PlotOptions>
-          <span className="plot-title">{plotTitle}</span>
-          <SelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.locationDateCountMode}
-                onChange={onChangeCountMode}
-              >
-                <option value={COUNT_MODES.COUNT_NEW}>New</option>
-                <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
-              </select>
-            </label>
-          </SelectContainer>
-          sequences, shown as{' '}
-          <SelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.locationDateNormMode}
-                onChange={onChangeNormMode}
-              >
-                <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
-                <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
-              </select>
-            </label>
-          </SelectContainer>
-          grouped by{' '}
-          <SelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.locationDateDateBin}
-                onChange={onChangeDateBin}
-              >
-                <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
-                <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
-                <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
-              </select>
-            </label>
-          </SelectContainer>
-          <div className="spacer"></div>
-          <DropdownButton
-            text={'Download'}
-            options={[
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-            ]}
-            onSelect={handleDownloadSelect}
-          />
-        </PlotOptions>
-        <div style={{ width: `${width}` }}>
-          <VegaEmbed
-            ref={vegaRef}
-            data={state.data}
-            recreateOnDatasets={['selectedGroups']}
-            spec={state.spec}
-            signalListeners={state.signalListeners}
-            dataListeners={state.dataListeners}
-            width={width}
-            signals={{
-              hoverLocation: { location: configStore.hoverLocation },
-              yField,
-              cumulativeWindow,
-              yLabel,
-              yFormat:
-                plotSettingsStore.locationDateNormMode ===
-                NORM_MODES.NORM_COUNTS
-                  ? 's'
-                  : '%',
-            }}
-            actions={false}
-          />
-        </div>
-      </>
-    );
-  };
-
   return (
     <PlotContainer>
       <WarningBox
@@ -402,7 +334,83 @@ const LocationDatePlot = observer(({ width }) => {
           data and artefacts in this visualization. Please interpret this data
           with care."
       />
-      {renderPlot()}
+      <PlotOptions>
+        <span className="plot-title">{plotTitle}</span>
+        <SelectContainer>
+          <label>
+            <select
+              value={plotSettingsStore.locationDateCountMode}
+              onChange={onChangeCountMode}
+            >
+              <option value={COUNT_MODES.COUNT_NEW}>New</option>
+              <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
+            </select>
+          </label>
+        </SelectContainer>
+        sequences, shown as{' '}
+        <SelectContainer>
+          <label>
+            <select
+              value={plotSettingsStore.locationDateNormMode}
+              onChange={onChangeNormMode}
+            >
+              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+              <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
+            </select>
+          </label>
+        </SelectContainer>
+        grouped by{' '}
+        <SelectContainer>
+          <label>
+            <select
+              value={plotSettingsStore.locationDateDateBin}
+              onChange={onChangeDateBin}
+            >
+              <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+              <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+              <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+            </select>
+          </label>
+        </SelectContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+          ]}
+          onSelect={handleDownloadSelect}
+        />
+      </PlotOptions>
+      <div style={{ width: `${width}` }}>
+        <VegaEmbed
+          ref={vegaRef}
+          data={state.data}
+          recreateOnDatasets={['selectedGroups']}
+          spec={state.spec}
+          signalListeners={state.signalListeners}
+          dataListeners={state.dataListeners}
+          width={width}
+          signals={{
+            hoverLocation: { location: configStore.hoverLocation },
+            yField,
+            cumulativeWindow,
+            yLabel,
+            yFormat:
+              plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_COUNTS
+                ? 's'
+                : '%',
+            tooltipCountFormat:
+              plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_COUNTS
+                ? 'd'
+                : '.1%',
+          }}
+          actions={false}
+        />
+      </div>
     </PlotContainer>
   );
 });

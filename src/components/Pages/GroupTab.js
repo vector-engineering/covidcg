@@ -41,6 +41,10 @@ const GroupTab = observer(({ width }) => {
   const { configStore } = useStores();
 
   const renderEntropyPlot = () => {
+    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+      return null;
+    }
+
     return (
       <AccordionWrapper
         title={
@@ -57,6 +61,10 @@ const GroupTab = observer(({ width }) => {
   };
 
   const renderCooccurrencePlot = () => {
+    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+      return null;
+    }
+
     return (
       <AccordionWrapper
         title={
