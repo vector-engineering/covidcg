@@ -71,15 +71,22 @@ export const HelpButton = styled.button`
 export const HelpText = styled.div`
   display: ${({ show }) => (show ? 'block' : 'none')};
 
-  margin-bottom: 5px;
+  background-color: #f8f8f8;
+  border: 1px solid #aaa;
+
+  margin: 10px;
+  padding-right: 20px;
 
   font-weight: normal;
-  font-size: 0.9em;
+  font-size: 1em;
   color: #666;
   line-height: normal;
   p {
     margin-top: 0px;
     margin-bottom: 3px;
+  }
+  ul {
+    line-height: 1.5;
   }
 `;
 HelpText.defaultProps = {

@@ -138,26 +138,21 @@ const CooccurrencePlot = observer(({ width }) => {
 
   // Subtitle text
   const maxShownSnvs = 4;
-  let subtitle =
-    '(' +
-    configStore.selectedGroups
-      .slice(0, maxShownSnvs)
-      .map((item) => item.group)
-      .join(', ');
+  let subtitle = configStore.selectedGroups
+    .slice(0, maxShownSnvs)
+    .map((item) => item.group)
+    .join(', ');
   if (configStore.selectedGroups.length > maxShownSnvs) {
-    subtitle += ', ...)';
+    subtitle += ', ...';
   } else {
-    subtitle += ')';
+    subtitle += '';
   }
 
   return (
     <PlotContainer>
       <PlotOptions>
         <PlotTitle>
-          <span className="title">
-            {configStore.getGroupLabel()} Co-occurrence
-          </span>
-          <span className="subtitle">{subtitle}</span>
+          <span className="title">Co-occurring SNVs of {subtitle}</span>
         </PlotTitle>
         Show SNVs as{' '}
         <OptionSelectContainer>

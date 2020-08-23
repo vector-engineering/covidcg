@@ -18,6 +18,7 @@ const KBD = styled.kbd`
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   text-shadow: 0 1px 0 #fff;
+  margin-bottom: -3px;
 `;
 
 export default KBD;

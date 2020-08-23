@@ -142,18 +142,19 @@ const EntropyPlot = observer(({ width }) => {
   }, [configStore.selectedGroups]);
 
   // Generate x-axis title
-  let xLabel = 'WIV04';
+  let xLabel = '';
+  if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+    xLabel += 'NT';
+  } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+    xLabel += 'AA residue';
+  }
+  xLabel += ' (WIV04';
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     xLabel += ', ' + configStore.selectedGene.gene + ' Gene';
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
     xLabel += ', ' + configStore.selectedProtein.protein + ' Protein';
   }
-
-  if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
-    xLabel += ' (NT)';
-  } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
-    xLabel += ' (AA residue)';
-  }
+  xLabel += ')';
 
   if (
     UIStore.caseDataState === ASYNC_STATES.STARTED ||
@@ -186,11 +187,6 @@ const EntropyPlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <PlotOptions>
-        <PlotTitle>
-          <span className="title">
-            {configStore.getGroupLabel()} Frequencies
-          </span>
-        </PlotTitle>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

@@ -6,6 +6,8 @@ import { observer } from 'mobx-react';
 
 import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
+import TabIndicator from '../Common/TabIndicator';
+import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
 import VegaLegend from '../Vega/VegaLegend';
@@ -28,21 +30,32 @@ const LocationTab = observer(({ width }) => {
         defaultCollapsed={false}
         maxHeight={'500px'}
         helpText={
-          <p>
-            Items in the legend represent <b>{configStore.getGroupLabel()}s</b>.
-            Click to select one, or hold <KBD>Shift</KBD> and click to select
-            multiple {configStore.getGroupLabel()}s. Sequence counts of the
-            selected {configStore.getGroupLabel()}s will be compared between
-            locations in the plot below.
-            {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
-              <>
-                {' '}
-                <ExternalLink href="https://cov-lineages.org/descriptions.html">
-                  (Lineage Descriptions)
-                </ExternalLink>
-              </>
-            )}
-          </p>
+          <ul>
+            <li>
+              Items in the legend represent{' '}
+              <b>{configStore.getGroupLabel()}s</b>.
+            </li>
+            <li>
+              Click to select one, or hold <KBD>Shift</KBD> and click to select
+              multiple {configStore.getGroupLabel()}s.
+            </li>
+            <li>
+              Selected {configStore.getGroupLabel()}s will be highlighted in the
+              plots and table below, as well as in the{' '}
+              <TabIndicator>
+                Compare {configStore.getGroupLabel()}s
+              </TabIndicator>{' '}
+              tab.
+              {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+                <>
+                  {' '}
+                  <ExternalLink href="https://cov-lineages.org/descriptions.html">
+                    (Lineage Descriptions)
+                  </ExternalLink>
+                </>
+              )}
+            </li>
+          </ul>
         }
       >
         <VegaLegend />
@@ -52,13 +65,43 @@ const LocationTab = observer(({ width }) => {
         defaultCollapsed={false}
         maxHeight={'800px'}
         helpText={
-          <p>
-            This plot compares the sequence counts or percentages, of the
-            selected <b>{configStore.getGroupLabel()}s</b>, between the selected
-            locations. Click to highlight one, or hold <KBD>Shift</KBD> and
-            click to highlight multiple locations. Highlighted locations will be
-            shown in the plot below as well.
-          </p>
+          <ul>
+            <li>
+              This plot compares the sequence counts or percentages, of the
+              selected <b>{configStore.getGroupLabel()}s</b>, between the
+              selected locations.
+            </li>
+            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+              <li>
+                In SNV mode, matching sequences are defined as sequences having
+                the selected {configStore.getGroupLabel()}s or combination of{' '}
+                {configStore.getGroupLabel()}s.
+              </li>
+            )}
+            <li>
+              Sequences can be shown as new occurrences{' '}
+              <SelectBoxText>New</SelectBoxText>, or as a cumulative count over
+              time <SelectBoxText>Cumulative</SelectBoxText>.
+            </li>
+            <li>
+              Sequences can be plotted as raw counts{' '}
+              <SelectBoxText>Counts</SelectBoxText>, or as percentages
+              normalized to the total number of sequences at that time
+              <SelectBoxText>Percentages</SelectBoxText>
+            </li>
+            <li>
+              Sequences are plotted over time by the sample collection date.
+              Sequences can be grouped into time bins by{' '}
+              <SelectBoxText>Day</SelectBoxText>,{' '}
+              <SelectBoxText>Week</SelectBoxText>, or{' '}
+              <SelectBoxText>Month</SelectBoxText>
+            </li>
+            <li>
+              <i>Click</i> to highlight one, or hold <KBD>Shift</KBD> and
+              <i>click</i> to highlight multiple locations. Highlighted
+              locations will be shown in the plot below as well.
+            </li>
+          </ul>
         }
       >
         <LocationDatePlot width={width - 200} />
@@ -68,13 +111,27 @@ const LocationTab = observer(({ width }) => {
         defaultCollapsed={false}
         maxHeight={'500px'}
         helpText={
-          <p>
-            This plot shows the cumulative proportion of{' '}
-            <b>{configStore.getGroupLabel()}s</b> per location. Click to select
-            one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {configStore.getGroupLabel()}s. Sequences from the selected{' '}
-            {configStore.getGroupLabel()}s will be shown in the plot above.
-          </p>
+          <ul>
+            <li>
+              This plot shows the cumulative proportion of{' '}
+              <b>{configStore.getGroupLabel()}s</b> per location.
+            </li>
+            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+              <li>
+                In SNV mode, sequences are shown as counts and not proportions.
+                This is because sequences can be counted multiple times, as a
+                single sequence may have multiple SNVs. The relevant data is the
+                relative difference between the SNVs – the height of all bars is
+                not meaningful.
+              </li>
+            )}
+            <li>
+              <i>Click</i> to select one, or hold <KBD>Shift</KBD> and{' '}
+              <i>click</i> to select multiple {configStore.getGroupLabel()}s.
+              Sequences from the selected {configStore.getGroupLabel()}s will be
+              shown in the plot above.
+            </li>
+          </ul>
         }
       >
         <LocationGroupPlot width={width - 300} />
