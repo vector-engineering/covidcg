@@ -132,8 +132,8 @@ const CooccurrencePlot = observer(({ width }) => {
     plotSettingsStore.cooccurrenceNormMode === NORM_MODES.NORM_PERCENTAGES
   ) {
     stackOffset = 'normalize';
-    xLabel = 'SNV Percentages';
-    xFormat = '%';
+    xLabel = 'SNV Frequency (Normalized)';
+    xFormat = 's';
   }
 
   // Subtitle text
@@ -167,7 +167,9 @@ const CooccurrencePlot = observer(({ width }) => {
               onChange={onChangeNormMode}
             >
               <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
-              <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
+              <option value={NORM_MODES.NORM_PERCENTAGES}>
+                Normalized Counts
+              </option>
             </select>
           </label>
         </OptionSelectContainer>

@@ -24,7 +24,7 @@ export const initialPlotSettingsValues = {
   tableSortColumn: 'cases_sum',
   tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
 
-  cooccurrenceNormMode: NORM_MODES.NORM_PERCENTAGES,
+  cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
 };
 
 class ObservablePlotSettingsStore {

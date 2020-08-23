@@ -11,17 +11,17 @@
     { "name": "outerPadding", "value": 0.1 },
     { "name": "stackOffset", "value": "normalize" },
     { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
-    { "name": "xFormat", "value": "%" },
+    { "name": "xFormat", "value": "s" },
     {
       "name": "hoverGroup",
       "value": null,
       "on": [
         {
-          "events": "@locationbars:mouseover!",
+          "events": "@combibars:mouseover!",
           "update": "{group: datum.snv}"
         },
         {
-          "events": "@locationbars:mouseout!",
+          "events": "@combibars:mouseout!",
           "update": "null"
         }
       ]
@@ -30,7 +30,7 @@
     {
       "name": "clearGroup",
       "value": true,
-      "comment": "If clicking on anything but a location bar, then clear the selection (by clearing the 'selection' data object)",
+      "comment": "If clicking on anything but a combi bar, then clear the selection (by clearing the 'selection' data object)",
       "on": [
         {
           "events": "mouseup[!event.item]",
@@ -42,10 +42,10 @@
     {
       "name": "shiftGroup",
       "value": false,
-      "comment": "Track whether or not the shift key is pressed. Used to select multiple locations by holding down shift before clicking",
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple combis by holding down shift before clicking",
       "on": [
         {
-          "events": "@locationbars:click",
+          "events": "@combibars:click",
           "update": "event.shiftKey",
           "force": true
         }
@@ -54,10 +54,10 @@
     {
       "name": "clickedGroups",
       "value": null,
-      "comment": "Track clicks on the location bars, for selection purposes",
+      "comment": "Track clicks on the combi bars, for selection purposes",
       "on": [
         {
-          "events": "@locationbars:click",
+          "events": "@combibars:click",
           "update": "{group: datum.snv}",
           "force": true
         }
@@ -95,18 +95,6 @@
           "sort": { "field": "snv" },
           "field": "count",
           "offset": { "signal": "stackOffset" }
-        },
-        {
-          "type": "joinaggregate",
-          "groupby": ["combi"],
-          "fields": ["count"],
-          "ops": ["sum"],
-          "as": ["combi_count"]
-        },
-        {
-          "type": "formula",
-          "expr": "datum.count / datum.combi_count",
-          "as": "combi_percent"
         }
       ]
     },
@@ -190,7 +178,7 @@
       },
       "marks": [
         {
-          "name": "locationbars",
+          "name": "combibars",
           "type": "rect",
           "from": { "data": "cooccurrence_data" },
           "encode": {
@@ -198,7 +186,7 @@
               "strokeWidth": { "value": 2 },
               "fill": {"field": "color"},
               "tooltip": {
-                "signal": "{title: datum.combi, 'Co-occurring SNV': datum.snv, 'Count': datum.count, '%': format(datum.combi_percent, '.1%')}"
+                "signal": "{title: datum.combi, 'Co-occurring SNV': datum.snv, 'Count': datum.count}"
               }
             },
             "update": {
