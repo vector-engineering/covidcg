@@ -70,14 +70,14 @@
     },
     {
       "name": "dateBin",
-      "value": 86400000,
+      "value": 604800000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
     },
     { "name": "cumulativeWindow", "value": [0, 0] },
-    { "name": "yField", "value": "cases_sum_agg" },
+    { "name": "yField", "value": "cases_norm" },
     { "name": "yLabel", "value": "% Sequences" },
-    { "name": "yFormat", "value": "s" },
-    { "name": "tooltipCountFormat", "value": "d" },
+    { "name": "yFormat", "value": "%" },
+    { "name": "tooltipCountFormat", "value": ".1%" },
     {
       "name": "clear",
       "value": true,
@@ -141,7 +141,7 @@
   "data": [
     {
       "name": "selectedGroups",
-      "values": [{ "group": "S|614|D|G" }]
+      "values": [{ "group": "S|614|D|G" }, { "group": "Reference" }]
     },
     {
       "name": "location_data",
@@ -156,6 +156,17 @@
       },
       "transform": [
         {
+          "type": "filter",
+          "expr": "indata('selectedGroups', 'group', datum.group) || length(data('selectedGroups')) == 0"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["location", "date"],
+          "fields": ["cases_sum", "location_date_count"],
+          "ops": ["sum", "max"],
+          "as": ["cases_sum", "location_date_count"]
+        },
+        {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
           "field": "date",
@@ -165,17 +176,6 @@
           ],
           "step": { "signal": "dateBin" },
           "as": ["day_start", "day_end"]
-        },
-        {
-          "type": "filter",
-          "expr": "indata('selectedGroups', 'group', datum.group) || length(data('selectedGroups')) == 0"
-        },
-        {
-          "type": "aggregate",
-          "groupby": ["location", "day_start"],
-          "fields": ["cases_sum", "location_date_count"],
-          "ops": ["sum", "sum"],
-          "as": ["cases_sum", "location_date_count"]
         },
         {
           "type": "window",
