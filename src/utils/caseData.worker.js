@@ -375,7 +375,6 @@ function processCaseData({
     selectedAccessionIds.push(row['Accession ID']);
     selectedAckIds.push(row['ack_id']);
   });
-  const selectedRowsHash = hashCode(selectedAccessionIds.join(''));
 
   // Aggregate by group and date
   const dataAggGroupDate = aggregate({
@@ -393,7 +392,6 @@ function processCaseData({
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
     metadataCountsAfterFiltering,
-    selectedRowsHash,
     selectedAccessionIds,
     selectedAckIds,
 

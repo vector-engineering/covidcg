@@ -35,8 +35,8 @@ import {
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
+
 import SkeletonElement from '../Common/SkeletonElement';
-import { ASYNC_STATES } from '../../constants/UI';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
 
@@ -46,6 +46,7 @@ import {
   COORDINATE_MODES,
 } from '../../constants/config';
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
+import { ASYNC_STATES } from '../../constants/UI';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -277,6 +278,10 @@ const NewLineageDataTable = observer(() => {
   });
 
   useEffect(() => {
+    if (UIStore.aggCaseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     const [posColOffset, posTitleOffset] = calculatePosOffsets(
       configStore.groupKey,
       configStore.dnaOrAa
@@ -295,10 +300,7 @@ const NewLineageDataTable = observer(() => {
       ),
     });
   }, [
-    dataStore.selectedRowsAndDateHash,
-    configStore.groupKey,
-    configStore.dnaOrAa,
-    configStore.coordinateMode,
+    UIStore.aggCaseDataState,
     plotSettingsStore.tableColorMode,
     plotSettingsStore.tableCompareMode,
     plotSettingsStore.tableCompareColor,

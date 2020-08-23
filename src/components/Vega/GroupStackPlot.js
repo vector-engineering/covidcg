@@ -126,6 +126,10 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update internal caseData copy
   useEffect(() => {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     setState({
       ...state,
       data: {
@@ -133,7 +137,7 @@ const GroupStackPlot = observer(({ width }) => {
         cases_by_date_and_group: processData(),
       },
     });
-  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {

@@ -40,8 +40,6 @@ export const initialDataValues = {
   metadataCounts: {},
   metadataCountsAfterFiltering: {},
 
-  selectedRowsHash: '',
-  selectedRowsAndDateHash: '',
   selectedAccessionIds: [],
   selectedAckIds: [],
 
@@ -68,9 +66,6 @@ class ObservableDataStore {
   @observable metadataCountsAfterFiltering =
     initialDataValues.metadataCountsAfterFiltering;
 
-  @observable selectedRowsHash = initialDataValues.selectedRowsHash;
-  @observable selectedRowsAndDateHash =
-    initialDataValues.selectedRowsAndDateHash;
   selectedAccessionIds = initialDataValues.selectedAccessionIds;
   selectedAckIds = initialDataValues.selectedAckIds;
 
@@ -171,19 +166,6 @@ class ObservableDataStore {
         this.groupCountDateFilteredArr = groupCountDateFilteredArr;
         // console.log('AGG_CASE_DATA FINISHED');
 
-        // Update hash for any listeners
-        this.selectedRowsAndDateHash =
-          this.selectedRowsHash +
-          toJS(configStoreInstance.coordinateMode) +
-          toJS(configStoreInstance.getCoordinateRanges()).toString() +
-          configStoreInstance.selectedGene.gene +
-          configStoreInstance.selectedProtein.protein +
-          configStoreInstance.groupKey +
-          configStoreInstance.dnaOrAa +
-          toJS(configStoreInstance.dateRange)
-            .map((date) => date.toString())
-            .join(',');
-
         this.updateGroupsToKeep();
         // Fire callback
         if (callback !== undefined) {
@@ -198,13 +180,18 @@ class ObservableDataStore {
 
   @action
   emptyCaseData() {
+    UIStoreInstance.onCaseDataStateStarted();
+    UIStoreInstance.onAggCaseDataStarted();
+
     this.dataAggLocationGroupDate = [];
     this.dataAggGroupDate = [];
     this.dataAggGroup = [];
     this.changingPositions = {};
-    this.selectedRowsHash = '';
     this.selectedAccessionIds = [];
     this.selectedAckIds = [];
+
+    UIStoreInstance.onAggCaseDataFinished();
+    UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
@@ -233,7 +220,6 @@ class ObservableDataStore {
         metadataCounts,
         metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
-        selectedRowsHash,
         selectedAccessionIds,
         selectedAckIds,
         countsPerLocation,
@@ -247,7 +233,6 @@ class ObservableDataStore {
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         // console.log('CASE_DATA FINISHED');
 
-        this.selectedRowsHash = selectedRowsHash;
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
 

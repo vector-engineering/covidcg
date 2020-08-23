@@ -3,21 +3,23 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import _ from 'underscore';
 import { aggregate } from '../../utils/transform';
+import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
-import initialSpec from '../../vega_specs/location_group.vg.json';
+import SkeletonElement from '../Common/SkeletonElement';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
 import { OTHER_GROUP } from '../../constants/groups';
+import { ASYNC_STATES } from '../../constants/UI';
+import initialSpec from '../../vega_specs/location_group.vg.json';
 
 const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore } = useStores();
+  const { dataStore, configStore, UIStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -54,38 +56,7 @@ const LocationGroupPlot = observer(({ width }) => {
     configStore.updateSelectedGroups(args[1]);
   };
 
-  const [state, setState] = useState({
-    data: {
-      location_by_group: [],
-      selectedGroups: [],
-      selectedLocations: JSON.parse(
-        JSON.stringify(configStore.focusedLocations)
-      ),
-    },
-    spec: JSON.parse(JSON.stringify(initialSpec)),
-    signalListeners: {
-      hoverLocation: _.throttle(handleHoverLocation, 100),
-      hoverGroup: _.throttle(handleHoverGroup, 100),
-    },
-    dataListeners: {
-      selectedLocations: handleSelectedLocations,
-      selectedGroups: handleSelectedGroups,
-    },
-  });
-
-  useEffect(() => {
-    setState({
-      ...state,
-      data: {
-        ...state.data,
-        selectedLocations: JSON.parse(
-          JSON.stringify(configStore.focusedLocations)
-        ),
-      },
-    });
-  }, [configStore.focusedLocations]);
-
-  useEffect(() => {
+  const processLocationByGroup = () => {
     let locationData = JSON.parse(
       JSON.stringify(dataStore.dataAggLocationGroupDate)
     );
@@ -105,19 +76,77 @@ const LocationGroupPlot = observer(({ width }) => {
       as: ['cases_sum', 'color', 'location_counts'],
     });
 
+    return locationData;
+  };
+
+  const processSelectedGroups = () => {
+    return JSON.parse(JSON.stringify(configStore.selectedGroups));
+  };
+
+  const processSelectedLocations = () => {
+    return JSON.parse(JSON.stringify(configStore.focusedLocations));
+  };
+
+  const [state, setState] = useState({
+    data: {
+      location_by_group: processLocationByGroup(),
+      selectedGroups: processSelectedGroups(),
+      selectedLocations: processSelectedLocations(),
+    },
+    spec: JSON.parse(JSON.stringify(initialSpec)),
+    signalListeners: {
+      hoverLocation: _.throttle(handleHoverLocation, 100),
+      hoverGroup: _.throttle(handleHoverGroup, 100),
+    },
+    dataListeners: {
+      selectedLocations: handleSelectedLocations,
+      selectedGroups: handleSelectedGroups,
+    },
+  });
+
+  useEffect(() => {
     setState({
       ...state,
       data: {
         ...state.data,
-        location_by_group: locationData,
-        selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        selectedLocations: processSelectedLocations(),
+      },
+    });
+  }, [configStore.focusedLocations]);
+
+  useEffect(() => {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        location_by_group: processLocationByGroup(),
+        selectedGroups: processSelectedGroups(),
       },
     });
   }, [
-    dataStore.selectedRowsHash,
+    UIStore.caseDataState,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
+
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={100} />
+      </div>
+    );
+  }
 
   if (configStore.selectedLocationNodes.length == 0) {
     return (

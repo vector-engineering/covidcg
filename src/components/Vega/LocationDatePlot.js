@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 import { aggregate } from '../../utils/transform';
+
 import {
   NORM_MODES,
   COUNT_MODES,
@@ -12,13 +13,17 @@ import {
 } from '../../constants/plotSettings';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { OTHER_GROUP } from '../../constants/groups';
+import { GROUP_KEYS } from '../../constants/config';
+import { ASYNC_STATES } from '../../constants/UI';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
+import SkeletonElement from '../Common/SkeletonElement';
+import LoadingSpinner from '../Common/LoadingSpinner';
+
 import initialSpec from '../../vega_specs/location_date.vg.json';
-import { GROUP_KEYS } from '../../constants/config';
 
 const PlotContainer = styled.div``;
 
@@ -94,7 +99,7 @@ const SelectContainer = styled.div`
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, plotSettingsStore } = useStores();
+  const { dataStore, configStore, UIStore, plotSettingsStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -114,12 +119,48 @@ const LocationDatePlot = observer(({ width }) => {
     configStore.updateFocusedLocations(args[1]);
   };
 
+  const processLocationData = () => {
+    let locationData = JSON.parse(
+      JSON.stringify(dataStore.dataAggLocationGroupDate)
+    );
+
+    locationData.forEach((row) => {
+      if (!dataStore.groupsToKeep.includes(row.group)) {
+        row.group = OTHER_GROUP;
+      }
+    });
+
+    locationData = aggregate({
+      data: locationData,
+      groupby: ['location', 'date', 'group'],
+      fields: ['cases_sum', 'location_counts'],
+      ops: ['sum', 'max'],
+      as: ['cases_sum', 'location_counts'],
+    });
+
+    // Manually join the countsPerLocationDate to locationData
+    locationData.forEach((row) => {
+      row.location_date_count =
+        dataStore.countsPerLocationDate[row.location][row.date.toString()];
+    });
+
+    return locationData;
+  };
+
+  const processSelectedGroups = () => {
+    return JSON.parse(JSON.stringify(configStore.selectedGroups));
+  };
+
+  const processFocusedLocations = () => {
+    return JSON.parse(JSON.stringify(configStore.focusedLocations));
+  };
+
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      location_data: [],
-      selectedGroups: [],
-      selected: JSON.parse(JSON.stringify(configStore.focusedLocations)),
+      location_data: processLocationData(),
+      selectedGroups: processSelectedGroups(),
+      selected: processFocusedLocations(),
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
@@ -196,51 +237,46 @@ const LocationDatePlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: JSON.parse(JSON.stringify(configStore.focusedLocations)),
+        selected: processFocusedLocations(),
       },
     });
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
-    let locationData = JSON.parse(
-      JSON.stringify(dataStore.dataAggLocationGroupDate)
-    );
-
-    locationData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
-      }
-    });
-
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group'],
-      fields: ['cases_sum', 'location_counts'],
-      ops: ['sum', 'max'],
-      as: ['cases_sum', 'location_counts'],
-    });
-
-    // Manually join the countsPerLocationDate to locationData
-    locationData.forEach((row) => {
-      row.location_date_count =
-        dataStore.countsPerLocationDate[row.location][row.date.toString()];
-    });
-
-    console.log(JSON.stringify(locationData));
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
 
     setState({
       ...state,
       data: {
         ...state.data,
-        location_data: locationData,
-        selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        location_data: processLocationData(),
+        selectedGroups: processSelectedGroups(),
       },
     });
   }, [
-    dataStore.selectedRowsHash,
+    UIStore.caseDataState,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
+
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={400}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
 
   if (configStore.selectedLocationNodes.length == 0) {
     return (
