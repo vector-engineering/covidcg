@@ -183,12 +183,20 @@ class ObservableDataStore {
     UIStoreInstance.onCaseDataStateStarted();
     UIStoreInstance.onAggCaseDataStarted();
 
-    this.dataAggLocationGroupDate = [];
-    this.dataAggGroupDate = [];
-    this.dataAggGroup = [];
-    this.changingPositions = {};
-    this.selectedAccessionIds = [];
-    this.selectedAckIds = [];
+    this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
+    this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
+    this.dataAggGroup = initialDataValues.dataAggGroup;
+    this.changingPositions = initialDataValues.changingPositions;
+
+    this.selectedAccessionIds = initialDataValues.selectedAccessionIds;
+    this.selectedAckIds = initialDataValues.selectedAckIds;
+
+    this.dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
+    this.dataAggSnvDate = initialDataValues.dataAggSnvDate;
+    this.snvCooccurrence = initialDataValues.snvCooccurrence;
+
+    this.countsPerLocation = initialDataValues.countsPerLocation;
+    this.countsPerLocationDate = initialDataValues.countsPerLocationDate;
 
     UIStoreInstance.onAggCaseDataFinished();
     UIStoreInstance.onCaseDataStateFinished();

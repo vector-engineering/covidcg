@@ -12,7 +12,7 @@ import {
   DATE_BINS,
 } from '../../constants/plotSettings';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { OTHER_GROUP } from '../../constants/groups';
+import { GROUPS } from '../../constants/groups';
 import { GROUP_KEYS } from '../../constants/config';
 import { ASYNC_STATES } from '../../constants/UI';
 
@@ -120,15 +120,26 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const processLocationData = () => {
-    let locationData = JSON.parse(
-      JSON.stringify(dataStore.dataAggLocationGroupDate)
-    );
+    let locationData;
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      locationData = JSON.parse(
+        JSON.stringify(dataStore.dataAggLocationSnvDate)
+      );
+      // Filter out 'Other' group
+      locationData = locationData.filter((row) => {
+        return row.group !== GROUPS.OTHER_GROUP;
+      });
+    } else {
+      locationData = JSON.parse(
+        JSON.stringify(dataStore.dataAggLocationGroupDate)
+      );
 
-    locationData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
-      }
-    });
+      locationData.forEach((row) => {
+        if (!dataStore.groupsToKeep.includes(row.group)) {
+          row.group = GROUPS.OTHER_GROUP;
+        }
+      });
+    }
 
     locationData = aggregate({
       data: locationData,
@@ -245,6 +256,8 @@ const LocationDatePlot = observer(({ width }) => {
   useEffect(() => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
+    } else if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
     }
 
     setState({
@@ -257,6 +270,7 @@ const LocationDatePlot = observer(({ width }) => {
     });
   }, [
     UIStore.caseDataState,
+    UIStore.snvDataState,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
@@ -297,6 +311,22 @@ const LocationDatePlot = observer(({ width }) => {
           Please select a <b>{configStore.getGroupLabel()}</b> from the legend
           (above) or the group plot (below), to compare its counts between the
           selected locations.
+        </p>
+      </EmptyPlot>
+    );
+  }
+
+  if (
+    configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+    state.data.location_data.length === 0
+  ) {
+    return (
+      <EmptyPlot height={200}>
+        <p>
+          No sequences with {configStore.getGroupLabel()}s:{' '}
+          {`${configStore.selectedGroups
+            .map((group) => group.group)
+            .join(' & ')}`}
         </p>
       </EmptyPlot>
     );
@@ -356,9 +386,15 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
   if (configStore.selectedGroups.length > 0) {
-    plotTitle += ` (${configStore.selectedGroups
-      .map((group) => group.group)
-      .join(', ')})`;
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      plotTitle += ` (${configStore.selectedGroups
+        .map((group) => group.group)
+        .join(' & ')})`;
+    } else {
+      plotTitle += ` (${configStore.selectedGroups
+        .map((group) => group.group)
+        .join(', ')})`;
+    }
   }
 
   return (
@@ -431,6 +467,7 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
+            skipFiltering: configStore.groupKey === GROUP_KEYS.GROUP_SNV,
             hoverLocation: { location: configStore.hoverLocation },
             yField,
             cumulativeWindow,

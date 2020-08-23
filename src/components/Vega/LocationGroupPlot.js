@@ -11,7 +11,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
-import { OTHER_GROUP } from '../../constants/groups';
+import { GROUPS } from '../../constants/groups';
 import { ASYNC_STATES } from '../../constants/UI';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
@@ -63,10 +63,17 @@ const LocationGroupPlot = observer(({ width }) => {
 
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
+        row.group = GROUPS.OTHER_GROUP;
         row.color = '#aaa';
       }
     });
+
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      // Filter out 'Reference' group, when in SNV mode
+      locationData = locationData.filter((row) => {
+        return row.group !== GROUPS.REFERENCE_GROUP;
+      });
+    }
 
     locationData = aggregate({
       data: locationData,
