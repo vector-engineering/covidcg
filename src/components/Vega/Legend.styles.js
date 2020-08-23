@@ -14,6 +14,7 @@ export const LegendItem = styled.div`
   display: flex;
   align-items: center;
   padding: 0px 6px;
+  user-select: none;
 
   border: ${({ hovered, selected }) => {
     if (hovered) {

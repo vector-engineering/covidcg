@@ -477,6 +477,8 @@ const NewLineageDataTable = observer(() => {
           onSort={onSort}
           rowRenderer={RowRenderer}
           onRowClick={onRowClick}
+          enableCellSelect={false}
+          enableCellAutoFocus={false}
         />
       </div>
     </DataTableContainer>
