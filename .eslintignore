@@ -1,3 +1,3 @@
 src/litemol/*
 node_modules/*
-src/vega/*standalone*.vg.json
+src/vega_specs/*standalone*.vg.json
