@@ -158,15 +158,23 @@ const CooccurrencePlot = observer(({ width }) => {
     );
   }
 
-  if (
-    configStore.selectedGroups.length === 0 ||
-    dataStore.snvCooccurrence.length === 0
-  ) {
+  if (configStore.selectedGroups.length === 0) {
     return (
       <EmptyPlot height={70}>
         <p>
           No SNVs selected. Please select one or more SNVs from the legend,
           frequency plot, or table.
+        </p>
+      </EmptyPlot>
+    );
+  } else if (dataStore.snvCooccurrence.length === 0) {
+    return (
+      <EmptyPlot height={70}>
+        <p>
+          No SNVs that co-occur with selected SNVs{' '}
+          {configStore.selectedGroups
+            .map((item) => formatSnv(item.group, configStore.dnaOrAa))
+            .join(', ')}
         </p>
       </EmptyPlot>
     );
