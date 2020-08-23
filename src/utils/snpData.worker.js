@@ -102,7 +102,7 @@ function processSelectedSnvs({
     );
     let group;
     if (matchingSnvIds.length != selectedGroupIds.size) {
-      group = GROUPS.OTHER_GROUP;
+      group = GROUPS.ALL_OTHER_GROUP;
     } else {
       group = matchingSnvIds.map((id) => intToSnvFunc(id).snp_str).join(' + ');
     }

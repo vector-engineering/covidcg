@@ -27,6 +27,7 @@ const snvColorMap = {};
 snvColorMap[GROUPS.REFERENCE_GROUP] = _getSnvColor('Reference');
 snvColorMap[GROUPS.OTHER_GROUP] = '#AAA';
 snvColorMap[GROUPS.NONE_GROUP] = '#AAA';
+snvColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
 Object.keys(dnaSnpMap).forEach((snv) => {
   snvColorMap[snv] = _getSnvColor(snv);
 });

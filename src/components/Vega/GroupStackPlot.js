@@ -10,6 +10,7 @@ import {
 } from '../../constants/plotSettings';
 import { GROUP_KEYS } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { GROUPS } from '../../constants/groups';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -44,6 +45,10 @@ const GroupStackPlot = observer(({ width }) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
     if (hoverGroup === configStore.hoverGroup) {
+      return;
+    }
+    // Ignore for some special groups
+    if (hoverGroup === GROUPS.ALL_OTHER_GROUP) {
       return;
     }
     // console.log('Updating store hoverGroup from plot', hoverGroup);
