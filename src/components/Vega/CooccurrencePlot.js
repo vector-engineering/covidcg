@@ -58,13 +58,63 @@ const CooccurrencePlot = observer(({ width }) => {
     configStore.updateHoverGroup(hoverGroup);
   };
 
+  const handleSelectedGroups = (...args) => {
+    const curSelectedGroups = getSelectedGroups().map((item) => item.group);
+    // console.log(curSelectedGroups);
+
+    // Some of the groups might be multiple SNVs, where the
+    // group string is the two SNVs separated by ' + '
+    // So break those up and then combine into one big list
+    // Also make sure we don't process "Reference" or "Other"
+    // Array -> Set -> Array to remove duplicates
+    const newSelectedGroups = Array.from(
+      new Set(
+        args[1]
+          .map((item) => item.group.split(' + '))
+          .reduce((memo, arr) => memo.concat(arr), [])
+          .filter((item) => {
+            return (
+              item !== GROUPS.REFERENCE_GROUP && item !== GROUPS.OTHER_GROUP
+            );
+          })
+      )
+    );
+    // console.log(newSelectedGroups);
+
+    const groupsInCommon = newSelectedGroups
+      .slice()
+      .filter((group) => curSelectedGroups.includes(group));
+
+    // The new selection to push to the store is
+    // (cur u new) - (cur n new)
+    // i.e., the union minus the intersection (XOR)
+    // Array -> Set -> Array to remove duplicates
+    // Then wrap in an object of { group: group }
+    const pushSelectedGroups = Array.from(
+      new Set(
+        curSelectedGroups
+          .concat(newSelectedGroups)
+          .filter((group) => !groupsInCommon.includes(group))
+      )
+    ).map((group) => {
+      return { group };
+    });
+    // console.log(pushSelectedGroups);
+
+    configStore.updateSelectedGroups(pushSelectedGroups);
+  };
+
   const getCooccurrenceData = () => {
     return JSON.parse(JSON.stringify(dataStore.snvCooccurrence));
   };
 
+  const getSelectedGroups = () => {
+    return JSON.parse(JSON.stringify(configStore.selectedGroups));
+  };
+
   const [state, setState] = useState({
     data: {
-      //selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+      //selectedGroups: getSelectedGroups(),
       selectedGroups: [],
       cooccurrence_data: getCooccurrenceData(),
     },
@@ -72,8 +122,7 @@ const CooccurrencePlot = observer(({ width }) => {
       hoverGroup: _.throttle(handleHoverGroup, 100),
     },
     dataListeners: {
-      // selectedLocations: handleSelectedLocations,
-      // selectedGroups: handleSelectedGroups,
+      selectedGroups: handleSelectedGroups,
     },
   });
 

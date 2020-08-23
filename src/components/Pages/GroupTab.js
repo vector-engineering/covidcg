@@ -120,6 +120,18 @@ const GroupTab = observer(({ width }) => {
               (labels on the y-axis).
             </li>
             <li>
+              SNVs are counted per-co-occurrence, i.e., one matching sequence
+              may count towards multiple SNVs. Only the relative counts between
+              co-occurring SNVs within the same bar should be interpreted – the
+              sum of all SNV counts per bar is not meaningful.
+            </li>
+            <li>
+              <i>Click</i> on a SNV bar, or on a SNV y-axis label, to select or
+              deselect a SNV. If the SNV is already selected, then clicking will
+              deselect it. If it is not already selected, then clicking on the
+              SNV will add it to the existing selection.
+            </li>
+            <li>
               SNV frequencies can be shown as raw counts{' '}
               <SelectBoxText>Counts</SelectBoxText>, or counts normalized
               between each selected {configStore.getGroupLabel()}s or

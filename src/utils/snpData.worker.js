@@ -170,11 +170,12 @@ function processSelectedSnvs({
           !(intToSnvFunc(snvId).snp_str in snvCooccurrence[combiKey]) &&
             (snvCooccurrence[combiKey][intToSnvFunc(snvId).snp_str] = 0);
           snvCooccurrence[combiKey][intToSnvFunc(snvId).snp_str] += 1;
-        } else {
-          !('None' in snvCooccurrence[combiKey]) &&
-            (snvCooccurrence[combiKey]['None'] = 0);
-          snvCooccurrence[combiKey]['None'] += 1;
         }
+        // } else {
+        //   !('None' in snvCooccurrence[combiKey]) &&
+        //     (snvCooccurrence[combiKey]['None'] = 0);
+        //   snvCooccurrence[combiKey]['None'] += 1;
+        // }
       });
     });
   });
