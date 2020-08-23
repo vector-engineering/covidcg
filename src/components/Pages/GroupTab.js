@@ -7,7 +7,6 @@ import { useStores } from '../../stores/connect';
 import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
-import AccordionTitle from '../Common/AccordionTitle';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
 import VegaLegend from '../Vega/VegaLegend';
@@ -24,19 +23,6 @@ const GroupTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const HelpText = styled.div`
-  margin-bottom: 5px;
-
-  font-weight: normal;
-  font-size: 0.9em;
-  color: #666;
-  line-height: normal;
-  p {
-    margin-top: 0px;
-    margin-bottom: 3px;
-  }
-`;
-
 const GroupTab = observer(({ width }) => {
   const { configStore } = useStores();
 
@@ -47,11 +33,7 @@ const GroupTab = observer(({ width }) => {
 
     return (
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>SNV Frequencies</span>
-          </AccordionTitle>
-        }
+        title={`${configStore.getGroupLabel()} Frequencies`}
         defaultCollapsed={false}
         maxHeight={'1200px'}
       >
@@ -67,11 +49,7 @@ const GroupTab = observer(({ width }) => {
 
     return (
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>SNV Co-occurrence</span>
-          </AccordionTitle>
-        }
+        title={`${configStore.getGroupLabel()} Co-occurrence`}
         defaultCollapsed={false}
         maxHeight={'1200px'}
       >
@@ -83,15 +61,10 @@ const GroupTab = observer(({ width }) => {
   const renderGroupStackPlot = () => {
     return (
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>{configStore.getGroupLabel()} Plot</span>
-          </AccordionTitle>
-        }
+        title={`${configStore.getGroupLabel()} Plot`}
         defaultCollapsed={false}
         maxHeight={'1200px'}
-      >
-        <HelpText>
+        helpText={
           <p>
             The plot shows sequences grouped by their respective{' '}
             <b>{configStore.getGroupLabel()}</b> and plotted over time. Click to
@@ -103,9 +76,12 @@ const GroupTab = observer(({ width }) => {
             on the lower plot (&quot;All Seqs&quot;) to zoom in on a specific
             date range.
           </p>
-        </HelpText>
+        }
+      >
         <VegaStackedBars width={width - 150} />
-        {/* <LocationGroupPlot width={width - 250} /> */}
+        {configStore.groupKey !== GROUP_KEYS.GROUP_SNV && (
+          <LocationGroupPlot width={width - 250} />
+        )}
       </AccordionWrapper>
     );
   };
@@ -118,15 +94,10 @@ const GroupTab = observer(({ width }) => {
   const renderDataTable = () => {
     return (
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>Table</span>
-          </AccordionTitle>
-        }
+        title="Table"
         defaultCollapsed={false}
         maxHeight={'1200px'}
-      >
-        <HelpText>
+        helpText={
           <p>
             The table shows the counts and associated mutations of each{' '}
             <b>{configStore.getGroupLabel()}</b>. Click a table row to select
@@ -136,7 +107,8 @@ const GroupTab = observer(({ width }) => {
             plot, as well as in the{' '}
             <TabIndicator>Compare Locations</TabIndicator> tab.
           </p>
-        </HelpText>
+        }
+      >
         <DataTableContainer />
       </AccordionWrapper>
     );
@@ -157,15 +129,10 @@ const GroupTab = observer(({ width }) => {
   return (
     <GroupTabContainer>
       <AccordionWrapper
-        title={
-          <AccordionTitle>
-            <span>Legend</span>
-          </AccordionTitle>
-        }
+        title="Legend"
         defaultCollapsed={false}
         maxHeight={'500px'}
-      >
-        <HelpText>
+        helpText={
           <p>
             Items in the legend represent <b>{configStore.getGroupLabel()}s</b>.
             Click to select one, or hold <KBD>Shift</KBD> and click to select
@@ -182,7 +149,8 @@ const GroupTab = observer(({ width }) => {
               </>
             )}
           </p>
-        </HelpText>
+        }
+      >
         <VegaLegend />
       </AccordionWrapper>
       {renderEntropyPlot()}
