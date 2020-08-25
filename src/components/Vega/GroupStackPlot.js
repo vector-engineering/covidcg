@@ -90,6 +90,7 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   const processData = () => {
+    // console.log('PROCESS DATA');
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
     }
@@ -131,6 +132,7 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update internal caseData copy
   useEffect(() => {
+    // console.log('CASE DATA STATE');
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
@@ -146,6 +148,7 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update internal selected groups copy
   useEffect(() => {
+    // console.log('SELECTED GROUPS');
     // Skip this update if we're in SNV mode
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       return;
@@ -161,6 +164,7 @@ const GroupStackPlot = observer(({ width }) => {
   }, [configStore.selectedGroups]);
 
   useEffect(() => {
+    // console.log('SNV DATA STATE');
     // Skip this if we're not in SNV mode
     if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
       return;

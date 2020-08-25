@@ -140,11 +140,10 @@ class ObservableDataStore {
   @action
   updateAggCaseDataByGroup(callback) {
     UIStoreInstance.onAggCaseDataStarted();
-    this.processSelectedSnvs();
     aggCaseDataByGroup(
       {
-        totalSequenceCount: this.selectedAccessionIds.length,
-        dataAggGroupDate: this.dataAggGroupDate,
+        filteredCaseData: JSON.parse(JSON.stringify(this.filteredCaseData)),
+        dataAggGroupDate: JSON.parse(JSON.stringify(this.dataAggGroupDate)),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
@@ -248,6 +247,9 @@ class ObservableDataStore {
         this.countsPerLocationDate = countsPerLocationDate;
 
         this.updateAggCaseDataByGroup(callback);
+        if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+          this.processSelectedSnvs();
+        }
       }
     );
   }

@@ -77,13 +77,13 @@ function processSelectedSnvs({
   selectedGroupIds = new Set(selectedGroupIds);
 
   // If no SNVs are selected, then return empty arrays now
-  if (selectedGroupIds.size === 0) {
-    return {
-      dataAggLocationSnvDate: [],
-      dataAggSnvDate: [],
-      snvCooccurrence: [],
-    };
-  }
+  // if (selectedGroupIds.size === 0) {
+  //   return {
+  //     dataAggLocationSnvDate: [],
+  //     dataAggSnvDate: [],
+  //     snvCooccurrence: [],
+  //   };
+  // }
 
   const dataAggLocationSnvDateObj = {};
   // Build a map of location_id --> node

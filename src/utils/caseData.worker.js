@@ -388,6 +388,10 @@ function processCaseData({
     ops: ['sum', 'max', 'max'],
     as: ['cases_sum', 'color', 'location_counts'],
   });
+  // Dates from strings to ints
+  dataAggGroupDate.forEach((row) => {
+    row.date = parseInt(row.date);
+  });
 
   return {
     filteredCaseData: caseData,
@@ -409,7 +413,7 @@ function processCaseData({
 // i.e., collapse the date field for cases, so we can display group-wise stats
 // in the data table
 function aggCaseDataByGroup({
-  totalSequenceCount,
+  filteredCaseData,
   dataAggGroupDate,
   coordinateMode,
   coordinateRanges,
@@ -459,6 +463,12 @@ function aggCaseDataByGroup({
 
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
+  const filteredCaseDataByDate = filterByDate(
+    filteredCaseData,
+    dateRange,
+    'collection_date'
+  );
+  const totalSequenceCount = filteredCaseDataByDate.length;
 
   // Create the same group count object, but after date filtering
   const groupCountDateFilteredObj = {};
