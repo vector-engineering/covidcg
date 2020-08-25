@@ -1,25 +1,27 @@
 import initialCaseData from '../../data/case_data.json';
-import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
+import {
+  intToDnaSnp,
+  intToGeneAaSnp,
+  intToProteinAaSnp,
+  getSnvColor,
+  formatSnv,
+} from './snpData';
 import {
   getDnaSnpsFromGroup,
   getGeneAaSnpsFromGroup,
   getProteinAaSnpsFromGroup,
+  getLineageColor,
+  getCladeColor,
 } from './lineageData';
 import { getLocationIds } from './location';
-import { hashCode } from './string';
 import { dataDate } from './version';
+import { aggregate } from './transform';
 
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { REFERENCE_GROUP } from '../constants/groups';
-import {
-  warmColors,
-  coolColors,
-  snpColorArray,
-  cladeColorArray,
-} from '../constants/colors';
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -34,48 +36,6 @@ const processedCaseData = _.reject(
     );
   }
 );
-
-let coolColorInd = 0;
-let warmColorInd = 0;
-const getLineageColor = _.memoize((group) => {
-  let color;
-  if (group.charAt(0) === 'A') {
-    color = warmColors[warmColorInd++];
-
-    if (warmColorInd === warmColors.length) {
-      warmColorInd = 0;
-    }
-  } else if (group.charAt(0) === 'B') {
-    color = coolColors[coolColorInd++];
-
-    if (coolColorInd === coolColors.length) {
-      coolColorInd = 0;
-    }
-  }
-  return color;
-});
-
-let snpColorInd = 0;
-const getSnpColor = _.memoize(() => {
-  const color = snpColorArray[snpColorInd++];
-
-  if (snpColorInd === snpColorArray.length) {
-    snpColorInd = 0;
-  }
-
-  return color;
-});
-
-let cladeColorInd = 0;
-const getCladeColor = _.memoize(() => {
-  const color = cladeColorArray[cladeColorInd++];
-  // If we're at the end, then loop back to the beginning
-  if (cladeColorInd === cladeColorArray.length) {
-    cladeColorInd = 0;
-  }
-
-  return color;
-});
 
 function convertToObj(list) {
   const obj = {};
@@ -302,6 +262,7 @@ function processCaseData({
   // For the location tab:
   const aggCaseData = {};
   const countsPerLocation = {};
+  const countsPerLocationDate = {};
 
   // Build a map of location_id --> node
   // Also while we're at it, create an entry for this node
@@ -312,6 +273,7 @@ function processCaseData({
       locationIdToNodeMap[locationId] = selectedLocationNodes[i].value;
     });
     countsPerLocation[selectedLocationNodes[i].value] = 0;
+    countsPerLocationDate[selectedLocationNodes[i].value] = {};
   }
 
   // If we have selected groups (lineages/snps/clades), then filter for that
@@ -320,6 +282,16 @@ function processCaseData({
   let location;
   caseData.forEach((row) => {
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
+    !(
+      row.collection_date in
+      countsPerLocationDate[locationIdToNodeMap[row.location_id]]
+    ) &&
+      (countsPerLocationDate[locationIdToNodeMap[row.location_id]][
+        row.collection_date
+      ] = 0);
+    countsPerLocationDate[locationIdToNodeMap[row.location_id]][
+      row.collection_date
+    ] += 1;
     groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
 
     // If groupKeys is empty, that means that it's a sequence
@@ -356,35 +328,41 @@ function processCaseData({
     });
   });
 
+  // Process the object of counts per location, per date
+  // const countsPerLocationDateList = [];
+  // Object.keys(countsPerLocationDate).forEach((location) => {
+  //   Object.keys(countsPerLocationDate[location]).forEach((date) => {
+  //     countsPerLocationDateList.push({
+  //       location: location,
+  //       date: parseInt(date),
+  //       count: countsPerLocationDate[location][date],
+  //     });
+  //   });
+  // });
+
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     getColorMethod = getLineageColor;
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnpColor;
+    getColorMethod = getSnvColor;
   }
 
-  // Trigger the memoized color function for these items in order,
-  // So that we get the appropriate color separation, instead of
-  // two items being potentially close to each other with the
-  // same color
-  Array.from(uniqueGroupKeys)
-    .sort()
-    .forEach((group) => {
-      getColorMethod(group);
-    });
-
-  const aggCaseDataList = [];
+  const dataAggLocationGroupDate = [];
   Object.keys(aggCaseData).forEach((location) => {
     const dates = Object.keys(aggCaseData[location]);
     dates.forEach((date) => {
       groupKeys = Object.keys(aggCaseData[location][date]);
       groupKeys.forEach((group) => {
-        aggCaseDataList.push({
+        dataAggLocationGroupDate.push({
           location: location,
           date: parseInt(date),
           group: group,
+          groupName:
+            groupKey === GROUP_KEYS.GROUP_SNV
+              ? formatSnv(group, dnaOrAa)
+              : group,
           cases_sum: aggCaseData[location][date][group],
           location_counts: countsPerLocation[location],
           color: getColorMethod(group),
@@ -401,16 +379,33 @@ function processCaseData({
     selectedAccessionIds.push(row['Accession ID']);
     selectedAckIds.push(row['ack_id']);
   });
-  const selectedRowsHash = hashCode(selectedAccessionIds.join(''));
+
+  // Aggregate by group and date
+  const dataAggGroupDate = aggregate({
+    data: dataAggLocationGroupDate,
+    groupby: ['date', 'group', 'groupName'],
+    fields: ['cases_sum', 'color', 'location_counts'],
+    ops: ['sum', 'max', 'max'],
+    as: ['cases_sum', 'color', 'location_counts'],
+  });
+  // Dates from strings to ints
+  dataAggGroupDate.forEach((row) => {
+    row.date = parseInt(row.date);
+  });
 
   return {
-    aggCaseDataList,
+    filteredCaseData: caseData,
+    dataAggLocationGroupDate,
+    dataAggGroupDate,
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
     metadataCountsAfterFiltering,
-    selectedRowsHash,
     selectedAccessionIds,
     selectedAckIds,
+
+    countsPerLocation,
+    //countsPerLocationDate: countsPerLocationDateList,
+    countsPerLocationDate,
   };
 }
 
@@ -418,6 +413,7 @@ function processCaseData({
 // i.e., collapse the date field for cases, so we can display group-wise stats
 // in the data table
 function aggCaseDataByGroup({
+  filteredCaseData,
   dataAggGroupDate,
   coordinateMode,
   coordinateRanges,
@@ -429,15 +425,29 @@ function aggCaseDataByGroup({
 }) {
   // console.log(dateRange);
 
+  let getColorMethod;
+  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
+    getColorMethod = getLineageColor;
+  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
+    getColorMethod = getCladeColor;
+  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    getColorMethod = getSnvColor;
+  }
+
   const groupCountObj = {};
   dataAggGroupDate.forEach((row) => {
     if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
-    else {
-      groupCountObj[row.group] = row.cases_sum;
-    }
+    else groupCountObj[row.group] = row.cases_sum;
   });
 
   let groupCountArr = Object.entries(groupCountObj);
+  groupCountArr.forEach((item) => {
+    item.push(getColorMethod(item[0]));
+    // Push the formatted group/SNV
+    item.push(
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
+    );
+  });
 
   // this will sort it so that 0 is the biggest
   groupCountArr.sort((a, b) => {
@@ -451,28 +461,56 @@ function aggCaseDataByGroup({
     }
   });
 
-  // Aggregate case data by clade only (no dates)
-  let dataAggGroup = {};
-  let totalCaseCount = 0;
-
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
+  const filteredCaseDataByDate = filterByDate(
+    filteredCaseData,
+    dateRange,
+    'collection_date'
+  );
+  const totalSequenceCount = filteredCaseDataByDate.length;
 
+  // Create the same group count object, but after date filtering
+  const groupCountDateFilteredObj = {};
+  dataAggGroupDate.forEach((row) => {
+    if (groupCountDateFilteredObj[row.group])
+      groupCountDateFilteredObj[row.group] += row.cases_sum;
+    else groupCountDateFilteredObj[row.group] = row.cases_sum;
+  });
+  let groupCountDateFilteredArr = Object.entries(groupCountDateFilteredObj);
+  groupCountDateFilteredArr.forEach((item) => {
+    item.push(getColorMethod(item[0]));
+    // Push the formatted group/SNV
+    item.push(
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
+    );
+  });
+  groupCountDateFilteredArr.sort((a, b) => {
+    if (a[1] < b[1]) {
+      return 1;
+    }
+    if (a[1] > b[1]) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+
+  // Aggregate case data by clade only (no dates)
+  let dataAggGroup = {};
   dataAggGroupDate.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(dataAggGroup, row.group)) {
       dataAggGroup[row.group] = {};
       dataAggGroup[row.group]['cases_sum'] = 0;
     }
     dataAggGroup[row.group]['cases_sum'] += row.cases_sum;
-    // Add to total case count
-    totalCaseCount += row.cases_sum;
   });
 
   // Calculate percentages for cases
   // TODO: calculate growth rates
   Object.keys(dataAggGroup).forEach((row) => {
     dataAggGroup[row]['cases_percent'] =
-      dataAggGroup[row]['cases_sum'] / totalCaseCount;
+      dataAggGroup[row]['cases_sum'] / totalSequenceCount;
   });
 
   // We need a list of 0-indexed positions for the data table
@@ -708,18 +746,11 @@ function aggCaseDataByGroup({
     });
   });
 
-  let getColorMethod;
-  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = getLineageColor;
-  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = getCladeColor;
-  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnpColor;
-  }
-
   // Object -> List of records
   Object.keys(dataAggGroup).forEach((group) => {
     dataAggGroup[group]['group'] = group;
+    dataAggGroup[group]['groupName'] =
+      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(group, dnaOrAa) : group;
     dataAggGroup[group]['color'] = getColorMethod(group);
     const parentkey = getParent(group);
     if (dataAggGroup[parentkey] && parentkey !== group) {
@@ -736,6 +767,7 @@ function aggCaseDataByGroup({
     dataAggGroup: dataAggGroup,
     changingPositions: changingPositions,
     groupCountArr,
+    groupCountDateFilteredArr,
   };
 }
 

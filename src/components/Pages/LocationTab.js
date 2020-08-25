@@ -3,14 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
-import { ASYNC_STATES } from '../../constants/UI';
 
 import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
-import AccordionTitle from '../Common/AccordionTitle';
+import TabIndicator from '../Common/TabIndicator';
+import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
-import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
 
 import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
@@ -22,135 +20,122 @@ const LocationTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const HelpText = styled.div`
-  margin-bottom: 5px;
-
-  font-weight: normal;
-  font-size: 0.9em;
-  color: #666;
-  line-height: normal;
-  p {
-    margin-top: 0px;
-    margin-bottom: 3px;
-  }
-`;
-
-const LocationDatePlotWrapper = observer(({ width }) => {
-  const { UIStore, configStore } = useStores();
-  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={300}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  } else {
-    return (
-      <AccordionWrapper
-        title={<AccordionTitle>Location-Date Plot</AccordionTitle>}
-        defaultCollapsed={false}
-        maxHeight={'800px'}
-      >
-        <HelpText>
-          <p>
-            This plot compares the sequence counts or percentages, of the
-            selected <b>{configStore.getGroupLabel()}s</b>, between the selected
-            locations. Click to highlight one, or hold <KBD>Shift</KBD> and
-            click to highlight multiple locations. Highlighted locations will be
-            shown in the plot below as well.
-          </p>
-        </HelpText>
-        <LocationDatePlot width={width - 200} />
-      </AccordionWrapper>
-    );
-  }
-});
-LocationDatePlotWrapper.propTypes = {
-  width: PropTypes.number,
-};
-
-const LocationGroupPlotWrapper = observer(({ width }) => {
-  const { UIStore, configStore } = useStores();
-  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={300}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  } else {
-    return (
-      <AccordionWrapper
-        title={<AccordionTitle>Location-Group Plot</AccordionTitle>}
-        defaultCollapsed={false}
-        maxHeight={'500px'}
-      >
-        <HelpText>
-          <p>
-            This plot shows the cumulative proportion of{' '}
-            <b>{configStore.getGroupLabel()}s</b> per location. Click to select
-            one, or hold <KBD>Shift</KBD> and click to select multiple{' '}
-            {configStore.getGroupLabel()}s. Sequences from the selected{' '}
-            {configStore.getGroupLabel()}s will be shown in the plot above.
-          </p>
-        </HelpText>
-        <LocationGroupPlot width={width - 300} />
-      </AccordionWrapper>
-    );
-  }
-});
-LocationGroupPlotWrapper.propTypes = {
-  width: PropTypes.number,
-};
-
 const LocationTab = observer(({ width }) => {
   const { configStore } = useStores();
 
   return (
     <LocationTabContainer>
       <AccordionWrapper
-        title={<AccordionTitle>Legend</AccordionTitle>}
+        title="Legend"
         defaultCollapsed={false}
         maxHeight={'500px'}
+        helpText={
+          <ul>
+            <li>
+              Items in the legend represent{' '}
+              <b>{configStore.getGroupLabel()}s</b>.
+            </li>
+            <li>
+              Click to select one, or hold <KBD>Shift</KBD> and click to select
+              multiple {configStore.getGroupLabel()}s.
+            </li>
+            <li>
+              Selected {configStore.getGroupLabel()}s will be highlighted in the
+              plots and table below, as well as in the{' '}
+              <TabIndicator>
+                Compare {configStore.getGroupLabel()}s
+              </TabIndicator>{' '}
+              tab.
+              {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+                <>
+                  {' '}
+                  <ExternalLink href="https://cov-lineages.org/descriptions.html">
+                    (Lineage Descriptions)
+                  </ExternalLink>
+                </>
+              )}
+            </li>
+          </ul>
+        }
       >
-        <HelpText>
-          <p>
-            Items in the legend represent <b>{configStore.getGroupLabel()}s</b>.
-            Click to select one, or hold <KBD>Shift</KBD> and click to select
-            multiple {configStore.getGroupLabel()}s. Sequence counts of the
-            selected {configStore.getGroupLabel()}s will be compared between
-            locations in the plot below.
-            {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
-              <>
-                {' '}
-                <ExternalLink href="https://cov-lineages.org/descriptions.html">
-                  (Lineage Descriptions)
-                </ExternalLink>
-              </>
-            )}
-          </p>
-        </HelpText>
         <VegaLegend />
       </AccordionWrapper>
-
-      <LocationDatePlotWrapper width={width} />
-      <LocationGroupPlotWrapper width={width} />
+      <AccordionWrapper
+        title="Location-Date Plot"
+        defaultCollapsed={false}
+        maxHeight={'800px'}
+        helpText={
+          <ul>
+            <li>
+              This plot compares the sequence counts or percentages, of the
+              selected <b>{configStore.getGroupLabel()}s</b>, between the
+              selected locations.
+            </li>
+            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+              <li>
+                In SNV mode, matching sequences are defined as sequences having
+                the selected {configStore.getGroupLabel()}s or combination of{' '}
+                {configStore.getGroupLabel()}s.
+              </li>
+            )}
+            <li>
+              Sequences can be shown as new occurrences{' '}
+              <SelectBoxText>New</SelectBoxText>, or as a cumulative count over
+              time <SelectBoxText>Cumulative</SelectBoxText>.
+            </li>
+            <li>
+              Sequences can be plotted as raw counts{' '}
+              <SelectBoxText>Counts</SelectBoxText>, or as percentages
+              normalized to the total number of sequences at that time
+              <SelectBoxText>Percentages</SelectBoxText>
+            </li>
+            <li>
+              Sequences are plotted over time by the sample collection date.
+              Sequences can be grouped into time bins by{' '}
+              <SelectBoxText>Day</SelectBoxText>,{' '}
+              <SelectBoxText>Week</SelectBoxText>, or{' '}
+              <SelectBoxText>Month</SelectBoxText>
+            </li>
+            <li>
+              <i>Click</i> to highlight one, or hold <KBD>Shift</KBD> and
+              <i>click</i> to highlight multiple locations. Highlighted
+              locations will be shown in the plot below as well.
+            </li>
+          </ul>
+        }
+      >
+        <LocationDatePlot width={width - 200} />
+      </AccordionWrapper>
+      <AccordionWrapper
+        title="Location-Group Plot"
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+        helpText={
+          <ul>
+            <li>
+              This plot shows the cumulative proportion of{' '}
+              <b>{configStore.getGroupLabel()}s</b> per location.
+            </li>
+            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+              <li>
+                In SNV mode, sequences are shown as counts and not proportions.
+                This is because sequences can be counted multiple times, as a
+                single sequence may have multiple SNVs. The relevant data is the
+                relative difference between the SNVs – the height of all bars is
+                not meaningful.
+              </li>
+            )}
+            <li>
+              <i>Click</i> to select one, or hold <KBD>Shift</KBD> and{' '}
+              <i>click</i> to select multiple {configStore.getGroupLabel()}s.
+              Sequences from the selected {configStore.getGroupLabel()}s will be
+              shown in the plot above.
+            </li>
+          </ul>
+        }
+      >
+        <LocationGroupPlot width={width - 300} />
+      </AccordionWrapper>
     </LocationTabContainer>
   );
 });

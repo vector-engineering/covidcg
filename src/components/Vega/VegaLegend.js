@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import styled from 'styled-components';
+import { useStores } from '../../stores/connect';
+import { mergeLegendItemsIntoOther } from './utils';
+import { formatSnv } from '../../utils/snpData';
+import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
-import { useStores } from '../../stores/connect';
-import SkeletonElement from '../Common/SkeletonElement';
 import { ASYNC_STATES } from '../../constants/UI';
 import {
   GROUP_KEYS,
@@ -13,99 +14,17 @@ import {
   COORDINATE_MODES,
 } from '../../constants/config';
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
-import { mergeLegendItemsIntoOther } from './utils';
-import { lighten, transparentize, meetsContrastGuidelines } from 'polished';
 
-const LegendList = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  border: 1px #eaeaea solid;
-  border-radius: 2px;
-  padding: 6px 12px;
-`;
-
-const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0px 6px;
-
-  border: ${({ hovered, selected }) => {
-    if (hovered) {
-      return '1px solid #666';
-    } else if (selected) {
-      return '1px solid #000';
-    } else {
-      return 'none';
-    }
-  }};
-  border-radius: 3px;
-  margin: ${({ hovered, selected }) => {
-    if (hovered || selected) {
-      return '0px 4px 3px 1px';
-    } else {
-      return '1px 5px 4px 2px';
-    }
-  }};
-  background-color: ${({ color, hovered, selected }) => {
-    if (hovered) {
-      return lighten(0.1, color);
-    } else if (selected === null) {
-      return color;
-    } else if (selected) {
-      return color;
-    } else {
-      return transparentize(0.7, color);
-    }
-  }};
-
-  font-size: 12px;
-  font-weight: 500;
-  color: ${({ textColor, hovered, selected }) => {
-    if (hovered) {
-      return transparentize(0.1, textColor);
-    } else if (selected === null) {
-      return textColor;
-    } else if (selected) {
-      return textColor;
-    } else {
-      // Make the blacks a lot lighter
-      return textColor === '#fff'
-        ? transparentize(0.5, textColor)
-        : transparentize(0.8, textColor);
-    }
-  }};
-`;
-
-LegendItem.defaultProps = {
-  hovered: false,
-  selected: null,
-  color: '#ccc',
-  textColor: '#fff',
-};
-
-const ColorCircle = styled.div`
-  background-color: ${({ color, selected }) => {
-    if (selected === null || selected) {
-      return color;
-    } else {
-      return '#CCC';
-    }
-  }};
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 4px;
-`;
-
-ColorCircle.defaultProps = {
-  color: '#000',
-  selected: null,
-};
+import SkeletonElement from '../Common/SkeletonElement';
+import { LegendList, LegendItem } from './Legend.styles';
 
 const LegendItemWrapper = observer(({ group, color }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
+    text:
+      configStore.groupKey === GROUP_KEYS.GROUP_SNV
+        ? formatSnv(group, configStore.dnaOrAa)
+        : group,
     hovered: false,
     selected: false,
   });
@@ -143,7 +62,7 @@ const LegendItemWrapper = observer(({ group, color }) => {
       textColor={textColor}
       data-group={group}
     >
-      {group}
+      {state.text}
     </LegendItem>
   );
 });
@@ -197,8 +116,39 @@ const VegaLegend = observer(() => {
     configStore.updateHoverGroup(hoverGroup);
   };
 
-  const renderLegendKeys = (groupObjs) => {
-    return groupObjs.map((obj) => {
+  const renderLegendKeys = () => {
+    // Make own copy of the elements, and sort by group
+    let legendItems = mergeLegendItemsIntoOther(
+      JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
+      dataStore.groupsToKeep
+    );
+
+    // Set aside the reference, and remove it from the rows list
+    // Also set aside the "Other" group, if it exists
+    // Sort the list, then add the reference back to the beginning
+    // and add the other group back to the end
+    const refItem = _.findWhere(legendItems, { group: REFERENCE_GROUP });
+    const otherItem = _.findWhere(legendItems, { group: OTHER_GROUP });
+    legendItems = _.reject(
+      legendItems,
+      (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
+    );
+    legendItems = legendItems.sort(
+      sortLegendItems.bind(
+        this,
+        configStore.groupKey,
+        configStore.dnaOrAa,
+        configStore.coordinateMode
+      )
+    );
+    if (refItem !== undefined) {
+      legendItems.unshift(refItem);
+    }
+    if (otherItem !== undefined) {
+      legendItems.push(otherItem);
+    }
+
+    return legendItems.map((obj) => {
       if (!obj.color) {
         return null;
       }
@@ -252,39 +202,12 @@ const VegaLegend = observer(() => {
   };
 
   useEffect(() => {
-    // Make own copy of the elements, and sort by group
-    let legendItems = mergeLegendItemsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
-      dataStore.groupsToKeep
-    );
-
-    // Set aside the reference, and remove it from the rows list
-    // Also set aside the "Other" group, if it exists
-    // Sort the list, then add the reference back to the beginning
-    // and add the other group back to the end
-    const refItem = _.findWhere(legendItems, { group: REFERENCE_GROUP });
-    const otherItem = _.findWhere(legendItems, { group: OTHER_GROUP });
-    legendItems = _.reject(
-      legendItems,
-      (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
-    );
-    legendItems = legendItems.sort(
-      sortLegendItems.bind(
-        this,
-        configStore.groupKey,
-        configStore.dnaOrAa,
-        configStore.coordinateMode
-      )
-    );
-    if (refItem !== undefined) {
-      legendItems.unshift(refItem);
-    }
-    if (otherItem !== undefined) {
-      legendItems.push(otherItem);
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
     }
 
-    setState({ ...state, legendItems: renderLegendKeys(legendItems) });
-  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
+    setState({ ...state, legendItems: renderLegendKeys() });
+  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
 
   // console.log('RE-RENDERING LEGEND');
 

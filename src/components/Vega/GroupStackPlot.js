@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -9,7 +8,9 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
+import { GROUP_KEYS } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { GROUPS } from '../../constants/groups';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -18,54 +19,10 @@ import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import { mergeGroupsIntoOther } from './utils';
-import initialSpec from '../../vega_specs/bar_stack_v1.vg.json';
-
-const PlotOptions = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-  padding-right: 10px;
-
-  .spacer {
-    flex-grow: 1;
-  }
-`;
-
-const PlotTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-
-  border-right: 1px solid #ccc;
-  margin-right: 10px;
-  padding-right: 10px;
-  padding-left: 18px;
-
-  line-height: normal;
-
-  .title {
-    font-size: 1.25em;
-  }
-  .subtitle {
-    font-size: 0.9em;
-    font-weight: normal;
-  }
-`;
-
-const SelectContainer = styled.div`
-  margin-right: 8px;
-  font-weight: normal;
-  select {
-    margin-left: 0.65em;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-`;
+import initialSpec from '../../vega_specs/group_stack.vg.json';
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
@@ -90,6 +47,10 @@ const GroupStackPlot = observer(({ width }) => {
     if (hoverGroup === configStore.hoverGroup) {
       return;
     }
+    // Ignore for some special groups
+    if (hoverGroup === GROUPS.ALL_OTHER_GROUP) {
+      return;
+    }
     // console.log('Updating store hoverGroup from plot', hoverGroup);
     // console.log('state hovergroup', state.hoverGroup);
     configStore.updateHoverGroup(hoverGroup);
@@ -97,6 +58,11 @@ const GroupStackPlot = observer(({ width }) => {
 
   const handleSelected = (...args) => {
     // console.log(args);
+
+    // Ignore selections in SNV mode
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
 
     // Don't fire if the selection is the same
     if (_.isEqual(args[1], configStore.selectedGroups)) {
@@ -123,13 +89,22 @@ const GroupStackPlot = observer(({ width }) => {
     }
   };
 
+  const processData = () => {
+    // console.log('PROCESS DATA');
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
+    }
+
+    return mergeGroupsIntoOther(
+      JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
+      dataStore.groupsToKeep
+    );
+  };
+
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      cases_by_date_and_group: mergeGroupsIntoOther(
-        JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-        dataStore.groupsToKeep
-      ),
+      cases_by_date_and_group: processData(),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -157,21 +132,28 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update internal caseData copy
   useEffect(() => {
+    // console.log('CASE DATA STATE');
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     setState({
       ...state,
       data: {
         ...state.data,
-        cases_by_date_and_group: mergeGroupsIntoOther(
-          JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-          dataStore.groupsToKeep
-        ),
+        cases_by_date_and_group: processData(),
       },
     });
-  }, [dataStore.selectedRowsHash, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
 
   // Update internal selected groups copy
   useEffect(() => {
-    // console.log('Update selectedGroups');
+    // console.log('SELECTED GROUPS');
+    // Skip this update if we're in SNV mode
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
+
     setState({
       ...state,
       data: {
@@ -181,8 +163,59 @@ const GroupStackPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
+  useEffect(() => {
+    // console.log('SNV DATA STATE');
+    // Skip this if we're not in SNV mode
+    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+      return;
+    }
+
+    // Skip unless the SNV data finished processing
+    if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        cases_by_date_and_group: processData(),
+        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+      },
+    });
+  }, [UIStore.snvDataState]);
+
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
+
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={400}>
+          <LoadingSpinner />
+        </SkeletonElement>
+      </div>
+    );
+  }
+
+  if (configStore.selectedLocationNodes.length === 0) {
+    return (
+      <EmptyPlot height={250}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{configStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
+  }
 
   let plotTitle = '';
   if (plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE) {
@@ -250,34 +283,13 @@ const GroupStackPlot = observer(({ width }) => {
   }
   detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
 
-  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-    return (
-      <div
-        style={{
-          paddingTop: '12px',
-          paddingRight: '24px',
-          paddingLeft: '12px',
-          paddingBottom: '24px',
-        }}
-      >
-        <SkeletonElement delay={2} height={400}>
-          <LoadingSpinner />
-        </SkeletonElement>
-      </div>
-    );
-  }
-
-  if (configStore.selectedLocationNodes.length === 0) {
-    return (
-      <EmptyPlot height={250}>
-        <p>
-          No locations selected. Please select one or more locations from the
-          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-          <b>{configStore.getGroupLabel()}</b> between them.
-        </p>
-      </EmptyPlot>
-    );
-  }
+  // Hide the detail view in SNV mode when there's no selections
+  // Also disable the plot options when the detail panel is hidden
+  const hideDetail =
+    configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+    configStore.selectedGroups.length === 0;
+  const detailHeight = hideDetail ? 0 : 280;
+  const height = hideDetail ? 60 : 380;
 
   return (
     <div>
@@ -288,60 +300,71 @@ const GroupStackPlot = observer(({ width }) => {
           data and artefacts in this visualization. Please interpret this data
           with care."
       />
-      <PlotOptions>
-        <PlotTitle>
-          <span className="title">{plotTitle}</span>
-          <span className="subtitle">{selectedLocationsText}</span>
-        </PlotTitle>
-        <SelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackCountMode}
-              onChange={onChangeCountMode}
-            >
-              <option value={COUNT_MODES.COUNT_NEW}>New</option>
-              <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
-            </select>
-          </label>
-        </SelectContainer>
-        sequences, shown as{' '}
-        <SelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackNormMode}
-              onChange={onChangeNormMode}
-            >
-              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
-              <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
-            </select>
-          </label>
-        </SelectContainer>
-        grouped by{' '}
-        <SelectContainer>
-          <label>
-            <select
-              value={plotSettingsStore.groupStackDateBin}
-              onChange={onChangeDateBin}
-            >
-              <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
-              <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
-              <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
-            </select>
-          </label>
-        </SelectContainer>
-        <div className="spacer"></div>
-        <DropdownButton
-          text={'Download'}
-          options={[
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-          ]}
-          onSelect={handleDownloadSelect}
-        />
-      </PlotOptions>
+      {hideDetail && (
+        <EmptyPlot height={100}>
+          <p>
+            No {configStore.getGroupLabel()}s selected. Please select one or
+            more {configStore.getGroupLabel()}s from the legend, frequency plot,
+            or table.
+          </p>
+        </EmptyPlot>
+      )}
+      {!hideDetail && (
+        <PlotOptions>
+          <PlotTitle>
+            <span className="title">{plotTitle}</span>
+            <span className="subtitle">{selectedLocationsText}</span>
+          </PlotTitle>
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackCountMode}
+                onChange={onChangeCountMode}
+              >
+                <option value={COUNT_MODES.COUNT_NEW}>New</option>
+                <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          sequences, shown as{' '}
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackNormMode}
+                onChange={onChangeNormMode}
+              >
+                <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+                <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          grouped by{' '}
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.groupStackDateBin}
+                onChange={onChangeDateBin}
+              >
+                <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+                <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+                <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          <div className="spacer"></div>
+          <DropdownButton
+            text={'Download'}
+            options={[
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+            ]}
+            onSelect={handleDownloadSelect}
+          />
+        </PlotOptions>
+      )}
 
       <div style={{ width: `${width}px` }}>
         <VegaEmbed
@@ -351,6 +374,9 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
+            disableSelectionColoring:
+              configStore.groupKey === GROUP_KEYS.GROUP_SNV,
+            detailHeight,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,
             dateBin,
@@ -363,6 +389,7 @@ const GroupStackPlot = observer(({ width }) => {
           }}
           cheapSignals={['hoverBar']}
           width={width}
+          height={height}
           actions={false}
         />
       </div>

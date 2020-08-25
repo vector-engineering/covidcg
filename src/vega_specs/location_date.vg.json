@@ -6,10 +6,27 @@
   "padding": 5,
 
   "signals": [
+    { "name": "skipFiltering", "value": false },
+    { "name": "interpolate", "value": "step" },
     {
-      "name": "interpolate",
-      "value": "step"
+      "name": "dateRangeStart",
+      "value": 1575158400000,
+      "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
     },
+    {
+      "name": "dateRangeEnd",
+      "value": 1609372800000
+    },
+    {
+      "name": "dateBin",
+      "value": 604800000,
+      "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
+    },
+    { "name": "cumulativeWindow", "value": [0, 0] },
+    { "name": "yField", "value": "cases_norm" },
+    { "name": "yLabel", "value": "% Sequences" },
+    { "name": "yFormat", "value": "%" },
+    { "name": "tooltipCountFormat", "value": ".1%" },
     {
       "name": "hoverLocation",
       "value": null,
@@ -62,24 +79,6 @@
         }
       ]
     },
-    {
-      "name": "dateRangeStart",
-      "value": 1575158400000,
-      "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
-    },
-    {
-      "name": "dateRangeEnd",
-      "value": 1609372800000
-    },
-    {
-      "name": "dateBin",
-      "value": 86400000,
-      "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
-    },
-    { "name": "cumulativeWindow", "value": [0, 0] },
-    { "name": "yField", "value": "cases_sum_agg" },
-    { "name": "yLabel", "value": "% Sequences" },
-    { "name": "yFormat", "value": "s" },
     {
       "name": "clear",
       "value": true,
@@ -143,7 +142,7 @@
   "data": [
     {
       "name": "selectedGroups",
-      "values": [{ "group": "B.1" }, { "group": "B.1.3" }]
+      "values": [{ "group": "S|614|D|G" }, { "group": "Reference" }]
     },
     {
       "name": "location_data",
@@ -152,10 +151,22 @@
           "location": "string",
           "cases_sum": "number",
           "location_counts": "number",
+          "location_date_count": "number",
           "date": "date:'%Q'"
         }
       },
       "transform": [
+        {
+          "type": "filter",
+          "expr": "skipFiltering || indata('selectedGroups', 'group', datum.group) || length(data('selectedGroups')) == 0"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["location", "date"],
+          "fields": ["cases_sum", "location_date_count"],
+          "ops": ["sum", "max"],
+          "as": ["cases_sum", "location_date_count"]
+        },
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
@@ -168,30 +179,12 @@
           "as": ["day_start", "day_end"]
         },
         {
-          "type": "joinaggregate",
-          "groupby": ["location", "day_start"],
-          "fields": ["cases_sum"],
-          "ops": ["sum"],
-          "as": ["all_cases_sum"]
-        },
-        {
-          "type": "filter",
-          "expr": "indata('selectedGroups', 'group', datum.group) || length(data('selectedGroups')) == 0"
-        },
-        {
-          "type": "aggregate",
-          "groupby": ["location", "day_start"],
-          "fields": ["cases_sum", "color", "all_cases_sum"],
-          "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "color", "all_cases_sum"]
-        },
-        {
           "type": "window",
           "sort": { "field": "day_start" },
           "groupby": ["location"],
           "ops": ["sum", "sum"],
-          "fields": ["cases_sum", "all_cases_sum"],
-          "as": ["cases_sum_agg", "all_cases_sum_agg"],
+          "fields": ["cases_sum", "location_date_count"],
+          "as": ["cases_sum_agg", "location_date_count_agg"],
           "frame": { "signal": "cumulativeWindow" }
         },
         {
@@ -203,7 +196,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cases_sum_agg / datum.all_cases_sum_agg",
+          "expr": "datum.cases_sum_agg / datum.location_date_count_agg",
           "as": "cases_norm"
         },
         {
@@ -415,10 +408,7 @@
             "enter": {
               "size": { "value": 30 },
               "fill": { "value": "#fff" },
-              "strokeWidth": { "value": 1.5 },
-              "tooltip": {
-                "signal": "{title: datum.location, 'Sequences': datum[yField], 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
-              }
+              "strokeWidth": { "value": 1.5 }
             },
             "update": {
               "x": { "scale": "xscale", "field": "day_middle" },
@@ -444,7 +434,10 @@
                   "value": 3
                 },
                 { "value": 1 }
-              ]
+              ],
+              "tooltip": {
+                "signal": "{title: datum.location, 'Sequences': format(datum[yField], tooltipCountFormat), 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+              }
             }
           }
         },

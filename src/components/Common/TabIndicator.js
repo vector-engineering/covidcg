@@ -13,6 +13,7 @@ const TabIndicatorBG = styled.span`
   padding: 2px 3px 0px 3px;
   border: 1px solid #ccc;
   border-bottom: none;
+  margin-top: -1px;
 `;
 
 const TabIndicatorFG = styled.span`

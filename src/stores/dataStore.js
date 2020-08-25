@@ -3,6 +3,7 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
+import { processSelectedSnvs } from '../utils/snpDataWorkerWrapper';
 import {
   downloadAccessionIdsData,
   downloadAcknowledgementsData,
@@ -25,42 +26,55 @@ import { getGlobalGroupCounts } from '../utils/globalCounts';
 const globalGroupCounts = getGlobalGroupCounts();
 
 export const initialDataValues = {
+  filteredCaseData: [],
   dataAggLocationGroupDate: [],
   dataAggGroupDate: [],
   dataAggGroup: [],
   changingPositions: {},
   groupsToKeep: [],
   groupCountArr: [],
+  groupCountDateFilteredArr: [],
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
   metadataCountsAfterFiltering: {},
 
-  selectedRowsHash: '',
-  selectedRowsAndDateHash: '',
   selectedAccessionIds: [],
   selectedAckIds: [],
+
+  dataAggLocationSnvDate: [],
+  dataAggSnvDate: [],
+  snvCooccurrence: [],
+
+  countsPerLocation: {},
+  countsPerLocationDate: {},
 };
 
 class ObservableDataStore {
+  filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
   @observable changingPositions = initialDataValues.changingPositions;
   @observable groupsToKeep = initialDataValues.groupsToKeep;
   @observable groupCountArr = initialDataValues.groupCountArr;
+  groupCountDateFilteredArr = initialDataValues.groupCountDateFilteredArr;
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
   @observable metadataCountsAfterFiltering =
     initialDataValues.metadataCountsAfterFiltering;
 
-  @observable selectedRowsHash = initialDataValues.selectedRowsHash;
-  @observable selectedRowsAndDateHash =
-    initialDataValues.selectedRowsAndDateHash;
   selectedAccessionIds = initialDataValues.selectedAccessionIds;
   selectedAckIds = initialDataValues.selectedAckIds;
+
+  dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
+  dataAggSnvDate = initialDataValues.dataAggSnvDate;
+  snvCooccurrence = initialDataValues.snvCooccurrence;
+
+  countsPerLocation = initialDataValues.countsPerLocation;
+  countsPerLocationDate = initialDataValues.countsPerLocationDate;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
@@ -128,7 +142,8 @@ class ObservableDataStore {
     UIStoreInstance.onAggCaseDataStarted();
     aggCaseDataByGroup(
       {
-        dataAggGroupDate: this.dataAggGroupDate,
+        filteredCaseData: JSON.parse(JSON.stringify(this.filteredCaseData)),
+        dataAggGroupDate: JSON.parse(JSON.stringify(this.dataAggGroupDate)),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         selectedGene: toJS(configStoreInstance.selectedGene),
@@ -137,25 +152,18 @@ class ObservableDataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggGroup, changingPositions, groupCountArr }) => {
+      ({
+        dataAggGroup,
+        changingPositions,
+        groupCountArr,
+        groupCountDateFilteredArr,
+      }) => {
         // console.log(caseDataAggGroup);
         this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
         this.groupCountArr = groupCountArr;
+        this.groupCountDateFilteredArr = groupCountDateFilteredArr;
         // console.log('AGG_CASE_DATA FINISHED');
-
-        // Update hash for any listeners
-        this.selectedRowsAndDateHash =
-          this.selectedRowsHash +
-          toJS(configStoreInstance.coordinateMode) +
-          toJS(configStoreInstance.getCoordinateRanges()).toString() +
-          configStoreInstance.selectedGene.gene +
-          configStoreInstance.selectedProtein.protein +
-          configStoreInstance.groupKey +
-          configStoreInstance.dnaOrAa +
-          toJS(configStoreInstance.dateRange)
-            .map((date) => date.toString())
-            .join(',');
 
         this.updateGroupsToKeep();
         // Fire callback
@@ -171,13 +179,26 @@ class ObservableDataStore {
 
   @action
   emptyCaseData() {
-    this.dataAggLocationGroupDate = [];
-    this.dataAggGroupDate = [];
-    this.dataAggGroup = [];
-    this.changingPositions = {};
-    this.selectedRowsHash = '';
-    this.selectedAccessionIds = [];
-    this.selectedAckIds = [];
+    UIStoreInstance.onCaseDataStateStarted();
+    UIStoreInstance.onAggCaseDataStarted();
+
+    this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
+    this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
+    this.dataAggGroup = initialDataValues.dataAggGroup;
+    this.changingPositions = initialDataValues.changingPositions;
+
+    this.selectedAccessionIds = initialDataValues.selectedAccessionIds;
+    this.selectedAckIds = initialDataValues.selectedAckIds;
+
+    this.dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
+    this.dataAggSnvDate = initialDataValues.dataAggSnvDate;
+    this.snvCooccurrence = initialDataValues.snvCooccurrence;
+
+    this.countsPerLocation = initialDataValues.countsPerLocation;
+    this.countsPerLocationDate = initialDataValues.countsPerLocationDate;
+
+    UIStoreInstance.onAggCaseDataFinished();
+    UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
@@ -197,34 +218,61 @@ class ObservableDataStore {
         ),
         ageRange: toJS(configStoreInstance.ageRange),
         dateRange: toJS(configStoreInstance.dateRange),
+        selectedGroups: toJS(configStoreInstance.selectedGroups),
       },
       ({
-        aggCaseDataList,
+        filteredCaseData,
+        dataAggLocationGroupDate,
+        dataAggGroupDate,
         metadataCounts,
         metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
-        selectedRowsHash,
         selectedAccessionIds,
         selectedAckIds,
+        countsPerLocation,
+        countsPerLocationDate,
       }) => {
-        this.dataAggLocationGroupDate = aggCaseDataList;
-        this.dataAggGroupDate = aggregate({
-          data: aggCaseDataList,
-          groupby: ['date', 'group'],
-          fields: ['cases_sum', 'color'],
-          ops: ['sum', 'max'],
-          as: ['cases_sum', 'color'],
-        });
+        this.filteredCaseData = filteredCaseData;
+        this.dataAggLocationGroupDate = dataAggLocationGroupDate;
+        this.dataAggGroupDate = dataAggGroupDate;
         this.metadataCounts = metadataCounts;
         this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         // console.log('CASE_DATA FINISHED');
 
-        this.selectedRowsHash = selectedRowsHash;
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
 
+        this.countsPerLocation = countsPerLocation;
+        this.countsPerLocationDate = countsPerLocationDate;
+
         this.updateAggCaseDataByGroup(callback);
+        if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+          this.processSelectedSnvs();
+        }
+      }
+    );
+  }
+
+  @action
+  processSelectedSnvs() {
+    UIStoreInstance.onSnvDataStarted();
+    processSelectedSnvs(
+      {
+        dnaOrAa: toJS(configStoreInstance.dnaOrAa),
+        coordinateMode: toJS(configStoreInstance.coordinateMode),
+        selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
+        filteredCaseData: this.filteredCaseData,
+        selectedGroups: toJS(configStoreInstance.selectedGroups).map(
+          (item) => item.group
+        ),
+        dateRange: toJS(configStoreInstance.dateRange),
+      },
+      ({ dataAggLocationSnvDate, dataAggSnvDate, snvCooccurrence }) => {
+        this.dataAggLocationSnvDate = dataAggLocationSnvDate;
+        this.dataAggSnvDate = dataAggSnvDate;
+        this.snvCooccurrence = snvCooccurrence;
+        UIStoreInstance.onSnvDataFinished();
       }
     );
   }
@@ -347,6 +395,52 @@ class ObservableDataStore {
       url,
       generateSelectionString(
         'data_agg_location_group_date',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
+
+  @action
+  downloadSnvFrequencies() {
+    let csvString = 'snv,count\n';
+    this.groupCountArr.forEach((item) => {
+      csvString += `${item[0]},${item[1]}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'snv_frequencies',
+        'csv',
+        toJS(configStoreInstance.groupKey),
+        toJS(configStoreInstance.dnaOrAa),
+        toJS(configStoreInstance.selectedLocationNodes),
+        toJS(configStoreInstance.dateRange)
+      )
+    );
+  }
+
+  @action
+  downloadSnvCooccurrence() {
+    let csvString = 'combination,snv,count\n';
+    this.snvCooccurrence.forEach((row) => {
+      csvString += `${row.combi},${row.snv},${row.count}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(
+      url,
+      generateSelectionString(
+        'snv_cooccurrence',
         'csv',
         toJS(configStoreInstance.groupKey),
         toJS(configStoreInstance.dnaOrAa),

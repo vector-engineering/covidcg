@@ -3,21 +3,23 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import _ from 'underscore';
 import { aggregate } from '../../utils/transform';
+import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
-import initialSpec from '../../vega_specs/location_group.vg.json';
+import SkeletonElement from '../Common/SkeletonElement';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
-import { OTHER_GROUP } from '../../constants/groups';
+import { GROUPS } from '../../constants/groups';
+import { ASYNC_STATES } from '../../constants/UI';
+import initialSpec from '../../vega_specs/location_group.vg.json';
 
 const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore } = useStores();
+  const { dataStore, configStore, UIStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -54,13 +56,49 @@ const LocationGroupPlot = observer(({ width }) => {
     configStore.updateSelectedGroups(args[1]);
   };
 
+  const processLocationByGroup = () => {
+    let locationData = JSON.parse(
+      JSON.stringify(dataStore.dataAggLocationGroupDate)
+    );
+
+    locationData.forEach((row) => {
+      if (!dataStore.groupsToKeep.includes(row.group)) {
+        row.group = GROUPS.OTHER_GROUP;
+        row.color = '#aaa';
+      }
+    });
+
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      // Filter out 'Reference' group, when in SNV mode
+      locationData = locationData.filter((row) => {
+        return row.group !== GROUPS.REFERENCE_GROUP;
+      });
+    }
+
+    locationData = aggregate({
+      data: locationData,
+      groupby: ['location', 'date', 'group', 'groupName'],
+      fields: ['cases_sum', 'color', 'location_counts'],
+      ops: ['sum', 'first', 'max'],
+      as: ['cases_sum', 'color', 'location_counts'],
+    });
+
+    return locationData;
+  };
+
+  const processSelectedGroups = () => {
+    return JSON.parse(JSON.stringify(configStore.selectedGroups));
+  };
+
+  const processSelectedLocations = () => {
+    return JSON.parse(JSON.stringify(configStore.focusedLocations));
+  };
+
   const [state, setState] = useState({
     data: {
-      location_by_group: [],
-      selectedGroups: [],
-      selectedLocations: JSON.parse(
-        JSON.stringify(configStore.focusedLocations)
-      ),
+      location_by_group: processLocationByGroup(),
+      selectedGroups: processSelectedGroups(),
+      selectedLocations: processSelectedLocations(),
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
@@ -78,48 +116,58 @@ const LocationGroupPlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selectedLocations: JSON.parse(
-          JSON.stringify(configStore.focusedLocations)
-        ),
+        selectedLocations: processSelectedLocations(),
       },
     });
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
-    let locationData = JSON.parse(
-      JSON.stringify(dataStore.dataAggLocationGroupDate)
-    );
-
-    locationData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
-        row.color = '#aaa';
-      }
-    });
-
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group'],
-      fields: ['cases_sum', 'color'],
-      ops: ['sum', 'first'],
-      as: ['cases_sum', 'color'],
-    });
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
 
     setState({
       ...state,
       data: {
         ...state.data,
-        location_by_group: locationData,
-        selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        location_by_group: processLocationByGroup(),
+        selectedGroups: processSelectedGroups(),
       },
     });
   }, [
-    dataStore.selectedRowsHash,
+    UIStore.caseDataState,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);
 
-  let xLabel = 'Sequences by ';
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={100} />
+      </div>
+    );
+  }
+
+  if (configStore.selectedLocationNodes.length == 0) {
+    return (
+      <EmptyPlot height={100}>
+        <p>
+          No locations selected. Please select one or more locations from the
+          sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
+          <b>{configStore.getGroupLabel()}</b> between them.
+        </p>
+      </EmptyPlot>
+    );
+  }
+
+  let xLabel, xLabelFormat, stackOffset;
   if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     xLabel += 'Lineage ';
   } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
@@ -134,20 +182,18 @@ const LocationGroupPlot = observer(({ width }) => {
   }
   xLabel += ' (Cumulative, All Sequences)';
 
-  const renderPlot = () => {
-    if (configStore.selectedLocationNodes.length == 0) {
-      return (
-        <EmptyPlot height={100}>
-          <p>
-            No locations selected. Please select one or more locations from the
-            sidebar, under &quot;Selected Locations&quot;, to compare counts of{' '}
-            <b>{configStore.getGroupLabel()}</b> between them.
-          </p>
-        </EmptyPlot>
-      );
-    }
+  if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    xLabelFormat = 's';
+    stackOffset = 'zero';
+    xLabel = `# Sequences with ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
+  } else {
+    xLabelFormat = '%';
+    stackOffset = 'normalize';
+    xLabel = `% Sequences by ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
+  }
 
-    return (
+  return (
+    <PlotContainer>
       <div style={{ width: `${width}` }}>
         <VegaEmbed
           ref={vegaRef}
@@ -159,15 +205,15 @@ const LocationGroupPlot = observer(({ width }) => {
             hoverLocation: { location: configStore.hoverLocation },
             hoverGroup: { group: configStore.hoverGroup },
             xLabel,
+            xLabelFormat,
+            stackOffset,
           }}
           width={width}
           actions={false}
         />
       </div>
-    );
-  };
-
-  return <PlotContainer>{renderPlot()}</PlotContainer>;
+    </PlotContainer>
+  );
 });
 LocationGroupPlot.propTypes = {
   width: PropTypes.number,

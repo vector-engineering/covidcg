@@ -1,0 +1,15 @@
+node_modules
+data/sam
+data/fasta_raw
+data/fasta_processed
+data/pymol_sessions
+.git
+.snakemake
+.vscode
+.ipynb_checkpoints
+figures
+notebooks
+.gcloudignore
+.gitattributes
+.gitignore
+.dockerignore

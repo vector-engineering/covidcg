@@ -1,0 +1,226 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic bar chart example, with value labels shown upon mouse hover.",
+  "width": 700,
+  "height": 150,
+  "padding": 5,
+
+  "signals": [
+    { "name": "totalSequences", "value": 1000 },
+    { "name": "posField", "value": 1 },
+    {
+      "name": "rectWidth",
+      "update": "invert('xscale', 3)"
+    },
+    { "name": "xRange", "value": [0, 1200] },
+    { "name": "xLabel", "value": "S Gene (AA)" },
+    { "name": "yLabel", "value": "# SNVs" },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@entropybars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@entropybars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "value": true,
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "value": false,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clicked",
+      "value": null,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "{group: datum.snv}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "table",
+      "format": {
+        "type": "json",
+        "parse": {
+          "0": "string",
+          "1": "number",
+          "2": "string",
+          "3": "string"
+        }
+      },
+      "transform": [
+        {
+          "type": "project",
+          "fields": ["0", "1", "2", "3"],
+          "as": ["snv", "count", "color", "snvName"]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.snv !== 'Reference'"
+        },
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "as": "pos"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.count / totalSequences",
+          "as": "percent"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "values": [{ "group": "S|614|D|G" }],
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "!shift && clicked", "insert": "clicked" },
+        { "trigger": "shift && clicked", "toggle": "clicked" }
+      ],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.group, '|')[1])",
+          "as": "pos"
+        },
+        {
+          "type": "lookup",
+          "from": "table",
+          "key": "snv",
+          "values": ["color"],
+          "fields": ["group"],
+          "as": ["color"]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "linear",
+      "domain": { "signal": "xRange" },
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": false,
+      "clamp": true
+    },
+    {
+      "name": "yscale",
+      "type": "pow",
+      "exponent": 0.5,
+      "domain": { "data": "table", "field": "count" },
+      "range": "height"
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "format": "d",
+      "title": { "signal": "xLabel" }
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "title": { "signal": "yLabel" }
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": { "signal": "width" },
+          "height": { "signal": "height" }
+        }
+      },
+      "marks": [
+        {
+          "name": "entropymark",
+          "type": "rule",
+          "from": { "data": "selected" },
+          "encode": {
+            "enter": {
+              "zindex": { "value": 1 }
+            },
+            "update": {
+              "x": { "scale": "xscale", "field": "pos" },
+              "x2": { "scale": "xscale", "field": "pos" },
+              "y": { "value": 0 },
+              "y2": { "signal": "height" },
+              "stroke": { "field": "color" }
+            }
+          }
+        },
+        {
+          "name": "entropybars",
+          "type": "rect",
+          "from": { "data": "table" },
+          "encode": {
+            "enter": {
+              "stroke": { "value": "#000" }
+            },
+            "update": {
+              "xc": { "scale": "xscale", "field": "pos" },
+              "width": { "scale": "xscale", "signal": "rectWidth" },
+              "y": { "scale": "yscale", "field": "count" },
+              "y2": { "scale": "yscale", "value": 0 },
+              "tooltip": {
+                "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
+              },
+              "fill": { "field": "color" },
+              "strokeWidth": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 1
+                },
+                { "value": 0 }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 3
+                },
+                { "value": 2 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

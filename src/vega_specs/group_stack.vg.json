@@ -6,106 +6,15 @@
   "height": 380,
   "padding": 5,
 
-  "data": [
-    {
-      "name": "cases_by_date_and_group",
-      "comment": "Main data object, same as caseData in store",
-      "format": {
-        "parse": {
-          "group": "string",
-          "cases_sum": "number",
-          "date": "date:'%Q'"
-        }
-      },
-      "transform": [
-        {
-          "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
-          "type": "joinaggregate",
-          "ops": ["sum"],
-          "fields": ["cases_sum"],
-          "as": ["group_counts"],
-          "groupby": ["group"]
-        },
-        {
-          "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
-          "type": "bin",
-          "field": "date",
-          "extent": [
-            { "signal": "dateRangeStart" },
-            { "signal": "dateRangeEnd" }
-          ],
-          "step": { "signal": "dateBin" },
-          "as": ["day_start", "day_end"]
-        },
-        {
-          "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
-          "type": "aggregate",
-          "groupby": ["group", "day_start", "day_end"],
-          "fields": ["cases_sum", "group_counts", "color"],
-          "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "group_counts", "color"]
-        },
-        {
-          "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
-          "type": "impute",
-          "field": "cases_sum",
-          "key": "day_start",
-          "groupby": ["group", "color", "group_counts"],
-          "value": 0
-        },
-        {
-          "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
-          "type": "formula",
-          "expr": "datum.day_start + dateBin",
-          "as": "day_end"
-        },
-        {
-          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
-          "type": "window",
-          "sort": { "field": "day_start" },
-          "groupby": ["group"],
-          "ops": ["sum"],
-          "fields": ["cases_sum"],
-          "as": ["cases_sum_new"],
-          "frame": { "signal": "cumulativeWindow" }
-        },
-        {
-          "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
-          "type": "stack",
-          "groupby": ["day_start"],
-          "sort": { "field": "group" },
-          "field": "cases_sum_new",
-          "offset": { "signal": "stackOffset" }
-        }
-      ]
-    },
-    {
-      "name": "cases_by_date",
-      "source": "cases_by_date_and_group",
-      "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
-      "transform": [
-        {
-          "type": "aggregate",
-          "groupby": ["day_start", "day_end"],
-          "fields": ["cases_sum"],
-          "ops": ["sum"],
-          "as": ["cases_sum_by_date"]
-        }
-      ]
-    },
-    {
-      "name": "selected",
-      "comment": "A list of groups that are selected",
-      "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
-      ]
-    }
-  ],
-
   "signals": [
+    { "name": "disableSelectionColoring", "value": true },
+    { "name": "detailHeight", "value": 280 },
+    { "name": "detailClip", "update": "detailHeight == 0" },
+    {
+      "name": "overviewY",
+      "update": "detailHeight == 0 ? 0 : detailHeight + 40"
+    },
+    { "name": "overviewHeight", "value": 60 },
     {
       "name": "dateRangeStart",
       "value": 1575158400000,
@@ -211,6 +120,112 @@
     }
   ],
 
+  "data": [
+    {
+      "name": "selected",
+      "comment": "A list of groups that are selected",
+      "values": [{ "group": "S|614|D|G" }],
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "!shift && clicked", "insert": "clicked" },
+        { "trigger": "shift && clicked", "toggle": "clicked" }
+      ]
+    },
+    {
+      "name": "cases_by_date_and_group",
+      "comment": "Main data object, same as caseData in store",
+      "format": {
+        "parse": {
+          "group": "string",
+          "cases_sum": "number",
+          "date": "date:'%Q'"
+        }
+      },
+      "transform": [
+        {
+          "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
+          "type": "joinaggregate",
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": ["group_counts"],
+          "groupby": ["group", "groupName"]
+        },
+        {
+          "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
+          "type": "bin",
+          "field": "date",
+          "extent": [
+            { "signal": "dateRangeStart" },
+            { "signal": "dateRangeEnd" }
+          ],
+          "step": { "signal": "dateBin" },
+          "as": ["day_start", "day_end"]
+        },
+        {
+          "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
+          "type": "aggregate",
+          "groupby": [
+            "group",
+            "groupName",
+            "new_group",
+            "day_start",
+            "day_end"
+          ],
+          "fields": ["cases_sum", "group_counts", "color"],
+          "ops": ["sum", "max", "max"],
+          "as": ["cases_sum", "group_counts", "color"]
+        },
+        {
+          "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
+          "type": "impute",
+          "field": "cases_sum",
+          "key": "day_start",
+          "groupby": ["group", "groupName", "color", "group_counts"],
+          "value": 0
+        },
+        {
+          "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
+          "type": "formula",
+          "expr": "datum.day_start + dateBin",
+          "as": "day_end"
+        },
+        {
+          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
+          "type": "window",
+          "sort": { "field": "day_start" },
+          "groupby": ["group", "groupName"],
+          "ops": ["sum"],
+          "fields": ["cases_sum"],
+          "as": ["cases_sum_new"],
+          "frame": { "signal": "cumulativeWindow" }
+        },
+        {
+          "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
+          "type": "stack",
+          "groupby": ["day_start"],
+          "sort": { "field": "group" },
+          "field": "cases_sum_new",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "cases_by_date",
+      "source": "cases_by_date_and_group",
+      "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["day_start", "day_end"],
+          "fields": ["cases_sum"],
+          "ops": ["sum"],
+          "as": ["cases_sum_by_date"]
+        }
+      ]
+    }
+  ],
+
   "marks": [
     {
       "type": "group",
@@ -219,7 +234,8 @@
       "encode": {
         "comment": "The width and height should be overridden by the plot's container",
         "update": {
-          "height": { "value": 280 },
+          "clip": { "signal": "detailClip" },
+          "height": { "signal": "detailHeight" },
           "width": { "signal": "width" }
         }
       },
@@ -258,45 +274,10 @@
           "name": "y",
           "comment": "Scale the y axis from 0 to the highest bar height",
           "type": "linear",
-          "range": [280, 0],
+          "range": [{ "signal": "detailHeight" }, 0],
           "nice": true,
           "zero": true,
           "domain": { "data": "cases_by_date_and_group", "field": "y1" }
-        }
-      ],
-      "axes": [
-        {
-          "orient": "bottom",
-          "scale": "x",
-          "zindex": 0,
-          "format": "%m-%d",
-          "tickCount": "week",
-          "grid": true,
-          "gridScale": "y",
-          "gridColor": "#DDD",
-
-          "labelAngle": 310,
-          "labelAlign": "right",
-          "labelBaseline": "middle",
-          "labelPadding": 5,
-
-          "labelFontSize": 12
-        },
-        {
-          "orient": "left",
-          "scale": "y",
-          "format": { "signal": "yFormat" },
-          "zindex": 0,
-          "grid": true,
-          "gridColor": "#DDD",
-
-          "title": { "signal": "detailYLabel" },
-          "titleFontSize": 14,
-          "titlePadding": 10,
-
-          "labelFontSize": 14,
-          "labelPadding": 5,
-          "tickCount": 5
         }
       ],
       "marks": [
@@ -306,21 +287,57 @@
           "encode": {
             "update": {
               "height": { "field": { "group": "height" } },
-              "width": { "field": { "group": "width" } },
-              "clip": { "value": true }
+              "width": { "field": { "group": "width" } }
             }
           },
+          "axes": [
+            {
+              "orient": "bottom",
+              "scale": "x",
+              "zindex": 0,
+              "format": "%m-%d",
+              "tickCount": "week",
+              "grid": true,
+              "gridScale": "y",
+              "gridColor": "#DDD",
+
+              "labelAngle": 310,
+              "labelAlign": "right",
+              "labelBaseline": "middle",
+              "labelPadding": 5,
+
+              "labelFontSize": 12
+            },
+            {
+              "orient": "left",
+              "scale": "y",
+              "format": { "signal": "yFormat" },
+              "zindex": 0,
+              "grid": true,
+              "gridColor": "#DDD",
+
+              "title": { "signal": "detailYLabel" },
+              "titleFontSize": 14,
+              "titlePadding": 10,
+
+              "labelFontSize": 14,
+              "labelPadding": 5,
+              "tickCount": 5
+            }
+          ],
+
           "marks": [
             {
               "type": "rect",
               "name": "detailbars",
               "from": { "data": "cases_by_date_and_group" },
+              "clip": true,
               "encode": {
                 "comment": "Define the tooltip and other constant values here",
                 "enter": {
                   "strokeWidth": { "value": 1 },
                   "tooltip": {
-                    "signal": "{title: datum.group, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   }
                 },
                 "update": {
@@ -330,7 +347,7 @@
                   "y2": { "scale": "y", "field": "y1" },
                   "fill": [
                     {
-                      "test": "(!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
+                      "test": "disableSelectionColoring || (!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
                       "field": "color",
                       "comment": "If this group is selected, or if nothing is selected, then color it normally."
                     },
@@ -370,9 +387,9 @@
         "comment": "The width should be overridden by the plot container",
         "update": {
           "x": { "value": 0 },
-          "y": { "value": 320 },
+          "y": { "signal": "overviewY" },
           "width": { "signal": "width" },
-          "height": { "value": 60 },
+          "height": { "signal": "overviewHeight" },
           "fill": { "value": "transparent" }
         }
       },
@@ -500,7 +517,7 @@
         {
           "name": "yOverview",
           "type": "linear",
-          "range": [60, 0],
+          "range": [{ "signal": "overviewHeight" }, 0],
           "domain": { "data": "cases_by_date", "field": "cases_sum_by_date" },
           "nice": true,
           "zero": true
@@ -571,7 +588,7 @@
           "encode": {
             "enter": {
               "y": { "value": 0 },
-              "height": { "value": 60 },
+              "height": { "signal": "overviewHeight" },
               "fill": { "value": "#333" },
               "fillOpacity": { "value": 0.2 }
             },
@@ -588,7 +605,7 @@
           "encode": {
             "enter": {
               "y": { "value": 0 },
-              "height": { "value": 60 },
+              "height": { "signal": "overviewHeight" },
               "width": { "value": 1 },
               "fill": { "value": "firebrick" }
             },
@@ -604,7 +621,7 @@
           "encode": {
             "enter": {
               "y": { "value": 0 },
-              "height": { "value": 60 },
+              "height": { "signal": "overviewHeight" },
               "width": { "value": 1 },
               "fill": { "value": "firebrick" }
             },

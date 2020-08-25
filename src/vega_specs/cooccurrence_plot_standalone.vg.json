@@ -1,0 +1,264 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic stacked bar chart example.",
+  "width": 500,
+  "padding": 5,
+  "autosize": "pad",
+
+  "signals": [
+    { "name": "combiLabelsSignal", "update": "data('combi_labels')" },
+    { "name": "rangeStep", "value": 20 },
+    { "name": "innerPadding", "value": 0.2 },
+    { "name": "outerPadding", "value": 0.1 },
+    { "name": "stackOffset", "value": "normalize" },
+    { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
+    { "name": "xFormat", "value": "s" },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@combibars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@combibars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "clearGroup",
+      "value": true,
+      "comment": "If clicking on anything but a combi bar, then clear the selection (by clearing the 'selection' data object)",
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shiftGroup",
+      "value": false,
+      "comment": "Track whether or not the shift key is pressed. Used to select multiple combis by holding down shift before clicking",
+      "on": [
+        {
+          "events": "@combibars:click",
+          "update": "event.shiftKey",
+          "force": true
+        },
+        {
+          "events": "@yAxisLabels:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedGroups",
+      "value": null,
+      "comment": "Track clicks on the combi bars, for selection purposes",
+      "on": [
+        {
+          "events": "@combibars:click",
+          "update": "{group: datum.snv}",
+          "force": true
+        },
+        {
+          "events": "@yAxisLabels:click",
+          "update": "{group: datum.value}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "selectedGroups",
+      "values": [
+        {"group": "N|62|E|V"}
+      ],
+      "on": [
+        { "trigger": "clearGroup", "remove": true },
+        { "trigger": "!shiftGroup", "remove": true },
+        { "trigger": "!shiftGroup && clickedGroups", "insert": "clickedGroups" },
+        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+      ]
+    },
+    {
+      "name": "cooccurrence_data",
+      "format": {
+        "parse": {
+          "combi": "string",
+          "combiName": "string",
+          "snv": "string",
+          "count": "number",
+          "snvName": "string"
+        }
+      },
+      "values": [{"combi":"N|183|S|Y","combiName":"N · S183Y","snv":"N|147|G|S","snvName":"N · G147S","color":"#0077bb","count":1},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|203|R|K","snvName":"N · R203K","color":"#117733","count":42},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|204|G|R","snvName":"N · G204R","color":"#cc6677","count":42},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|232|S|T","snvName":"N · S232T","color":"#ddcc77","count":1}],
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": ["combi"],
+          "sort": { "field": "snv" },
+          "field": "count",
+          "offset": { "signal": "stackOffset" }
+        }
+      ]
+    },
+    {
+      "name": "combi_bars",
+      "source": "cooccurrence_data",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["combi", "combiName"]
+        },
+        {
+          "type": "formula",
+          "as": "span",
+          "expr": "rangeStep * bandspace(1, innerPadding, outerPadding)"
+        },
+        {
+          "type": "stack",
+          "field": "span"
+        },
+        {
+          "type": "extent",
+          "field": "y1",
+          "signal": "yExtent"
+        }
+      ]
+    },
+    {
+      "name": "combi_labels",
+      "source": "combi_bars",
+      "transform": [
+        { "type": "project", "fields": ["combiName"] }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "yscale",
+      "type": "band",
+      "round": true,
+      "range": { "step": { "signal": "rangeStep" } },
+      "domain": { "data": "combi_bars", "field": "combi" },
+      "paddingInner": { "signal": "innerPadding" },
+      "paddingOuter": { "signal": "outerPadding" }
+    },
+    {
+      "name": "xscale",
+      "type": "linear",
+      "range": "width",
+      "nice": true,
+      "zero": true,
+      "domain": { "data": "cooccurrence_data", "field": "y1" }
+    },
+    {
+      "name": "yLabels",
+      "type": "ordinal",
+      "domain": {"data": "combi_bars", "field": "combi"},
+      "range": {"signal": "combiLabelsSignal"}
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "zindex": 1,
+      "format": { "signal": "xFormat" },
+
+      "title": { "signal": "xLabel" },
+      "titleFontSize": 14,
+      "titlePadding": 10
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "domain": false,
+      "zindex": 1,
+      "labelFontSize": 14,
+      "labelLimit": 400,
+      "labelPadding": 4,
+
+      "encode": {
+        "labels": {
+          "name": "yAxisLabels",
+          "interactive": true,
+          "update": {
+            "text": {"signal": "scale('yLabels', datum.value).combiName"},
+            "opacity": { "value": 1.0 }
+          },
+          "hover": {
+            "opacity": { "value": 0.6 }
+          }
+        }
+      }
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "layer0",
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": {"signal": "width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "marks": [
+        {
+          "name": "combibars",
+          "type": "rect",
+          "from": { "data": "cooccurrence_data" },
+          "encode": {
+            "enter": {
+              "strokeWidth": { "value": 2 },
+              "fill": {"field": "color"},
+              "tooltip": {
+                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
+              }
+            },
+            "update": {
+              "y": { "scale": "yscale", "field": "combi" },
+              "height": { "scale": "yscale", "band": 1 },
+              "x": { "scale": "xscale", "field": "y1" },
+              "x2": { "scale": "xscale", "field": "y0" },
+              "fillOpacity": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 0.7
+                },
+                { "value": 1.0 }
+              ],
+              "stroke": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": "#333"
+                },
+                { "value": "transparent" }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 3
+                },
+                { "value": 1 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
+import { useStores } from '../../stores/connect';
+import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 import _ from 'underscore';
 
-import { useStores } from '../../stores/connect';
+import { ASYNC_STATES } from '../../constants/UI';
 
 import DataGrid from 'react-data-grid';
 import AckCell from '../Cells/AckCell';
 import AckAuthorCell from '../Cells/AckAuthorCell';
-
-import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 
 const AckContainer = styled.div`
   /* Data grid styles */
@@ -45,15 +45,9 @@ const sortRows = (rows, sortFn) => {
 };
 
 const AcknowledgementsTable = observer(() => {
-  const { dataStore } = useStores();
+  const { dataStore, UIStore } = useStores();
 
-  const [state, setState] = useState({
-    rows: [],
-    sortColumn: 'cases_sum',
-    sortDirection: 'DESC',
-  });
-
-  useEffect(() => {
+  const processRows = (sortColumn, sortDirection) => {
     // Get unique acknowledgement IDs
     let ackIds = Array.from(new Set(dataStore.selectedAckIds));
     // Remove null IDs
@@ -67,17 +61,32 @@ const AcknowledgementsTable = observer(() => {
       ackTexts[i]['ack_id'] = ackIds[i];
     }
 
+    return sortRows(
+      ackTexts,
+      comparer({
+        sortDirection: sortDirection,
+        sortColumn: sortColumn,
+      })
+    );
+  };
+
+  const initialSortColumn = 'Originating lab';
+  const initialSortDirection = 'DESC';
+  const [state, setState] = useState({
+    rows: processRows(initialSortColumn, initialSortDirection),
+    sortColumn: initialSortColumn,
+    sortDirection: initialSortDirection,
+  });
+
+  useEffect(() => {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
     setState({
       ...state,
-      rows: sortRows(
-        ackTexts,
-        comparer({
-          sortDirection: state.sortDirection,
-          sortColumn: state.sortColumn,
-        })
-      ),
+      rows: processRows(state.sortColumn, state.sortDirection),
     });
-  }, [dataStore.selectedRowsHash]);
+  }, [UIStore.caseDataState]);
 
   const handleGridSort = (sortColumn, sortDirection) => {
     let _sortDirection = sortDirection;

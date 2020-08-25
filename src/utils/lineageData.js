@@ -5,6 +5,7 @@ import refSeq from '../../static_data/reference.json';
 import _ from 'underscore';
 import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
 
+import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 
 export function loadLineageSnp() {
@@ -17,6 +18,55 @@ export function loadCladeSnp() {
 export function getReferenceSequence() {
   return refSeq['ref_seq'];
 }
+
+let coolColorInd = 0;
+let warmColorInd = 0;
+const _getLineageColor = _.memoize((group) => {
+  let color;
+  if (group.charAt(0) === 'A') {
+    color = warmColors[warmColorInd++];
+
+    if (warmColorInd === warmColors.length) {
+      warmColorInd = 0;
+    }
+  } else if (group.charAt(0) === 'B') {
+    color = coolColors[coolColorInd++];
+
+    if (coolColorInd === coolColors.length) {
+      coolColorInd = 0;
+    }
+  }
+  return color;
+});
+
+const lineageColorMap = {};
+lineageSnpData.forEach((lineageObj) => {
+  lineageColorMap[lineageObj.lineage] = _getLineageColor(lineageObj.lineage);
+});
+
+export const getLineageColor = (lineage) => {
+  return lineageColorMap[lineage];
+};
+
+let cladeColorInd = 0;
+const _getCladeColor = _.memoize(() => {
+  const color = cladeColorArray[cladeColorInd++];
+  // If we're at the end, then loop back to the beginning
+  if (cladeColorInd === cladeColorArray.length) {
+    cladeColorInd = 0;
+  }
+
+  return color;
+});
+
+const cladeColorMap = {};
+cladeSnpData.forEach((cladeObj) => {
+  cladeColorMap[cladeObj.clade] = _getCladeColor(cladeObj.clade);
+});
+
+export const getCladeColor = (clade) => {
+  return cladeColorMap[clade];
+};
 
 function getGroup(groupKey, group) {
   let snpData;

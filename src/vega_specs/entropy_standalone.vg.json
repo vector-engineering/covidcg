@@ -1,0 +1,227 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic bar chart example, with value labels shown upon mouse hover.",
+  "width": 700,
+  "height": 150,
+  "padding": 5,
+
+  "signals": [
+    { "name": "totalSequences", "value": 1000 },
+    { "name": "posField", "value": 1 },
+    {
+      "name": "rectWidth",
+      "update": "invert('xscale', 3)"
+    },
+    { "name": "xRange", "value": [0, 1200] },
+    { "name": "xLabel", "value": "S Gene (AA)" },
+    { "name": "yLabel", "value": "# SNVs" },
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "@entropybars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@entropybars:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "value": true,
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "value": false,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clicked",
+      "value": null,
+      "on": [
+        {
+          "events": "@entropybars:click",
+          "update": "{group: datum.snv}",
+          "force": true
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "table",
+      "values": [["S|614|D|G",982,"#88ccee","S · D614G"],["Reference",77,"#0077bb","Reference"],["S|5|L|F",8,"#cc3311","S · L5F"],["S|145|Y|H",6,"#ee3377","S · Y145H"],["S|98|S|F",3,"#ddcc77","S · S98F"],["S|812|P|L",3,"#999933","S · P812L"],["S|655|H|Y",2,"#44aa99","S · H655Y"],["S|583|E|D",2,"#0077bb","S · E583D"],["S|243|A|S",2,"#117733","S · A243S"],["S|631|P|S",2,"#999933","S · P631S"],["S|323|T|I",2,"#332288","S · T323I"],["S|384|P|S",2,"#009988","S · P384S"],["S|647|A|S",2,"#33bbee","S · A647S"],["S|215|D|Y",2,"#009988","S · D215Y"],["S|1101|H|Y",2,"#33bbee","S · H1101Y"],["S|1104|V|L",1,"#ee7733","S · V1104L"],["S|618|T|I",1,"#cc6677","S · T618I"],["S|153|M|V",1,"#cc3311","S · M153V"],["S|483|V|F",1,"#cc3311","S · V483F"],["S|845|A|S",1,"#009988","S · A845S"],["S|27|A|V",1,"#009988","S · A27V"],["S|1020|A|S",1,"#cc3311","S · A1020S"],["S|1176|V|F",1,"#aa4499","S · V1176F"],["S|90|V|F",1,"#332288","S · V90F"],["S|679|N|K",1,"#117733","S · N679K"],["S|83|V|F",1,"#33bbee","S · V83F"],["S|1162|P|L",1,"#cc3311","S · P1162L"],["S|778|T|I",1,"#882255","S · T778I"],["S|67|A|V",1,"#ddcc77","S · A67V"],["S|80|D|N",1,"#44aa99","S · D80N"],["S|522|A|S",1,"#117733","S · A522S"],["S|1248|C|F",1,"#882255","S · C1248F"],["S|1203|L|F",1,"#cc6677","S · L1203F"],["S|1252|S|F",1,"#cc3311","S · S1252F"],["S|214|R|L",1,"#aa4499","S · R214L"],["S|1237|M|I",1,"#33bbee","S · M1237I"],["S|520|A|S",1,"#332288","S · A520S"],["S|950|D|H",1,"#0077bb","S · D950H"],["S|127|V|F",1,"#ee3377","S · V127F"],["S|677|Q|H",1,"#332288","S · Q677H"],["S|680|S|F",1,"#cc6677","S · S680F"],["S|309|E|Q",1,"#009988","S · E309Q"],["S|554|E|D",1,"#ee7733","S · E554D"],["S|1133|V|F",1,"#ee7733","S · V1133F"],["S|359|S|N",1,"#88ccee","S · S359N"],["S|181|G|V",1,"#117733","S · G181V"],["S|94|S|F",1,"#aa4499","S · S94F"],["S|54|L|F",1,"#33bbee","S · L54F"],["S|1191|K|N",1,"#88ccee","S · K1191N"],["S|809|P|S",1,"#332288","S · P809S"],["S|501|N|Y",1,"#0077bb","S · N501Y"],["S|253|D|G",1,"#332288","S · D253G"],["S|659|S|L",1,"#ddcc77","S · S659L"],["S|769|G|V",1,"#88ccee","S · G769V"],["S|95|T|I",1,"#ee3377","S · T95I"],["S|1163|D|Y",1,"#332288","S · D1163Y"],["S|830|D|G",1,"#332288","S · D830G"],["S|941|T|I",1,"#44aa99","S · T941I"]],
+      "format": {
+        "type": "json",
+        "parse": {
+          "0": "string",
+          "1": "number",
+          "2": "string",
+          "3": "string"
+        }
+      },
+      "transform": [
+        {
+          "type": "project",
+          "fields": ["0", "1", "2", "3"],
+          "as": ["snv", "count", "color", "snvName"]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.snv !== 'Reference'"
+        },
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "as": "pos"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.count / totalSequences",
+          "as": "percent"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "values": [{ "group": "S|614|D|G" }],
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "!shift && clicked", "insert": "clicked" },
+        { "trigger": "shift && clicked", "toggle": "clicked" }
+      ],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.group, '|')[1])",
+          "as": "pos"
+        },
+        {
+          "type": "lookup",
+          "from": "table",
+          "key": "snv",
+          "values": ["color"],
+          "fields": ["group"],
+          "as": ["color"]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "linear",
+      "domain": {"signal": "xRange"},
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": false,
+      "clamp": true
+    },
+    {
+      "name": "yscale",
+      "type": "pow",
+      "exponent": 0.5,
+      "domain": { "data": "table", "field": "count" },
+      "range": "height"
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "format": "d",
+      "title": { "signal": "xLabel" }
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "title": { "signal": "yLabel" }
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "encode": {
+        "update": {
+          "width": { "signal": "width" },
+          "height": { "signal": "height" }
+        }
+      },
+      "marks": [
+        {
+          "name": "entropymark",
+          "type": "rule",
+          "from": { "data": "selected" },
+          "encode": {
+            "enter": {
+              "zindex": { "value": 1 }
+            },
+            "update": {
+              "x": { "scale": "xscale", "field": "pos" },
+              "x2": { "scale": "xscale", "field": "pos" },
+              "y": { "value": 0 },
+              "y2": { "signal": "height" },
+              "stroke": { "field": "color" }
+            }
+          }
+        },
+        {
+          "name": "entropybars",
+          "type": "rect",
+          "from": { "data": "table" },
+          "encode": {
+            "enter": {
+              "stroke": { "value": "#000" }
+            },
+            "update": {
+              "xc": { "scale": "xscale", "field": "pos" },
+              "width": { "scale": "xscale", "signal": "rectWidth" },
+              "y": { "scale": "yscale", "field": "count" },
+              "y2": { "scale": "yscale", "value": 0 },
+              "tooltip": {
+                "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
+              },
+              "fill": { "field": "color" },
+              "strokeWidth": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 1
+                },
+                { "value": 0 }
+              ],
+              "zindex": [
+                {
+                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "value": 3
+                },
+                { "value": 2 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
