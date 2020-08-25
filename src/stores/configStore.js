@@ -354,13 +354,14 @@ class ObservableConfigStore {
   }
 
   @action
-  selectLocations(selectedNodes) {
-    this.selectedLocationNodes = selectedNodes;
+  selectLocations(selectedLocationNodes) {
+    this.selectedLocationNodes = selectedLocationNodes;
 
     // Clear metadata fields
     this.selectedMetadataFields = {};
 
-    if (!selectedNodes || !selectedNodes[0]) {
+    if (!selectedLocationNodes || !selectedLocationNodes[0]) {
+      this.selectTree = deselectAll(toJS(this.selectTree));
       dataStoreInstance.emptyCaseData();
     } else {
       dataStoreInstance.updateCaseData();

@@ -121,6 +121,7 @@ export function deselectAll(selectTree) {
     });
   };
   traverseAndDeselect(selectTree);
+  return selectTree;
 }
 
 export function selectAll(rootNode) {

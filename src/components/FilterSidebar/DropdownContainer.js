@@ -1,12 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import DropdownTreeSelect from 'react-dropdown-tree-select';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/UI';
-
 import { getNodeFromPath } from '../../utils/location';
+
+import DropdownTreeSelect from 'react-dropdown-tree-select';
+
+import { ASYNC_STATES } from '../../constants/UI';
 
 const ContainerDiv = styled.div`
   margin-top: 2px;
@@ -17,11 +18,23 @@ const ContainerDiv = styled.div`
   flex-direction: column;
   // overflow-y: hidden;
   overflow-y: scroll;
-
-  .location-tree-title {
-    margin-left: 15px;
-  }
 `;
+
+const DropdownHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  margin-left: 15px;
+`;
+
+const UnselectButton = styled.button`
+  display: ${({ show }) => (show ? 'block' : 'none')};
+  margin-left: 10px;
+`;
+UnselectButton.defaultProps = {
+  show: true,
+};
 
 const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
@@ -246,6 +259,11 @@ const DropdownContainer = observer(() => {
     setState({ ...state, data: configStore.selectTree });
   }, [configStore.selectTree]);
 
+  const onUnselectAll = (e) => {
+    e.preventDefault();
+    configStore.selectLocations([]);
+  };
+
   const treeSelectOnChange = (currentNode, selectedNodes) => {
     // Since the tree is rendered in a flat state, we need to get all node
     // children from the original data, via. the node paths
@@ -264,6 +282,7 @@ const DropdownContainer = observer(() => {
     ) {
       return;
     }
+
     configStore.selectLocations(selectedNodeObjs);
   };
   // const treeSelectOnAction = (node, action) => {
@@ -298,7 +317,15 @@ const DropdownContainer = observer(() => {
 
   return (
     <ContainerDiv>
-      <span className="location-tree-title">Selected Locations</span>
+      <DropdownHeader>
+        <span className="location-tree-title">Selected Locations</span>
+        <UnselectButton
+          show={configStore.selectedLocationNodes.length > 0}
+          onClick={onUnselectAll}
+        >
+          Unselect All
+        </UnselectButton>
+      </DropdownHeader>
       {dropdownContainer}
     </ContainerDiv>
   );
