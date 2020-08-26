@@ -38,10 +38,14 @@ const SequencingEffortsTab = ({ width }) => {
   return (
     <Container>
       <Header>
-        <Title>Global hCoV-19 Sequencing Efforts</Title>
+        <Title>Global sequencing coverage</Title>
         <p>
-          Sequencing data is taken from the GISAID EpiCov™ database (nextmeta
-          file), and case data is obtained from{' '}
+          The number of genomic sequence and associate data shared via the
+          GISAID Initiative (
+          <ExternalLink href="https://doi.org/10.1002/gch2.1018">
+            Elbe et al, 2017, <i>Wiley Global Challenges</i>
+          </ExternalLink>
+          ) and case data is obtained from{' '}
           <ExternalLink href="https://github.com/CSSEGISandData/COVID-19">
             JHU CSSE COVID-19 Data
           </ExternalLink>{' '}
@@ -49,7 +53,7 @@ const SequencingEffortsTab = ({ width }) => {
           <ExternalLink href="https://doi.org/10.1016/S1473-3099(20)30120-1">
             Dong et al, 2020, <i>Lancet Inf Dis.</i>
           </ExternalLink>
-          ) . Data shown is from March, 2020 — May, 2020. Countries with &lt;500
+          ). Data shown is from March, 2020 — May, 2020. Countries with &lt;500
           confirmed cases are excluded from the bar graphs below.
         </p>
         <p>

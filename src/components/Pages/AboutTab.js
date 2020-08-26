@@ -148,11 +148,31 @@ const AboutTab = () => {
               generated and shared via the GISAID Initiative, on which this
               research is based.
             </p>
-            <ImageRow>
+            {/* <ImageRow>
               <ExternalLink href="https://gisaid.org">
                 <img src={GISAIDLogo} height="60" />
               </ExternalLink>
-            </ImageRow>
+            </ImageRow> */}
+            {/* <iframe
+              id="gisaid-pub-pdf"
+              style={{ height: '30em' }}
+              width="100%"
+              src={
+                'https://ve-public.storage.googleapis.com/eurosurv-22-30494-1.pdf#page=1&zoom=100'
+              }
+            /> */}
+            <p>
+              Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
+              diplomacy: GISAID’s innovative contribution to global health.{' '}
+              <i>Global Challenges</i>, 1:33-46. DOI:
+              <ExternalLink href="https://doi.org/10.1002/gch2.1018">
+                10.1002/gch2.1018
+              </ExternalLink>{' '}
+              PMCID:{' '}
+              <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
+                31565258
+              </ExternalLink>
+            </p>
           </div>
         </ContentSection>
 
@@ -194,18 +214,6 @@ const AboutTab = () => {
               PMCID:{' '}
               <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/">
                 PMC5388101
-              </ExternalLink>
-            </p>
-            <p>
-              Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
-              diplomacy: GISAID’s innovative contribution to global health.{' '}
-              <i>Global Challenges</i>, 1:33-46. DOI:
-              <ExternalLink href="https://doi.org/10.1002/gch2.1018">
-                10.1002/gch2.1018
-              </ExternalLink>{' '}
-              PMCID:{' '}
-              <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
-                31565258
               </ExternalLink>
             </p>
           </div>

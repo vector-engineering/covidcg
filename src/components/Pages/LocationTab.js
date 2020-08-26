@@ -55,6 +55,15 @@ const LocationTab = observer(({ width }) => {
                 </>
               )}
             </li>
+            {configStore.groupKey === GROUP_KEYS.GROUP_CLADE && (
+              <li>
+                For more information about clade and lineage nomenclature, visit
+                this{' '}
+                <ExternalLink href="https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/">
+                  [GISAID note]
+                </ExternalLink>
+              </li>
+            )}
           </ul>
         }
       >

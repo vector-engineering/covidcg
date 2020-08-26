@@ -96,14 +96,15 @@ const MethodologyTab = () => {
                 <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/MN996528">
                   WIV04 reference sequence
                 </ExternalLink>{' '}
-                (WIV04 is 100% identical to a high quality December, 2019
-                isolate, Wuhan-Hu-1/
+                (WIV04 is a high quality December, 2019 isolate 100% identical
+                to Wuhan-Hu-1/
                 <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2">
                   NC_045512.2
                 </ExternalLink>{' '}
-                used by NextStrain) using bowtie2. Spurious SNVs and probable
-                sequencing errors are filtered out prior to downstream analysis.
-                SNVs involving ambiguous base calls are ignored.
+                except for the length of the poly-A tail) using bowtie2.
+                Spurious SNVs and probable sequencing errors are filtered out
+                prior to downstream analysis. SNVs involving ambiguous base
+                calls are ignored.
               </p>
             </div>
           </div>

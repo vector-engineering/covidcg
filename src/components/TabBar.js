@@ -37,7 +37,7 @@ const TabItem = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  max-width: 160px;
+  max-width: 250px;
 
   a.tab-link {
     display: flex;
@@ -159,7 +159,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
           >
-            <span>Sequencing Efforts</span>
+            <span>Global Sequencing Coverage</span>
           </a>
         </TabItem>
         <DropdownButton

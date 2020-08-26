@@ -76,6 +76,12 @@ const Link = styled(ExternalLink)`
   font-size: 0.9em;
   margin-left: 10px;
 `;
+const CladeText = styled.span`
+  font-size: 0.9em;
+  margin-left: 10px;
+  line-height: normal;
+  font-weight: normal;
+`;
 
 const GroupBySelect = observer(() => {
   const { configStore } = useStores();
@@ -118,6 +124,21 @@ const GroupBySelect = observer(() => {
         <Link href="https://cov-lineages.org/descriptions.html">
           (Lineage Descriptions)
         </Link>
+      );
+    }
+
+    return null;
+  };
+
+  const renderCladeLink = () => {
+    if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
+      return (
+        <CladeText>
+          For more information about clade and lineage nomenclature, visit this{' '}
+          <ExternalLink href="https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/">
+            [GISAID note]
+          </ExternalLink>
+        </CladeText>
       );
     }
 
@@ -167,6 +188,7 @@ const GroupBySelect = observer(() => {
           </div>
         </div>
         {renderLineageLink()}
+        {renderCladeLink()}
       </RadioForm>
       <RadioForm>
         <span>Mutation format</span>
