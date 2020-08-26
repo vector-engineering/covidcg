@@ -240,17 +240,34 @@ def clean_location_data(location_df):
         ),
         # MP -> Madhya Pradesh
         ({"country": "India", "division": "MP"}, {"division": "Madhya Pradesh"}),
+        # Fix typos
+        (
+            {"country": "India", "division": "Uttar_Pradesh"},
+            {"division": "Uttar Pradesh"},
+        ),
         # ISRAEL
         # ------
         # Fix typos
         ({"country": "ISRAEL"}, {"country": "Israel"}),
-        # South Coast District --> South District
+        # District names
         (
             {
                 "country": "Israel",
                 "division": ["South Coast District", "Southern District"],
             },
             {"division": "South District"},
+        ),
+        (
+            {"country": "Israel", "division": ["Central District"],},
+            {"division": "Center District"},
+        ),
+        (
+            {"country": "Israel", "division": ["Northern District"],},
+            {"division": "North District"},
+        ),
+        (
+            {"country": "Israel", "division": ["Tel Aviv"],},
+            {"division": "Tel Aviv District"},
         ),
         # Move cities into districts
         (
@@ -385,6 +402,7 @@ def clean_location_data(location_df):
         # ----
         # Fix typos
         ({"country": "Oman", "division": ["Muscta", "Musca"]}, {"division": "Muscat"}),
+        ({"country": "Oman", "division": ["Buraymi"]}, {"division": "Buraimi"}),
         # PAKISTAN
         # --------
         # Unabbreviate province names
@@ -2346,6 +2364,12 @@ def clean_location_data(location_df):
             },
             {"division": "Île-de-France"},
         ),
+        ({"country": "France", "division": "MP"}, {"division": "Midi-Pyrénées"},),
+        (
+            {"country": "France", "division": "PACA"},
+            {"division": "Provence-Alpes-Côte d'Azur"},
+        ),
+        ({"country": "France", "division": "NA"}, {"division": "Nouvelle-Aquitaine"},),
         # Move Toulouse to Occitanie
         (
             {"country": "France", "division": "Toulouse"},
@@ -2698,7 +2722,7 @@ def clean_location_data(location_df):
         ),
         # More typos
         (
-            {"country": "Spain", "division": "Balear_Islands"},
+            {"country": "Spain", "division": ["Balear_Islands", "Balear Islands"]},
             {"division": "Balearic Islands"},
         ),
         (
@@ -2834,6 +2858,8 @@ def clean_location_data(location_df):
         ({"country": "United States"}, {"country": "USA"}),
         # Merge with USA region
         ({"region": "USA"}, {"region": "North America", "country": "USA"}),
+        # Unknown to -1
+        ({"country": "USA", "division": "Unknown"}, {"division": -1}),
         # Washington DC
         # -------------
         # Unify with "District of Columbia"
@@ -2932,6 +2958,89 @@ def clean_location_data(location_df):
             },
             {"location": "Santa Clara County"},
         ),
+        # Move Grand Princess into California
+        (
+            {"country": "USA", "division": "Grand Princess"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": "Grand Princess Cruise Ship",
+            },
+        ),
+        # Move counties from USA into California
+        (
+            {"country": "USA", "division": "Alameda County"},
+            {"country": "USA", "division": "California", "location": "Alameda County"},
+        ),
+        (
+            {"country": "USA", "division": "Imperial County"},
+            {"country": "USA", "division": "California", "location": "Imperial County"},
+        ),
+        (
+            {"country": "USA", "division": "Kings County"},
+            {"country": "USA", "division": "California", "location": "Kings County"},
+        ),
+        (
+            {"country": "USA", "division": "Lake County"},
+            {"country": "USA", "division": "California", "location": "Lake County"},
+        ),
+        (
+            {"country": "USA", "division": "Los Angeles County"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": "Los Angeles County",
+            },
+        ),
+        (
+            {"country": "USA", "division": "Madera County"},
+            {"country": "USA", "division": "California", "location": "Madera County"},
+        ),
+        (
+            {"country": "USA", "division": "Marin County"},
+            {"country": "USA", "division": "California", "location": "Marin County"},
+        ),
+        (
+            {"country": "USA", "division": "Merced County"},
+            {"country": "USA", "division": "California", "location": "Merced County"},
+        ),
+        (
+            {"country": "USA", "division": "Sacramento County"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": "Sacramento County",
+            },
+        ),
+        (
+            {"country": "USA", "division": "San Mateo County"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": "San Mateo County",
+            },
+        ),
+        (
+            {"country": "USA", "division": "Santa Barbara County"},
+            {
+                "country": "USA",
+                "division": "California",
+                "location": "Santa Barbara County",
+            },
+        ),
+        (
+            {"country": "USA", "division": "Solano County"},
+            {"country": "USA", "division": "California", "location": "Solano County"},
+        ),
+        (
+            {"country": "USA", "division": "Tuolumne County"},
+            {"country": "USA", "division": "California", "location": "Tuolumne County"},
+        ),
+        # Unknown in California to -1
+        (
+            {"country": "USA", "division": "Unknown"},
+            {"country": "USA", "division": "California", "location": -1},
+        ),
         # Colorado
         # --------
         # Move Colorado Springs from Wisconsin to Colorado
@@ -2953,6 +3062,11 @@ def clean_location_data(location_df):
         # -----------
         # CT --> Connecticut
         ({"country": "USA", "division": "CT"}, {"division": "Connecticut"}),
+        # Unknown to -1
+        (
+            {"country": "USA", "division": "Connecticut", "location": "Unknown"},
+            {"location": -1},
+        ),
         # Move towns to counties
         (
             {
@@ -3139,6 +3253,17 @@ def clean_location_data(location_df):
             },
             {"location": "Stearns County"},
         ),
+        # Missouri
+        # --------
+        # Fix typos
+        (
+            {
+                "country": "USA",
+                "division": "Missouri",
+                "location": ["Saint Louis county", "St. Louis"],
+            },
+            {"location": "Saint Louis County"},
+        ),
         # New Jersey
         # ----------
         # Fix typos
@@ -3263,8 +3388,12 @@ def clean_location_data(location_df):
         ),
         # Pittsburgh -> Alleghany County
         (
-            {"country": "USA", "division": "Pennsylvania", "location": ["Pittsburgh"],},
-            {"location": "Alleghany County"},
+            {
+                "country": "USA",
+                "division": "Pennsylvania",
+                "location": ["Pittsburgh", "Allegheny county", "Alleghany County"],
+            },
+            {"location": "Allegheny County"},
         ),
         # South Carolina
         # --------------
@@ -3291,6 +3420,11 @@ def clean_location_data(location_df):
         ({"country": "USA", "division": "VT"}, {"division": "Vermont"}),
         # Washington
         # ----------
+        # Unknown -> -1
+        (
+            {"country": "USA", "division": "Washington", "location": "Unknown"},
+            {"location": -1},
+        ),
         # Move towns into counties
         (
             {
