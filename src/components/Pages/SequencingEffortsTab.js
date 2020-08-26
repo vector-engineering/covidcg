@@ -53,8 +53,14 @@ const SequencingEffortsTab = ({ width }) => {
           <ExternalLink href="https://doi.org/10.1016/S1473-3099(20)30120-1">
             Dong et al, 2020, <i>Lancet Inf Dis.</i>
           </ExternalLink>
-          ). Data shown is from March, 2020 — May, 2020. Countries with &lt;500
+          ). Data shown is from March, 2020 — May, 2020. Regions with &lt;500
           confirmed cases are excluded from the bar graphs below.
+        </p>
+        <p>
+          <i>
+            *Please note that we are currently working on cleaning the metadata
+            delineating territories and countries
+          </i>
         </p>
       </Header>
 

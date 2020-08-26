@@ -258,7 +258,7 @@
               "from": {"data": "world"},
               "encode": {
                 "update": {
-                  "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
+                  "tooltip": {"signal": "{'Location': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
                   "fill": [
                     {
                       "test": "datum.sequences_per_case === null || datum.sequences_per_case === 0",
@@ -353,7 +353,7 @@
               "from": {"data": "world"},
               "encode": {
                 "update": {
-                  "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
+                  "tooltip": {"signal": "{'Location': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"},
                   "fill": [
                     {
                       "test": "datum.median_turnaround_days === null",
@@ -481,7 +481,7 @@
                     "field": "sequences_per_1000cases"
                   },
                   "stroke": {"value": "#000"},
-                  "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
+                  "tooltip": {"signal": "{'Location': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
                 },
                 "update": {
                   "strokeWidth": [
@@ -575,7 +575,7 @@
                     "field": "median_turnaround_days"
                   },
                   "stroke": {"value": "#000"},
-                  "tooltip": {"signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
+                  "tooltip": {"signal": "{'Location': datum['Country_Region'], 'Sequences per 1000 cases': format(datum.sequences_per_1000cases, '.3'), 'Median days to deposition': if(datum['median_turnaround_days'] === null, 'N/A', datum['median_turnaround_days'])}"}
                 },
                 "update": {
                   "strokeWidth": [
