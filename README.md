@@ -11,7 +11,6 @@ Table of Contents
     - [Linux](#linux)
 - [Analysis Pipeline](#analysis-pipeline)
 - [About the project](#about-the-project)
-  - [Acknowledgements](#acknowledgements)
   - [License](#license)
   - [Contributing](#contributing)
 
@@ -103,23 +102,17 @@ snakemake --cores all
 
 This project is developed by:
 
-- Ben Deverman (Broad Institute)
-- Alina Yujia Chan (Broad Institute)
-- Shing Hei Zhan (UBC)
 - Albert Chen (Broad Institute)
 - Kevin Altschuler
+- Shing Hei Zhan (UBC)
+- Alina Yujia Chan (Broad Institute)
+- Ben Deverman (Broad Institute)
 
 The manuscript for this project is currently being prepared.
 
-Contact the authors by email: Ben Deverman (bdeverma@broadinstitute.org)
+Contact the authors by email: Ben Deverman (covidcg@broadinstitute.org)
 
 Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL (48 threads, 128 GB RAM)
-
-### Acknowledgements
-
-This project is powered by many open-source software projects.
-
-Find all acknowledgements at ...
 
 ### License
 
