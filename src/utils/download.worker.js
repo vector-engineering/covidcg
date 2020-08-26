@@ -263,7 +263,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
 self.addEventListener(
   'message',
   function (e) {
-    const data = JSON.parse(e.data);
+    const data = e.data;
     //console.log('in downloadworker event listener', data);
 
     let result;
@@ -275,8 +275,9 @@ self.addEventListener(
     } else if (data.type === 'downloadAccessionIdsData') {
       result = downloadAccessionIdsData(data);
     }
-    // console.log(result);
-    self.postMessage(JSON.stringify(result));
+
+    result.type = data.type;
+    self.postMessage(result);
   },
   false
 );
