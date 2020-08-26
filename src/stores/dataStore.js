@@ -26,6 +26,8 @@ import {
 import { REFERENCE_GROUP } from '../constants/groups';
 import { getGlobalGroupCounts } from '../utils/globalCounts';
 
+import countryScoreData from '../../data/country_score.json';
+
 const globalGroupCounts = getGlobalGroupCounts();
 
 export const initialDataValues = {
@@ -469,6 +471,15 @@ class ObservableDataStore {
         toJS(configStoreInstance.dateRange)
       )
     );
+  }
+
+  @action
+  downloadCountryScoreData() {
+    let jsonString = JSON.stringify(countryScoreData);
+    const blob = new Blob([jsonString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(url, 'global_sequencing_coverage.json');
   }
 }
 

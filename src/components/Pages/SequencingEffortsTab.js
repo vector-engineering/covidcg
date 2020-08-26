@@ -56,10 +56,6 @@ const SequencingEffortsTab = ({ width }) => {
           ). Data shown is from March, 2020 — May, 2020. Countries with &lt;500
           confirmed cases are excluded from the bar graphs below.
         </p>
-        <p>
-          Click and drag to move the map. Scroll or use the mouse wheel to zoom
-          in and out of the map.
-        </p>
       </Header>
 
       <SequencingMapPlot width={width - 150} />
