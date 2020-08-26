@@ -43,7 +43,7 @@
       "comment": "Window to calculate cumulative counts over. [0, 0] disables this behavior, while [null, 0] does the cumulative counting"
     },
     {
-      "name": "detailDomain",
+      "name": "detailDomain", "value": [1583020800000,1585612800000],
       "comment": "The date range selected on the overview (bottom) panel. The units are in JS date objects. If there is no date selected, this should be null."
     },
     {
@@ -562,8 +562,8 @@
               "fillOpacity": {"value": 0.2}
             },
             "update": {
-              "x": {"signal": "brush[0]"},
-              "x2": {"signal": "brush[1]"}
+              "x": {"signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[0]))"},
+              "x2": {"signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[1]))"}
             }
           }
         },
@@ -579,7 +579,7 @@
               "fill": {"value": "firebrick"}
             },
             "update": {
-              "x": {"signal": "brush[0]"}
+              "x": {"signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[0]))"}
             }
           }
         },
@@ -595,7 +595,7 @@
               "fill": {"value": "firebrick"}
             },
             "update": {
-              "x": {"signal": "brush[1]"}
+              "x": {"signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[1]))"}
             }
           }
         }

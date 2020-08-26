@@ -167,6 +167,32 @@ const LocationDatePlot = observer(({ width }) => {
     return JSON.parse(JSON.stringify(configStore.focusedLocations));
   };
 
+  // There's some weird data persistence things going on with the dateBin
+  // in this plot... so instead of passing it as a signal, just modify the
+  // spec and force a hard re-render
+  const injectDateBinIntoSpec = () => {
+    // setState({ ...state, dateBin: event.target.value })
+    const spec = JSON.parse(JSON.stringify(initialSpec));
+    // Set the date bin
+    let dateBin;
+    if (plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_DAY) {
+      dateBin = 1000 * 60 * 60 * 24;
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_WEEK
+    ) {
+      dateBin = 1000 * 60 * 60 * 24 * 7;
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
+    ) {
+      dateBin = 1000 * 60 * 60 * 24 * 30;
+    }
+
+    const dateBinSignal = _.findWhere(spec.signals, { name: 'dateBin' });
+    dateBinSignal['value'] = dateBin;
+
+    return spec;
+  };
+
   const [state, setState] = useState({
     showWarning: true,
     data: {
@@ -174,7 +200,7 @@ const LocationDatePlot = observer(({ width }) => {
       selectedGroups: processSelectedGroups(),
       selected: processFocusedLocations(),
     },
-    spec: JSON.parse(JSON.stringify(initialSpec)),
+    spec: injectDateBinIntoSpec(),
     signalListeners: {
       hoverLocation: _.throttle(handleHoverLocation, 100),
     },
@@ -215,29 +241,9 @@ const LocationDatePlot = observer(({ width }) => {
     }
   };
 
-  // There's some weird data persistence things going on with the dateBin
-  // in this plot... so instead of passing it as a signal, just modify the
-  // spec and force a hard re-render
+  // Trigger date bin spec injection when the date bin in the store changes
   useEffect(() => {
-    // setState({ ...state, dateBin: event.target.value })
-    const spec = JSON.parse(JSON.stringify(initialSpec));
-    // Set the date bin
-    let dateBin;
-    if (plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_DAY) {
-      dateBin = 1000 * 60 * 60 * 24;
-    } else if (
-      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_WEEK
-    ) {
-      dateBin = 1000 * 60 * 60 * 24 * 7;
-    } else if (
-      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
-    ) {
-      dateBin = 1000 * 60 * 60 * 24 * 30;
-    }
-
-    const dateBinSignal = _.findWhere(spec.signals, { name: 'dateBin' });
-    dateBinSignal['value'] = dateBin;
-
+    const spec = injectDateBinIntoSpec();
     setState({
       ...state,
       spec,
@@ -255,9 +261,32 @@ const LocationDatePlot = observer(({ width }) => {
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
-    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (
+      configStore.groupKey !== GROUP_KEYS.GROUP_SNV ||
+      UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
+    ) {
       return;
-    } else if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+    }
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        location_data: processLocationData(),
+        selectedGroups: processSelectedGroups(),
+      },
+    });
+  }, [
+    UIStore.snvDataState,
+    configStore.selectedGroups,
+    dataStore.groupsToKeep,
+  ]);
+
+  useEffect(() => {
+    if (
+      configStore.groupKey === GROUP_KEYS.GROUP_SNV ||
+      UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED
+    ) {
       return;
     }
 
@@ -271,7 +300,6 @@ const LocationDatePlot = observer(({ width }) => {
     });
   }, [
     UIStore.caseDataState,
-    UIStore.snvDataState,
     configStore.selectedGroups,
     dataStore.groupsToKeep,
   ]);

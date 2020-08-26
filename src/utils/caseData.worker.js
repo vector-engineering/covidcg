@@ -371,15 +371,6 @@ function processCaseData({
     });
   });
 
-  // Get a list of Accession IDs and sample dates that are currently selected
-  const selectedAccessionIds = [];
-  const selectedAckIds = [];
-  caseData = filterByDate(caseData, dateRange, 'collection_date');
-  caseData.forEach((row) => {
-    selectedAccessionIds.push(row['Accession ID']);
-    selectedAckIds.push(row['ack_id']);
-  });
-
   // Aggregate by group and date
   const dataAggGroupDate = aggregate({
     data: dataAggLocationGroupDate,
@@ -400,8 +391,6 @@ function processCaseData({
     numSequencesBeforeMetadataFiltering,
     metadataCounts,
     metadataCountsAfterFiltering,
-    selectedAccessionIds,
-    selectedAckIds,
 
     countsPerLocation,
     //countsPerLocationDate: countsPerLocationDateList,
@@ -463,12 +452,19 @@ function aggCaseDataByGroup({
 
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
-  const filteredCaseDataByDate = filterByDate(
+  filteredCaseData = filterByDate(
     filteredCaseData,
     dateRange,
     'collection_date'
   );
-  const totalSequenceCount = filteredCaseDataByDate.length;
+  const totalSequenceCount = filteredCaseData.length;
+  // Get a list of Accession IDs and sample dates that are currently selected
+  const selectedAccessionIds = [];
+  const selectedAckIds = [];
+  filteredCaseData.forEach((row) => {
+    selectedAccessionIds.push(row['Accession ID']);
+    selectedAckIds.push(row['ack_id']);
+  });
 
   // Create the same group count object, but after date filtering
   const groupCountDateFilteredObj = {};
@@ -768,6 +764,9 @@ function aggCaseDataByGroup({
     changingPositions: changingPositions,
     groupCountArr,
     groupCountDateFilteredArr,
+
+    selectedAccessionIds,
+    selectedAckIds,
   };
 }
 

@@ -38,17 +38,7 @@ function filterByDate(caseData, dateRange, dateKey = 'collection_date') {
   return caseData;
 }
 
-function processSelectedSnvs({
-  dnaOrAa,
-  coordinateMode,
-  selectedLocationNodes,
-  filteredCaseData,
-  selectedGroups,
-  dateRange,
-}) {
-  // Re-filter by date
-  filteredCaseData = filterByDate(filteredCaseData, dateRange);
-
+function getSnvFields({ dnaOrAa, coordinateMode, selectedGroups }) {
   let selectedGroupIds;
   let snvEntry;
   let intToSnvFunc;
@@ -75,6 +65,26 @@ function processSelectedSnvs({
   }
   // Array to Set
   selectedGroupIds = new Set(selectedGroupIds);
+
+  return {
+    selectedGroupIds,
+    snvEntry,
+    intToSnvFunc,
+  };
+}
+
+function processSelectedSnvs({
+  dnaOrAa,
+  coordinateMode,
+  selectedLocationNodes,
+  filteredCaseData,
+  selectedGroups,
+}) {
+  const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
+    dnaOrAa,
+    coordinateMode,
+    selectedGroups,
+  });
 
   // If no SNVs are selected, then return empty arrays now
   // if (selectedGroupIds.size === 0) {
@@ -111,7 +121,10 @@ function processSelectedSnvs({
       selectedGroupIds.has(snvId)
     );
     let group;
-    if (matchingSnvIds.length != selectedGroupIds.size) {
+    if (
+      matchingSnvIds.length != selectedGroupIds.size ||
+      selectedGroupIds.size === 0
+    ) {
       group = GROUPS.ALL_OTHER_GROUP;
     } else {
       group = matchingSnvIds.map((id) => intToSnvFunc(id).snp_str).join(' + ');
@@ -160,7 +173,30 @@ function processSelectedSnvs({
     row.date = parseInt(row.date);
   });
 
+  return {
+    dataAggLocationSnvDate,
+    dataAggSnvDate,
+  };
+}
+
+function processCooccurrenceData({
+  dnaOrAa,
+  coordinateMode,
+  selectedGroups,
+  filteredCaseData,
+  dateRange,
+}) {
+  const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
+    dnaOrAa,
+    coordinateMode,
+    selectedGroups,
+  });
+
   // Co-occurrence data
+
+  // Re-filter by date
+  filteredCaseData = filterByDate(filteredCaseData, dateRange);
+
   // Count SNVs for each single or combination of SNVs
   const snvCooccurrence = {};
   const selectedSnvCombinations = getCombinations(Array.from(selectedGroupIds));
@@ -215,8 +251,6 @@ function processSelectedSnvs({
   // console.log(JSON.stringify(snvCooccurrenceList));
 
   return {
-    dataAggLocationSnvDate,
-    dataAggSnvDate,
     snvCooccurrence: snvCooccurrenceList,
   };
 }
@@ -224,15 +258,17 @@ function processSelectedSnvs({
 self.addEventListener(
   'message',
   function (e) {
-    const data = JSON.parse(e.data);
+    const data = e.data;
     //console.log('in downloadworker event listener', data);
 
     let result;
     if (data.type === 'processSelectedSnvs') {
       result = processSelectedSnvs(data);
+    } else if (data.type === 'processCooccurrenceData') {
+      result = processCooccurrenceData(data);
     }
-    // console.log(result);
-    self.postMessage(JSON.stringify(result));
+    result.type = data.type;
+    self.postMessage(result);
   },
   false
 );

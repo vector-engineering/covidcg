@@ -16,9 +16,12 @@ function removeItemAll(arr, value) {
 export const initialUIValues = {
   sidebarOpen: false,
   sidebarSelectedGroupKeys: [],
+
   caseDataState: ASYNC_STATES.STARTED,
   aggCaseDataState: ASYNC_STATES.STARTED,
   snvDataState: ASYNC_STATES.STARTED,
+  cooccurrenceDataState: ASYNC_STATES.STARTED,
+
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
 };
@@ -27,9 +30,12 @@ class ObservableUIStore {
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
     initialUIValues.sidebarSelectedGroupKeys;
+
   @observable caseDataState = initialUIValues.caseDataState;
   @observable aggCaseDataState = initialUIValues.aggCaseDataState;
   @observable snvDataState = initialUIValues.snvDataState;
+  @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
+
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
 
@@ -81,6 +87,19 @@ class ObservableUIStore {
   @action
   onSnvDataErr = () => {
     this.snvDataState = ASYNC_STATES.FAILED;
+  };
+
+  @action
+  onCooccurrenceDataStarted = () => {
+    this.cooccurrenceDataState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onCooccurrenceDataFinished = () => {
+    this.cooccurrenceDataState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onCooccurrenceDataErr = () => {
+    this.cooccurrenceDataState = ASYNC_STATES.FAILED;
   };
 
   @action

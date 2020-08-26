@@ -379,6 +379,9 @@ class ObservableConfigStore {
   selectDateRange(dateRange) {
     this.dateRange = dateRange;
     dataStoreInstance.updateAggCaseDataByGroup();
+    if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
+      dataStoreInstance.processCooccurrenceData();
+    }
   }
 
   @action

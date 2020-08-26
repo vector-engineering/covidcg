@@ -14,6 +14,7 @@ import {
   loadSelectTree,
 } from '../../utils/location';
 import { queryPrimers } from '../../utils/primer';
+import { ISOToInt } from '../../utils/date';
 
 import {
   GROUP_KEYS,
@@ -117,45 +118,6 @@ const ExampleItemFooter = styled.div`
 `;
 
 const selectTree = loadSelectTree();
-const NorthAmericaNode = getLocationByNameAndLevel(
-  selectTree,
-  'North America',
-  'region'
-)[0];
-const EuropeNode = getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0];
-// const ChinaNode = getLocationByNameAndLevel(selectTree, 'China', 'country')[0];
-const IcelandNode = getLocationByNameAndLevel(
-  selectTree,
-  'Iceland',
-  'country'
-)[0];
-
-const WestCoastNodes = [
-  getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Oregon', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
-];
-
-const USStateNodes = [
-  getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Florida', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Massachusetts', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Michigan', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'New York', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Texas', 'division')[0],
-  getLocationByNameAndLevel(selectTree, 'Wisconsin', 'division')[0],
-];
-
-const USANode = getLocationByNameAndLevel(selectTree, 'USA', 'country')[0];
-
-const CDCPrimers = []
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-F' }))
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-R' }))
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-P' }))
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-F' }))
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-R' }))
-  .concat(queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-P' }));
 
 const exampleItems = [
   {
@@ -166,7 +128,7 @@ const exampleItems = [
       plotSettings: {
         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
         groupStackCountMode: COUNT_MODES.COUNT_NEW,
-        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+        groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
       },
       UI: {
         activeTab: TABS.TAB_GROUP,
@@ -199,7 +161,7 @@ const exampleItems = [
   //       dnaOrAa: DNA_OR_AA.AA,
   //       selectedGene: getGene('S'),
   //       coordinateMode: COORDINATE_MODES.COORD_GENE,
-  //       selectedLocationNodes: [ChinaNode],
+  //       selectedLocationNodes: [getLocationByNameAndLevel(selectTree, 'China', 'country')[0]],
   //     },
   //   },
   // },
@@ -222,7 +184,9 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        selectedLocationNodes: [IcelandNode],
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'Iceland', 'country')[0],
+        ],
       },
     },
   },
@@ -245,7 +209,13 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        selectedLocationNodes: WestCoastNodes,
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Oregon', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
+        ],
+        dateRange: [ISOToInt('2020-03-01'), ISOToInt('2020-06-01')],
+        selectedGroups: [{ group: 'S|614|D|G' }],
       },
     },
   },
@@ -268,8 +238,17 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        selectedLocationNodes: USStateNodes,
         selectedGroups: [{ group: 'S|614|D|G' }],
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Florida', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Massachusetts', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Michigan', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'New York', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Texas', 'division')[0],
+          getLocationByNameAndLevel(selectTree, 'Wisconsin', 'division')[0],
+        ],
       },
     },
   },
@@ -291,8 +270,28 @@ const exampleItems = [
         groupKey: GROUP_KEYS.GROUP_SNV,
         dnaOrAa: DNA_OR_AA.DNA,
         coordinateMode: COORDINATE_MODES.COORD_PRIMER,
-        selectedLocationNodes: [USANode],
-        selectedPrimers: CDCPrimers,
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'USA', 'country')[0],
+        ],
+        selectedPrimers: []
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-F' })
+          )
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-R' })
+          )
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N1-P' })
+          )
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-F' })
+          )
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-R' })
+          )
+          .concat(
+            queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-P' })
+          ),
       },
     },
   },
@@ -314,7 +313,11 @@ const exampleItems = [
         dnaOrAa: DNA_OR_AA.AA,
         selectedGene: getGene('S'),
         coordinateMode: COORDINATE_MODES.COORD_GENE,
-        selectedLocationNodes: [NorthAmericaNode, EuropeNode],
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'North America', 'region')[0],
+          getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0],
+        ],
+        selectedGroups: [{ group: 'S|614|D|G' }],
       },
     },
   },

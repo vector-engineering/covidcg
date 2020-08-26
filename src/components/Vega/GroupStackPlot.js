@@ -51,8 +51,6 @@ const GroupStackPlot = observer(({ width }) => {
     if (hoverGroup === GROUPS.ALL_OTHER_GROUP) {
       return;
     }
-    // console.log('Updating store hoverGroup from plot', hoverGroup);
-    // console.log('state hovergroup', state.hoverGroup);
     configStore.updateHoverGroup(hoverGroup);
   };
 
@@ -386,6 +384,10 @@ const GroupStackPlot = observer(({ width }) => {
               plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_COUNTS
                 ? 's'
                 : '%',
+            detailDomain:
+              configStore.dateRange[0] == -1 && configStore.dateRange[1] == -1
+                ? null
+                : configStore.dateRange,
           }}
           cheapSignals={['hoverBar']}
           width={width}

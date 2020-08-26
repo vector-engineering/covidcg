@@ -3,7 +3,10 @@ import {
   processCaseData,
   aggCaseDataByGroup,
 } from '../utils/caseDataWorkerWrapper';
-import { processSelectedSnvs } from '../utils/snpDataWorkerWrapper';
+import {
+  processSelectedSnvs,
+  processCooccurrenceData,
+} from '../utils/snpDataWorkerWrapper';
 import {
   downloadAccessionIdsData,
   downloadAcknowledgementsData,
@@ -157,13 +160,17 @@ class ObservableDataStore {
         changingPositions,
         groupCountArr,
         groupCountDateFilteredArr,
+        selectedAccessionIds,
+        selectedAckIds,
       }) => {
         // console.log(caseDataAggGroup);
         this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
         this.groupCountArr = groupCountArr;
         this.groupCountDateFilteredArr = groupCountDateFilteredArr;
-        // console.log('AGG_CASE_DATA FINISHED');
+
+        this.selectedAccessionIds = selectedAccessionIds;
+        this.selectedAckIds = selectedAckIds;
 
         this.updateGroupsToKeep();
         // Fire callback
@@ -227,8 +234,6 @@ class ObservableDataStore {
         metadataCounts,
         metadataCountsAfterFiltering,
         numSequencesBeforeMetadataFiltering,
-        selectedAccessionIds,
-        selectedAckIds,
         countsPerLocation,
         countsPerLocationDate,
       }) => {
@@ -239,9 +244,6 @@ class ObservableDataStore {
         this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
         this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
         // console.log('CASE_DATA FINISHED');
-
-        this.selectedAccessionIds = selectedAccessionIds;
-        this.selectedAckIds = selectedAckIds;
 
         this.countsPerLocation = countsPerLocation;
         this.countsPerLocationDate = countsPerLocationDate;
@@ -257,6 +259,7 @@ class ObservableDataStore {
   @action
   processSelectedSnvs() {
     UIStoreInstance.onSnvDataStarted();
+    this.processCooccurrenceData();
     processSelectedSnvs(
       {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
@@ -266,13 +269,31 @@ class ObservableDataStore {
         selectedGroups: toJS(configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
-        dateRange: toJS(configStoreInstance.dateRange),
       },
-      ({ dataAggLocationSnvDate, dataAggSnvDate, snvCooccurrence }) => {
+      ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
         this.dataAggSnvDate = dataAggSnvDate;
-        this.snvCooccurrence = snvCooccurrence;
         UIStoreInstance.onSnvDataFinished();
+      }
+    );
+  }
+
+  @action
+  processCooccurrenceData() {
+    UIStoreInstance.onCooccurrenceDataStarted();
+    processCooccurrenceData(
+      {
+        dnaOrAa: toJS(configStoreInstance.dnaOrAa),
+        coordinateMode: toJS(configStoreInstance.coordinateMode),
+        filteredCaseData: this.filteredCaseData,
+        selectedGroups: toJS(configStoreInstance.selectedGroups).map(
+          (item) => item.group
+        ),
+        dateRange: toJS(configStoreInstance.dateRange),
+      },
+      ({ snvCooccurrence }) => {
+        this.snvCooccurrence = snvCooccurrence;
+        UIStoreInstance.onCooccurrenceDataFinished();
       }
     );
   }

@@ -129,7 +129,7 @@ const CooccurrencePlot = observer(({ width }) => {
 
   useEffect(() => {
     // Only update once the SNV data finished processing
-    if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.cooccurrenceDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
@@ -141,9 +141,9 @@ const CooccurrencePlot = observer(({ width }) => {
         cooccurrence_data: getCooccurrenceData(),
       },
     });
-  }, [UIStore.snvDataState]);
+  }, [UIStore.cooccurrenceDataState]);
 
-  if (UIStore.snvDataState === ASYNC_STATES.STARTED) {
+  if (UIStore.cooccurrenceDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
