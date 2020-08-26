@@ -75,7 +75,14 @@ const DropdownItem = styled.a`
   }
 `;
 
-const DropdownButton = ({ text, options, onSelect }) => {
+const DropdownButton = ({
+  button,
+  text,
+  options,
+  values,
+  onSelect,
+  ...other
+}) => {
   const [state, setState] = useState({
     expanded: false,
     id: _.uniqueId('dropdown_'),
@@ -94,35 +101,42 @@ const DropdownButton = ({ text, options, onSelect }) => {
       e.relatedTarget == null ||
       !e.relatedTarget.classList.contains('dropdown-item')
     ) {
-      handleToggle();
+      setState({ ...state, expanded: false });
     }
   };
   // const handleBlur = () => {};
 
   const handleOption = (e) => {
     onSelect(e.target.dataset.option);
-    handleToggle();
+    setState({ ...state, expanded: false });
   };
 
   // Build option anchor links
   const optionElements = [];
-  options.forEach((option) => {
+  if (values === null) {
+    values = options;
+  }
+  for (let i = 0; i < options.length; i++) {
+    const option = options[i];
+    const value = values[i];
     optionElements.push(
       <DropdownItem
         key={option}
         className="dropdown-item"
         href="#"
         onClick={handleOption}
-        data-option={option}
+        data-option={value}
       >
         {option}
       </DropdownItem>
     );
-  });
+  }
+
+  const ButtonElement = button;
 
   return (
     <DropdownContainer>
-      <Button
+      <ButtonElement
         id={state.id}
         data-toggle="dropdown"
         aria-haspopup="true"
@@ -131,10 +145,11 @@ const DropdownButton = ({ text, options, onSelect }) => {
         // onFocus={handleFocus}
         onBlur={handleBlur}
         sticky={true}
+        {...other}
       >
         {text}
         <span className="caret"></span>
-      </Button>
+      </ButtonElement>
       <DropdownMenu
         aria-labelledby={state.id}
         style={{
@@ -148,12 +163,16 @@ const DropdownButton = ({ text, options, onSelect }) => {
 };
 
 DropdownButton.propTypes = {
+  button: PropTypes.elementType,
   text: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  values: PropTypes.arrayOf(PropTypes.string),
   onSelect: PropTypes.func,
 };
 
 DropdownButton.defaultProps = {
+  button: Button,
+  values: null,
   onSelect: () => {},
 };
 
