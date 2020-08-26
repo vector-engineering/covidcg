@@ -142,6 +142,18 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
+    // Filter by date
+    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+      locationData = locationData.filter((row) => {
+        return (
+          (configStore.dateRange[0] == -1 ||
+            row.date > configStore.dateRange[0]) &&
+          (configStore.dateRange[1] == -1 ||
+            row.date < configStore.dateRange[1])
+        );
+      });
+    }
+
     locationData = aggregate({
       data: locationData,
       groupby: ['location', 'date', 'group', 'groupName'],
@@ -279,6 +291,7 @@ const LocationDatePlot = observer(({ width }) => {
   }, [
     UIStore.snvDataState,
     configStore.selectedGroups,
+    configStore.dateRange,
     dataStore.groupsToKeep,
   ]);
 
