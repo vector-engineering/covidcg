@@ -78,7 +78,7 @@ const PlotContainer = styled.div`
   overflow-y: scroll;
 `;
 
-const HomePage = observer(({ UIStore }) => {
+const HomePage = observer(({ configStore, UIStore }) => {
   const [ref, { width }] = useDimensions();
 
   const [modalIsOpen, setIsOpen] = useState(true);
@@ -141,7 +141,16 @@ const HomePage = observer(({ UIStore }) => {
           <Header />
           <GroupBySelect />
           <SidebarAccordionWrapper
-            title="Collapse low frequency data"
+            title={
+              <div>
+                Collapse low frequency data
+                <QuestionButton
+                  data-tip={`<p>${configStore.getGroupLabel()}s that do not meet the following criteria will be grouped into the "Other" group. This is done to increase performance in the app</p><p>Including more groups gives more detail into the data, but may come at the cost of app performance.</p>`}
+                  data-html={true}
+                  data-for="tooltip-filter-sidebar"
+                />
+              </div>
+            }
             defaultCollapsed={true}
             maxHeight={'250px'}
           >

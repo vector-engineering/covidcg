@@ -162,17 +162,22 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             <span>Global Sequencing Coverage</span>
           </a>
         </TabItem>
+        <TabItem active={activeTab === TABS.TAB_ABOUT}>
+          <a
+            href="#"
+            className="tab-link"
+            onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
+          >
+            <span>Acknowledgements</span>
+          </a>
+        </TabItem>
         <DropdownButton
           button={DropdownTab}
           text="More..."
-          options={['Acknowledgements', 'Methods', 'Related Projects']}
-          values={[TABS.TAB_ABOUT, TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
+          options={['Methods', 'Related Projects']}
+          values={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
           onSelect={onMiscTabSelect}
-          active={[
-            TABS.TAB_ABOUT,
-            TABS.TAB_METHODOLOGY,
-            TABS.TAB_RELATED,
-          ].includes(activeTab)}
+          active={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED].includes(activeTab)}
         />
       </TabBarList>
     </TabBarContainer>
