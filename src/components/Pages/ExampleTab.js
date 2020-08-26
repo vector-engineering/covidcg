@@ -39,6 +39,7 @@ import D614GWestCoastImage from '../../assets/analysis_screens/d614g_west_coast.
 import D614GUSStatesImage from '../../assets/analysis_screens/d614g_us_states.png';
 import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
 import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
+import N203204Image from '../../assets/analysis_screens/n_203_204_coocurrence.png';
 
 const ExampleTabContainer = styled.div`
   display: flex;
@@ -292,6 +293,32 @@ const exampleItems = [
           .concat(
             queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-P' })
           ),
+      },
+    },
+  },
+  {
+    title: 'Co-occurrence of R203K and G204R in N gene',
+    description:
+      'Two SNVs in the N gene, R203K and G204R, co-occur with each other. These SNVs are associated with the B.1.1 lineage.',
+    image: N203204Image,
+    settings: {
+      plotSettings: {
+        groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+        groupStackCountMode: COUNT_MODES.COUNT_NEW,
+        groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      },
+      UI: {
+        activeTab: TABS.TAB_GROUP,
+      },
+      config: {
+        groupKey: GROUP_KEYS.GROUP_SNV,
+        dnaOrAa: DNA_OR_AA.AA,
+        selectedGene: getGene('N'),
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+        selectedLocationNodes: [
+          getLocationByNameAndLevel(selectTree, 'USA', 'country')[0],
+        ],
+        selectedGroups: [{ group: 'N|203|R|K' }, { group: 'N|204|G|R' }],
       },
     },
   },
