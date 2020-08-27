@@ -54,7 +54,8 @@ const SequencingEffortsTab = ({ width }) => {
             Dong et al, 2020, <i>Lancet Inf Dis.</i>
           </ExternalLink>
           ). Data shown is from March, 2020 — May, 2020. Regions with &lt;500
-          confirmed cases are excluded from the bar graphs below.
+          confirmed cases are excluded from the bar graphs below. Regions with
+          &gt;20 sequences per 1000 cases are colored the same in the left map.
         </p>
         <p>
           <i>
