@@ -102,20 +102,24 @@ const GroupBySelect = observer(() => {
   ) {
     aaDisabledMessage = ' (only for gene/protein)';
     aaDisabled = true;
-  } else if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
-    if (
-      configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      configStore.selectedGene.gene === 'All Genes'
-    ) {
-      aaDisabled = true;
-      aaDisabledMessage = ' (please select one gene)';
-    } else if (
-      configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-      configStore.selectedProtein.protein === 'All Proteins'
-    ) {
-      aaDisabled = true;
-      aaDisabledMessage = ' (please select one protein)';
-    }
+  } else if (
+    configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
+    configStore.selectedGene.gene === 'All Genes'
+  ) {
+    aaDisabled = true;
+    aaDisabledMessage = ' (please select one gene)';
+  } else if (
+    configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
+    configStore.selectedProtein.protein === 'All Proteins'
+  ) {
+    aaDisabled = true;
+    aaDisabledMessage = ' (please select one protein)';
+  } else if (
+    configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
+    configStore.selectedGene.protein_coding === 0
+  ) {
+    aaDisabled = true;
+    aaDisabledMessage = ' (please select protein-coding gene)';
   }
 
   const renderLineageLink = () => {

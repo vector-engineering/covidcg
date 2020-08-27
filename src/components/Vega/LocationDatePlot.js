@@ -23,80 +23,11 @@ import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/location_date.vg.json';
 
 const PlotContainer = styled.div``;
-
-const WarningContainer = styled.div`
-  display: ${({ show }) => (show ? 'flex' : 'none')};
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-
-  // colors from Bootstrap
-  background-color: #fff3cd;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-
-  margin: 0px 10px;
-  margin-bottom: 15px;
-  padding: 10px 20px;
-
-  .warning-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 5px;
-    .warning-title {
-      font-size: 1.25em;
-    }
-    .spacer {
-      flex-grow: 1;
-    }
-  }
-
-  .warning-text {
-    margin: 0px;
-    font-weight: normal;
-  }
-`;
-WarningContainer.defaultProps = {
-  show: true,
-};
-
-const PlotOptions = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-  padding-right: 10px;
-
-  .plot-title {
-    font-size: 1.25em;
-    margin-right: 10px;
-    padding-right: 10px;
-    padding-left: 18px;
-
-    border-right: 1px solid #ccc;
-  }
-
-  .spacer {
-    flex-grow: 1;
-  }
-`;
-
-const SelectContainer = styled.div`
-  flex-shrink: 0;
-  margin-right: 8px;
-  font-weight: normal;
-  select {
-    margin-left: 0.65em;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-`;
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
@@ -123,6 +54,10 @@ const LocationDatePlot = observer(({ width }) => {
   const processLocationData = () => {
     let locationData;
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (dataStore.dataAggLocationSnvDate === undefined) {
+        return [];
+      }
+
       locationData = JSON.parse(
         JSON.stringify(dataStore.dataAggLocationSnvDate)
       );
@@ -131,6 +66,10 @@ const LocationDatePlot = observer(({ width }) => {
         return row.group !== GROUPS.ALL_OTHER_GROUP;
       });
     } else {
+      if (dataStore.dataAggLocationGroupDate === undefined) {
+        return [];
+      }
+
       locationData = JSON.parse(
         JSON.stringify(dataStore.dataAggLocationGroupDate)
       );
@@ -138,6 +77,7 @@ const LocationDatePlot = observer(({ width }) => {
       locationData.forEach((row) => {
         if (!dataStore.groupsToKeep.includes(row.group)) {
           row.group = GROUPS.OTHER_GROUP;
+          row.groupName = GROUPS.OTHER_GROUP;
         }
       });
     }
@@ -311,11 +251,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [
-    UIStore.caseDataState,
-    configStore.selectedGroups,
-    dataStore.groupsToKeep,
-  ]);
+  }, [UIStore.caseDataState]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
@@ -450,7 +386,7 @@ const LocationDatePlot = observer(({ width }) => {
       />
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.locationDateCountMode}
@@ -460,9 +396,9 @@ const LocationDatePlot = observer(({ width }) => {
               <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         sequences, shown as{' '}
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.locationDateNormMode}
@@ -472,9 +408,9 @@ const LocationDatePlot = observer(({ width }) => {
               <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         grouped by{' '}
-        <SelectContainer>
+        <OptionSelectContainer>
           <label>
             <select
               value={plotSettingsStore.locationDateDateBin}
@@ -485,7 +421,7 @@ const LocationDatePlot = observer(({ width }) => {
               <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
             </select>
           </label>
-        </SelectContainer>
+        </OptionSelectContainer>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

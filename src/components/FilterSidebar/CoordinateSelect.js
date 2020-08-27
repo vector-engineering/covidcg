@@ -295,7 +295,13 @@ const CoordinateSelect = observer(() => {
   let geneOptionElements = [];
   genes.forEach((gene) => {
     geneOptionElements.push(
-      <option key={gene.gene} value={gene.gene}>
+      <option
+        key={gene.gene}
+        value={gene.gene}
+        disabled={
+          gene.protein_coding === 0 && configStore.dnaOrAa === DNA_OR_AA.AA
+        }
+      >
         {gene.gene}&nbsp;&nbsp;({gene.segments})
       </option>
     );
@@ -609,10 +615,7 @@ const CoordinateSelect = observer(() => {
               <option
                 key="All Genes"
                 value="All Genes"
-                disabled={
-                  configStore.groupKey !== GROUP_KEYS.GROUP_SNV &&
-                  configStore.dnaOrAa === DNA_OR_AA.AA
-                }
+                disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
               >
                 All Genes
               </option>
@@ -641,10 +644,7 @@ const CoordinateSelect = observer(() => {
               <option
                 key="All Proteins"
                 value="All Proteins"
-                disabled={
-                  configStore.groupKey !== GROUP_KEYS.GROUP_SNV &&
-                  configStore.dnaOrAa === DNA_OR_AA.AA
-                }
+                disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
               >
                 All Proteins
               </option>

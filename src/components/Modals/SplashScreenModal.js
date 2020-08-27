@@ -69,9 +69,8 @@ const SplashScreenContent = ({ onRequestClose }) => {
         <p>
           Tracking the evolution of the emerging coronavirus is essential for
           scientists and public health professionals, as well as developers of
-          vaccines, diagnostics, and therapeutics to user-defined locations.
-          This work is enabled by data generously shared from contributors
-          across the world via{' '}
+          vaccines, diagnostics, and therapeutics. This work is enabled by data
+          generously shared from contributors across the world via{' '}
           <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>, on
           which this research is based.
         </p>

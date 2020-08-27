@@ -123,7 +123,7 @@ function processSelectedSnvs({
     let group;
     if (
       matchingSnvIds.length != selectedGroupIds.size ||
-      selectedGroupIds.size === 0
+      selectedGroups.length === 0
     ) {
       group = GROUPS.ALL_OTHER_GROUP;
     } else {
