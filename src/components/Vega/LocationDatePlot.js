@@ -148,9 +148,9 @@ const LocationDatePlot = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      location_data: processLocationData(),
-      selectedGroups: processSelectedGroups(),
-      selected: processFocusedLocations(),
+      location_data: [],
+      selectedGroups: [],
+      selected: [],
     },
     spec: injectDateBinIntoSpec(),
     signalListeners: {
@@ -251,7 +251,12 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.caseDataState]);
+  }, [
+    UIStore.caseDataState,
+    configStore.selectedGroups,
+    configStore.dateRange,
+    dataStore.groupsToKeep,
+  ]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

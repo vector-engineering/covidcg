@@ -50,10 +50,18 @@ const LocationGroupPlot = observer(({ width }) => {
 
   const handleSelectedGroups = (...args) => {
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.selectedGroups)) {
+    const newGroups =
+      args[1] === null
+        ? []
+        : args[1].map((item) => {
+            return { group: item.group };
+          });
+
+    if (_.isEqual(newGroups, configStore.selectedGroups)) {
       return;
     }
-    configStore.updateSelectedGroups(args[1]);
+
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const processLocationByGroup = () => {
@@ -109,9 +117,9 @@ const LocationGroupPlot = observer(({ width }) => {
 
   const [state, setState] = useState({
     data: {
-      location_by_group: processLocationByGroup(),
-      selectedGroups: processSelectedGroups(),
-      selectedLocations: processSelectedLocations(),
+      location_by_group: [],
+      selectedGroups: [],
+      selectedLocations: [],
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {

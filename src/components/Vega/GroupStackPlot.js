@@ -187,7 +187,7 @@ const GroupStackPlot = observer(({ width }) => {
         selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [UIStore.snvDataState]);
+  }, [UIStore.snvDataState, dataStore.groupsToKeep]);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
