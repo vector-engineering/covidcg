@@ -10,7 +10,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
-import { PlotTitle, PlotOptions } from './Plot.styles';
+import { PlotOptions, OptionInputContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
 import { ASYNC_STATES } from '../../constants/UI';
@@ -21,7 +21,7 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore } = useStores();
+  const { configStore, dataStore, UIStore, plotSettingsStore } = useStores();
 
   const handleDownloadSelect = (option) => {
     // console.log(option);
@@ -40,7 +40,13 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
+  const onChangeMinCount = (event) =>
+    plotSettingsStore.setEntropyMinCount(event.target.value);
+
   const processData = (snvCounts) => {
+    snvCounts = snvCounts.filter((row) => {
+      return row[1] >= plotSettingsStore.entropyMinCount;
+    });
     return snvCounts;
   };
 
@@ -128,7 +134,7 @@ const EntropyPlot = observer(({ width }) => {
         table: processData(toJS(dataStore.groupCountDateFilteredArr)),
       },
     });
-  }, [UIStore.aggCaseDataState]);
+  }, [UIStore.aggCaseDataState, plotSettingsStore.entropyMinCount]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -187,6 +193,17 @@ const EntropyPlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <PlotOptions>
+        Hide SNVs with less than
+        <OptionInputContainer maxWidth="3em">
+          <label>
+            <input
+              type="number"
+              value={plotSettingsStore.entropyMinCount}
+              onChange={onChangeMinCount}
+            />
+          </label>
+        </OptionInputContainer>
+        counts
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

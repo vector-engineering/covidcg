@@ -23,6 +23,20 @@ export const OptionSelectContainer = styled.div`
   }
 `;
 
+export const OptionInputContainer = styled.div`
+  margin-right: 8px;
+  font-weight: normal;
+  input {
+    max-width: ${({ maxWidth }) => maxWidth};
+    margin-left: 0.65em;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+`;
+OptionInputContainer.defaultProps = {
+  maxWidth: '4em',
+};
+
 export const PlotTitle = styled.div`
   display: flex;
   flex-direction: column;
