@@ -64,6 +64,7 @@ const LocationGroupPlot = observer(({ width }) => {
     locationData.forEach((row) => {
       if (!dataStore.groupsToKeep.includes(row.group)) {
         row.group = GROUPS.OTHER_GROUP;
+        row.groupName = GROUPS.OTHER_GROUP;
         row.color = '#aaa';
       }
     });

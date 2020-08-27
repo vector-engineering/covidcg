@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { formatSnv } from '../../utils/snpData';
+import { formatSnv, getSnvColor } from '../../utils/snpData';
+import { aggregate } from '../../utils/transform';
+
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -106,7 +108,26 @@ const CooccurrencePlot = observer(({ width }) => {
   };
 
   const getCooccurrenceData = () => {
-    return JSON.parse(JSON.stringify(dataStore.snvCooccurrence));
+    let newCooccurrenceData = JSON.parse(
+      JSON.stringify(dataStore.snvCooccurrence)
+    );
+    newCooccurrenceData.forEach((row) => {
+      if (!dataStore.groupsToKeep.includes(row.snv)) {
+        row.snv = GROUPS.OTHER_GROUP;
+        row.snvName = GROUPS.OTHER_GROUP;
+        row.color = getSnvColor(GROUPS.OTHER_GROUP);
+      }
+    });
+
+    newCooccurrenceData = aggregate({
+      data: newCooccurrenceData,
+      groupby: ['combi', 'snv', 'snvName'],
+      fields: ['combiName', 'snvName', 'color', 'count'],
+      ops: ['max', 'max', 'max', 'sum'],
+      as: ['combiName', 'snvName', 'color', 'count'],
+    });
+
+    return newCooccurrenceData;
   };
 
   const getSelectedGroups = () => {
@@ -141,7 +162,7 @@ const CooccurrencePlot = observer(({ width }) => {
         cooccurrence_data: getCooccurrenceData(),
       },
     });
-  }, [UIStore.cooccurrenceDataState]);
+  }, [UIStore.cooccurrenceDataState, dataStore.groupsToKeep]);
 
   if (UIStore.cooccurrenceDataState === ASYNC_STATES.STARTED) {
     return (

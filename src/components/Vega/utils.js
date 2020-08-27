@@ -1,5 +1,5 @@
 import { toJS } from 'mobx';
-import { OTHER_GROUP } from '../../constants/groups';
+import { GROUPS } from '../../constants/groups';
 
 export const mergeGroupsIntoOther = (data, _groupsToKeep) => {
   let newCaseData;
@@ -11,7 +11,8 @@ export const mergeGroupsIntoOther = (data, _groupsToKeep) => {
 
     data.forEach((row, key) => {
       if (!groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
+        row.group = GROUPS.OTHER_GROUP;
+        row.groupName = GROUPS.OTHER_GROUP;
         row.color = '#aaa';
         if (addedOthersByDate[row.date]) {
           data[addedOthersByDate[row.date]].cases_sum += row.cases_sum;
@@ -40,7 +41,8 @@ export const mergeLegendItemsIntoOther = (data, _groupsToKeep) => {
 
     data.forEach((row) => {
       if (!groupsToKeep.includes(row.group)) {
-        row.group = OTHER_GROUP;
+        row.group = GROUPS.OTHER_GROUP;
+        row.groupName = GROUPS.OTHER_GROUP;
         row.color = '#aaa';
 
         if (!alreadyPushedOther) {

@@ -138,6 +138,7 @@ const LocationDatePlot = observer(({ width }) => {
       locationData.forEach((row) => {
         if (!dataStore.groupsToKeep.includes(row.group)) {
           row.group = GROUPS.OTHER_GROUP;
+          row.groupName = GROUPS.OTHER_GROUP;
         }
       });
     }
@@ -311,11 +312,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [
-    UIStore.caseDataState,
-    configStore.selectedGroups,
-    dataStore.groupsToKeep,
-  ]);
+  }, [UIStore.caseDataState]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
