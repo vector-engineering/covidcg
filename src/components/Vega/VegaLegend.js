@@ -27,6 +27,9 @@ const LegendItemWrapper = observer(({ group, color }) => {
         : group,
     hovered: false,
     selected: false,
+    textColor: meetsContrastGuidelines(color, '#fff')['AALarge']
+      ? '#fff'
+      : '#000',
   });
 
   useEffect(() => {
@@ -34,7 +37,10 @@ const LegendItemWrapper = observer(({ group, color }) => {
       configStore.hoverGroup === null
         ? false
         : configStore.hoverGroup === group;
-    setState({ ...state, hovered });
+
+    if (hovered !== state.hovered) {
+      setState({ ...state, hovered });
+    }
   }, [configStore.hoverGroup]);
 
   useEffect(() => {
@@ -48,18 +54,20 @@ const LegendItemWrapper = observer(({ group, color }) => {
         selected = false;
       }
     }
-    setState({ ...state, selected });
+
+    if (selected !== state.hovered) {
+      setState({ ...state, selected });
+    }
   }, [configStore.selectedGroups]);
 
-  const scores = meetsContrastGuidelines(color, '#fff');
-  const textColor = scores['AALarge'] ? '#fff' : '#000';
+  // console.log('re-rendering legend item');
 
   return (
     <LegendItem
       hovered={state.hovered}
       selected={state.selected}
       color={color}
-      textColor={textColor}
+      textColor={state.textColor}
       data-group={group}
     >
       {state.text}
