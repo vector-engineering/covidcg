@@ -88,7 +88,7 @@ export const initialConfigValues = {
   focusedLocations: [],
 
   lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  maxGroupCounts: 30,
+  maxGroupCounts: 50,
   minLocalCountsToShow: 50,
   minGlobalCountsToShow: 100,
 };
