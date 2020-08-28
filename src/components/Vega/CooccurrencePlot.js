@@ -111,14 +111,6 @@ const CooccurrencePlot = observer(({ width }) => {
     let newCooccurrenceData = JSON.parse(
       JSON.stringify(dataStore.snvCooccurrence)
     );
-    newCooccurrenceData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.snv)) {
-        row.snv = GROUPS.OTHER_GROUP;
-        row.snvName = GROUPS.OTHER_GROUP;
-        row.color = getSnvColor(GROUPS.OTHER_GROUP);
-      }
-    });
-
     newCooccurrenceData = aggregate({
       data: newCooccurrenceData,
       groupby: ['combi', 'snv', 'snvName'],
@@ -162,7 +154,7 @@ const CooccurrencePlot = observer(({ width }) => {
         cooccurrence_data: getCooccurrenceData(),
       },
     });
-  }, [UIStore.cooccurrenceDataState, dataStore.groupsToKeep]);
+  }, [UIStore.cooccurrenceDataState]);
 
   if (UIStore.cooccurrenceDataState === ASYNC_STATES.STARTED) {
     return (

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { mergeLegendItemsIntoOther } from './utils';
 import { formatSnv } from '../../utils/snpData';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
@@ -126,10 +125,7 @@ const VegaLegend = observer(() => {
 
   const renderLegendKeys = () => {
     // Make own copy of the elements, and sort by group
-    let legendItems = mergeLegendItemsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
-      dataStore.groupsToKeep
-    );
+    let legendItems = JSON.parse(JSON.stringify(dataStore.dataAggGroup));
 
     // Set aside the reference, and remove it from the rows list
     // Also set aside the "Other" group, if it exists
@@ -215,7 +211,7 @@ const VegaLegend = observer(() => {
     }
 
     setState({ ...state, legendItems: renderLegendKeys() });
-  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState]);
 
   // console.log('RE-RENDERING LEGEND');
 

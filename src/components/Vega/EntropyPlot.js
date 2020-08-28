@@ -10,12 +10,13 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
-import { PlotOptions, OptionInputContainer } from './Plot.styles';
+import { PlotOptions } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
 import { ASYNC_STATES } from '../../constants/UI';
 import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { GROUPS } from '../../constants/groups';
 
 const PlotContainer = styled.div``;
 
@@ -40,14 +41,10 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
-  const onChangeMinCount = (event) =>
-    plotSettingsStore.setEntropyMinCount(event.target.value);
-
   const processData = (snvCounts) => {
-    snvCounts = snvCounts.filter((row) => {
-      return row[1] >= plotSettingsStore.entropyMinCount;
+    return snvCounts.filter((group) => {
+      return group[0] !== GROUPS.OTHER_GROUP;
     });
-    return snvCounts;
   };
 
   const handleHoverGroup = (...args) => {
@@ -110,7 +107,7 @@ const EntropyPlot = observer(({ width }) => {
   const [state, setState] = useState({
     xRange: getXRange(),
     data: {
-      table: processData(toJS(dataStore.groupCountDateFilteredArr)),
+      table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -131,7 +128,7 @@ const EntropyPlot = observer(({ width }) => {
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(toJS(dataStore.groupCountDateFilteredArr)),
+        table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
       },
     });
   }, [UIStore.aggCaseDataState, plotSettingsStore.entropyMinCount]);
@@ -193,17 +190,6 @@ const EntropyPlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <PlotOptions>
-        Hide SNVs with less than
-        <OptionInputContainer maxWidth="3em">
-          <label>
-            <input
-              type="number"
-              value={plotSettingsStore.entropyMinCount}
-              onChange={onChangeMinCount}
-            />
-          </label>
-        </OptionInputContainer>
-        counts
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

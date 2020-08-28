@@ -353,11 +353,6 @@ const NewLineageDataTable = observer(() => {
     let newGroups;
 
     let selectedGroup = row.group;
-    // If we selected a group that's grouped into Other,
-    // then pretend like we're selecting Other instead
-    if (!dataStore.groupsToKeep.includes(row.group)) {
-      selectedGroup = OTHER_GROUP;
-    }
 
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore

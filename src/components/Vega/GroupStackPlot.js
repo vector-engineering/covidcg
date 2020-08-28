@@ -21,7 +21,6 @@ import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
-import { mergeGroupsIntoOther } from './utils';
 import initialSpec from '../../vega_specs/group_stack.vg.json';
 
 const GroupStackPlot = observer(({ width }) => {
@@ -99,10 +98,7 @@ const GroupStackPlot = observer(({ width }) => {
       return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
     }
 
-    return mergeGroupsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-      dataStore.groupsToKeep
-    );
+    return JSON.parse(JSON.stringify(dataStore.dataAggGroupDate));
   };
 
   const [state, setState] = useState({
@@ -148,7 +144,7 @@ const GroupStackPlot = observer(({ width }) => {
         cases_by_date_and_group: processData(),
       },
     });
-  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -187,7 +183,7 @@ const GroupStackPlot = observer(({ width }) => {
         selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
       },
     });
-  }, [UIStore.snvDataState, dataStore.groupsToKeep]);
+  }, [UIStore.snvDataState]);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));

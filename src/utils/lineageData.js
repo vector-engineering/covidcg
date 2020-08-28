@@ -7,6 +7,7 @@ import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
 
 import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
+import { GROUPS } from '../constants/groups';
 
 export function loadLineageSnp() {
   return lineageSnpData;
@@ -40,6 +41,7 @@ const _getLineageColor = _.memoize((group) => {
 });
 
 const lineageColorMap = {};
+lineageColorMap[GROUPS.OTHER_GROUP] = '#AAA';
 lineageSnpData.forEach((lineageObj) => {
   lineageColorMap[lineageObj.lineage] = _getLineageColor(lineageObj.lineage);
 });
@@ -60,6 +62,7 @@ const _getCladeColor = _.memoize(() => {
 });
 
 const cladeColorMap = {};
+cladeColorMap[GROUPS.OTHER_GROUP] = '#AAA';
 cladeSnpData.forEach((cladeObj) => {
   cladeColorMap[cladeObj.clade] = _getCladeColor(cladeObj.clade);
 });

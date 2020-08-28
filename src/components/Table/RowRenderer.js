@@ -8,8 +8,6 @@ import { Row } from 'react-data-grid';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import { OTHER_GROUP } from '../../constants/groups';
-
 const RowWrapper = styled.div`
   position: relative;
 
@@ -60,7 +58,7 @@ RowWrapper.defaultProps = {
 };
 
 const RowRenderer = observer(({ row, ...rest }) => {
-  const { dataStore, configStore } = useStores();
+  const { configStore } = useStores();
   const [state, setState] = useState({
     hovered: false,
     selected: null,
@@ -74,31 +72,19 @@ const RowRenderer = observer(({ row, ...rest }) => {
         undefined
       ) {
         selected = true;
-      } else if (
-        _.findWhere(configStore.selectedGroups, { group: OTHER_GROUP }) !==
-          undefined &&
-        !dataStore.groupsToKeep.includes(row.group)
-      ) {
-        selected = true;
       } else {
         selected = false;
       }
     }
     setState({ ...state, selected });
-  }, [configStore.selectedGroups, dataStore.groupsToKeep]);
+  }, [configStore.selectedGroups]);
 
   useEffect(() => {
     let hovered = configStore.hoverGroup === row.group;
-
-    if (
-      !dataStore.groupsToKeep.includes(row.group) &&
-      configStore.hoverGroup === OTHER_GROUP
-    ) {
-      hovered = true;
+    if (hovered !== state.hovered) {
+      setState({ ...state, hovered });
     }
-
-    setState({ ...state, hovered });
-  }, [configStore.hoverGroup, dataStore.groupsToKeep]);
+  }, [configStore.hoverGroup]);
 
   return (
     <RowWrapper

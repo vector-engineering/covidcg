@@ -25,7 +25,6 @@ export const initialPlotSettingsValues = {
   tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
 
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
-  entropyMinCount: 5,
 };
 
 class ObservablePlotSettingsStore {
@@ -97,13 +96,6 @@ class ObservablePlotSettingsStore {
   @action
   setCooccurrenceNormMode(mode) {
     this.cooccurrenceNormMode = mode;
-  }
-
-  @observable entropyMinCount = initialPlotSettingsValues.entropyMinCount;
-
-  @action
-  setEntropyMinCount(count) {
-    this.entropyMinCount = count;
   }
 
   @action

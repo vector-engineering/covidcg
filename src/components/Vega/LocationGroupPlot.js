@@ -69,14 +69,6 @@ const LocationGroupPlot = observer(({ width }) => {
       JSON.stringify(dataStore.dataAggLocationGroupDate)
     );
 
-    locationData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = GROUPS.OTHER_GROUP;
-        row.groupName = GROUPS.OTHER_GROUP;
-        row.color = '#aaa';
-      }
-    });
-
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       // Filter out 'Reference' group, when in SNV mode
       locationData = locationData.filter((row) => {
@@ -158,7 +150,6 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [
     UIStore.caseDataState,
     configStore.selectedGroups,
-    dataStore.groupsToKeep,
     configStore.dateRange,
   ]);
 

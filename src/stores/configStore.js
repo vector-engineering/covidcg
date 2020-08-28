@@ -31,7 +31,6 @@ import {
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/config';
 
-import { OTHER_GROUP } from '../constants/groups';
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 
@@ -105,22 +104,30 @@ PARAMS_TO_TRACK.forEach((param) => {
 class ObservableConfigStore {
   @observable groupKey = initialConfigValues.groupKey;
   @observable dnaOrAa = initialConfigValues.dnaOrAa;
+
   @observable selectedGene = initialConfigValues.selectedGene;
   @observable selectedProtein = initialConfigValues.selectedProtein;
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
   @observable customCoordinates = initialConfigValues.customCoordinates;
   @observable customSequences = initialConfigValues.customSequences;
+
   @observable coordinateMode = initialConfigValues.coordinateMode;
+
   @observable dateRange = initialConfigValues.dateRange;
+
   @observable selectTree = initialConfigValues.selectTree;
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
+
   @observable hoverGroup = initialConfigValues.hoverGroup;
   @observable selectedGroups = initialConfigValues.selectedGroups;
+
   @observable selectedMetadataFields =
     initialConfigValues.selectedMetadataFields;
   @observable ageRange = initialConfigValues.ageRange;
+
   @observable hoverLocation = initialConfigValues.hoverLocation;
   @observable focusedLocations = initialConfigValues.focusedLocations;
+
   @observable lowFreqFilterType = initialConfigValues.lowFreqFilterType;
   @observable maxGroupCounts = initialConfigValues.maxGroupCounts;
   @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
@@ -389,8 +396,6 @@ class ObservableConfigStore {
     // console.log('UPDATE HOVER GROUP', group);
     if (group === null) {
       this.hoverGroup = null;
-    } else if (!dataStoreInstance.groupsToKeep.includes(group)) {
-      this.hoverGroup = OTHER_GROUP;
     } else {
       this.hoverGroup = group;
     }
@@ -413,27 +418,17 @@ class ObservableConfigStore {
   }
 
   @action
-  setLowFreqFilterType(type) {
-    this.lowFreqFilterType = type;
-    dataStoreInstance.updateGroupsToKeep();
-  }
-
-  @action
-  setMaxGroupCounts(num) {
-    this.maxGroupCounts = num;
-    dataStoreInstance.updateGroupsToKeep();
-  }
-
-  @action
-  setMinLocalCounts(num) {
-    this.minLocalCountsToShow = num;
-    dataStoreInstance.updateGroupsToKeep();
-  }
-
-  @action
-  setMinGlobalCounts(num) {
-    this.minGlobalCountsToShow = num;
-    dataStoreInstance.updateGroupsToKeep();
+  setLowFreqFilters({
+    lowFreqFilterType,
+    minLocalCountsToShow,
+    minGlobalCountsToShow,
+    maxGroupCounts,
+  }) {
+    this.lowFreqFilterType = lowFreqFilterType;
+    this.minLocalCountsToShow = minLocalCountsToShow;
+    this.minGlobalCountsToShow = minGlobalCountsToShow;
+    this.maxGroupCounts = maxGroupCounts;
+    dataStoreInstance.updateCaseData();
   }
 }
 
