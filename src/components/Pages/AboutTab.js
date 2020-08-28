@@ -227,11 +227,7 @@ const AboutTab = () => {
             <div className="content-text">
               <p>
                 All hCoV-19 sequences are aligned to the WIV04 reference
-                sequence (GISAID: EPI_ISL_402124,
-                <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/MN996528">
-                  NCBI: MN996528.1
-                </ExternalLink>
-                ). Gene and protein ORFs were taken from the GenBank page.
+                sequence (GISAID: EPI_ISL_402124). Gene and protein ORFs were taken from the GenBank page.
               </p>
             </div>
             <div className="content-images"></div>
