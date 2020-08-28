@@ -378,7 +378,7 @@ function processCaseData({
     !(row.collection_date in aggCaseData[location]) &&
       (aggCaseData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
-      if (group === -1 || validGroups[group] === undefined) {
+      if (validGroups[group] === undefined) {
         group = GROUPS.OTHER_GROUP;
       }
       // Replace the integer SNP ID with the actual SNP string

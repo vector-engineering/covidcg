@@ -9,6 +9,7 @@ import _ from 'underscore';
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
+import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
 import { GROUPS } from '../../constants/groups';
@@ -19,7 +20,7 @@ const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, UIStore } = useStores();
+  const { dataStore, configStore, UIStore, plotSettingsStore } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -64,12 +65,19 @@ const LocationGroupPlot = observer(({ width }) => {
     configStore.updateSelectedGroups(newGroups);
   };
 
+  const onChangeHideReference = (e) => {
+    plotSettingsStore.setLocationGroupHideReference(e.target.checked);
+  };
+
   const processLocationByGroup = () => {
     let locationData = JSON.parse(
       JSON.stringify(dataStore.dataAggLocationGroupDate)
     );
 
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (
+      configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+      plotSettingsStore.locationGroupHideReference
+    ) {
       // Filter out 'Reference' group, when in SNV mode
       locationData = locationData.filter((row) => {
         return row.group !== GROUPS.REFERENCE_GROUP;
@@ -151,6 +159,7 @@ const LocationGroupPlot = observer(({ width }) => {
     UIStore.caseDataState,
     configStore.selectedGroups,
     configStore.dateRange,
+    plotSettingsStore.locationGroupHideReference,
   ]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
@@ -207,6 +216,21 @@ const LocationGroupPlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
+      <PlotOptions>
+        {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+          <OptionCheckboxContainer>
+            <label>
+              <input
+                type="checkbox"
+                checked={plotSettingsStore.locationGroupHideReference}
+                onChange={onChangeHideReference}
+              />
+              Hide Reference Group
+            </label>
+          </OptionCheckboxContainer>
+        )}
+        <div className="spacer" />
+      </PlotOptions>
       <div style={{ width: `${width}` }}>
         <VegaEmbed
           ref={vegaRef}

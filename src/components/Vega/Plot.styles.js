@@ -37,6 +37,21 @@ OptionInputContainer.defaultProps = {
   maxWidth: '4em',
 };
 
+export const OptionCheckboxContainer = styled.div`
+  label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    font-weight: normal;
+    input {
+      margin: 0px 6px 0px 0px;
+      padding: 0px;
+      border-radius: 3px;
+    }
+  }
+`;
+
 export const PlotTitle = styled.div`
   display: flex;
   flex-direction: column;

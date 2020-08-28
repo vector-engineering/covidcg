@@ -18,6 +18,8 @@ export const initialPlotSettingsValues = {
   locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
   locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
 
+  locationGroupHideReference: true,
+
   tableColorMode: COLOR_MODES.COLOR_MODE_COMPARE,
   tableCompareMode: COMPARE_MODES.COMPARE_MODE_MISMATCH,
   tableCompareColor: COMPARE_COLORS.COLOR_MODE_ZAPPO,
@@ -64,6 +66,14 @@ class ObservablePlotSettingsStore {
   @action
   setLocationDateDateBin(dateBin) {
     this.locationDateDateBin = dateBin;
+  }
+
+  @observable locationGroupHideReference =
+    initialPlotSettingsValues.locationGroupHideReference;
+
+  @action
+  setLocationGroupHideReference(hide) {
+    this.locationGroupHideReference = hide;
   }
 
   @observable tableColorMode = initialPlotSettingsValues.tableColorMode;
