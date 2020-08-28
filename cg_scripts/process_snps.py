@@ -17,6 +17,7 @@ def process_snps(
     mode="dna",  # dna, gene_aa, protein_aa
 ):
     snp_df = pd.read_csv(snp_file)
+    snp_df = snp_df.fillna("-")
 
     groupby_cols = ["pos", "ref", "alt"]
     if mode == "gene_aa":

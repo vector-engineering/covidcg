@@ -24,7 +24,7 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
     else:
         gene_or_protein_df = gene_or_protein_df.set_index("protein")
 
-    dna_snp_df = pd.read_csv(dna_snp_file)
+    dna_snp_df = pd.read_csv(dna_snp_file).fillna("")
     # Filter out any big SNPs in the 5' or 3' UTR
     dna_snp_df = dna_snp_df.loc[
         (dna_snp_df["pos"] < 29675) & (dna_snp_df["pos"] > 265), :
