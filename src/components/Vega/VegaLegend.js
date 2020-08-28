@@ -37,9 +37,7 @@ const LegendItemWrapper = observer(({ group, color }) => {
         ? false
         : configStore.hoverGroup === group;
 
-    if (hovered !== state.hovered) {
-      setState({ ...state, hovered });
-    }
+    setState({ ...state, hovered });
   }, [configStore.hoverGroup]);
 
   useEffect(() => {
@@ -54,9 +52,7 @@ const LegendItemWrapper = observer(({ group, color }) => {
       }
     }
 
-    if (selected !== state.hovered) {
-      setState({ ...state, selected });
-    }
+    setState({ ...state, selected });
   }, [configStore.selectedGroups]);
 
   // console.log('re-rendering legend item');
@@ -120,6 +116,10 @@ const VegaLegend = observer(() => {
     if (hoverGroup === configStore.hoverGroup) {
       return;
     }
+    updateHoverGroup(hoverGroup);
+  };
+
+  const updateHoverGroup = (hoverGroup) => {
     configStore.updateHoverGroup(hoverGroup);
   };
 
