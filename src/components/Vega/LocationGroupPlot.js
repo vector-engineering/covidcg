@@ -50,24 +50,24 @@ const LocationGroupPlot = observer(({ width }) => {
 
   const handleSelectedGroups = (...args) => {
     // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.selectedGroups)) {
+    const newGroups =
+      args[1] === null
+        ? []
+        : args[1].map((item) => {
+            return { group: item.group };
+          });
+
+    if (_.isEqual(newGroups, configStore.selectedGroups)) {
       return;
     }
-    configStore.updateSelectedGroups(args[1]);
+
+    configStore.updateSelectedGroups(newGroups);
   };
 
   const processLocationByGroup = () => {
     let locationData = JSON.parse(
       JSON.stringify(dataStore.dataAggLocationGroupDate)
     );
-
-    locationData.forEach((row) => {
-      if (!dataStore.groupsToKeep.includes(row.group)) {
-        row.group = GROUPS.OTHER_GROUP;
-        row.groupName = GROUPS.OTHER_GROUP;
-        row.color = '#aaa';
-      }
-    });
 
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       // Filter out 'Reference' group, when in SNV mode
@@ -109,9 +109,9 @@ const LocationGroupPlot = observer(({ width }) => {
 
   const [state, setState] = useState({
     data: {
-      location_by_group: processLocationByGroup(),
-      selectedGroups: processSelectedGroups(),
-      selectedLocations: processSelectedLocations(),
+      location_by_group: [],
+      selectedGroups: [],
+      selectedLocations: [],
     },
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
@@ -150,7 +150,6 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [
     UIStore.caseDataState,
     configStore.selectedGroups,
-    dataStore.groupsToKeep,
     configStore.dateRange,
   ]);
 

@@ -133,8 +133,9 @@ export const getSinglePosColumn = ({
       // Only color cells that meet the comparison condition (match/mismatch)
       // OR, if we're coloring by code, then always color the reference row
       if (
-        conditionCompare(row[col], refRow[col], compareMode) ||
-        (row['group'] === REFERENCE_GROUP && colors !== null)
+        (conditionCompare(row[col], refRow[col], compareMode) ||
+          (row['group'] === REFERENCE_GROUP && colors !== null)) &&
+        row[col] !== null
       ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {

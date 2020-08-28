@@ -10,18 +10,19 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
-import { PlotTitle, PlotOptions } from './Plot.styles';
+import { PlotOptions } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
 import { ASYNC_STATES } from '../../constants/UI';
 import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { GROUPS } from '../../constants/groups';
 
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore } = useStores();
+  const { configStore, dataStore, UIStore, plotSettingsStore } = useStores();
 
   const handleDownloadSelect = (option) => {
     // console.log(option);
@@ -41,7 +42,9 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const processData = (snvCounts) => {
-    return snvCounts;
+    return snvCounts.filter((group) => {
+      return group[0] !== GROUPS.OTHER_GROUP;
+    });
   };
 
   const handleHoverGroup = (...args) => {
@@ -104,7 +107,7 @@ const EntropyPlot = observer(({ width }) => {
   const [state, setState] = useState({
     xRange: getXRange(),
     data: {
-      table: processData(toJS(dataStore.groupCountDateFilteredArr)),
+      table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -125,10 +128,10 @@ const EntropyPlot = observer(({ width }) => {
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(toJS(dataStore.groupCountDateFilteredArr)),
+        table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
       },
     });
-  }, [UIStore.aggCaseDataState]);
+  }, [UIStore.aggCaseDataState, plotSettingsStore.entropyMinCount]);
 
   // Update internal selected groups copy
   useEffect(() => {

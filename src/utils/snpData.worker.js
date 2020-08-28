@@ -45,20 +45,20 @@ function getSnvFields({ dnaOrAa, coordinateMode, selectedGroups }) {
   if (dnaOrAa === DNA_OR_AA.DNA) {
     selectedGroupIds = selectedGroups
       .map((item) => dnaSnpToInt(item))
-      .filter((snpId) => snpId !== undefined);
+      .map((snpId) => (snpId === undefined ? -1 : snpId));
     snvEntry = 'dna_snp_str';
     intToSnvFunc = intToDnaSnp;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       selectedGroupIds = selectedGroups
         .map((item) => geneAaSnpToInt(item))
-        .filter((snpId) => snpId !== undefined);
+        .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'gene_aa_snp_str';
       intToSnvFunc = intToGeneAaSnp;
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       selectedGroupIds = selectedGroups
         .map((item) => proteinAaSnpToInt(item))
-        .filter((snpId) => snpId !== undefined);
+        .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'protein_aa_snp_str';
       intToSnvFunc = intToProteinAaSnp;
     }
@@ -77,8 +77,10 @@ function processSelectedSnvs({
   dnaOrAa,
   coordinateMode,
   selectedLocationNodes,
+  countsPerLocation,
   filteredCaseData,
   selectedGroups,
+  validGroups,
 }) {
   const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
     dnaOrAa,
@@ -121,7 +123,13 @@ function processSelectedSnvs({
       selectedGroupIds.has(snvId)
     );
     let group;
+    // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
+      selectedGroupIds.has(-1) &&
+      row[snvEntry].some((id) => validGroups[id] === undefined)
+    ) {
+      group = GROUPS.OTHER_GROUP;
+    } else if (
       matchingSnvIds.length != selectedGroupIds.size ||
       selectedGroups.length === 0
     ) {
@@ -129,6 +137,7 @@ function processSelectedSnvs({
     } else {
       group = matchingSnvIds.map((id) => intToSnvFunc(id).snp_str).join(' + ');
     }
+
     !(group in dataAggLocationSnvDateObj[_location][row.collection_date]) &&
       (dataAggLocationSnvDateObj[_location][row.collection_date][group] = 0);
     dataAggLocationSnvDateObj[_location][row.collection_date][group] += 1;
@@ -155,6 +164,7 @@ function processSelectedSnvs({
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
               ? '#07B'
               : getSnvColor(group),
+          location_counts: countsPerLocation[location],
         });
       });
     });

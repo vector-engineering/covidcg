@@ -61,7 +61,8 @@ const LocationDatePlot = observer(({ width }) => {
       locationData = JSON.parse(
         JSON.stringify(dataStore.dataAggLocationSnvDate)
       );
-      // Filter out 'Other' group
+
+      // Filter out 'All Other Sequences' group
       locationData = locationData.filter((row) => {
         return row.group !== GROUPS.ALL_OTHER_GROUP;
       });
@@ -73,26 +74,19 @@ const LocationDatePlot = observer(({ width }) => {
       locationData = JSON.parse(
         JSON.stringify(dataStore.dataAggLocationGroupDate)
       );
-
-      locationData.forEach((row) => {
-        if (!dataStore.groupsToKeep.includes(row.group)) {
-          row.group = GROUPS.OTHER_GROUP;
-          row.groupName = GROUPS.OTHER_GROUP;
-        }
-      });
     }
 
     // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-      locationData = locationData.filter((row) => {
-        return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
-        );
-      });
-    }
+    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (configStore.dateRange[0] == -1 ||
+    //         row.date > configStore.dateRange[0]) &&
+    //       (configStore.dateRange[1] == -1 ||
+    //         row.date < configStore.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
@@ -107,6 +101,8 @@ const LocationDatePlot = observer(({ width }) => {
       row.location_date_count =
         dataStore.countsPerLocationDate[row.location][row.date.toString()];
     });
+
+    // console.log(JSON.stringify(locationData));
 
     return locationData;
   };
@@ -148,9 +144,9 @@ const LocationDatePlot = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     data: {
-      location_data: processLocationData(),
-      selectedGroups: processSelectedGroups(),
-      selected: processFocusedLocations(),
+      location_data: [],
+      selectedGroups: [],
+      selected: [],
     },
     spec: injectDateBinIntoSpec(),
     signalListeners: {
@@ -228,12 +224,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [
-    UIStore.snvDataState,
-    configStore.selectedGroups,
-    configStore.dateRange,
-    dataStore.groupsToKeep,
-  ]);
+  }, [UIStore.snvDataState, configStore.selectedGroups, configStore.dateRange]);
 
   useEffect(() => {
     if (
@@ -251,7 +242,11 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.caseDataState]);
+  }, [
+    UIStore.caseDataState,
+    configStore.selectedGroups,
+    configStore.dateRange,
+  ]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

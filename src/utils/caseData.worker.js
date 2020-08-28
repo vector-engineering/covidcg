@@ -16,12 +16,19 @@ import {
 import { getLocationIds } from './location';
 import { dataDate } from './version';
 import { aggregate } from './transform';
-
 import { countMetadataFields } from './metadata';
+import { getGlobalGroupCounts } from '../utils/globalCounts';
 import _ from 'underscore';
 
-import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { REFERENCE_GROUP } from '../constants/groups';
+import {
+  LOW_FREQ_FILTER_TYPES,
+  GROUP_KEYS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../constants/config';
+import { GROUPS } from '../constants/groups';
+
+const globalGroupCounts = getGlobalGroupCounts();
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -62,16 +69,17 @@ function filterByLocation(caseData, locationIds) {
   });
 }
 
-function getParent(group) {
-  let result = group.split('.');
-  if (result.length < 1) {
-    return 'root_node';
-  }
-  result.pop();
+// FOR VEGA TREE:
+// function getParent(group) {
+//   let result = group.split('.');
+//   if (result.length < 1) {
+//     return 'root_node';
+//   }
+//   result.pop();
 
-  result = result.join('.');
-  return result;
-}
+//   result = result.join('.');
+//   return result;
+// }
 
 function filterByCoordinateRange({ caseData, coordinateRanges }) {
   let newCaseData = [];
@@ -216,7 +224,11 @@ function processCaseData({
   dnaOrAa,
   selectedMetadataFields,
   ageRange,
-  dateRange,
+
+  lowFreqFilterType,
+  maxGroupCounts,
+  minLocalCountsToShow,
+  minGlobalCountsToShow,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
@@ -264,6 +276,63 @@ function processCaseData({
   const countsPerLocation = {};
   const countsPerLocationDate = {};
 
+  const countsPerGroup = {};
+  // Tally counts per group
+  caseData.forEach((row) => {
+    let groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
+    if (groupKeys.length === 0) {
+      groupKeys = [-1];
+    }
+
+    groupKeys.forEach((group) => {
+      !(group in countsPerGroup) && (countsPerGroup[group] = 0);
+      countsPerGroup[group] += 1;
+    });
+  });
+
+  // Make a map of valid groups
+  const validGroups = {
+    '-1': 1,
+  };
+  if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS) {
+    // Sort groups and take the top N
+    Object.entries(countsPerGroup)
+      .sort((a, b) => b[1] - a[1]) // Sort descending order
+      .slice(0, maxGroupCounts)
+      .map((group) => group[0])
+      .forEach((group) => {
+        validGroups[group] = 1;
+      });
+  } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
+    Object.keys(countsPerGroup).forEach((group) => {
+      if (countsPerGroup[group] >= minLocalCountsToShow) {
+        validGroups[group] = 1;
+      }
+    });
+  } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS) {
+    let globalCounts;
+    if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
+      globalCounts = globalGroupCounts.lineage;
+    } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
+      globalCounts = globalGroupCounts.clade;
+    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+      if (dnaOrAa === DNA_OR_AA.DNA) {
+        globalCounts = globalGroupCounts.dna_snp;
+      } else {
+        if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
+          globalCounts = globalGroupCounts.gene_aa_snp;
+        } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+          globalCounts = globalGroupCounts.protein_aa_snp;
+        }
+      }
+    }
+    Object.keys(globalCounts).forEach((group) => {
+      if (globalCounts[group] >= minGlobalCountsToShow) {
+        validGroups[group] = 1;
+      }
+    });
+  }
+
   // Build a map of location_id --> node
   // Also while we're at it, create an entry for this node
   // in our data objects
@@ -281,17 +350,20 @@ function processCaseData({
   let groupKeys = [];
   let location;
   caseData.forEach((row) => {
+    // Tally counts per location
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
+    // Tally counts per location and date
     !(
-      row.collection_date in
+      row.collection_date.toString() in
       countsPerLocationDate[locationIdToNodeMap[row.location_id]]
     ) &&
       (countsPerLocationDate[locationIdToNodeMap[row.location_id]][
-        row.collection_date
+        row.collection_date.toString()
       ] = 0);
     countsPerLocationDate[locationIdToNodeMap[row.location_id]][
-      row.collection_date
+      row.collection_date.toString()
     ] += 1;
+
     groupKeys = getGroupKeys(row, groupKey, dnaOrAa, coordinateMode);
 
     // If groupKeys is empty, that means that it's a sequence
@@ -306,8 +378,11 @@ function processCaseData({
     !(row.collection_date in aggCaseData[location]) &&
       (aggCaseData[location][row.collection_date] = {});
     groupKeys.forEach((group) => {
+      if (group === -1 || validGroups[group] === undefined) {
+        group = GROUPS.OTHER_GROUP;
+      }
       // Replace the integer SNP ID with the actual SNP string
-      if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
+      else if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
         group = intToDnaSnp(group).snp_str;
       } else if (
         groupKey === GROUP_KEYS.GROUP_SNV &&
@@ -395,6 +470,8 @@ function processCaseData({
     countsPerLocation,
     //countsPerLocationDate: countsPerLocationDateList,
     countsPerLocationDate,
+    countsPerGroup,
+    validGroups,
   };
 }
 
@@ -429,27 +506,6 @@ function aggCaseDataByGroup({
     else groupCountObj[row.group] = row.cases_sum;
   });
 
-  let groupCountArr = Object.entries(groupCountObj);
-  groupCountArr.forEach((item) => {
-    item.push(getColorMethod(item[0]));
-    // Push the formatted group/SNV
-    item.push(
-      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
-    );
-  });
-
-  // this will sort it so that 0 is the biggest
-  groupCountArr.sort((a, b) => {
-    if (a[1] < b[1]) {
-      return 1;
-    }
-    if (a[1] > b[1]) {
-      return -1;
-    } else {
-      return 0;
-    }
-  });
-
   // Filter by date
   dataAggGroupDate = filterByDate(dataAggGroupDate, dateRange);
   filteredCaseData = filterByDate(
@@ -467,21 +523,23 @@ function aggCaseDataByGroup({
   });
 
   // Create the same group count object, but after date filtering
-  const groupCountDateFilteredObj = {};
+  const countsPerGroupDateFilteredObj = {};
   dataAggGroupDate.forEach((row) => {
-    if (groupCountDateFilteredObj[row.group])
-      groupCountDateFilteredObj[row.group] += row.cases_sum;
-    else groupCountDateFilteredObj[row.group] = row.cases_sum;
+    if (countsPerGroupDateFilteredObj[row.group])
+      countsPerGroupDateFilteredObj[row.group] += row.cases_sum;
+    else countsPerGroupDateFilteredObj[row.group] = row.cases_sum;
   });
-  let groupCountDateFilteredArr = Object.entries(groupCountDateFilteredObj);
-  groupCountDateFilteredArr.forEach((item) => {
+  let countsPerGroupDateFiltered = Object.entries(
+    countsPerGroupDateFilteredObj
+  );
+  countsPerGroupDateFiltered.forEach((item) => {
     item.push(getColorMethod(item[0]));
     // Push the formatted group/SNV
     item.push(
       groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
     );
   });
-  groupCountDateFilteredArr.sort((a, b) => {
+  countsPerGroupDateFiltered.sort((a, b) => {
     if (a[1] < b[1]) {
       return 1;
     }
@@ -586,7 +644,10 @@ function aggCaseDataByGroup({
       // The DNA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === REFERENCE_GROUP) {
+        if (
+          snp_str === GROUPS.REFERENCE_GROUP ||
+          snp_str === GROUPS.OTHER_GROUP
+        ) {
           return;
         }
         snp_str_split = snp_str.split('|');
@@ -602,7 +663,10 @@ function aggCaseDataByGroup({
       // The AA SNPs are 1-indexed, so -1 to make it 0-indexed
       Object.keys(dataAggGroup).forEach((snp_str) => {
         // Skip if the snp_str is Reference
-        if (snp_str === REFERENCE_GROUP) {
+        if (
+          snp_str === GROUPS.REFERENCE_GROUP ||
+          snp_str === GROUPS.OTHER_GROUP
+        ) {
           return;
         }
 
@@ -640,8 +704,10 @@ function aggCaseDataByGroup({
   let snpRow = null;
 
   // Add the reference sequence, if it hasn't been added yet
-  if (!Object.prototype.hasOwnProperty.call(dataAggGroup, REFERENCE_GROUP)) {
-    dataAggGroup[REFERENCE_GROUP] = {
+  if (
+    !Object.prototype.hasOwnProperty.call(dataAggGroup, GROUPS.REFERENCE_GROUP)
+  ) {
+    dataAggGroup[GROUPS.REFERENCE_GROUP] = {
       cases_sum: NaN,
       cases_percent: NaN,
     };
@@ -652,17 +718,17 @@ function aggCaseDataByGroup({
     let row_split;
     Object.keys(dataAggGroup).forEach((row) => {
       // Skip reference
-      if (row === REFERENCE_GROUP) {
+      if (row === GROUPS.REFERENCE_GROUP || row === GROUPS.OTHER_GROUP) {
         // Since we're going to display the gene or pos later
         // in the data table, put these here so the reference
         // row renders correctly
         if (dnaOrAa == DNA_OR_AA.DNA) {
-          dataAggGroup[row]['pos'] = REFERENCE_GROUP;
+          dataAggGroup[row]['pos'] = row;
         } else {
           if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-            dataAggGroup[row]['gene'] = REFERENCE_GROUP;
+            dataAggGroup[row]['gene'] = row;
           } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-            dataAggGroup[row]['protein'] = REFERENCE_GROUP;
+            dataAggGroup[row]['protein'] = row;
           }
         }
         return;
@@ -694,8 +760,12 @@ function aggCaseDataByGroup({
       alt_base = ref_base; // Default to same as reference
       pos = parseInt(pos);
 
+      // Don't list bases for the 'Other' group
+      if (group === GROUPS.OTHER_GROUP) {
+        alt_base = null;
+      }
       // Ignore finding alternate bases for the ref sequence
-      if (group === REFERENCE_GROUP) {
+      else if (group === GROUPS.REFERENCE_GROUP) {
         alt_base = ref_base;
       }
       // If we grouped by lineage, use the lineage name
@@ -748,12 +818,13 @@ function aggCaseDataByGroup({
     dataAggGroup[group]['groupName'] =
       groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(group, dnaOrAa) : group;
     dataAggGroup[group]['color'] = getColorMethod(group);
-    const parentkey = getParent(group);
-    if (dataAggGroup[parentkey] && parentkey !== group) {
-      dataAggGroup[group].parent = parentkey;
-    } else if (group !== REFERENCE_GROUP) {
-      dataAggGroup[group].parent = REFERENCE_GROUP;
-    }
+    // FOR VEGA TREE:
+    // const parentkey = getParent(group);
+    // if (dataAggGroup[parentkey] && parentkey !== group) {
+    //   dataAggGroup[group].parent = parentkey;
+    // } else if (group !== GROUPS.REFERENCE_GROUP) {
+    //   dataAggGroup[group].parent = GROUPS.REFERENCE_GROUP;
+    // }
     dataAggGroup[group].name = group;
     dataAggGroup[group].id = group;
   });
@@ -762,11 +833,11 @@ function aggCaseDataByGroup({
   return {
     dataAggGroup: dataAggGroup,
     changingPositions: changingPositions,
-    groupCountArr,
-    groupCountDateFilteredArr,
 
     selectedAccessionIds,
     selectedAckIds,
+
+    countsPerGroupDateFiltered,
   };
 }
 

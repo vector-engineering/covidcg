@@ -17,18 +17,9 @@ import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
-import {
-  LOW_FREQ_FILTER_TYPES,
-  GROUP_KEYS,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-} from '../constants/config';
-import { REFERENCE_GROUP } from '../constants/groups';
-import { getGlobalGroupCounts } from '../utils/globalCounts';
+import { GROUP_KEYS } from '../constants/config';
 
 import countryScoreData from '../../data/country_score.json';
-
-const globalGroupCounts = getGlobalGroupCounts();
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -36,9 +27,6 @@ export const initialDataValues = {
   dataAggGroupDate: [],
   dataAggGroup: [],
   changingPositions: {},
-  groupsToKeep: [],
-  groupCountArr: [],
-  groupCountDateFilteredArr: [],
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
@@ -54,6 +42,9 @@ export const initialDataValues = {
 
   countsPerLocation: {},
   countsPerLocationDate: {},
+  validGroups: {},
+  countsPerGroup: {},
+  countsPerGroupDateFiltered: [],
 };
 
 class ObservableDataStore {
@@ -62,9 +53,6 @@ class ObservableDataStore {
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
   @observable changingPositions = initialDataValues.changingPositions;
-  @observable groupsToKeep = initialDataValues.groupsToKeep;
-  @observable groupCountArr = initialDataValues.groupCountArr;
-  groupCountDateFilteredArr = initialDataValues.groupCountDateFilteredArr;
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
@@ -80,66 +68,13 @@ class ObservableDataStore {
 
   countsPerLocation = initialDataValues.countsPerLocation;
   countsPerLocationDate = initialDataValues.countsPerLocationDate;
+  validGroups = initialDataValues.validGroups;
+  countsPerGroup = initialDataValues.countsPerGroup;
+  countsPerGroupDateFiltered = initialDataValues.countsPerGroupDateFiltered;
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
     this.updateCaseData();
-  }
-
-  @action
-  updateGroupsToKeep() {
-    if (this.groupCountArr === undefined) {
-      return;
-    }
-
-    if (
-      configStoreInstance.lowFreqFilterType ===
-      LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
-    ) {
-      this.groupsToKeep = this.groupCountArr
-        .slice(0, configStoreInstance.maxGroupCounts)
-        .map((item) => item[0]);
-    } else if (
-      configStoreInstance.lowFreqFilterType ===
-      LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
-    ) {
-      this.groupsToKeep = this.groupCountArr
-        .filter((item) => item[1] >= configStoreInstance.minLocalCountsToShow)
-        .map((item) => item[0]);
-    } else if (
-      configStoreInstance.lowFreqFilterType ===
-      LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
-    ) {
-      let globalCounts;
-      if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-        globalCounts = globalGroupCounts.lineage;
-      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_CLADE) {
-        globalCounts = globalGroupCounts.clade;
-      } else if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
-        if (configStoreInstance.dnaOrAa === DNA_OR_AA.DNA) {
-          globalCounts = globalGroupCounts.dna_snp;
-        } else {
-          if (
-            configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
-          ) {
-            globalCounts = globalGroupCounts.gene_aa_snp;
-          } else if (
-            configStoreInstance.coordinateMode ===
-            COORDINATE_MODES.COORD_PROTEIN
-          ) {
-            globalCounts = globalGroupCounts.protein_aa_snp;
-          }
-        }
-      }
-
-      this.groupsToKeep = this.groupCountArr
-        .filter(
-          (item) =>
-            globalCounts[item[0]] >= configStoreInstance.minGlobalCountsToShow
-        )
-        .map((item) => item[0]);
-    }
-    this.groupsToKeep.push(REFERENCE_GROUP);
   }
 
   @action
@@ -160,21 +95,18 @@ class ObservableDataStore {
       ({
         dataAggGroup,
         changingPositions,
-        groupCountArr,
-        groupCountDateFilteredArr,
         selectedAccessionIds,
         selectedAckIds,
+        countsPerGroupDateFiltered,
       }) => {
         // console.log(caseDataAggGroup);
         this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
-        this.groupCountArr = groupCountArr;
-        this.groupCountDateFilteredArr = groupCountDateFilteredArr;
+        this.countsPerGroupDateFiltered = countsPerGroupDateFiltered;
 
         this.selectedAccessionIds = selectedAccessionIds;
         this.selectedAckIds = selectedAckIds;
 
-        this.updateGroupsToKeep();
         // Fire callback
         if (callback !== undefined) {
           callback();
@@ -228,6 +160,11 @@ class ObservableDataStore {
         ageRange: toJS(configStoreInstance.ageRange),
         dateRange: toJS(configStoreInstance.dateRange),
         selectedGroups: toJS(configStoreInstance.selectedGroups),
+
+        lowFreqFilterType: configStoreInstance.lowFreqFilterType,
+        maxGroupCounts: configStoreInstance.maxGroupCounts,
+        minLocalCountsToShow: configStoreInstance.minLocalCountsToShow,
+        minGlobalCountsToShow: configStoreInstance.minGlobalCountsToShow,
       },
       ({
         filteredCaseData,
@@ -238,6 +175,8 @@ class ObservableDataStore {
         numSequencesBeforeMetadataFiltering,
         countsPerLocation,
         countsPerLocationDate,
+        validGroups,
+        countsPerGroup,
       }) => {
         this.filteredCaseData = filteredCaseData;
         this.dataAggLocationGroupDate = dataAggLocationGroupDate;
@@ -249,6 +188,8 @@ class ObservableDataStore {
 
         this.countsPerLocation = countsPerLocation;
         this.countsPerLocationDate = countsPerLocationDate;
+        this.validGroups = validGroups;
+        this.countsPerGroup = countsPerGroup;
 
         this.updateAggCaseDataByGroup(callback);
         if (configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
@@ -267,10 +208,12 @@ class ObservableDataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
+        countsPerLocation: this.countsPerLocation,
         filteredCaseData: this.filteredCaseData,
         selectedGroups: toJS(configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
+        validGroups: this.validGroups,
       },
       ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
@@ -466,9 +409,9 @@ class ObservableDataStore {
   @action
   downloadSnvFrequencies() {
     let csvString = 'snv,count\n';
-    this.groupCountArr.forEach((item) => {
-      csvString += `${item[0]},${item[1]}\n`;
-    });
+    // this.groupCountArr.forEach((item) => {
+    //   csvString += `${item[0]},${item[1]}\n`;
+    // });
 
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);

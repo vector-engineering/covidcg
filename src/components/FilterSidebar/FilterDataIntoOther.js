@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+import Button from '../Buttons/Button';
 import QuestionButton from '../Buttons/QuestionButton';
 
 import { useStores } from '../../stores/connect';
@@ -53,12 +54,81 @@ const NumberInput = styled.label`
   }
 `;
 
+const ConfirmButton = styled(Button)`
+  width: 120px;
+  font-size: 14px;
+  display: ${({ show }) => (show ? 'block' : 'none')};
+`;
+ConfirmButton.defaultProps = {
+  show: true,
+};
+
 const FilterDataIntoOther = observer(() => {
   const { configStore } = useStores();
+  const [state, setState] = useState({
+    lowFreqFilterType: configStore.lowFreqFilterType,
+    minLocalCountsToShow: configStore.minLocalCountsToShow,
+    minGlobalCountsToShow: configStore.minGlobalCountsToShow,
+    maxGroupCounts: configStore.maxGroupCounts,
+    hasChanged: false,
+  });
 
   const setFilterType = (e) => {
-    configStore.setLowFreqFilterType(e.target.value);
+    // configStore.setLowFreqFilterType(e.target.value);
+    setState({
+      ...state,
+      localFreqFilterType: e.target.value,
+      hasChanged: e.target.value !== configStore.lowFreqFilterType,
+    });
   };
+
+  const setMinLocalCountsToShow = (e) => {
+    setState({
+      ...state,
+      minLocalCountsToShow: e.target.value,
+      hasChanged: e.target.value !== configStore.minLocalCountsToShow,
+    });
+  };
+
+  const setMinGlobalCountsToShow = (e) => {
+    setState({
+      ...state,
+      minGlobalCountsToShow: e.target.value,
+      hasChanged: e.target.value !== configStore.minGlobalCountsToShow,
+    });
+  };
+
+  const setMaxGroupCounts = (e) => {
+    setState({
+      ...state,
+      maxGroupCounts: e.target.value,
+      hasChanged: e.target.value !== configStore.maxGroupCounts,
+    });
+  };
+
+  const updateStore = () => {
+    configStore.setLowFreqFilters({
+      lowFreqFilterType: state.lowFreqFilterType,
+      minLocalCountsToShow: state.minLocalCountsToShow,
+      minGlobalCountsToShow: state.minGlobalCountsToShow,
+      maxGroupCounts: state.maxGroupCounts,
+    });
+  };
+
+  useEffect(() => {
+    setState({
+      lowFreqFilterType: configStore.lowFreqFilterType,
+      minLocalCountsToShow: configStore.minLocalCountsToShow,
+      minGlobalCountsToShow: configStore.minGlobalCountsToShow,
+      maxGroupCounts: configStore.maxGroupCounts,
+      hasChanged: false,
+    });
+  }, [
+    configStore.lowFreqFilterType,
+    configStore.minLocalCountsToShow,
+    configStore.minGlobalCountsToShow,
+    configStore.maxGroupCounts,
+  ]);
 
   return (
     <SelectContainer>
@@ -69,14 +139,12 @@ const FilterDataIntoOther = observer(() => {
             value={LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS}
             onChange={setFilterType}
             checked={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
             }
           />
           <RadioLabel
             itemSelected={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
             }
           >
             Minimum local counts
@@ -86,11 +154,10 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.minLocalCountsToShow}
-            onChange={(e) => configStore.setMinLocalCounts(e.target.value)}
+            value={state.minLocalCountsToShow}
+            onChange={setMinLocalCountsToShow}
             disabled={
-              configStore.lowFreqFilterType !==
-              LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
+              state.lowFreqFilterType !== LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
             }
             min={1}
             step={1}
@@ -98,7 +165,7 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
-            configStore.minLocalCountsToShow
+            state.minLocalCountsToShow
           }</b> counts in the selected locations will be grouped into "Other"</p>`}
           data-html="true"
           data-for="tooltip-filter-sidebar"
@@ -111,14 +178,12 @@ const FilterDataIntoOther = observer(() => {
             value={LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS}
             onChange={setFilterType}
             checked={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
             }
           />
           <RadioLabel
             itemSelected={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
             }
           >
             Minimum global counts
@@ -128,11 +193,10 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.minGlobalCountsToShow}
-            onChange={(e) => configStore.setMinGlobalCounts(e.target.value)}
+            value={state.minGlobalCountsToShow}
+            onChange={setMinGlobalCountsToShow}
             disabled={
-              configStore.lowFreqFilterType !==
-              LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
+              state.lowFreqFilterType !== LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
             }
             min={1}
             step={1}
@@ -140,7 +204,7 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
-            configStore.minGlobalCountsToShow
+            state.minGlobalCountsToShow
           }</b> counts globally will be grouped into "Other"</p>`}
           data-html="true"
           data-for="tooltip-filter-sidebar"
@@ -153,14 +217,12 @@ const FilterDataIntoOther = observer(() => {
             value={LOW_FREQ_FILTER_TYPES.GROUP_COUNTS}
             onChange={setFilterType}
             checked={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
           />
           <RadioLabel
             itemSelected={
-              configStore.lowFreqFilterType ===
-              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+              state.lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
           >
             Show Top N {configStore.getGroupLabel()}s
@@ -170,11 +232,10 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.maxGroupCounts}
-            onChange={(e) => configStore.setMaxGroupCounts(e.target.value)}
+            value={state.maxGroupCounts}
+            onChange={setMaxGroupCounts}
             disabled={
-              configStore.lowFreqFilterType !==
-              LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
+              state.lowFreqFilterType !== LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
             }
             min={1}
             step={1}
@@ -182,12 +243,15 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p>Only show the top <b>${
-            configStore.maxGroupCounts
+            state.maxGroupCounts
           }</b> <b>${configStore.getGroupLabel()}s</b> by counts in the selected locations</p>`}
           data-html="true"
           data-for="tooltip-filter-sidebar"
         />
       </SelectItem>
+      <ConfirmButton show={state.hasChanged} onClick={updateStore}>
+        Confirm
+      </ConfirmButton>
     </SelectContainer>
   );
 });

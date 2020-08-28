@@ -21,7 +21,6 @@ import SkeletonElement from '../Common/SkeletonElement';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
-import { mergeGroupsIntoOther } from './utils';
 import initialSpec from '../../vega_specs/group_stack.vg.json';
 
 const GroupStackPlot = observer(({ width }) => {
@@ -30,14 +29,20 @@ const GroupStackPlot = observer(({ width }) => {
 
   const handleBrush = (...args) => {
     let dateRange = args[1];
-    if (dateRange !== null) {
+
+    if (dateRange === null) {
+      // Reset time range
+      configStore.selectDateRange([-1, -1]);
+    } else if (
+      dateRange[0] === configStore.dateRange[0] &&
+      dateRange[1] === configStore.dateRange[1]
+    ) {
+      // No change, return
+    } else if (dateRange !== null) {
       configStore.selectDateRange([
         dateRange[0].getTime(),
         dateRange[1].getTime(),
       ]);
-    } else {
-      // Reset time range
-      configStore.selectDateRange([-1, -1]);
     }
   };
 
@@ -93,10 +98,7 @@ const GroupStackPlot = observer(({ width }) => {
       return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
     }
 
-    return mergeGroupsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.dataAggGroupDate)),
-      dataStore.groupsToKeep
-    );
+    return JSON.parse(JSON.stringify(dataStore.dataAggGroupDate));
   };
 
   const [state, setState] = useState({
@@ -142,7 +144,7 @@ const GroupStackPlot = observer(({ width }) => {
         cases_by_date_and_group: processData(),
       },
     });
-  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState]);
 
   // Update internal selected groups copy
   useEffect(() => {

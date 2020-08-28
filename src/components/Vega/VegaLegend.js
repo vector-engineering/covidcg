@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { mergeLegendItemsIntoOther } from './utils';
 import { formatSnv } from '../../utils/snpData';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
@@ -27,6 +26,9 @@ const LegendItemWrapper = observer(({ group, color }) => {
         : group,
     hovered: false,
     selected: false,
+    textColor: meetsContrastGuidelines(color, '#fff')['AALarge']
+      ? '#fff'
+      : '#000',
   });
 
   useEffect(() => {
@@ -34,7 +36,10 @@ const LegendItemWrapper = observer(({ group, color }) => {
       configStore.hoverGroup === null
         ? false
         : configStore.hoverGroup === group;
-    setState({ ...state, hovered });
+
+    if (hovered !== state.hovered) {
+      setState({ ...state, hovered });
+    }
   }, [configStore.hoverGroup]);
 
   useEffect(() => {
@@ -48,18 +53,20 @@ const LegendItemWrapper = observer(({ group, color }) => {
         selected = false;
       }
     }
-    setState({ ...state, selected });
+
+    if (selected !== state.hovered) {
+      setState({ ...state, selected });
+    }
   }, [configStore.selectedGroups]);
 
-  const scores = meetsContrastGuidelines(color, '#fff');
-  const textColor = scores['AALarge'] ? '#fff' : '#000';
+  // console.log('re-rendering legend item');
 
   return (
     <LegendItem
       hovered={state.hovered}
       selected={state.selected}
       color={color}
-      textColor={textColor}
+      textColor={state.textColor}
       data-group={group}
     >
       {state.text}
@@ -118,10 +125,7 @@ const VegaLegend = observer(() => {
 
   const renderLegendKeys = () => {
     // Make own copy of the elements, and sort by group
-    let legendItems = mergeLegendItemsIntoOther(
-      JSON.parse(JSON.stringify(dataStore.dataAggGroup)),
-      dataStore.groupsToKeep
-    );
+    let legendItems = JSON.parse(JSON.stringify(dataStore.dataAggGroup));
 
     // Set aside the reference, and remove it from the rows list
     // Also set aside the "Other" group, if it exists
@@ -207,7 +211,7 @@ const VegaLegend = observer(() => {
     }
 
     setState({ ...state, legendItems: renderLegendKeys() });
-  }, [UIStore.caseDataState, dataStore.groupsToKeep]);
+  }, [UIStore.caseDataState]);
 
   // console.log('RE-RENDERING LEGEND');
 
