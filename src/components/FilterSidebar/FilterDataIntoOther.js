@@ -77,7 +77,7 @@ const FilterDataIntoOther = observer(() => {
     // configStore.setLowFreqFilterType(e.target.value);
     setState({
       ...state,
-      localFreqFilterType: e.target.value,
+      lowFreqFilterType: e.target.value,
       hasChanged: e.target.value !== configStore.lowFreqFilterType,
     });
   };
