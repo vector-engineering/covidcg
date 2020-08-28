@@ -61,11 +61,6 @@ const LocationDatePlot = observer(({ width }) => {
       locationData = JSON.parse(
         JSON.stringify(dataStore.dataAggLocationSnvDate)
       );
-
-      // Filter out 'All Other Sequences' group
-      locationData = locationData.filter((row) => {
-        return row.group !== GROUPS.ALL_OTHER_GROUP;
-      });
     } else {
       if (dataStore.dataAggLocationGroupDate === undefined) {
         return [];
@@ -76,17 +71,60 @@ const LocationDatePlot = observer(({ width }) => {
       );
     }
 
+    // Calculate cumulative counts per location, by date
+    // This is necessary because the way Vega will calculate cumulative counts
+    // can miscount the location_date_count field.
+    // i.e., consider:
+    // Group    Day    Location_Date_Count
+    // A        1      100
+    // B        1      100
+    // A        2      200
+    // A        3      50
+    // B        3      50
+    // Total: 100 + 200 + 50 = 350
+    //
+    // If Group A gets filtered out, then an entire date can get filtered out
+    // This then this becomes:
+    // Group    Day    Location_Date_Count
+    // B        1      100
+    // B        3      50
+    // Total: 100 + 50 = 150. 150 =/= 350
+    //
+    // Anyways, that's why we need to this in JS now
+    const cumulativeCountsPerLocationDate = {};
+    Object.keys(dataStore.countsPerLocationDate).forEach((location) => {
+      let datesAndCounts = Object.entries(
+        dataStore.countsPerLocationDate[location]
+      );
+      // Sort dates
+      datesAndCounts.sort((a, b) => a - b);
+      // Write cumulative counts to dict
+      let curCount = 0;
+      cumulativeCountsPerLocationDate[location] = {};
+      datesAndCounts.forEach((dateAndCount) => {
+        curCount += dateAndCount[1];
+        cumulativeCountsPerLocationDate[location][dateAndCount[0]] = curCount;
+      });
+    });
+
+    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+      // Filter out 'All Other Sequences' group
+      locationData = locationData.filter((row) => {
+        return row.group !== GROUPS.ALL_OTHER_GROUP;
+      });
+    }
+
     // Filter by date
-    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-    //   locationData = locationData.filter((row) => {
-    //     return (
-    //       (configStore.dateRange[0] == -1 ||
-    //         row.date > configStore.dateRange[0]) &&
-    //       (configStore.dateRange[1] == -1 ||
-    //         row.date < configStore.dateRange[1])
-    //     );
-    //   });
-    // }
+    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+      locationData = locationData.filter((row) => {
+        return (
+          (configStore.dateRange[0] == -1 ||
+            row.date > configStore.dateRange[0]) &&
+          (configStore.dateRange[1] == -1 ||
+            row.date < configStore.dateRange[1])
+        );
+      });
+    }
 
     locationData = aggregate({
       data: locationData,
@@ -100,8 +138,9 @@ const LocationDatePlot = observer(({ width }) => {
     locationData.forEach((row) => {
       row.location_date_count =
         dataStore.countsPerLocationDate[row.location][row.date.toString()];
+      row.cumulative_location_date_count =
+        cumulativeCountsPerLocationDate[row.location][row.date.toString()];
     });
-
     // console.log(JSON.stringify(locationData));
 
     return locationData;
@@ -305,17 +344,6 @@ const LocationDatePlot = observer(({ width }) => {
     );
   }
 
-  // Set the normalization mode
-  const yField =
-    plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES
-      ? 'cases_norm'
-      : 'cases_sum_agg';
-  // Set cumulative mode
-  const cumulativeWindow =
-    plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_NEW
-      ? [0, 0]
-      : [null, 0];
-
   let yLabel = '';
   if (
     plotSettingsStore.locationDateCountMode === COUNT_MODES.COUNT_CUMULATIVE
@@ -440,19 +468,15 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
+            percentages:
+              plotSettingsStore.locationDateNormMode ===
+              NORM_MODES.NORM_PERCENTAGES,
+            cumulative:
+              plotSettingsStore.locationDateCountMode ===
+              COUNT_MODES.COUNT_CUMULATIVE,
             skipFiltering: configStore.groupKey === GROUP_KEYS.GROUP_SNV,
             hoverLocation: { location: configStore.hoverLocation },
-            yField,
-            cumulativeWindow,
             yLabel,
-            yFormat:
-              plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_COUNTS
-                ? 's'
-                : '%',
-            tooltipCountFormat:
-              plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_COUNTS
-                ? 'd'
-                : '.1%',
           }}
           actions={false}
         />

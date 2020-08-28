@@ -6,6 +6,8 @@
   "padding": 5,
 
   "signals": [
+    { "name": "percentages", "value": true },
+    { "name": "cumulative", "value": true },
     { "name": "skipFiltering", "value": false },
     { "name": "interpolate", "value": "step" },
     {
@@ -22,11 +24,18 @@
       "value": 604800000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
     },
-    { "name": "cumulativeWindow", "value": [0, 0] },
-    { "name": "yField", "value": "cases_norm" },
+    { "name": "cumulativeWindow", "update": "cumulative ? [null, 0] : [0, 0]" },
+    {
+      "name": "locationDateCountField",
+      "update": "cumulative ? 'cumulative_location_date_count_agg' : 'location_date_count_agg'"
+    },
+    {
+      "name": "yField",
+      "update": "percentages ? 'cases_norm' : 'cases_sum_agg'"
+    },
     { "name": "yLabel", "value": "% Sequences" },
-    { "name": "yFormat", "value": "%" },
-    { "name": "tooltipCountFormat", "value": ".1%" },
+    { "name": "yFormat", "update": "percentages ? '%' : 's'" },
+    { "name": "tooltipCountFormat", "update": "percentages ? '.1%' : 'd'" },
     {
       "name": "hoverLocation",
       "value": null,
@@ -163,9 +172,19 @@
         {
           "type": "aggregate",
           "groupby": ["location", "date"],
-          "fields": ["cases_sum", "location_date_count"],
-          "ops": ["sum", "max"],
-          "as": ["cases_sum", "location_date_count"]
+          "fields": [
+            "cases_sum",
+            "location_date_count",
+            "cumulative_location_date_count",
+            "location_counts"
+          ],
+          "ops": ["sum", "max", "max", "max"],
+          "as": [
+            "cases_sum",
+            "location_date_count",
+            "cumulative_location_date_count",
+            "location_counts"
+          ]
         },
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
@@ -182,9 +201,17 @@
           "type": "window",
           "sort": { "field": "day_start" },
           "groupby": ["location"],
-          "ops": ["sum", "sum"],
-          "fields": ["cases_sum", "location_date_count"],
-          "as": ["cases_sum_agg", "location_date_count_agg"],
+          "ops": ["sum", "sum", "max"],
+          "fields": [
+            "cases_sum",
+            "location_date_count",
+            "cumulative_location_date_count"
+          ],
+          "as": [
+            "cases_sum_agg",
+            "location_date_count_agg",
+            "cumulative_location_date_count_agg"
+          ],
           "frame": { "signal": "cumulativeWindow" }
         },
         {
@@ -196,7 +223,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cases_sum_agg / datum.location_date_count_agg",
+          "expr": "datum.cases_sum_agg / datum[locationDateCountField]",
           "as": "cases_norm"
         },
         {
@@ -436,7 +463,7 @@
                 { "value": 1 }
               ],
               "tooltip": {
-                "signal": "{title: datum.location, 'Sequences': format(datum[yField], tooltipCountFormat), 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                "signal": "{title: datum.location, 'Sequences': format(datum[yField], tooltipCountFormat), 'Total Location Counts': datum.location_counts, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
               }
             }
           }
