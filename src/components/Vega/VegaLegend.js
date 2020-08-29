@@ -17,7 +17,7 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import SkeletonElement from '../Common/SkeletonElement';
 import { LegendList, LegendItem } from './Legend.styles';
 
-const LegendItemWrapper = observer(({ group, color }) => {
+const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     text:
@@ -31,13 +31,37 @@ const LegendItemWrapper = observer(({ group, color }) => {
       : '#000',
   });
 
+  const onMouseMove = () => {
+    setState({
+      ...state,
+      hovered: true,
+    });
+    if (group !== configStore.hoverGroup) {
+      updateHoverGroup(group);
+    }
+  };
+
+  const onMouseOut = () => {
+    console.log('MOUSE OUT');
+    setState({
+      ...state,
+      hovered: false,
+    });
+    if (configStore.hoverGroup !== null) {
+      updateHoverGroup(null);
+    }
+  };
+
   useEffect(() => {
     const hovered =
       configStore.hoverGroup === null
         ? false
         : configStore.hoverGroup === group;
 
-    setState({ ...state, hovered });
+    if (hovered !== state.hovered) {
+      // console.log(hovered, state.hovered);
+      setState({ ...state, hovered });
+    }
   }, [configStore.hoverGroup]);
 
   useEffect(() => {
@@ -64,6 +88,8 @@ const LegendItemWrapper = observer(({ group, color }) => {
       color={color}
       textColor={state.textColor}
       data-group={group}
+      onMouseMove={onMouseMove}
+      onMouseOut={onMouseOut}
     >
       {state.text}
     </LegendItem>
@@ -110,18 +136,9 @@ const VegaLegend = observer(() => {
     configStore.updateSelectedGroups(newGroups);
   };
 
-  const onItemHover = (e) => {
-    // console.log('move', e);
-    const hoverGroup = e.target.getAttribute('data-group');
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    updateHoverGroup(hoverGroup);
-  };
-
-  const updateHoverGroup = (hoverGroup) => {
-    configStore.updateHoverGroup(hoverGroup);
-  };
+  const updateHoverGroup = _.debounce((group) => {
+    configStore.updateHoverGroup(group);
+  }, 100);
 
   const renderLegendKeys = () => {
     // Make own copy of the elements, and sort by group
@@ -162,6 +179,7 @@ const VegaLegend = observer(() => {
           key={`legend-item-${obj.group}`}
           color={obj.color}
           group={obj.group}
+          updateHoverGroup={updateHoverGroup}
         />
       );
     });
@@ -231,9 +249,7 @@ const VegaLegend = observer(() => {
   }
 
   return (
-    <LegendList onMouseMove={onItemHover} onMouseDown={onItemSelect}>
-      {state.legendItems}
-    </LegendList>
+    <LegendList onMouseDown={onItemSelect}>{state.legendItems}</LegendList>
   );
 });
 

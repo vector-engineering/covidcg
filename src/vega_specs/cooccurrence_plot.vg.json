@@ -19,11 +19,13 @@
       "on": [
         {
           "events": "@combibars:mouseover!",
-          "update": "{group: datum.snv}"
+          "update": "{group: datum.snv}",
+          "debounce": 100
         },
         {
           "events": "@combibars:mouseout!",
-          "update": "null"
+          "update": "null",
+          "debounce": 100
         }
       ]
     },

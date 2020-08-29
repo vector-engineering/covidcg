@@ -339,13 +339,13 @@ const NewLineageDataTable = observer(() => {
     updateHoverGroup(group);
   };
 
-  const updateHoverGroup = (hoverGroup) => {
+  const updateHoverGroup = _.throttle((hoverGroup) => {
     // Don't fire the action if there's no change
     if (hoverGroup === configStore.hoverGroup) {
       return;
     }
     configStore.updateHoverGroup(hoverGroup);
-  };
+  }, 20);
 
   const onRowClick = (rowIndex, row) => {
     //console.log(rowIndex, row, column);

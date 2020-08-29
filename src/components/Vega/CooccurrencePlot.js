@@ -46,7 +46,7 @@ const CooccurrencePlot = observer(({ width }) => {
   const onChangeNormMode = (event) =>
     plotSettingsStore.setCooccurrenceNormMode(event.target.value);
 
-  const handleHoverGroup = (...args) => {
+  const handleHoverGroup = _.debounce((...args) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
     if (hoverGroup === configStore.hoverGroup) {
@@ -59,7 +59,7 @@ const CooccurrencePlot = observer(({ width }) => {
     }
 
     configStore.updateHoverGroup(hoverGroup);
-  };
+  }, 20);
 
   const handleSelectedGroups = (...args) => {
     const curSelectedGroups = getSelectedGroups().map((item) => item.group);
