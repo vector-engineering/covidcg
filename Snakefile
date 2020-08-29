@@ -89,9 +89,8 @@ rule align_sequences:
         index_name = data_folder + "/reference_index/reference"
     output:
         sam = data_folder + "/sam/{sample}.sam"
-    # bowtie2 is really memory intensive, so make sure it doesn't crash by only letting
-    # one instance run at a time, and only give it 75% of the cores
-    threads: workflow.cores * 0.75 
+    # bowtie2 is really memory intensive (10GB per thread), so make sure it 
+    # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
     shell:
         """
         bowtie2 --end-to-end --very-fast --xeq --reorder --sam-no-qname-trunc -x {params.index_name} -f -U {input.fasta} -S {output.sam} --threads {threads}
