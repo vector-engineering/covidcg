@@ -339,7 +339,7 @@ const NewLineageDataTable = observer(() => {
     updateHoverGroup(group);
   };
 
-  const updateHoverGroup = _.throttle((hoverGroup) => {
+  const updateHoverGroup = _.debounce((hoverGroup) => {
     // Don't fire the action if there's no change
     if (hoverGroup === configStore.hoverGroup) {
       return;

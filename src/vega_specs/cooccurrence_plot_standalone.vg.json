@@ -18,14 +18,12 @@
       "value": null,
       "on": [
         {
-          "events": "@combibars:mouseover!",
-          "update": "{group: datum.snv}",
-          "debounce": 500
+          "events": "rect:mouseover!",
+          "update": "{group: datum.snv}"
         },
         {
-          "events": "@combibars:mouseout!",
-          "update": "null",
-          "debounce": 500
+          "events": "rect:mouseout!",
+          "update": "null"
         }
       ]
     },

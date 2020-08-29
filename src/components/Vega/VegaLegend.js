@@ -42,7 +42,6 @@ const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   };
 
   const onMouseOut = () => {
-    console.log('MOUSE OUT');
     setState({
       ...state,
       hovered: false,
@@ -88,7 +87,7 @@ const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
       color={color}
       textColor={state.textColor}
       data-group={group}
-      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseMove}
       onMouseOut={onMouseOut}
     >
       {state.text}
@@ -138,7 +137,7 @@ const VegaLegend = observer(() => {
 
   const updateHoverGroup = _.debounce((group) => {
     configStore.updateHoverGroup(group);
-  }, 100);
+  }, 10);
 
   const renderLegendKeys = () => {
     // Make own copy of the elements, and sort by group

@@ -133,7 +133,7 @@ const CooccurrencePlot = observer(({ width }) => {
       cooccurrence_data: getCooccurrenceData(),
     },
     signalListeners: {
-      hoverGroup: _.throttle(handleHoverGroup, 100),
+      hoverGroup: _.debounce(handleHoverGroup, 20),
     },
     dataListeners: {
       selectedGroups: handleSelectedGroups,

@@ -34,11 +34,11 @@
       "value": null,
       "on": [
         {
-          "events": "@locationbars:mouseover!",
+          "events": "rect:mouseover!",
           "update": "{group: datum.group}"
         },
         {
-          "events": "@locationbars:mouseout!",
+          "events": "rect:mouseout!",
           "update": "null"
         }
       ]
