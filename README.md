@@ -11,6 +11,8 @@ Table of Contents
     - [Linux](#linux)
 - [Analysis Pipeline](#analysis-pipeline)
 - [About the project](#about-the-project)
+- [Data enabling COVID CG](#data-enabling-covid-cg)
+- [Citing COVID CG](#citing-covid-cg)
   - [License](#license)
   - [Contributing](#contributing)
 
@@ -85,13 +87,13 @@ Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable
 Preview (dry-run) the pipeline by running:
 
 ```
-snakemake -n --cores all
+snakemake -n
 ```
 
 and run the pipeline with:
 
 ```
-snakemake --cores all
+snakemake
 ```
 
 **NOTE**: `bowtie2` usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
@@ -100,19 +102,35 @@ snakemake --cores all
 
 ## About the project
 
-This project is developed by:
+This project is developed by the [Vector Engineering Lab](https://vector.engineering/):
 
 - Albert Chen (Broad Institute)
 - Kevin Altschuler
-- Shing Hei Zhan (UBC)
-- Alina Yujia Chan (Broad Institute)
-- Ben Deverman (Broad Institute)
+- Shing Hei Zhan, PhD (University of British Columbia)
+- Alina Yujia Chan, PhD (Broad Institute)
+- Ben Deverman, PhD (Broad Institute)
 
 The manuscript for this project is currently being prepared.
 
-Contact the authors by email: Ben Deverman (covidcg@broadinstitute.org)
+Contact the authors by email: [covidcg@broadinstitute.org](mailto:covidcg@broadinstitute.org)
 
-Python scripts were run on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 240 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL (48 threads, 128 GB RAM)
+Python/snakemake scripts were run and tested on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 412 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL2 (48 threads, 128 GB RAM)
+
+## Data enabling COVID CG
+
+We are extremely grateful to the [GISAID Initiative](https://www.gisaid.org/) and all its data contributors, i.e. the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based.
+
+Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’s innovative contribution to global health. _Global Challenges_, 1:33-46. DOI:[10.1002/gch2.1018](https://doi.org/10.1002/gch2.1018) PMCID: [31565258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/)
+
+## Citing COVID CG
+
+Users are encouraged to share, download, and further analyze data from this site. Plots can be downloaded as PNG or SVG files, and the data powering the plots and tables can be downloaded as well. Please attribute any data/images to [covidcg.org](https://covidcg.org/).
+
+Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
+
+and cite the following reference(s):
+
+Shu, Y., McCauley, J. (2017) GISAID: Global initiative on sharing all influenza data – from vision to reality. _EuroSurveillance_, 22(13) DOI:[10.2807/1560-7917.ES.2017.22.13.30494](https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494) PMCID: [PMC5388101](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/)
 
 ### License
 
