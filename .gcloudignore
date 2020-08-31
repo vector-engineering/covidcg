@@ -3,6 +3,14 @@ data/sam
 data/fasta_raw
 data/fasta_processed
 data/pymol_sessions
+data/dna_snp
+data/gene_aa_snp
+data/protein_aa_snp
+data/patient_meta
+data/seq_meta
+data/acknowledgements
+data/reference_index
+data_link
 .git
 .snakemake
 .vscode
@@ -13,3 +21,4 @@ notebooks
 .gitattributes
 .gitignore
 .dockerignore
+versions
