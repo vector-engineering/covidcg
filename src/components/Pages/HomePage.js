@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { connect } from '../../stores/connect';
 // import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
+import { onMobileDevice } from '../../utils/device';
 
 import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -18,6 +19,7 @@ import SplashScreenModal from '../Modals/SplashScreenModal';
 // import VegaTree from './VegaTree';
 import TabBar from '../TabBar';
 import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
+import CGLogo from '../../assets/images/cg_logo_v13.png';
 
 import ExampleTab from './ExampleTab';
 import GroupTab from './GroupTab';
@@ -118,6 +120,26 @@ const HomePage = observer(({ configStore, UIStore }) => {
       return <SequencingEffortsTab width={width} />;
     }
   };
+
+  if (onMobileDevice()) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: 10,
+        }}
+      >
+        <img src={CGLogo}></img>
+        <p style={{ margin: '20px' }}>
+          COVID-CG is designed for large-screen devices. To view the app on your
+          phone, please use your browser settings to &quot;Request Desktop
+          Version&quot;, and use landscape mode.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
