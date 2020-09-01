@@ -104,7 +104,7 @@ const AboutTab = () => {
             </p>
 
             <ImageRow>
-              <ExternalLink href="https://vector.engineering">
+              <ExternalLink href="https://vector.engineering" showIcon={false}>
                 <img src={VELogo} height="40"></img>
               </ExternalLink>
               <VELogoText>Vector Engineering Lab</VELogoText>
@@ -165,11 +165,17 @@ const AboutTab = () => {
               Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
               diplomacy: GISAID’s innovative contribution to global health.{' '}
               <i>Global Challenges</i>, 1:33-46. DOI:
-              <ExternalLink href="https://doi.org/10.1002/gch2.1018">
+              <ExternalLink
+                href="https://doi.org/10.1002/gch2.1018"
+                showIcon={false}
+              >
                 10.1002/gch2.1018
               </ExternalLink>{' '}
               PMCID:{' '}
-              <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/">
+              <ExternalLink
+                href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/"
+                showIcon={false}
+              >
                 31565258
               </ExternalLink>
             </p>
@@ -208,11 +214,17 @@ const AboutTab = () => {
               Shu, Y., McCauley, J. (2017) GISAID: Global initiative on sharing
               all influenza data – from vision to reality.{' '}
               <i>EuroSurveillance</i>, 22(13) DOI:
-              <ExternalLink href="https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494">
+              <ExternalLink
+                href="https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494"
+                showIcon={false}
+              >
                 10.2807/1560-7917.ES.2017.22.13.30494
               </ExternalLink>{' '}
               PMCID:{' '}
-              <ExternalLink href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/">
+              <ExternalLink
+                href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/"
+                showIcon={false}
+              >
                 PMC5388101
               </ExternalLink>
             </p>
