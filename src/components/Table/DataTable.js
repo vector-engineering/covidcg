@@ -15,7 +15,7 @@ const DataGridContainer = styled.div`
   /* All cells */
   .rdg-cell {
     // Allow text selection
-    user-select: text;
+    // user-select: text;
 
     &.no-padding {
       padding: 0px;
