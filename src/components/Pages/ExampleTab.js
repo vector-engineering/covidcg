@@ -7,8 +7,7 @@ import _ from 'underscore';
 
 import { ASYNC_STATES, TABS } from '../../constants/UI';
 
-import { getGene } from '../../utils/gene';
-// import { getProtein } from '../../utils/protein';
+import { getGene } from '../../utils/gene_protein';
 import {
   getLocationByNameAndLevel,
   loadSelectTree,

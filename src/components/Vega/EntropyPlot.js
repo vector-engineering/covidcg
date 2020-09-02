@@ -80,26 +80,50 @@ const EntropyPlot = observer(({ width }) => {
       ];
     } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
       // Get the extent of the selected gene/protein
-      let residueRanges;
+      let geneOrProteinObj;
+      let residueCoordinates = toJS(configStore.residueCoordinates);
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        residueRanges = configStore.selectedGene.ranges;
+        geneOrProteinObj = configStore.selectedGene;
       } else if (
         configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
       ) {
-        residueRanges = configStore.selectedProtein.ranges;
+        geneOrProteinObj = configStore.selectedProtein;
       }
-      // Convert NT indices to AA residue indices
-      const startNTInd = residueRanges.reduce(
-        (memo, rng) => Math.min(...rng, memo),
-        30000
+
+      // Find the smallest and largest residue index
+      // from the selected residue coordinates
+      const minResidueIndex = residueCoordinates.reduce(
+        (minIndex, rng) => Math.min(...rng, minIndex),
+        geneOrProteinObj.len_aa
       );
-      residueRanges = residueRanges.map((rng) =>
-        rng.map((ind) => (ind - startNTInd) / 3)
+      const maxResidueIndex = residueCoordinates.reduce(
+        (minIndex, rng) => Math.max(...rng, minIndex),
+        1
       );
-      xRange = [
-        residueRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
-        residueRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
-      ];
+
+      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+        // Find the AA range that the minimum and maximum AA index fall in,
+        // and then get the NT coordinates (from the start of the codon)
+        let startNTInd, endNTInd;
+        geneOrProteinObj.aa_ranges.forEach((aaRange, ind) => {
+          if (minResidueIndex >= aaRange[0] && minResidueIndex <= aaRange[1]) {
+            // Get the matching NT range, add residues * 3
+            startNTInd =
+              geneOrProteinObj.ranges[ind][0] +
+              (minResidueIndex - aaRange[0]) * 3;
+          }
+          if (maxResidueIndex >= aaRange[0] && maxResidueIndex <= aaRange[1]) {
+            // Get the matching NT range, add residues * 3 (to end of codon)
+            endNTInd =
+              geneOrProteinObj.ranges[ind][0] +
+              2 +
+              (maxResidueIndex - aaRange[0]) * 3;
+          }
+        });
+        xRange = [startNTInd, endNTInd];
+      } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+        xRange = [minResidueIndex, maxResidueIndex];
+      }
     }
     return xRange;
   };

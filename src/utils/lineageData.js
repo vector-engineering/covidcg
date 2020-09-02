@@ -3,7 +3,7 @@ import cladeSnpData from '../../data/clade_snp.json';
 import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
-import { intToDnaSnp, intToGeneAaSnp, intToProteinAaSnp } from './snpData';
+import { intToDnaSnv, intToGeneAaSnv, intToProteinAaSnv } from './snpData';
 
 import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
@@ -95,7 +95,7 @@ export function getDnaSnpsFromGroup(groupKey, group) {
 
   let snpIds = groupObj.dna_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
-  return _.map(snpIds, (snpId) => intToDnaSnp(parseInt(snpId)));
+  return _.map(snpIds, (snpId) => intToDnaSnv(parseInt(snpId)));
 }
 
 export function getGeneAaSnpsFromGroup(groupKey, group) {
@@ -105,7 +105,7 @@ export function getGeneAaSnpsFromGroup(groupKey, group) {
   }
   let snpIds = groupObj.gene_aa_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
-  return _.map(snpIds, (snpId) => intToGeneAaSnp(parseInt(snpId)));
+  return _.map(snpIds, (snpId) => intToGeneAaSnv(parseInt(snpId)));
 }
 
 export function getProteinAaSnpsFromGroup(groupKey, group) {
@@ -115,5 +115,5 @@ export function getProteinAaSnpsFromGroup(groupKey, group) {
   }
   let snpIds = groupObj.protein_aa_snp_ids;
   snpIds = _.reject(snpIds, (snpId) => snpId === '');
-  return _.map(snpIds, (snpId) => intToProteinAaSnp(parseInt(snpId)));
+  return _.map(snpIds, (snpId) => intToProteinAaSnv(parseInt(snpId)));
 }

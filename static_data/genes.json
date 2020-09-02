@@ -1,1 +1,132 @@
-[{"gene":"5'UTR","segments":"1..265","protein_coding":0},{"gene":"ORF1a","segments":"266..13468","protein_coding":1},{"gene":"ORF1b","segments":"13468..21555","protein_coding":1},{"gene":"S","segments":"21563..25384","protein_coding":1},{"gene":"ORF3a","segments":"25393..26220","protein_coding":1},{"gene":"E","segments":"26245..26472","protein_coding":1},{"gene":"M","segments":"26523..27191","protein_coding":1},{"gene":"ORF6","segments":"27202..27387","protein_coding":1},{"gene":"ORF7a","segments":"27394..27759","protein_coding":1},{"gene":"ORF7b","segments":"27756..27887","protein_coding":1},{"gene":"ORF8","segments":"27894..28259","protein_coding":1},{"gene":"N","segments":"28274..29533","protein_coding":1},{"gene":"ORF10","segments":"29558..29674","protein_coding":1},{"gene":"3'UTR","segments":"29675..29903","protein_coding":0}]
+[
+  { "gene": "5'UTR", "segments": "1..265", "protein_coding": 0, "domains": [] },
+  {
+    "gene": "ORF1a",
+    "segments": "266..13468",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF1b",
+    "segments": "13468..21555",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "S",
+    "segments": "21563..25384",
+    "protein_coding": 1,
+    "domains": [
+      {
+        "name": "Receptor binding domain (RBD)",
+        "ranges": [[319, 541]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "S1 subunit",
+        "ranges": [[14, 685]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "S2 subunit",
+        "ranges": [[686, 1273]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 13]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "N-terminal domain (NTD)",
+        "ranges": [[14, 305]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Fusion peptide (FP)",
+        "ranges": [[788, 806]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Heptapeptide repeat sequence 1 (HR1)",
+        "ranges": [[912, 984]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Heptapeptide repeat sequence 2 (HR2)",
+        "ranges": [[1163, 1213]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Transmembrane (TM) domain",
+        "ranges": [[1213, 1237]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Cytoplasm (CT) domain",
+        "ranges": [[1237, 1273]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      }
+    ]
+  },
+  {
+    "gene": "ORF3a",
+    "segments": "25393..26220",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "E",
+    "segments": "26245..26472",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "M",
+    "segments": "26523..27191",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF6",
+    "segments": "27202..27387",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF7a",
+    "segments": "27394..27759",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF7b",
+    "segments": "27756..27887",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF8",
+    "segments": "27894..28259",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "N",
+    "segments": "28274..29533",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "ORF10",
+    "segments": "29558..29674",
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "gene": "3'UTR",
+    "segments": "29675..29903",
+    "protein_coding": 0,
+    "domains": []
+  }
+]

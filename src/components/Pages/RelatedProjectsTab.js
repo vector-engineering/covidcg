@@ -58,7 +58,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://microreact.org/project/COGconsortium">
+              <ExternalLink
+                href="https://microreact.org/project/COGconsortium"
+                showIcon={false}
+              >
                 <img src={COGUKLogo} height="80"></img>
               </ExternalLink>
             </div>
@@ -102,17 +105,23 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/">
+              <ExternalLink
+                href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/"
+                showIcon={false}
+              >
                 <img src={CVRBioInfoLogo} height="60"></img>
               </ExternalLink>
               <ImageRow>
-                <ExternalLink href="https://www.cogconsortium.uk/">
+                <ExternalLink
+                  href="https://www.cogconsortium.uk/"
+                  showIcon={false}
+                >
                   <img src={COGUKLogo} height="40"></img>
                 </ExternalLink>
-                <ExternalLink href="https://www.gla.ac.uk/">
+                <ExternalLink href="https://www.gla.ac.uk/" showIcon={false}>
                   <img src={UGlasgowLogo} height="40"></img>
                 </ExternalLink>
-                <ExternalLink href="https://mrc.ukri.org/">
+                <ExternalLink href="https://mrc.ukri.org/" showIcon={false}>
                   <img src={MRCLogo} height="40"></img>
                 </ExternalLink>
               </ImageRow>
@@ -143,7 +152,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://cov.lanl.gov/content/index">
+              <ExternalLink
+                href="https://cov.lanl.gov/content/index"
+                showIcon={false}
+              >
                 <img src={LANLLogo} height="90"></img>
               </ExternalLink>
             </div>
@@ -169,7 +181,7 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="http://cbrc.kaust.edu.sa/">
+              <ExternalLink href="http://cbrc.kaust.edu.sa/" showIcon={false}>
                 <img src={KaustLogo} height="80"></img>
               </ExternalLink>
             </div>
@@ -211,7 +223,7 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://covidep.ust.hk/">
+              <ExternalLink href="https://covidep.ust.hk/" showIcon={false}>
                 <img src={HKUSTLogo} height="80"></img>
               </ExternalLink>
             </div>
@@ -247,7 +259,7 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://www.csiro.au/">
+              <ExternalLink href="https://www.csiro.au/" showIcon={false}>
                 <img src={CSIROLogo} height="80"></img>
               </ExternalLink>
             </div>
@@ -273,7 +285,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://nextstrain.org/ncov/global">
+              <ExternalLink
+                href="https://nextstrain.org/ncov/global"
+                showIcon={false}
+              >
                 <img src={NextstrainLogo} height="70"></img>
               </ExternalLink>
             </div>
@@ -303,7 +318,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://macman123.shinyapps.io/ugi-scov2-alignment-screen/">
+              <ExternalLink
+                href="https://macman123.shinyapps.io/ugi-scov2-alignment-screen/"
+                showIcon={false}
+              >
                 <img src={UCLLogo} width="100"></img>
               </ExternalLink>
             </div>
@@ -340,7 +358,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://cov-lineages.org/index.html">
+              <ExternalLink
+                href="https://cov-lineages.org/index.html"
+                showIcon={false}
+              >
                 <img src={PangolinLogo} height="100"></img>
               </ExternalLink>
             </div>
@@ -370,10 +391,13 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://www.viprbrc.org/brc/home.spg?decorator=vipr">
+              <ExternalLink
+                href="https://www.viprbrc.org/brc/home.spg?decorator=vipr"
+                showIcon={false}
+              >
                 <img src={VIPRLogo} height="60" />
               </ExternalLink>
-              <ExternalLink href="https://www.niaid.nih.gov/">
+              <ExternalLink href="https://www.niaid.nih.gov/" showIcon={false}>
                 <img src={NIAIDLogo} height="60" />
               </ExternalLink>
             </div>
@@ -403,10 +427,13 @@ const RelatedProjectsTab = () => {
             </div>
             <div className="content-images">
               <ImageRow>
-                <ExternalLink href="http://geco.deib.polimi.it/virusurf_gisaid/">
+                <ExternalLink
+                  href="http://geco.deib.polimi.it/virusurf_gisaid/"
+                  showIcon={false}
+                >
                   <img src={VirusurfLogo} height="80" />
                 </ExternalLink>
-                <ExternalLink href="http://polimi.it/">
+                <ExternalLink href="http://polimi.it/" showIcon={false}>
                   <img src={PolimiLogo} height="80" />
                 </ExternalLink>
               </ImageRow>
@@ -463,7 +490,10 @@ const RelatedProjectsTab = () => {
               </p>
             </div>
             <div className="content-images">
-              <ExternalLink href="https://coronavirus.jhu.edu/">
+              <ExternalLink
+                href="https://coronavirus.jhu.edu/"
+                showIcon={false}
+              >
                 <img src={JHULogo} height="60"></img>
               </ExternalLink>
             </div>

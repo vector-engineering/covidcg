@@ -66,6 +66,9 @@ const SplashScreenContent = ({ onRequestClose }) => {
             tracking of interventions.
           </b>
         </p>
+        <button className="close-button" onClick={onRequestClose}>
+          Proceed to the application
+        </button>
         <p>
           Tracking the evolution of the emerging coronavirus is essential for
           scientists and public health professionals, as well as developers of

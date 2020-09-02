@@ -2,16 +2,29 @@ import React, { useState, useEffect, useMemo } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import styled from 'styled-components';
 import _ from 'underscore';
 
+import ReactTooltip from 'react-tooltip';
 import ExternalLink from '../Common/ExternalLink';
-import Button from '../Buttons/Button';
-import DropdownTreeSelect from 'react-dropdown-tree-select';
 import QuestionButton from '../Buttons/QuestionButton';
+import {
+  PrimerSelect,
+  ModeLabel,
+  SelectContainer,
+  ModeSelectForm,
+  ModeRadioVertical,
+  SelectForm,
+  UpdatePrimersButton,
+  UpdateButton,
+  CoordForm,
+  PrimerSelectContainer,
+  ValidationInput,
+  InvalidText,
+  RangesText,
+  DomainSelectForm,
+} from './CoordinateSelect.styles';
 
-import { getAllGenes } from '../../utils/gene';
-import { getAllProteins } from '../../utils/protein';
+import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import {
   getPrimerSelectTree,
   getPrimerByName,
@@ -19,269 +32,7 @@ import {
 } from '../../utils/primer';
 import { referenceSequenceIncludes } from '../../utils/reference';
 
-import {
-  GROUP_KEYS,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-} from '../../constants/config';
-
-const SelectContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-
-  margin: 5px 5px 0px 5px;
-  padding: 0px 8px 0px 8px;
-
-  span.title {
-    margin-bottom: 5px;
-  }
-`;
-
-const ModeSelectForm = styled.div``;
-
-const ModeRadioHorizontal = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  margin-left: 10px;
-  margin-bottom: 5px;
-`;
-
-const ModeRadioVertical = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-
-  margin-left: 10px;
-  margin-bottom: 8px;
-`;
-
-const ModeLabel = styled.label`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  padding-right: 10px;
-
-  input.radio-input {
-    margin: 0px 8px 0px 0px;
-  }
-`;
-
-const SelectForm = styled.form`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-grow: 1;
-
-  label {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  select {
-    background-color: white;
-    flex-grow: 1;
-    padding: 1px 5px;
-    width: 100%;
-    border-radius: 3px;
-  }
-`;
-
-const UpdatePrimersButton = styled(Button)`
-  display: ${(props) => (props.show ? 'block' : 'none')};
-  font-size: 1em;
-  margin-left: 20px;
-`;
-
-UpdatePrimersButton.defaultProps = {
-  show: false,
-};
-
-const PrimerSelectContainer = styled.div`
-  span.placeholder {
-    &:after {
-      content: "${(props) => props.placeholderText}";
-    }
-  }
-`;
-
-PrimerSelectContainer.defaultProps = {
-  placeholderText: '',
-};
-
-const PrimerSelect = styled(DropdownTreeSelect)`
-  a.dropdown-trigger {
-    &:focus {
-      outline: none;
-    }
-
-    ul.tag-list {
-      margin-top: 6px;
-      margin-bottom: 0px;
-      list-style: none;
-      padding-left: 20px;
-
-      li.tag-item {
-        margin-right: 10px;
-        line-height: normal;
-
-        span.placeholder {
-          background-color: #ffffff;
-          font-size: 0em;
-          &:after {
-            font-size: 0.9rem;
-            font-weight: normal;
-            border: 1px solid #888;
-            border-radius: 3px;
-            background-color: #fff;
-            padding: 3px 8px;
-          }
-          &:hover,
-          &:focus {
-            &:after {
-              background-color: #eee;
-              border: 1px solid #666;
-            }
-          }
-        }
-        span.tag {
-          display: none;
-        }
-      }
-    }
-  }
-
-  .dropdown-content {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-
-    padding: 5px;
-    padding-top: 8px;
-
-    input.search {
-      padding: 3px 8px;
-      margin-left: 15px;
-      margin-right: 5px;
-      border: 1px solid #888;
-      border-radius: 3px;
-      font-size: 1em;
-      &:focus {
-        outline: none;
-      }
-    }
-
-    ul.root {
-      margin: 5px 0px;
-      padding-left: 15px;
-      font-weight: normal;
-      font-size: 1em;
-
-      li.node {
-        i.toggle {
-          font-family: monospace;
-          font-size: 1.25em;
-          font-style: normal;
-          font-weight: 500;
-          &:hover {
-            color: #888888;
-          }
-
-          white-space: pre;
-          margin-right: 4px;
-          outline: none;
-
-          cursor:pointer &:after {
-            content: ' ';
-          }
-          &.collapsed:after {
-            content: '+';
-          }
-          &.expanded:after {
-            content: '-';
-          }
-        }
-
-        label {
-          .checkbox-item,
-          .radio-item {
-            vertical-align: middle;
-            margin: 0 4px 0 0;
-            &.simple-select {
-              display: none;
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const CoordForm = styled.form`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  margin-top: 3px;
-  margin-left: 20px;
-  padding-right: 10px;
-
-  span {
-    font-weight: normal;
-    margin-right: 5px;
-  }
-  input {
-    flex-grow: 1;
-    margin-right: 5px;
-    max-width: 15rem;
-  }
-  button {
-    flex-grow: 1;
-  }
-`;
-
-const UpdateButton = styled(Button)`
-  display: ${(props) => (props.show ? 'block' : 'none')};
-  font-size: 0.9em;
-  padding: 3px 8px;
-  margin-left: 10px;
-`;
-UpdateButton.defaultProps = {
-  show: false,
-};
-
-const ValidationInput = styled.input`
-  border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
-  &:focus {
-    border: 2px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
-  }
-`;
-ValidationInput.defaultProps = {
-  invalid: false,
-};
-
-const InvalidText = styled.span`
-  margin-left: 20px;
-  font-size: 0.9em;
-  font-weight: normal;
-  line-height: normal;
-  color: #dc3545;
-`;
-
-const RangesText = styled.span`
-  margin-left: 20px;
-  font-size: 0.9em;
-  font-weight: normal;
-  line-height: normal;
-  color: #888;
-`;
+import { DNA_OR_AA, COORDINATE_MODES } from '../../constants/config';
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
@@ -307,6 +58,31 @@ const CoordinateSelect = observer(() => {
     );
   });
 
+  // GENE DOMAINS
+  let geneDomainOptionElements = {};
+  genes.forEach((gene) => {
+    geneDomainOptionElements[gene.gene] = [
+      <option
+        key={`${gene.gene}-default`}
+        value={`${gene.gene}-default`}
+        disabled={true}
+      >
+        - select an option -
+      </option>,
+      <option key={`${gene.gene}-all`} value={`${gene.gene}-all`}>
+        Entire {gene.gene} Gene (1..{gene.len_aa})
+      </option>,
+    ];
+    gene.domains.forEach((domain) => {
+      geneDomainOptionElements[gene.gene].push(
+        <option key={`${gene.gene}-${domain.name}`} value={domain.name}>
+          {domain.name}&nbsp;&nbsp;(
+          {domain.ranges.map((range) => range.join('..')).join(';')})
+        </option>
+      );
+    });
+  });
+
   // PROTEIN
   let proteinOptionElements = [];
   proteins.forEach((protein) => {
@@ -317,10 +93,37 @@ const CoordinateSelect = observer(() => {
     );
   });
 
+  // PROTEIN DOMAINS
+  let proteinDomainOptionElements = {};
+  proteins.forEach((protein) => {
+    proteinDomainOptionElements[protein.protein] = [
+      <option
+        key={`${protein.protein}-default`}
+        value={`${protein.protein}-default`}
+        disabled={true}
+      >
+        {' '}
+        - select an option -
+      </option>,
+      <option key={`${protein.protein}-all`} value={`${protein.protein}-all`}>
+        Entire {protein.protein} Protein (1..{protein.len_aa})
+      </option>,
+    ];
+    protein.domains.forEach((domain) => {
+      proteinDomainOptionElements[protein.protein].push(
+        <option key={`${protein.protein}-${domain.name}`} value={domain.name}>
+          {domain.name}&nbsp;&nbsp;(
+          {domain.ranges.map((range) => range.join('..')).join(';')})
+        </option>
+      );
+    });
+  });
+
   const [state, setState] = useState({
     primerTreeData: Object.assign(getPrimerSelectTree()),
     selectedPrimers: [],
     primersChanged: false,
+
     customCoordText: configStore.customCoordinates
       .map((range) => range.join('..'))
       .join(';'),
@@ -330,6 +133,12 @@ const CoordinateSelect = observer(() => {
     customSequences: configStore.customSequences.join(';'),
     validCustomSequences: true,
     customSequencesChanged: false,
+
+    residueCoordsText: configStore.residueCoordinates
+      .map((range) => range.join('..'))
+      .join(';'),
+    validResidueCoords: true,
+    residueCoordsChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -367,6 +176,7 @@ const CoordinateSelect = observer(() => {
     coordinateMode,
     selectedGene,
     selectedProtein,
+    residueCoordinates,
     selectedPrimers,
     customCoordinates,
     customSequences,
@@ -384,6 +194,10 @@ const CoordinateSelect = observer(() => {
         selectedProtein === undefined
           ? configStore.selectedProtein.protein
           : selectedProtein,
+      residueCoordinates:
+        residueCoordinates === undefined
+          ? configStore.residueCoordinates
+          : residueCoordinates,
       selectedPrimers:
         selectedPrimers === undefined
           ? configStore.selectedPrimers
@@ -420,6 +234,112 @@ const CoordinateSelect = observer(() => {
   // Use a regex to match numbers, since just because JS
   // can parse an integer, doesn't mean it should...
   const numPattern = /^([0-9]+)$/;
+
+  const handleResidueCoordsChange = (event) => {
+    // Serialize custom coordinates of the store
+    const storeResidueCoords = configStore.residueCoordinates
+      .map((range) => range.join('..'))
+      .join(';');
+
+    // Parse current custom coordinates
+    const curResidueCoords = event.target.value
+      .split(';')
+      .map((range) => range.split('..'));
+
+    // Check that these are valid
+    const validResidueCoords = !curResidueCoords.some((range) => {
+      // Return true if invalid
+      return (
+        range.length !== 2 ||
+        numPattern.exec(range[0]) === null ||
+        numPattern.exec(range[1]) === null ||
+        parseInt(range[0]) > parseInt(range[1])
+      );
+    });
+
+    setState({
+      ...state,
+      residueCoordsText: event.target.value,
+      validResidueCoords,
+      residueCoordsChanged: storeResidueCoords !== event.target.value,
+    });
+  };
+
+  const handleResidueCoordsSubmit = (event) => {
+    event.preventDefault();
+    changeCoordinateMode({
+      residueCoordinates: state.residueCoordsText
+        .split(';')
+        .map((range) => range.split('..').map((coord) => parseInt(coord))),
+    });
+  };
+
+  // Use the selected domain to fill in the residue coordinates input
+  const handleGeneDomainChange = (event) => {
+    const domainName = event.target.value;
+    let newResidueCoordsText;
+
+    if (event.target.value === configStore.selectedGene.gene + '-all') {
+      newResidueCoordsText = `1..${configStore.selectedGene.len_aa}`;
+    } else {
+      const domainObj = _.findWhere(configStore.selectedGene.domains, {
+        name: domainName,
+      });
+
+      newResidueCoordsText = domainObj.ranges
+        .map((range) => range.join('..'))
+        .join(';');
+    }
+
+    const residueCoordsChanged =
+      state.residueCoordsText !== newResidueCoordsText;
+
+    setState({
+      ...state,
+      residueCoordsText: newResidueCoordsText,
+      validResidueCoords: true,
+      residueCoordsChanged,
+    });
+  };
+
+  const handleProteinDomainChange = (event) => {
+    const domainName = event.target.value;
+    let newResidueCoordsText;
+
+    if (event.target.value === configStore.selectedProtein.protein + '-all') {
+      newResidueCoordsText = `1..${configStore.selectedProtein.len_aa}`;
+    } else {
+      const domainObj = _.findWhere(configStore.selectedProtein.domains, {
+        name: domainName,
+      });
+
+      newResidueCoordsText = domainObj.ranges
+        .map((range) => range.join('..'))
+        .join(';');
+    }
+    const residueCoordsChanged =
+      state.residueCoordsText !== newResidueCoordsText;
+
+    setState({
+      ...state,
+      residueCoordsText: newResidueCoordsText,
+      validResidueCoords: true,
+      residueCoordsChanged,
+    });
+  };
+
+  // Update residue coordinates from store
+  useEffect(() => {
+    setState({
+      ...state,
+      residueCoordsText: configStore.residueCoordinates
+        .map((range) => range.join('..'))
+        .join(';'),
+      validResidueCoords: true,
+      residueCoordsChanged: false,
+    });
+  }, [configStore.residueCoordinates]);
+
   const handleCustomCoordChange = (event) => {
     // Serialize custom coordinates of the store
     const storeCustomCoords = configStore.customCoordinates
@@ -443,9 +363,9 @@ const CoordinateSelect = observer(() => {
 
     setState({
       ...state,
+      customCoordText: event.target.value,
       validCustomCoords,
       customCoordinatesChanged: storeCustomCoords !== event.target.value,
-      customCoordText: event.target.value,
     });
   };
 
@@ -594,7 +514,8 @@ const CoordinateSelect = observer(() => {
   return (
     <SelectContainer>
       <ModeSelectForm>
-        <ModeRadioHorizontal>
+        {/* GENE SELECT */}
+        <ModeRadioVertical>
           <ModeLabel>
             <input
               className="radio-input"
@@ -605,25 +526,75 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            Gene
-          </ModeLabel>
-          <SelectForm>
-            <select
-              value={configStore.selectedGene.gene}
-              onChange={handleGeneChange}
-            >
-              <option
-                key="All Genes"
-                value="All Genes"
-                disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
+            <span className="option-text">Gene</span>
+            <SelectForm>
+              <select
+                value={configStore.selectedGene.gene}
+                onChange={handleGeneChange}
               >
-                All Genes
-              </option>
-              {geneOptionElements}
-            </select>
-          </SelectForm>
-        </ModeRadioHorizontal>
-        <ModeRadioHorizontal>
+                <option
+                  key="All Genes"
+                  value="All Genes"
+                  disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
+                >
+                  All Genes
+                </option>
+                {geneOptionElements}
+              </select>
+            </SelectForm>
+          </ModeLabel>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_GENE && (
+            <>
+              <CoordForm>
+                <span className="coord-prefix">Residue indices:</span>
+                <input
+                  type="text"
+                  value={state.residueCoordsText}
+                  onChange={handleResidueCoordsChange}
+                />
+                <ReactTooltip
+                  className="filter-sidebar-tooltip"
+                  id="gene-residue-index-tooltip"
+                  type="light"
+                  effect="solid"
+                  border={true}
+                  borderColor="#888"
+                />
+                <QuestionButton
+                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
+                  data-html="true"
+                  data-for="gene-residue-index-tooltip"
+                />
+              </CoordForm>
+              <DomainSelectForm>
+                <span>Domain:</span>
+                <select
+                  value={`${configStore.selectedGene.gene}-default`}
+                  onChange={handleGeneDomainChange}
+                >
+                  {geneDomainOptionElements[configStore.selectedGene.gene]}
+                </select>
+                <QuestionButton
+                  data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                  data-html="true"
+                  data-for="gene-residue-index-tooltip"
+                />
+              </DomainSelectForm>
+
+              <UpdateButton
+                show={state.residueCoordsChanged}
+                disabled={!state.validResidueCoords}
+                onClick={handleResidueCoordsSubmit}
+                style={{ marginTop: 5 }}
+              >
+                Confirm
+              </UpdateButton>
+            </>
+          )}
+        </ModeRadioVertical>
+
+        {/* PROTEIN SELECT */}
+        <ModeRadioVertical>
           <ModeLabel>
             <input
               className="radio-input"
@@ -634,25 +605,77 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            Protein
-          </ModeLabel>
-          <SelectForm>
-            <select
-              value={configStore.selectedProtein.protein}
-              onChange={handleProteinChange}
-            >
-              <option
-                key="All Proteins"
-                value="All Proteins"
-                disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
+            <span className="option-text">Protein</span>
+            <SelectForm>
+              <select
+                value={configStore.selectedProtein.protein}
+                onChange={handleProteinChange}
               >
-                All Proteins
-              </option>
-              {proteinOptionElements}
-            </select>
-          </SelectForm>
-        </ModeRadioHorizontal>
+                <option
+                  key="All Proteins"
+                  value="All Proteins"
+                  disabled={configStore.dnaOrAa === DNA_OR_AA.AA}
+                >
+                  All Proteins
+                </option>
+                {proteinOptionElements}
+              </select>
+            </SelectForm>
+          </ModeLabel>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN && (
+            <>
+              <CoordForm>
+                <span className="coord-prefix">Residue indices:</span>
+                <input
+                  type="text"
+                  value={state.residueCoordsText}
+                  onChange={handleResidueCoordsChange}
+                />
+                <ReactTooltip
+                  className="filter-sidebar-tooltip"
+                  id="protein-residue-index-tooltip"
+                  type="light"
+                  effect="solid"
+                  border={true}
+                  borderColor="#888"
+                />
+                <QuestionButton
+                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
+                  data-html="true"
+                  data-for="protein-residue-index-tooltip"
+                />
+              </CoordForm>
+              <DomainSelectForm>
+                <span>Domain:</span>
+                <select
+                  value={`${configStore.selectedProtein.protein}-default`}
+                  onChange={handleProteinDomainChange}
+                >
+                  {
+                    proteinDomainOptionElements[
+                      configStore.selectedProtein.protein
+                    ]
+                  }
+                </select>
+                <QuestionButton
+                  data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                  data-html="true"
+                  data-for="gene-residue-index-tooltip"
+                />
+              </DomainSelectForm>
+              <UpdateButton
+                show={state.residueCoordsChanged}
+                disabled={!state.validResidueCoords}
+                onClick={handleResidueCoordsSubmit}
+                style={{ marginTop: 5 }}
+              >
+                Confirm
+              </UpdateButton>
+            </>
+          )}
+        </ModeRadioVertical>
 
+        {/* PRIMER/PROBE SELECT */}
         <ModeRadioVertical>
           <ModeLabel>
             <input
@@ -664,34 +687,42 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            <span>Primers/Probes</span>
+            <span className="select-text">Primers/Probes</span>
+            {configStore.coordinateMode !== COORDINATE_MODES.COORD_PRIMER && (
+              <span className="hint-text">Select to show options</span>
+            )}
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
             <ExternalLink
               href="https://github.com/vector-engineering/covidcg/blob/master/static_data/primers.csv"
               style={{ marginLeft: '20px' }}
             >
-              (Primer/probe definitions)
+              Primer/probe definitions
             </ExternalLink>
           )}
-          <UpdatePrimersButton
-            show={state.primersChanged}
-            onClick={updatePrimerSelection}
-          >
-            Update Primer Selection
-          </UpdatePrimersButton>
-          <PrimerSelectContainer
-            placeholderText={
-              state.selectedPrimers.length === 0
-                ? 'Select or search...'
-                : state.selectedPrimers.length.toString() +
-                  ' primers/probes selected...'
-            }
-          >
-            {primerDropdown}
-          </PrimerSelectContainer>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
+            <>
+              <UpdatePrimersButton
+                show={state.primersChanged}
+                onClick={updatePrimerSelection}
+              >
+                Update Primer Selection
+              </UpdatePrimersButton>
+              <PrimerSelectContainer
+                placeholderText={
+                  state.selectedPrimers.length === 0
+                    ? 'Select or search...'
+                    : state.selectedPrimers.length.toString() +
+                      ' primers/probes selected...'
+                }
+              >
+                {primerDropdown}
+              </PrimerSelectContainer>
+            </>
+          )}
         </ModeRadioVertical>
 
+        {/* CUSTOM COORDS */}
         <ModeRadioVertical>
           <ModeLabel>
             <input
@@ -703,7 +734,10 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            <span>Custom Coordinates</span>
+            <span className="select-text">Custom Coordinates</span>
+            {configStore.coordinateMode !== COORDINATE_MODES.COORD_CUSTOM && (
+              <span className="hint-text">Select to show options</span>
+            )}
             <UpdateButton
               show={
                 state.customCoordinatesChanged &&
@@ -715,19 +749,31 @@ const CoordinateSelect = observer(() => {
               Confirm
             </UpdateButton>
           </ModeLabel>
-          <CoordForm>
-            <input
-              type="text"
-              value={state.customCoordText}
-              onChange={handleCustomCoordChange}
-            />
-            <QuestionButton
-              data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
-              data-html="true"
-              data-for="tooltip-filter-sidebar"
-            />
-          </CoordForm>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM && (
+            <CoordForm>
+              <input
+                type="text"
+                value={state.customCoordText}
+                onChange={handleCustomCoordChange}
+              />
+              <ReactTooltip
+                className="filter-sidebar-tooltip"
+                id="custom-coord-tooltip"
+                type="light"
+                effect="solid"
+                border={true}
+                borderColor="#888"
+              />
+              <QuestionButton
+                data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                data-html="true"
+                data-for="custom-coord-tooltip"
+              />
+            </CoordForm>
+          )}
         </ModeRadioVertical>
+
+        {/* CUSTOM SEQUENCES */}
         <ModeRadioVertical>
           <ModeLabel>
             <input
@@ -739,7 +785,10 @@ const CoordinateSelect = observer(() => {
               }
               onChange={handleModeChange}
             />
-            <span>Match Sequences</span>
+            <span className="select-text">Match Sequences</span>
+            {configStore.coordinateMode !== COORDINATE_MODES.COORD_SEQUENCE && (
+              <span className="hint-text">Select to show options</span>
+            )}
             <UpdateButton
               show={
                 state.customSequencesChanged &&
@@ -751,30 +800,43 @@ const CoordinateSelect = observer(() => {
               Confirm
             </UpdateButton>
           </ModeLabel>
-          <CoordForm>
-            <ValidationInput
-              type="text"
-              value={state.customSequences}
-              onChange={handleCustomSequencesChange}
-              invalid={!state.validCustomSequences}
-            />
-            <QuestionButton
-              data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
-              data-html="true"
-              data-for="tooltip-filter-sidebar"
-            />
-          </CoordForm>
-          {!state.validCustomSequences && (
-            <InvalidText>One or more sequences are invalid</InvalidText>
-          )}
           {configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE && (
-            <RangesText>
-              Coordinates:{' '}
-              {configStore
-                .getCoordinateRanges()
-                .map((range) => range.join('..'))
-                .join(';')}
-            </RangesText>
+            <>
+              <CoordForm>
+                <ValidationInput
+                  type="text"
+                  value={state.customSequences}
+                  onChange={handleCustomSequencesChange}
+                  invalid={!state.validCustomSequences}
+                />
+                <ReactTooltip
+                  className="filter-sidebar-tooltip"
+                  id="custom-sequence-tooltip"
+                  type="light"
+                  effect="solid"
+                  border={true}
+                  borderColor="#888"
+                />
+                <QuestionButton
+                  data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                  data-html="true"
+                  data-for="custom-sequence-tooltip"
+                />
+              </CoordForm>
+              {!state.validCustomSequences && (
+                <InvalidText>One or more sequences are invalid</InvalidText>
+              )}
+              {configStore.coordinateMode ===
+                COORDINATE_MODES.COORD_SEQUENCE && (
+                <RangesText>
+                  Coordinates:{' '}
+                  {configStore
+                    .getCoordinateRanges()
+                    .map((range) => range.join('..'))
+                    .join(';')}
+                </RangesText>
+              )}
+            </>
           )}
         </ModeRadioVertical>
       </ModeSelectForm>

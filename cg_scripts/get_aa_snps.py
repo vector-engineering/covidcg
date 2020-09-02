@@ -1,5 +1,6 @@
-import pandas as pd
+import json
 import numpy as np
+import pandas as pd
 
 from cg_scripts.fasta import read_fasta_file
 from cg_scripts.util import translate
@@ -12,7 +13,10 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
         ref = read_fasta_file(lines)
         ref_seq = list(ref.values())[0]
 
-    gene_or_protein_df = pd.read_csv(gene_or_protein_file, comment="#")
+    # JSON to dataframe
+    with open(gene_or_protein_file) as fp:
+        gene_or_protein_df = json.loads(fp.read())
+        gene_or_protein_df = pd.DataFrame(gene_or_protein_df)
 
     if mode == "gene":
         # Only take protein-coding genes

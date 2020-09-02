@@ -72,7 +72,7 @@ const Header = () => {
       </TitleContainer>
       <GISAIDContainer>
         Enabled by data from&nbsp;
-        <ExternalLink href="https://www.gisaid.org/">
+        <ExternalLink href="https://www.gisaid.org/" showIcon={false}>
           <img src={GISAIDLogo}></img>
         </ExternalLink>
       </GISAIDContainer>

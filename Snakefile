@@ -111,8 +111,8 @@ rule get_aa_snps:
     input:
         dna_snp = data_folder + "/dna_snp/{sample}_dna_snp.csv",
         reference = static_data_folder + "/reference.fasta",
-        genes_file = static_data_folder + "/genes.csv",
-        proteins_file = static_data_folder + "/proteins.csv"
+        genes_file = static_data_folder + "/genes.json",
+        proteins_file = static_data_folder + "/proteins.json"
     output:
         gene_aa_snp = data_folder + "/gene_aa_snp/{sample}_gene_aa_snp.csv",
         protein_aa_snp = data_folder + "/protein_aa_snp/{sample}_protein_aa_snp.csv"
@@ -388,14 +388,10 @@ rule generate_ui_data:
 
 rule write_reference_files:
     input:
-        genes = static_data_folder + "/genes.csv",
-        proteins = static_data_folder + "/proteins.csv",
         reference = static_data_folder + "/reference.fasta",
         primers = static_data_folder + "/primers.csv"
     output:
         # Write data to JSON for the JS/UI to handle
-        genes = static_data_folder + "/genes.json",
-        proteins = static_data_folder + "/proteins.json",
         reference = static_data_folder + "/reference.json",
         primers = static_data_folder + "/primers.json"
     run:
@@ -408,14 +404,6 @@ rule write_reference_files:
 
         with open(output.reference, "w") as fp:
             fp.write(json.dumps({"ref_seq": ref_seq}))
-        
-        # Load genes, write to JSON
-        genes_df = pd.read_csv(input.genes, comment="#")
-        genes_df.to_json(output.genes, orient="records")
-
-        # Load proteins, write to JSON
-        proteins_df = pd.read_csv(input.proteins, comment="#")
-        proteins_df.to_json(output.proteins, orient="records")
 
         # Load primers, write to JSON
         primers_df = pd.read_csv(input.primers, comment="#")

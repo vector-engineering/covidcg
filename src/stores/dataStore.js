@@ -150,8 +150,6 @@ class ObservableDataStore {
         selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
         coordinateMode: toJS(configStoreInstance.coordinateMode),
         coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
-        selectedGene: toJS(configStoreInstance.selectedGene),
-        selectedProtein: toJS(configStoreInstance.selectedProtein),
         groupKey: toJS(configStoreInstance.groupKey),
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         selectedMetadataFields: toJS(
