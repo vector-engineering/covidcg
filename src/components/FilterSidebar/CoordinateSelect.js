@@ -67,8 +67,10 @@ const CoordinateSelect = observer(() => {
         value={`${gene.gene}-default`}
         disabled={true}
       >
-        {' '}
         - select an option -
+      </option>,
+      <option key={`${gene.gene}-all`} value={`${gene.gene}-all`}>
+        Entire {gene.gene} Gene (1..{gene.len_aa})
       </option>,
     ];
     gene.domains.forEach((domain) => {
@@ -102,6 +104,9 @@ const CoordinateSelect = observer(() => {
       >
         {' '}
         - select an option -
+      </option>,
+      <option key={`${protein.protein}-all`} value={`${protein.protein}-all`}>
+        Entire {protein.protein} Protein (1..{protein.len_aa})
       </option>,
     ];
     protein.domains.forEach((domain) => {
@@ -272,18 +277,20 @@ const CoordinateSelect = observer(() => {
   // Use the selected domain to fill in the residue coordinates input
   const handleGeneDomainChange = (event) => {
     const domainName = event.target.value;
-    const domainObj = _.findWhere(configStore.selectedGene.domains, {
-      name: domainName,
-    });
+    let newResidueCoordsText;
 
-    // This shouldn't happen...
-    if (domainObj === undefined) {
-      return;
+    if (event.target.value === configStore.selectedGene.gene + '-all') {
+      newResidueCoordsText = `1..${configStore.selectedGene.len_aa}`;
+    } else {
+      const domainObj = _.findWhere(configStore.selectedGene.domains, {
+        name: domainName,
+      });
+
+      newResidueCoordsText = domainObj.ranges
+        .map((range) => range.join('..'))
+        .join(';');
     }
 
-    const newResidueCoordsText = domainObj.ranges
-      .map((range) => range.join('..'))
-      .join(';');
     const residueCoordsChanged =
       state.residueCoordsText !== newResidueCoordsText;
 
@@ -297,18 +304,19 @@ const CoordinateSelect = observer(() => {
 
   const handleProteinDomainChange = (event) => {
     const domainName = event.target.value;
-    const domainObj = _.findWhere(configStore.selectedProtein.domains, {
-      name: domainName,
-    });
+    let newResidueCoordsText;
 
-    // This shouldn't happen...
-    if (domainObj === undefined) {
-      return;
+    if (event.target.value === configStore.selectedProtein.protein + '-all') {
+      newResidueCoordsText = `1..${configStore.selectedProtein.len_aa}`;
+    } else {
+      const domainObj = _.findWhere(configStore.selectedProtein.domains, {
+        name: domainName,
+      });
+
+      newResidueCoordsText = domainObj.ranges
+        .map((range) => range.join('..'))
+        .join(';');
     }
-
-    const newResidueCoordsText = domainObj.ranges
-      .map((range) => range.join('..'))
-      .join(';');
     const residueCoordsChanged =
       state.residueCoordsText !== newResidueCoordsText;
 
@@ -558,23 +566,20 @@ const CoordinateSelect = observer(() => {
                   data-for="gene-residue-index-tooltip"
                 />
               </CoordForm>
-              {geneDomainOptionElements[configStore.selectedGene.gene].length >
-                1 && (
-                <DomainSelectForm>
-                  <span>Domain:</span>
-                  <select
-                    value={`${configStore.selectedGene.gene}-default`}
-                    onChange={handleGeneDomainChange}
-                  >
-                    {geneDomainOptionElements[configStore.selectedGene.gene]}
-                  </select>
-                  <QuestionButton
-                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
-                    data-html="true"
-                    data-for="gene-residue-index-tooltip"
-                  />
-                </DomainSelectForm>
-              )}
+              <DomainSelectForm>
+                <span>Domain:</span>
+                <select
+                  value={`${configStore.selectedGene.gene}-default`}
+                  onChange={handleGeneDomainChange}
+                >
+                  {geneDomainOptionElements[configStore.selectedGene.gene]}
+                </select>
+                <QuestionButton
+                  data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                  data-html="true"
+                  data-for="gene-residue-index-tooltip"
+                />
+              </DomainSelectForm>
 
               <UpdateButton
                 show={state.residueCoordsChanged}
@@ -640,27 +645,24 @@ const CoordinateSelect = observer(() => {
                   data-for="protein-residue-index-tooltip"
                 />
               </CoordForm>
-              {proteinDomainOptionElements[configStore.selectedProtein.protein]
-                .length > 1 && (
-                <DomainSelectForm>
-                  <span>Domain:</span>
-                  <select
-                    value={`${configStore.selectedProtein.protein}-default`}
-                    onChange={handleProteinDomainChange}
-                  >
-                    {
-                      proteinDomainOptionElements[
-                        configStore.selectedProtein.protein
-                      ]
-                    }
-                  </select>
-                  <QuestionButton
-                    data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
-                    data-html="true"
-                    data-for="gene-residue-index-tooltip"
-                  />
-                </DomainSelectForm>
-              )}
+              <DomainSelectForm>
+                <span>Domain:</span>
+                <select
+                  value={`${configStore.selectedProtein.protein}-default`}
+                  onChange={handleProteinDomainChange}
+                >
+                  {
+                    proteinDomainOptionElements[
+                      configStore.selectedProtein.protein
+                    ]
+                  }
+                </select>
+                <QuestionButton
+                  data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                  data-html="true"
+                  data-for="gene-residue-index-tooltip"
+                />
+              </DomainSelectForm>
               <UpdateButton
                 show={state.residueCoordsChanged}
                 disabled={!state.validResidueCoords}
