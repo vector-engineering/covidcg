@@ -87,6 +87,7 @@ rule align_sequences:
         bt2_rev2=data_folder + "/reference_index/reference.rev.2.bt2"
     params:
         index_name = data_folder + "/reference_index/reference"
+    threads: workflow.cores
     output:
         sam = data_folder + "/sam/{sample}.sam"
     # bowtie2 is really memory intensive (10GB per thread), so make sure it 
