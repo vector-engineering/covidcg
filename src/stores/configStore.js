@@ -177,6 +177,17 @@ class ObservableConfigStore {
         this.selectTree = selectTree;
       }
     });
+
+    // Manually set residue coordinates if they weren't specified
+    if ('selectedGene' in values && !('residueCoordinates' in values)) {
+      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
+    } else if (
+      'selectedProtein' in values &&
+      !('residueCoordinates' in values)
+    ) {
+      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+    }
+
     // Trigger data re-run
     dataStoreInstance.updateCaseData(() => {});
   }
