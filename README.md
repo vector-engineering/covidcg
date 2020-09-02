@@ -105,7 +105,7 @@ snakemake
 This project is developed by the [Vector Engineering Lab](https://vector.engineering/):
 
 - Albert Chen (Broad Institute)
-- Kevin Altschuler
+- [Kevin Altschuler](https://www.linkedin.com/in/kevinaltschuler/)
 - Shing Hei Zhan, PhD (University of British Columbia)
 - Alina Yujia Chan, PhD (Broad Institute)
 - Ben Deverman, PhD (Broad Institute)

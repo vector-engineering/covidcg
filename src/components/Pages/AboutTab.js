@@ -72,7 +72,11 @@ const AboutTab = () => {
               <b>Kevin Altschuler</b> is an experienced web developer with
               previous positions at Google and Uber Advanced Technologies Group
               (ATG). Kevin has architected the application to streamline
-              development and improve performance.
+              development and improve performance. (
+              <ExternalLink href="https://www.linkedin.com/in/kevinaltschuler/">
+                LinkedIn Profile
+              </ExternalLink>
+              )
             </p>
             <p>
               <b>Dr. Alina Chan</b> is a postdoc in the Deverman group who asked
