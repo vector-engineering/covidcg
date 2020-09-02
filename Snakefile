@@ -284,6 +284,9 @@ rule generate_ui_data:
         )
         # Filter out "None" lineages
         df = df.loc[df["lineage"] != "None", :]
+        # Exclude sequences without a lineage/clade assignment
+        df = df.loc[~pd.isnull(df['lineage']), :]
+        df = df.loc[~pd.isnull(df['clade']), :]
 
         # Join acknowledgement IDs onto main metadata dataframe
         df = df.join(ack_meta_df, on="Accession ID", how="left", sort=False)
