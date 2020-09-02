@@ -253,7 +253,7 @@ export const CoordForm = styled.form`
 
   margin-top: 3px;
   margin-left: 20px;
-  padding-right: 10px;
+  padding-right: 3px;
 
   span {
     font-weight: normal;

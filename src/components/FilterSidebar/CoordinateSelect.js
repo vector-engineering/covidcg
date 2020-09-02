@@ -569,7 +569,7 @@ const CoordinateSelect = observer(() => {
                     {geneDomainOptionElements[configStore.selectedGene.gene]}
                   </select>
                   <QuestionButton
-                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will add the range(s) to the residue indices input</p>'
+                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
                     data-html="true"
                     data-for="gene-residue-index-tooltip"
                   />
@@ -655,7 +655,7 @@ const CoordinateSelect = observer(() => {
                     }
                   </select>
                   <QuestionButton
-                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will add the range(s) to the residue indices input</p>'
+                    data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
                     data-html="true"
                     data-for="gene-residue-index-tooltip"
                   />
