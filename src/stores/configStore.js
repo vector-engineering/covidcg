@@ -7,8 +7,7 @@ import {
 import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
-import { getGene } from '../utils/gene';
-import { getProtein } from '../utils/protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 import {
   getLocationByNameAndLevel,
   loadSelectTree,
@@ -66,6 +65,7 @@ export const initialConfigValues = {
   selectedPrimers: [],
   customCoordinates: [[8000, 12000]],
   customSequences: ['GACCCCAAAATCAGCGAAAT'],
+  residueCoordinates: [[1, getGene('S').len_aa]],
 
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -110,6 +110,7 @@ class ObservableConfigStore {
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
   @observable customCoordinates = initialConfigValues.customCoordinates;
   @observable customSequences = initialConfigValues.customSequences;
+  @observable residueCoordinates = initialConfigValues.residueCoordinates;
 
   @observable coordinateMode = initialConfigValues.coordinateMode;
 
@@ -256,20 +257,16 @@ class ObservableConfigStore {
     coordinateMode,
     selectedGene,
     selectedProtein,
+    residueCoordinates,
     selectedPrimers,
     customCoordinates,
     customSequences,
   }) {
-    // console.log('CHANGE COORDINATE MODE', coordinateMode);
-    // console.log('SELECTED GENE:', selectedGene);
-    // console.log('SELECTED PROTEIN:', selectedProtein);
-    // console.log('SELECTED PRIMERS:', selectedPrimers);
-    // console.log('CUSTOM COORDINATES:', customCoordinates);
-
     let initial = Object.assign({
       coordinateMode: toJS(this.coordinateMode),
       selectedGene: toJS(this.selectedGene),
       selectedProtein: toJS(this.selectedProtein),
+      residueCoordinates: toJS(this.residueCoordinates),
       selectedPrimers: toJS(this.selectedPrimers),
       customCoordinates: toJS(this.customCoordinates),
       customSequences: toJS(this.customSequences),
@@ -279,9 +276,25 @@ class ObservableConfigStore {
     this.coordinateMode = coordinateMode;
     this.selectedGene = getGene(selectedGene);
     this.selectedProtein = getProtein(selectedProtein);
+    this.residueCoordinates = residueCoordinates;
     this.selectedPrimers = selectedPrimers;
     this.customCoordinates = customCoordinates;
     this.customSequences = customSequences;
+
+    // If we selected a new gene/protein, then update the residue coordinates
+    if (
+      this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
+      (this.selectedGene.gene !== initial.selectedGene.gene ||
+        this.coordinateMode !== initial.coordinateMode)
+    ) {
+      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
+    } else if (
+      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
+      (this.selectedProtein.protein !== initial.selectedProtein.protein ||
+        this.coordinateMode !== initial.coordinateMode)
+    ) {
+      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+    }
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
@@ -298,12 +311,14 @@ class ObservableConfigStore {
       // Do nothing
     } else if (
       this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      this.selectedGene.gene === initial.selectedGene.gene
+      this.selectedGene.gene === initial.selectedGene.gene &&
+      _.isEqual(toJS(this.residueCoordinates), initial.residueCoordinates)
     ) {
       return;
     } else if (
       this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-      this.selectedProtein.protein == initial.selectedProtein.protein
+      this.selectedProtein.protein == initial.selectedProtein.protein &&
+      _.isEqual(toJS(this.residueCoordinates), initial.residueCoordinates)
     ) {
       return;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
@@ -344,9 +359,53 @@ class ObservableConfigStore {
   getCoordinateRanges() {
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      return this.selectedGene.ranges;
+      // Disable residue indices for non-protein-coding genes
+      if (this.selectedGene.protein_coding === 0) {
+        return this.selectedGene.ranges;
+      }
+      const coordinateRanges = [];
+      this.residueCoordinates.forEach((range) => {
+        // Make a deep copy of the current range
+        const curRange = range.slice();
+        for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
+          const curAARange = this.selectedGene.aa_ranges[i];
+          const curNTRange = this.selectedGene.ranges[i];
+          if (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) {
+            coordinateRanges.push([
+              curNTRange[0] + (curRange[0] - 1) * 3,
+              curNTRange[0] - 1 + Math.min(curRange[1], curAARange[1]) * 3,
+            ]);
+            // Push the beginning of the current range to the end of
+            // the current AA range of the gene
+            if (curAARange[1] < curRange[1]) {
+              curRange[0] = curAARange[1] + 1;
+            }
+          }
+        }
+      });
+      return coordinateRanges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      return this.selectedProtein.ranges;
+      const coordinateRanges = [];
+      this.residueCoordinates.forEach((range) => {
+        // Make a deep copy of the current range
+        const curRange = range.slice();
+        for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
+          const curAARange = this.selectedProtein.aa_ranges[i];
+          const curNTRange = this.selectedProtein.ranges[i];
+          if (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) {
+            coordinateRanges.push([
+              curNTRange[0] + (curRange[0] - 1) * 3,
+              curNTRange[0] - 1 + Math.min(curRange[1], curAARange[1]) * 3,
+            ]);
+            // Push the beginning of the current range to the end of
+            // the current AA range of the gene
+            if (curAARange[1] < curRange[1]) {
+              curRange[0] = curAARange[1] + 1;
+            }
+          }
+        }
+      });
+      return coordinateRanges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       return this.selectedPrimers.map((primer) => {
         return [primer.Start, primer.End];

@@ -1,8 +1,8 @@
 import initialCaseData from '../../data/case_data.json';
 import {
-  intToDnaSnp,
-  intToGeneAaSnp,
-  intToProteinAaSnp,
+  intToDnaSnv,
+  intToGeneAaSnv,
+  intToProteinAaSnv,
   getSnvColor,
   formatSnv,
 } from './snpData';
@@ -81,63 +81,48 @@ function filterByLocation(caseData, locationIds) {
 //   return result;
 // }
 
-function filterByCoordinateRange({ caseData, coordinateRanges }) {
-  let newCaseData = [];
-
-  caseData.forEach((row) => {
-    // Only keep SNPs that are within
-    row['dna_snp_str'] = _.filter(row['dna_snp_str'], (snpId) => {
-      let snpObj = intToDnaSnp(snpId);
-      // Keep the SNP if it falls into any one of the ranges
-      return _.some(coordinateRanges, (range) => {
-        return snpObj.pos >= range[0] && snpObj.pos <= range[1];
-      });
-    });
-    newCaseData.push(row);
-  });
-
-  return newCaseData;
-}
-
-function filterByGeneOrProtein({
+function filterByCoordinateRange({
   caseData,
+  coordinateRanges,
+  dnaOrAa,
   coordinateMode,
-  selectedGene,
-  selectedProtein,
 }) {
   let newCaseData = [];
 
-  if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-    // Don't need to do this if we selected all genes
-    if (selectedGene.gene === 'All Genes') {
-      return caseData;
-    }
-
+  if (dnaOrAa === DNA_OR_AA.DNA) {
     caseData.forEach((row) => {
-      row['gene_aa_snp_str'] = _.filter(row['gene_aa_snp_str'], (snpId) => {
-        let snpObj = intToGeneAaSnp(snpId);
-        return snpObj.gene === selectedGene.gene;
+      // Only keep SNPs that are within
+      row['dna_snp_str'] = row['dna_snp_str'].filter((snpId) => {
+        let snpObj = intToDnaSnv(snpId);
+        // Keep the SNP if it falls into any one of the ranges
+        return coordinateRanges.some((range) => {
+          return snpObj.pos >= range[0] && snpObj.pos <= range[1];
+        });
       });
       newCaseData.push(row);
     });
-  } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-    // Don't need to do this if we selected all proteins
-    if (selectedProtein.protein === 'All Proteins') {
-      return caseData;
-    }
-
+  } else if (dnaOrAa === DNA_OR_AA.AA) {
     caseData.forEach((row) => {
-      row['protein_aa_snp_str'] = _.filter(
-        row['protein_aa_snp_str'],
-        (snpId) => {
-          let snpObj = intToProteinAaSnp(snpId);
-          return snpObj.protein === selectedProtein.protein;
-        }
-      );
+      let snvField, intToSnvFunc;
+      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        snvField = 'gene_aa_snp_str';
+        intToSnvFunc = intToGeneAaSnv;
+      } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        snvField = 'protein_aa_snp_str';
+        intToSnvFunc = intToProteinAaSnv;
+      }
+
+      // Only keep SNPs that are within
+      row[snvField] = row[snvField].filter((snpId) => {
+        let snpObj = intToSnvFunc(snpId);
+        // console.log(snpObj);
+        // Keep the SNP if it falls into any one of the ranges
+        return coordinateRanges.some((range) => {
+          return snpObj.nt_pos >= range[0] && snpObj.nt_pos <= range[1];
+        });
+      });
       newCaseData.push(row);
     });
-  } else {
-    return caseData;
   }
 
   return newCaseData;
@@ -218,8 +203,6 @@ function processCaseData({
   selectedLocationNodes,
   coordinateMode,
   coordinateRanges,
-  selectedGene,
-  selectedProtein,
   groupKey,
   dnaOrAa,
   selectedMetadataFields,
@@ -237,24 +220,13 @@ function processCaseData({
   const selectedLocationIds = getLocationIds(selectedLocationNodes);
   caseData = filterByLocation(caseData, selectedLocationIds);
   // console.log(caseData.length, 'rows remaining after location filtering');
-  // Filter by coordinate range (DNA mode only)
-  if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
-    caseData = filterByCoordinateRange({ caseData, coordinateRanges });
-    // console.log(
-    //   caseData.length,
-    //   'rows remaining after coordinate range filtering'
-    // );
-  }
-  // Filter by gene/protein (AA mode only, gene or protein selected)
-  if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
-    caseData = filterByGeneOrProtein({
-      caseData,
-      coordinateMode,
-      selectedGene,
-      selectedProtein,
-    });
-    // console.log(caseData.length, 'rows remaining after gene/protein filtering');
-  }
+  // Filter by coordinate range
+  caseData = filterByCoordinateRange({
+    caseData,
+    coordinateRanges,
+    dnaOrAa,
+    coordinateMode,
+  });
 
   // Get the initial number of sequences, prior to metadata filtering
   const numSequencesBeforeMetadataFiltering = caseData.length;
@@ -383,15 +355,15 @@ function processCaseData({
       }
       // Replace the integer SNP ID with the actual SNP string
       else if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
-        group = intToDnaSnp(group).snp_str;
+        group = intToDnaSnv(group).snp_str;
       } else if (
         groupKey === GROUP_KEYS.GROUP_SNV &&
         dnaOrAa === DNA_OR_AA.AA
       ) {
         if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          group = intToGeneAaSnp(group).snp_str;
+          group = intToGeneAaSnv(group).snp_str;
         } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-          group = intToProteinAaSnp(group).snp_str;
+          group = intToProteinAaSnv(group).snp_str;
         }
       }
 

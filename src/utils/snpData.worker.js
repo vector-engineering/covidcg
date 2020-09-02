@@ -1,11 +1,11 @@
 import { getLocationIds } from './location';
 import {
-  dnaSnpToInt,
-  geneAaSnpToInt,
-  proteinAaSnpToInt,
-  intToDnaSnp,
-  intToGeneAaSnp,
-  intToProteinAaSnp,
+  dnaSnvToInt,
+  geneAaSnvToInt,
+  proteinAaSnvToInt,
+  intToDnaSnv,
+  intToGeneAaSnv,
+  intToProteinAaSnv,
   getSnvColor,
   formatSnv,
 } from './snpData';
@@ -44,23 +44,23 @@ function getSnvFields({ dnaOrAa, coordinateMode, selectedGroups }) {
   let intToSnvFunc;
   if (dnaOrAa === DNA_OR_AA.DNA) {
     selectedGroupIds = selectedGroups
-      .map((item) => dnaSnpToInt(item))
+      .map((item) => dnaSnvToInt(item))
       .map((snpId) => (snpId === undefined ? -1 : snpId));
     snvEntry = 'dna_snp_str';
-    intToSnvFunc = intToDnaSnp;
+    intToSnvFunc = intToDnaSnv;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       selectedGroupIds = selectedGroups
-        .map((item) => geneAaSnpToInt(item))
+        .map((item) => geneAaSnvToInt(item))
         .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'gene_aa_snp_str';
-      intToSnvFunc = intToGeneAaSnp;
+      intToSnvFunc = intToGeneAaSnv;
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       selectedGroupIds = selectedGroups
-        .map((item) => proteinAaSnpToInt(item))
+        .map((item) => proteinAaSnvToInt(item))
         .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'protein_aa_snp_str';
-      intToSnvFunc = intToProteinAaSnp;
+      intToSnvFunc = intToProteinAaSnv;
     }
   }
   // Array to Set

@@ -2,14 +2,15 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-import dnaSnpMap from '../../data/dna_snp_map.json';
-import geneAaSnpMap from '../../data/gene_aa_snp_map.json';
-import proteinAaSnpMap from '../../data/protein_aa_snp_map.json';
+import dnaSnvMap from '../../data/dna_snp_map.json';
+import geneAaSnvMap from '../../data/gene_aa_snp_map.json';
+import proteinAaSnvMap from '../../data/protein_aa_snp_map.json';
 
 import _ from 'underscore';
 
-import { snpColorArray } from '../constants/colors';
+import { getGene, getProtein } from './gene_protein';
 
+import { snpColorArray } from '../constants/colors';
 import { GROUPS } from '../constants/groups';
 import { DNA_OR_AA } from '../constants/config';
 
@@ -29,13 +30,13 @@ snvColorMap[GROUPS.REFERENCE_GROUP] = _getSnvColor('Reference');
 snvColorMap[GROUPS.OTHER_GROUP] = '#AAA';
 snvColorMap[GROUPS.NONE_GROUP] = '#AAA';
 snvColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
-Object.keys(dnaSnpMap).forEach((snv) => {
+Object.keys(dnaSnvMap).forEach((snv) => {
   snvColorMap[snv] = _getSnvColor(snv);
 });
-Object.keys(geneAaSnpMap).forEach((snv) => {
+Object.keys(geneAaSnvMap).forEach((snv) => {
   snvColorMap[snv] = _getSnvColor(snv);
 });
-Object.keys(proteinAaSnpMap).forEach((snv) => {
+Object.keys(proteinAaSnvMap).forEach((snv) => {
   snvColorMap[snv] = _getSnvColor(snv);
 });
 
@@ -51,90 +52,118 @@ export const getSnvColor = (snv) => {
 // }
 
 // Re-map so it's integer -> SNP
-let intToDnaSnpMap = {};
-let intToGeneAaSnpMap = {};
-let intToProteinAaSnpMap = {};
+let intToDnaSnvMap = {};
+let intToGeneAaSnvMap = {};
+let intToProteinAaSnvMap = {};
 
-let snpId = -1;
-let split = [];
+let snvId, split, aaRangeInd;
 
-Object.keys(dnaSnpMap).forEach((snp) => {
-  snpId = parseInt(dnaSnpMap[snp]);
-  intToDnaSnpMap[snpId] = {};
-  // Store the entire SNP string
-  intToDnaSnpMap[snpId]['snp_str'] = snp;
+Object.keys(dnaSnvMap).forEach((snv) => {
+  snvId = parseInt(dnaSnvMap[snv]);
+  intToDnaSnvMap[snvId] = {};
+  // Store the entire SNV string
+  intToDnaSnvMap[snvId]['snp_str'] = snv;
 
-  // Each SNP is broken up by pos|ref|alt
-  split = snp.split('|');
+  // Each SNV is broken up by pos|ref|alt
+  split = snv.split('|');
 
   // Store all the parts
   // Positions are 1-indexed
-  intToDnaSnpMap[snpId]['pos'] = parseInt(split[0]);
-  intToDnaSnpMap[snpId]['ref'] = split[1];
-  intToDnaSnpMap[snpId]['alt'] = split[2];
+  intToDnaSnvMap[snvId]['pos'] = parseInt(split[0]);
+  intToDnaSnvMap[snvId]['ref'] = split[1];
+  intToDnaSnvMap[snvId]['alt'] = split[2];
 });
-Object.keys(geneAaSnpMap).forEach((snp) => {
-  snpId = parseInt(geneAaSnpMap[snp]);
-  intToGeneAaSnpMap[snpId] = {};
-  // Store the entire SNP string
-  intToGeneAaSnpMap[snpId]['snp_str'] = snp;
+Object.keys(geneAaSnvMap).forEach((snv) => {
+  snvId = parseInt(geneAaSnvMap[snv]);
+  intToGeneAaSnvMap[snvId] = {};
+  // Store the entire SNV string
+  intToGeneAaSnvMap[snvId]['snp_str'] = snv;
 
-  // Each SNP is broken up by gene|pos|ref|alt
-  split = snp.split('|');
+  // Each SNV is broken up by gene|pos|ref|alt
+  split = snv.split('|');
 
   // Store all the parts
-  intToGeneAaSnpMap[snpId]['gene'] = split[0];
-  intToGeneAaSnpMap[snpId]['pos'] = parseInt(split[1]);
-  intToGeneAaSnpMap[snpId]['ref'] = split[2];
-  intToGeneAaSnpMap[snpId]['alt'] = split[3];
-});
-Object.keys(proteinAaSnpMap).forEach((snp) => {
-  snpId = parseInt(proteinAaSnpMap[snp]);
-  intToProteinAaSnpMap[snpId] = {};
-  // Store the entire SNP string
-  intToProteinAaSnpMap[snpId]['snp_str'] = snp;
+  intToGeneAaSnvMap[snvId]['gene'] = split[0];
+  intToGeneAaSnvMap[snvId]['pos'] = parseInt(split[1]);
+  intToGeneAaSnvMap[snvId]['ref'] = split[2];
+  intToGeneAaSnvMap[snvId]['alt'] = split[3];
 
-  // Each SNP is broken up by gene|pos|ref|alt
-  split = snp.split('|');
+  // Get coordinates in NT (from start of codon)
+  aaRangeInd = getGene(split[0]).aa_ranges.reduce((_aaRangeInd, range, ind) => {
+    return intToGeneAaSnvMap[snvId]['pos'] >= range[0] &&
+      intToGeneAaSnvMap[snvId]['pos'] <= range[1]
+      ? ind
+      : _aaRangeInd;
+  }, 0);
+  intToGeneAaSnvMap[snvId]['nt_pos'] =
+    getGene(split[0]).ranges[aaRangeInd][0] +
+    (intToGeneAaSnvMap[snvId]['pos'] -
+      getGene(split[0]).aa_ranges[aaRangeInd][0]) *
+      3;
+});
+Object.keys(proteinAaSnvMap).forEach((snv) => {
+  snvId = parseInt(proteinAaSnvMap[snv]);
+  intToProteinAaSnvMap[snvId] = {};
+  // Store the entire SNV string
+  intToProteinAaSnvMap[snvId]['snp_str'] = snv;
+
+  // Each SNV is broken up by gene|pos|ref|alt
+  split = snv.split('|');
 
   // Store all the parts
-  intToProteinAaSnpMap[snpId]['protein'] = split[0];
-  intToProteinAaSnpMap[snpId]['pos'] = parseInt(split[1]);
-  intToProteinAaSnpMap[snpId]['ref'] = split[2];
-  intToProteinAaSnpMap[snpId]['alt'] = split[3];
+  intToProteinAaSnvMap[snvId]['protein'] = split[0];
+  intToProteinAaSnvMap[snvId]['pos'] = parseInt(split[1]);
+  intToProteinAaSnvMap[snvId]['ref'] = split[2];
+  intToProteinAaSnvMap[snvId]['alt'] = split[3];
+
+  // Get coordinates in NT (from start of codon)
+  aaRangeInd = getProtein(split[0]).aa_ranges.reduce(
+    (_aaRangeInd, range, ind) => {
+      return intToProteinAaSnvMap[snvId]['pos'] >= range[0] &&
+        intToProteinAaSnvMap[snvId]['pos'] <= range[1]
+        ? ind
+        : _aaRangeInd;
+    },
+    0
+  );
+  intToProteinAaSnvMap[snvId]['nt_pos'] =
+    getProtein(split[0]).ranges[aaRangeInd][0] +
+    (intToProteinAaSnvMap[snvId]['pos'] -
+      getProtein(split[0]).aa_ranges[aaRangeInd][0]) *
+      3;
 });
 
-// console.log(intToDnaSnpMap);
-// console.log(intToGeneAaSnpMap);
-// console.log(intToProteinAaSnpMap);
+// console.log(intToDnaSnvMap);
+// console.log(intToGeneAaSnvMap);
+// console.log(intToProteinAaSnvMap);
 
-export function intToDnaSnp(dnaSnpId) {
-  if (dnaSnpId === -1) {
+export function intToDnaSnv(dnaSnvId) {
+  if (dnaSnvId === -1) {
     return { snp_str: GROUPS.REFERENCE_GROUP };
   }
-  return intToDnaSnpMap[dnaSnpId];
+  return intToDnaSnvMap[dnaSnvId];
 }
-export function intToGeneAaSnp(aaSnpId) {
-  if (aaSnpId === -1) {
+export function intToGeneAaSnv(aaSnvId) {
+  if (aaSnvId === -1) {
     return { snp_str: GROUPS.REFERENCE_GROUP };
   }
-  return intToGeneAaSnpMap[aaSnpId];
+  return intToGeneAaSnvMap[aaSnvId];
 }
-export function intToProteinAaSnp(aaSnpId) {
-  if (aaSnpId === -1) {
+export function intToProteinAaSnv(aaSnvId) {
+  if (aaSnvId === -1) {
     return { snp_str: GROUPS.REFERENCE_GROUP };
   }
-  return intToProteinAaSnpMap[aaSnpId];
+  return intToProteinAaSnvMap[aaSnvId];
 }
 
-export function dnaSnpToInt(dnaSnp) {
-  return dnaSnpMap[dnaSnp];
+export function dnaSnvToInt(dnaSnv) {
+  return dnaSnvMap[dnaSnv];
 }
-export function geneAaSnpToInt(geneAaSnp) {
-  return geneAaSnpMap[geneAaSnp];
+export function geneAaSnvToInt(geneAaSnv) {
+  return geneAaSnvMap[geneAaSnv];
 }
-export function proteinAaSnpToInt(proteinAaSnp) {
-  return proteinAaSnpMap[proteinAaSnp];
+export function proteinAaSnvToInt(proteinAaSnv) {
+  return proteinAaSnvMap[proteinAaSnv];
 }
 
 export function formatSnv(snvStr, dnaOrAa) {
