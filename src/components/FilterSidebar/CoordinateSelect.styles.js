@@ -86,6 +86,36 @@ export const SelectForm = styled.form`
   }
 `;
 
+export const DomainSelectForm = styled.form`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+
+  margin-top: 3px;
+  margin-left: 20px;
+
+  span {
+    font-weight: normal;
+    margin-right: 8px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  select {
+    background-color: white;
+    flex-grow: 1;
+    padding: 1px 5px;
+    width: 100%;
+    border-radius: 3px;
+  }
+`;
+
 export const UpdatePrimersButton = styled(Button)`
   display: ${(props) => (props.show ? 'block' : 'none')};
   font-size: 1em;
@@ -276,4 +306,10 @@ export const RangesText = styled.span`
   font-weight: normal;
   line-height: normal;
   color: #888;
+`;
+
+export const DomainSelect = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;

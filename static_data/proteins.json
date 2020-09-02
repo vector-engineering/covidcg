@@ -99,7 +99,58 @@
     "protein": "S",
     "segments": "21563..25384",
     "notes": "structural protein; spike protein",
-    "domains": []
+    "domains": [
+      {
+        "name": "Receptor binding domain (RBD)",
+        "ranges": [[319, 541]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "S1 subunit",
+        "ranges": [[14, 685]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "S2 subunit",
+        "ranges": [[686, 1273]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 13]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "N-terminal domain (NTD)",
+        "ranges": [[14, 305]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Fusion peptide (FP)",
+        "ranges": [[788, 806]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Heptapeptide repeat sequence 1 (HR1)",
+        "ranges": [[912, 984]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Heptapeptide repeat sequence 2 (HR2)",
+        "ranges": [[1163, 1213]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Transmembrane (TM) domain",
+        "ranges": [[1213, 1237]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      },
+      {
+        "name": "Cytoplasm (CT) domain",
+        "ranges": [[1237, 1273]],
+        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+      }
+    ]
   },
   {
     "protein": "orf3a",

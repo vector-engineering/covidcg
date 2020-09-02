@@ -21,6 +21,7 @@ import {
   ValidationInput,
   InvalidText,
   RangesText,
+  DomainSelectForm,
 } from './CoordinateSelect.styles';
 
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
@@ -57,6 +58,29 @@ const CoordinateSelect = observer(() => {
     );
   });
 
+  // GENE DOMAINS
+  let geneDomainOptionElements = {};
+  genes.forEach((gene) => {
+    geneDomainOptionElements[gene.gene] = [
+      <option
+        key={`${gene.gene}-default`}
+        value={`${gene.gene}-default`}
+        disabled={true}
+      >
+        {' '}
+        - select an option -
+      </option>,
+    ];
+    gene.domains.forEach((domain) => {
+      geneDomainOptionElements[gene.gene].push(
+        <option key={`${gene.gene}-${domain.name}`} value={domain.name}>
+          {domain.name}&nbsp;&nbsp;(
+          {domain.ranges.map((range) => range.join('..')).join(';')})
+        </option>
+      );
+    });
+  });
+
   // PROTEIN
   let proteinOptionElements = [];
   proteins.forEach((protein) => {
@@ -65,6 +89,29 @@ const CoordinateSelect = observer(() => {
         {protein.protein}&nbsp;&nbsp;({protein.segments})
       </option>
     );
+  });
+
+  // PROTEIN DOMAINS
+  let proteinDomainOptionElements = {};
+  proteins.forEach((protein) => {
+    proteinDomainOptionElements[protein.protein] = [
+      <option
+        key={`${protein.protein}-default`}
+        value={`${protein.protein}-default`}
+        disabled={true}
+      >
+        {' '}
+        - select an option -
+      </option>,
+    ];
+    protein.domains.forEach((domain) => {
+      proteinDomainOptionElements[protein.protein].push(
+        <option key={`${protein.protein}-${domain.name}`} value={domain.name}>
+          {domain.name}&nbsp;&nbsp;(
+          {domain.ranges.map((range) => range.join('..')).join(';')})
+        </option>
+      );
+    });
   });
 
   const [state, setState] = useState({
@@ -219,6 +266,57 @@ const CoordinateSelect = observer(() => {
       residueCoordinates: state.residueCoordsText
         .split(';')
         .map((range) => range.split('..').map((coord) => parseInt(coord))),
+    });
+  };
+
+  // Use the selected domain to fill in the residue coordinates input
+  const handleGeneDomainChange = (event) => {
+    const domainName = event.target.value;
+    const domainObj = _.findWhere(configStore.selectedGene.domains, {
+      name: domainName,
+    });
+
+    // This shouldn't happen...
+    if (domainObj === undefined) {
+      return;
+    }
+
+    const newResidueCoordsText = domainObj.ranges
+      .map((range) => range.join('..'))
+      .join(';');
+    const residueCoordsChanged =
+      state.residueCoordsText !== newResidueCoordsText;
+
+    setState({
+      ...state,
+      residueCoordsText: newResidueCoordsText,
+      validResidueCoords: true,
+      residueCoordsChanged,
+    });
+  };
+
+  const handleProteinDomainChange = (event) => {
+    const domainName = event.target.value;
+    const domainObj = _.findWhere(configStore.selectedProtein.domains, {
+      name: domainName,
+    });
+
+    // This shouldn't happen...
+    if (domainObj === undefined) {
+      return;
+    }
+
+    const newResidueCoordsText = domainObj.ranges
+      .map((range) => range.join('..'))
+      .join(';');
+    const residueCoordsChanged =
+      state.residueCoordsText !== newResidueCoordsText;
+
+    setState({
+      ...state,
+      residueCoordsText: newResidueCoordsText,
+      validResidueCoords: true,
+      residueCoordsChanged,
     });
   };
 
@@ -460,6 +558,24 @@ const CoordinateSelect = observer(() => {
                   data-for="gene-residue-index-tooltip"
                 />
               </CoordForm>
+              {geneDomainOptionElements[configStore.selectedGene.gene].length >
+                1 && (
+                <DomainSelectForm>
+                  <span>Domain:</span>
+                  <select
+                    value={`${configStore.selectedGene.gene}-default`}
+                    onChange={handleGeneDomainChange}
+                  >
+                    {geneDomainOptionElements[configStore.selectedGene.gene]}
+                  </select>
+                  <QuestionButton
+                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will add the range(s) to the residue indices input</p>'
+                    data-html="true"
+                    data-for="gene-residue-index-tooltip"
+                  />
+                </DomainSelectForm>
+              )}
+
               <UpdateButton
                 show={state.residueCoordsChanged}
                 disabled={!state.validResidueCoords}
@@ -524,6 +640,27 @@ const CoordinateSelect = observer(() => {
                   data-for="protein-residue-index-tooltip"
                 />
               </CoordForm>
+              {proteinDomainOptionElements[configStore.selectedProtein.protein]
+                .length > 1 && (
+                <DomainSelectForm>
+                  <span>Domain:</span>
+                  <select
+                    value={`${configStore.selectedProtein.protein}-default`}
+                    onChange={handleProteinDomainChange}
+                  >
+                    {
+                      proteinDomainOptionElements[
+                        configStore.selectedProtein.protein
+                      ]
+                    }
+                  </select>
+                  <QuestionButton
+                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will add the range(s) to the residue indices input</p>'
+                    data-html="true"
+                    data-for="gene-residue-index-tooltip"
+                  />
+                </DomainSelectForm>
+              )}
               <UpdateButton
                 show={state.residueCoordsChanged}
                 disabled={!state.validResidueCoords}
