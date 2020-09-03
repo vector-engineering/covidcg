@@ -4,13 +4,140 @@
     "gene": "ORF1a",
     "segments": "266..13468",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "nsp1",
+        "ranges": [[1, 180]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp2",
+        "ranges": [[181, 818]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp3",
+        "ranges": [[819, 2763]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp4",
+        "ranges": [[2764, 3263]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp5 - 3C-like proteinase",
+        "ranges": [[3264, 3569]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp6",
+        "ranges": [[3570, 3859]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp7",
+        "ranges": [[3860, 3942]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp8",
+        "ranges": [[3943, 4140]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp9",
+        "ranges": [[4141, 4253]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp10",
+        "ranges": [[4254, 4392]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
-    "gene": "ORF1b",
-    "segments": "13468..21555",
+    "gene": "ORF1ab",
+    "segments": "266..13468;13468..21555",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "nsp1",
+        "ranges": [[1, 180]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp2",
+        "ranges": [[181, 818]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp3 - PL2-PRO",
+        "ranges": [[819, 2763]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp4",
+        "ranges": [[2764, 3263]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp5 - 3CLp",
+        "ranges": [[3264, 3569]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp6",
+        "ranges": [[3570, 3859]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp7",
+        "ranges": [[3860, 3942]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp8",
+        "ranges": [[3943, 4140]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp9",
+        "ranges": [[4141, 4253]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp10 - CysHis",
+        "ranges": [[4254, 4392]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp12 - RdRp",
+        "ranges": [[4393, 5324]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp13 - Helicase",
+        "ranges": [[5325, 5925]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp14 - ExoN",
+        "ranges": [[5926, 6452]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp15 - NendoU",
+        "ranges": [[6453, 6798]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "nsp16 - 2'-O-MT",
+        "ranges": [[6799, 7096]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "gene": "S",
@@ -79,13 +206,95 @@
     "gene": "E",
     "segments": "26245..26472",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Virion Surface",
+        "ranges": [[1, 16]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "Transmembrane, Helical",
+        "ranges": [[17, 37]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "Intravirion",
+        "ranges": [[38, 75]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "PDZ-binding motif",
+        "ranges": [[72, 75]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      }
+    ]
   },
   {
     "gene": "M",
     "segments": "26523..27191",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, all",
+        "ranges": [
+          [20, 40],
+          [51, 71],
+          [80, 100]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface, all",
+        "ranges": [
+          [2, 19],
+          [72, 79]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion, all",
+        "ranges": [
+          [41, 50],
+          [101, 222]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface 1",
+        "ranges": [[2, 19]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 1, helical",
+        "ranges": [[20, 40]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion 1",
+        "ranges": [[41, 50]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 2, helical",
+        "ranges": [[51, 71]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface 2",
+        "ranges": [[72, 79]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 3, helical",
+        "ranges": [[80, 100]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion 2",
+        "ranges": [[101, 222]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      }
+    ]
   },
   {
     "gene": "ORF6",
@@ -97,25 +306,64 @@
     "gene": "ORF7a",
     "segments": "27394..27759",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, helical",
+        "ranges": [[96, 116]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+      },
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 15]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+      }
+    ]
   },
   {
     "gene": "ORF7b",
     "segments": "27756..27887",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, helical",
+        "ranges": [[9, 29]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD8"
+      }
+    ]
   },
   {
     "gene": "ORF8",
     "segments": "27894..28259",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 15]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+      },
+      {
+        "name": "ORF8 protein",
+        "ranges": [[16, 121]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+      }
+    ]
   },
   {
     "gene": "N",
     "segments": "28274..29533",
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "RNA-binding",
+        "ranges": [[41, 186]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+      },
+      {
+        "name": "Dimerization",
+        "ranges": [[258, 361]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+      }
+    ]
   },
   {
     "gene": "ORF10",

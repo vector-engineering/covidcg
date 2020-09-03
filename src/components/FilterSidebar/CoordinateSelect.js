@@ -543,54 +543,55 @@ const CoordinateSelect = observer(() => {
               </select>
             </SelectForm>
           </ModeLabel>
-          {configStore.coordinateMode === COORDINATE_MODES.COORD_GENE && (
-            <>
-              <CoordForm>
-                <span className="coord-prefix">Residue indices:</span>
-                <input
-                  type="text"
-                  value={state.residueCoordsText}
-                  onChange={handleResidueCoordsChange}
-                />
-                <ReactTooltip
-                  className="filter-sidebar-tooltip"
-                  id="gene-residue-index-tooltip"
-                  type="light"
-                  effect="solid"
-                  border={true}
-                  borderColor="#888"
-                />
-                <QuestionButton
-                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
-                  data-html="true"
-                  data-for="gene-residue-index-tooltip"
-                />
-              </CoordForm>
-              <DomainSelectForm>
-                <span>Domain:</span>
-                <select
-                  value={`${configStore.selectedGene.gene}-default`}
-                  onChange={handleGeneDomainChange}
-                >
-                  {geneDomainOptionElements[configStore.selectedGene.gene]}
-                </select>
-                <QuestionButton
-                  data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
-                  data-html="true"
-                  data-for="gene-residue-index-tooltip"
-                />
-              </DomainSelectForm>
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
+            configStore.selectedGene.gene !== 'All Genes' && (
+              <>
+                <CoordForm>
+                  <span className="coord-prefix">Residue indices:</span>
+                  <input
+                    type="text"
+                    value={state.residueCoordsText}
+                    onChange={handleResidueCoordsChange}
+                  />
+                  <ReactTooltip
+                    className="filter-sidebar-tooltip"
+                    id="gene-residue-index-tooltip"
+                    type="light"
+                    effect="solid"
+                    border={true}
+                    borderColor="#888"
+                  />
+                  <QuestionButton
+                    data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
+                    data-html="true"
+                    data-for="gene-residue-index-tooltip"
+                  />
+                </CoordForm>
+                <DomainSelectForm>
+                  <span>Domain:</span>
+                  <select
+                    value={`${configStore.selectedGene.gene}-default`}
+                    onChange={handleGeneDomainChange}
+                  >
+                    {geneDomainOptionElements[configStore.selectedGene.gene]}
+                  </select>
+                  <QuestionButton
+                    data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                    data-html="true"
+                    data-for="gene-residue-index-tooltip"
+                  />
+                </DomainSelectForm>
 
-              <UpdateButton
-                show={state.residueCoordsChanged}
-                disabled={!state.validResidueCoords}
-                onClick={handleResidueCoordsSubmit}
-                style={{ marginTop: 5 }}
-              >
-                Confirm
-              </UpdateButton>
-            </>
-          )}
+                <UpdateButton
+                  show={state.residueCoordsChanged}
+                  disabled={!state.validResidueCoords}
+                  onClick={handleResidueCoordsSubmit}
+                  style={{ marginTop: 5 }}
+                >
+                  Confirm
+                </UpdateButton>
+              </>
+            )}
         </ModeRadioVertical>
 
         {/* PROTEIN SELECT */}
@@ -622,57 +623,58 @@ const CoordinateSelect = observer(() => {
               </select>
             </SelectForm>
           </ModeLabel>
-          {configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN && (
-            <>
-              <CoordForm>
-                <span className="coord-prefix">Residue indices:</span>
-                <input
-                  type="text"
-                  value={state.residueCoordsText}
-                  onChange={handleResidueCoordsChange}
-                />
-                <ReactTooltip
-                  className="filter-sidebar-tooltip"
-                  id="protein-residue-index-tooltip"
-                  type="light"
-                  effect="solid"
-                  border={true}
-                  borderColor="#888"
-                />
-                <QuestionButton
-                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
-                  data-html="true"
-                  data-for="protein-residue-index-tooltip"
-                />
-              </CoordForm>
-              <DomainSelectForm>
-                <span>Domain:</span>
-                <select
-                  value={`${configStore.selectedProtein.protein}-default`}
-                  onChange={handleProteinDomainChange}
+          {configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
+            configStore.selectedProtein.protein !== 'All Proteins' && (
+              <>
+                <CoordForm>
+                  <span className="coord-prefix">Residue indices:</span>
+                  <input
+                    type="text"
+                    value={state.residueCoordsText}
+                    onChange={handleResidueCoordsChange}
+                  />
+                  <ReactTooltip
+                    className="filter-sidebar-tooltip"
+                    id="protein-residue-index-tooltip"
+                    type="light"
+                    effect="solid"
+                    border={true}
+                    borderColor="#888"
+                  />
+                  <QuestionButton
+                    data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
+                    data-html="true"
+                    data-for="protein-residue-index-tooltip"
+                  />
+                </CoordForm>
+                <DomainSelectForm>
+                  <span>Domain:</span>
+                  <select
+                    value={`${configStore.selectedProtein.protein}-default`}
+                    onChange={handleProteinDomainChange}
+                  >
+                    {
+                      proteinDomainOptionElements[
+                        configStore.selectedProtein.protein
+                      ]
+                    }
+                  </select>
+                  <QuestionButton
+                    data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                    data-html="true"
+                    data-for="gene-residue-index-tooltip"
+                  />
+                </DomainSelectForm>
+                <UpdateButton
+                  show={state.residueCoordsChanged}
+                  disabled={!state.validResidueCoords}
+                  onClick={handleResidueCoordsSubmit}
+                  style={{ marginTop: 5 }}
                 >
-                  {
-                    proteinDomainOptionElements[
-                      configStore.selectedProtein.protein
-                    ]
-                  }
-                </select>
-                <QuestionButton
-                  data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
-                  data-html="true"
-                  data-for="gene-residue-index-tooltip"
-                />
-              </DomainSelectForm>
-              <UpdateButton
-                show={state.residueCoordsChanged}
-                disabled={!state.validResidueCoords}
-                onClick={handleResidueCoordsSubmit}
-                style={{ marginTop: 5 }}
-              >
-                Confirm
-              </UpdateButton>
-            </>
-          )}
+                  Confirm
+                </UpdateButton>
+              </>
+            )}
         </ModeRadioVertical>
 
         {/* PRIMER/PROBE SELECT */}

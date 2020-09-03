@@ -3,97 +3,404 @@
     "protein": "nsp1",
     "segments": "266..805",
     "notes": "Suppress host antiviral response. produced by both pp1a and pp1ab",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
     "protein": "nsp2",
     "segments": "806..2719",
-    "notes": "produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "produced by both pp1a and pp1ab. Interacts with host PHB and PHB2. 181..818 relative to ORF1a start.",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 1",
+        "ranges": [[365, 389]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Leucine-rich repeat (LRR) 2",
+        "ranges": [[517, 539]]
+      }
+    ]
   },
   {
-    "protein": "nsp3",
+    "protein": "nsp3 - PL2-PRO",
     "segments": "2720..8554",
-    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. former nsp1; conserved domains are: N-terminal acidic (Ac), predicted phosphoesterase, papain-like proteinase, Y-domain, transmembrane domain 1 (TM1), adenosine diphosphate-ribose 1''-phosphatase (ADRP); produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. former nsp1; conserved domains are: N-terminal acidic (Ac), predicted phosphoesterase, papain-like proteinase (PL-pro), Y-domain, transmembrane domain 1 (TM1), adenosine diphosphate-ribose 1''-phosphatase (ADRP); produced by both pp1a and pp1ab. 819..2763 relative to ORF1a start",
+    "domains": [
+      {
+        "name": "Macro",
+        "ranges": [[207, 376]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Peptidase C16",
+        "ranges": [[816, 1080]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Leucine-rich repeat (LRR) 3",
+        "ranges": [[862, 884]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Zinc finger (C4 type)",
+        "ranges": [[934, 971]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "All Transmembrane",
+        "ranges": [
+          [1408, 1428],
+          [1500, 1520]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "All Cytoplasmic",
+        "ranges": [
+          [1, 1407],
+          [1520, 1945]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 1",
+        "ranges": [[1, 1407]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 1, helical",
+        "ranges": [[1408, 1428]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal",
+        "ranges": [[1429, 1499]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 2, helical",
+        "ranges": [[1500, 1520]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 2",
+        "ranges": [[1520, 1945]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "nsp4",
     "segments": "8555..10054",
-    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp4B_TM; contains transmembrane domain 2 (TM2); produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp4B_TM; contains transmembrane domain 2 (TM2); produced by both pp1a and pp1ab. Interacts with PL-Pro and nsp6. 2764..3263 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 4",
+        "ranges": [[422, 444]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "All Cytoplasmic",
+        "ranges": [
+          [1, 12],
+          [303, 336],
+          [386, 500]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "All Transmembrane",
+        "ranges": [
+          [13, 33],
+          [282, 302],
+          [337, 357],
+          [365, 385]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "All Lumenal",
+        "ranges": [
+          [34, 281],
+          [358, 364]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 1",
+        "ranges": [[1, 12]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 1, helical",
+        "ranges": [[13, 33]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal 1",
+        "ranges": [[34, 281]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 2, helical",
+        "ranges": [[282, 302]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 2",
+        "ranges": [[303, 336]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 3, helical",
+        "ranges": [[337, 357]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal 2",
+        "ranges": [[358, 364]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 4, helical",
+        "ranges": [[365, 385]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 3",
+        "ranges": [[386, 500]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
-    "protein": "nsp5",
+    "protein": "nsp5 - 3CLp",
     "segments": "10055..10972",
-    "notes": "3C-like protease. nsp5A_3CLpro and nsp5B_3CLpro; main proteinase (Mpro); mediates cleavages downstream of nsp4. 3D structure of the SARSr-CoV homolog has been determined (Yang et al., 2003); produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "3C-like protease. nsp5A_3CLpro and nsp5B_3CLpro; main proteinase (Mpro); mediates cleavages downstream of nsp4. 3D structure of the SARSr-CoV homolog has been determined (Yang et al., 2003); produced by both pp1a and pp1ab. 3CL-pro exists as a monomer and homodimer. Only the homodimer shows catalytic activity. 3264..3569 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Peptidase C30",
+        "ranges": [[1, 306]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic",
+        "ranges": [[1, 306]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "nsp6",
     "segments": "10973..11842",
-    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp6_TM; putative transmembrane domain; produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp6_TM; putative transmembrane domain; produced by both pp1a and pp1ab. 3570..3859 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Cytoplasmic 1",
+        "ranges": [[1, 17]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 1, helical",
+        "ranges": [[18, 38]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal 1",
+        "ranges": [[39, 39]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 2, helical",
+        "ranges": [[40, 60]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 2",
+        "ranges": [[61, 65]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 3, helical",
+        "ranges": [[66, 86]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal 2",
+        "ranges": [[87, 104]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 4, helical",
+        "ranges": [[105, 125]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 3",
+        "ranges": [[126, 160]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 5, helical",
+        "ranges": [[161, 181]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Lumenal 3",
+        "ranges": [[182, 209]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Transmembrane 6, helical",
+        "ranges": [[210, 230]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Cytoplasmic 4",
+        "ranges": [[231, 290]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "nsp7",
     "segments": "11843..12091",
-    "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab. Eight copies of nsp7 and eight copies of nsp8 assemble to form a heterohexadecamer dsRNA-encircling ring structure (by similarity). 3860..3942 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 5 (partial)",
+        "ranges": [[76, 83]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "nsp8",
     "segments": "12092..12685",
-    "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab",
-    "domains": []
+    "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab. Eight copies of nsp7 and eight copies of nsp8 assemble to form a heterohexadecamer dsRNA-encircling ring structure (by similarity). 3943..4140 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 5 (partial)",
+        "ranges": [[1, 17]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Leucine-rich repeat (LRR) 6",
+        "ranges": [[35, 62]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "nsp9",
     "segments": "12686..13024",
-    "notes": "ssRNA-binding protein; produced by both pp1a and pp1ab",
+    "notes": "ssRNA-binding protein; produced by both pp1a and pp1ab. Is a dimer. 4141..4253 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp10",
+    "protein": "nsp10 - CysHis",
     "segments": "13025..13441",
-    "notes": "Essential for nsp16 methyltransferase activity. nsp10_CysHis; formerly known as growth-factor-like protein (GFL); produced by both pp1a and pp1ab",
+    "notes": "Essential for nsp16 methyltransferase activity. nsp10_CysHis; formerly known as growth-factor-like protein (GFL); produced by both pp1a and pp1ab. Forms a dodecamer and interacts with nsp14 and nsp16. These interactions enhance nsp14 and nsp16 enzymatic activities. 4254..4392 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
     "protein": "nsp11",
     "segments": "13442..13483",
-    "notes": "produced by pp1a only",
+    "notes": "produced by pp1a only. 4393..4406 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp12",
+    "protein": "nsp12 - RdRp",
     "segments": "13442..13468;13468..16236",
-    "notes": "RNA polymerase. nsp12; NiRAN and RdRp; produced by pp1ab only",
-    "domains": []
+    "notes": "RNA polymerase. nsp12; NiRAN (nidovirus RdRp-associated nucleotidyltransferase) and RdRp (RNA-dependent RNA polymerase); produced by pp1ab only. Interacts with nsp7 and nsp8. 4393..5324 relative to ORF1a start.",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 7",
+        "ranges": [[199, 224]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Interaction with RMP Remdesivir",
+        "ranges": [[545, 555]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "RdRp catalytic site",
+        "ranges": [[612, 774]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
-    "protein": "nsp13",
+    "protein": "nsp13 - Helicase",
     "segments": "16237..18039",
-    "notes": "Helicase/triphosphatase. nsp13_ZBD, nsp13_TB, and nsp_HEL1core; zinc-binding domain (ZD), NTPase/helicase domain (HEL), RNA 5'-triphosphatase; produced by pp1ab only",
-    "domains": []
+    "notes": "Helicase/triphosphatase. nsp13_ZBD, nsp13_TB, and nsp_HEL1core; zinc-binding domain (ZD), NTPase/helicase domain (HEL), RNA 5'-triphosphatase; produced by pp1ab only. 5325..5925 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "CoronaVirus Zinc-binding domain (ZBD)",
+        "ranges": [[1, 84]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Leucine-rich repeat (LRR) 8",
+        "ranges": [[228, 248]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "(+)RNA virus helicase ATP-binding",
+        "ranges": [[257, 438]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "Nucleotide binding (NTP)",
+        "ranges": [[282, 289]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      },
+      {
+        "name": "(+)RNA virus helicase C-terminal",
+        "ranges": [[439, 608]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
-    "protein": "nsp14",
+    "protein": "nsp14 - ExoN",
     "segments": "18040..19620",
-    "notes": "3'-5' exonuclease. nsp14A2_ExoN and nsp14B_NMT; produced by pp1ab only",
+    "notes": "3'-5' proofreading exonuclease. nsp14A2_ExoN and nsp14B_NMT; produced by pp1ab only. Interacts (via. N-terminus) with DDX1. Interacts with nsp10. 5926..6452 relative to ORF1a start.",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp15",
+    "protein": "nsp15 - NendoU",
     "segments": "19621..20658",
-    "notes": "Uridine-specific endoribonuclease. nsp15-A1 and nsp15B-NendoU; produced by pp1ab only",
+    "notes": "Uridine-specific endoribonuclease. nsp15-A1 and nsp15B-NendoU; produced by pp1ab only. 6453..6798 relative to ORF1a start.",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp16",
+    "protein": "nsp16 - 2'-O-MT",
     "segments": "20659..21552",
-    "notes": "RNA-cap methyltransferase. nsp16_OMT; 2'-o-MT; produced by pp1ab only",
-    "domains": []
+    "notes": "RNA-cap methyltransferase. nsp16_OMT; 2'-o-MT; produced by pp1ab only. Interacts with nsp10. 6799..7096 relative to ORF1a start",
+    "source": "https://www.uniprot.org/uniprot/P0DTD1",
+    "domains": [
+      {
+        "name": "Leucine-rich repeat (LRR) 9",
+        "ranges": [[19, 43]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+      }
+    ]
   },
   {
     "protein": "S",
@@ -168,13 +475,95 @@
     "protein": "E",
     "segments": "26245..26472",
     "notes": "ORF4; structural protein; E protein. Envelope protein, involved in virus morphogenesis and assembly",
-    "domains": []
+    "domains": [
+      {
+        "name": "Virion Surface",
+        "ranges": [[1, 16]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "Transmembrane, Helical",
+        "ranges": [[17, 37]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "Intravirion",
+        "ranges": [[38, 75]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      },
+      {
+        "name": "PDZ-binding motif",
+        "ranges": [[72, 75]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+      }
+    ]
   },
   {
     "protein": "M",
     "segments": "26523..27191",
     "notes": "ORF5; structural protein; membrane glycoprotein. Predominant component of the envelope",
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, all",
+        "ranges": [
+          [20, 40],
+          [51, 71],
+          [80, 100]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface, all",
+        "ranges": [
+          [2, 19],
+          [72, 79]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion, all",
+        "ranges": [
+          [41, 50],
+          [101, 222]
+        ],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface 1",
+        "ranges": [[2, 19]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 1, helical",
+        "ranges": [[20, 40]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion 1",
+        "ranges": [[41, 50]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 2, helical",
+        "ranges": [[51, 71]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Virion Surface 2",
+        "ranges": [[72, 79]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Transmembrane 3, helical",
+        "ranges": [[80, 100]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      },
+      {
+        "name": "Intravirion 2",
+        "ranges": [[101, 222]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+      }
+    ]
   },
   {
     "protein": "orf6",
@@ -186,31 +575,76 @@
     "protein": "orf7a",
     "segments": "27394..27759",
     "notes": "ORF7a protein",
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, helical",
+        "ranges": [[96, 116]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+      },
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 15]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+      }
+    ]
   },
   {
     "protein": "orf7b",
     "segments": "27756..27887",
     "notes": "ORF7b protein",
-    "domains": []
+    "domains": [
+      {
+        "name": "Transmembrane, helical",
+        "ranges": [[9, 29]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD8"
+      }
+    ]
   },
   {
     "protein": "orf8",
     "segments": "27894..28259",
     "notes": "ORF8 protein",
-    "domains": []
+    "domains": [
+      {
+        "name": "Signal peptide",
+        "ranges": [[1, 15]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+      },
+      {
+        "name": "ORF8 protein",
+        "ranges": [[16, 121]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+      }
+    ]
   },
   {
     "protein": "N",
     "segments": "28274..29533",
     "notes": "ORF9; structural protein; nucleocapsid phosphoprotein, binds to RNA genome",
-    "domains": []
+    "domains": [
+      {
+        "name": "RNA-binding",
+        "ranges": [[41, 186]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+      },
+      {
+        "name": "Dimerization",
+        "ranges": [[258, 361]],
+        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+      }
+    ]
   },
   {
     "protein": "orf9b",
     "segments": "28284..28577",
     "notes": "virion-associated protein. Suppress host antiviral response",
-    "domains": []
+    "domains": [
+      {
+        "name": "Nuclear export signal",
+        "ranges": [[45, 53]],
+        "source": "https://www.uniprot.org/uniprot/P0DTD2"
+      }
+    ]
   },
   {
     "protein": "orf9c",

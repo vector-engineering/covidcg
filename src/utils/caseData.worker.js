@@ -89,7 +89,11 @@ function filterByCoordinateRange({
 }) {
   let newCaseData = [];
 
-  if (dnaOrAa === DNA_OR_AA.DNA) {
+  if (coordinateRanges.length === 0) {
+    // Empty coordinate ranges means that either "All Genes" or "All Proteins" is selected
+    // So don't filter out any rows
+    return caseData;
+  } else if (dnaOrAa === DNA_OR_AA.DNA) {
     caseData.forEach((row) => {
       // Only keep SNPs that are within
       row['dna_snp_str'] = row['dna_snp_str'].filter((snpId) => {

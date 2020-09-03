@@ -91,10 +91,10 @@ const NewLineageDataTable = observer(() => {
       posColOffset = 4;
     } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
-        posTitleOffset = 280;
+        posTitleOffset = 335;
         posColOffset = 6;
       } else {
-        posTitleOffset = 325;
+        posTitleOffset = 380;
         posColOffset = 7;
       }
     }

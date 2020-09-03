@@ -61,7 +61,7 @@ export const initialConfigValues = {
 
   // Select the Spike gene and nsp13 protein by default
   selectedGene: getGene('S'),
-  selectedProtein: getProtein('nsp13'),
+  selectedProtein: getProtein('nsp12 - RdRp'),
   selectedPrimers: [],
   customCoordinates: [[8000, 12000]],
   customSequences: ['GACCCCAAAATCAGCGAAAT'],
@@ -179,11 +179,16 @@ class ObservableConfigStore {
     });
 
     // Manually set residue coordinates if they weren't specified
-    if ('selectedGene' in values && !('residueCoordinates' in values)) {
+    if (
+      'selectedGene' in values &&
+      !('residueCoordinates' in values) &&
+      this.selectedGene.gene !== 'All Genes'
+    ) {
       this.residueCoordinates = [[1, this.selectedGene.len_aa]];
     } else if (
       'selectedProtein' in values &&
-      !('residueCoordinates' in values)
+      !('residueCoordinates' in values) &&
+      this.selectedProtein.protein !== 'All Proteins'
     ) {
       this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
     }
@@ -240,8 +245,8 @@ class ObservableConfigStore {
         this.selectedGene = getGene('S');
       }
       if (this.selectedProtein.protein === 'All Proteins') {
-        // Switch back to nsp13 protein
-        this.selectedProtein = getProtein('nsp13');
+        // Switch back to nsp12 protein
+        this.selectedProtein = getProtein('nsp12 - RdRp');
       }
     }
 
@@ -298,13 +303,21 @@ class ObservableConfigStore {
       (this.selectedGene.gene !== initial.selectedGene.gene ||
         this.coordinateMode !== initial.coordinateMode)
     ) {
-      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
+      if (this.selectedGene.gene === 'All Genes') {
+        this.residueCoordinates = [];
+      } else {
+        this.residueCoordinates = [[1, this.selectedGene.len_aa]];
+      }
     } else if (
       this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
       (this.selectedProtein.protein !== initial.selectedProtein.protein ||
         this.coordinateMode !== initial.coordinateMode)
     ) {
-      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+      if (this.selectedProtein.protein === 'All Proteins') {
+        this.residueCoordinates = [];
+      } else {
+        this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+      }
     }
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,

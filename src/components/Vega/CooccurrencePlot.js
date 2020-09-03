@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { formatSnv, getSnvColor } from '../../utils/snpData';
+import { formatSnv } from '../../utils/snpData';
 import { aggregate } from '../../utils/transform';
 
 import _ from 'underscore';

@@ -55,7 +55,7 @@ export const geneColumn = () => ({
   name: 'Gene',
   key: 'gene',
   sortable: true,
-  width: 65,
+  width: 120,
   cellClass: 'no-overflow',
   frozen: true,
   formatter: (val) => (
@@ -67,7 +67,7 @@ export const proteinColumn = () => ({
   name: 'Protein',
   key: 'protein',
   sortable: true,
-  width: 65,
+  width: 120,
   cellClass: 'no-overflow',
   frozen: true,
   formatter: (val) => (

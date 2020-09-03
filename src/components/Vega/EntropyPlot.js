@@ -72,7 +72,11 @@ const EntropyPlot = observer(({ width }) => {
   const getXRange = () => {
     // Apply xRange
     let xRange;
-    if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
+    if (configStore.residueCoordinates.length === 0) {
+      // If the residue coordinates are empty, then either "All Genes" or
+      // "All Proteins" is selected -- so show everything
+      xRange = [1, 30000];
+    } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
       xRange = [
         coordRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
