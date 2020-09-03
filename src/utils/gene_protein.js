@@ -11,7 +11,10 @@ processedGenes = processedGenes.map((gene) => {
   let curResidueIndex = 1;
   gene.aa_ranges = gene.protein_coding
     ? gene.ranges.map((range) => {
-        const aa_range = [curResidueIndex, (range[1] - range[0] + 1) / 3];
+        const aa_range = [
+          curResidueIndex,
+          curResidueIndex - 1 + (range[1] - range[0] + 1) / 3,
+        ];
         curResidueIndex = aa_range[1] + 1;
         return aa_range;
       })
@@ -52,7 +55,10 @@ processedProteins = processedProteins.map((protein) => {
   });
   let curResidueIndex = 1;
   protein.aa_ranges = protein.ranges.map((range) => {
-    const aa_range = [curResidueIndex, (range[1] - range[0] + 1) / 3];
+    const aa_range = [
+      curResidueIndex,
+      curResidueIndex - 1 + (range[1] - range[0] + 1) / 3,
+    ];
     curResidueIndex = aa_range[1] + 1;
     return aa_range;
   });

@@ -382,10 +382,15 @@ class ObservableConfigStore {
         for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
           const curAARange = this.selectedGene.aa_ranges[i];
           const curNTRange = this.selectedGene.ranges[i];
-          if (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) {
+          if (
+            curRange[0] >= curAARange[0] ||
+            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[1])
+          ) {
             coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - 1) * 3,
-              curNTRange[0] - 1 + Math.min(curRange[1], curAARange[1]) * 3,
+              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+              curNTRange[0] -
+                1 +
+                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
             ]);
             // Push the beginning of the current range to the end of
             // the current AA range of the gene
@@ -404,10 +409,15 @@ class ObservableConfigStore {
         for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
           const curAARange = this.selectedProtein.aa_ranges[i];
           const curNTRange = this.selectedProtein.ranges[i];
-          if (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) {
+          if (
+            curRange[0] >= curAARange[0] ||
+            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[1])
+          ) {
             coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - 1) * 3,
-              curNTRange[0] - 1 + Math.min(curRange[1], curAARange[1]) * 3,
+              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+              curNTRange[0] -
+                1 +
+                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
             ]);
             // Push the beginning of the current range to the end of
             // the current AA range of the gene

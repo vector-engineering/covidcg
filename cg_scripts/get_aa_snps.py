@@ -63,7 +63,6 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
             # Get the region in coordinates to translate/look for SNPs in
             segment_start = int(segment.split("..")[0])
             segment_end = int(segment.split("..")[1])
-            resi_counter += (segment_end - segment_start + 1) // 3
 
             # Translate the sequence and store it for later
             aa_seqs[ref_name] += list(
@@ -160,11 +159,16 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
                     (
                         snp["taxon"],
                         ref_name,
-                        codon_ind_start + 1,
+                        resi_counter + codon_ind_start + 1,
                         "".join(ref_aa),
                         "".join(alt_aa),
                     )
                 )
+            # END FOR TAXON
+
+            resi_counter += (segment_end - segment_start + 1) // 3
+        # END FOR SEGMENT
+    # END FOR GENE/PROTEIN
 
     if mode == "gene":
         aa_snp_df = pd.DataFrame.from_records(
