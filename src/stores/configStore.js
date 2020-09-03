@@ -40,21 +40,6 @@ const initialSelectTree = Object.assign(loadSelectTree(), {
 });
 assignObjectPaths(initialSelectTree);
 
-// Select NYC by default
-let NYCNode = getLocationByNameAndLevel(
-  initialSelectTree,
-  'New York City',
-  'location',
-  true
-)[0];
-
-let MassNode = getLocationByNameAndLevel(
-  initialSelectTree,
-  'Massachusetts',
-  'division',
-  true
-)[0];
-
 export const initialConfigValues = {
   groupKey: GROUP_KEYS.GROUP_SNV,
   dnaOrAa: DNA_OR_AA.AA,
@@ -73,7 +58,10 @@ export const initialConfigValues = {
   dateRange: [-1, -1], // No initial date range
 
   selectTree: initialSelectTree,
-  selectedLocationNodes: [NYCNode, MassNode],
+  selectedLocationNodes: [
+    getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
+    getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
+  ],
 
   hoverGroup: null,
   selectedGroups: [],

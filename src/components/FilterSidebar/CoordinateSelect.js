@@ -435,6 +435,20 @@ const CoordinateSelect = observer(() => {
     // Make a deep copy of the primer tree data - so we trigger an update
     // in the memoized primer tree element
     const primerTreeData = state.primerTreeData.slice();
+
+    // Recursively go through and deselect everything
+    const traverseAndDeselect = (node) => {
+      node.checked = false;
+      if ('children' in node) {
+        node.children.forEach((child) => {
+          traverseAndDeselect(child);
+        });
+      }
+    };
+    primerTreeData.forEach((node) => {
+      traverseAndDeselect(node);
+    });
+
     const selectedPrimers = configStore.selectedPrimers;
     selectedPrimers.forEach((primer) => {
       const institutionNode = _.findWhere(primerTreeData, {
@@ -693,6 +707,14 @@ const CoordinateSelect = observer(() => {
             {configStore.coordinateMode !== COORDINATE_MODES.COORD_PRIMER && (
               <span className="hint-text">Select to show options</span>
             )}
+            {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
+              <UpdatePrimersButton
+                show={state.primersChanged}
+                onClick={updatePrimerSelection}
+              >
+                Update Selection
+              </UpdatePrimersButton>
+            )}
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
             <ExternalLink
@@ -703,24 +725,16 @@ const CoordinateSelect = observer(() => {
             </ExternalLink>
           )}
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
-            <>
-              <UpdatePrimersButton
-                show={state.primersChanged}
-                onClick={updatePrimerSelection}
-              >
-                Update Primer Selection
-              </UpdatePrimersButton>
-              <PrimerSelectContainer
-                placeholderText={
-                  state.selectedPrimers.length === 0
-                    ? 'Select or search...'
-                    : state.selectedPrimers.length.toString() +
-                      ' primers/probes selected...'
-                }
-              >
-                {primerDropdown}
-              </PrimerSelectContainer>
-            </>
+            <PrimerSelectContainer
+              placeholderText={
+                state.selectedPrimers.length === 0
+                  ? 'Select or search...'
+                  : state.selectedPrimers.length.toString() +
+                    ' primers/probes selected...'
+              }
+            >
+              {primerDropdown}
+            </PrimerSelectContainer>
           )}
         </ModeRadioVertical>
 

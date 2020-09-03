@@ -118,8 +118,10 @@ export const DomainSelectForm = styled.form`
 
 export const UpdatePrimersButton = styled(Button)`
   display: ${(props) => (props.show ? 'block' : 'none')};
-  font-size: 1em;
+  font-size: 0.9em;
   margin-left: 20px;
+  padding: 2px 5px;
+  font-weight: normal;
 `;
 
 UpdatePrimersButton.defaultProps = {
