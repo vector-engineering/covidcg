@@ -383,8 +383,8 @@ class ObservableConfigStore {
           const curAARange = this.selectedGene.aa_ranges[i];
           const curNTRange = this.selectedGene.ranges[i];
           if (
-            curRange[0] >= curAARange[0] ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[1])
+            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
           ) {
             coordinateRanges.push([
               curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
@@ -410,8 +410,8 @@ class ObservableConfigStore {
           const curAARange = this.selectedProtein.aa_ranges[i];
           const curNTRange = this.selectedProtein.ranges[i];
           if (
-            curRange[0] >= curAARange[0] ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[1])
+            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
           ) {
             coordinateRanges.push([
               curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
