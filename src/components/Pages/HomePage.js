@@ -133,9 +133,23 @@ const HomePage = observer(({ configStore, UIStore }) => {
       >
         <img src={CGLogo}></img>
         <p style={{ margin: '20px' }}>
-          COVID-CG is designed for large-screen devices. To view the app on your
-          phone, please use your browser settings to &quot;Request Desktop
-          Version&quot;, and use landscape mode.
+          COVID-19 CG is designed for large screen devices due to the highly
+          detailed analyses presented on the browser. Please view this site on a
+          laptop or computer for the best user experience.
+        </p>
+        <p
+          style={{
+            margin: '20px',
+            marginTop: '10px',
+            fontWeight: 'normal',
+            fontSize: '0.9em',
+            lineHeight: 'normal',
+          }}
+        >
+          COVID-19 CG can also be explored on iPad and larger tablets if browser
+          settings are switched to &quot;Request Desktop Version&quot; and the
+          device is in landscape mode. Exploring COVID-19 CG on handheld mobile
+          devices will result in excessively limited browser functionality.
         </p>
       </div>
     );

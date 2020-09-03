@@ -126,7 +126,7 @@ const GroupBySelect = observer(() => {
     if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
       return (
         <Link href="https://cov-lineages.org/descriptions.html">
-          (Lineage Descriptions)
+          Lineage Descriptions
         </Link>
       );
     }
