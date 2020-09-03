@@ -224,12 +224,12 @@
           "encode": {
             "enter": {
               "strokeWidth": { "value": 2 },
-              "fill": {"field": "color"},
-              "tooltip": {
-                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
-              }
+              "fill": {"field": "color"}
             },
             "update": {
+              "tooltip": {
+                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
+              },
               "y": { "scale": "yscale", "field": "combi" },
               "height": { "scale": "yscale", "band": 1 },
               "x": { "scale": "xscale", "field": "y1" },

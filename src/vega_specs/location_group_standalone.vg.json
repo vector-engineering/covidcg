@@ -289,12 +289,12 @@
           "encode": {
             "enter": {
               "strokeWidth": { "value": 2 },
-              "fill": {"field": "color"},
-              "tooltip": {
-                "signal": "{title: datum.groupName, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
-              }
+              "fill": {"field": "color"}
             },
             "update": {
+              "tooltip": {
+                "signal": "{title: datum.groupName, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
+              },
               "y": { "scale": "yscale", "field": "location" },
               "height": { "scale": "yscale", "band": 1 },
               "x": { "scale": "xscale", "field": "y1" },

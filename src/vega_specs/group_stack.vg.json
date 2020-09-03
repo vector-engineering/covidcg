@@ -334,14 +334,13 @@
               "from": { "data": "cases_by_date_and_group" },
               "clip": true,
               "encode": {
-                "comment": "Define the tooltip and other constant values here",
                 "enter": {
-                  "strokeWidth": { "value": 1 },
-                  "tooltip": {
-                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
-                  }
+                  "strokeWidth": { "value": 1 }
                 },
                 "update": {
+                  "tooltip": {
+                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                  },
                   "x": { "scale": "x", "field": "day_start" },
                   "x2": { "scale": "x", "field": "day_end" },
                   "y": { "scale": "y", "field": "y0" },
