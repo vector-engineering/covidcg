@@ -529,6 +529,28 @@ rule calc_global_sequencing_efforts:
     run:
         # Load case counts by country
         case_count_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv')
+
+        # Upgrade some province/states to country/regions
+        upgrade_provinces = [
+            'Hong Kong', 'Macau', 
+            'Faroe Islands', 'Greenland', 
+            'French Guiana', 'French Polynesia', 'Guadeloupe', 'Martinique',
+            'Mayotte', 'New Caledonia', 'Reunion', 'Saint Barthelemy',
+            'Saint Pierre and Miquelon', 'St Martin', 'Aruba',
+            'Bonaire, Sint Eustatius and Saba', 'Curacao', 'Sint Maarten',
+            'Anguilla', 'Bermuda', 'British Virgin Islands', 'Cayman Islands',
+            'Falkland Islands (Malvinas)',
+            'Gibraltar', 'Isle of Man', 'Channel Islands',
+            'Montserrat', 'Turks and Caicos Islands',
+            'American Samoa',
+            'Guam', 'Northern Mariana Islands', 'Virgin Islands',
+            'Puerto Rico'
+        ]
+        upgrade_province_inds = case_count_df['Province/State'].isin(upgrade_provinces)
+        case_count_df.loc[upgrade_province_inds, 'Country/Region'] = (
+            case_count_df.loc[upgrade_province_inds, 'Province/State']
+        )
+
         # Group by country/region
         case_count_df = (
             case_count_df
@@ -580,37 +602,62 @@ rule calc_global_sequencing_efforts:
             .reset_index(drop=True)
         )
 
+        # Upgrade provinces to countries
+        upgrade_inds = nextmeta_df['division'].isin(upgrade_provinces)
+        nextmeta_df.loc[upgrade_inds, 'country'] = nextmeta_df.loc[upgrade_inds, 'division']
+
         # Load UID ISO FIPS lookup table
         iso_lookup_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv')
+        # Upgrade provinces to country/regions
+        upgrade_inds = iso_lookup_df['Province_State'].isin(upgrade_provinces)
+        iso_lookup_df.loc[upgrade_inds, 'Country_Region'] = iso_lookup_df.loc[upgrade_inds, 'Province_State']
+
         # Only take countries, then set as the index
-        iso_lookup_df = iso_lookup_df.loc[pd.isnull(iso_lookup_df['Province_State'])]
-        iso_lookup_df = iso_lookup_df.set_index('Country_Region')
+        iso_lookup_df = (
+            iso_lookup_df
+            .loc[
+                (upgrade_inds & pd.isnull(iso_lookup_df['Admin2'])) | 
+                (pd.isnull(iso_lookup_df['Province_State']))
+            ]
+            .set_index('Country_Region')
+            .rename({
+                'US': 'USA',
+                'Congo (Kinshasa)': 'Democratic Republic of the Congo',
+                'Congo (Brazzaville)': 'Republic of the Congo',
+                'Korea, South': 'South Korea',
+                'Taiwan*': 'Taiwan',
+                'Czechia': 'Czech Republic',
+                'Burma': 'Myanmar'
+            })
+        )
 
         # Combine everything together
         country_df = (
             nextmeta_df
             .loc[
-                (nextmeta_df['date'] > pd.to_datetime('2020-03-01')) &
-                (nextmeta_df['date'] < pd.to_datetime('2020-06-01'))
+                (nextmeta_df['date'] > pd.to_datetime('2020-01-01')) &
+                (nextmeta_df['date'] < pd.to_datetime('2020-07-01'))
             ]
             .groupby('country').agg(
                 median_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.median),
                 min_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.min),
                 max_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.max),
                 num_sequences=pd.NamedAgg(column='strain', aggfunc='count')
-            ).rename({
-                'USA': 'US',
-                'Democratic Republic of the Congo': 'Congo (Kinshasa)',
-                'Republic of the Congo': 'Congo (Brazzaville)',
-                'South Korea': 'Korea, South',
-                'Taiwan': 'Taiwan*',
-                'Czech Republic': 'Czechia',
-                'Myanmar': 'Burma'
-            }).join(
+            )
+            .join(
                 case_count_df
                 .groupby('Country/Region')
                 ['cumulative_cases']
                 .agg(np.max)
+                .rename({
+                    'US': 'USA',
+                    'Congo (Kinshasa)': 'Democratic Republic of the Congo',
+                    'Congo (Brazzaville)': 'Republic of the Congo',
+                    'Korea, South': 'South Korea',
+                    'Taiwan*': 'Taiwan',
+                    'Czechia': 'Czech Republic',
+                    'Burma': 'Myanmar'
+                })
             ).join(
                 iso_lookup_df, 
                 how='right'
@@ -627,8 +674,32 @@ rule calc_global_sequencing_efforts:
             country_df['num_sequences'] / country_df['cases']
         ).fillna(0)
 
+        # Only take some columns
+        country_df = country_df.loc[:, [
+            'UID', 'Country_Region',
+            'median_turnaround_days','min_turnaround_days','max_turnaround_days',
+            'num_sequences', 'cases', 'sequences_per_case'
+        ]]
+
         # Write to disk
-        country_df.to_json(output.country_seq_stats, orient='records')
+        # First write JSON to string
+        country_df_str = country_df.to_json(orient='records')
+        # Manually add some missing records
+        country_df_str = country_df_str[:-1] + (
+            ',{"UID":260,"Country_Region":"Fr. S. Antarctic Lands","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ',{"UID":364,"Country_Region":"Turkmenistan","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ',{"UID":10,"Country_Region":"Antarctica","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ',{"UID":408,"Country_Region":"North Korea","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ',{"UID":90,"Country_Region":"Solomon Islands","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ',{"UID":548,"Country_Region":"Vanuatu","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            # GISAID really wants French Guiana separate from france, so in my custom geojson I made French Guiana ID: -98
+            ',{"UID":-98,"Country_Region":"French Guiana","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            # Northern Cyprus
+            ',{"UID":-99,"Country_Region":"Northern Cyprus","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
+            ']'
+        )
+        with open(output.country_seq_stats, 'w') as fp:
+            fp.write(country_df_str)
 
 
 # # This is only for site maintainers
