@@ -13,6 +13,8 @@
     { "name": "stackOffset", "value": "normalize" },
     { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
     { "name": "xFormat", "value": "s" },
+    { "name": "dna", "value": false },
+    { "name": "posField", "update": "dna ? 0 : 1" },
     {
       "name": "hoverGroup",
       "value": null,
@@ -103,9 +105,22 @@
       },
       "transform": [
         {
+          "type": "formula",
+          "expr": "dna ? 'NT' : split(datum.snv, '|')[0]",
+          "as": "gene_protein"
+        },
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "as": "pos"
+        },
+        {
           "type": "stack",
           "groupby": ["combi"],
-          "sort": { "field": "snv" },
+          "sort": {
+            "field": ["gene_protein", "pos"],
+            "order": ["ascending", "ascending"]
+          },
           "field": "count",
           "offset": { "signal": "stackOffset" }
         }

@@ -13,6 +13,8 @@
     { "name": "stackOffset", "value": "normalize" },
     { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
     { "name": "xFormat", "value": "s" },
+    { "name": "dna", "value": false },
+    { "name": "posField", "update": "dna ? 0 : 1" },
     {
       "name": "hoverGroup",
       "value": null,
@@ -100,12 +102,25 @@
           "snvName": "string"
         }
       },
-      "values": [{"combi":"N|183|S|Y","combiName":"N · S183Y","snv":"N|147|G|S","snvName":"N · G147S","color":"#0077bb","count":1},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|203|R|K","snvName":"N · R203K","color":"#117733","count":42},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|204|G|R","snvName":"N · G204R","color":"#cc6677","count":42},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|151|P|S","snvName":"N · P151S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|232|S|T","snvName":"N · S232T","color":"#ddcc77","count":1}],
+      "values": [{"combi":"N|183|S|Y","combiName":"N · S183Y","snv":"N|147|G|S","snvName":"N · G147S","color":"#0077bb","count":1},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|203|R|K","snvName":"N · R203K","color":"#117733","count":42},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|204|G|R","snvName":"N · G204R","color":"#cc6677","count":42},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|232|S|T","snvName":"N · S232T","color":"#ddcc77","count":1}],
       "transform": [
+        {
+          "type": "formula",
+          "expr": "dna ? 'NT' : split(datum.snv, '|')[0]",
+          "as": "gene_protein"
+        },
+        {
+          "type": "formula",
+          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "as": "pos"
+        },
         {
           "type": "stack",
           "groupby": ["combi"],
-          "sort": { "field": "snv" },
+          "sort": { 
+            "field": ["gene_protein", "pos"],
+            "order": ["ascending", "ascending"] 
+          },
           "field": "count",
           "offset": { "signal": "stackOffset" }
         }

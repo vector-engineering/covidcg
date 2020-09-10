@@ -19,6 +19,7 @@ import { ASYNC_STATES } from '../../constants/UI';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { NORM_MODES } from '../../constants/plotSettings';
 import { GROUPS } from '../../constants/groups';
+import { DNA_OR_AA } from '../../constants/config';
 
 const PlotContainer = styled.div``;
 
@@ -260,6 +261,7 @@ const CooccurrencePlot = observer(({ width }) => {
         signalListeners={state.signalListeners}
         dataListeners={state.dataListeners}
         signals={{
+          dna: configStore.dnaOrAa === DNA_OR_AA.DNA,
           hoverGroup: { group: configStore.hoverGroup },
           stackOffset,
           xLabel,
