@@ -86,6 +86,8 @@ function filterByCoordinateRange({
   coordinateRanges,
   dnaOrAa,
   coordinateMode,
+  selectedGene,
+  selectedProtein,
 }) {
   let newCaseData = [];
 
@@ -107,13 +109,17 @@ function filterByCoordinateRange({
     });
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     caseData.forEach((row) => {
-      let snvField, intToSnvFunc;
+      let snvField, intToSnvFunc, geneOrProtein, geneOrProteinField;
       if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
         snvField = 'gene_aa_snp_str';
         intToSnvFunc = intToGeneAaSnv;
+        geneOrProtein = selectedGene.gene;
+        geneOrProteinField = 'gene';
       } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         snvField = 'protein_aa_snp_str';
         intToSnvFunc = intToProteinAaSnv;
+        geneOrProtein = selectedProtein.protein;
+        geneOrProteinField = 'protein';
       }
 
       // Only keep SNPs that are within
@@ -122,7 +128,11 @@ function filterByCoordinateRange({
         // console.log(snpObj);
         // Keep the SNP if it falls into any one of the ranges
         return coordinateRanges.some((range) => {
-          return snpObj.nt_pos >= range[0] && snpObj.nt_pos <= range[1];
+          return (
+            snpObj.nt_pos >= range[0] &&
+            snpObj.nt_pos <= range[1] &&
+            snpObj[geneOrProteinField] === geneOrProtein
+          );
         });
       });
       newCaseData.push(row);
@@ -205,12 +215,16 @@ function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
 
 function processCaseData({
   selectedLocationNodes,
-  coordinateMode,
-  coordinateRanges,
+
   groupKey,
   dnaOrAa,
   selectedMetadataFields,
   ageRange,
+
+  coordinateMode,
+  coordinateRanges,
+  selectedGene,
+  selectedProtein,
 
   lowFreqFilterType,
   maxGroupCounts,
@@ -230,6 +244,8 @@ function processCaseData({
     coordinateRanges,
     dnaOrAa,
     coordinateMode,
+    selectedGene,
+    selectedProtein,
   });
 
   // Get the initial number of sequences, prior to metadata filtering

@@ -148,8 +148,6 @@ class ObservableDataStore {
     processCaseData(
       {
         selectedLocationNodes: toJS(configStoreInstance.selectedLocationNodes),
-        coordinateMode: toJS(configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
         groupKey: toJS(configStoreInstance.groupKey),
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         selectedMetadataFields: toJS(
@@ -158,6 +156,11 @@ class ObservableDataStore {
         ageRange: toJS(configStoreInstance.ageRange),
         dateRange: toJS(configStoreInstance.dateRange),
         selectedGroups: toJS(configStoreInstance.selectedGroups),
+
+        coordinateMode: toJS(configStoreInstance.coordinateMode),
+        coordinateRanges: toJS(configStoreInstance.getCoordinateRanges()),
+        selectedGene: toJS(configStoreInstance.selectedGene),
+        selectedProtein: toJS(configStoreInstance.selectedProtein),
 
         lowFreqFilterType: configStoreInstance.lowFreqFilterType,
         maxGroupCounts: configStoreInstance.maxGroupCounts,
