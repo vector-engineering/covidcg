@@ -31,7 +31,6 @@ const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
   grid-template-rows: [row1] auto [row2];
-  height: 100vh;
   width: 100vw;
   position: relative;
   overflow-y: hidden;
@@ -44,7 +43,6 @@ const PlotContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 100vh;
   box-sizing: border-box;
 
   position: relative;

@@ -9,8 +9,9 @@ import TabIndicator from '../Common/TabIndicator';
 import { TABS } from '../../constants/UI';
 
 const SidebarContainer = styled.div`
-  grid-column: col1 / col2;
-  grid-row: row1 / row2;
+  position: fixed;
+  top: 0;
+  width: 299px;
 
   background-color: #f8f8f8;
   //padding-right: 10px;
