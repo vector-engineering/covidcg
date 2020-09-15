@@ -1,24 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { connect } from '../../stores/connect';
-// import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 import { onMobileDevice } from '../../utils/device';
 
-import ReactTooltip from 'react-tooltip';
-import QuestionButton from '../Buttons/QuestionButton';
-import Header from '../FilterSidebar/Header';
-import GroupBySelect from '../FilterSidebar/GroupBySelect';
-import CoordinateSelect from '../FilterSidebar/CoordinateSelect';
-import MetaFieldSelect from '../FilterSidebar/MetaFieldSelect';
-import DropdownContainer from '../FilterSidebar/DropdownContainer';
-import SplashScreenModal from '../Modals/SplashScreenModal';
-//import initial_entropy_spec from '../vega/barplot_v3.vl.json';
-// import SideBar from './Sidebar';
-// import VegaTree from './VegaTree';
 import TabBar from '../TabBar';
-import SidebarAccordionWrapper from '../FilterSidebar/SidebarAccordionWrapper';
+import FilterSidebar from '../Sidebar/FilterSidebar';
+import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
 import ExampleTab from './ExampleTab';
@@ -29,7 +18,6 @@ import MethodologyTab from './MethodologyTab';
 import RelatedProjectsTab from './RelatedProjectsTab';
 import SequencingEffortsTab from './SequencingEffortsTab';
 import Footer from '../Footer';
-import FilterDataIntoOther from '../FilterSidebar/FilterDataIntoOther';
 import KeyListener from '../KeyListener';
 
 import { TABS } from '../../constants/UI';
@@ -38,33 +26,11 @@ const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
   grid-template-rows: [row1] auto [row2];
-  height: 100vh;
   width: 100vw;
   position: relative;
   overflow-y: hidden;
 `;
-const FilterSidebar = styled.div`
-  grid-column: col1 / col2;
-  grid-row: row1 / row2;
 
-  background-color: #f8f8f8;
-  //padding-right: 10px;
-  padding-bottom: 15px;
-  border-right: 1px solid #aaa;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-y: hidden;
-
-  .filter-sidebar-tooltip {
-    background-color: #fff;
-    font-weight: normal;
-    p {
-      margin-top: 2px;
-      margin-bottom: 2px;
-    }
-  }
-`;
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
   grid-row: row1 / row2;
@@ -72,7 +38,7 @@ const PlotContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 100vh;
+  min-height: 100vh;
   box-sizing: border-box;
 
   position: relative;
@@ -80,24 +46,8 @@ const PlotContainer = styled.div`
   overflow-y: scroll;
 `;
 
-const HomePage = observer(({ configStore, UIStore }) => {
+const HomePage = observer(({ UIStore }) => {
   const [ref, { width }] = useDimensions();
-
-  const [modalIsOpen, setIsOpen] = useState(true);
-  const openModal = (e) => {
-    if (e !== undefined) {
-      e.preventDefault();
-    }
-
-    setIsOpen(true);
-  };
-  const afterOpenModal = () => {
-    // references are now sync'd and can be accessed.
-    // subtitle.style.color = '#f00';
-  };
-  const closeModal = () => {
-    setIsOpen(false);
-  };
 
   const onTabChange = (tab) => {
     UIStore.setActiveTab(tab);
@@ -158,78 +108,15 @@ const HomePage = observer(({ configStore, UIStore }) => {
   return (
     <>
       <KeyListener />
-      <SplashScreenModal
-        isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
-        onRequestClose={closeModal}
-      />
       <HomePageDiv>
-        {/* <SideBar /> */}
-        <FilterSidebar>
-          <ReactTooltip
-            className="filter-sidebar-tooltip"
-            id="tooltip-filter-sidebar"
-            type="light"
-            effect="solid"
-            border={true}
-            borderColor="#888"
-          />
-          <Header />
-          <GroupBySelect />
-          <SidebarAccordionWrapper
-            title={
-              <div>
-                Collapse low frequency data
-                <QuestionButton
-                  data-tip={`<p>${configStore.getGroupLabel()}s that do not meet the following criteria will be grouped into the "Other" group. This is done to increase performance in the app</p><p>Including more groups gives more detail into the data, but may come at the cost of app performance.</p>`}
-                  data-html={true}
-                  data-for="tooltip-filter-sidebar"
-                />
-              </div>
-            }
-            defaultCollapsed={true}
-            maxHeight={'250px'}
-          >
-            <FilterDataIntoOther />
-          </SidebarAccordionWrapper>
-          <SidebarAccordionWrapper
-            title="Genomic coordinates"
-            defaultCollapsed={false}
-            maxHeight={'420px'}
-          >
-            <CoordinateSelect />
-          </SidebarAccordionWrapper>
-          <SidebarAccordionWrapper
-            title={
-              <div>
-                Filter by metadata (advanced)
-                <QuestionButton
-                  data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p><p>Metadata filters are shown in the format "[a &gt; b]", <br/>where "a" is the initial number of sequences matching that metadata field,<br/>and "b" is the number of sequences matching that metadata field after all current metadata filters are applied.</p>'
-                  data-html={true}
-                  data-for="tooltip-filter-sidebar"
-                />
-              </div>
-            }
-            defaultCollapsed={true}
-            maxHeight={'240px'}
-            allowOverflow={true}
-          >
-            <MetaFieldSelect />
-          </SidebarAccordionWrapper>
-
-          {/*<SidebarAccordionWrapper
-            title="Selected locations"
-            defaultCollapsed={false}
-          >
-            <DropdownContainer />
-          </SidebarAccordionWrapper>*/}
-          <DropdownContainer />
-        </FilterSidebar>
-
+        {(UIStore.activeTab === TABS.TAB_GROUP ||
+          UIStore.activeTab === TABS.TAB_LOCATION) && <FilterSidebar />}
+        {UIStore.activeTab !== TABS.TAB_GROUP &&
+          UIStore.activeTab !== TABS.TAB_LOCATION && <DefaultSidebar />}
         <PlotContainer ref={ref}>
           <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}
-          <Footer openModal={openModal} />
+          <Footer />
         </PlotContainer>
       </HomePageDiv>
     </>
