@@ -700,12 +700,6 @@ const ExampleTab = observer(() => {
             More than 700 commonly used primers or probes are now available for
             COVID-19 CG users to select under the <b>Primers/Probes</b> menu.
           </p>
-          <p>
-            For instance, we’ve labelled the commonly found SNVs that could
-            potentially impact the sensitivity of the China-CDC-N-F and R
-            diagnostic primer pair.
-          </p>
-          <TutorialImage src={ImageExample2_4} />
         </ExampleTutorial>
 
         <ExampleHeader>
