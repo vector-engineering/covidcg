@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
@@ -141,7 +141,9 @@ const ExampleItemFooter = styled.div`
   }
 `;
 
-const TOC = styled.div``;
+const TOC = styled.div`
+  font-weight: normal;
+`;
 
 const ExampleTutorial = styled.div`
   padding: 10px;
@@ -388,22 +390,16 @@ const exampleItems = [
   },
 ];
 
-const scrollToRef = (ref, e) => {
+const scrollToRef = (id, e) => {
   if (e !== undefined) {
     e.preventDefault();
   }
-  console.log(ref, e);
-  window.scrollTo(0, ref.current.offsetTop);
+  const el = window.document.getElementById(id);
+  window.scrollTo(0, el.offsetTop);
 };
 
 const ExampleTab = observer(() => {
   const { configStore, plotSettingsStore, UIStore } = useStores();
-
-  const refTop = useRef();
-  const refTutorial1 = useRef();
-  const refTutorial2 = useRef();
-  const refTutorial3 = useRef();
-  const refExampleAnalyses = useRef();
 
   const onExampleClick = (title, e) => {
     e.preventDefault();
@@ -472,15 +468,23 @@ const ExampleTab = observer(() => {
 
   return (
     <ExampleTabContainer>
-      <a id="top" ref={refTop} />
+      <a id="getting-started-top" />
       <ExampleTabContent>
         <TOC>
           <h3>Table of Contents</h3>
           <ul>
             <li>
               <a
+                href="#introduction"
+                onClick={scrollToRef.bind(this, 'introduction')}
+              >
+                <b>Introduction</b>
+              </a>
+            </li>
+            <li>
+              <a
                 href="#tutorial-1"
-                onClick={scrollToRef.bind(this, refTutorial1)}
+                onClick={scrollToRef.bind(this, 'tutorial-1')}
               >
                 <b>Tutorial</b>: Tracking the new S477N mutation in Australia
               </a>
@@ -488,7 +492,7 @@ const ExampleTab = observer(() => {
             <li>
               <a
                 href="#tutorial-2"
-                onClick={scrollToRef.bind(this, refTutorial2)}
+                onClick={scrollToRef.bind(this, 'tutorial-2')}
               >
                 <b>Tutorial</b>: Checking diagnostic primers or probes for SNVs
               </a>
@@ -496,7 +500,7 @@ const ExampleTab = observer(() => {
             <li>
               <a
                 href="#tutorial-3"
-                onClick={scrollToRef.bind(this, refTutorial3)}
+                onClick={scrollToRef.bind(this, 'tutorial-3')}
               >
                 <b>Tutorial</b>: Tracking the Spike D614G mutant distribution in
                 your location of interest over time
@@ -505,7 +509,7 @@ const ExampleTab = observer(() => {
             <li>
               <a
                 href="#example-analyses"
-                onClick={scrollToRef.bind(this, refExampleAnalyses)}
+                onClick={scrollToRef.bind(this, 'example-analyses')}
               >
                 <b>Example Analyses</b>
               </a>
@@ -514,11 +518,98 @@ const ExampleTab = observer(() => {
         </TOC>
 
         <ExampleHeader>
-          <a id="tutorial-1" ref={refTutorial1} />
+          <a id="introduction" />
+          <ExampleTitle>Introduction</ExampleTitle>
+          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
+            Back
+          </a>
+        </ExampleHeader>
+
+        <ExampleTutorial>
+          <p>
+            <b>
+              The COVID-19 CoV Genetics browser was designed to empower diverse
+              projects on hCoV-19 (SARS-CoV-2) transmission, evolution,
+              emergence, immune interactions, diagnostics, therapeutics,
+              vaccines, and tracking of interventions.
+            </b>
+          </p>
+          <p>
+            Tracking the evolution of the emerging coronavirus is essential for
+            scientists and public health professionals, as well as developers of
+            vaccines, diagnostics, and therapeutics. This work is enabled by
+            data generously shared from contributors across the world via{' '}
+            <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>,
+            on which this research is based.
+          </p>
+          <p>
+            COVID-19 CG helps users to quickly find answers to questions
+            including but not limited to:
+          </p>
+          <ol>
+            <li>
+              Which clades and lineages are present in a given city or region
+              within a user-specified period of time?
+            </li>
+            <li>
+              Which variants should I test my therapeutic, antibody, or
+              diagnostic on before implementation in a specific region?
+            </li>
+            <li>
+              What are the community outcomes after particular policies,
+              vaccines, or therapeutics are applied in that population?
+            </li>
+            <li>
+              Are there data from transient mutations that can elucidate common
+              mechanisms of resistance to acquired immunity? Can this be
+              leveraged for vaccine, antibody, or small molecule drug design?
+            </li>
+          </ol>
+          <p>
+            Users can view the comprehensive nucleotide and amino acid residue
+            variation in their selection to inform their research hypothesis
+            generation or anti-COVID-19 product development. For example,
+            COVID-19 CG enables users to evaluate commonly used or custom
+            primers/probes or targets/epitopes based on their location and dates
+            of interest.
+            {/* As sequencing efforts start to include details about hCoV-19 (SARS-CoV-2)
+          isolates, users can also sort virus data according to patient
+          characteristics such as age, gender, clinical status, isolate type, as
+          well as passaging, sequencing, and assembly method. */}
+          </p>
+          <p>
+            To accelerate COVID-19 research and public health efforts, COVID-19
+            CG will be continually upgraded with new and improved features so
+            that users can quickly and reliably pinpoint critical mutations as
+            the virus evolves throughout the pandemic.
+          </p>
+          <p>
+            Towards this goal, we strongly advocate that countries continue to
+            generate data sampled from patients, animals, and environments and
+            share their data in a timely manner via{' '}
+            <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>,
+            so that scientists across the world are maximally informed about
+            developments in the spread of the emerging coronavirus responsible
+            for COVID-19.
+          </p>
+          <p>
+            Reach out to us{' '}
+            <ExternalLink href="https://twitter.com/covidcg">
+              @covidcg
+            </ExternalLink>{' '}
+            on twitter, or email us at{' '}
+            <ExternalLink href="mailto:covidcg@broadinstitute.org">
+              covidcg@broadinstitute.org
+            </ExternalLink>
+          </p>
+        </ExampleTutorial>
+
+        <ExampleHeader>
+          <a id="tutorial-1" />
           <ExampleTitle>
             Tutorial: Tracking the new S477N mutation in Australia
           </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, refTop)}>
+          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
             Back
           </a>
         </ExampleHeader>
@@ -568,11 +659,11 @@ const ExampleTab = observer(() => {
         </ExampleTutorial>
 
         <ExampleHeader>
-          <a id="tutorial-2" ref={refTutorial2} />
+          <a id="tutorial-2" />
           <ExampleTitle>
             Tutorial: Checking diagnostic primers or probes for SNVs
           </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, refTop)}>
+          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
             Back
           </a>
         </ExampleHeader>
@@ -618,12 +709,12 @@ const ExampleTab = observer(() => {
         </ExampleTutorial>
 
         <ExampleHeader>
-          <a id="tutorial-3" ref={refTutorial3} />
+          <a id="tutorial-3" />
           <ExampleTitle>
             Tutorial: Tracking the Spike D614G mutant distribution in your
             location of interest over time
           </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, refTop)}>
+          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
             Back
           </a>
         </ExampleHeader>
@@ -675,9 +766,9 @@ const ExampleTab = observer(() => {
         </ExampleTutorial>
 
         <ExampleHeader>
-          <a id="example-analyses" ref={refExampleAnalyses} />
+          <a id="example-analyses" />
           <ExampleTitle>Example Analyses</ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, refTop)}>
+          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
             Back
           </a>
           <p>

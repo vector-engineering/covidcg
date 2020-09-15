@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { NOOP } from '../constants/functions';
 
 import { version, dataDate } from '../utils/version';
 
@@ -63,7 +61,7 @@ const Version = styled.div`
   }
 `;
 
-const Footer = ({ openModal }) => {
+const Footer = () => {
   return (
     <FooterContainer>
       <div className="gisaid-daa">
@@ -72,9 +70,6 @@ const Footer = ({ openModal }) => {
           Terms and Conditions
         </ExternalLink>
       </div>
-      <a href="#" onClick={openModal}>
-        Show Splash Screen
-      </a>
       <Version>
         <div className="version">
           Version: <span className="version-num">{version}</span>{' '}
@@ -91,12 +86,6 @@ const Footer = ({ openModal }) => {
       </Version>
     </FooterContainer>
   );
-};
-Footer.propTypes = {
-  openModal: PropTypes.func,
-};
-Footer.defaultProps = {
-  openModal: NOOP,
 };
 
 export default Footer;
