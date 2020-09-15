@@ -22,9 +22,9 @@ const FooterContainer = styled.div`
   font-size: 0.85rem;
 
   .gisaid-daa {
-    margin-right: 10px;
-    padding-right: 10px;
-    border-right: 1px solid #aaa;
+    // margin-right: 10px;
+    padding-right: 5px;
+    // border-right: 1px solid #aaa;
   }
 `;
 
@@ -33,7 +33,7 @@ const Version = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding-left: 5px;
+  padding-left: 10px;
   margin-left: 8px;
 
   border-left: 1px solid #aaa;
