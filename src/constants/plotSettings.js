@@ -1,31 +1,31 @@
-const NORM_COUNTS = 'NORM_COUNTS';
-const NORM_PERCENTAGES = 'NORM_PERCENTAGES';
+const NORM_COUNTS = 'counts';
+const NORM_PERCENTAGES = 'percentages';
 export const NORM_MODES = {
   NORM_COUNTS,
   NORM_PERCENTAGES,
 };
 
-const COUNT_NEW = 'COUNT_NEW';
-const COUNT_CUMULATIVE = 'COUNT_CUMULATIVE';
+const COUNT_NEW = 'new';
+const COUNT_CUMULATIVE = 'cumulative';
 export const COUNT_MODES = {
   COUNT_NEW,
   COUNT_CUMULATIVE,
 };
 
-const DATE_BIN_DAY = 'DATE_BIN_DAY';
-const DATE_BIN_WEEK = 'DATE_BIN_WEEK';
-const DATE_BIN_MONTH = 'DATE_BIN_MONTH';
+const DATE_BIN_DAY = 'day';
+const DATE_BIN_WEEK = 'week';
+const DATE_BIN_MONTH = 'month';
 export const DATE_BINS = {
   DATE_BIN_DAY,
   DATE_BIN_WEEK,
   DATE_BIN_MONTH,
 };
 
-const COLOR_MODE_COMPARE = 'COLOR_MODE_COMPARE';
-const COLOR_MODE_CODE = 'COLOR_MODE_CODE';
-const COLOR_MODE_CLUSTAL = 'COLOR_MODE_CLUSTAL';
-const COLOR_MODE_ZAPPO = 'COLOR_MODE_ZAPPO';
-const COLOR_MODE_ZHAO_LONDON = 'COLOR_MODE_ZHAO_LONDON';
+const COLOR_MODE_COMPARE = 'compare';
+const COLOR_MODE_CODE = 'code';
+const COLOR_MODE_CLUSTAL = 'clustal';
+const COLOR_MODE_ZAPPO = 'zappo';
+const COLOR_MODE_ZHAO_LONDON = 'zhao_london';
 export const COLOR_MODES = {
   COLOR_MODE_COMPARE,
   COLOR_MODE_CODE,
@@ -34,8 +34,8 @@ export const COLOR_MODES = {
   COLOR_MODE_ZHAO_LONDON,
 };
 
-const COMPARE_MODE_MATCH = 'COMPARE_MODE_MATCH';
-const COMPARE_MODE_MISMATCH = 'COMPARE_MODE_MISMATCH';
+const COMPARE_MODE_MATCH = 'match';
+const COMPARE_MODE_MISMATCH = 'mismatch';
 export const COMPARE_MODES = {
   COMPARE_MODE_MATCH,
   COMPARE_MODE_MISMATCH,
@@ -64,9 +64,9 @@ export const COMPARE_COLORS = {
   COMPARE_COLOR_DOTS,
 };
 
-const SORT_ASC = 'ASC';
-const SORT_DESC = 'DESC';
-const SORT_NONE = 'NONE';
+const SORT_ASC = 'asc';
+const SORT_DESC = 'desc';
+const SORT_NONE = 'none';
 export const SORT_DIRECTIONS = {
   SORT_ASC,
   SORT_DESC,

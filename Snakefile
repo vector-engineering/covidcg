@@ -634,10 +634,10 @@ rule calc_global_sequencing_efforts:
         # Combine everything together
         country_df = (
             nextmeta_df
-            .loc[
-                (nextmeta_df['date'] > pd.to_datetime('2020-01-01')) &
-                (nextmeta_df['date'] < pd.to_datetime('2020-07-01'))
-            ]
+            # .loc[
+            #     (nextmeta_df['date'] > pd.to_datetime('2020-01-01')) &
+            #     (nextmeta_df['date'] < pd.to_datetime('2020-07-01'))
+            # ]
             .groupby('country').agg(
                 median_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.median),
                 min_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.min),

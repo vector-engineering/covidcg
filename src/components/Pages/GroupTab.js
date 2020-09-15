@@ -19,6 +19,7 @@ import CooccurrencePlot from '../Vega/CooccurrencePlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
+import { TABS } from '../../constants/UI';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -46,7 +47,10 @@ const GroupTab = observer(({ width }) => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               plots and table below, as well as in the{' '}
-              <TabIndicator>Compare Locations</TabIndicator> tab.
+              <TabIndicator tab={TABS.TAB_LOCATION}>
+                Compare Locations
+              </TabIndicator>{' '}
+              tab.
               {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
                 <>
                   {' '}
@@ -101,7 +105,10 @@ const GroupTab = observer(({ width }) => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               plots and table below, as well as in the{' '}
-              <TabIndicator>Compare Locations</TabIndicator> tab.
+              <TabIndicator tab={TABS.TAB_LOCATION}>
+                Compare Locations
+              </TabIndicator>{' '}
+              tab.
             </li>
           </ul>
         }
@@ -181,7 +188,10 @@ const GroupTab = observer(({ width }) => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               legend and table below, as well as in the{' '}
-              <TabIndicator>Compare Locations</TabIndicator> tab.
+              <TabIndicator tab={TABS.TAB_LOCATION}>
+                Compare Locations
+              </TabIndicator>{' '}
+              tab.
             </li>
             <li>
               <i>Click</i> and <i>drag</i> on the lower plot (&quot;All
@@ -245,7 +255,10 @@ const GroupTab = observer(({ width }) => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               legend and plot, as well as in the{' '}
-              <TabIndicator>Compare Locations</TabIndicator> tab.
+              <TabIndicator tab={TABS.TAB_LOCATION}>
+                Compare Locations
+              </TabIndicator>{' '}
+              tab.
             </li>
             <li>
               {configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues'} can

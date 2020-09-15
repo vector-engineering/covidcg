@@ -7,13 +7,13 @@ export const ASYNC_STATES = {
   FAILED,
 };
 
-const TAB_GROUP = 'TAB_GROUP';
-const TAB_LOCATION = 'TAB_LOCATION';
-const TAB_EXAMPLE = 'TAB_EXAMPLE';
-const TAB_ABOUT = 'TAB_ABOUT';
-const TAB_METHODOLOGY = 'TAB_METHODOLOGY';
-const TAB_RELATED = 'TAB_RELATED';
-const TAB_GLOBAL_SEQUENCES = 'TAB_GLOBAL_SEQUENCES';
+const TAB_GROUP = 'group';
+const TAB_LOCATION = 'location';
+const TAB_EXAMPLE = 'example';
+const TAB_ABOUT = 'acknowledgements';
+const TAB_METHODOLOGY = 'methodology';
+const TAB_RELATED = 'related_projects';
+const TAB_GLOBAL_SEQUENCES = 'global_sequencing';
 export const TABS = {
   TAB_GROUP,
   TAB_LOCATION,

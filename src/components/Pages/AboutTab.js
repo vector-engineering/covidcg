@@ -147,7 +147,7 @@ const AboutTab = () => {
                 GISAID Initiative
               </ExternalLink>{' '}
               and all its data contributors, i.e. the Authors from the
-              Originating laboratories responsible for obtaining the speciments
+              Originating laboratories responsible for obtaining the specimens
               and the Submitting laboratories where genetic sequence data were
               generated and shared via the GISAID Initiative, on which this
               research is based.

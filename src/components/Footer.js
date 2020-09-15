@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { NOOP } from '../constants/functions';
 
 import { version, dataDate } from '../utils/version';
 
@@ -24,9 +22,9 @@ const FooterContainer = styled.div`
   font-size: 0.85rem;
 
   .gisaid-daa {
-    margin-right: 10px;
-    padding-right: 10px;
-    border-right: 1px solid #aaa;
+    // margin-right: 10px;
+    padding-right: 5px;
+    // border-right: 1px solid #aaa;
   }
 `;
 
@@ -35,7 +33,7 @@ const Version = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding-left: 5px;
+  padding-left: 10px;
   margin-left: 8px;
 
   border-left: 1px solid #aaa;
@@ -63,7 +61,7 @@ const Version = styled.div`
   }
 `;
 
-const Footer = ({ openModal }) => {
+const Footer = () => {
   return (
     <FooterContainer>
       <div className="gisaid-daa">
@@ -72,9 +70,6 @@ const Footer = ({ openModal }) => {
           Terms and Conditions
         </ExternalLink>
       </div>
-      <a href="#" onClick={openModal}>
-        Show Splash Screen
-      </a>
       <Version>
         <div className="version">
           Version: <span className="version-num">{version}</span>{' '}
@@ -91,12 +86,6 @@ const Footer = ({ openModal }) => {
       </Version>
     </FooterContainer>
   );
-};
-Footer.propTypes = {
-  openModal: PropTypes.func,
-};
-Footer.defaultProps = {
-  openModal: NOOP,
 };
 
 export default Footer;

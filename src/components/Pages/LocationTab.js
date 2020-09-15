@@ -15,6 +15,7 @@ import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
 import { GROUP_KEYS } from '../../constants/config';
+import { TABS } from '../../constants/UI';
 
 const LocationTabContainer = styled.div`
   padding-top: 10px;
@@ -42,7 +43,7 @@ const LocationTab = observer(({ width }) => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               plots and table below, as well as in the{' '}
-              <TabIndicator>
+              <TabIndicator tab={TABS.TAB_GROUP}>
                 Compare {configStore.getGroupLabel()}s
               </TabIndicator>{' '}
               tab.
