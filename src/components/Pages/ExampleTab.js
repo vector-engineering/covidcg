@@ -481,14 +481,14 @@ const ExampleTab = observer(() => {
                 <b>Introduction</b>
               </a>
             </li>
-            <li>
+            {/* <li>
               <a
                 href="#tutorial-1"
                 onClick={scrollToRef.bind(this, 'tutorial-1')}
               >
                 <b>Tutorial</b>: Tracking the new S477N mutation in Australia
               </a>
-            </li>
+            </li> */}
             <li>
               <a
                 href="#tutorial-2"
@@ -604,7 +604,7 @@ const ExampleTab = observer(() => {
           </p>
         </ExampleTutorial>
 
-        <ExampleHeader>
+        {/* <ExampleHeader>
           <a id="tutorial-1" />
           <ExampleTitle>
             Tutorial: Tracking the new S477N mutation in Australia
@@ -656,7 +656,7 @@ const ExampleTab = observer(() => {
             sequencing centers in those countries have not collected or
             deposited their data in GISAID.
           </p>
-        </ExampleTutorial>
+        </ExampleTutorial> */}
 
         <ExampleHeader>
           <a id="tutorial-2" />
