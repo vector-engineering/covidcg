@@ -2,10 +2,6 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-import dnaSnvMap from '../../data/dna_snp_map.json';
-import geneAaSnvMap from '../../data/gene_aa_snp_map.json';
-import proteinAaSnvMap from '../../data/protein_aa_snp_map.json';
-
 import _ from 'underscore';
 
 import { getGene, getProtein } from './gene_protein';
@@ -13,6 +9,11 @@ import { getGene, getProtein } from './gene_protein';
 import { snpColorArray } from '../constants/colors';
 import { GROUPS } from '../constants/groups';
 import { DNA_OR_AA } from '../constants/config';
+import { asyncDataStoreInstance } from '../stores/rootStore';
+
+const dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map.json;
+const geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map.json;
+const proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map.json;
 
 // Make a SNV -> color map
 
@@ -51,6 +52,7 @@ export const getSnvColor = (snv) => {
 //   return dnaSnpMap;
 // }
 
+/*KEVTODO
 // Re-map so it's integer -> SNP
 let intToDnaSnvMap = {};
 let intToGeneAaSnvMap = {};
@@ -133,9 +135,15 @@ Object.keys(proteinAaSnvMap).forEach((snv) => {
       3;
 });
 
+*/
+
 // console.log(intToDnaSnvMap);
 // console.log(intToGeneAaSnvMap);
 // console.log(intToProteinAaSnvMap);
+
+const intToDnaSnvMap = {};
+const intToGeneAaSnvMap = {};
+const intToProteinAaSnvMap = {};
 
 export function intToDnaSnv(dnaSnvId) {
   if (dnaSnvId === -1) {

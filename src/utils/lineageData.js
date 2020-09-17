@@ -1,13 +1,14 @@
-import lineageSnpData from '../../data/lineage_snp.json';
-import cladeSnpData from '../../data/clade_snp.json';
-import refSeq from '../../static_data/reference.json';
-
 import _ from 'underscore';
 import { intToDnaSnv, intToGeneAaSnv, intToProteinAaSnv } from './snpData';
 
 import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
+import { asyncDataStoreInstance, rootStore } from '../stores/rootStore';
+
+const lineageSnpData = asyncDataStoreInstance.data.lineage_snp;
+const cladeSnpData = asyncDataStoreInstance.data.clade_snp;
+const refSeq = rootStore.asyncData.reference;
 
 export function loadLineageSnp() {
   return lineageSnpData;

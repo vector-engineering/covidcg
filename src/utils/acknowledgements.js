@@ -1,8 +1,7 @@
 // Load acknowledgement data
 
-import ackIdToAckText from '../../data/ack_map.json';
-
 import _ from 'underscore';
+import { asyncDataStoreInstance } from '../stores/rootStore';
 
 export function getAckTextsFromAckIds(ackIds) {
   // For each acknowledgement ID, return a object representing the
@@ -12,6 +11,6 @@ export function getAckTextsFromAckIds(ackIds) {
       return {};
     }
 
-    return ackIdToAckText[ackId];
+    return asyncDataStoreInstance.data.ack_map[ackId];
   });
 }

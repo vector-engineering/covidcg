@@ -2,10 +2,15 @@
  * Load global counts per group (lineage, clade, SNV, etc)
  */
 
-import globalGroupCounts from '../../data/global_group_counts.json';
+import { asyncDataStoreInstance } from '../stores/rootStore';
+
+//KEVTODO
 
 // Make a copy
-const processedGlobalGroupCounts = Object.assign({}, globalGroupCounts);
+const processedGlobalGroupCounts = Object.assign(
+  {},
+  asyncDataStoreInstance.data.global_group_counts
+);
 
 // Replace integer IDs with SNP strings
 Object.keys(processedGlobalGroupCounts.dna_snp).forEach((snpId) => {

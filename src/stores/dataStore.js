@@ -16,10 +16,12 @@ import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { UIStoreInstance, configStoreInstance } from './rootStore';
+import {
+  UIStoreInstance,
+  configStoreInstance,
+  asyncDataStoreInstance,
+} from './rootStore';
 import { GROUP_KEYS } from '../constants/config';
-
-import countryScoreData from '../../data/country_score.json';
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -455,7 +457,9 @@ class ObservableDataStore {
 
   @action
   downloadCountryScoreData() {
-    let jsonString = JSON.stringify(countryScoreData);
+    let jsonString = JSON.stringify(
+      asyncDataStoreInstance.data.countryScoreData
+    );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
 

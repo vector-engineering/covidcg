@@ -1,15 +1,15 @@
-import locations from '../../data/location_map.json';
-import selectTree from '../../data/geo_select_tree.json';
+import { asyncDataStoreInstance } from '../stores/rootStore';
 // import _ from 'underscore';
 
 // Create ID -> location object/hashmap
 const locationIdToNameMap = {};
-locations.forEach((loc) => {
+//KEVTODO
+asyncDataStoreInstance.data.location_map.forEach((loc) => {
   locationIdToNameMap[loc['index']] = loc;
 });
 
 export function loadSelectTree() {
-  return selectTree;
+  return asyncDataStoreInstance.data.geo_select_tree;
 }
 
 // https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme

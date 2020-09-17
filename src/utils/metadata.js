@@ -1,4 +1,4 @@
-import metadataMap from '../../data/metadata_map.json';
+import { asyncDataStoreInstance } from '../stores/rootStore';
 
 const metadataFields = [
   // 'gender_id',
@@ -51,5 +51,5 @@ export function countMetadataFields(caseData) {
 }
 
 export function getMetadataValueFromId(field, id) {
-  return metadataMap[field.slice(0, -3)][id];
+  return asyncDataStoreInstance.data.metadata_map[field.slice(0, -3)][id];
 }

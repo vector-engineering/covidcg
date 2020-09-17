@@ -6,6 +6,7 @@ import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
 import { StoreProvider, rootStore } from '../stores/rootStore';
+import WaitForAsyncDataWrapper from './WaitForAsyncDataWrapper';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -20,6 +21,8 @@ const GlobalStyle = createGlobalStyle`
     font-weight: 500;
   }
 `;
+
+//</div>
 
 const App = () => {
   return (

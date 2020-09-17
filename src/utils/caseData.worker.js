@@ -1,4 +1,3 @@
-import initialCaseData from '../../data/case_data.json';
 import {
   intToDnaSnv,
   intToGeneAaSnv,
@@ -27,12 +26,13 @@ import {
   COORDINATE_MODES,
 } from '../constants/config';
 import { GROUPS } from '../constants/groups';
+import { asyncDataStoreInstance } from '../stores/rootStore';
 
 const globalGroupCounts = getGlobalGroupCounts();
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
-  _.map(initialCaseData, (row) => {
+  _.map(asyncDataStoreInstance.data.case_data, (row) => {
     row.collection_date = new Date(row.collection_date).getTime();
     return row;
   }),
