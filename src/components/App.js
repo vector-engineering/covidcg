@@ -6,6 +6,7 @@ import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
 import { StoreProvider, rootStore } from '../stores/rootStore';
+import WaitForAsyncData from './WaitForAsyncData';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -24,7 +25,9 @@ const GlobalStyle = createGlobalStyle`
 const App = () => {
   return (
     <StoreProvider value={rootStore}>
-      <MobxRouter store={rootStore} />
+      <WaitForAsyncData>
+        <MobxRouter store={rootStore} />
+      </WaitForAsyncData>
       <GlobalStyle />
     </StoreProvider>
   );

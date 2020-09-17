@@ -1,4 +1,6 @@
-import metadataMap from '../../data/metadata_map.json';
+//import metadataMap from '../../data/metadata_map.json';
+
+const metadataMap = {};
 
 const metadataFields = [
   // 'gender_id',

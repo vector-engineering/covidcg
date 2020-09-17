@@ -2,7 +2,8 @@
  * Load global counts per group (lineage, clade, SNV, etc)
  */
 
-import globalGroupCounts from '../../data/global_group_counts.json';
+//import globalGroupCounts from '../../data/global_group_counts.json';
+const globalGroupCounts = [];
 
 // Make a copy
 const processedGlobalGroupCounts = Object.assign({}, globalGroupCounts);

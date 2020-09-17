@@ -1,4 +1,4 @@
-import initialCaseData from '../../data/case_data.json';
+//import initialCaseData from '../../data/case_data.json';
 import {
   intToDnaSnv,
   intToGeneAaSnv,
@@ -32,7 +32,8 @@ const globalGroupCounts = getGlobalGroupCounts();
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
-  _.map(initialCaseData, (row) => {
+  //initialCaseData
+  _.map([], (row) => {
     row.collection_date = new Date(row.collection_date).getTime();
     return row;
   }),

@@ -1,5 +1,5 @@
-import lineageSnpData from '../../data/lineage_snp.json';
-import cladeSnpData from '../../data/clade_snp.json';
+// import lineageSnpData from '../../data/lineage_snp.json';
+// import cladeSnpData from '../../data/clade_snp.json';
 import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
@@ -8,6 +8,9 @@ import { intToDnaSnv, intToGeneAaSnv, intToProteinAaSnv } from './snpData';
 import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
+
+const lineageSnpData = {};
+const cladeSnpData = {};
 
 export function loadLineageSnp() {
   return lineageSnpData;

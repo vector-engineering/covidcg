@@ -1,6 +1,9 @@
-import locations from '../../data/location_map.json';
-import selectTree from '../../data/geo_select_tree.json';
+// import locations from '../../data/location_map.json';
+// import selectTree from '../../data/geo_select_tree.json';
 // import _ from 'underscore';
+
+const locations = [];
+const selectTree = {};
 
 // Create ID -> location object/hashmap
 const locationIdToNameMap = {};
@@ -59,6 +62,7 @@ export function getLocationByNameAndLevel(
 ) {
   // Traverse tree with recursion
   function traverseTree(nodes) {
+    return [];
     let validNodes = [];
 
     // Check all children

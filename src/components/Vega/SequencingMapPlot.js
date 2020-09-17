@@ -10,7 +10,7 @@ import { PlotOptions } from './Plot.styles';
 import DropdownButton from '../Buttons/DropdownButton';
 
 import initialSpec from '../../vega_specs/map_combined.vg.json';
-import countryScoreData from '../../../data/country_score.json';
+//import countryScoreData from '../../../data/country_score.json';
 
 const PlotContainer = styled.div``;
 
@@ -26,7 +26,7 @@ const SequencingMapPlot = ({ width }) => {
   const { dataStore } = useStores();
 
   const initialData = {
-    scores: countryScoreData,
+    scores: {}, //countryScoreData,
   };
 
   const handleDownloadSelect = (option) => {

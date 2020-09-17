@@ -1,6 +1,6 @@
 // Load acknowledgement data
 
-import ackIdToAckText from '../../data/ack_map.json';
+//import ackIdToAckText from '../../data/ack_map.json';
 
 import _ from 'underscore';
 
@@ -11,7 +11,7 @@ export function getAckTextsFromAckIds(ackIds) {
     if (ackId == -1) {
       return {};
     }
-
-    return ackIdToAckText[ackId];
+    return {};
+    //return ackIdToAckText[ackId];
   });
 }
