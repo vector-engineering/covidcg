@@ -6,14 +6,12 @@ import ObservableDataStore from './dataStore';
 import ObservableUIStore from './UIStore';
 import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
-import ObservableAsyncDataStore from './asyncDataStore';
 
 export const routerInstance = new RouterStore();
 export const configStoreInstance = new ObservableConfigStore();
 export const UIStoreInstance = new ObservableUIStore();
 export const dataStoreInstance = new ObservableDataStore();
 export const plotSettingsStoreInstance = new ObservablePlotSettingsStore();
-export const asyncDataStoreInstance = new ObservableAsyncDataStore();
 
 export const rootStore = {
   router: routerInstance,
@@ -21,7 +19,6 @@ export const rootStore = {
   UIStore: UIStoreInstance,
   dataStore: dataStoreInstance,
   plotSettingsStore: plotSettingsStoreInstance,
-  asyncData: asyncDataStoreInstance,
 };
 
 export const storesContext = React.createContext(rootStore);

@@ -17,7 +17,6 @@ import { getLocationIds } from './location';
 import { dataDate } from './version';
 import { aggregate } from './transform';
 import { countMetadataFields } from './metadata';
-import { getGlobalGroupCounts } from '../utils/globalCounts';
 import _ from 'underscore';
 
 import {
@@ -27,8 +26,6 @@ import {
   COORDINATE_MODES,
 } from '../constants/config';
 import { GROUPS } from '../constants/groups';
-
-const globalGroupCounts = getGlobalGroupCounts();
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -231,6 +228,7 @@ function processCaseData({
   maxGroupCounts,
   minLocalCountsToShow,
   minGlobalCountsToShow,
+  globalGroupCounts,
 }) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));

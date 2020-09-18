@@ -6,7 +6,8 @@ import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
 import { StoreProvider, rootStore } from '../stores/rootStore';
-import WaitForAsyncData from './WaitForAsyncData';
+import ObservableAsyncDataStore from '../stores/asyncDataStore';
+import { ASYNC_STATES } from '../constants/UI';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -22,12 +23,15 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+export const asyncDataStoreInstance = new ObservableAsyncDataStore();
+
 const App = () => {
+  if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
+    return <div>waiting</div>;
+  }
   return (
     <StoreProvider value={rootStore}>
-      <WaitForAsyncData>
-        <MobxRouter store={rootStore} />
-      </WaitForAsyncData>
+      <MobxRouter store={rootStore} />
       <GlobalStyle />
     </StoreProvider>
   );

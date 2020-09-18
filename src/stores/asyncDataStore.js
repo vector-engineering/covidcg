@@ -5,6 +5,8 @@ class ObservableAsyncDataStore {
   @observable status = ASYNC_STATES.UNINITIALIZED;
   data = {};
 
+  @observable globalGroupCounts = [];
+
   @action
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
@@ -15,6 +17,7 @@ class ObservableAsyncDataStore {
       const data = await res.json();
       runInAction(() => {
         this.data = data;
+        this.updateGlobalGroupCounts();
         this.status = ASYNC_STATES.SUCCEEDED;
       });
     } catch (e) {
@@ -23,6 +26,32 @@ class ObservableAsyncDataStore {
         this.status = ASYNC_STATES.FAILED;
       });
     }
+  }
+
+  updateGlobalGroupCounts() {
+    // Make a copy
+    const processedGlobalGroupCounts = Object.assign(
+      {},
+      this.data.globalGroupCounts
+    );
+
+    // Replace integer IDs with SNP strings
+    Object.keys(processedGlobalGroupCounts.dna_snp).forEach((snpId) => {
+      processedGlobalGroupCounts.dna_snp[snpId.toString()] =
+        processedGlobalGroupCounts.dna_snp[snpId];
+    });
+
+    Object.keys(processedGlobalGroupCounts.gene_aa_snp).forEach((snpId) => {
+      processedGlobalGroupCounts.gene_aa_snp[snpId.toString()] =
+        processedGlobalGroupCounts.gene_aa_snp[snpId];
+    });
+
+    Object.keys(processedGlobalGroupCounts.protein_aa_snp).forEach((snpId) => {
+      processedGlobalGroupCounts.protein_aa_snp[snpId.toString()] =
+        processedGlobalGroupCounts.protein_aa_snp[snpId];
+    });
+
+    this.globalGroupCounts = processedGlobalGroupCounts;
   }
 }
 

@@ -18,6 +18,7 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 import { GROUP_KEYS } from '../constants/config';
+import { asyncDataStoreInstance } from '../components/App';
 
 //import countryScoreData from '../../data/country_score.json';
 
@@ -74,7 +75,6 @@ class ObservableDataStore {
 
   constructor() {
     UIStoreInstance.onCaseDataStateStarted();
-    this.updateCaseData();
   }
 
   @action
@@ -166,6 +166,7 @@ class ObservableDataStore {
         maxGroupCounts: configStoreInstance.maxGroupCounts,
         minLocalCountsToShow: configStoreInstance.minLocalCountsToShow,
         minGlobalCountsToShow: configStoreInstance.minGlobalCountsToShow,
+        globalGroupCounts: toJS(asyncDataStoreInstance.globalGroupCounts),
       },
       ({
         filteredCaseData,
@@ -455,7 +456,9 @@ class ObservableDataStore {
 
   @action
   downloadCountryScoreData() {
-    let jsonString = JSON.stringify({}); //countryScoreData);
+    let jsonString = JSON.stringify(
+      asyncDataStoreInstance.data.countryScoreData
+    );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
 
