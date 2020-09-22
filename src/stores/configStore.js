@@ -4,7 +4,6 @@ import {
   toJS,
   //intercept, autorun
 } from 'mobx';
-import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
@@ -32,8 +31,11 @@ import {
 
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
+import { rootStoreInstance } from './rootStore';
 
 // Define initial values
+
+const { plotSettingsStore, dataStore } = rootStoreInstance || {};
 
 const initialSelectTree = Object.assign(loadSelectTree(), {
   expanded: true,
@@ -182,7 +184,7 @@ class ObservableConfigStore {
     }
 
     // Trigger data re-run
-    dataStoreInstance.updateCaseData(() => {});
+    dataStore.updateCaseData(() => {});
   }
 
   @action
@@ -205,18 +207,14 @@ class ObservableConfigStore {
 
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
-      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COLOR_MODE_ZAPPO;
+      plotSettingsStore.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStore.tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStore.tableCompareColor = COMPARE_COLORS.COLOR_MODE_ZAPPO;
     } else {
       // Clear table coloring settings
-      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
+      plotSettingsStore.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
+      plotSettingsStore.tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      plotSettingsStore.tableCompareColor = COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
     this.groupKey = groupKey;
@@ -238,7 +236,7 @@ class ObservableConfigStore {
       }
     }
 
-    dataStoreInstance.updateCaseData();
+    dataStore.updateCaseData();
   }
 
   // Get a pretty name for the group
@@ -365,7 +363,7 @@ class ObservableConfigStore {
     //       do this in a smarter way
     this.selectedGroups = [];
 
-    dataStoreInstance.updateCaseData();
+    dataStore.updateCaseData();
   }
 
   getCoordinateRanges() {
@@ -450,9 +448,9 @@ class ObservableConfigStore {
 
     if (!selectedLocationNodes || !selectedLocationNodes[0]) {
       this.selectTree = deselectAll(toJS(this.selectTree));
-      dataStoreInstance.emptyCaseData();
+      dataStore.emptyCaseData();
     } else {
-      dataStoreInstance.updateCaseData();
+      dataStore.updateCaseData();
     }
   }
 
@@ -460,15 +458,15 @@ class ObservableConfigStore {
   updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
     this.selectedMetadataFields = selectedMetadataFields;
     this.ageRange = ageRange;
-    dataStoreInstance.updateCaseData();
+    dataStore.updateCaseData();
   }
 
   @action
   selectDateRange(dateRange) {
     this.dateRange = dateRange;
-    dataStoreInstance.updateAggCaseDataByGroup();
+    dataStore.updateAggCaseDataByGroup();
     if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
-      dataStoreInstance.processCooccurrenceData();
+      dataStore.processCooccurrenceData();
     }
   }
 
@@ -485,7 +483,7 @@ class ObservableConfigStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
-    dataStoreInstance.processSelectedSnvs();
+    dataStore.processSelectedSnvs();
   }
 
   @action
@@ -509,7 +507,7 @@ class ObservableConfigStore {
     this.minLocalCountsToShow = minLocalCountsToShow;
     this.minGlobalCountsToShow = minGlobalCountsToShow;
     this.maxGroupCounts = maxGroupCounts;
-    dataStoreInstance.updateCaseData();
+    dataStore.updateCaseData();
   }
 }
 

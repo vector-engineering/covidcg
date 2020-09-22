@@ -40,15 +40,15 @@ import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
 import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
 import N203204Image from '../../assets/analysis_screens/n_203_204_coocurrence.png';
 
-import ImageExample1_1 from '../../assets/example_screens/example1_1.png';
-import ImageExample1_2 from '../../assets/example_screens/example1_2.png';
-import ImageExample1_3 from '../../assets/example_screens/example1_3.png';
-import ImageExample1_4 from '../../assets/example_screens/example1_4.png';
+// import ImageExample1_1 from '../../assets/example_screens/example1_1.png';
+// import ImageExample1_2 from '../../assets/example_screens/example1_2.png';
+// import ImageExample1_3 from '../../assets/example_screens/example1_3.png';
+// import ImageExample1_4 from '../../assets/example_screens/example1_4.png';
 
 import ImageExample2_1 from '../../assets/example_screens/example2_1.png';
 import ImageExample2_2 from '../../assets/example_screens/example2_2.png';
 import ImageExample2_3 from '../../assets/example_screens/example2_3.png';
-import ImageExample2_4 from '../../assets/example_screens/example2_4.png';
+//import ImageExample2_4 from '../../assets/example_screens/example2_4.png';
 
 import ImageExample3_1 from '../../assets/example_screens/example3_1.png';
 import ImageExample3_2 from '../../assets/example_screens/example3_2.png';

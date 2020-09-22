@@ -39,7 +39,7 @@ const SidebarChunk = styled.div`
 `;
 
 const DefaultSidebar = observer(() => {
-  const { configStore, UIStore } = useStores();
+  const { configStore } = useStores();
 
   return (
     <SidebarContainer>

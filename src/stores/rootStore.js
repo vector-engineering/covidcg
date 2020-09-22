@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { RouterStore, startRouter } from 'mobx-router';
 import routes from '../routes';
 import ObservableDataStore from './dataStore';
@@ -7,22 +6,32 @@ import ObservableUIStore from './UIStore';
 import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
 
-export const routerInstance = new RouterStore();
-export const configStoreInstance = new ObservableConfigStore();
-export const UIStoreInstance = new ObservableUIStore();
-export const dataStoreInstance = new ObservableDataStore();
-export const plotSettingsStoreInstance = new ObservablePlotSettingsStore();
+console.log('yo');
 
-export const rootStore = {
-  router: routerInstance,
-  configStore: configStoreInstance,
-  UIStore: UIStoreInstance,
-  dataStore: dataStoreInstance,
-  plotSettingsStore: plotSettingsStoreInstance,
-};
+class RootStore {
+  router;
+  configStore;
+  UIStore;
+  dataStore;
+  plotSettingsStore;
 
-export const storesContext = React.createContext(rootStore);
+  constructor() {
+    this.yo = 'yo';
+  }
+  init() {
+    this.router = new RouterStore();
+    this.configStore = new ObservableConfigStore();
+    this.UIStore = new ObservableUIStore();
+    this.dataStore = new ObservableDataStore();
+    this.plotSettingsStore = new ObservablePlotSettingsStore();
+    startRouter(routes, this);
+  }
+}
+
+export const rootStoreInstance = new RootStore();
+
+export const storesContext = React.createContext(rootStoreInstance);
 
 export const StoreProvider = storesContext.Provider;
 
-startRouter(routes, rootStore);
+export const blah = '12';
