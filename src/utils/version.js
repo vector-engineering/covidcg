@@ -1,2 +1,2 @@
-export const version = '1.0.28';
-export const dataDate = '2020-09-18';
+export const version = '1.0.31';
+export const dataDate = '2020-09-23';

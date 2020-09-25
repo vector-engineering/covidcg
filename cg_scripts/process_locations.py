@@ -126,6 +126,12 @@ def clean_location_data(location_df):
                 "location": "Cadiz",
             },
         ),
+        # NIGERIA
+        # -------
+        # Fix typos
+        ({"country": "Nigeria", "division": ["Ekiti"]}, {"division": "Ekiti State"}),
+        ({"country": "Nigeria", "division": ["Ondo"]}, {"division": "Ondo State"}),
+        ({"country": "Nigeria", "division": ["Oyo"]}, {"division": "Oyo State"}),
         # Fix typos
         ({"country": "Marocco"}, {"country": "Morocco"}),
         # SENEGAL
@@ -152,6 +158,63 @@ def clean_location_data(location_df):
         ),
         # Remove Unknown division
         ({"country": "South Africa", "division": "Unknown"}, {"division": -1}),
+        # Fix typos
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Harry gwala"],
+            },
+            {"location": "Harry Gwala"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["ilembe"],
+            },
+            {"location": "Ilembe"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Uthukela"],
+            },
+            {"location": "uThukela"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Uthungulu"],
+            },
+            {"location": "uThungulu"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Umzinyathi"],
+            },
+            {"location": "uMzinyathi"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Umkhanyakude"],
+            },
+            {"location": "uMkhanyakude"},
+        ),
+        (
+            {
+                "country": "South Africa",
+                "division": "KwaZulu-Natal",
+                "location": ["Umgungundlovu"],
+            },
+            {"location": "uMgungundlovu"},
+        ),
         # ASIA
         # ----
         # Fix typos
@@ -244,6 +307,42 @@ def clean_location_data(location_df):
         (
             {"country": "India", "division": "Uttar_Pradesh"},
             {"division": "Uttar Pradesh"},
+        ),
+        (
+            {"country": "India", "division": "Gujarat", "location": "Daskoi"},
+            {"location": "Daskroi"},
+        ),
+        (
+            {
+                "country": "India",
+                "division": "Karnataka",
+                "location": "Bengaluru_Urban",
+            },
+            {"location": "Bengaluru Urban"},
+        ),
+        (
+            {"country": "India", "division": "Uttar Pradesh", "location": "LAKHIMPUR"},
+            {"location": "Lakhimpur"},
+        ),
+        (
+            {
+                "country": "India",
+                "division": "Uttarakhand",
+                "location": "Pauri_Garhwal",
+            },
+            {"location": "Pauri Garhwal"},
+        ),
+        (
+            {
+                "country": "India",
+                "division": "Uttarakhand",
+                "location": "Tehri_Garhwal",
+            },
+            {"location": "Tehri Garhwal"},
+        ),
+        (
+            {"country": "India", "division": "West Bengal", "location": ["Hoogly"]},
+            {"location": "Hooghly"},
         ),
         # ISRAEL
         # ------
@@ -414,7 +513,11 @@ def clean_location_data(location_df):
         # -----------
         # Korea --> South Korea
         # I assume North Korea is not submitting genomes...
-        ({"country": "Korea"}, {"country": "South Korea"}),
+        ({"country": ["Korea", "South korea"]}, {"country": "South Korea"}),
+        # SRI LANKA
+        # ---------
+        # Unabbreviate
+        ({"country": "Sri Lanka", "division": "KK"}, {"division": "Kahanda Kanda"}),
         # TAIWAN
         # ------
         # Fix typos
@@ -446,6 +549,7 @@ def clean_location_data(location_df):
                 "division": [
                     "Antwerp",
                     "Antwerpen",
+                    "Anvers",
                     "Berchem",
                     "Berendrech-Zandvliet-Lillo",
                     "Borgerhout",
@@ -629,6 +733,10 @@ def clean_location_data(location_df):
             {"division": "Antwerp", "location": "Zoersel"},
         ),
         # East Flanders
+        (
+            {"country": "Belgium", "division": ["Flandre-Orientale"]},
+            {"division": "East Flanders"},
+        ),
         (
             {"country": "Belgium", "division": ["Aalter", "Lotenhulle"]},
             {"division": "East Flanders", "location": "Aalter"},
@@ -2152,6 +2260,10 @@ def clean_location_data(location_df):
         ),
         # Walloon Brabant
         (
+            {"country": "Belgium", "division": "Brabant Wallon"},
+            {"division": "Walloon Brabant"},
+        ),
+        (
             {
                 "country": "Belgium",
                 "division": [
@@ -2213,7 +2325,10 @@ def clean_location_data(location_df):
             {"division": "Brussels-Capital Region", "location": "Anderlecht"},
         ),
         (
-            {"country": "Belgium", "division": ["Brussel", "Brussels", "Laken"]},
+            {
+                "country": "Belgium",
+                "division": ["Brussel", "Brussels", "Laken", "Bruxelles"],
+            },
             {"division": "Brussels-Capital Region", "location": "Brussels"},
         ),
         (
@@ -2300,6 +2415,11 @@ def clean_location_data(location_df):
         (
             {"country": "Czechia", "division": "Vysocina Region"},
             {"division": "Vysocina"},
+        ),
+        ({"country": "Czechia", "division": ["Plzen"]}, {"division": "Plzeň"},),
+        (
+            {"country": "Czechia", "division": ["Usti nad Labem Region"]},
+            {"division": "Usti nad Labem"},
         ),
         # DENMARK
         # -------
@@ -2436,6 +2556,13 @@ def clean_location_data(location_df):
         (
             {"country": "Germany", "division": "North Rhine Westphalia"},
             {"division": "North Rhine-Westphalia"},
+        ),
+        # HUNGARY
+        # -------
+        # Fix typos
+        (
+            {"country": "Hungary", "division": ["Borsod-Abauj-Zemplen county"]},
+            {"division": "Borsod-Abauj-Zemplen County"},
         ),
         # ITALY
         # -----
@@ -2608,6 +2735,7 @@ def clean_location_data(location_df):
         ({"country": "Poland", "division": "Zielonogorskie"}, {"division": "Lubusz"}),
         # Fix typos
         ({"country": "Poland", "location": "Krakow"}, {"location": "Kraków"}),
+        ({"country": "Poland", "location": "Łódzkie"}, {"location": "Lodzkie"}),
         # ROMANIA
         # -------
         # Fix weird encoding issue
@@ -2669,7 +2797,10 @@ def clean_location_data(location_df):
             {"location": "Tavernes de la Valldigna"},
         ),
         ({"country": "Spain", "location": "Valencia_h"}, {"location": "Valencia"}),
-        ({"country": "Spain", "location": "Malaga_h"}, {"location": "Malaga"}),
+        (
+            {"country": "Spain", "location": ["Malaga_h", "Malaga h"]},
+            {"location": "Malaga"},
+        ),
         (
             {"country": "Spain", "division": ["LaRioja", "La_Rioja"]},
             {"division": "La Rioja"},
@@ -2755,7 +2886,14 @@ def clean_location_data(location_df):
         ({"country": "Spain", "location": "Son_Servera"}, {"location": "Son Servera"}),
         ({"country": "Spain", "location": "Logrono_h"}, {"location": "Logrono"}),
         # More typos
-        ({"country": "Spain", "location": "Barcelona_h"}, {"location": "Barcelona"}),
+        (
+            {"country": "Spain", "location": ["Barcelona_h", "Barcelona h"]},
+            {"location": "Barcelona"},
+        ),
+        (
+            {"country": "Spain", "location": ["Badalona_h", "Badalona h"]},
+            {"location": "Badalona"},
+        ),
         (
             {"country": "Spain", "location": "Alcala_de_Henares"},
             {"location": "Alcala de Henares"},
@@ -2768,7 +2906,11 @@ def clean_location_data(location_df):
         (
             {
                 "country": "Spain",
-                "division": ["Donostia-San Sebatian", "Donostia-San Sebastian"],
+                "division": [
+                    "Donostia-San Sebatian",
+                    "Donostia-San Sebastian",
+                    "Donostia-San Sebastián",
+                ],
             },
             {
                 "country": "Spain",
@@ -2776,6 +2918,8 @@ def clean_location_data(location_df):
                 "location": "Donostia-San Sebastián",
             },
         ),
+        # Fix typos
+        ({"country": "Spain", "division": ["Andalucia"]}, {"division": "Andalusia"}),
         # SWEDEN
         # ------
         # Fix typos
@@ -3149,6 +3293,7 @@ def clean_location_data(location_df):
         # Florida
         # -------
         # Fix typos
+        ({"country": "USA", "division": ["FLorida"],}, {"division": "Florida"},),
         (
             {
                 "country": "USA",
@@ -3223,6 +3368,10 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "New Jersey", "location": "Hudson"},
             {"location": "Hudson County"},
         ),
+        # Maryland
+        # --------
+        # Fix typos
+        ({"country": "USA", "division": ["MD"],}, {"division": "Maryland"},),
         # Massachusetts
         # -------------
         # Fix typos
@@ -3264,6 +3413,7 @@ def clean_location_data(location_df):
             },
             {"location": "Saint Louis County"},
         ),
+        ({"country": "USA", "division": ["Misssouri"]}, {"division": "Missouri"}),
         # New Jersey
         # ----------
         # Fix typos
@@ -3304,6 +3454,7 @@ def clean_location_data(location_df):
                     "Manhattan",
                     "Queens",
                     "Staten Island",
+                    "New York county",
                 ],
             },
             {"location": "New York City"},
@@ -3374,6 +3525,10 @@ def clean_location_data(location_df):
                 "location": ["Westchester county"],
             },
             {"location": "Westchester County"},
+        ),
+        (
+            {"country": "USA", "division": "New York", "location": ["Putnam county"],},
+            {"location": "Putnam County"},
         ),
         # Pennsylvania
         # ------------
@@ -3783,6 +3938,10 @@ def clean_location_data(location_df):
             {"country": "USA", "division": "Wisconsin", "location": "Winnebago county"},
             {"location": "Winnebago County"},
         ),
+        # Reunion
+        # -------
+        # Move to oceania
+        ({"country": "Reunion"}, {"region": "Oceania"}),
         # Australia
         # ---------
         # Fix typos, unabbreviate province names
