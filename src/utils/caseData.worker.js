@@ -227,9 +227,11 @@ function processCaseData({
   intToProteinAaSnv,
   getSnvColor,
   formatSnv,
-}) {
-  const { getLineageColor, getCladeColor } = {};
 
+  //lineage data store
+  getLineageColor,
+  getCladeColor,
+}) {
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
 
@@ -483,16 +485,17 @@ function aggCaseDataByGroup({
   groupKey,
   dnaOrAa,
   dateRange,
-  getSnvColor,
-}) {
-  const {
-    getDnaSnpsFromGroup,
-    getGeneAaSnpsFromGroup,
-    getProteinAaSnpsFromGroup,
-    getLineageColor,
-    getCladeColor,
-  } = {};
 
+  //snpd ata store
+  getSnvColor,
+
+  //lineage data
+  getDnaSnpsFromGroup,
+  getGeneAaSnpsFromGroup,
+  getProteinAaSnpsFromGroup,
+  getLineageColor,
+  getCladeColor,
+}) {
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
     getColorMethod = getLineageColor;

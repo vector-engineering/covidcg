@@ -22,7 +22,8 @@ import { rootStoreInstance } from './rootStore';
 
 //import countryScoreData from '../../data/country_score.json';
 
-const { UIStore, configStore, snpDataStore } = rootStoreInstance || {};
+const { UIStore, configStore, snpDataStore, lineageDataStore } =
+  rootStoreInstance || {};
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -78,6 +79,15 @@ class ObservableDataStore {
   @action
   updateAggCaseDataByGroup(callback) {
     UIStore.onAggCaseDataStarted();
+
+    const {
+      getDnaSnpsFromGroup,
+      getGeneAaSnpsFromGroup,
+      getProteinAaSnpsFromGroup,
+      getLineageColor,
+      getCladeColor,
+    } = lineageDataStore;
+
     aggCaseDataByGroup(
       {
         filteredCaseData: JSON.parse(JSON.stringify(this.filteredCaseData)),
@@ -89,6 +99,13 @@ class ObservableDataStore {
         groupKey: toJS(configStore.groupKey),
         dnaOrAa: toJS(configStore.dnaOrAa),
         dateRange: toJS(configStore.dateRange),
+
+        //lineage data store
+        getDnaSnpsFromGroup,
+        getGeneAaSnpsFromGroup,
+        getProteinAaSnpsFromGroup,
+        getLineageColor,
+        getCladeColor,
       },
       ({
         dataAggGroup,
@@ -150,6 +167,8 @@ class ObservableDataStore {
       getSnvColor,
       formatSnv,
     } = snpDataStore;
+
+    const { getLineageColor, getCladeColor } = lineageDataStore;
     processCaseData(
       {
         selectedLocationNodes: toJS(configStore.selectedLocationNodes),
@@ -177,6 +196,10 @@ class ObservableDataStore {
         intToProteinAaSnv,
         getSnvColor,
         formatSnv,
+
+        //lineage data
+        getLineageColor,
+        getCladeColor,
       },
       ({
         filteredCaseData,

@@ -15,7 +15,7 @@ class RootStore {
   dataStore;
   plotSettingsStore;
   snpDataStore;
-  linageDataStore;
+  lineageDataStore;
 
   init() {
     this.UIStore = new ObservableUIStore();
@@ -25,7 +25,7 @@ class RootStore {
     this.plotSettingsStore = new ObservablePlotSettingsStore();
     startRouter(routes, this);
     this.snpDataStore = new SnpDataStore();
-    this.linageDataStore = new LineageDataStore();
+    this.lineageDataStore = new LineageDataStore();
   }
 }
 
