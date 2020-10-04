@@ -1,12 +1,8 @@
 import { observer } from 'mobx-react';
-import React, { Children, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ASYNC_STATES } from '../constants/UI';
 import { rootStoreInstance } from '../stores/rootStore';
 import { asyncDataStoreInstance } from './App';
-
-export const AsyncDataProvider = ({ children }) => {
-  return children;
-};
 
 const WaitForAsyncWrapper = observer(({ children }) => {
   const renderedOnce = useRef(false);

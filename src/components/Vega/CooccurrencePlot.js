@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { formatSnv } from '../../utils/snpData';
 import { aggregate } from '../../utils/transform';
 
 import _ from 'underscore';
@@ -20,6 +19,7 @@ import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { NORM_MODES } from '../../constants/plotSettings';
 import { GROUPS } from '../../constants/groups';
 import { DNA_OR_AA } from '../../constants/config';
+import { snpDataStoreInstance } from '../../utils/snpData';
 
 const PlotContainer = styled.div``;
 
@@ -187,7 +187,9 @@ const CooccurrencePlot = observer(({ width }) => {
         <p>
           No SNVs that co-occur with selected SNVs{' '}
           {configStore.selectedGroups
-            .map((item) => formatSnv(item.group, configStore.dnaOrAa))
+            .map((item) =>
+              snpDataStoreInstance.formatSnv(item.group, configStore.dnaOrAa)
+            )
             .join(', ')}
         </p>
       </EmptyPlot>
@@ -212,7 +214,9 @@ const CooccurrencePlot = observer(({ width }) => {
   const maxShownSnvs = 4;
   let subtitle = configStore.selectedGroups
     .slice(0, maxShownSnvs)
-    .map((item) => formatSnv(item.group, configStore.dnaOrAa))
+    .map((item) =>
+      snpDataStoreInstance.formatSnv(item.group, configStore.dnaOrAa)
+    )
     .join(', ');
   if (configStore.selectedGroups.length > maxShownSnvs) {
     subtitle += ', ...';

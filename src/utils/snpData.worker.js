@@ -1,18 +1,9 @@
 import { getLocationIds } from './location';
-import {
-  dnaSnvToInt,
-  geneAaSnvToInt,
-  proteinAaSnvToInt,
-  intToDnaSnv,
-  intToGeneAaSnv,
-  intToProteinAaSnv,
-  getSnvColor,
-  formatSnv,
-} from './snpData';
 import { aggregate } from './transform';
 
 import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { GROUPS } from '../constants/groups';
+import { snpDataStoreInstance } from './snpData';
 
 function getCombinations(arr) {
   var result = [];
@@ -39,6 +30,14 @@ function filterByDate(caseData, dateRange, dateKey = 'collection_date') {
 }
 
 function getSnvFields({ dnaOrAa, coordinateMode, selectedGroups }) {
+  const {
+    dnaSnvToInt,
+    geneAaSnvToInt,
+    proteinAaSnvToInt,
+    intToDnaSnv,
+    intToGeneAaSnv,
+    intToProteinAaSnv,
+  } = snpDataStoreInstance;
   let selectedGroupIds;
   let snvEntry;
   let intToSnvFunc;
@@ -87,6 +86,7 @@ function processSelectedSnvs({
     coordinateMode,
     selectedGroups,
   });
+  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   // If no SNVs are selected, then return empty arrays now
   // if (selectedGroupIds.size === 0) {
@@ -201,6 +201,7 @@ function processCooccurrenceData({
     coordinateMode,
     selectedGroups,
   });
+  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   // Co-occurrence data
 

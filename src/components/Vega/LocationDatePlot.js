@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-import { formatSnv } from '../../utils/snpData';
 import _ from 'underscore';
 
 import {
@@ -26,6 +25,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/location_date.vg.json';
+import { snpDataStoreInstance } from '../../utils/snpData';
 
 const PlotContainer = styled.div``;
 
@@ -389,7 +389,9 @@ const LocationDatePlot = observer(({ width }) => {
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       plotTitle += ` (${configStore.selectedGroups
-        .map((group) => formatSnv(group.group, configStore.dnaOrAa))
+        .map((group) =>
+          snpDataStoreInstance.formatSnv(group.group, configStore.dnaOrAa)
+        )
         .join(' & ')})`;
     } else {
       plotTitle += ` (${configStore.selectedGroups

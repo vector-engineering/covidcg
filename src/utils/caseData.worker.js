@@ -1,11 +1,4 @@
 //import initialCaseData from '../../data/case_data.json';
-import {
-  intToDnaSnv,
-  intToGeneAaSnv,
-  intToProteinAaSnv,
-  getSnvColor,
-  formatSnv,
-} from './snpData';
 
 import { getLocationIds } from './location';
 import { dataDate } from './version';
@@ -20,6 +13,7 @@ import {
   COORDINATE_MODES,
 } from '../constants/config';
 import { GROUPS } from '../constants/groups';
+import { snpDataStoreInstance } from './snpData';
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -82,6 +76,12 @@ function filterByCoordinateRange({
   selectedProtein,
 }) {
   let newCaseData = [];
+
+  const {
+    intToDnaSnv,
+    intToGeneAaSnv,
+    intToProteinAaSnv,
+  } = snpDataStoreInstance;
 
   if (coordinateRanges.length === 0) {
     // Empty coordinate ranges means that either "All Genes" or "All Proteins" is selected
@@ -336,6 +336,13 @@ function processCaseData({
   const uniqueGroupKeys = new Set();
   let groupKeys = [];
   let location;
+  const {
+    intToDnaSnv,
+    intToGeneAaSnv,
+    intToProteinAaSnv,
+    getSnvColor,
+    formatSnv,
+  } = snpDataStoreInstance;
   caseData.forEach((row) => {
     // Tally counts per location
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
@@ -483,6 +490,7 @@ function aggCaseDataByGroup({
     getLineageColor,
     getCladeColor,
   } = {};
+  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {

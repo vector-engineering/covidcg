@@ -3,12 +3,12 @@
 import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
-import { intToDnaSnv, intToGeneAaSnv, intToProteinAaSnv } from './snpData';
 
 import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 import { asyncDataStoreInstance } from '../components/App';
+import { snpDataStoreInstance } from './snpData';
 
 class LineageDataStore {
   coolColorInd;
@@ -114,7 +114,9 @@ class LineageDataStore {
 
     let snpIds = groupObj.dna_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) => intToDnaSnv(parseInt(snpId)));
+    return _.map(snpIds, (snpId) =>
+      snpDataStoreInstance.intToDnaSnv(parseInt(snpId))
+    );
   }
 
   getGeneAaSnpsFromGroup(groupKey, group) {
@@ -124,7 +126,9 @@ class LineageDataStore {
     }
     let snpIds = groupObj.gene_aa_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) => intToGeneAaSnv(parseInt(snpId)));
+    return _.map(snpIds, (snpId) =>
+      snpDataStoreInstance.intToGeneAaSnv(parseInt(snpId))
+    );
   }
 
   getProteinAaSnpsFromGroup(groupKey, group) {
@@ -134,7 +138,9 @@ class LineageDataStore {
     }
     let snpIds = groupObj.protein_aa_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) => intToProteinAaSnv(parseInt(snpId)));
+    return _.map(snpIds, (snpId) =>
+      snpDataStoreInstance.intToProteinAaSnv(parseInt(snpId))
+    );
   }
 }
 

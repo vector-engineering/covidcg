@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { formatSnv } from '../../utils/snpData';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
@@ -16,13 +15,14 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import { LegendList, LegendItem } from './Legend.styles';
+import { snpDataStoreInstance } from '../../utils/snpData';
 
 const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     text:
       configStore.groupKey === GROUP_KEYS.GROUP_SNV
-        ? formatSnv(group, configStore.dnaOrAa)
+        ? snpDataStoreInstance.formatSnv(group, configStore.dnaOrAa)
         : group,
     hovered: false,
     selected: false,

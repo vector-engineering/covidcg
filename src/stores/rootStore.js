@@ -6,6 +6,7 @@ import ObservableUIStore from './UIStore';
 import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
 import { lineageDataStoreInstance } from '../utils/lineageData';
+import { snpDataStoreInstance } from '../utils/snpData';
 
 class RootStore {
   router;
@@ -22,6 +23,7 @@ class RootStore {
     this.plotSettingsStore = new ObservablePlotSettingsStore();
     startRouter(routes, this);
     lineageDataStoreInstance.init();
+    snpDataStoreInstance.init();
   }
 }
 
