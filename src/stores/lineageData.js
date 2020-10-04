@@ -8,9 +8,11 @@ import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 import { asyncDataStoreInstance } from '../components/App';
-import { snpDataStoreInstance } from './snpData';
+import { rootStoreInstance } from './rootStore';
 
-class LineageDataStore {
+const { snpDataStore } = rootStoreInstance || {};
+
+export class LineageDataStore {
   coolColorInd;
   warmColorInd;
   cladeColorInd;
@@ -20,7 +22,7 @@ class LineageDataStore {
   cladeColorMap;
   lineageColorMap;
 
-  init() {
+  constructor() {
     this.coolColorInd = 0;
     this.warmColorInd = 0;
     this.cladeColorInd = 0;
@@ -114,9 +116,7 @@ class LineageDataStore {
 
     let snpIds = groupObj.dna_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) =>
-      snpDataStoreInstance.intToDnaSnv(parseInt(snpId))
-    );
+    return _.map(snpIds, (snpId) => snpDataStore.intToDnaSnv(parseInt(snpId)));
   }
 
   getGeneAaSnpsFromGroup(groupKey, group) {
@@ -127,7 +127,7 @@ class LineageDataStore {
     let snpIds = groupObj.gene_aa_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
     return _.map(snpIds, (snpId) =>
-      snpDataStoreInstance.intToGeneAaSnv(parseInt(snpId))
+      snpDataStore.intToGeneAaSnv(parseInt(snpId))
     );
   }
 
@@ -139,9 +139,7 @@ class LineageDataStore {
     let snpIds = groupObj.protein_aa_snp_ids;
     snpIds = _.reject(snpIds, (snpId) => snpId === '');
     return _.map(snpIds, (snpId) =>
-      snpDataStoreInstance.intToProteinAaSnv(parseInt(snpId))
+      snpDataStore.intToProteinAaSnv(parseInt(snpId))
     );
   }
 }
-
-export const lineageDataStoreInstance = new LineageDataStore();

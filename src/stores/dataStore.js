@@ -22,7 +22,7 @@ import { rootStoreInstance } from './rootStore';
 
 //import countryScoreData from '../../data/country_score.json';
 
-const { UIStore, configStore } = rootStoreInstance || {};
+const { UIStore, configStore, snpDataStore } = rootStoreInstance || {};
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -143,6 +143,13 @@ class ObservableDataStore {
   @action
   updateCaseData(callback) {
     UIStore.onCaseDataStateStarted();
+    const {
+      intToDnaSnv,
+      intToGeneAaSnv,
+      intToProteinAaSnv,
+      getSnvColor,
+      formatSnv,
+    } = snpDataStore;
     processCaseData(
       {
         selectedLocationNodes: toJS(configStore.selectedLocationNodes),
@@ -163,6 +170,13 @@ class ObservableDataStore {
         minLocalCountsToShow: configStore.minLocalCountsToShow,
         minGlobalCountsToShow: configStore.minGlobalCountsToShow,
         globalGroupCounts: toJS(asyncDataStoreInstance.globalGroupCounts),
+
+        // snp store stuff
+        intToDnaSnv,
+        intToGeneAaSnv,
+        intToProteinAaSnv,
+        getSnvColor,
+        formatSnv,
       },
       ({
         filteredCaseData,
@@ -233,6 +247,7 @@ class ObservableDataStore {
           (item) => item.group
         ),
         dateRange: toJS(configStore.dateRange),
+        getSnvColor: snpDataStore.getSnvColor,
       },
       ({ snvCooccurrence }) => {
         this.snvCooccurrence = snvCooccurrence;

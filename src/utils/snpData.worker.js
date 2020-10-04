@@ -3,7 +3,7 @@ import { aggregate } from './transform';
 
 import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { GROUPS } from '../constants/groups';
-import { snpDataStoreInstance } from './snpData';
+import { formatSnv } from './snpUtils';
 
 function getCombinations(arr) {
   var result = [];
@@ -29,15 +29,17 @@ function filterByDate(caseData, dateRange, dateKey = 'collection_date') {
   return caseData;
 }
 
-function getSnvFields({ dnaOrAa, coordinateMode, selectedGroups }) {
-  const {
-    dnaSnvToInt,
-    geneAaSnvToInt,
-    proteinAaSnvToInt,
-    intToDnaSnv,
-    intToGeneAaSnv,
-    intToProteinAaSnv,
-  } = snpDataStoreInstance;
+function getSnvFields({
+  dnaOrAa,
+  coordinateMode,
+  selectedGroups,
+  intToDnaSnv,
+  geneAaSnvToInt,
+  dnaSnvToInt,
+  intToGeneAaSnv,
+  proteinAaSnvToInt,
+  intToProteinAaSnv,
+}) {
   let selectedGroupIds;
   let snvEntry;
   let intToSnvFunc;
@@ -80,13 +82,13 @@ function processSelectedSnvs({
   filteredCaseData,
   selectedGroups,
   validGroups,
+  getSnvColor,
 }) {
   const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
     dnaOrAa,
     coordinateMode,
     selectedGroups,
   });
-  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   // If no SNVs are selected, then return empty arrays now
   // if (selectedGroupIds.size === 0) {
@@ -195,13 +197,15 @@ function processCooccurrenceData({
   selectedGroups,
   filteredCaseData,
   dateRange,
+
+  //snp data store
+  getSnvColor,
 }) {
   const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
     dnaOrAa,
     coordinateMode,
     selectedGroups,
   });
-  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   // Co-occurrence data
 

@@ -25,7 +25,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/location_date.vg.json';
-import { snpDataStoreInstance } from '../../utils/snpData';
+import { formatSnv } from '../../utils/snpUtils';
 
 const PlotContainer = styled.div``;
 
@@ -389,9 +389,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
       plotTitle += ` (${configStore.selectedGroups
-        .map((group) =>
-          snpDataStoreInstance.formatSnv(group.group, configStore.dnaOrAa)
-        )
+        .map((group) => formatSnv(group.group, configStore.dnaOrAa))
         .join(' & ')})`;
     } else {
       plotTitle += ` (${configStore.selectedGroups

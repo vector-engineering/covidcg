@@ -5,8 +5,8 @@ import ObservableDataStore from './dataStore';
 import ObservableUIStore from './UIStore';
 import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
-import { lineageDataStoreInstance } from '../utils/lineageData';
-import { snpDataStoreInstance } from '../utils/snpData';
+import { LineageDataStore } from './lineageData';
+import { SnpDataStore } from './snpData';
 
 class RootStore {
   router;
@@ -14,6 +14,8 @@ class RootStore {
   UIStore;
   dataStore;
   plotSettingsStore;
+  snpDataStore;
+  linageDataStore;
 
   init() {
     this.UIStore = new ObservableUIStore();
@@ -22,8 +24,8 @@ class RootStore {
     this.dataStore = new ObservableDataStore();
     this.plotSettingsStore = new ObservablePlotSettingsStore();
     startRouter(routes, this);
-    lineageDataStoreInstance.init();
-    snpDataStoreInstance.init();
+    this.snpDataStore = new SnpDataStore();
+    this.linageDataStore = new LineageDataStore();
   }
 }
 
@@ -32,5 +34,3 @@ export const rootStoreInstance = new RootStore();
 export const storesContext = React.createContext(rootStoreInstance);
 
 export const StoreProvider = storesContext.Provider;
-
-export const blah = '12';

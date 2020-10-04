@@ -15,14 +15,14 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import { LegendList, LegendItem } from './Legend.styles';
-import { snpDataStoreInstance } from '../../utils/snpData';
+import { formatSnv } from '../../utils/snpUtils';
 
 const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     text:
       configStore.groupKey === GROUP_KEYS.GROUP_SNV
-        ? snpDataStoreInstance.formatSnv(group, configStore.dnaOrAa)
+        ? formatSnv(group, configStore.dnaOrAa)
         : group,
     hovered: false,
     selected: false,

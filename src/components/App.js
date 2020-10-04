@@ -6,7 +6,7 @@ import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
 import { rootStoreInstance, StoreProvider } from '../stores/rootStore';
-import WaitForAsyncWrapper, { AsyncDataProvider } from './WaitForAsyncWrapper';
+import WaitForAsyncWrapper from './WaitForAsyncWrapper';
 import ObservableAsyncDataStore from '../stores/asyncDataStore';
 
 const GlobalStyle = createGlobalStyle`

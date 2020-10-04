@@ -13,7 +13,7 @@ import {
   COORDINATE_MODES,
 } from '../constants/config';
 import { GROUPS } from '../constants/groups';
-import { snpDataStoreInstance } from './snpData';
+import { formatSnv } from './snpUtils';
 
 const dataDateInt = new Date(dataDate).getTime();
 const processedCaseData = _.reject(
@@ -74,14 +74,11 @@ function filterByCoordinateRange({
   coordinateMode,
   selectedGene,
   selectedProtein,
+  intToDnaSnv,
+  intToGeneAaSnv,
+  intToProteinAaSnv,
 }) {
   let newCaseData = [];
-
-  const {
-    intToDnaSnv,
-    intToGeneAaSnv,
-    intToProteinAaSnv,
-  } = snpDataStoreInstance;
 
   if (coordinateRanges.length === 0) {
     // Empty coordinate ranges means that either "All Genes" or "All Proteins" is selected
@@ -223,6 +220,13 @@ function processCaseData({
   minLocalCountsToShow,
   minGlobalCountsToShow,
   globalGroupCounts,
+
+  // snp store
+  intToDnaSnv,
+  intToGeneAaSnv,
+  intToProteinAaSnv,
+  getSnvColor,
+  formatSnv,
 }) {
   const { getLineageColor, getCladeColor } = {};
 
@@ -241,6 +245,9 @@ function processCaseData({
     coordinateMode,
     selectedGene,
     selectedProtein,
+    intToDnaSnv,
+    intToGeneAaSnv,
+    intToProteinAaSnv,
   });
 
   // Get the initial number of sequences, prior to metadata filtering
@@ -336,13 +343,7 @@ function processCaseData({
   const uniqueGroupKeys = new Set();
   let groupKeys = [];
   let location;
-  const {
-    intToDnaSnv,
-    intToGeneAaSnv,
-    intToProteinAaSnv,
-    getSnvColor,
-    formatSnv,
-  } = snpDataStoreInstance;
+
   caseData.forEach((row) => {
     // Tally counts per location
     countsPerLocation[locationIdToNodeMap[row.location_id]] += 1;
@@ -482,6 +483,7 @@ function aggCaseDataByGroup({
   groupKey,
   dnaOrAa,
   dateRange,
+  getSnvColor,
 }) {
   const {
     getDnaSnpsFromGroup,
@@ -490,7 +492,6 @@ function aggCaseDataByGroup({
     getLineageColor,
     getCladeColor,
   } = {};
-  const { getSnvColor, formatSnv } = snpDataStoreInstance;
 
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {

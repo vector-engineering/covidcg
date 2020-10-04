@@ -6,25 +6,29 @@
 // import geneAaSnvMap from '../../data/gene_aa_snp_map.json';
 // import proteinAaSnvMap from '../../data/protein_aa_snp_map.json';
 
-const dnaSnvMap = {};
-const geneAaSnvMap = {};
-const proteinAaSnvMap = {};
-
 import _ from 'underscore';
 
-import { getGene, getProtein } from './gene_protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 
 import { snpColorArray } from '../constants/colors';
 import { GROUPS } from '../constants/groups';
-import { DNA_OR_AA } from '../constants/config';
+//import { asyncDataStoreInstance } from '../components/App';
 
-class SnpDataStore {
+export class SnpDataStore {
   intToDnaSnvMap = {};
   intToGeneAaSnvMap = {};
   intToProteinAaSnvMap = {};
   snvColorMap = {};
+  dnaSnvMap = {};
+  geneAaSnvMap = {};
+  proteinAaSnvMap = {};
 
-  init() {
+  constructor() {
+    // this.dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map;
+    // this.geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map;
+    // this.proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map;
+    // debugger;
+
     //snv -> color map
     let snvColorInd = 0;
     const _getSnvColor = _.memoize(() => {
@@ -39,21 +43,21 @@ class SnpDataStore {
     this.snvColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.snvColorMap[GROUPS.NONE_GROUP] = '#AAA';
     this.snvColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
-    Object.keys(dnaSnvMap).forEach((snv) => {
+    Object.keys(this.dnaSnvMap).forEach((snv) => {
       this.snvColorMap[snv] = _getSnvColor(snv);
     });
-    Object.keys(geneAaSnvMap).forEach((snv) => {
+    Object.keys(this.geneAaSnvMap).forEach((snv) => {
       this.snvColorMap[snv] = _getSnvColor(snv);
     });
-    Object.keys(proteinAaSnvMap).forEach((snv) => {
+    Object.keys(this.proteinAaSnvMap).forEach((snv) => {
       this.snvColorMap[snv] = _getSnvColor(snv);
     });
 
     //remap so its integer -> SNP
     let snvId, split, aaRangeInd;
 
-    Object.keys(dnaSnvMap).forEach((snv) => {
-      snvId = parseInt(dnaSnvMap[snv]);
+    Object.keys(this.dnaSnvMap).forEach((snv) => {
+      snvId = parseInt(this.dnaSnvMap[snv]);
       this.intToDnaSnvMap[snvId] = {};
       // Store the entire SNV string
       this.intToDnaSnvMap[snvId]['snp_str'] = snv;
@@ -67,8 +71,8 @@ class SnpDataStore {
       this.intToDnaSnvMap[snvId]['ref'] = split[1];
       this.intToDnaSnvMap[snvId]['alt'] = split[2];
     });
-    Object.keys(geneAaSnvMap).forEach((snv) => {
-      snvId = parseInt(geneAaSnvMap[snv]);
+    Object.keys(this.geneAaSnvMap).forEach((snv) => {
+      snvId = parseInt(this.geneAaSnvMap[snv]);
       this.intToGeneAaSnvMap[snvId] = {};
       // Store the entire SNV string
       this.intToGeneAaSnvMap[snvId]['snp_str'] = snv;
@@ -98,8 +102,8 @@ class SnpDataStore {
           getGene(split[0]).aa_ranges[aaRangeInd][0]) *
           3;
     });
-    Object.keys(proteinAaSnvMap).forEach((snv) => {
-      snvId = parseInt(proteinAaSnvMap[snv]);
+    Object.keys(this.proteinAaSnvMap).forEach((snv) => {
+      snvId = parseInt(this.proteinAaSnvMap[snv]);
       this.intToProteinAaSnvMap[snvId] = {};
       // Store the entire SNV string
       this.intToProteinAaSnvMap[snvId]['snp_str'] = snv;
@@ -154,30 +158,12 @@ class SnpDataStore {
   }
 
   dnaSnvToInt(dnaSnv) {
-    return dnaSnvMap[dnaSnv];
+    return this.dnaSnvMap[dnaSnv];
   }
   geneAaSnvToInt(geneAaSnv) {
-    return geneAaSnvMap[geneAaSnv];
+    return this.geneAaSnvMap[geneAaSnv];
   }
   proteinAaSnvToInt(proteinAaSnv) {
-    return proteinAaSnvMap[proteinAaSnv];
-  }
-
-  formatSnv(snvStr, dnaOrAa) {
-    // Don't do this if it's a special group
-    if (Object.values(GROUPS).includes(snvStr)) {
-      return snvStr;
-    }
-
-    // Print as REF POS ALT
-    // i.e., 23403|A|G -> A23403G, S|614|D|G -> S · D614G
-    const chunks = snvStr.split('|');
-    if (dnaOrAa === DNA_OR_AA.DNA) {
-      return `${chunks[1]}${chunks[0]}${chunks[2]}`;
-    } else if (dnaOrAa === DNA_OR_AA.AA) {
-      return `${chunks[0]} · ${chunks[2]}${chunks[1]}${chunks[3]}`;
-    }
+    return this.proteinAaSnvMap[proteinAaSnv];
   }
 }
-
-export const snpDataStoreInstance = new SnpDataStore();
