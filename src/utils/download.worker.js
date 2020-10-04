@@ -1,14 +1,11 @@
 import { getAckTextsFromAckIds } from './acknowledgements';
-import {
-  getDnaSnpsFromGroup,
-  getGeneAaSnpsFromGroup,
-  getProteinAaSnpsFromGroup,
-} from './lineageData';
+
 // import { intToISO } from './date';
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { REFERENCE_GROUP } from '../constants/groups';
+//import { asyncDataStoreInstance } from '../components/App';
 
 function downloadAccessionIdsData({ accessionIds }) {
   // console.log(accessionIds);
@@ -109,6 +106,12 @@ function downloadAggCaseDataGroup({
   changingPositions,
   coordinateMode,
 }) {
+  const {
+    getDnaSnpsFromGroup,
+    getGeneAaSnpsFromGroup,
+    getProteinAaSnpsFromGroup,
+  } = {};
+
   let csvString = '';
 
   // Write headers

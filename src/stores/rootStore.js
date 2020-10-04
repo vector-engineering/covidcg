@@ -5,8 +5,7 @@ import ObservableDataStore from './dataStore';
 import ObservableUIStore from './UIStore';
 import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
-
-console.log('yo');
+import { lineageDataStoreInstance } from '../utils/lineageData';
 
 class RootStore {
   router;
@@ -15,16 +14,14 @@ class RootStore {
   dataStore;
   plotSettingsStore;
 
-  constructor() {
-    this.yo = 'yo';
-  }
   init() {
+    this.UIStore = new ObservableUIStore();
     this.router = new RouterStore();
     this.configStore = new ObservableConfigStore();
-    this.UIStore = new ObservableUIStore();
     this.dataStore = new ObservableDataStore();
     this.plotSettingsStore = new ObservablePlotSettingsStore();
     startRouter(routes, this);
+    lineageDataStoreInstance.init();
   }
 }
 

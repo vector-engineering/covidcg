@@ -75,10 +75,6 @@ class ObservableDataStore {
   countsPerGroup = initialDataValues.countsPerGroup;
   countsPerGroupDateFiltered = initialDataValues.countsPerGroupDateFiltered;
 
-  constructor() {
-    UIStore.onCaseDataStateStarted();
-  }
-
   @action
   updateAggCaseDataByGroup(callback) {
     UIStore.onAggCaseDataStarted();

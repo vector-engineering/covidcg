@@ -1,13 +1,13 @@
 /* eslint-disable import/no-named-as-default */
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { hot } from 'react-hot-loader';
 import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
-import ObservableAsyncDataStore from '../stores/asyncDataStore';
-import { ASYNC_STATES } from '../constants/UI';
 import { rootStoreInstance, StoreProvider } from '../stores/rootStore';
+import WaitForAsyncWrapper, { AsyncDataProvider } from './WaitForAsyncWrapper';
+import ObservableAsyncDataStore from '../stores/asyncDataStore';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -26,22 +26,13 @@ const GlobalStyle = createGlobalStyle`
 export const asyncDataStoreInstance = new ObservableAsyncDataStore();
 
 const App = () => {
-  if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
-    return <div>waiting</div>;
-  }
-
-  const renderedOnce = useRef(false);
-  useEffect(() => {
-    if (!renderedOnce.current) {
-      rootStoreInstance.init();
-      renderedOnce.current = true;
-    }
-  });
   return (
-    <StoreProvider value={rootStoreInstance}>
-      <MobxRouter store={rootStoreInstance} />
-      <GlobalStyle />
-    </StoreProvider>
+    <WaitForAsyncWrapper>
+      <StoreProvider value={rootStoreInstance}>
+        <MobxRouter store={rootStoreInstance} />
+        <GlobalStyle />
+      </StoreProvider>
+    </WaitForAsyncWrapper>
   );
 };
 

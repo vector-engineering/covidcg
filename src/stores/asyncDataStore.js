@@ -10,6 +10,7 @@ class ObservableAsyncDataStore {
   @action
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
+    console.log('fetch data');
     try {
       const res = await fetch(
         'https://storage.googleapis.com/ve-public/data_package.json'
@@ -32,7 +33,7 @@ class ObservableAsyncDataStore {
     // Make a copy
     const processedGlobalGroupCounts = Object.assign(
       {},
-      this.data.globalGroupCounts
+      this.data.global_group_counts
     );
 
     // Replace integer IDs with SNP strings

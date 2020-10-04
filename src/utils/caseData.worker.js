@@ -6,13 +6,7 @@ import {
   getSnvColor,
   formatSnv,
 } from './snpData';
-import {
-  getDnaSnpsFromGroup,
-  getGeneAaSnpsFromGroup,
-  getProteinAaSnpsFromGroup,
-  getLineageColor,
-  getCladeColor,
-} from './lineageData';
+
 import { getLocationIds } from './location';
 import { dataDate } from './version';
 import { aggregate } from './transform';
@@ -230,6 +224,8 @@ function processCaseData({
   minGlobalCountsToShow,
   globalGroupCounts,
 }) {
+  const { getLineageColor, getCladeColor } = {};
+
   // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
   let caseData = JSON.parse(JSON.stringify(processedCaseData));
 
@@ -480,7 +476,13 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 }) {
-  // console.log(dateRange);
+  const {
+    getDnaSnpsFromGroup,
+    getGeneAaSnpsFromGroup,
+    getProteinAaSnpsFromGroup,
+    getLineageColor,
+    getCladeColor,
+  } = {};
 
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
