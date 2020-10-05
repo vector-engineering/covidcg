@@ -5,7 +5,6 @@ import numpy as np
 from cg_scripts.fasta import read_fasta_file
 from cg_scripts.get_aa_snps import get_aa_snps
 from cg_scripts.get_dna_snps import get_dna_snps
-from cg_scripts.process_ack import process_ack
 from cg_scripts.process_artic_primers import process_artic_primers
 from cg_scripts.process_lineages import get_consensus_snps
 from cg_scripts.process_locations import process_location_metadata, build_select_tree
@@ -234,21 +233,20 @@ rule process_seq_metadata:
         seq_meta_df.to_csv(output.seq_meta)
 
 
-ACK_FILES, = glob_wildcards("data/acknowledgements/{ack_file}.xls")
-
-rule process_acknowledgements:
-    input:
-        ack = expand(
-            "data/acknowledgements/{ack_file}.xls", 
-            ack_file=ACK_FILES
-        )
-    output:
-        ack_meta = data_folder + "/ack_meta.csv",
-        ack_map = data_folder + "/ack_map.json"
-    run:
-        ack_df, ack_map = process_ack(input.ack)
-        ack_df.to_csv(output.ack_meta)
-        ack_map.to_json(output.ack_map, orient="index")
+# ACK_FILES, = glob_wildcards("data/acknowledgements/{ack_file}.xls")
+# rule process_acknowledgements:
+#     input:
+#         ack = expand(
+#             "data/acknowledgements/{ack_file}.xls", 
+#             ack_file=ACK_FILES
+#         )
+#     output:
+#         ack_meta = data_folder + "/ack_meta.csv",
+#         ack_map = data_folder + "/ack_map.json"
+#     run:
+#         ack_df, ack_map = process_ack(input.ack)
+#         ack_df.to_csv(output.ack_meta)
+#         ack_map.to_json(output.ack_map, orient="index")
         
 # Main rule for generating the data files for the browser
 # Mostly just a bunch of joins
@@ -256,7 +254,7 @@ rule generate_ui_data:
     input:
         patient_meta = data_folder + "/patient_meta.csv",
         seq_meta = data_folder + "/seq_meta.csv",
-        ack_meta = data_folder + "/ack_meta.csv",
+        # ack_meta = data_folder + "/ack_meta.csv",
         dna_snp_group = data_folder + "/dna_snp_group.csv",
         gene_aa_snp_group = data_folder + "/gene_aa_snp_group.csv",
         protein_aa_snp_group = data_folder + "/protein_aa_snp_group.csv",
@@ -272,7 +270,7 @@ rule generate_ui_data:
     run:
         patient_meta_df = pd.read_csv(input.patient_meta, index_col="Accession ID")
         seq_meta_df = pd.read_csv(input.seq_meta, index_col="Accession ID")
-        ack_meta_df = pd.read_csv(input.ack_meta, index_col="Accession ID")
+        # ack_meta_df = pd.read_csv(input.ack_meta, index_col="Accession ID")
 
         dna_snp_group_df = pd.read_csv(input.dna_snp_group, index_col="Accession ID")
         gene_aa_snp_group_df = pd.read_csv(input.gene_aa_snp_group, index_col="Accession ID")
@@ -289,9 +287,9 @@ rule generate_ui_data:
         df = df.loc[~pd.isnull(df['clade']), :]
 
         # Join acknowledgement IDs onto main metadata dataframe
-        df = df.join(ack_meta_df, on="Accession ID", how="left", sort=False)
+        # df = df.join(ack_meta_df, on="Accession ID", how="left", sort=False)
         # Replace missing acknowledgement IDs with -1, then cast to integer
-        df["ack_id"] = df["ack_id"].fillna(-1).astype(int)
+        # df["ack_id"] = df["ack_id"].fillna(-1).astype(int)
 
         # Join SNPs to main dataframe
         # inner join to exclude filtered out sequences
@@ -519,6 +517,10 @@ rule process_artic_primers:
 
 
 NEXTMETA, = glob_wildcards(data_folder + "/nextmeta_{nextmeta}.tsv")
+
+if len(NEXTMETA) == 0:
+    raise Exception('nextmeta file not found. Please see https://github.com/vector-engineering/covidcg#data-requirements for how to obtain the nextmeta file')
+
 latest_nextmeta_file = data_folder + '/nextmeta_' + sorted(NEXTMETA)[-1] + '.tsv'
 
 rule calc_global_sequencing_efforts:
@@ -700,6 +702,62 @@ rule calc_global_sequencing_efforts:
         )
         with open(output.country_seq_stats, 'w') as fp:
             fp.write(country_df_str)
+
+rule assemble_data_package:
+    input:
+        case_data = data_folder + '/case_data.json',
+        # ack_map = data_folder + '/ack_map.json',
+        clade_snp = data_folder + '/clade_snp.json',
+        country_score = data_folder + '/country_score.json',
+        dna_snp_map = data_folder + '/dna_snp_map.json',
+        gene_aa_snp_map = data_folder + '/gene_aa_snp_map.json',
+        geo_select_tree = data_folder + '/geo_select_tree.json',
+        global_group_counts = data_folder + '/global_group_counts.json',
+        lineage_snp = data_folder + '/lineage_snp.json',
+        location_map = data_folder + '/location_map.json',
+        metadata_map = data_folder + '/metadata_map.json',
+        protein_aa_snp_map = data_folder + '/protein_aa_snp_map.json'
+    output:
+        data_package = data_folder + '/data_package.json'
+    run:
+        data_package = {}
+        with open(input.case_data, 'r') as fp:
+            data_package['case_data'] = json.loads(fp.read())
+        # with open(input.ack_map, 'r') as fp:
+        #     data_package['ack_map'] = json.loads(fp.read())
+        with open(input.clade_snp, 'r') as fp:
+            data_package['clade_snp'] = json.loads(fp.read())
+        with open(input.country_score, 'r') as fp:
+            data_package['country_score'] = json.loads(fp.read())
+        with open(input.dna_snp_map, 'r') as fp:
+            data_package['dna_snp_map'] = json.loads(fp.read())
+        with open(input.gene_aa_snp_map, 'r') as fp:
+            data_package['gene_aa_snp_map'] = json.loads(fp.read())
+        with open(input.geo_select_tree, 'r') as fp:
+            data_package['geo_select_tree'] = json.loads(fp.read())
+        with open(input.global_group_counts, 'r') as fp:
+            data_package['global_group_counts'] = json.loads(fp.read())
+        with open(input.lineage_snp, 'r') as fp:
+            data_package['lineage_snp'] = json.loads(fp.read())
+        with open(input.location_map, 'r') as fp:
+            data_package['location_map'] = json.loads(fp.read())
+        with open(input.metadata_map, 'r') as fp:
+            data_package['metadata_map'] = json.loads(fp.read())
+        with open(input.protein_aa_snp_map, 'r') as fp:
+            data_package['protein_aa_snp_map'] = json.loads(fp.read())
+
+        with open(output.data_package, 'w') as fp:
+            fp.write(json.dumps(data_package))
+
+rule compress_data_package:
+    input:
+        data_package = data_folder + '/data_package.json'
+    output:
+        data_package = data_folder + '/data_package.json.gz'
+    shell:
+        '''
+        gzip -9 -k {input.data_package} -c > {output.data_package}
+        '''
 
 
 # # This is only for site maintainers
