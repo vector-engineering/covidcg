@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
+// import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 import _ from 'underscore';
 
 import { ASYNC_STATES } from '../../constants/UI';
@@ -55,7 +55,8 @@ const AcknowledgementsTable = observer(() => {
 
     // Get the list of selected Accession IDs, and map to
     // acknowledgement texts
-    let ackTexts = getAckTextsFromAckIds(ackIds);
+    // let ackTexts = getAckTextsFromAckIds(ackIds);
+    let ackTexts = [];
     // Set the acknowledgement ID for each acknowledgement object
     for (let i = 0; i < ackTexts.length; i++) {
       ackTexts[i]['ack_id'] = ackIds[i];
