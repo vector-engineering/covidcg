@@ -32,6 +32,10 @@ export function assignObjectPaths(obj, stack) {
 
 // Recursively look through children for location IDs
 function getLocationIdsFromNode(node) {
+  if (node === undefined) {
+    return [];
+  }
+
   return [node.location_id].concat(
     node.children.reduce((memo, child) => {
       return memo.concat(getLocationIdsFromNode(child));
