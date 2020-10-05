@@ -17,7 +17,7 @@ def clean_gender_metadata(patient_meta_df):
     print("Cleaning patient gender metadata...", end="", flush=True)
 
     # Make a copy, strip whitespace
-    patient_meta_df["gender"] = patient_meta_df["Gender"].str.strip()
+    patient_meta_df["gender"] = patient_meta_df["Gender"].astype(str).str.strip()
 
     replace_map = [
         (r"^female", "Female", False),
@@ -78,7 +78,7 @@ def clean_age_metadata(patient_meta_df):
     print("Cleaning patient age metadata...", end="", flush=True)
 
     # Do some basic cleanup before we start
-    patient_meta_df["age_clean"] = patient_meta_df["Patient age"]
+    patient_meta_df["age_clean"] = patient_meta_df["Patient age"].astype(str)
     patient_meta_df["age_clean"] = patient_meta_df["age_clean"].fillna("Unknown")
     patient_meta_df["age_clean"] = patient_meta_df["age_clean"].str.strip()
 
@@ -206,6 +206,7 @@ def clean_age_metadata(patient_meta_df):
                     for x in patient_meta_df["age_clean"][
                         pd.isnull(patient_meta_df["age_start"])
                     ]
+                    .astype(str)
                     .str.strip()
                     .unique()
                     .astype(str)
@@ -222,7 +223,9 @@ def clean_patient_status_metadata(patient_meta_df):
     print("Cleaning patient status metadata...", end="", flush=True)
 
     # Strip whitespace
-    patient_meta_df["patient_status"] = patient_meta_df["Patient status"].str.strip()
+    patient_meta_df["patient_status"] = (
+        patient_meta_df["Patient status"].astype(str).str.strip()
+    )
 
     replace_map = [
         (r"hospitalized", "Hospitalized", False),
@@ -348,7 +351,7 @@ def clean_passage_metadata(patient_meta_df):
     print("Cleaning cell passage metadata...", end="", flush=True)
 
     # Basic cleaning
-    patient_meta_df["passage"] = patient_meta_df["Passage"].str.strip()
+    patient_meta_df["passage"] = patient_meta_df["Passage"].astype(str).str.strip()
 
     passage_key_map = {
         "Original": [
@@ -435,6 +438,7 @@ def clean_passage_metadata(patient_meta_df):
                     for x in patient_meta_df["Passage"][
                         pd.isnull(patient_meta_df["passage"])
                     ]
+                    .astype(str)
                     .str.strip()
                     .unique()
                     .astype(str)
@@ -456,7 +460,7 @@ def clean_specimen_metadata(patient_meta_df):
     print("Cleaning specimen metadata...", end="", flush=True)
 
     # Basic cleanup
-    patient_meta_df["specimen"] = patient_meta_df["Specimen"].str.strip()
+    patient_meta_df["specimen"] = patient_meta_df["Specimen"].astype(str).str.strip()
 
     specimen_key_map = {
         "Alveolar lavage fluid": [],
@@ -729,6 +733,7 @@ def clean_specimen_metadata(patient_meta_df):
                     for x in patient_meta_df["Specimen"][
                         pd.isnull(patient_meta_df["specimen"])
                     ]
+                    .astype(str)
                     .str.strip()
                     .unique()
                     .astype(str)
@@ -744,7 +749,9 @@ def clean_specimen_metadata(patient_meta_df):
 
 def clean_collection_date_metadata(patient_meta_df):
 
-    patient_meta_df["collection_date"] = patient_meta_df["Collection date"].str.strip()
+    patient_meta_df["collection_date"] = (
+        patient_meta_df["Collection date"].astype(str).str.strip()
+    )
 
     # Filter out really unspecific collection dates
     # If the date is 4 characters or less (a year, like "2019", or "2020"), then remove it
@@ -765,12 +772,12 @@ def clean_collection_date_metadata(patient_meta_df):
 
 
 def clean_lineage_metadata(patient_meta_df):
-    patient_meta_df["lineage"] = patient_meta_df["Lineage"].str.strip()
+    patient_meta_df["lineage"] = patient_meta_df["Lineage"].astype(str).str.strip()
     return patient_meta_df
 
 
 def clean_clade_metadata(patient_meta_df):
-    patient_meta_df["clade"] = patient_meta_df["Clade"].str.strip()
+    patient_meta_df["clade"] = patient_meta_df["Clade"].astype(str).str.strip()
     return patient_meta_df
 
 

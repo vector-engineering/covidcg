@@ -59,9 +59,12 @@ export const initialConfigValues = {
 
   selectTree: initialSelectTree,
   selectedLocationNodes: [
+    // NOTE: comment out these lines, if you are working with a custom dataset that
+    //       doesn't have any sequences from these location
+    //       Maybe should move these settings into a more easily-editable YAML file...
     getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
     getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
-  ],
+  ].filter((node) => node !== undefined),
 
   hoverGroup: null,
   selectedGroups: [],

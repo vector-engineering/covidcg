@@ -34,6 +34,14 @@ def process_location_metadata(case_df):
         .fillna(-1)
     )
 
+    # With sparse data, sometimes none of the sequences fed in will have a
+    # "division" or "location" entry.
+    # Make them manually now, if they don't already exist
+    if "division" not in location_df.columns:
+        location_df["division"] = -1
+    if "location" not in location_df.columns:
+        location_df["location"] = -1
+
     # Clean location data
     location_df = clean_location_data(location_df)
 

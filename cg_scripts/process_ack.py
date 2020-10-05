@@ -3,6 +3,8 @@
 
 """Process acknowledgement files
 
+2020-10-05: DEPRECATED. No longer bundling in acknowledgements
+
 Author: Albert Chen (Deverman Lab - Broad Institute)
 """
 

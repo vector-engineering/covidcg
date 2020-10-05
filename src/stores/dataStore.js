@@ -9,7 +9,7 @@ import {
 } from '../utils/snpDataWorkerWrapper';
 import {
   downloadAccessionIdsData,
-  downloadAcknowledgementsData,
+  // downloadAcknowledgementsData,
   downloadAggCaseData,
 } from '../utils/downloadWorkerWrapper';
 import { aggregate } from '../utils/transform';
@@ -266,33 +266,33 @@ class ObservableDataStore {
     });
   }
 
-  @action
-  downloadAcknowledgements() {
-    // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
+  // @action
+  // downloadAcknowledgements() {
+  //   // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
 
-    decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
-      downloadAcknowledgementsData(
-        {
-          selectedAccessionIds: responseData['accession_ids'],
-          selectedAckIds: this.selectedAckIds,
-        },
-        (res) => {
-          // console.log(res);
-          downloadBlobURL(
-            res.blobURL,
-            generateSelectionString(
-              'acknowledgements',
-              'csv',
-              toJS(configStoreInstance.groupKey),
-              toJS(configStoreInstance.dnaOrAa),
-              toJS(configStoreInstance.selectedLocationNodes),
-              toJS(configStoreInstance.dateRange)
-            )
-          );
-        }
-      );
-    });
-  }
+  //   decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
+  //     downloadAcknowledgementsData(
+  //       {
+  //         selectedAccessionIds: responseData['accession_ids'],
+  //         selectedAckIds: this.selectedAckIds,
+  //       },
+  //       (res) => {
+  //         // console.log(res);
+  //         downloadBlobURL(
+  //           res.blobURL,
+  //           generateSelectionString(
+  //             'acknowledgements',
+  //             'csv',
+  //             toJS(configStoreInstance.groupKey),
+  //             toJS(configStoreInstance.dnaOrAa),
+  //             toJS(configStoreInstance.selectedLocationNodes),
+  //             toJS(configStoreInstance.dateRange)
+  //           )
+  //         );
+  //       }
+  //     );
+  //   });
+  // }
 
   @action
   downloadAggCaseData() {

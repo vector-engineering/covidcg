@@ -17,7 +17,9 @@ def clean_seq_tech_metadata(seq_meta_df):
     print("Cleaning sequencing technology metadata...", end="", flush=True)
 
     # Basic cleaning
-    seq_meta_df["sequencing_tech"] = seq_meta_df["Sequencing technology"].str.strip()
+    seq_meta_df["sequencing_tech"] = (
+        seq_meta_df["Sequencing technology"].astype(str).str.strip()
+    )
 
     replace_map = [
         (r"illumina", "Illumina", False),
@@ -123,7 +125,9 @@ def clean_assembly_metadata(seq_meta_df):
 
     print("Cleaning assembly method metadata...", end="", flush=True)
 
-    seq_meta_df["assembly_method"] = seq_meta_df["Assembly method"].str.strip()
+    seq_meta_df["assembly_method"] = (
+        seq_meta_df["Assembly method"].astype(str).str.strip()
+    )
 
     replace_map = [
         # Aliases
@@ -203,10 +207,8 @@ def clean_assembly_metadata(seq_meta_df):
 
 
 def clean_comment_type_metadata(seq_meta_df):
-    seq_meta_df["comment_type"] = seq_meta_df["Comment type"].str.strip()
-
+    seq_meta_df["comment_type"] = seq_meta_df["Comment type"].astype(str).str.strip()
     seq_meta_df["comment_type"] = seq_meta_df["comment_type"].fillna("None")
-
     return seq_meta_df
 
 
