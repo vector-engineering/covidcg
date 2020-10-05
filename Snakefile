@@ -517,6 +517,10 @@ rule process_artic_primers:
 
 
 NEXTMETA, = glob_wildcards(data_folder + "/nextmeta_{nextmeta}.tsv")
+
+if len(NEXTMETA) == 0:
+    raise Exception('nextmeta file not found. Please see https://github.com/vector-engineering/covidcg#data-requirements for how to obtain the nextmeta file')
+
 latest_nextmeta_file = data_folder + '/nextmeta_' + sorted(NEXTMETA)[-1] + '.tsv'
 
 rule calc_global_sequencing_efforts:
