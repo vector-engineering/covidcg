@@ -31,18 +31,17 @@ import { GROUPS } from '../constants/groups';
 const globalGroupCounts = getGlobalGroupCounts();
 
 const dataDateInt = new Date(dataDate).getTime();
-const processedCaseData = _.reject(
-  _.map(initialCaseData, (row) => {
+const processedCaseData = initialCaseData
+  .map((row) => {
     row.collection_date = new Date(row.collection_date).getTime();
     return row;
-  }),
-  (row) => {
+  })
+  .filter((row) => {
     // Remove cases before 2019-12-15 and after the dataDate
     return (
-      row.collection_date < 1576368000000 || row.collection_date > dataDateInt
+      row.collection_date >= 1576368000000 && row.collection_date <= dataDateInt
     );
-  }
-);
+  });
 
 function convertToObj(list) {
   const obj = {};
@@ -55,7 +54,7 @@ function convertToObj(list) {
 function filterByLocation(caseData, locationIds) {
   // Skip if no locations selected
   if (locationIds.length === 0) {
-    return caseData;
+    return [];
   }
 
   const locationObj = convertToObj(
@@ -146,7 +145,7 @@ function filterByCoordinateRange({
 function filterByDate(caseData, dateRange, dateKey = 'date') {
   // Filter by date
   if (dateRange[0] > -1 && dateRange[1] > -1) {
-    return _.filter(caseData, (row) => {
+    return caseData.filter((row) => {
       return row[dateKey] >= dateRange[0] && row[dateKey] <= dateRange[1];
     });
   }
@@ -168,7 +167,7 @@ function filterByMetadataFieldsAndAgeRange(
   });
 
   let remove;
-  caseData = _.reject(caseData, (row) => {
+  caseData = caseData.filter((row) => {
     remove = false;
     Object.keys(metadataFields).forEach((field) => {
       if (!metadataFields[field].includes(row[field])) {
@@ -184,7 +183,7 @@ function filterByMetadataFieldsAndAgeRange(
       remove = true;
     }
 
-    return remove;
+    return !remove;
   });
 
   return caseData;
@@ -584,7 +583,7 @@ function aggCaseDataByGroup({
       let groupSnps = groupSnpFunc(group);
       if (dnaOrAa === DNA_OR_AA.DNA) {
         groupSnps.forEach((snp) => {
-          inRange = _.some(coordinateRanges, (range) => {
+          inRange = coordinateRanges.some((range) => {
             return snp.pos >= range[0] && snp.pos <= range[1];
           });
 
