@@ -331,12 +331,22 @@ class ObservableDataStore {
 
   @action
   downloadAggCaseData() {
+    const {
+      getDnaSnpsFromGroup,
+      getGeneAaSnpsFromGroup,
+      getProteinAaSnpsFromGroup,
+    } = lineageDataStore;
     downloadAggCaseData(
       {
         groupKey: configStore.groupKey,
         dnaOrAa: configStore.dnaOrAa,
         coordinateMode: configStore.coordinateMode,
         dataAggGroup: this.dataAggGroup,
+
+        // lineage data store
+        getDnaSnpsFromGroup,
+        getGeneAaSnpsFromGroup,
+        getProteinAaSnpsFromGroup,
       },
       (res) => {
         downloadBlobURL(

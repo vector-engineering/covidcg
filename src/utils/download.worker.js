@@ -56,6 +56,9 @@ function downloadAggCaseData({
   dnaOrAa,
   coordinateMode,
   dataAggGroup,
+  getDnaSnpsFromGroup,
+  getGeneAaSnpsFromGroup,
+  getProteinAaSnpsFromGroup,
 }) {
   // console.log(groupKey, dnaOrAa, dataAggGroup);
 
@@ -83,6 +86,11 @@ function downloadAggCaseData({
       dataAggGroup,
       changingPositions,
       coordinateMode,
+
+      //lineage data store
+      getDnaSnpsFromGroup,
+      getGeneAaSnpsFromGroup,
+      getProteinAaSnpsFromGroup,
     });
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     csvString = downloadAggCaseDataSnp(
@@ -105,13 +113,12 @@ function downloadAggCaseDataGroup({
   dataAggGroup,
   changingPositions,
   coordinateMode,
-}) {
-  const {
-    getDnaSnpsFromGroup,
-    getGeneAaSnpsFromGroup,
-    getProteinAaSnpsFromGroup,
-  } = {};
 
+  //lineage data store
+  getDnaSnpsFromGroup,
+  getGeneAaSnpsFromGroup,
+  getProteinAaSnpsFromGroup,
+}) {
   let csvString = '';
 
   // Write headers
