@@ -1,4 +1,5 @@
-import metadataMap from '../../data/metadata_map.json';
+// eslint-disable-next-line import/no-unresolved
+import metadataMap from 'https://storage.googleapis.com/ve-public/metadata_map.json';
 
 const metadataFields = [
   // 'gender_id',

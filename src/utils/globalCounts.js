@@ -1,8 +1,8 @@
 /*
  * Load global counts per group (lineage, clade, SNV, etc)
  */
-
-import globalGroupCounts from '../../data/global_group_counts.json';
+// eslint-disable-next-line import/no-unresolved
+import globalGroupCounts from 'https://storage.googleapis.com/ve-public/global_group_counts.json';
 
 // Make a copy
 const processedGlobalGroupCounts = Object.assign({}, globalGroupCounts);

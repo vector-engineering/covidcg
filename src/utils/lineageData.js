@@ -1,5 +1,7 @@
-import lineageSnpData from '../../data/lineage_snp.json';
-import cladeSnpData from '../../data/clade_snp.json';
+// eslint-disable-next-line import/no-unresolved
+import lineageSnpData from 'https://storage.googleapis.com/ve-public/lineage_snp.json';
+// eslint-disable-next-line import/no-unresolved
+import cladeSnpData from 'https://storage.googleapis.com/ve-public/clade_snp.json';
 import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';

@@ -1,5 +1,7 @@
-import locations from '../../data/location_map.json';
-import selectTree from '../../data/geo_select_tree.json';
+// eslint-disable-next-line import/no-unresolved
+import locations from 'https://storage.googleapis.com/ve-public/location_map.json';
+// eslint-disable-next-line import/no-unresolved
+import selectTree from 'https://storage.googleapis.com/ve-public/geo_select_tree.json';
 // import _ from 'underscore';
 
 // Create ID -> location object/hashmap

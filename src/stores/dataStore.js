@@ -18,8 +18,8 @@ import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { UIStoreInstance, configStoreInstance } from './rootStore';
 import { GROUP_KEYS } from '../constants/config';
-
-import countryScoreData from '../../data/country_score.json';
+// eslint-disable-next-line import/no-unresolved
+import countryScoreData from 'https://storage.googleapis.com/ve-public/country_score.json';
 
 export const initialDataValues = {
   filteredCaseData: [],

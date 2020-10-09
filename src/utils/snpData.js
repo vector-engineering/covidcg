@@ -1,10 +1,12 @@
 /*
  * Load SNP data, and map integers -> SNP strings
  */
-
-import dnaSnvMap from '../../data/dna_snp_map.json';
-import geneAaSnvMap from '../../data/gene_aa_snp_map.json';
-import proteinAaSnvMap from '../../data/protein_aa_snp_map.json';
+// eslint-disable-next-line import/no-unresolved
+import dnaSnvMap from 'https://storage.googleapis.com/ve-public/dna_snp_map.json';
+// eslint-disable-next-line import/no-unresolved
+import geneAaSnvMap from 'https://storage.googleapis.com/ve-public/gene_aa_snp_map.json';
+// eslint-disable-next-line import/no-unresolved
+import proteinAaSnvMap from 'https://storage.googleapis.com/ve-public/protein_aa_snp_map.json';
 
 import _ from 'underscore';
 

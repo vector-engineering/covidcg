@@ -27,6 +27,7 @@
   "license": "MIT",
   "dependencies": {
     "@hot-loader/react-dom": "16.10.2",
+    "import-http": "0.3.1",
     "litemol": "2.4.2",
     "mobx": "5.15.4",
     "mobx-react": "6.2.2",

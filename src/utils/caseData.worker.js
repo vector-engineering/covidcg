@@ -1,4 +1,5 @@
-import initialCaseData from '../../data/case_data.json';
+// eslint-disable-next-line import/no-unresolved
+import initialCaseData from 'https://storage.googleapis.com/ve-public/case_data.json';
 import {
   intToDnaSnv,
   intToGeneAaSnv,

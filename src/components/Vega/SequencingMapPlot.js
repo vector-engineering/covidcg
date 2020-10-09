@@ -10,7 +10,8 @@ import { PlotOptions } from './Plot.styles';
 import DropdownButton from '../Buttons/DropdownButton';
 
 import initialSpec from '../../vega_specs/map_combined.vg.json';
-import countryScoreData from '../../../data/country_score.json';
+// eslint-disable-next-line import/no-unresolved
+import countryScoreData from 'https://storage.googleapis.com/ve-public/country_score.json';
 
 const PlotContainer = styled.div``;
 
