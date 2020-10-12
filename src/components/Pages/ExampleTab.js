@@ -522,7 +522,7 @@ const ExampleTab = observer(() => {
           </ul>
         </TOC>
 
-        <ExampleHeader>
+        <ExampleHeader style={{ marginBottom: '10px' }}>
           <a id="introduction" />
           <ExampleTitle>Introduction</ExampleTitle>
           <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
@@ -531,6 +531,12 @@ const ExampleTab = observer(() => {
         </ExampleHeader>
 
         <ExampleTutorial>
+          <b style={{ fontSize: '1.4em', marginTop: '10px' }}>
+            Preprint:{' '}
+            <ExternalLink href="https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2">
+              https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2
+            </ExternalLink>
+          </b>
           <p>
             <b>
               The COVID-19 CoV Genetics browser was designed to empower diverse

@@ -42,7 +42,23 @@ The `data` folder requires three folders to be populated with raw data from GISA
 
 3. `seq_meta`: Sequencing technology metadata. These files can be downloaded by selecting "Sequencing technology metadata" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
 
-Note that as of 2020-06-05 only 10,000 sequences can be downloaded from the EpiCov™ Browse Tab at one time. Please filter your searches in a way that you select and download no more than 10,000 sequences at one time. We select data daily by filtering by "Submission date".
+In addition to the files above, the pipeline currently requires a "nextmeta" file, which can be downloaded from the "Downloads" dialog box on the EpiCov website:
+
+![](https://github.com/vector-engineering/covidcg/raw/master/src/assets/images/download_nextmeta.png)
+
+Unzip the downloaded file, rename the file to `nextmeta_[date]` (replacing `[date]` with the current date), and then move it into the `data` folder.
+
+The data folder should then look like this (prior to running the snakemake pipeline):
+
+```
+data/
+  | fasta_raw/
+  | patient_meta/
+  | seq_meta/
+  | nextmeta_20201005.tsv
+```
+
+_Note that as of 2020-06-05 only 10,000 sequences can be downloaded from the EpiCov™ Browse Tab at one time. Please filter your searches in a way that you select and download no more than 10,000 sequences at one time. We select data daily by filtering by "Submission date"._
 
 ### Javascript
 

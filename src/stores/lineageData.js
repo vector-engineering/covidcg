@@ -13,8 +13,11 @@ import { rootStoreInstance } from './rootStore';
 const { snpDataStore } = rootStoreInstance || {};
 
 export class LineageDataStore {
+  // Internal counters for generating lineage colors
   coolColorInd;
   warmColorInd;
+
+  // Internal counter for generating clade colors
   cladeColorInd;
 
   lineageSnpData;
@@ -23,6 +26,7 @@ export class LineageDataStore {
   lineageColorMap;
 
   constructor() {
+    // Init internal counters
     this.coolColorInd = 0;
     this.warmColorInd = 0;
     this.cladeColorInd = 0;

@@ -1,11 +1,9 @@
-import { getAckTextsFromAckIds } from './acknowledgements';
-
+// import { getAckTextsFromAckIds } from './acknowledgements';
 // import { intToISO } from './date';
 import _ from 'underscore';
 
 import { GROUP_KEYS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { REFERENCE_GROUP } from '../constants/groups';
-//import { asyncDataStoreInstance } from '../components/App';
+import { GROUPS } from '../constants/groups';
 
 function downloadAccessionIdsData({ accessionIds }) {
   // console.log(accessionIds);
@@ -19,37 +17,37 @@ function downloadAccessionIdsData({ accessionIds }) {
   };
 }
 
-function downloadAcknowledgementsData({
-  selectedAccessionIds,
-  selectedAckIds,
-}) {
-  // Get the list of selected Accession IDs, and map to
-  // acknowledgement texts
-  const ackTexts = getAckTextsFromAckIds(selectedAckIds);
+// function downloadAcknowledgementsData({
+//   selectedAccessionIds,
+//   selectedAckIds,
+// }) {
+//   // Get the list of selected Accession IDs, and map to
+//   // acknowledgement texts
+//   const ackTexts = getAckTextsFromAckIds(selectedAckIds);
 
-  // Write to a CSV string
-  // Accession ID and sample date first
-  // Then acknowledgement texts
-  let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
+//   // Write to a CSV string
+//   // Accession ID and sample date first
+//   // Then acknowledgement texts
+//   let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
 
-  for (let i = 0; i < selectedAccessionIds.length; i++) {
-    // Write Accession ID
-    csvString += selectedAccessionIds[i] + ',';
+//   for (let i = 0; i < selectedAccessionIds.length; i++) {
+//     // Write Accession ID
+//     csvString += selectedAccessionIds[i] + ',';
 
-    // Write Acknowledgement texts
-    // Since these can contain commas, wrap each in double quotes
-    csvString += '"' + ackTexts[i]['Originating lab'] + '",';
-    csvString += '"' + ackTexts[i]['Submitting lab'] + '",';
-    csvString += '"' + ackTexts[i]['Authors'] + '"\n';
-  }
+//     // Write Acknowledgement texts
+//     // Since these can contain commas, wrap each in double quotes
+//     csvString += '"' + ackTexts[i]['Originating lab'] + '",';
+//     csvString += '"' + ackTexts[i]['Submitting lab'] + '",';
+//     csvString += '"' + ackTexts[i]['Authors'] + '"\n';
+//   }
 
-  let blob = new Blob([csvString]);
-  let url = URL.createObjectURL(blob);
+//   let blob = new Blob([csvString]);
+//   let url = URL.createObjectURL(blob);
 
-  return {
-    blobURL: url,
-  };
-}
+//   return {
+//     blobURL: url,
+//   };
+// }
 
 function downloadAggCaseData({
   groupKey,
@@ -132,7 +130,7 @@ function downloadAggCaseDataGroup({
   for (let i = 0; i < dataAggGroup.length; i++) {
     let row = dataAggGroup[i];
     // Skip if it's the reference row
-    if (row['group'] === REFERENCE_GROUP) {
+    if (row['group'] === GROUPS.REFERENCE_GROUP) {
       continue;
     }
 
@@ -237,16 +235,16 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     // And then write the SNP chunks
     if (dnaOrAa === DNA_OR_AA.DNA) {
       // Handle reference row
-      if (row['group'] === REFERENCE_GROUP) {
-        csvString += 'Reference,,,,';
+      if (Object.values(GROUPS).includes(row['group'])) {
+        csvString += row['group'] + ',,,,';
       } else {
         csvString += [row['pos'], row['ref'], row['alt']].join('|') + ',';
         csvString += [row['pos'], row['ref'], row['alt']].join(',') + ',';
       }
     } else {
       // Handle reference row
-      if (row['group'] === REFERENCE_GROUP) {
-        csvString += 'Reference,,,,,';
+      if (Object.values(GROUPS).includes(row['group'])) {
+        csvString += row['group'] + ',,,,';
       } else {
         csvString +=
           [row['gene'], row['pos'], row['ref'], row['alt']].join('|') + ',';
@@ -277,10 +275,11 @@ self.addEventListener(
     //console.log('in downloadworker event listener', data);
 
     let result;
-    if (data.type === 'downloadAcknowledgementsData') {
-      // This is a terminal endpoint, we don't need to post a message back
-      result = downloadAcknowledgementsData(data);
-    } else if (data.type === 'downloadAggCaseData') {
+    // if (data.type === 'downloadAcknowledgementsData') {
+    //   // This is a terminal endpoint, we don't need to post a message back
+    //   result = downloadAcknowledgementsData(data);
+    // } else
+    if (data.type === 'downloadAggCaseData') {
       result = downloadAggCaseData(data);
     } else if (data.type === 'downloadAccessionIdsData') {
       result = downloadAccessionIdsData(data);

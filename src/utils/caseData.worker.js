@@ -25,7 +25,7 @@ function convertToObj(list) {
 function filterByLocation(caseData, locationIds) {
   // Skip if no locations selected
   if (locationIds.length === 0) {
-    return caseData;
+    return [];
   }
 
   const locationObj = convertToObj(
@@ -469,8 +469,7 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 
-  //snpd ata store
-  getSnvColor,
+  snvColorMap,
 
   //lineage data
   getDnaSnpsFromGroup,
@@ -485,7 +484,7 @@ function aggCaseDataByGroup({
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnvColor;
+    getColorMethod = (snv) => snvColorMap[snv];
   }
 
   const groupCountObj = {};
@@ -580,7 +579,7 @@ function aggCaseDataByGroup({
       let groupSnps = groupSnpFunc(group);
       if (dnaOrAa === DNA_OR_AA.DNA) {
         groupSnps.forEach((snp) => {
-          inRange = _.some(coordinateRanges, (range) => {
+          inRange = coordinateRanges.some((range) => {
             return snp.pos >= range[0] && snp.pos <= range[1];
           });
 

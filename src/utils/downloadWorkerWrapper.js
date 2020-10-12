@@ -7,12 +7,12 @@ downloadWorker.onmessage = (e) => {
   callbacks[e.data.type](e.data);
 };
 
-export const downloadAcknowledgementsData = (pkg, callback) => {
-  const type = 'downloadAcknowledgementsData';
-  callbacks[type] = callback;
-  pkg.type = type;
-  downloadWorker.postMessage(pkg);
-};
+// export const downloadAcknowledgementsData = (pkg, callback) => {
+//   const type = 'downloadAcknowledgementsData';
+//   callbacks[type] = callback;
+//   pkg.type = type;
+//   downloadWorker.postMessage(pkg);
+// };
 
 export const downloadAggCaseData = (pkg, callback) => {
   const type = 'downloadAggCaseData';

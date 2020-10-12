@@ -51,7 +51,7 @@ export const initialConfigValues = {
   //   getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
   //   getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
   // ],
-  selectedLocationNodes: [],
+  selectedLocationNodes: [].filter((node) => node !== undefined),
 
   hoverGroup: null,
   selectedGroups: [],
