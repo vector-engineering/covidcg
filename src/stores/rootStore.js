@@ -7,25 +7,33 @@ import ObservableConfigStore from './configStore';
 import ObservablePlotSettingsStore from './plotSettingsStore';
 import { LineageDataStore } from './lineageData';
 import { SnpDataStore } from './snpData';
+import { LocationDataStore } from './locationData';
 
 class RootStore {
   router;
-  configStore;
   UIStore;
-  dataStore;
   plotSettingsStore;
+
+  locationDataStore;
   snpDataStore;
   lineageDataStore;
+
+  configStore;
+  dataStore;
 
   init() {
     this.UIStore = new ObservableUIStore();
     this.router = new RouterStore();
-    this.configStore = new ObservableConfigStore();
-    this.dataStore = new ObservableDataStore();
+
     this.plotSettingsStore = new ObservablePlotSettingsStore();
-    startRouter(routes, this);
+    this.locationDataStore = new LocationDataStore();
     this.snpDataStore = new SnpDataStore();
     this.lineageDataStore = new LineageDataStore();
+
+    this.configStore = new ObservableConfigStore();
+    this.dataStore = new ObservableDataStore();
+
+    startRouter(routes, this);
   }
 }
 

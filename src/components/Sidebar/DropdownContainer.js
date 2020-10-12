@@ -249,15 +249,15 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
 `;
 
 const DropdownContainer = observer(() => {
-  const { UIStore, configStore } = useStores();
+  const { UIStore, configStore, locationDataStore } = useStores();
 
   const [state, setState] = useState({
-    data: configStore.selectTree,
+    data: locationDataStore.selectTree,
   });
 
   useEffect(() => {
-    setState({ ...state, data: configStore.selectTree });
-  }, [configStore.selectTree]);
+    setState({ ...state, data: locationDataStore.selectTree });
+  }, [locationDataStore.selectTree]);
 
   const onUnselectAll = (e) => {
     e.preventDefault();

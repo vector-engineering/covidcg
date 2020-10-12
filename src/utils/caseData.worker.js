@@ -1,7 +1,6 @@
 //import initialCaseData from '../../data/case_data.json';
 
 import { getLocationIds } from './location';
-import { dataDate } from './version';
 import { aggregate } from './transform';
 import { countMetadataFields } from './metadata';
 import _ from 'underscore';
@@ -14,21 +13,6 @@ import {
 } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 import { formatSnv } from './snpUtils';
-
-const dataDateInt = new Date(dataDate).getTime();
-const processedCaseData = _.reject(
-  //initialCaseData
-  _.map([], (row) => {
-    row.collection_date = new Date(row.collection_date).getTime();
-    return row;
-  }),
-  (row) => {
-    // Remove cases before 2019-12-15 and after the dataDate
-    return (
-      row.collection_date < 1576368000000 || row.collection_date > dataDateInt
-    );
-  }
-);
 
 function convertToObj(list) {
   const obj = {};
@@ -74,9 +58,10 @@ function filterByCoordinateRange({
   coordinateMode,
   selectedGene,
   selectedProtein,
-  intToDnaSnv,
-  intToGeneAaSnv,
-  intToProteinAaSnv,
+
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
 }) {
   let newCaseData = [];
 
@@ -88,7 +73,7 @@ function filterByCoordinateRange({
     caseData.forEach((row) => {
       // Only keep SNPs that are within
       row['dna_snp_str'] = row['dna_snp_str'].filter((snpId) => {
-        let snpObj = intToDnaSnv(snpId);
+        let snpObj = intToDnaSnvMap[snpId];
         // Keep the SNP if it falls into any one of the ranges
         return coordinateRanges.some((range) => {
           return snpObj.pos >= range[0] && snpObj.pos <= range[1];
@@ -98,22 +83,22 @@ function filterByCoordinateRange({
     });
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     caseData.forEach((row) => {
-      let snvField, intToSnvFunc, geneOrProtein, geneOrProteinField;
+      let snvField, intToSnvMap, geneOrProtein, geneOrProteinField;
       if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
         snvField = 'gene_aa_snp_str';
-        intToSnvFunc = intToGeneAaSnv;
+        intToSnvMap = intToGeneAaSnvMap;
         geneOrProtein = selectedGene.gene;
         geneOrProteinField = 'gene';
       } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         snvField = 'protein_aa_snp_str';
-        intToSnvFunc = intToProteinAaSnv;
+        intToSnvMap = intToProteinAaSnvMap;
         geneOrProtein = selectedProtein.protein;
         geneOrProteinField = 'protein';
       }
 
       // Only keep SNPs that are within
       row[snvField] = row[snvField].filter((snpId) => {
-        let snpObj = intToSnvFunc(snpId);
+        let snpObj = intToSnvMap[snpId];
         // console.log(snpObj);
         // Keep the SNP if it falls into any one of the ranges
         return coordinateRanges.some((range) => {
@@ -135,7 +120,7 @@ function filterByCoordinateRange({
 function filterByDate(caseData, dateRange, dateKey = 'date') {
   // Filter by date
   if (dateRange[0] > -1 && dateRange[1] > -1) {
-    return _.filter(caseData, (row) => {
+    return caseData.filter((row) => {
       return row[dateKey] >= dateRange[0] && row[dateKey] <= dateRange[1];
     });
   }
@@ -157,7 +142,7 @@ function filterByMetadataFieldsAndAgeRange(
   });
 
   let remove;
-  caseData = _.reject(caseData, (row) => {
+  caseData = caseData.filter((row) => {
     remove = false;
     Object.keys(metadataFields).forEach((field) => {
       if (!metadataFields[field].includes(row[field])) {
@@ -173,7 +158,7 @@ function filterByMetadataFieldsAndAgeRange(
       remove = true;
     }
 
-    return remove;
+    return !remove;
   });
 
   return caseData;
@@ -203,6 +188,8 @@ function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
 }
 
 function processCaseData({
+  rawCaseData,
+
   selectedLocationNodes,
 
   groupKey,
@@ -221,19 +208,15 @@ function processCaseData({
   minGlobalCountsToShow,
   globalGroupCounts,
 
-  // snp store
-  intToDnaSnv,
-  intToGeneAaSnv,
-  intToProteinAaSnv,
-  getSnvColor,
-  formatSnv,
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
+  snvColorMap,
 
-  //lineage data store
   getLineageColor,
   getCladeColor,
 }) {
-  // let caseData = _.map(_caseData, (row) => Object.assign({}, row));
-  let caseData = JSON.parse(JSON.stringify(processedCaseData));
+  let caseData = JSON.parse(JSON.stringify(rawCaseData));
 
   // Filter by location
   const selectedLocationIds = getLocationIds(selectedLocationNodes);
@@ -247,9 +230,9 @@ function processCaseData({
     coordinateMode,
     selectedGene,
     selectedProtein,
-    intToDnaSnv,
-    intToGeneAaSnv,
-    intToProteinAaSnv,
+    intToDnaSnvMap,
+    intToGeneAaSnvMap,
+    intToProteinAaSnvMap,
   });
 
   // Get the initial number of sequences, prior to metadata filtering
@@ -380,15 +363,15 @@ function processCaseData({
       }
       // Replace the integer SNP ID with the actual SNP string
       else if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
-        group = intToDnaSnv(group).snp_str;
+        group = intToDnaSnvMap[group].snp_str;
       } else if (
         groupKey === GROUP_KEYS.GROUP_SNV &&
         dnaOrAa === DNA_OR_AA.AA
       ) {
         if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          group = intToGeneAaSnv(group).snp_str;
+          group = intToGeneAaSnvMap[group].snp_str;
         } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-          group = intToProteinAaSnv(group).snp_str;
+          group = intToProteinAaSnvMap[group].snp_str;
         }
       }
 
@@ -418,7 +401,7 @@ function processCaseData({
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
     getColorMethod = getCladeColor;
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
-    getColorMethod = getSnvColor;
+    getColorMethod = (snv) => snvColorMap[snv];
   }
 
   const dataAggLocationGroupDate = [];

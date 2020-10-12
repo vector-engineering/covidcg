@@ -7,14 +7,6 @@ import {
 import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
-import {
-  getLocationByNameAndLevel,
-  loadSelectTree,
-  assignObjectPaths,
-  getNodeFromPath,
-  deselectAll,
-  selectAll,
-} from '../utils/location';
 import { queryReferenceSequence } from '../utils/reference';
 
 import {
@@ -32,15 +24,11 @@ import {
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
+import { asyncDataStoreInstance } from '../components/App';
 
 // Define initial values
 
 const { plotSettingsStore, dataStore } = rootStoreInstance || {};
-
-const initialSelectTree = Object.assign(loadSelectTree(), {
-  expanded: true,
-});
-assignObjectPaths(initialSelectTree);
 
 export const initialConfigValues = {
   groupKey: GROUP_KEYS.GROUP_SNV,
@@ -59,11 +47,11 @@ export const initialConfigValues = {
 
   dateRange: [-1, -1], // No initial date range
 
-  selectTree: initialSelectTree,
-  selectedLocationNodes: [
-    getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
-    getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
-  ],
+  // selectedLocationNodes: [
+  //   getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
+  //   getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
+  // ],
+  selectedLocationNodes: [],
 
   hoverGroup: null,
   selectedGroups: [],
@@ -92,6 +80,9 @@ PARAMS_TO_TRACK.forEach((param) => {
 });
 
 class ObservableConfigStore {
+  // References to store instances
+  locationDataStoreInstance;
+
   @observable groupKey = initialConfigValues.groupKey;
   @observable dnaOrAa = initialConfigValues.dnaOrAa;
 
@@ -106,7 +97,6 @@ class ObservableConfigStore {
 
   @observable dateRange = initialConfigValues.dateRange;
 
-  @observable selectTree = initialConfigValues.selectTree;
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
 
   @observable hoverGroup = initialConfigValues.hoverGroup;
@@ -125,6 +115,8 @@ class ObservableConfigStore {
   @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
   constructor() {
+    this.locationDataStoreInstance = asyncDataStoreInstance.locationDataStore;
+
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
         // console.log('setting: ', param, urlParams.get(param));
@@ -150,21 +142,7 @@ class ObservableConfigStore {
 
       // Special actions for some keys
       if (key === 'selectedLocationNodes') {
-        // Get the current tree
-        const selectTree = Object.assign({}, this.selectTree);
-        deselectAll(selectTree);
-
-        // Select the specified nodes
-        values[key].forEach((node) => {
-          const nodeObj =
-            'path' in node
-              ? getNodeFromPath(selectTree, node['path'])
-              : selectTree;
-          // Select all of the nodes children
-          selectAll(nodeObj);
-        });
-
-        this.selectTree = selectTree;
+        this.locationDataStoreInstance.setSelectedNodes(values[key]);
       }
     });
 
@@ -447,7 +425,7 @@ class ObservableConfigStore {
     this.selectedMetadataFields = {};
 
     if (!selectedLocationNodes || !selectedLocationNodes[0]) {
-      this.selectTree = deselectAll(toJS(this.selectTree));
+      this.locationDataStoreInstance.deselectAll();
       dataStore.emptyCaseData();
     } else {
       dataStore.updateCaseData();

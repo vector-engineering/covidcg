@@ -12,21 +12,27 @@ import { getGene, getProtein } from '../utils/gene_protein';
 
 import { snpColorArray } from '../constants/colors';
 import { GROUPS } from '../constants/groups';
-//import { asyncDataStoreInstance } from '../components/App';
+import { asyncDataStoreInstance } from '../components/App';
 
 export class SnpDataStore {
-  intToDnaSnvMap = {};
-  intToGeneAaSnvMap = {};
-  intToProteinAaSnvMap = {};
+  intToDnaSnvMap = {
+    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+  };
+  intToGeneAaSnvMap = {
+    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+  };
+  intToProteinAaSnvMap = {
+    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+  };
   snvColorMap = {};
   dnaSnvMap = {};
   geneAaSnvMap = {};
   proteinAaSnvMap = {};
 
   constructor() {
-    // this.dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map;
-    // this.geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map;
-    // this.proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map;
+    this.dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map;
+    this.geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map;
+    this.proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map;
     // debugger;
 
     //snv -> color map
@@ -139,21 +145,12 @@ export class SnpDataStore {
     return this.snvColorMap[snv];
   }
   intToDnaSnv(dnaSnvId) {
-    if (dnaSnvId === -1) {
-      return { snp_str: GROUPS.REFERENCE_GROUP };
-    }
     return this.intToDnaSnvMap[dnaSnvId];
   }
   intToGeneAaSnv(aaSnvId) {
-    if (aaSnvId === -1) {
-      return { snp_str: GROUPS.REFERENCE_GROUP };
-    }
     return this.intToGeneAaSnvMap[aaSnvId];
   }
   intToProteinAaSnv(aaSnvId) {
-    if (aaSnvId === -1) {
-      return { snp_str: GROUPS.REFERENCE_GROUP };
-    }
     return this.intToProteinAaSnvMap[aaSnvId];
   }
 

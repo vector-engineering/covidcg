@@ -15,15 +15,13 @@ import {
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
+import { dataDate } from '../utils/version';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { GROUP_KEYS } from '../constants/config';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 
 //import countryScoreData from '../../data/country_score.json';
-
-const { UIStore, configStore, snpDataStore, lineageDataStore } =
-  rootStoreInstance || {};
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -52,6 +50,13 @@ export const initialDataValues = {
 };
 
 class ObservableDataStore {
+  // References to store instances
+  UIStoreInstance;
+  configStoreInstance;
+  snpDataStoreInstance;
+  lineageDataStoreInstance;
+
+  rawCaseData = [];
   filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
@@ -76,9 +81,30 @@ class ObservableDataStore {
   countsPerGroup = initialDataValues.countsPerGroup;
   countsPerGroupDateFiltered = initialDataValues.countsPerGroupDateFiltered;
 
+  constructor() {
+    this.rawCaseData = asyncDataStoreInstance.data.case_data.map((row) => {
+      row.collection_date = new Date(row.collection_date).getTime();
+      return row;
+    });
+    this.rawCaseData = this.rawCaseData.filter((row) => {
+      // Remove cases before 2019-12-15 and after the dataDate
+      return !(
+        row.collection_date < 1576368000000 ||
+        row.collection_date > new Date(dataDate).getTime()
+      );
+    });
+
+    this.UIStoreInstance = rootStoreInstance.UIStore;
+    this.configStoreInstance = rootStoreInstance.configStore;
+    this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
+    this.lineageDataStoreInstance = rootStoreInstance.lineageDataStore;
+
+    this.updateCaseData();
+  }
+
   @action
   updateAggCaseDataByGroup(callback) {
-    UIStore.onAggCaseDataStarted();
+    this.UIStoreInstance.onAggCaseDataStarted();
 
     const {
       getDnaSnpsFromGroup,
@@ -86,19 +112,19 @@ class ObservableDataStore {
       getProteinAaSnpsFromGroup,
       getLineageColor,
       getCladeColor,
-    } = lineageDataStore;
+    } = this.lineageDataStoreInstance;
 
     aggCaseDataByGroup(
       {
         filteredCaseData: JSON.parse(JSON.stringify(this.filteredCaseData)),
         dataAggGroupDate: JSON.parse(JSON.stringify(this.dataAggGroupDate)),
-        coordinateMode: toJS(configStore.coordinateMode),
-        coordinateRanges: toJS(configStore.getCoordinateRanges()),
-        selectedGene: toJS(configStore.selectedGene),
-        selectedProtein: toJS(configStore.selectedProtein),
-        groupKey: toJS(configStore.groupKey),
-        dnaOrAa: toJS(configStore.dnaOrAa),
-        dateRange: toJS(configStore.dateRange),
+        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
+        coordinateRanges: toJS(this.configStoreInstance.getCoordinateRanges()),
+        selectedGene: toJS(this.configStoreInstance.selectedGene),
+        selectedProtein: toJS(this.configStoreInstance.selectedProtein),
+        groupKey: toJS(this.configStoreInstance.groupKey),
+        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        dateRange: toJS(this.configStoreInstance.dateRange),
 
         //lineage data store
         getDnaSnpsFromGroup,
@@ -127,16 +153,16 @@ class ObservableDataStore {
           callback();
         }
 
-        UIStore.onAggCaseDataFinished();
-        UIStore.onCaseDataStateFinished();
+        this.UIStoreInstance.onAggCaseDataFinished();
+        this.UIStoreInstance.onCaseDataStateFinished();
       }
     );
   }
 
   @action
   emptyCaseData() {
-    UIStore.onCaseDataStateStarted();
-    UIStore.onAggCaseDataStarted();
+    this.UIStoreInstance.onCaseDataStateStarted();
+    this.UIStoreInstance.onAggCaseDataStarted();
 
     this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
     this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
@@ -153,53 +179,59 @@ class ObservableDataStore {
     this.countsPerLocation = initialDataValues.countsPerLocation;
     this.countsPerLocationDate = initialDataValues.countsPerLocationDate;
 
-    UIStore.onAggCaseDataFinished();
-    UIStore.onCaseDataStateFinished();
+    this.UIStoreInstance.onAggCaseDataFinished();
+    this.UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
   updateCaseData(callback) {
-    UIStore.onCaseDataStateStarted();
-    const {
-      intToDnaSnv,
-      intToGeneAaSnv,
-      intToProteinAaSnv,
-      getSnvColor,
-      formatSnv,
-    } = snpDataStore;
+    this.UIStoreInstance.onCaseDataStateStarted();
+    // const {
+    //   intToDnaSnv,
+    //   intToGeneAaSnv,
+    //   intToProteinAaSnv,
+    //   getSnvColor,
+    // } = this.snpDataStoreInstance;
+    // const { getLineageColor, getCladeColor } = this.lineageDataStoreInstance;
 
-    const { getLineageColor, getCladeColor } = lineageDataStore;
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+      snvColorMap,
+    } = this.snpDataStoreInstance;
+
     processCaseData(
       {
-        selectedLocationNodes: toJS(configStore.selectedLocationNodes),
-        groupKey: toJS(configStore.groupKey),
-        dnaOrAa: toJS(configStore.dnaOrAa),
-        selectedMetadataFields: toJS(configStore.selectedMetadataFields),
-        ageRange: toJS(configStore.ageRange),
-        dateRange: toJS(configStore.dateRange),
-        selectedGroups: toJS(configStore.selectedGroups),
+        rawCaseData: this.rawCaseData,
 
-        coordinateMode: toJS(configStore.coordinateMode),
-        coordinateRanges: toJS(configStore.getCoordinateRanges()),
-        selectedGene: toJS(configStore.selectedGene),
-        selectedProtein: toJS(configStore.selectedProtein),
+        selectedLocationNodes: toJS(
+          this.configStoreInstance.selectedLocationNodes
+        ),
+        groupKey: toJS(this.configStoreInstance.groupKey),
+        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        selectedMetadataFields: toJS(
+          this.configStoreInstance.selectedMetadataFields
+        ),
+        ageRange: toJS(this.configStoreInstance.ageRange),
+        dateRange: toJS(this.configStoreInstance.dateRange),
+        selectedGroups: toJS(this.configStoreInstance.selectedGroups),
 
-        lowFreqFilterType: configStore.lowFreqFilterType,
-        maxGroupCounts: configStore.maxGroupCounts,
-        minLocalCountsToShow: configStore.minLocalCountsToShow,
-        minGlobalCountsToShow: configStore.minGlobalCountsToShow,
+        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
+        coordinateRanges: toJS(this.configStoreInstance.getCoordinateRanges()),
+        selectedGene: toJS(this.configStoreInstance.selectedGene),
+        selectedProtein: toJS(this.configStoreInstance.selectedProtein),
+
+        lowFreqFilterType: this.configStoreInstance.lowFreqFilterType,
+        maxGroupCounts: this.configStoreInstance.maxGroupCounts,
+        minLocalCountsToShow: this.configStoreInstance.minLocalCountsToShow,
+        minGlobalCountsToShow: this.configStoreInstance.minGlobalCountsToShow,
         globalGroupCounts: toJS(asyncDataStoreInstance.globalGroupCounts),
 
-        // snp store stuff
-        intToDnaSnv,
-        intToGeneAaSnv,
-        intToProteinAaSnv,
-        getSnvColor,
-        formatSnv,
-
-        //lineage data
-        getLineageColor,
-        getCladeColor,
+        intToDnaSnvMap,
+        intToGeneAaSnvMap,
+        intToProteinAaSnvMap,
+        snvColorMap,
       },
       ({
         filteredCaseData,
@@ -227,7 +259,7 @@ class ObservableDataStore {
         this.countsPerGroup = countsPerGroup;
 
         this.updateAggCaseDataByGroup(callback);
-        if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+        if (this.configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
           this.processSelectedSnvs();
         }
       }
@@ -236,16 +268,18 @@ class ObservableDataStore {
 
   @action
   processSelectedSnvs() {
-    UIStore.onSnvDataStarted();
+    this.UIStoreInstance.onSnvDataStarted();
     this.processCooccurrenceData();
     processSelectedSnvs(
       {
-        dnaOrAa: toJS(configStore.dnaOrAa),
-        coordinateMode: toJS(configStore.coordinateMode),
-        selectedLocationNodes: toJS(configStore.selectedLocationNodes),
+        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
+        selectedLocationNodes: toJS(
+          this.configStoreInstance.selectedLocationNodes
+        ),
         countsPerLocation: this.countsPerLocation,
         filteredCaseData: this.filteredCaseData,
-        selectedGroups: toJS(configStore.selectedGroups).map(
+        selectedGroups: toJS(this.configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
         validGroups: this.validGroups,
@@ -253,28 +287,28 @@ class ObservableDataStore {
       ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
         this.dataAggSnvDate = dataAggSnvDate;
-        UIStore.onSnvDataFinished();
+        this.UIStoreInstance.onSnvDataFinished();
       }
     );
   }
 
   @action
   processCooccurrenceData() {
-    UIStore.onCooccurrenceDataStarted();
+    this.UIStoreInstance.onCooccurrenceDataStarted();
     processCooccurrenceData(
       {
-        dnaOrAa: toJS(configStore.dnaOrAa),
-        coordinateMode: toJS(configStore.coordinateMode),
+        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
         filteredCaseData: this.filteredCaseData,
-        selectedGroups: toJS(configStore.selectedGroups).map(
+        selectedGroups: toJS(this.configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
-        dateRange: toJS(configStore.dateRange),
-        getSnvColor: snpDataStore.getSnvColor,
+        dateRange: toJS(this.configStoreInstance.dateRange),
+        getSnvColor: this.snpDataStoreInstance.getSnvColor,
       },
       ({ snvCooccurrence }) => {
         this.snvCooccurrence = snvCooccurrence;
-        UIStore.onCooccurrenceDataFinished();
+        this.UIStoreInstance.onCooccurrenceDataFinished();
       }
     );
   }
@@ -290,10 +324,10 @@ class ObservableDataStore {
             generateSelectionString(
               'accession_ids',
               'txt',
-              toJS(configStore.groupKey),
-              toJS(configStore.dnaOrAa),
-              toJS(configStore.selectedLocationNodes),
-              toJS(configStore.dateRange)
+              toJS(this.configStoreInstance.groupKey),
+              toJS(this.configStoreInstance.dnaOrAa),
+              toJS(this.configStoreInstance.selectedLocationNodes),
+              toJS(this.configStoreInstance.dateRange)
             )
           );
         }
@@ -318,10 +352,10 @@ class ObservableDataStore {
             generateSelectionString(
               'acknowledgements',
               'csv',
-              toJS(configStore.groupKey),
-              toJS(configStore.dnaOrAa),
-              toJS(configStore.selectedLocationNodes),
-              toJS(configStore.dateRange)
+              toJS(this.configStoreInstance.groupKey),
+              toJS(this.configStoreInstance.dnaOrAa),
+              toJS(this.configStoreInstance.selectedLocationNodes),
+              toJS(this.configStoreInstance.dateRange)
             )
           );
         }
@@ -335,12 +369,12 @@ class ObservableDataStore {
       getDnaSnpsFromGroup,
       getGeneAaSnpsFromGroup,
       getProteinAaSnpsFromGroup,
-    } = lineageDataStore;
+    } = this.lineageDataStoreInstance;
     downloadAggCaseData(
       {
-        groupKey: configStore.groupKey,
-        dnaOrAa: configStore.dnaOrAa,
-        coordinateMode: configStore.coordinateMode,
+        groupKey: this.configStoreInstance.groupKey,
+        dnaOrAa: this.configStoreInstance.dnaOrAa,
+        coordinateMode: this.configStoreInstance.coordinateMode,
         dataAggGroup: this.dataAggGroup,
 
         // lineage data store
@@ -354,10 +388,10 @@ class ObservableDataStore {
           generateSelectionString(
             'agg_data',
             'csv',
-            toJS(configStore.groupKey),
-            toJS(configStore.dnaOrAa),
-            toJS(configStore.selectedLocationNodes),
-            toJS(configStore.dateRange)
+            toJS(this.configStoreInstance.groupKey),
+            toJS(this.configStoreInstance.dnaOrAa),
+            toJS(this.configStoreInstance.selectedLocationNodes),
+            toJS(this.configStoreInstance.dateRange)
           )
         );
       }
@@ -367,7 +401,7 @@ class ObservableDataStore {
   @action
   downloadDataAggGroupDate() {
     // Write to a CSV string
-    let csvString = `collection_date,${configStore.getGroupLabel()},count\n`;
+    let csvString = `collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
     this.dataAggGroupDate.forEach((row) => {
       csvString += `${intToISO(parseInt(row.date))},${row.group},${
         row.cases_sum
@@ -382,10 +416,10 @@ class ObservableDataStore {
       generateSelectionString(
         'data_agg_group_date',
         'csv',
-        toJS(configStore.groupKey),
-        toJS(configStore.dnaOrAa),
-        toJS(configStore.selectedLocationNodes),
-        toJS(configStore.dateRange)
+        toJS(this.configStoreInstance.groupKey),
+        toJS(this.configStoreInstance.dnaOrAa),
+        toJS(this.configStoreInstance.selectedLocationNodes),
+        toJS(this.configStoreInstance.dateRange)
       )
     );
   }
@@ -399,13 +433,16 @@ class ObservableDataStore {
     );
 
     // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    if (
+      this.configStoreInstance.dateRange[0] != -1 ||
+      this.configStoreInstance.dateRange[1] != -1
+    ) {
       locationData = locationData.filter((row) => {
         return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
+          (this.configStoreInstance.dateRange[0] == -1 ||
+            row.date > this.configStoreInstance.dateRange[0]) &&
+          (this.configStoreInstance.dateRange[1] == -1 ||
+            row.date < this.configStoreInstance.dateRange[1])
         );
       });
     }
@@ -425,7 +462,7 @@ class ObservableDataStore {
       ];
     });
 
-    let csvString = `location,collection_date,${configStore.getGroupLabel()},count,location_date_count\n`;
+    let csvString = `location,collection_date,${this.configStoreInstance.getGroupLabel()},count,location_date_count\n`;
 
     locationData.forEach((row) => {
       csvString += `${row.location},${intToISO(parseInt(row.date))},${
@@ -441,10 +478,10 @@ class ObservableDataStore {
       generateSelectionString(
         'data_agg_location_group_date',
         'csv',
-        toJS(configStore.groupKey),
-        toJS(configStore.dnaOrAa),
-        toJS(configStore.selectedLocationNodes),
-        toJS(configStore.dateRange)
+        toJS(this.configStoreInstance.groupKey),
+        toJS(this.configStoreInstance.dnaOrAa),
+        toJS(this.configStoreInstance.selectedLocationNodes),
+        toJS(this.configStoreInstance.dateRange)
       )
     );
   }
@@ -464,10 +501,10 @@ class ObservableDataStore {
       generateSelectionString(
         'snv_frequencies',
         'csv',
-        toJS(configStore.groupKey),
-        toJS(configStore.dnaOrAa),
-        toJS(configStore.selectedLocationNodes),
-        toJS(configStore.dateRange)
+        toJS(this.configStoreInstance.groupKey),
+        toJS(this.configStoreInstance.dnaOrAa),
+        toJS(this.configStoreInstance.selectedLocationNodes),
+        toJS(this.configStoreInstance.dateRange)
       )
     );
   }
@@ -487,10 +524,10 @@ class ObservableDataStore {
       generateSelectionString(
         'snv_cooccurrence',
         'csv',
-        toJS(configStore.groupKey),
-        toJS(configStore.dnaOrAa),
-        toJS(configStore.selectedLocationNodes),
-        toJS(configStore.dateRange)
+        toJS(this.configStoreInstance.groupKey),
+        toJS(this.configStoreInstance.dnaOrAa),
+        toJS(this.configStoreInstance.selectedLocationNodes),
+        toJS(this.configStoreInstance.dateRange)
       )
     );
   }

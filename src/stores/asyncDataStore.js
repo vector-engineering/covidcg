@@ -18,6 +18,7 @@ class ObservableAsyncDataStore {
       const data = await res.json();
       runInAction(() => {
         this.data = data;
+        console.log(data);
         this.updateGlobalGroupCounts();
         this.status = ASYNC_STATES.SUCCEEDED;
       });
