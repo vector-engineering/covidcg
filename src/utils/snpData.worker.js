@@ -33,35 +33,37 @@ function getSnvFields({
   dnaOrAa,
   coordinateMode,
   selectedGroups,
-  intToDnaSnv,
-  geneAaSnvToInt,
-  dnaSnvToInt,
-  intToGeneAaSnv,
-  proteinAaSnvToInt,
-  intToProteinAaSnv,
+
+  // SNV data
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
+  dnaSnvMap,
+  geneAaSnvMap,
+  proteinAaSnvMap,
 }) {
   let selectedGroupIds;
   let snvEntry;
-  let intToSnvFunc;
+  let intToSnvMap;
   if (dnaOrAa === DNA_OR_AA.DNA) {
     selectedGroupIds = selectedGroups
-      .map((item) => dnaSnvToInt(item))
+      .map((item) => dnaSnvMap[item])
       .map((snpId) => (snpId === undefined ? -1 : snpId));
     snvEntry = 'dna_snp_str';
-    intToSnvFunc = intToDnaSnv;
+    intToSnvMap = intToDnaSnvMap;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       selectedGroupIds = selectedGroups
-        .map((item) => geneAaSnvToInt(item))
+        .map((item) => geneAaSnvMap[item])
         .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'gene_aa_snp_str';
-      intToSnvFunc = intToGeneAaSnv;
+      intToSnvMap = intToGeneAaSnvMap;
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       selectedGroupIds = selectedGroups
-        .map((item) => proteinAaSnvToInt(item))
+        .map((item) => proteinAaSnvMap[item])
         .map((snpId) => (snpId === undefined ? -1 : snpId));
       snvEntry = 'protein_aa_snp_str';
-      intToSnvFunc = intToProteinAaSnv;
+      intToSnvMap = intToProteinAaSnvMap;
     }
   }
   // Array to Set
@@ -70,7 +72,7 @@ function getSnvFields({
   return {
     selectedGroupIds,
     snvEntry,
-    intToSnvFunc,
+    intToSnvMap,
   };
 }
 
@@ -82,12 +84,28 @@ function processSelectedSnvs({
   filteredCaseData,
   selectedGroups,
   validGroups,
-  getSnvColor,
+
+  // SNV data
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
+  dnaSnvMap,
+  geneAaSnvMap,
+  proteinAaSnvMap,
+  snvColorMap,
 }) {
-  const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
+  const { selectedGroupIds, snvEntry, intToSnvMap } = getSnvFields({
     dnaOrAa,
     coordinateMode,
     selectedGroups,
+
+    // SNV data
+    intToDnaSnvMap,
+    intToGeneAaSnvMap,
+    intToProteinAaSnvMap,
+    dnaSnvMap,
+    geneAaSnvMap,
+    proteinAaSnvMap,
   });
 
   // If no SNVs are selected, then return empty arrays now
@@ -137,7 +155,7 @@ function processSelectedSnvs({
     ) {
       group = GROUPS.ALL_OTHER_GROUP;
     } else {
-      group = matchingSnvIds.map((id) => intToSnvFunc(id).snp_str).join(' + ');
+      group = matchingSnvIds.map((id) => intToSnvMap[id].snp_str).join(' + ');
     }
 
     !(group in dataAggLocationSnvDateObj[_location][row.collection_date]) &&
@@ -165,7 +183,7 @@ function processSelectedSnvs({
           color:
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
               ? '#07B'
-              : getSnvColor(group),
+              : snvColorMap[group],
           location_counts: countsPerLocation[location],
         });
       });
@@ -198,15 +216,28 @@ function processCooccurrenceData({
   filteredCaseData,
   dateRange,
 
-  //snp data store
-  getSnvColor,
+  // SNV data
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
+  dnaSnvMap,
+  geneAaSnvMap,
+  proteinAaSnvMap,
+  snvColorMap,
 }) {
-  const { selectedGroupIds, snvEntry, intToSnvFunc } = getSnvFields({
+  const { selectedGroupIds, snvEntry, intToSnvMap } = getSnvFields({
     dnaOrAa,
     coordinateMode,
     selectedGroups,
-  });
 
+    // SNV data
+    intToDnaSnvMap,
+    intToGeneAaSnvMap,
+    intToProteinAaSnvMap,
+    dnaSnvMap,
+    geneAaSnvMap,
+    proteinAaSnvMap,
+  });
   // Co-occurrence data
 
   // Re-filter by date
@@ -219,7 +250,7 @@ function processCooccurrenceData({
   selectedSnvCombinations.forEach((combi) => {
     // Make an entry for this combination
     const combiKey = combi
-      .map((snvId) => intToSnvFunc(snvId).snp_str)
+      .map((snvId) => intToSnvMap[snvId].snp_str)
       .join(' + ');
     snvCooccurrence[combiKey] = {};
 
@@ -232,9 +263,9 @@ function processCooccurrenceData({
       row[snvEntry].forEach((snvId) => {
         // Only check for SNVs that aren't in this combination
         if (!combi.includes(snvId)) {
-          !(intToSnvFunc(snvId).snp_str in snvCooccurrence[combiKey]) &&
-            (snvCooccurrence[combiKey][intToSnvFunc(snvId).snp_str] = 0);
-          snvCooccurrence[combiKey][intToSnvFunc(snvId).snp_str] += 1;
+          !(intToSnvMap[snvId].snp_str in snvCooccurrence[combiKey]) &&
+            (snvCooccurrence[combiKey][intToSnvMap[snvId].snp_str] = 0);
+          snvCooccurrence[combiKey][intToSnvMap[snvId].snp_str] += 1;
         }
         // } else {
         //   !('None' in snvCooccurrence[combiKey]) &&
@@ -258,7 +289,7 @@ function processCooccurrenceData({
           .join(' + '),
         snv: snv,
         snvName: formatSnv(snv, dnaOrAa),
-        color: getSnvColor(snv),
+        color: snvColorMap[snv],
         count: snvCooccurrence[combi][snv],
       });
     });

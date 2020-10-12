@@ -15,21 +15,32 @@ import { GROUPS } from '../constants/groups';
 import { asyncDataStoreInstance } from '../components/App';
 
 export class SnpDataStore {
-  intToDnaSnvMap = {
-    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
-  };
-  intToGeneAaSnvMap = {
-    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
-  };
-  intToProteinAaSnvMap = {
-    '-1': { snp_str: GROUPS.REFERENCE_GROUP },
-  };
-  snvColorMap = {};
-  dnaSnvMap = {};
-  geneAaSnvMap = {};
-  proteinAaSnvMap = {};
+  intToDnaSnvMap;
+  intToGeneAaSnvMap;
+  intToProteinAaSnvMap;
+  dnaSnvMap;
+  geneAaSnvMap;
+  proteinAaSnvMap;
+  snvColorMap;
 
   constructor() {
+    this.intToDnaSnvMap = {
+      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+    };
+    this.intToGeneAaSnvMap = {
+      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+    };
+    this.intToProteinAaSnvMap = {
+      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+    };
+    this.dnaSnvMap = {};
+    this.geneAaSnvMap = {};
+    this.proteinAaSnvMap = {};
+
+    this.snvColorMap = {};
+  }
+
+  init() {
     this.dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map;
     this.geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map;
     this.proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map;

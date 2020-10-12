@@ -2,7 +2,7 @@
 
 import { getLocationIds } from './location';
 import { aggregate } from './transform';
-import { countMetadataFields } from './metadata';
+import { metadataFields } from '../constants/metadata';
 import _ from 'underscore';
 
 import {
@@ -128,6 +128,28 @@ function filterByDate(caseData, dateRange, dateKey = 'date') {
   return caseData;
 }
 
+function countMetadataFields(caseData) {
+  const metadataCounts = {};
+
+  // Initialize fields
+  metadataFields.forEach((field) => {
+    metadataCounts[field] = {};
+  });
+
+  caseData.forEach((row) => {
+    metadataFields.forEach((field) => {
+      if (
+        !Object.prototype.hasOwnProperty.call(metadataCounts[field], row[field])
+      ) {
+        metadataCounts[field][row[field]] = 0;
+      }
+      metadataCounts[field][row[field]] += 1;
+    });
+  });
+
+  return metadataCounts;
+}
+
 function filterByMetadataFieldsAndAgeRange(
   caseData,
   selectedMetadataFields,
@@ -208,13 +230,15 @@ function processCaseData({
   minGlobalCountsToShow,
   globalGroupCounts,
 
+  // SNV data
   intToDnaSnvMap,
   intToGeneAaSnvMap,
   intToProteinAaSnvMap,
   snvColorMap,
 
-  getLineageColor,
-  getCladeColor,
+  // Lineage data
+  groupSnvMap,
+  groupColorMap,
 }) {
   let caseData = JSON.parse(JSON.stringify(rawCaseData));
 
@@ -397,9 +421,9 @@ function processCaseData({
 
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = getLineageColor;
+    getColorMethod = (lineage) => groupColorMap['lineage'][lineage];
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = getCladeColor;
+    getColorMethod = (clade) => groupColorMap['clade'][clade];
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
   }
@@ -469,20 +493,21 @@ function aggCaseDataByGroup({
   dnaOrAa,
   dateRange,
 
+  // SNV data
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
   snvColorMap,
 
-  //lineage data
-  getDnaSnpsFromGroup,
-  getGeneAaSnpsFromGroup,
-  getProteinAaSnpsFromGroup,
-  getLineageColor,
-  getCladeColor,
+  // Lineage data
+  groupSnvMap,
+  groupColorMap,
 }) {
   let getColorMethod;
   if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = getLineageColor;
+    getColorMethod = (lineage) => groupColorMap['lineage'][lineage];
   } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = getCladeColor;
+    getColorMethod = (clade) => groupColorMap['clade'][clade];
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
   }
@@ -558,25 +583,42 @@ function aggCaseDataByGroup({
   let changingPositions = {};
   // If we grouped by lineages/clades, then we need to find what SNPs
   // the lineages/clades correspond to, and add their SNP positions
-  let groupSnpFunc = null;
+  let getSnvsFromGroup = null;
   if (
     groupKey === GROUP_KEYS.GROUP_LINEAGE ||
     groupKey === GROUP_KEYS.GROUP_CLADE
   ) {
     if (dnaOrAa === DNA_OR_AA.DNA) {
-      groupSnpFunc = getDnaSnpsFromGroup.bind(this, groupKey);
+      getSnvsFromGroup = (group) => {
+        console.log(groupSnvMap, group, groupKey);
+        return groupSnvMap[groupKey][group]['dna_snp_ids'].map((snvId) => {
+          return intToDnaSnvMap[snvId];
+        });
+      };
     } else {
       if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        groupSnpFunc = getGeneAaSnpsFromGroup.bind(this, groupKey);
+        getSnvsFromGroup = (group) => {
+          return groupSnvMap[groupKey][group]['gene_aa_snp_ids'].map(
+            (snvId) => {
+              return intToGeneAaSnvMap[snvId];
+            }
+          );
+        };
       } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-        groupSnpFunc = getProteinAaSnpsFromGroup.bind(this, groupKey);
+        getSnvsFromGroup = (group) => {
+          return groupSnvMap[groupKey][group]['protein_aa_snp_ids'].map(
+            (snvId) => {
+              return intToProteinAaSnvMap[snvId];
+            }
+          );
+        };
       }
     }
 
     // For each lineage/clade, add its changing positions
     let inRange = false;
     Object.keys(dataAggGroup).forEach((group) => {
-      let groupSnps = groupSnpFunc(group);
+      let groupSnps = getSnvsFromGroup(group);
       if (dnaOrAa === DNA_OR_AA.DNA) {
         groupSnps.forEach((snp) => {
           inRange = coordinateRanges.some((range) => {
@@ -762,7 +804,7 @@ function aggCaseDataByGroup({
         groupKey === GROUP_KEYS.GROUP_CLADE
       ) {
         // lineageSnpFunc is defined above
-        let groupSnps = groupSnpFunc(group);
+        let groupSnps = getSnvsFromGroup(group);
 
         if (dnaOrAa === DNA_OR_AA.DNA) {
           // The DNA SNPs are 0-indexed, so +1 to make it 1-indexed

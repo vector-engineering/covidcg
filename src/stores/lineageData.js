@@ -8,9 +8,6 @@ import { warmColors, coolColors, cladeColorArray } from '../constants/colors';
 import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 import { asyncDataStoreInstance } from '../components/App';
-import { rootStoreInstance } from './rootStore';
-
-const { snpDataStore } = rootStoreInstance || {};
 
 export class LineageDataStore {
   // Internal counters for generating lineage colors
@@ -20,10 +17,17 @@ export class LineageDataStore {
   // Internal counter for generating clade colors
   cladeColorInd;
 
+  // Group -> SNV data as arrays
   lineageSnpData;
   cladeSnpData;
+
+  // Group -> SNV data as maps
+  groupSnvMap;
+
+  // Colormaps
   cladeColorMap;
   lineageColorMap;
+  groupColorMap;
 
   constructor() {
     // Init internal counters
@@ -31,10 +35,30 @@ export class LineageDataStore {
     this.warmColorInd = 0;
     this.cladeColorInd = 0;
 
+    this.groupSnvMap = {};
+    this.groupSnvMap['lineage'] = {};
+    this.groupSnvMap['clade'] = {};
+
+    this.lineageColorMap = {};
+    this.cladeColorMap = {};
+    this.groupColorMap = {
+      lineage: this.lineageColorMap,
+      clade: this.cladeColorMap,
+    };
+  }
+
+  init() {
     this.lineageSnpData = asyncDataStoreInstance.data.lineage_snp;
     this.cladeSnpData = asyncDataStoreInstance.data.clade_snp;
 
-    this.lineageColorMap = {};
+    // TODO: Do this in python instead
+    this.lineageSnpData.forEach((lineageObj) => {
+      this.groupSnvMap['lineage'][lineageObj.lineage] = lineageObj;
+    });
+    this.cladeSnpData.forEach((cladeObj) => {
+      this.groupSnvMap['clade'][cladeObj.clade] = cladeObj;
+    });
+
     this.lineageColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.lineageSnpData.forEach((lineageObj) => {
       this.lineageColorMap[lineageObj.lineage] = this._getLineageColor(
@@ -42,7 +66,6 @@ export class LineageDataStore {
       );
     });
 
-    this.cladeColorMap = {};
     this.cladeColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.cladeSnpData.forEach((cladeObj) => {
       this.cladeColorMap[cladeObj.clade] = this._getCladeColor(cladeObj.clade);
@@ -110,40 +133,5 @@ export class LineageDataStore {
     findObj[snpDataKey] = group;
 
     return _.findWhere(snpData, findObj);
-  }
-
-  getDnaSnpsFromGroup(groupKey, group) {
-    let groupObj = this.getGroup(groupKey, group);
-    if (groupObj === undefined) {
-      return [];
-    }
-
-    let snpIds = groupObj.dna_snp_ids;
-    snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) => snpDataStore.intToDnaSnv(parseInt(snpId)));
-  }
-
-  getGeneAaSnpsFromGroup(groupKey, group) {
-    let groupObj = this.getGroup(groupKey, group);
-    if (groupObj === undefined) {
-      return [];
-    }
-    let snpIds = groupObj.gene_aa_snp_ids;
-    snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) =>
-      snpDataStore.intToGeneAaSnv(parseInt(snpId))
-    );
-  }
-
-  getProteinAaSnpsFromGroup(groupKey, group) {
-    let groupObj = this.getGroup(groupKey, group);
-    if (groupObj === undefined) {
-      return [];
-    }
-    let snpIds = groupObj.protein_aa_snp_ids;
-    snpIds = _.reject(snpIds, (snpId) => snpId === '');
-    return _.map(snpIds, (snpId) =>
-      snpDataStore.intToProteinAaSnv(parseInt(snpId))
-    );
   }
 }

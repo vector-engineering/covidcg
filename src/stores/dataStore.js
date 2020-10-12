@@ -49,7 +49,7 @@ export const initialDataValues = {
   countsPerGroupDateFiltered: [],
 };
 
-class ObservableDataStore {
+export class DataStore {
   // References to store instances
   UIStoreInstance;
   configStoreInstance;
@@ -81,7 +81,9 @@ class ObservableDataStore {
   countsPerGroup = initialDataValues.countsPerGroup;
   countsPerGroupDateFiltered = initialDataValues.countsPerGroupDateFiltered;
 
-  constructor() {
+  constructor() {}
+
+  init() {
     this.rawCaseData = asyncDataStoreInstance.data.case_data.map((row) => {
       row.collection_date = new Date(row.collection_date).getTime();
       return row;
@@ -113,13 +115,7 @@ class ObservableDataStore {
       intToProteinAaSnvMap,
     } = this.snpDataStoreInstance;
 
-    const {
-      getDnaSnpsFromGroup,
-      getGeneAaSnpsFromGroup,
-      getProteinAaSnpsFromGroup,
-      getLineageColor,
-      getCladeColor,
-    } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
 
     aggCaseDataByGroup(
       {
@@ -133,17 +129,15 @@ class ObservableDataStore {
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
         dateRange: toJS(this.configStoreInstance.dateRange),
 
+        // SNV data
         snvColorMap,
         intToDnaSnvMap,
         intToGeneAaSnvMap,
         intToProteinAaSnvMap,
 
-        //lineage data store
-        getDnaSnpsFromGroup,
-        getGeneAaSnpsFromGroup,
-        getProteinAaSnpsFromGroup,
-        getLineageColor,
-        getCladeColor,
+        // Lineage data
+        groupSnvMap,
+        groupColorMap,
       },
       ({
         dataAggGroup,
@@ -198,13 +192,6 @@ class ObservableDataStore {
   @action
   updateCaseData(callback) {
     this.UIStoreInstance.onCaseDataStateStarted();
-    // const {
-    //   intToDnaSnv,
-    //   intToGeneAaSnv,
-    //   intToProteinAaSnv,
-    //   getSnvColor,
-    // } = this.snpDataStoreInstance;
-    // const { getLineageColor, getCladeColor } = this.lineageDataStoreInstance;
 
     const {
       intToDnaSnvMap,
@@ -212,6 +199,7 @@ class ObservableDataStore {
       intToProteinAaSnvMap,
       snvColorMap,
     } = this.snpDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
 
     processCaseData(
       {
@@ -240,10 +228,15 @@ class ObservableDataStore {
         minGlobalCountsToShow: this.configStoreInstance.minGlobalCountsToShow,
         globalGroupCounts: toJS(asyncDataStoreInstance.globalGroupCounts),
 
+        // SNV data
         intToDnaSnvMap,
         intToGeneAaSnvMap,
         intToProteinAaSnvMap,
         snvColorMap,
+
+        // Lineage data
+        groupSnvMap,
+        groupColorMap,
       },
       ({
         filteredCaseData,
@@ -281,6 +274,16 @@ class ObservableDataStore {
   @action
   processSelectedSnvs() {
     this.UIStoreInstance.onSnvDataStarted();
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+      snvColorMap,
+    } = this.snpDataStoreInstance;
+
     this.processCooccurrenceData();
     processSelectedSnvs(
       {
@@ -295,6 +298,15 @@ class ObservableDataStore {
           (item) => item.group
         ),
         validGroups: this.validGroups,
+
+        // SNV data
+        intToDnaSnvMap,
+        intToGeneAaSnvMap,
+        intToProteinAaSnvMap,
+        dnaSnvMap,
+        geneAaSnvMap,
+        proteinAaSnvMap,
+        snvColorMap,
       },
       ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
@@ -307,6 +319,17 @@ class ObservableDataStore {
   @action
   processCooccurrenceData() {
     this.UIStoreInstance.onCooccurrenceDataStarted();
+
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+      snvColorMap,
+    } = this.snpDataStoreInstance;
+
     processCooccurrenceData(
       {
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
@@ -316,7 +339,15 @@ class ObservableDataStore {
           (item) => item.group
         ),
         dateRange: toJS(this.configStoreInstance.dateRange),
-        getSnvColor: this.snpDataStoreInstance.getSnvColor,
+
+        // SNV data
+        intToDnaSnvMap,
+        intToGeneAaSnvMap,
+        intToProteinAaSnvMap,
+        dnaSnvMap,
+        geneAaSnvMap,
+        proteinAaSnvMap,
+        snvColorMap,
       },
       ({ snvCooccurrence }) => {
         this.snvCooccurrence = snvCooccurrence;
@@ -378,10 +409,13 @@ class ObservableDataStore {
   @action
   downloadAggCaseData() {
     const {
-      getDnaSnpsFromGroup,
-      getGeneAaSnpsFromGroup,
-      getProteinAaSnpsFromGroup,
-    } = this.lineageDataStoreInstance;
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+    } = this.snpDataStoreInstance;
+
+    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+
     downloadAggCaseData(
       {
         groupKey: this.configStoreInstance.groupKey,
@@ -389,10 +423,14 @@ class ObservableDataStore {
         coordinateMode: this.configStoreInstance.coordinateMode,
         dataAggGroup: this.dataAggGroup,
 
-        // lineage data store
-        getDnaSnpsFromGroup,
-        getGeneAaSnpsFromGroup,
-        getProteinAaSnpsFromGroup,
+        // SNV data
+        intToDnaSnvMap,
+        intToGeneAaSnvMap,
+        intToProteinAaSnvMap,
+
+        // Lineage data
+        groupSnvMap,
+        groupColorMap,
       },
       (res) => {
         downloadBlobURL(
@@ -556,4 +594,4 @@ class ObservableDataStore {
   }
 }
 
-export default ObservableDataStore;
+export default DataStore;

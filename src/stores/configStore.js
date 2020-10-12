@@ -8,6 +8,7 @@ import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
+import { getLocationByNameAndLevel } from '../utils/location';
 
 import {
   COLOR_MODES,
@@ -24,11 +25,8 @@ import {
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
-import { asyncDataStoreInstance } from '../components/App';
 
 // Define initial values
-
-const { plotSettingsStore, dataStore } = rootStoreInstance || {};
 
 export const initialConfigValues = {
   groupKey: GROUP_KEYS.GROUP_SNV,
@@ -47,11 +45,7 @@ export const initialConfigValues = {
 
   dateRange: [-1, -1], // No initial date range
 
-  // selectedLocationNodes: [
-  //   getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
-  //   getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
-  // ],
-  selectedLocationNodes: [].filter((node) => node !== undefined),
+  selectedLocationNodes: [],
 
   hoverGroup: null,
   selectedGroups: [],
@@ -79,9 +73,11 @@ PARAMS_TO_TRACK.forEach((param) => {
   defaultsFromParams[param] = urlParams.get(param);
 });
 
-class ObservableConfigStore {
+export class ConfigStore {
   // References to store instances
+  plotSettingsStoreInstance;
   locationDataStoreInstance;
+  dataStoreInstance;
 
   @observable groupKey = initialConfigValues.groupKey;
   @observable dnaOrAa = initialConfigValues.dnaOrAa;
@@ -114,8 +110,12 @@ class ObservableConfigStore {
   @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
   @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
-  constructor() {
-    this.locationDataStoreInstance = asyncDataStoreInstance.locationDataStore;
+  constructor() {}
+
+  init() {
+    this.plotSettingsStoreInstance = rootStoreInstance.plotSettingsStore;
+    this.locationDataStoreInstance = rootStoreInstance.locationDataStore;
+    this.dataStoreInstance = rootStoreInstance.dataStore;
 
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
@@ -123,6 +123,23 @@ class ObservableConfigStore {
         this[param] = defaultsFromParams[param];
       }
     });
+
+    // Set default selected locations
+    this.selectedLocationNodes = [
+      getLocationByNameAndLevel(
+        this.locationDataStoreInstance.selectTree,
+        'USA',
+        'country',
+        true
+      )[0],
+      getLocationByNameAndLevel(
+        this.locationDataStoreInstance.selectTree,
+        'Canada',
+        'country',
+        true
+      )[0],
+    ].filter((node) => node !== undefined);
+    initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
   }
 
   // modifyQueryParams = autorun(() => {
@@ -162,7 +179,7 @@ class ObservableConfigStore {
     }
 
     // Trigger data re-run
-    dataStore.updateCaseData(() => {});
+    this.dataStoreInstance.updateCaseData(() => {});
   }
 
   @action
@@ -185,14 +202,20 @@ class ObservableConfigStore {
 
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
-      plotSettingsStore.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStore.tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStore.tableCompareColor = COMPARE_COLORS.COLOR_MODE_ZAPPO;
+      this.plotSettingsStoreInstanceInstance.tableColorMode =
+        COLOR_MODES.COLOR_MODE_COMPARE;
+      this.plotSettingsStoreInstanceInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      this.plotSettingsStoreInstanceInstance.tableCompareColor =
+        COMPARE_COLORS.COLOR_MODE_ZAPPO;
     } else {
       // Clear table coloring settings
-      plotSettingsStore.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStore.tableCompareMode = COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStore.tableCompareColor = COMPARE_COLORS.COMPARE_COLOR_YELLOW;
+      this.plotSettingsStoreInstance.tableColorMode =
+        COLOR_MODES.COLOR_MODE_COMPARE;
+      this.plotSettingsStoreInstance.tableCompareMode =
+        COMPARE_MODES.COMPARE_MODE_MISMATCH;
+      this.plotSettingsStoreInstance.tableCompareColor =
+        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
     this.groupKey = groupKey;
@@ -214,7 +237,7 @@ class ObservableConfigStore {
       }
     }
 
-    dataStore.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   // Get a pretty name for the group
@@ -341,7 +364,7 @@ class ObservableConfigStore {
     //       do this in a smarter way
     this.selectedGroups = [];
 
-    dataStore.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   getCoordinateRanges() {
@@ -426,9 +449,9 @@ class ObservableConfigStore {
 
     if (!selectedLocationNodes || !selectedLocationNodes[0]) {
       this.locationDataStoreInstance.deselectAll();
-      dataStore.emptyCaseData();
+      this.dataStoreInstance.emptyCaseData();
     } else {
-      dataStore.updateCaseData();
+      this.dataStoreInstance.updateCaseData();
     }
   }
 
@@ -436,15 +459,15 @@ class ObservableConfigStore {
   updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
     this.selectedMetadataFields = selectedMetadataFields;
     this.ageRange = ageRange;
-    dataStore.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   @action
   selectDateRange(dateRange) {
     this.dateRange = dateRange;
-    dataStore.updateAggCaseDataByGroup();
+    this.dataStoreInstance.updateAggCaseDataByGroup();
     if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
-      dataStore.processCooccurrenceData();
+      this.dataStoreInstance.processCooccurrenceData();
     }
   }
 
@@ -461,7 +484,7 @@ class ObservableConfigStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
-    dataStore.processSelectedSnvs();
+    this.dataStoreInstance.processSelectedSnvs();
   }
 
   @action
@@ -485,8 +508,6 @@ class ObservableConfigStore {
     this.minLocalCountsToShow = minLocalCountsToShow;
     this.minGlobalCountsToShow = minGlobalCountsToShow;
     this.maxGroupCounts = maxGroupCounts;
-    dataStore.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 }
-
-export default ObservableConfigStore;

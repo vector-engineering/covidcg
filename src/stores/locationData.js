@@ -29,10 +29,15 @@ export class LocationDataStore {
   // ID -> location object/hashmap
   locationIdToNameMap = {};
 
-  constructor() {
+  constructor() {}
+
+  init() {
     this.locations = asyncDataStoreInstance.data.location_map;
     const selectTree = asyncDataStoreInstance.data.geo_select_tree;
+    // Create object paths on each node for easier traversal back and forth
     assignObjectPaths(selectTree);
+    // By default, show the tree as expanded so it doesn't only show the "All" node
+    selectTree.expanded = true;
     this.selectTree = selectTree;
 
     // Create ID -> location object/hashmap
