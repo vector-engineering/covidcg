@@ -45,7 +45,7 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
-import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
+import { REFERENCE_GROUP } from '../../constants/groups';
 import { ASYNC_STATES } from '../../constants/UI';
 
 const DataTableContainer = styled.div`

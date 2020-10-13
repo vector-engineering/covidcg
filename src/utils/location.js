@@ -1,35 +1,3 @@
-import locations from '../../data/location_map.json';
-import selectTree from '../../data/geo_select_tree.json';
-// import _ from 'underscore';
-
-// Create ID -> location object/hashmap
-const locationIdToNameMap = {};
-locations.forEach((loc) => {
-  locationIdToNameMap[loc['index']] = loc;
-});
-
-export function loadSelectTree() {
-  return selectTree;
-}
-
-// https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme
-// https://dowjones.github.io/react-dropdown-tree-select/#/story/tree-node-paths-hoc
-// utility method to assign object paths.
-// this path can be used with lodash.get or similar
-// to retrieve a deeply nested object
-export function assignObjectPaths(obj, stack) {
-  const isArray = Array.isArray(obj);
-  Object.keys(obj).forEach((k) => {
-    const node = obj[k];
-    const key = isArray ? `[${k}]` : k;
-
-    if (typeof node === 'object') {
-      node.path = stack ? `${stack}.${key}` : key;
-      assignObjectPaths(node, node.path);
-    }
-  });
-}
-
 // Recursively look through children for location IDs
 function getLocationIdsFromNode(node) {
   if (node === undefined) {
@@ -86,18 +54,6 @@ export function getLocationByNameAndLevel(
   }
 
   return traverseTree(selectTree.children, name, level);
-}
-
-export function getLocationNameByIds(locationIds) {
-  const out = [];
-  locationIds.forEach((locId) => {
-    if (typeof locId !== 'string') {
-      locId = locId.toString();
-    }
-
-    out.push(locationIdToNameMap[locId]);
-  });
-  return out;
 }
 
 export function getNodeFromPath(rootNode, pathStr) {

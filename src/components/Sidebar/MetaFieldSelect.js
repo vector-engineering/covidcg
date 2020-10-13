@@ -10,10 +10,9 @@ import Button from '../Buttons/Button';
 import MultiSelect from 'react-multi-select-component';
 
 import {
-  getMetadataFields,
-  getMetadataFieldNiceName,
-  getMetadataValueFromId,
-} from '../../utils/metadata';
+  metadataFields,
+  metadataFieldNiceNameMap,
+} from '../../constants/metadata';
 
 const formWidth = '160px';
 
@@ -114,7 +113,6 @@ UpdateSelectionButton.defaultProps = {
 };
 
 // Initialize field options and selections
-const metadataFields = getMetadataFields();
 const initialFieldOptions = {};
 const initialFieldSelected = {};
 metadataFields.forEach((field) => {
@@ -123,7 +121,7 @@ metadataFields.forEach((field) => {
 });
 
 const MetaFieldSelect = observer(() => {
-  const { dataStore, configStore } = useStores();
+  const { dataStore, configStore, metadataStore } = useStores();
 
   const [state, setState] = useState({
     fieldOptions: initialFieldOptions,
@@ -153,7 +151,7 @@ const MetaFieldSelect = observer(() => {
         }
         fieldOptions[field].push({
           label:
-            getMetadataValueFromId(field, option) +
+            metadataStore.getMetadataValueFromId(field, option) +
             ' [' +
             initialCount.toString() +
             ' > ' +
@@ -315,7 +313,7 @@ const MetaFieldSelect = observer(() => {
   // Build all of the select components
   const fieldSelects = [];
   metadataFields.forEach((field) => {
-    const fieldNiceName = getMetadataFieldNiceName(field);
+    const fieldNiceName = metadataFieldNiceNameMap[field];
     fieldSelects.push(
       <SelectContainer key={field + '_metadata_select'}>
         <label>{fieldNiceName}:</label>

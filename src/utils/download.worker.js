@@ -1,9 +1,4 @@
 // import { getAckTextsFromAckIds } from './acknowledgements';
-import {
-  getDnaSnpsFromGroup,
-  getGeneAaSnpsFromGroup,
-  getProteinAaSnpsFromGroup,
-} from './lineageData';
 // import { intToISO } from './date';
 import _ from 'underscore';
 
@@ -59,6 +54,8 @@ function downloadAggCaseData({
   dnaOrAa,
   coordinateMode,
   dataAggGroup,
+
+  ...rest
 }) {
   // console.log(groupKey, dnaOrAa, dataAggGroup);
 
@@ -86,6 +83,8 @@ function downloadAggCaseData({
       dataAggGroup,
       changingPositions,
       coordinateMode,
+
+      ...rest,
     });
   } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
     csvString = downloadAggCaseDataSnp(
@@ -108,6 +107,15 @@ function downloadAggCaseDataGroup({
   dataAggGroup,
   changingPositions,
   coordinateMode,
+
+  // SNV data
+  intToDnaSnvMap,
+  intToGeneAaSnvMap,
+  intToProteinAaSnvMap,
+
+  // Lineage data
+  groupSnvMap,
+  groupColorMap,
 }) {
   let csvString = '';
 
@@ -131,7 +139,11 @@ function downloadAggCaseDataGroup({
       row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Get NT SNPs
-    let ntSnps = getDnaSnpsFromGroup(groupKey, row['group']);
+    let ntSnps = groupSnvMap[groupKey][row['group']]['dna_snp_ids'].map(
+      (snvId) => {
+        return intToDnaSnvMap[snvId];
+      }
+    );
     // Skip if it's empty
     if (ntSnps.length === 0) {
       csvString += ',';
@@ -154,9 +166,17 @@ function downloadAggCaseDataGroup({
     // Get AA SNPs
     let aaSnps = [];
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      aaSnps = getGeneAaSnpsFromGroup(groupKey, row['group']);
+      aaSnps = groupSnvMap[groupKey][row['group']]['gene_aa_snp_ids'].map(
+        (snvId) => {
+          return intToGeneAaSnvMap[snvId];
+        }
+      );
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      aaSnps = getProteinAaSnpsFromGroup(groupKey, row['group']);
+      aaSnps = groupSnvMap[groupKey][row['group']]['protein_aa_snp_ids'].map(
+        (snvId) => {
+          return intToProteinAaSnvMap[snvId];
+        }
+      );
     }
     // Skip if it's empty
     if (aaSnps.length === 0) {

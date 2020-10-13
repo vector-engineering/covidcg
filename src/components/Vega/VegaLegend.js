@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { formatSnv } from '../../utils/snpData';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
@@ -16,6 +15,7 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import { LegendList, LegendItem } from './Legend.styles';
+import { formatSnv } from '../../utils/snpUtils';
 
 const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();

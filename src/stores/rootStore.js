@@ -1,28 +1,65 @@
 import React from 'react';
-
 import { RouterStore, startRouter } from 'mobx-router';
 import routes from '../routes';
-import ObservableDataStore from './dataStore';
-import ObservableUIStore from './UIStore';
-import ObservableConfigStore from './configStore';
-import ObservablePlotSettingsStore from './plotSettingsStore';
+import { DataStore } from './dataStore';
+import { UIStore } from './UIStore';
+import { ConfigStore } from './configStore';
+import { PlotSettingsStore } from './plotSettingsStore';
+import { LineageDataStore } from './lineageData';
+import { SnpDataStore } from './snpData';
+import { LocationDataStore } from './locationData';
+import { MetadataStore } from './metadata';
+import { GlobalSequencingDataStore } from './globalSequencingData';
 
-export const routerInstance = new RouterStore();
-export const configStoreInstance = new ObservableConfigStore();
-export const UIStoreInstance = new ObservableUIStore();
-export const dataStoreInstance = new ObservableDataStore();
-export const plotSettingsStoreInstance = new ObservablePlotSettingsStore();
+class RootStore {
+  router;
+  UIStore;
+  plotSettingsStore;
 
-export const rootStore = {
-  router: routerInstance,
-  configStore: configStoreInstance,
-  UIStore: UIStoreInstance,
-  dataStore: dataStoreInstance,
-  plotSettingsStore: plotSettingsStoreInstance,
-};
+  locationDataStore;
+  snpDataStore;
+  lineageDataStore;
 
-export const storesContext = React.createContext(rootStore);
+  configStore;
+  dataStore;
+
+  constructor() {
+    this.UIStore = new UIStore();
+    this.router = new RouterStore();
+
+    this.plotSettingsStore = new PlotSettingsStore();
+    this.metadataStore = new MetadataStore();
+    this.locationDataStore = new LocationDataStore();
+    this.snpDataStore = new SnpDataStore();
+    this.lineageDataStore = new LineageDataStore();
+
+    this.configStore = new ConfigStore();
+    this.dataStore = new DataStore();
+
+    this.globalSequencingDataStore = new GlobalSequencingDataStore();
+  }
+
+  init() {
+    // Initialize all stores
+    this.UIStore.init();
+
+    this.plotSettingsStore.init();
+    this.metadataStore.init();
+    this.locationDataStore.init();
+    this.snpDataStore.init();
+    this.lineageDataStore.init();
+
+    this.configStore.init();
+    this.dataStore.init();
+
+    this.globalSequencingDataStore.init();
+
+    startRouter(routes, this);
+  }
+}
+
+export const rootStoreInstance = new RootStore();
+
+export const storesContext = React.createContext(rootStoreInstance);
 
 export const StoreProvider = storesContext.Provider;
-
-startRouter(routes, rootStore);

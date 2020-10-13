@@ -29,11 +29,13 @@ export const initialPlotSettingsValues = {
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
 };
 
-class ObservablePlotSettingsStore {
+export class PlotSettingsStore {
   @observable groupStackNormMode = initialPlotSettingsValues.groupStackNormMode;
   @observable groupStackCountMode =
     initialPlotSettingsValues.groupStackCountMode;
   @observable groupStackDateBin = initialPlotSettingsValues.groupStackDateBin;
+
+  init() {}
 
   @action
   setGroupStackNormMode(mode) {
@@ -119,5 +121,3 @@ class ObservablePlotSettingsStore {
     });
   }
 }
-
-export default ObservablePlotSettingsStore;
