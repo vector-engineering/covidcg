@@ -42,6 +42,7 @@ export const initialDataValues = {
   dataAggSnvDate: [],
   snvCooccurrence: [],
 
+  globalGroupCounts: {},
   countsPerLocation: {},
   countsPerLocationDate: {},
   validGroups: {},
@@ -75,6 +76,7 @@ export class DataStore {
   dataAggSnvDate = initialDataValues.dataAggSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
 
+  globalGroupCounts = initialDataValues.globalGroupCounts;
   countsPerLocation = initialDataValues.countsPerLocation;
   countsPerLocationDate = initialDataValues.countsPerLocationDate;
   validGroups = initialDataValues.validGroups;
@@ -95,6 +97,28 @@ export class DataStore {
         row.collection_date > new Date(dataDate).getTime()
       );
     });
+
+    // Calculate global group counts
+    // Make a copy
+    const globalGroupCounts = Object.assign(
+      {},
+      asyncDataStoreInstance.data.global_group_counts
+    );
+
+    // Replace integer IDs with SNP strings
+    Object.keys(globalGroupCounts.dna_snp).forEach((snpId) => {
+      globalGroupCounts.dna_snp[snpId.toString()] =
+        globalGroupCounts.dna_snp[snpId];
+    });
+    Object.keys(globalGroupCounts.gene_aa_snp).forEach((snpId) => {
+      globalGroupCounts.gene_aa_snp[snpId.toString()] =
+        globalGroupCounts.gene_aa_snp[snpId];
+    });
+    Object.keys(globalGroupCounts.protein_aa_snp).forEach((snpId) => {
+      globalGroupCounts.protein_aa_snp[snpId.toString()] =
+        globalGroupCounts.protein_aa_snp[snpId];
+    });
+    this.globalGroupCounts = globalGroupCounts;
 
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.configStoreInstance = rootStoreInstance.configStore;
@@ -226,7 +250,7 @@ export class DataStore {
         maxGroupCounts: this.configStoreInstance.maxGroupCounts,
         minLocalCountsToShow: this.configStoreInstance.minLocalCountsToShow,
         minGlobalCountsToShow: this.configStoreInstance.minGlobalCountsToShow,
-        globalGroupCounts: toJS(asyncDataStoreInstance.globalGroupCounts),
+        globalGroupCounts: this.globalGroupCounts,
 
         // SNV data
         intToDnaSnvMap,
