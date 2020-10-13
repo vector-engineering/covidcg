@@ -1,3 +1,4 @@
+import datetime
 import json
 import pandas as pd
 import numpy as np
@@ -48,7 +49,10 @@ rule all:
         # Get global group counts
         data_folder + "/global_group_counts.json",
         # Calculate global sequencing stats?
-        country_seq_stats = data_folder + '/country_score.json'
+        country_seq_stats = data_folder + '/country_score.json',
+	# Packaged data
+	data_package = data_folder + '/data_package.json',
+	data_package_gz = data_folder + '/data_package.json.gz'
 
 rule preprocess_sequences:
     input:
@@ -720,7 +724,10 @@ rule assemble_data_package:
     output:
         data_package = data_folder + '/data_package.json'
     run:
-        data_package = {}
+        data_package = {
+	    'data_date': datetime.date.today().isoformat()
+	}
+
         with open(input.case_data, 'r') as fp:
             data_package['case_data'] = json.loads(fp.read())
         # with open(input.ack_map, 'r') as fp:
