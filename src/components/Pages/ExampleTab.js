@@ -37,10 +37,10 @@ import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
 import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
 import N203204Image from '../../assets/analysis_screens/n_203_204_coocurrence.png';
 
-// import ImageExample1_1 from '../../assets/example_screens/example1_1.png';
-// import ImageExample1_2 from '../../assets/example_screens/example1_2.png';
-// import ImageExample1_3 from '../../assets/example_screens/example1_3.png';
-// import ImageExample1_4 from '../../assets/example_screens/example1_4.png';
+import ImageExample1_1 from '../../assets/example_screens/example1_1.png';
+import ImageExample1_2 from '../../assets/example_screens/example1_2.png';
+import ImageExample1_3 from '../../assets/example_screens/example1_3.png';
+import ImageExample1_4 from '../../assets/example_screens/example1_4.png';
 
 import ImageExample2_1 from '../../assets/example_screens/example2_1.png';
 import ImageExample2_2 from '../../assets/example_screens/example2_2.png';
@@ -486,14 +486,14 @@ const ExampleTab = observer(() => {
                 <b>Introduction</b>
               </a>
             </li>
-            {/* <li>
+            <li>
               <a
                 href="#tutorial-1"
                 onClick={scrollToRef.bind(this, 'tutorial-1')}
               >
                 <b>Tutorial</b>: Tracking the new S477N mutation in Australia
               </a>
-            </li> */}
+            </li>
             <li>
               <a
                 href="#tutorial-2"
@@ -615,7 +615,7 @@ const ExampleTab = observer(() => {
           </p>
         </ExampleTutorial>
 
-        {/* <ExampleHeader>
+        <ExampleHeader>
           <a id="tutorial-1" />
           <ExampleTitle>
             Tutorial: Tracking the new S477N mutation in Australia
@@ -667,7 +667,7 @@ const ExampleTab = observer(() => {
             sequencing centers in those countries have not collected or
             deposited their data in GISAID.
           </p>
-        </ExampleTutorial> */}
+        </ExampleTutorial>
 
         <ExampleHeader>
           <a id="tutorial-2" />
