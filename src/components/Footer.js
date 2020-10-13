@@ -1,7 +1,8 @@
 import React from 'react';
+import { useStores } from '../stores/connect';
 import styled from 'styled-components';
 
-import { version, dataDate } from '../utils/version';
+import { version } from '../utils/version';
 
 import ExternalLink from './Common/ExternalLink';
 
@@ -62,6 +63,8 @@ const Version = styled.div`
 `;
 
 const Footer = () => {
+  const { dataStore } = useStores();
+
   return (
     <FooterContainer>
       <div className="gisaid-daa">
@@ -81,7 +84,8 @@ const Footer = () => {
           </ExternalLink>
         </div>
         <div className="data-date">
-          Sequences Analyzed: Up to <span className="date">{dataDate}</span>
+          Sequences Analyzed: Up to{' '}
+          <span className="date">{dataStore.dataDate}</span>
         </div>
       </Version>
     </FooterContainer>

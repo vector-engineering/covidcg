@@ -11,14 +11,15 @@ class ObservableAsyncDataStore {
   @action
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
-    console.log('fetch data');
     try {
       const res = await fetch(
-        'https://storage.googleapis.com/ve-public/data_package.json.gz',
+        'https://storage.googleapis.com/ve-public/data_package.json.gz?nocache=' +
+          new Date().getDate(),
         {
           headers: {
             'Accept-Encoding': 'gzip',
           },
+          cache: 'no-store',
         }
       );
       // Don't try to decode data, get it in memory as bytes
@@ -32,7 +33,6 @@ class ObservableAsyncDataStore {
       );
       runInAction(() => {
         this.data = data;
-        console.log(data);
         this.status = ASYNC_STATES.SUCCEEDED;
       });
     } catch (e) {

@@ -15,7 +15,6 @@ import {
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
-import { dataDate } from '../utils/version';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { GROUP_KEYS } from '../constants/config';
 import { asyncDataStoreInstance } from '../components/App';
@@ -57,6 +56,7 @@ export class DataStore {
   snpDataStoreInstance;
   lineageDataStoreInstance;
 
+  dataDate;
   rawCaseData = [];
   filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
@@ -86,6 +86,7 @@ export class DataStore {
   constructor() {}
 
   init() {
+    this.dataDate = asyncDataStoreInstance.data.data_date;
     this.rawCaseData = asyncDataStoreInstance.data.case_data.map((row) => {
       row.collection_date = new Date(row.collection_date).getTime();
       return row;
@@ -94,7 +95,7 @@ export class DataStore {
       // Remove cases before 2019-12-15 and after the dataDate
       return !(
         row.collection_date < 1576368000000 ||
-        row.collection_date > new Date(dataDate).getTime()
+        row.collection_date > new Date(this.dataDate).getTime()
       );
     });
 
