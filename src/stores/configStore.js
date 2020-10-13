@@ -4,19 +4,11 @@ import {
   toJS,
   //intercept, autorun
 } from 'mobx';
-import { dataStoreInstance, plotSettingsStoreInstance } from './rootStore';
 import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
-import {
-  getLocationByNameAndLevel,
-  loadSelectTree,
-  assignObjectPaths,
-  getNodeFromPath,
-  deselectAll,
-  selectAll,
-} from '../utils/location';
 import { queryReferenceSequence } from '../utils/reference';
+import { getLocationByNameAndLevel } from '../utils/location';
 
 import {
   COLOR_MODES,
@@ -32,13 +24,9 @@ import {
 
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
+import { rootStoreInstance } from './rootStore';
 
 // Define initial values
-
-const initialSelectTree = Object.assign(loadSelectTree(), {
-  expanded: true,
-});
-assignObjectPaths(initialSelectTree);
 
 export const initialConfigValues = {
   groupKey: GROUP_KEYS.GROUP_SNV,
@@ -57,14 +45,7 @@ export const initialConfigValues = {
 
   dateRange: [-1, -1], // No initial date range
 
-  selectTree: initialSelectTree,
-  selectedLocationNodes: [
-    // NOTE: comment out these lines, if you are working with a custom dataset that
-    //       doesn't have any sequences from these location
-    //       Maybe should move these settings into a more easily-editable YAML file...
-    getLocationByNameAndLevel(initialSelectTree, 'USA', 'country', true)[0],
-    getLocationByNameAndLevel(initialSelectTree, 'Canada', 'country', true)[0],
-  ].filter((node) => node !== undefined),
+  selectedLocationNodes: [],
 
   hoverGroup: null,
   selectedGroups: [],
@@ -92,7 +73,12 @@ PARAMS_TO_TRACK.forEach((param) => {
   defaultsFromParams[param] = urlParams.get(param);
 });
 
-class ObservableConfigStore {
+export class ConfigStore {
+  // References to store instances
+  plotSettingsStoreInstance;
+  locationDataStoreInstance;
+  dataStoreInstance;
+
   @observable groupKey = initialConfigValues.groupKey;
   @observable dnaOrAa = initialConfigValues.dnaOrAa;
 
@@ -107,7 +93,6 @@ class ObservableConfigStore {
 
   @observable dateRange = initialConfigValues.dateRange;
 
-  @observable selectTree = initialConfigValues.selectTree;
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
 
   @observable hoverGroup = initialConfigValues.hoverGroup;
@@ -125,13 +110,36 @@ class ObservableConfigStore {
   @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
   @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
 
-  constructor() {
+  constructor() {}
+
+  init() {
+    this.plotSettingsStoreInstance = rootStoreInstance.plotSettingsStore;
+    this.locationDataStoreInstance = rootStoreInstance.locationDataStore;
+    this.dataStoreInstance = rootStoreInstance.dataStore;
+
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
         // console.log('setting: ', param, urlParams.get(param));
         this[param] = defaultsFromParams[param];
       }
     });
+
+    // Set default selected locations
+    this.selectedLocationNodes = [
+      getLocationByNameAndLevel(
+        this.locationDataStoreInstance.selectTree,
+        'USA',
+        'country',
+        true
+      )[0],
+      getLocationByNameAndLevel(
+        this.locationDataStoreInstance.selectTree,
+        'Canada',
+        'country',
+        true
+      )[0],
+    ].filter((node) => node !== undefined);
+    initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
   }
 
   // modifyQueryParams = autorun(() => {
@@ -151,21 +159,7 @@ class ObservableConfigStore {
 
       // Special actions for some keys
       if (key === 'selectedLocationNodes') {
-        // Get the current tree
-        const selectTree = Object.assign({}, this.selectTree);
-        deselectAll(selectTree);
-
-        // Select the specified nodes
-        values[key].forEach((node) => {
-          const nodeObj =
-            'path' in node
-              ? getNodeFromPath(selectTree, node['path'])
-              : selectTree;
-          // Select all of the nodes children
-          selectAll(nodeObj);
-        });
-
-        this.selectTree = selectTree;
+        this.locationDataStoreInstance.setSelectedNodes(values[key]);
       }
     });
 
@@ -185,7 +179,7 @@ class ObservableConfigStore {
     }
 
     // Trigger data re-run
-    dataStoreInstance.updateCaseData(() => {});
+    this.dataStoreInstance.updateCaseData(() => {});
   }
 
   @action
@@ -208,17 +202,19 @@ class ObservableConfigStore {
 
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
-      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStoreInstance.tableCompareMode =
+      this.plotSettingsStoreInstanceInstance.tableColorMode =
+        COLOR_MODES.COLOR_MODE_COMPARE;
+      this.plotSettingsStoreInstanceInstance.tableCompareMode =
         COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStoreInstance.tableCompareColor =
+      this.plotSettingsStoreInstanceInstance.tableCompareColor =
         COMPARE_COLORS.COLOR_MODE_ZAPPO;
     } else {
       // Clear table coloring settings
-      plotSettingsStoreInstance.tableColorMode = COLOR_MODES.COLOR_MODE_COMPARE;
-      plotSettingsStoreInstance.tableCompareMode =
+      this.plotSettingsStoreInstance.tableColorMode =
+        COLOR_MODES.COLOR_MODE_COMPARE;
+      this.plotSettingsStoreInstance.tableCompareMode =
         COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      plotSettingsStoreInstance.tableCompareColor =
+      this.plotSettingsStoreInstance.tableCompareColor =
         COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
@@ -241,7 +237,7 @@ class ObservableConfigStore {
       }
     }
 
-    dataStoreInstance.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   // Get a pretty name for the group
@@ -368,7 +364,7 @@ class ObservableConfigStore {
     //       do this in a smarter way
     this.selectedGroups = [];
 
-    dataStoreInstance.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   getCoordinateRanges() {
@@ -452,10 +448,10 @@ class ObservableConfigStore {
     this.selectedMetadataFields = {};
 
     if (!selectedLocationNodes || !selectedLocationNodes[0]) {
-      this.selectTree = deselectAll(toJS(this.selectTree));
-      dataStoreInstance.emptyCaseData();
+      this.locationDataStoreInstance.deselectAll();
+      this.dataStoreInstance.emptyCaseData();
     } else {
-      dataStoreInstance.updateCaseData();
+      this.dataStoreInstance.updateCaseData();
     }
   }
 
@@ -463,15 +459,15 @@ class ObservableConfigStore {
   updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
     this.selectedMetadataFields = selectedMetadataFields;
     this.ageRange = ageRange;
-    dataStoreInstance.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 
   @action
   selectDateRange(dateRange) {
     this.dateRange = dateRange;
-    dataStoreInstance.updateAggCaseDataByGroup();
+    this.dataStoreInstance.updateAggCaseDataByGroup();
     if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
-      dataStoreInstance.processCooccurrenceData();
+      this.dataStoreInstance.processCooccurrenceData();
     }
   }
 
@@ -488,7 +484,7 @@ class ObservableConfigStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
-    dataStoreInstance.processSelectedSnvs();
+    this.dataStoreInstance.processSelectedSnvs();
   }
 
   @action
@@ -512,8 +508,6 @@ class ObservableConfigStore {
     this.minLocalCountsToShow = minLocalCountsToShow;
     this.minGlobalCountsToShow = minGlobalCountsToShow;
     this.maxGroupCounts = maxGroupCounts;
-    dataStoreInstance.updateCaseData();
+    this.dataStoreInstance.updateCaseData();
   }
 }
-
-export default ObservableConfigStore;

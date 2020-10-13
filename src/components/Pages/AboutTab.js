@@ -9,8 +9,8 @@ import ExternalLink from '../Common/ExternalLink';
 // import IDLLogo from '../../assets/images/idl-logo.png';
 // import UBCLogo from '../../assets/images/ubc_logo.png';
 import VELogo from '../../assets/images/VE_logo_new.png';
-import BroadLogo from '../../assets/images/BroadLogo_RGB_forDigital.png';
-import GISAIDLogo from '../../assets/images/gisaid_logo.png';
+// import BroadLogo from '../../assets/images/BroadLogo_RGB_forDigital.png';
+// import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 
 import {
   TabContainer,

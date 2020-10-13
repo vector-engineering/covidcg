@@ -5,7 +5,9 @@ import { hot } from 'react-hot-loader';
 import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
-import { StoreProvider, rootStore } from '../stores/rootStore';
+import { rootStoreInstance, StoreProvider } from '../stores/rootStore';
+import WaitForAsyncWrapper from './WaitForAsyncWrapper';
+import ObservableAsyncDataStore from '../stores/asyncDataStore';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -21,12 +23,16 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+export const asyncDataStoreInstance = new ObservableAsyncDataStore();
+
 const App = () => {
   return (
-    <StoreProvider value={rootStore}>
-      <MobxRouter store={rootStore} />
-      <GlobalStyle />
-    </StoreProvider>
+    <WaitForAsyncWrapper>
+      <StoreProvider value={rootStoreInstance}>
+        <MobxRouter store={rootStoreInstance} />
+        <GlobalStyle />
+      </StoreProvider>
+    </WaitForAsyncWrapper>
   );
 };
 

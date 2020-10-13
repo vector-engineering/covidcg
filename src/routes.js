@@ -3,7 +3,7 @@ import React from 'react';
 import { Route } from 'mobx-router';
 import HomePage from './components/Pages/HomePage';
 import NotFoundPage from './components/Pages/NotFoundPage';
-import { UIStoreInstance } from './stores/rootStore';
+import { rootStoreInstance } from './stores/rootStore';
 
 export const publicPath = '/';
 
@@ -13,7 +13,7 @@ const routes = {
     component: <HomePage />,
     onEnter: (route, params, store, queryParams) => {
       if (queryParams.tab) {
-        UIStoreInstance.setActiveTab(queryParams.tab);
+        rootStoreInstance.UIStore.setActiveTab(queryParams.tab);
       }
     },
   }),

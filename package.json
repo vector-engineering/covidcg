@@ -48,7 +48,8 @@
     "underscore": "1.10.2",
     "vega": "5.12.3",
     "vega-embed": "6.10.0",
-    "vega-lite": "4.12.2"
+    "vega-lite": "4.12.2",
+    "zlibjs": "0.3.1"
   },
   "devDependencies": {
     "@babel/cli": "7.6.4",
