@@ -1,10 +1,12 @@
 const STARTED = 'STARTED';
 const SUCCEEDED = 'SUCCEEDED';
 const FAILED = 'FAILED';
+const UNINITIALIZED = 'UNINITIALIZED';
 export const ASYNC_STATES = {
   STARTED,
   SUCCEEDED,
   FAILED,
+  UNINITIALIZED,
 };
 
 const TAB_GROUP = 'group';

@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-import { formatSnv } from '../../utils/snpData';
 import _ from 'underscore';
 
 import {
@@ -26,6 +25,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/location_date.vg.json';
+import { formatSnv } from '../../utils/snpUtils';
 
 const PlotContainer = styled.div``;
 

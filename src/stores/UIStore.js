@@ -26,7 +26,7 @@ export const initialUIValues = {
   keysPressed: [],
 };
 
-class ObservableUIStore {
+export class UIStore {
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
     initialUIValues.sidebarSelectedGroupKeys;
@@ -38,6 +38,8 @@ class ObservableUIStore {
 
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
+
+  init() {}
 
   @action
   resetValues(values) {
@@ -149,5 +151,3 @@ class ObservableUIStore {
     return this.keysPressed.includes(keyCode);
   }
 }
-
-export default ObservableUIStore;
