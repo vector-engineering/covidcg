@@ -9,6 +9,7 @@ import LoadingScreen from './LoadingScreen';
 const WaitForAsyncWrapper = observer(({ children }) => {
   const renderedOnce = useRef(false);
   const renderedOnceWithAsyncData = useRef(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (!renderedOnce.current) {
@@ -26,10 +27,15 @@ const WaitForAsyncWrapper = observer(({ children }) => {
   }
 
   if (
-    asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED ||
-    rootStoreInstance.UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED
+    (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED ||
+      rootStoreInstance.UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) &&
+    !initialized.current
   ) {
     return <LoadingScreen />;
+  }
+
+  if (!initialized.current) {
+    initialized.current = true;
   }
 
   return children;
