@@ -43,6 +43,7 @@
     "react-modal": "3.11.2",
     "react-multi-select-component": "3.0.0",
     "react-tooltip": "4.2.7",
+    "react-transition-group": "4.4.1",
     "react-use-dimensions": "1.2.1",
     "styled-components": "5.1.1",
     "underscore": "1.10.2",
