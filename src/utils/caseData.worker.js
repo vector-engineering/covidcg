@@ -583,35 +583,41 @@ function aggCaseDataByGroup({
   let changingPositions = {};
   // If we grouped by lineages/clades, then we need to find what SNPs
   // the lineages/clades correspond to, and add their SNP positions
-  let getSnvsFromGroup = null;
+  let getSnvsFromGroup;
+  let getSnvsFromGroupBase = (groupKey, snvField, intToSnvMap, group) => {
+    if (group === GROUPS.OTHER_GROUP || group === GROUPS.REFERENCE_GROUP) {
+      return [];
+    }
+    return groupSnvMap[groupKey][group][snvField].map((snvId) => {
+      return intToSnvMap[snvId];
+    });
+  };
   if (
     groupKey === GROUP_KEYS.GROUP_LINEAGE ||
     groupKey === GROUP_KEYS.GROUP_CLADE
   ) {
     if (dnaOrAa === DNA_OR_AA.DNA) {
-      getSnvsFromGroup = (group) => {
-        console.log(groupSnvMap, group, groupKey);
-        return groupSnvMap[groupKey][group]['dna_snp_ids'].map((snvId) => {
-          return intToDnaSnvMap[snvId];
-        });
-      };
+      getSnvsFromGroup = getSnvsFromGroupBase.bind(
+        this,
+        groupKey,
+        'dna_snp_ids',
+        intToDnaSnvMap
+      );
     } else {
       if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        getSnvsFromGroup = (group) => {
-          return groupSnvMap[groupKey][group]['gene_aa_snp_ids'].map(
-            (snvId) => {
-              return intToGeneAaSnvMap[snvId];
-            }
-          );
-        };
+        getSnvsFromGroup = getSnvsFromGroupBase.bind(
+          this,
+          groupKey,
+          'gene_aa_snp_ids',
+          intToGeneAaSnvMap
+        );
       } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-        getSnvsFromGroup = (group) => {
-          return groupSnvMap[groupKey][group]['protein_aa_snp_ids'].map(
-            (snvId) => {
-              return intToProteinAaSnvMap[snvId];
-            }
-          );
-        };
+        getSnvsFromGroup = getSnvsFromGroupBase.bind(
+          this,
+          groupKey,
+          'protein_aa_snp_ids',
+          intToProteinAaSnvMap
+        );
       }
     }
 
