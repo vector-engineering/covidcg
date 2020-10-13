@@ -6,6 +6,7 @@ Table of Contents
 - [Installation](#installation)
   - [Python](#python)
     - [Data Requirements](#data-requirements)
+    - [Data Package](#data-package)
   - [Javascript](#javascript)
     - [macOS](#macos)
     - [Linux](#linux)
@@ -59,6 +60,12 @@ data/
 ```
 
 _Note that as of 2020-06-05 only 10,000 sequences can be downloaded from the EpiCov™ Browse Tab at one time. Please filter your searches in a way that you select and download no more than 10,000 sequences at one time. We select data daily by filtering by "Submission date"._
+
+#### Data Package
+
+As of version 1.2.0, the snakemake pipeline will bundle all necessary data into a file `data_package.json`. The deployed application at [https://covidcg.org](https://covidcg.org) pulls the latest data package from [https://storage.googleapis.com/ve-public/data_package.json.gz](https://storage.googleapis.com/ve-public/data_package.json.gz).
+
+If hosting your own COVID CG instance, you can either point the application to our data package, or host your own by changing the URL for the data package (located at `src/stores/asyncDataStore.js`).
 
 ### Javascript
 
