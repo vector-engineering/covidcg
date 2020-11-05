@@ -37,31 +37,7 @@ Table of Contents
 
 The python scripts require a `data` folder inside the root folder of the project in order to run. In accordance with the [GISAID](https://www.gisaid.org/) [Database Access Agreement (DAA)](https://www.gisaid.org/registration/terms-of-use/), we cannot share data outside of their distribution service.
 
-The `data` folder requires three folders to be populated with raw data from GISAID, prior to processing:
-
-1. `fasta_raw`: FASTA sequences. These files can be downloaded by selecting "Sequences" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
-
-2. `patient_meta`: Patient metadata. These files can be downloaded by selecting "Patient status metadata" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
-
-3. `seq_meta`: Sequencing technology metadata. These files can be downloaded by selecting "Sequencing technology metadata" from the download dialog when browsing sequences in the EpiCov™ Browse Tab.
-
-In addition to the files above, the pipeline currently requires a "nextmeta" file, which can be downloaded from the "Downloads" dialog box on the EpiCov website:
-
-![](https://github.com/vector-engineering/covidcg/raw/master/src/assets/images/download_nextmeta.png)
-
-Unzip the downloaded file, rename the file to `nextmeta_[date]` (replacing `[date]` with the current date), and then move it into the `data` folder.
-
-The data folder should then look like this (prior to running the snakemake pipeline):
-
-```
-data/
-  | fasta_raw/
-  | patient_meta/
-  | seq_meta/
-  | nextmeta_20201005.tsv
-```
-
-_Note that as of 2020-06-05 only 10,000 sequences can be downloaded from the EpiCov™ Browse Tab at one time. Please filter your searches in a way that you select and download no more than 10,000 sequences at one time. We select data daily by filtering by "Submission date"._
+We are currently rewriting our data pipeline to be more generalized, and will update on instructions soon.
 
 #### Data Package
 
