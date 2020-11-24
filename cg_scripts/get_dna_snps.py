@@ -36,7 +36,7 @@ def get_dna_snps(sam_file, reference_file):
     )
 
     # Extract the GISAID ID
-    dna_snp_df["gisaid_id"] = dna_snp_df["taxon"].str.split("|", expand=True)[1]
+    dna_snp_df["gisaid_id"] = dna_snp_df["taxon"]
 
     # Fill NaN values
     dna_snp_df["ref"].fillna("", inplace=True)

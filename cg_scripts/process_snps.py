@@ -56,9 +56,7 @@ def process_snps(
     snp_group_df = snp_df.groupby("taxon")["snp_str"].agg(";".join).reset_index()
 
     # Extract the GISAID id from the taxon column
-    snp_group_df["Accession ID"] = (
-        snp_group_df["taxon"].str.split("|").apply(lambda x: x[1])
-    )
+    snp_group_df["Accession ID"] = snp_group_df["taxon"]
     # Map SNPs to integer IDs
     snp_map = pd.Series(
         np.unique(np.concatenate(snp_group_df["snp_str"].str.split(";").values).ravel())

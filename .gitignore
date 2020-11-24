@@ -95,3 +95,6 @@ data_link
 
 # Ignore server passwords
 server/htpasswd
+
+# Ignore data feed credentials
+credentials/data_feed_credentials

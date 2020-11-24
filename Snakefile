@@ -1,16 +1,20 @@
 import datetime
 import json
 import pandas as pd
+import os
 import numpy as np
+import shutil
 
+from pathlib import Path
+
+from cg_scripts.clean_metadata import clean_metadata
 from cg_scripts.fasta import read_fasta_file
 from cg_scripts.get_aa_snps import get_aa_snps
 from cg_scripts.get_dna_snps import get_dna_snps
+from cg_scripts.process_ack import process_ack
 from cg_scripts.process_artic_primers import process_artic_primers
 from cg_scripts.process_lineages import get_consensus_snps
 from cg_scripts.process_locations import process_location_metadata, build_select_tree
-from cg_scripts.process_patient_metadata import process_patient_metadata
-from cg_scripts.process_seq_metadata import process_seq_metadata
 from cg_scripts.process_snps import process_snps
 from cg_scripts.preprocess_sequences import preprocess_sequences
 from cg_scripts.util import hash_accession_id
@@ -21,59 +25,173 @@ from cg_scripts.util import hash_accession_id
 data_folder = "data"
 static_data_folder = "static_data"
 
-SAMPLES, = glob_wildcards(data_folder + "/fasta_raw/{sample}.fasta")
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
 
 rule all:
     input:
-        expand(
-            data_folder + "/dna_snp/{sample}_dna_snp.csv", 
-            sample=SAMPLES
-        ),
-        expand(
-            data_folder + "/gene_aa_snp/{sample}_gene_aa_snp.csv", 
-            sample=SAMPLES
-        ),
-        expand(
-            data_folder + "/protein_aa_snp/{sample}_protein_aa_snp.csv", 
-            sample=SAMPLES
-        ),
-        data_folder + "/case_data.json",
+        # Download latest data feed
+        os.path.join(data_folder, "status", "download_" + today_str + ".done"),
+        os.path.join(data_folder, "status", "merge_sequences_" + today_str + ".done"),
+        # Process SNVs
+        os.path.join(data_folder, "dna_snp.csv"),
+        os.path.join(data_folder, "gene_aa_snp.csv"),
+        os.path.join(data_folder, "protein_aa_snp.csv"),
+        # Process case data
+        os.path.join(data_folder, "case_data.json"),
         # Generate reference-related data
         static_data_folder + "/reference.json", 
         static_data_folder + "/genes.json",
         static_data_folder + "/proteins.json",
         static_data_folder + "/primers.json",
-        # Run consensus SNPs
-        data_folder + "/lineage_snp.json", 
-        data_folder + "/clade_snp.json",
-        # Get global group counts
-        data_folder + "/global_group_counts.json",
         # Calculate global sequencing stats?
         country_seq_stats = data_folder + '/country_score.json',
-	# Packaged data
-	data_package = data_folder + '/data_package.json',
-	data_package_gz = data_folder + '/data_package.json.gz'
+        # Packaged data
+        data_package = data_folder + '/data_package.json',
+        data_package_gz = data_folder + '/data_package.json.gz'
+
+# Get the login:password string from the "data_feed_credentials" file in the "credentials/" folder
+with open("credentials/data_feed_credentials", "r") as fp:
+    cred_str = fp.read().strip()
+
+rule download_data_feed:
+    output:
+        temp(os.path.join(data_folder, "feed.json.xz"))
+    params:
+        cred_str = cred_str
+    shell:
+        "curl -L https://{params.cred_str}@www.epicov.org/epi3/3p/broad/export/export.json.xz > {output}"
+
+rule decompress_data_feed:
+    input:
+        data_feed = os.path.join(data_folder, "feed.json.xz")
+    output:
+        data_feed = os.path.join(data_folder, "feed.json"),
+        status = touch(os.path.join(data_folder, "status", "download_" + today_str + ".done"))
+    threads: workflow.cores
+    shell:
+        """
+        unxz {input.data_feed} --threads={threads}
+        """
+
+checkpoint rewrite_data_feed:
+    """
+    Rewrite the data feed from JSON to CSV so it can be sorted
+    """
+    input:
+        data_feed = os.path.join(data_folder, "feed.json")
+    output:
+        fasta = directory(os.path.join(data_folder, "fasta_temp")),
+        metadata = os.path.join(data_folder, "metadata.csv")
+    run:
+
+        Path(output.fasta).mkdir(exist_ok=True)
+
+        chunk_i = 0
+        cur_i = 0
+        chunk_step = 200
+
+        # Get fields for each isolate
+        fields = []
+        with open(input.data_feed, "r") as fp_in:
+            isolate = json.loads(fp_in.readline().strip())
+            for i, key in enumerate(isolate.keys()):
+                # Skip the special sequence column
+                if key == "sequence":
+                    continue
+                fields.append(key)
+        metadata_df = []
+        
+        with open(input.data_feed, "r") as fp_in:
+
+            fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
+
+            # I"m pretty sure the output file is write-buffered,
+            # so we can just spam the write() function
+            for line in fp_in:
+                isolate = json.loads(line.strip())
+
+                # Add to metadata list
+                metadata_df.append({k:isolate[k] for k in fields})
+
+                # Write sequence
+                fasta_out.write(
+                    ">" + isolate["covv_accession_id"] + "\n" + 
+                    isolate["sequence"] + "\n"
+                )
+
+                if cur_i == chunk_step:
+                    fasta_out.close()
+                    cur_i = 0
+                    chunk_i += 1
+                    fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
+
+                cur_i += 1
+
+
+        metadata_df = pd.DataFrame(metadata_df, columns=fields)
+        metadata_df.to_csv(output.metadata, index=False)
+
+
+def get_changed_chunks(wildcards):
+    checkpoint_output = checkpoints.rewrite_data_feed.get(**wildcards).output[0]
+    chunks, = glob_wildcards(os.path.join(checkpoint_output, "{i}.fa"))
+    changed_chunks = []
+
+    for chunk in chunks:
+        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
+        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa")
+
+        if (
+                not fasta_raw_path.exists() or 
+                not fasta_raw_path.is_file() or 
+                fasta_temp_path.stat().st_size != fasta_raw_path.stat().st_size
+            ):
+            # print(fasta_raw_path, fasta_temp_path)
+            # print(fasta_temp_path.stat().st_size, fasta_raw_path.stat().st_size)
+            
+            changed_chunks.append(chunk)
+
+    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa"), i=changed_chunks)
+
+
+checkpoint copy_changed_files:
+    input:
+        get_changed_chunks
+    output:
+        touch(os.path.join(data_folder, "status", "merge_sequences_" + today_str + ".done"))
+    run:
+        (Path(data_folder) / "fasta_raw").mkdir(exist_ok=True)
+
+        for chunk in input:
+            chunk = Path(chunk).stem
+            fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
+            fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa")
+
+            shutil.copyfile(fasta_temp_path, fasta_raw_path)
+            shutil.copystat(fasta_temp_path, fasta_raw_path)
+
 
 rule preprocess_sequences:
     input:
-        fasta = data_folder + "/fasta_raw/{sample}.fasta",
-        nextstrain_exclude = static_data_folder + "/nextstrain_exclude_20200520.txt"
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa"),
+        nextstrain_exclude = os.path.join(static_data_folder, "nextstrain_exclude_20200520.txt")
     output:
-        fasta = data_folder + "/fasta_processed/{sample}.fasta"
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa")
     run:
         preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
 
 rule bt2build:
-    input: static_data_folder + "/reference.fasta"
+    input: os.path.join(static_data_folder, "reference.fasta")
     params:
-        basename=data_folder + "/reference_index/reference"
+        basename = os.path.join(data_folder, "reference_index", "reference")
     output:
-        output1=data_folder + "/reference_index/reference.1.bt2",
-        output2=data_folder + "/reference_index/reference.2.bt2",
-        output3=data_folder + "/reference_index/reference.3.bt2",
-        output4=data_folder + "/reference_index/reference.4.bt2",
-        outputrev1=data_folder + "/reference_index/reference.rev.1.bt2",
-        outputrev2=data_folder + "/reference_index/reference.rev.2.bt2"
+        output1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
+        output2 = os.path.join(data_folder, "reference_index", "reference.2.bt2"),
+        output3 = os.path.join(data_folder, "reference_index", "reference.3.bt2"),
+        output4 = os.path.join(data_folder, "reference_index", "reference.4.bt2"),
+        outputrev1 = os.path.join(data_folder, "reference_index", "reference.rev.1.bt2"),
+        outputrev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
     shell:
         """
         bowtie2-build {input} {params.basename}
@@ -81,18 +199,18 @@ rule bt2build:
         
 rule align_sequences:
     input:
-        fasta = data_folder + "/fasta_processed/{sample}.fasta",
-        bt2_1 = data_folder + "/reference_index/reference.1.bt2",
-        bt2_2 = data_folder + "/reference_index/reference.2.bt2",
-        bt2_3 = data_folder + "/reference_index/reference.3.bt2",
-        bt2_4 = data_folder + "/reference_index/reference.4.bt2",
-        bt2_rev1=data_folder + "/reference_index/reference.rev.1.bt2",
-        bt2_rev2=data_folder + "/reference_index/reference.rev.2.bt2"
+        fasta = os.path.join(data_folder, "fasta_processed", "{sample}.fa"),
+        bt2_1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
+        bt2_2 = os.path.join(data_folder, "reference_index", "reference.2.bt2"),
+        bt2_3 = os.path.join(data_folder, "reference_index", "reference.3.bt2"),
+        bt2_4 = os.path.join(data_folder, "reference_index", "reference.4.bt2"),
+        bt2_rev1 = os.path.join(data_folder, "reference_index", "reference.rev.1.bt2"),
+        bt2_rev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
     params:
-        index_name = data_folder + "/reference_index/reference"
+        index_name = os.path.join(data_folder, "reference_index", "reference")
     threads: workflow.cores
     output:
-        sam = data_folder + "/sam/{sample}.sam"
+        sam = os.path.join(data_folder, "sam", "{sample}.sam")
     # bowtie2 is really memory intensive (10GB per thread), so make sure it 
     # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
     shell:
@@ -102,10 +220,10 @@ rule align_sequences:
 
 rule get_dna_snps:
     input:
-        reference = static_data_folder + "/reference.fasta",
-        sam = data_folder + "/sam/{sample}.sam"
+        reference = os.path.join(static_data_folder, "reference.fasta"),
+        sam = os.path.join(data_folder, "sam", "{sample}.sam")
     output:
-        dna_snp = data_folder + "/dna_snp/{sample}_dna_snp.csv"
+        dna_snp = os.path.join(data_folder, "dna_snp", "{sample}_dna_snp.csv")
     run:
         dna_snp_df = get_dna_snps(input.sam, input.reference)
         dna_snp_df.to_csv(output.dna_snp, index=False)
@@ -113,13 +231,13 @@ rule get_dna_snps:
 
 rule get_aa_snps:
     input:
-        dna_snp = data_folder + "/dna_snp/{sample}_dna_snp.csv",
-        reference = static_data_folder + "/reference.fasta",
-        genes_file = static_data_folder + "/genes.json",
-        proteins_file = static_data_folder + "/proteins.json"
+        dna_snp = os.path.join(data_folder, "dna_snp", "{sample}_dna_snp.csv"),
+        reference = os.path.join(static_data_folder, "reference.fasta"),
+        genes_file = os.path.join(static_data_folder, "genes.json"),
+        proteins_file = os.path.join(static_data_folder, "proteins.json")
     output:
-        gene_aa_snp = data_folder + "/gene_aa_snp/{sample}_gene_aa_snp.csv",
-        protein_aa_snp = data_folder + "/protein_aa_snp/{sample}_protein_aa_snp.csv"
+        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp", "{sample}_gene_aa_snp.csv"),
+        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp", "{sample}_protein_aa_snp.csv")
     run:
         gene_aa_snp_df = get_aa_snps(
             input.dna_snp, 
@@ -138,24 +256,39 @@ rule get_aa_snps:
         protein_aa_snp_df.to_csv(output.protein_aa_snp, index=False)
 
 
+def get_all_dna_snp_chunks(wildcards):
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get().output[0]
+    return expand(
+        os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+    )
+
+def get_all_gene_aa_snp_chunks(wildcards):
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get().output[0]
+    return expand(
+        os.path.join(data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+    )
+
+def get_all_protein_aa_snp_chunks(wildcards):
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get().output[0]
+    return expand(
+        os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+    )
+
 rule combine_snps:
     input:
-        dna_snp = expand(
-            data_folder + "/dna_snp/{sample}_dna_snp.csv", 
-            sample=SAMPLES
-        ),
-        gene_aa_snp = expand(
-            data_folder + "/gene_aa_snp/{sample}_gene_aa_snp.csv", 
-            sample=SAMPLES
-        ),
-        protein_aa_snp = expand(
-            data_folder + "/protein_aa_snp/{sample}_protein_aa_snp.csv", 
-            sample=SAMPLES
-        )
+        dna_snp = get_all_dna_snp_chunks,
+        gene_aa_snp = get_all_gene_aa_snp_chunks,
+        protein_aa_snp = get_all_protein_aa_snp_chunks
     output:
-        dna_snp = data_folder + "/dna_snp.csv",
-        gene_aa_snp = data_folder + "/gene_aa_snp.csv",
-        protein_aa_snp = data_folder + "/protein_aa_snp.csv"
+        dna_snp = os.path.join(data_folder, "dna_snp.csv"),
+        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
+        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp.csv")
     shell:
         """
         # https://apple.stackexchange.com/questions/80611/merging-multiple-csv-files-without-merging-the-header
@@ -166,19 +299,19 @@ rule combine_snps:
 
 rule process_snps:
     input:
-        dna_snp = data_folder + "/dna_snp.csv",
-        gene_aa_snp = data_folder + "/gene_aa_snp.csv",
-        protein_aa_snp = data_folder + "/protein_aa_snp.csv"
+        dna_snp = os.path.join(data_folder, "dna_snp.csv"),
+        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
+        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp.csv")
     params:
         count_threshold = 3
     output:
-        dna_snp_group = data_folder + "/dna_snp_group.csv",
-        gene_aa_snp_group = data_folder + "/gene_aa_snp_group.csv",
-        protein_aa_snp_group = data_folder + "/protein_aa_snp_group.csv",
+        dna_snp_group = os.path.join(data_folder, "dna_snp_group.csv"),
+        gene_aa_snp_group = os.path.join(data_folder, "gene_aa_snp_group.csv"),
+        protein_aa_snp_group = os.path.join(data_folder, "protein_aa_snp_group.csv"),
 
-        dna_snp_map = data_folder + "/dna_snp_map.json",
-        gene_aa_snp_map = data_folder + "/gene_aa_snp_map.json",
-        protein_aa_snp_map = data_folder + "/protein_aa_snp_map.json"
+        dna_snp_map = os.path.join(data_folder, "dna_snp_map.json"),
+        gene_aa_snp_map = os.path.join(data_folder, "gene_aa_snp_map.json"),
+        protein_aa_snp_map = os.path.join(data_folder, "protein_aa_snp_map.json")
     run:
         dna_snp_group_df, dna_snp_map = process_snps(
             input.dna_snp, 
@@ -207,93 +340,47 @@ rule process_snps:
         gene_aa_snp_map.to_json(output.gene_aa_snp_map, orient="index")
         protein_aa_snp_map.to_json(output.protein_aa_snp_map, orient="index")
 
-PATIENT_META_FILES, = glob_wildcards("data/patient_meta/{patient_meta_file}.tsv")
-
-rule process_patient_metadata:
-    input:
-        patient_meta = expand(
-            "data/patient_meta/{patient_meta_file}.tsv", 
-            patient_meta_file=PATIENT_META_FILES
-        )
-    output:
-        patient_meta = data_folder + "/patient_meta.csv"
-    run:
-        patient_meta_df = process_patient_metadata(input.patient_meta)
-        patient_meta_df.to_csv(output.patient_meta)
-
-
-SEQ_META_FILES, = glob_wildcards("data/seq_meta/{seq_meta_file}.tsv")
-
-rule process_seq_metadata:
-    input:
-        seq_meta = expand(
-            "data/seq_meta/{seq_meta_file}.tsv", 
-            seq_meta_file=SEQ_META_FILES
-        )
-    output:
-        seq_meta = data_folder + "/seq_meta.csv"
-    run:
-        seq_meta_df = process_seq_metadata(input.seq_meta)
-        seq_meta_df.to_csv(output.seq_meta)
-
-
-# ACK_FILES, = glob_wildcards("data/acknowledgements/{ack_file}.xls")
-# rule process_acknowledgements:
-#     input:
-#         ack = expand(
-#             "data/acknowledgements/{ack_file}.xls", 
-#             ack_file=ACK_FILES
-#         )
-#     output:
-#         ack_meta = data_folder + "/ack_meta.csv",
-#         ack_map = data_folder + "/ack_map.json"
-#     run:
-#         ack_df, ack_map = process_ack(input.ack)
-#         ack_df.to_csv(output.ack_meta)
-#         ack_map.to_json(output.ack_map, orient="index")
-        
 # Main rule for generating the data files for the browser
 # Mostly just a bunch of joins
 rule generate_ui_data:
     input:
-        patient_meta = data_folder + "/patient_meta.csv",
-        seq_meta = data_folder + "/seq_meta.csv",
-        # ack_meta = data_folder + "/ack_meta.csv",
-        dna_snp_group = data_folder + "/dna_snp_group.csv",
-        gene_aa_snp_group = data_folder + "/gene_aa_snp_group.csv",
-        protein_aa_snp_group = data_folder + "/protein_aa_snp_group.csv",
-        emoji_map_file = static_data_folder + "/country_to_emoji.xls"
+        metadata = os.path.join(data_folder, "metadata.csv"),
+        dna_snp_group = os.path.join(data_folder, "dna_snp_group.csv"),
+        gene_aa_snp_group = os.path.join(data_folder, "gene_aa_snp_group.csv"),
+        protein_aa_snp_group = os.path.join(data_folder, "protein_aa_snp_group.csv"),
+        location_corrections = os.path.join(static_data_folder, "location_corrections.csv"),
+        emoji_map_file = os.path.join(static_data_folder, "country_to_emoji.xls")
     output:
-        accession_hashmap = data_folder + "/accession_hashmap.csv",
-        metadata_map = data_folder + "/metadata_map.json",
-        location_map = data_folder + "/location_map.json",
-        geo_select_tree = data_folder + "/geo_select_tree.json",
-        case_data = data_folder + "/case_data.json",
+        accession_hashmap = os.path.join(data_folder, "accession_hashmap.csv"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        location_map = os.path.join(data_folder, "location_map.json"),
+        ack_map = os.path.join(data_folder, "ack_map.json"),
+        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json"),
+        case_data = os.path.join(data_folder, "case_data.json"),
         # CSV is just for excel/debugging
-        case_data_csv = data_folder + "/case_data.csv"
+        case_data_csv = os.path.join(data_folder, "case_data.csv")
     run:
-        patient_meta_df = pd.read_csv(input.patient_meta, index_col="Accession ID")
-        seq_meta_df = pd.read_csv(input.seq_meta, index_col="Accession ID")
-        # ack_meta_df = pd.read_csv(input.ack_meta, index_col="Accession ID")
+        # Load metadata
+        df = pd.read_csv(input.metadata)
+        df = (
+            df
+            .rename(columns={'covv_accession_id': 'Accession ID'})
+            .set_index("Accession ID")
+        )
+
+        # Clean metadata
+        df = clean_metadata(df)
+
+        # Filter out "None" lineages
+        df = df.loc[df["lineage"] != "None", :]
+        df = df.loc[df["lineage"] != "nan", :]
+        # Exclude sequences without a lineage/clade assignment
+        df = df.loc[~pd.isnull(df["lineage"]), :]
+        df = df.loc[~pd.isnull(df["clade"]), :]
 
         dna_snp_group_df = pd.read_csv(input.dna_snp_group, index_col="Accession ID")
         gene_aa_snp_group_df = pd.read_csv(input.gene_aa_snp_group, index_col="Accession ID")
         protein_aa_snp_group_df = pd.read_csv(input.protein_aa_snp_group, index_col="Accession ID")
-
-        # Join patient and sequencing metadata on Accession ID
-        df = patient_meta_df.join(
-            seq_meta_df, on="Accession ID", how="left", sort=True
-        )
-        # Filter out "None" lineages
-        df = df.loc[df["lineage"] != "None", :]
-        # Exclude sequences without a lineage/clade assignment
-        df = df.loc[~pd.isnull(df['lineage']), :]
-        df = df.loc[~pd.isnull(df['clade']), :]
-
-        # Join acknowledgement IDs onto main metadata dataframe
-        # df = df.join(ack_meta_df, on="Accession ID", how="left", sort=False)
-        # Replace missing acknowledgement IDs with -1, then cast to integer
-        # df["ack_id"] = df["ack_id"].fillna(-1).astype(int)
 
         # Join SNPs to main dataframe
         # inner join to exclude filtered out sequences
@@ -326,7 +413,7 @@ rule generate_ui_data:
         )
 
         # Process location metadata
-        location_df, location_map_df = process_location_metadata(df)
+        location_df, location_map_df = process_location_metadata(df, input.location_corrections)
 
         location_map_df.drop(columns=["loc_str"]).to_json(
             output.location_map, orient="records"
@@ -343,7 +430,12 @@ rule generate_ui_data:
         # Join location IDs onto main metadata dataframe, then drop original Location column
         df = df.join(
             location_df[["location_id"]], on="Accession ID", how="inner", sort=False
-        ).drop(columns=["Location"])
+        ).drop(columns=["covv_location"])
+
+        # Process acknowledgement metadata
+        df, ack_map = process_ack(df)
+        # Save acknowledgements map
+        ack_map.to_json(output.ack_map, orient="records")
 
         # Hash Accession IDs. Only take the first 8 chars, that's good enough
         df["hashed_id"] = np.random.rand(len(df))
@@ -421,12 +513,12 @@ rule write_reference_files:
 
 rule get_consensus_snps:
     input:
-        case_data = data_folder + "/case_data.csv"
+        case_data = os.path.join(data_folder, "case_data.csv")
     params:
         consensus_fraction = 0.9
     output:
-        lineage_snp = data_folder + "/lineage_snp.json",
-        clade_snp = data_folder + "/clade_snp.json"
+        lineage_snp = os.path.join(data_folder, "lineage_snp.json"),
+        clade_snp = os.path.join(data_folder, "clade_snp.json")
     run:
         case_df = pd.read_csv(input.case_data, index_col="Accession ID")
 
@@ -455,9 +547,9 @@ rule get_consensus_snps:
 
 rule get_global_group_counts:
     input:
-        case_data = data_folder + "/case_data.csv"
+        case_data = os.path.join(data_folder, "case_data.csv")
     output:
-        global_group_counts = data_folder + "/global_group_counts.json"
+        global_group_counts = os.path.join(data_folder, "global_group_counts.json")
     run:
         from itertools import chain
         from collections import Counter
@@ -492,9 +584,8 @@ rule get_global_group_counts:
             list(chain.from_iterable(case_df["protein_aa_snp_str"]))
         ))
 
-        with open(output.global_group_counts, 'w') as fp:
+        with open(output.global_group_counts, "w") as fp:
             fp.write(json.dumps(global_group_counts))
-
 
 
 rule process_artic_primers:
@@ -520,171 +611,166 @@ rule process_artic_primers:
         artic_df.to_csv(output.artic_primers, index=False)
 
 
-NEXTMETA, = glob_wildcards(data_folder + "/nextmeta_{nextmeta}.tsv")
-
-if len(NEXTMETA) == 0:
-    raise Exception('nextmeta file not found. Please see https://github.com/vector-engineering/covidcg#data-requirements for how to obtain the nextmeta file')
-
-latest_nextmeta_file = data_folder + '/nextmeta_' + sorted(NEXTMETA)[-1] + '.tsv'
-
 rule calc_global_sequencing_efforts:
     input:
-        nextmeta = latest_nextmeta_file
+        case_data = os.path.join(data_folder, "case_data.csv"),
+        location_map = os.path.join(data_folder, "location_map.json")
     output:
-        country_seq_stats = data_folder + '/country_score.json'
+        country_seq_stats = data_folder + "/country_score.json"
     run:
         # Load case counts by country
-        case_count_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv')
+        case_count_df = pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
 
         # Upgrade some province/states to country/regions
         upgrade_provinces = [
-            'Hong Kong', 'Macau', 
-            'Faroe Islands', 'Greenland', 
-            'French Guiana', 'French Polynesia', 'Guadeloupe', 'Martinique',
-            'Mayotte', 'New Caledonia', 'Reunion', 'Saint Barthelemy',
-            'Saint Pierre and Miquelon', 'St Martin', 'Aruba',
-            'Bonaire, Sint Eustatius and Saba', 'Curacao', 'Sint Maarten',
-            'Anguilla', 'Bermuda', 'British Virgin Islands', 'Cayman Islands',
-            'Falkland Islands (Malvinas)',
-            'Gibraltar', 'Isle of Man', 'Channel Islands',
-            'Montserrat', 'Turks and Caicos Islands',
-            'American Samoa',
-            'Guam', 'Northern Mariana Islands', 'Virgin Islands',
-            'Puerto Rico'
+            "Hong Kong", "Macau", 
+            "Faroe Islands", "Greenland", 
+            "French Guiana", "French Polynesia", "Guadeloupe", "Martinique",
+            "Mayotte", "New Caledonia", "Reunion", "Saint Barthelemy",
+            "Saint Pierre and Miquelon", "St Martin", "Aruba",
+            "Bonaire, Sint Eustatius and Saba", "Curacao", "Sint Maarten",
+            "Anguilla", "Bermuda", "British Virgin Islands", "Cayman Islands",
+            "Falkland Islands (Malvinas)",
+            "Gibraltar", "Isle of Man", "Channel Islands",
+            "Montserrat", "Turks and Caicos Islands",
+            "American Samoa",
+            "Guam", "Northern Mariana Islands", "Virgin Islands",
+            "Puerto Rico"
         ]
-        upgrade_province_inds = case_count_df['Province/State'].isin(upgrade_provinces)
-        case_count_df.loc[upgrade_province_inds, 'Country/Region'] = (
-            case_count_df.loc[upgrade_province_inds, 'Province/State']
+        upgrade_province_inds = case_count_df["Province/State"].isin(upgrade_provinces)
+        case_count_df.loc[upgrade_province_inds, "Country/Region"] = (
+            case_count_df.loc[upgrade_province_inds, "Province/State"]
         )
 
         # Group by country/region
         case_count_df = (
             case_count_df
-            .drop(columns=['Lat', 'Long'])
-            .groupby('Country/Region')
+            .drop(columns=["Lat", "Long"])
+            .groupby("Country/Region")
             .agg(np.sum)
             .reset_index()
         )
         # Unpivot table
         case_count_df = pd.melt(
             case_count_df, 
-            id_vars=['Country/Region'], 
-            var_name='date', 
-            value_name='cumulative_cases'
+            id_vars=["Country/Region"], 
+            var_name="date", 
+            value_name="cumulative_cases"
         )
         # Convert date strings to datetime objects
-        case_count_df['date'] = pd.to_datetime(case_count_df['date'])
-        case_count_df['month'] = case_count_df['date'].dt.to_period('M')
+        case_count_df["date"] = pd.to_datetime(case_count_df["date"])
+        case_count_df["month"] = case_count_df["date"].dt.to_period("M")
 
-        # Load nextmeta file
-        nextmeta_df = pd.read_csv(input.nextmeta, sep='\t')
-        nextmeta_df['date'] = pd.to_datetime(nextmeta_df['date'], errors='coerce')
-        nextmeta_df['date_submitted'] = pd.to_datetime(
-            nextmeta_df['date_submitted'], errors='coerce'
+        case_df = pd.read_csv(input.case_data, index_col="Accession ID")
+        location_map = pd.read_json(input.location_map)
+        location_map = location_map.set_index("index")
+        case_df = case_df.join(location_map, on="location_id", how="left")
+
+        case_df["collection_date"] = pd.to_datetime(case_df["collection_date"], errors="coerce")
+        case_df["submission_date"] = pd.to_datetime(
+            case_df["submission_date"], errors="coerce"
         )
+
         # Remove failed date parsing
-        nextmeta_df = nextmeta_df.loc[
-            (~pd.isnull(nextmeta_df['date'])) & 
-            (~pd.isnull(nextmeta_df['date_submitted']))
+        case_df = case_df.loc[
+            (~pd.isnull(case_df["collection_date"])) & 
+            (~pd.isnull(case_df["submission_date"]))
         ]
+
         # Only take dates from 2019-12-15
-        nextmeta_df = nextmeta_df.loc[
-            nextmeta_df['date'] > pd.to_datetime('2019-12-15')
+        case_df = case_df.loc[
+            case_df["collection_date"] > pd.to_datetime("2019-12-15")
         ]
-        # Reset index
-        nextmeta_df = nextmeta_df.reset_index(drop=True)
 
         # Calculate time deltas
-        nextmeta_df['turnaround_days'] = (
-            nextmeta_df['date_submitted'] - nextmeta_df['date']
+        case_df["turnaround_days"] = (
+            case_df["submission_date"] - case_df["collection_date"]
         ).dt.days
         # Extract month
-        nextmeta_df['year_month'] = nextmeta_df['date'].dt.to_period('M')
+        case_df["year_month"] = case_df["collection_date"].dt.to_period("M")
 
         # Remove invalid submission dates (negative turnaround times)
-        nextmeta_df = (
-            nextmeta_df
-            .loc[nextmeta_df['turnaround_days'] >= 0]
-            .reset_index(drop=True)
-        )
+        case_df = case_df.loc[case_df["turnaround_days"] >= 0]
 
         # Upgrade provinces to countries
-        upgrade_inds = nextmeta_df['division'].isin(upgrade_provinces)
-        nextmeta_df.loc[upgrade_inds, 'country'] = nextmeta_df.loc[upgrade_inds, 'division']
+        upgrade_inds = case_df["division"].isin(upgrade_provinces)
+        case_df.loc[upgrade_inds, "country"] = case_df.loc[upgrade_inds, "division"]
 
         # Load UID ISO FIPS lookup table
-        iso_lookup_df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv')
+        iso_lookup_df = pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
         # Upgrade provinces to country/regions
-        upgrade_inds = iso_lookup_df['Province_State'].isin(upgrade_provinces)
-        iso_lookup_df.loc[upgrade_inds, 'Country_Region'] = iso_lookup_df.loc[upgrade_inds, 'Province_State']
+        upgrade_inds = iso_lookup_df["Province_State"].isin(upgrade_provinces)
+        iso_lookup_df.loc[upgrade_inds, "Country_Region"] = iso_lookup_df.loc[upgrade_inds, "Province_State"]
 
         # Only take countries, then set as the index
         iso_lookup_df = (
             iso_lookup_df
             .loc[
-                (upgrade_inds & pd.isnull(iso_lookup_df['Admin2'])) | 
-                (pd.isnull(iso_lookup_df['Province_State']))
+                (upgrade_inds & pd.isnull(iso_lookup_df["Admin2"])) | 
+                (pd.isnull(iso_lookup_df["Province_State"]))
             ]
-            .set_index('Country_Region')
+            .set_index("Country_Region")
             .rename({
-                'US': 'USA',
-                'Congo (Kinshasa)': 'Democratic Republic of the Congo',
-                'Congo (Brazzaville)': 'Republic of the Congo',
-                'Korea, South': 'South Korea',
-                'Taiwan*': 'Taiwan',
-                'Czechia': 'Czech Republic',
-                'Burma': 'Myanmar'
+                "US": "USA",
+                "Congo (Kinshasa)": "Democratic Republic of the Congo",
+                "Congo (Brazzaville)": "Republic of the Congo",
+                "Korea, South": "South Korea",
+                "Taiwan*": "Taiwan",
+                "Czechia": "Czech Republic",
+                "Burma": "Myanmar"
             })
         )
 
         # Combine everything together
         country_df = (
-            nextmeta_df
+            case_df
             # .loc[
-            #     (nextmeta_df['date'] > pd.to_datetime('2020-01-01')) &
-            #     (nextmeta_df['date'] < pd.to_datetime('2020-07-01'))
+            #     (nextmeta_df["date"] > pd.to_datetime("2020-01-01")) &
+            #     (nextmeta_df["date"] < pd.to_datetime("2020-07-01"))
             # ]
-            .groupby('country').agg(
-                median_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.median),
-                min_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.min),
-                max_turnaround_days=pd.NamedAgg(column='turnaround_days', aggfunc=np.max),
-                num_sequences=pd.NamedAgg(column='strain', aggfunc='count')
+            .reset_index()
+            .groupby("country").agg(
+                median_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.median),
+                min_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.min),
+                max_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.max),
+                num_sequences=pd.NamedAgg(column="Accession ID", aggfunc="count")
             )
             .join(
                 case_count_df
-                .groupby('Country/Region')
-                ['cumulative_cases']
+                .groupby("Country/Region")
+                ["cumulative_cases"]
                 .agg(np.max)
                 .rename({
-                    'US': 'USA',
-                    'Congo (Kinshasa)': 'Democratic Republic of the Congo',
-                    'Congo (Brazzaville)': 'Republic of the Congo',
-                    'Korea, South': 'South Korea',
-                    'Taiwan*': 'Taiwan',
-                    'Czechia': 'Czech Republic',
-                    'Burma': 'Myanmar'
+                    "US": "USA",
+                    "Congo (Kinshasa)": "Democratic Republic of the Congo",
+                    "Congo (Brazzaville)": "Republic of the Congo",
+                    "Korea, South": "South Korea",
+                    "Taiwan*": "Taiwan",
+                    "Czechia": "Czech Republic",
+                    "Burma": "Myanmar"
                 })
             ).join(
                 iso_lookup_df, 
-                how='right'
+                how="right"
             )
             .reset_index()
             .rename(columns={
-                'index': 'country',
-                'cumulative_cases': 'cases'
+                "index": "country",
+                "cumulative_cases": "cases"
             })
         )
-        # Fill some column's missing values with 0
-        country_df['num_sequences'] = country_df['num_sequences'].fillna(0)
-        country_df['sequences_per_case'] = (
-            country_df['num_sequences'] / country_df['cases']
+
+        # Fill some column"s missing values with 0
+        country_df["num_sequences"] = country_df["num_sequences"].fillna(0)
+        country_df["sequences_per_case"] = (
+            country_df["num_sequences"] / country_df["cases"]
         ).fillna(0)
 
         # Only take some columns
         country_df = country_df.loc[:, [
-            'UID', 'Country_Region',
-            'median_turnaround_days','min_turnaround_days','max_turnaround_days',
-            'num_sequences', 'cases', 'sequences_per_case'
+            "UID", "Country_Region",
+            "median_turnaround_days","min_turnaround_days","max_turnaround_days",
+            "num_sequences", "cases", "sequences_per_case"
         ]]
 
         # Write to disk
@@ -702,69 +788,70 @@ rule calc_global_sequencing_efforts:
             ',{"UID":-98,"Country_Region":"French Guiana","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
             # Northern Cyprus
             ',{"UID":-99,"Country_Region":"Northern Cyprus","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
-            ']'
+            "]"
         )
-        with open(output.country_seq_stats, 'w') as fp:
+        with open(output.country_seq_stats, "w") as fp:
             fp.write(country_df_str)
+
 
 rule assemble_data_package:
     input:
-        case_data = data_folder + '/case_data.json',
-        # ack_map = data_folder + '/ack_map.json',
-        clade_snp = data_folder + '/clade_snp.json',
-        country_score = data_folder + '/country_score.json',
-        dna_snp_map = data_folder + '/dna_snp_map.json',
-        gene_aa_snp_map = data_folder + '/gene_aa_snp_map.json',
-        geo_select_tree = data_folder + '/geo_select_tree.json',
-        global_group_counts = data_folder + '/global_group_counts.json',
-        lineage_snp = data_folder + '/lineage_snp.json',
-        location_map = data_folder + '/location_map.json',
-        metadata_map = data_folder + '/metadata_map.json',
-        protein_aa_snp_map = data_folder + '/protein_aa_snp_map.json'
+        case_data = os.path.join(data_folder, "case_data.json"),
+        ack_map = os.path.join(data_folder, "ack_map.json"),
+        clade_snp = os.path.join(data_folder, "clade_snp.json"),
+        country_score = os.path.join(data_folder, "country_score.json"),
+        dna_snp_map = os.path.join(data_folder, "dna_snp_map.json"),
+        gene_aa_snp_map = os.path.join(data_folder, "gene_aa_snp_map.json"),
+        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json"),
+        global_group_counts = os.path.join(data_folder, "global_group_counts.json"),
+        lineage_snp = os.path.join(data_folder, "lineage_snp.json"),
+        location_map = os.path.join(data_folder, "location_map.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        protein_aa_snp_map = os.path.join(data_folder, "protein_aa_snp_map.json")
     output:
-        data_package = data_folder + '/data_package.json'
+        data_package = os.path.join(data_folder, "data_package.json")
     run:
         data_package = {
-	    'data_date': datetime.date.today().isoformat()
-	}
+            "data_date": datetime.date.today().isoformat()
+        }
 
-        with open(input.case_data, 'r') as fp:
-            data_package['case_data'] = json.loads(fp.read())
-        # with open(input.ack_map, 'r') as fp:
-        #     data_package['ack_map'] = json.loads(fp.read())
-        with open(input.clade_snp, 'r') as fp:
-            data_package['clade_snp'] = json.loads(fp.read())
-        with open(input.country_score, 'r') as fp:
-            data_package['country_score'] = json.loads(fp.read())
-        with open(input.dna_snp_map, 'r') as fp:
-            data_package['dna_snp_map'] = json.loads(fp.read())
-        with open(input.gene_aa_snp_map, 'r') as fp:
-            data_package['gene_aa_snp_map'] = json.loads(fp.read())
-        with open(input.geo_select_tree, 'r') as fp:
-            data_package['geo_select_tree'] = json.loads(fp.read())
-        with open(input.global_group_counts, 'r') as fp:
-            data_package['global_group_counts'] = json.loads(fp.read())
-        with open(input.lineage_snp, 'r') as fp:
-            data_package['lineage_snp'] = json.loads(fp.read())
-        with open(input.location_map, 'r') as fp:
-            data_package['location_map'] = json.loads(fp.read())
-        with open(input.metadata_map, 'r') as fp:
-            data_package['metadata_map'] = json.loads(fp.read())
-        with open(input.protein_aa_snp_map, 'r') as fp:
-            data_package['protein_aa_snp_map'] = json.loads(fp.read())
+        with open(input.case_data, "r") as fp:
+            data_package["case_data"] = json.loads(fp.read())
+        with open(input.ack_map, "r") as fp:
+            data_package["ack_map"] = json.loads(fp.read())
+        with open(input.clade_snp, "r") as fp:
+            data_package["clade_snp"] = json.loads(fp.read())
+        with open(input.country_score, "r") as fp:
+            data_package["country_score"] = json.loads(fp.read())
+        with open(input.dna_snp_map, "r") as fp:
+            data_package["dna_snp_map"] = json.loads(fp.read())
+        with open(input.gene_aa_snp_map, "r") as fp:
+            data_package["gene_aa_snp_map"] = json.loads(fp.read())
+        with open(input.geo_select_tree, "r") as fp:
+            data_package["geo_select_tree"] = json.loads(fp.read())
+        with open(input.global_group_counts, "r") as fp:
+            data_package["global_group_counts"] = json.loads(fp.read())
+        with open(input.lineage_snp, "r") as fp:
+            data_package["lineage_snp"] = json.loads(fp.read())
+        with open(input.location_map, "r") as fp:
+            data_package["location_map"] = json.loads(fp.read())
+        with open(input.metadata_map, "r") as fp:
+            data_package["metadata_map"] = json.loads(fp.read())
+        with open(input.protein_aa_snp_map, "r") as fp:
+            data_package["protein_aa_snp_map"] = json.loads(fp.read())
 
-        with open(output.data_package, 'w') as fp:
+        with open(output.data_package, "w") as fp:
             fp.write(json.dumps(data_package))
 
 rule compress_data_package:
     input:
-        data_package = data_folder + '/data_package.json'
+        os.path.join(data_folder, "data_package.json")
     output:
-        data_package = data_folder + '/data_package.json.gz'
+        os.path.join(data_folder, "data_package.json.gz")
     shell:
-        '''
-        gzip -9 -k {input.data_package} -c > {output.data_package}
-        '''
+        """
+        gzip -9 -k {input} -c > {output}
+        """
 
 
 # # This is only for site maintainers

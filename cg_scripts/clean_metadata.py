@@ -1,6 +1,8 @@
 # coding: utf-8
 
-"""Clean patient metadata
+"""Clean metadata
+Merger of old scripts for cleaning patient metadata, sequencing metadata, and 
+acknowledgements separately. Now they're all merged into this big file
 
 Author: Albert Chen (Deverman Lab - Broad Institute)
 """
@@ -10,14 +12,14 @@ import pandas as pd
 import re
 
 
-def clean_gender_metadata(patient_meta_df):
+def clean_gender_metadata(df):
     """Clean patient gender metadata
     """
 
     print("Cleaning patient gender metadata...", end="", flush=True)
 
     # Make a copy, strip whitespace
-    patient_meta_df["gender"] = patient_meta_df["Gender"].astype(str).str.strip()
+    df["gender"] = df["covv_gender"].astype(str).str.strip()
 
     replace_map = [
         (r"^female", "Female", False),
@@ -28,14 +30,21 @@ def clean_gender_metadata(patient_meta_df):
     ]
 
     for pair in replace_map:
-        patient_meta_df["gender"] = patient_meta_df["gender"].str.replace(
+        df["gender"] = df["gender"].str.replace(
             pair[0], pair[1], -1, pair[2] if len(pair) > 2 else True
         )
 
     gender_key_map = {
-        "Female": ["Woman", "Femal"],
+        "Female": ["Woman", "Femal", "Famle", "Famale"],
         "Male": ["M"],
-        "Unknown": ["unknwon", "Unkown", "U"],
+        "Unknown": [
+            "unknwon",
+            "Unkown",
+            "U",
+            "nan",
+            "Not reported to protect privacy",
+            "unknow",
+        ],
     }
 
     gender_map = {}
@@ -45,22 +54,19 @@ def clean_gender_metadata(patient_meta_df):
         for _v in v:
             gender_map[_v] = k
 
-    patient_meta_df["gender"] = (
-        patient_meta_df["gender"]
-        .map(gender_map)
-        .combine_first(patient_meta_df["gender"])
-        .fillna("Unknown")
+    df["gender"] = (
+        df["gender"].map(gender_map).combine_first(df["gender"]).fillna("Unknown")
     )
 
     print("done")
-    print('"Gender" values: {}'.format(", ".join(patient_meta_df["gender"].unique())))
+    print('"Gender" values: {}'.format(", ".join(df["gender"].unique())))
 
-    patient_meta_df["gender"] = patient_meta_df["gender"].fillna("Unknown")
+    df["gender"] = df["gender"].fillna("Unknown")
 
-    return patient_meta_df
+    return df
 
 
-def clean_age_metadata(patient_meta_df):
+def clean_age_metadata(df):
     """Clean patient age metadata
 
     For each age value we want to define an age range that the value
@@ -78,46 +84,48 @@ def clean_age_metadata(patient_meta_df):
     print("Cleaning patient age metadata...", end="", flush=True)
 
     # Do some basic cleanup before we start
-    patient_meta_df["age_clean"] = patient_meta_df["Patient age"].astype(str)
-    patient_meta_df["age_clean"] = patient_meta_df["age_clean"].fillna("Unknown")
-    patient_meta_df["age_clean"] = patient_meta_df["age_clean"].str.strip()
+    df["age_clean"] = df["covv_patient_age"].astype(str)
+    df["age_clean"] = df["age_clean"].fillna("Unknown")
+    df["age_clean"] = df["age_clean"].str.strip()
 
-    patient_meta_df["age_start"] = np.nan
-    patient_meta_df["age_end"] = np.nan
+    df["age_start"] = np.nan
+    df["age_end"] = np.nan
 
-    for i, v in patient_meta_df["age_clean"].iteritems():
+    for i, v in df["age_clean"].iteritems():
 
         # Skip if Unknown
-        if v == "Unknown":
-            continue
-
-        # Merge "Unknowns"
-        elif v in [
-            "unknown",
-            "unkown",
-            "unknwon",
-            "unavailable",
-            "uknown",
-            "no data",
-            "Male",
-        ]:
-            # patient_meta_df.loc[i, 'Patient age clean'] = 'Unknown'
+        if (
+            v
+            in [
+                "Unknown",
+                "unknown",
+                "unkown",
+                "unknwon",
+                "unavailable",
+                "uknown",
+                "no data",
+                "Male",
+                "uknown",
+            ]
+            or not v
+        ):
+            # df.loc[i, 'Patient age clean'] = 'Unknown'
             continue
 
         # Parse "Adult" and "Over 18" to be 18 -> 100
         elif v in ["Over 18", "over 18", "> 18", "Adult"]:
-            patient_meta_df.loc[i, "age_start"] = 18.0
-            patient_meta_df.loc[i, "age_end"] = 100.0
+            df.loc[i, "age_start"] = 18.0
+            df.loc[i, "age_end"] = 100.0
 
         # Parse clean integers. e.g., "42"
         elif re.match(r"^[0-9]+$", v):
-            patient_meta_df.loc[i, "age_start"] = float(int(v))
-            patient_meta_df.loc[i, "age_end"] = float(int(v) + 1)
+            df.loc[i, "age_start"] = float(int(v))
+            df.loc[i, "age_end"] = float(int(v) + 1)
 
         # Parse fractions. e.g., "72.323"
         elif re.match(r"^[0-9]*\.[0-9]+$", v):
-            patient_meta_df.loc[i, "age_start"] = float(v)
-            patient_meta_df.loc[i, "age_end"] = float(v)
+            df.loc[i, "age_start"] = float(v)
+            df.loc[i, "age_end"] = float(v)
 
         # Parse N months (less than 1 years old). e.g., "7 months"
         elif re.match(r"^([1]*[0-9])+\smonth(s)?$", v):
@@ -125,8 +133,8 @@ def clean_age_metadata(patient_meta_df):
             m = re.match(r"^([1]*[0-9])+\smonth(s)?$", v)
             month = int(m.groups()[0])
             # Convert months to fraction of a year, then round to an integer
-            patient_meta_df.loc[i, "age_start"] = month / 12.0
-            patient_meta_df.loc[i, "age_end"] = (month + 1) / 12.0
+            df.loc[i, "age_start"] = month / 12.0
+            df.loc[i, "age_end"] = (month + 1) / 12.0
 
         # Same, but days. e.g., "17 days"
         elif re.match(r"^([1]*[0-9])+\sday(s)?$", v):
@@ -134,8 +142,8 @@ def clean_age_metadata(patient_meta_df):
             m = re.match(r"^([1]*[0-9])+\sday(s)?$", v)
             day = int(m.groups()[0])
             # Convert days to fraction of a year, then round to an integer
-            patient_meta_df.loc[i, "age_start"] = day / 365.0
-            patient_meta_df.loc[i, "age_end"] = (day + 1) / 365.0
+            df.loc[i, "age_start"] = day / 365.0
+            df.loc[i, "age_end"] = (day + 1) / 365.0
 
         # Same, but weeks. e.g., "6 weeks"
         elif re.match(r"^([1]*[0-9])+\sweek(s)?$", v):
@@ -143,8 +151,8 @@ def clean_age_metadata(patient_meta_df):
             m = re.match(r"^([1]*[0-9])+\sweek(s)?$", v)
             week = int(m.groups()[0])
             # Convert weeks to fraction of a year, then round to an integer
-            patient_meta_df.loc[i, "age_start"] = week / 52.0
-            patient_meta_df.loc[i, "age_end"] = (week + 1) / 52.0
+            df.loc[i, "age_start"] = week / 52.0
+            df.loc[i, "age_end"] = (week + 1) / 52.0
 
         # Remove '-year old', 'years' or 'age' at end. e.g., "44-year old"
         # None of the years/age entries are fractions, so treat as a valid integer
@@ -153,8 +161,8 @@ def clean_age_metadata(patient_meta_df):
             # Re-run regex to extract age
             m = re.match(r"^([0-9]+)\s?(-year\sold|years|age)$", v)
             year = int(m.groups()[0])
-            patient_meta_df.loc[i, "age_start"] = float(year)
-            patient_meta_df.loc[i, "age_end"] = float(year + 1)
+            df.loc[i, "age_start"] = float(year)
+            df.loc[i, "age_end"] = float(year + 1)
 
         # Match year-month, e.g., "6 years 2 months"
         elif re.match(r"^([0-9]+)(?:,\s|\syears\s)([1]?[0-9]+)\smonths$", v):
@@ -164,16 +172,16 @@ def clean_age_metadata(patient_meta_df):
             years = int(m.groups()[0])
             months = int(m.groups()[1])
             # Round to nearest year
-            patient_meta_df.loc[i, "age_start"] = years + (months / 12.0)
-            patient_meta_df.loc[i, "age_end"] = years + ((months + 1) / 12.0)
+            df.loc[i, "age_start"] = years + (months / 12.0)
+            df.loc[i, "age_end"] = years + ((months + 1) / 12.0)
 
         # Extract decade ranges. e.g., "30s"
         elif re.match(r"^([0-9]+)\'?s$", v):
             # Re-run to extract decade
             m = re.match(r"^([0-9]+)\'?s$", v)
             decade = int(m.groups()[0])
-            patient_meta_df.loc[i, "age_start"] = float(decade)
-            patient_meta_df.loc[i, "age_end"] = float(decade + 10)
+            df.loc[i, "age_start"] = float(decade)
+            df.loc[i, "age_end"] = float(decade + 10)
 
         # Extract year ranges, e.g., "10-20"
         elif re.match(r"^([0-9]+)\s?-\s?([0-9])+$", v):
@@ -182,8 +190,8 @@ def clean_age_metadata(patient_meta_df):
             start = int(m.groups()[0])
             end = int(m.groups()[1])
 
-            patient_meta_df.loc[i, "age_start"] = float(start)
-            patient_meta_df.loc[i, "age_end"] = float(
+            df.loc[i, "age_start"] = float(start)
+            df.loc[i, "age_end"] = float(
                 end + 1
             )  # Assume that the provided range is [start, end]
 
@@ -194,8 +202,19 @@ def clean_age_metadata(patient_meta_df):
             start = int(m.groups()[0])
 
             # Assume that the range is just one year
-            patient_meta_df.loc[i, "age_start"] = float(start)
-            patient_meta_df.loc[i, "age_end"] = float(start + 1)
+            df.loc[i, "age_start"] = float(start)
+            df.loc[i, "age_end"] = float(start + 1)
+
+        # Extract "year+" or "yearx". i.e., "30+" or "30x"
+        # Assume that the age_end is just the next year
+        elif re.match(r"^([0-9]+)[\+|x]$", v):
+            # Re-run to extract year
+            m = re.match(r"^([0-9]+)[\+|x]$", v)
+            start = int(m.groups()[0])
+
+            # Assume that the range is just one year
+            df.loc[i, "age_start"] = float(start)
+            df.loc[i, "age_end"] = float(start + 1)
 
     print("done")
     print(
@@ -203,9 +222,7 @@ def clean_age_metadata(patient_meta_df):
             ", ".join(
                 [
                     '"{}"'.format(x)
-                    for x in patient_meta_df["age_clean"][
-                        pd.isnull(patient_meta_df["age_start"])
-                    ]
+                    for x in df["age_clean"][pd.isnull(df["age_start"])]
                     .astype(str)
                     .str.strip()
                     .unique()
@@ -215,17 +232,15 @@ def clean_age_metadata(patient_meta_df):
         )
     )
 
-    return patient_meta_df
+    return df
 
 
-def clean_patient_status_metadata(patient_meta_df):
+def clean_patient_status_metadata(df):
 
     print("Cleaning patient status metadata...", end="", flush=True)
 
     # Strip whitespace
-    patient_meta_df["patient_status"] = (
-        patient_meta_df["Patient status"].astype(str).str.strip()
-    )
+    df["patient_status"] = df["covv_patient_status"].astype(str).str.strip()
 
     replace_map = [
         (r"hospitalized", "Hospitalized", False),
@@ -238,9 +253,9 @@ def clean_patient_status_metadata(patient_meta_df):
     ]
 
     for pair in replace_map:
-        patient_meta_df["patient_status"] = patient_meta_df[
-            "patient_status"
-        ].str.replace(pair[0], pair[1], -1, pair[2] if len(pair) > 2 else True)
+        df["patient_status"] = df["patient_status"].str.replace(
+            pair[0], pair[1], -1, pair[2] if len(pair) > 2 else True
+        )
 
     status_key_map = {
         "Unknown": [
@@ -325,33 +340,31 @@ def clean_patient_status_metadata(patient_meta_df):
         for _v in v:
             status_map[_v] = k
 
-    patient_meta_df["patient_status"] = (
-        patient_meta_df["patient_status"]
+    df["patient_status"] = (
+        df["patient_status"]
         .map(status_map)
-        .combine_first(patient_meta_df["patient_status"])
+        .combine_first(df["patient_status"])
         .fillna("Unknown")
     )
 
     print("done")
     print(
         '"Patient Status" values: {}'.format(
-            ", ".join(
-                ['"{}"'.format(x) for x in patient_meta_df["patient_status"].unique()]
-            )
+            ", ".join(['"{}"'.format(x) for x in df["patient_status"].unique()])
         )
     )
 
-    return patient_meta_df
+    return df
 
 
-def clean_passage_metadata(patient_meta_df):
+def clean_passage_metadata(df):
     """Clean cell passage metadata
     """
 
     print("Cleaning cell passage metadata...", end="", flush=True)
 
     # Basic cleaning
-    patient_meta_df["passage"] = patient_meta_df["Passage"].astype(str).str.strip()
+    df["passage"] = df["covv_passage"].astype(str).str.strip()
 
     passage_key_map = {
         "Original": [
@@ -427,7 +440,7 @@ def clean_passage_metadata(patient_meta_df):
         for _v in v:
             passage_map[_v] = k
 
-    patient_meta_df["passage"] = patient_meta_df["passage"].map(passage_map)
+    df["passage"] = df["passage"].map(passage_map)
 
     print("done")
     print(
@@ -435,9 +448,7 @@ def clean_passage_metadata(patient_meta_df):
             ", ".join(
                 [
                     '"{}"'.format(x)
-                    for x in patient_meta_df["Passage"][
-                        pd.isnull(patient_meta_df["passage"])
-                    ]
+                    for x in df["covv_passage"][pd.isnull(df["passage"])]
                     .astype(str)
                     .str.strip()
                     .unique()
@@ -447,20 +458,20 @@ def clean_passage_metadata(patient_meta_df):
         )
     )
 
-    patient_meta_df["passage"] = patient_meta_df["passage"].fillna("Unknown")
+    df["passage"] = df["passage"].fillna("Unknown")
 
     # Only keep rows that are Original (throw out unknown as well)
-    patient_meta_df = patient_meta_df.loc[patient_meta_df["passage"] == "Original"]
+    df = df.loc[df["passage"] == "Original"]
 
-    return patient_meta_df
+    return df
 
 
-def clean_specimen_metadata(patient_meta_df):
+def clean_specimen_metadata(df):
 
     print("Cleaning specimen metadata...", end="", flush=True)
 
     # Basic cleanup
-    patient_meta_df["specimen"] = patient_meta_df["Specimen"].astype(str).str.strip()
+    df.loc[:, "specimen"] = df["covv_specimen"].astype(str).str.strip()
 
     specimen_key_map = {
         "Alveolar lavage fluid": [],
@@ -722,7 +733,7 @@ def clean_specimen_metadata(patient_meta_df):
         for _v in v:
             specimen_map[_v] = k
 
-    patient_meta_df["specimen"] = patient_meta_df["specimen"].map(specimen_map)
+    df.loc[:, "specimen"] = df["specimen"].map(specimen_map)
 
     print("done")
     print(
@@ -730,9 +741,7 @@ def clean_specimen_metadata(patient_meta_df):
             ", ".join(
                 [
                     '"{}"'.format(x)
-                    for x in patient_meta_df["Specimen"][
-                        pd.isnull(patient_meta_df["specimen"])
-                    ]
+                    for x in df["covv_specimen"][pd.isnull(df["specimen"])]
                     .astype(str)
                     .str.strip()
                     .unique()
@@ -742,96 +751,261 @@ def clean_specimen_metadata(patient_meta_df):
         )
     )
 
-    patient_meta_df["specimen"] = patient_meta_df["specimen"].fillna("Unknown")
+    df.loc[:, "specimen"] = df["specimen"].fillna("Unknown")
 
-    return patient_meta_df
+    return df
 
 
-def clean_collection_date_metadata(patient_meta_df):
+def clean_date_metadata(df):
+    """Clean the collection and submission date metadata
+    """
 
-    patient_meta_df["collection_date"] = (
-        patient_meta_df["Collection date"].astype(str).str.strip()
-    )
+    df.loc[:, "collection_date"] = df["covv_collection_date"].astype(str).str.strip()
+    df.loc[:, "submission_date"] = df["covv_subm_date"].astype(str).str.strip()
 
     # Filter out really unspecific collection dates
     # If the date is 4 characters or less (a year, like "2019", or "2020"), then remove it
-    patient_meta_df = patient_meta_df.loc[
-        patient_meta_df["collection_date"].str.len() > 4, :
-    ]
+    df = df.loc[df["collection_date"].str.len() > 4, :]
 
-    # patient_meta_df["collection_date"] = patient_meta_df["collection_date"].fillna(
+    # df["collection_date"] = df["collection_date"].fillna(
     #     "Unknown"
     # )
 
-    # Convert Collection date to datetime
-    patient_meta_df["collection_date"] = pd.to_datetime(
-        patient_meta_df["collection_date"], yearfirst=True
-    )
+    # Convert dates to datetime
+    df.loc[:, "collection_date"] = pd.to_datetime(df["collection_date"], yearfirst=True)
+    df.loc[:, "submission_date"] = pd.to_datetime(df["submission_date"], yearfirst=True)
 
-    return patient_meta_df
-
-
-def clean_lineage_metadata(patient_meta_df):
-    patient_meta_df["lineage"] = patient_meta_df["Lineage"].astype(str).str.strip()
-    return patient_meta_df
+    return df
 
 
-def clean_clade_metadata(patient_meta_df):
-    patient_meta_df["clade"] = patient_meta_df["Clade"].astype(str).str.strip()
-    return patient_meta_df
+def clean_lineage_metadata(df):
+    df["lineage"] = df["covv_lineage"].astype(str).str.strip()
+    return df
 
 
-def process_patient_metadata(patient_meta_files):
-    """Load and process patient metadata files
+def clean_clade_metadata(df):
+    df["clade"] = df["covv_clade"].astype(str).str.strip()
+    return df
+
+
+def clean_seq_tech_metadata(df):
+    """Clean "Sequencing Technology" values
     """
 
-    print(
-        "Loading {} patient metadata files...".format(len(patient_meta_files)),
-        end="",
-        flush=True,
-    )
-    patient_meta_df = pd.DataFrame()
-    for f in patient_meta_files:
-        # Some files have a header, some don't
-        skiprows = 0
-        fp = open(f, "r")
-        if "Virus name" not in fp.readline():
-            skiprows = 2
-        fp.close()
+    print("Cleaning sequencing technology metadata...", end="", flush=True)
 
-        patient_meta_df = pd.concat(
-            [patient_meta_df, pd.read_csv(f, sep="\t", skiprows=skiprows)],
-            ignore_index=True,
+    # Basic cleaning
+    df["sequencing_tech"] = df["covv_seq_technology"].astype(str).str.strip()
+
+    replace_map = [
+        (r"illumina", "Illumina", False),
+        (r"Ilumina", "Illumina"),
+        (r"^llumina", "Illumina"),
+        (r"Illumina\'s", "Illumina"),
+        (r"Illumina_", "Illumina "),
+        (r"Illumina technology", "Illumina"),
+        (r"Immumina", "Illumina"),
+        (r"iSeq([0-9]+)", lambda m: "iSeq {}".format(m.groups()[0])),
+        (r"hiseq", "HiSeq", False),
+        (r"miseq", "MiSeq", False),
+        (r"MiSeq\.", "MiSeq"),
+        (r"^MiSeq", "Illumina MiSeq"),
+        (r"miniseq", "MiniSeq", False),
+        (r"nextseq", "NextSeq", False),
+        (r"Next\sSeq", "NextSeq"),
+        (r"NextSeq([0-9]+)", lambda m: "NextSeq {}".format(m.groups()[0])),
+        (r"NextSeq 5[01]{1}[0-9]{1}", "NextSeq 500"),
+        (r"^NextSeq", "Illumina NextSeq"),
+        (r"novaseq", "NovaSeq", False),
+        (r"Noveseq", "NovaSeq"),
+        (r"NovaSeq([0-9+])", lambda m: "NovaSeq {}".format(m.groups()[0])),
+        (
+            r"^(NovaSeq|MiSeq|NextSeq|iSeq|HiSeq|MiniSeq)",
+            lambda m: "Illumina {}".format(m.groups()[0]),
+        ),
+        (r"OXFORD_NANOPORE", "Nanopore"),
+        (r"nanopore", "Nanopore", False),
+        (r"Nanpore", "Nanopore"),
+        (r"Nanopre", "Nanopore"),
+        (r"Nanopore technology", "Nanopore"),
+        (r"oxford nanopore technology", "Nanopore", False),
+        (r"Oxoford", "Oxford"),
+        (r"Oxford Nanopore", "Nanopore"),
+        (r"minion", "MinION", False),
+        (r"MinION[,\.]$", "MinION"),
+        (r"GRIDION", "GridION"),
+        (r"^(MinION|GridION)", lambda m: "Nanopore {}".format(m.groups()[0])),
+        (r"IonTorrent", "Ion Torrent", False),
+        (r"IonTorren", "Ion Torrent"),
+        (r"ion torrent", "Ion Torrent", False),
+        (r"Ion Torren", "Ion Torrent"),
+        (r"Ion Torrentt", "Ion Torrent"),
+        (r"artic", "ARTIC", False),
+        (r"ARTIC\sprotocol", "ARTIC sequencing protocol"),
+        (r"ARTIC\sProtocol", "ARTIC sequencing protocol"),
+        (r"\-\-\sARTIC", "- ARTIC"),
+        (r"MGISEQ-?([0-9]+)", lambda m: "MGISEQ {}".format(m.groups()[0])),
+        (r"Sanger dideoxy sequencing", "Sanger"),
+        (r"Sanger Sequencing Method", "Sanger"),
+        (r", assembled sequences", ""),
+        (r";", ","),
+        (r"\sand\s", ", "),
+        (r"\s\&\s", ", "),
+        (r"+", ", "),
+        (r",\s+", ", "),
+        (r"_", " "),
+    ]
+
+    for pair in replace_map:
+        df["sequencing_tech"] = df["sequencing_tech"].str.replace(
+            pair[0], pair[1], -1, pair[2] if len(pair) > 2 else True
         )
 
-    # Drop columns we don't need
-    patient_meta_df = patient_meta_df.drop(
-        columns=[
-            "Virus name",
-            "Host",
-            "Additional location information",
-            "Additional host information",
-        ]
+    seq_key_map = {
+        "DNBSEQ-T7": [],
+        "DNBSEQ-G400": ["MGI Tech. DNBSEQ-G400"],
+        "DNBSEQ-G400RS": ["DNBSEQ-G400RS, MGI Tech Co., Ltd"],
+        "Illumina, Nanopore": [],
+        "Nanopore GridION": ["Nanopore - GridION"],
+        "Nanopore MinION - ARTIC sequencing protocol": [
+            "Nanopore MinION ARTIC sequencing protocol"
+        ],
+        "Nanopore MinION ARTIC Network V1": ["Nanopore MinION ARTIC v1 primers"],
+        "Nanopore, Sanger": [],
+        "Sanger": ["Sanger dideoxy sequencing"],
+        "Unspecified NGS": ["NGS"],
+        "Unknown": ["unknown", "Oro-pharyngeal swab", "unkown", "contacted submitter"],
+    }
+
+    seq_map = {}
+    for k, v in seq_key_map.items():
+        # Add self
+        seq_map[k] = k
+        for _v in v:
+            seq_map[_v] = k
+
+    df["sequencing_tech"] = (
+        (df["sequencing_tech"].map(seq_map))
+        .combine_first(df["sequencing_tech"])
+        .fillna("Unknown")
     )
-    # Set Accession ID as the index
-    patient_meta_df = patient_meta_df.set_index("Accession ID")
 
-    print("done", flush=True)
+    print("done")
 
-    patient_meta_df = clean_gender_metadata(patient_meta_df)
-    patient_meta_df = clean_age_metadata(patient_meta_df)
-    patient_meta_df = clean_patient_status_metadata(patient_meta_df)
-    patient_meta_df = clean_passage_metadata(patient_meta_df)
-    patient_meta_df = clean_specimen_metadata(patient_meta_df)
-    patient_meta_df = clean_collection_date_metadata(patient_meta_df)
-    patient_meta_df = clean_lineage_metadata(patient_meta_df)
-    patient_meta_df = clean_clade_metadata(patient_meta_df)
+    return df
+
+
+def clean_assembly_metadata(df):
+    """Clean "Assembly Method" column
+    """
+
+    print("Cleaning assembly method metadata...", end="", flush=True)
+
+    df["assembly_method"] = df["covv_assembly_method"].astype(str).str.strip()
+
+    replace_map = [
+        # Aliases
+        (r"artic", "ARTIC", False),
+        (r"ArticNetwork", "ARTIC Network"),
+        (r"bcftools", "BCFtools", False),
+        (r"bowtie", "bowtie", False),
+        (r"bwa", "BWA", False),
+        (r"bwa[-|\s]mem", "BWA-MEM", False),
+        (r"(Burrows-Wheeler Aligner method)", "", False),
+        (r"Burrows-Wheeler Aligner Tool (BWA)", "BWA", False),
+        (r"custom", "Custom", False),
+        (r"dragen", "DRAGEN", False),
+        (r"geneious prime", "Geneious Prime", False),
+        (r"megahit", "MEGAHIT", False),
+        (r"minimap2", "minimap2", False),
+        (r"mpileup", "mpileup", False),
+        (r"samtools", "samtools", False),
+        (r"PAdes", "SPAdes"),
+        (r"SSPAdes", "SPAdes"),
+        (r"spades", "SPAdes", False),
+        (r"vcftools", "vcftools", False),
+        (r"Workbench ([0-9\.]+)", lambda m: "Workbench v{}".format(m.groups()[0])),
+        (r"v. ([0-9\.]+)", lambda m: "v{}".format(m.groups()[0])),
+        ("\ufeff", ""),
+        (r" assembly method", ""),
+        # Separators
+        (r";", ","),
+        (r"\sand\s", ", "),
+        (r"\s\&\s", ", "),
+        (r"+", ", "),
+        (r",\s+", ", "),
+        (r"--", "-"),
+        (r"\s\/\s", " - "),
+        # These are Excel errors
+        (r"Sequencher 5.4.[789]", "Sequencher 5.4.6"),
+        (r"Sequencher 5.4.[123]{1}[0-9]{1}", "Sequencher 5.4.6"),
+        (r"Sequencher 5.4.4[12]", "Sequencher 5.4.40"),
+        # More Excel errors
+        (r"mapped to NC_045512v[3-9]", "mapped to NC_045512v2"),
+        (r"mapped to NC_045512v[0-9]{1}[0-9]{1}", "mapped to NC_045512v2"),
+        (r"IRMA v1.0.[1-9]", "IRMA v1.0.0"),
+        (r"IRMA v1.0.[0-9]{1}[0-9]{1}", "IRMA v1.0.0"),
+        (r"IME-BJ0[2-9]", "IME-BJ01"),
+        (r"Geneious Prime 2020.1.[3-9]{1}", "Geneious Prime 2020.1.2"),
+        (r"Geneious Prime 2020.1.[0-9]{1}[0-9]{1}", "Geneious Prime 2020.1.2"),
+        (r"Geneious Prime 2020.0.[7-9]", "Geneious Prime 2020.0.6"),
+        (r"bowtie[3-9]", "bowtie2"),
+        (r"bowtie[0-9]{1}[0-9]{1}", "bowtie2"),
+        (r"minimap[3-9]", "minimap2"),
+        (r"minimap[0-9]{1}[0-9]{1}", "minimap2"),
+    ]
+
+    for pair in replace_map:
+        df["assembly_method"] = df["assembly_method"].str.replace(
+            pair[0], pair[1], -1, pair[2] if len(pair) > 2 else True
+        )
+
+    method_key_map = {"Unknown": ["unknown"]}
+
+    method_map = {}
+    for k, v in method_key_map.items():
+        # Add self
+        method_map[k] = k
+        for _v in v:
+            method_map[_v] = k
+
+    df["assembly_method"] = (
+        (df["assembly_method"].map(method_map))
+        .combine_first(df["assembly_method"])
+        .fillna("Unknown")
+    )
+
+    print("done")
+
+    return df
+
+
+def clean_comment_type_metadata(df):
+    df["comment_type"] = df["covv_comment_type"].astype(str).str.strip()
+    df["comment_type"] = df["comment_type"].fillna("None")
+    return df
+
+
+def clean_metadata(df):
+
+    df = clean_gender_metadata(df)
+    df = clean_age_metadata(df)
+    df = clean_patient_status_metadata(df)
+    df = clean_passage_metadata(df)
+    df = clean_specimen_metadata(df)
+    df = clean_date_metadata(df)
+    df = clean_lineage_metadata(df)
+    df = clean_clade_metadata(df)
+    df = clean_seq_tech_metadata(df)
+    df = clean_assembly_metadata(df)
+    df = clean_comment_type_metadata(df)
 
     # Take subset of columns
-    patient_meta_df = patient_meta_df[
+    df = df[
         [
             "collection_date",
-            "Location",
+            "submission_date",
+            "covv_location",
             "gender",
             "age_start",
             "age_end",
@@ -840,7 +1014,13 @@ def process_patient_metadata(patient_meta_files):
             "specimen",
             "lineage",
             "clade",
+            "sequencing_tech",
+            "assembly_method",
+            "comment_type",
+            "covv_orig_lab",
+            "covv_subm_lab",
+            "covv_authors",
         ]
     ]
 
-    return patient_meta_df
+    return df
