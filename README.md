@@ -35,15 +35,30 @@ Table of Contents
 
 #### Data Requirements
 
-The python scripts require a `data` folder inside the root folder of the project in order to run. In accordance with the [GISAID](https://www.gisaid.org/) [Database Access Agreement (DAA)](https://www.gisaid.org/registration/terms-of-use/), we cannot share data outside of their distribution service.
+Data processing is handled by a snakemake pipeline as defined in `Snakefile` in the project root. Input data is currently downloaded from a GISAID feed, where each isolate is a line of a serialized JSON object. The fields required for each isolate's JSON object are:
 
-We are currently rewriting our data pipeline to be more generalized, and will update on instructions soon.
+- sequence
+- covv_virus_name
+- covv_passage
+- covv_gender
+- covv_specimen
+- covv_location
+- covv_patient_age
+- covv_seq_technology
+- covv_lineage
+- covv_patient_status
+- covv_orig_lab
+- covv_collection_date
+- covv_accession_id
+- covv_subm_lab
+- covv_comment_type
+- covv_clade
+- covv_subm_date
+- covv_host
+- covv_authors
+- covv_assembly_method
 
-#### Data Package
-
-As of version 1.2.0, the snakemake pipeline will bundle all necessary data into a file `data_package.json`.
-
-If hosting your own COVID CG instance, you can either point the application to our data package, or host your own by changing the URL for the data package (located at `src/stores/asyncDataStore.js`).
+Instructions for processing data from another data source, such as in-house data, is coming soon.
 
 ### Javascript
 

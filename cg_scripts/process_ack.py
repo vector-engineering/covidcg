@@ -12,32 +12,20 @@ import numpy as np
 import pandas as pd
 
 
-def process_ack(ack_files):
+def process_ack(df):
     """Process acknowledgement files
     """
 
-    print(
-        "Loading {} acknowledgement files...".format(len(ack_files)),
-        end="",
-        flush=True,
-    )
-    ack_df = pd.DataFrame()
-    for f in ack_files:
-        df = pd.read_excel(f, skiprows=[0, 1, 3])
-        ack_df = pd.concat([ack_df, df], ignore_index=True)
-
     # Strip strings
-    ack_df["Originating lab"] = ack_df["Originating lab"].str.strip()
-    ack_df["Submitting lab"] = ack_df["Submitting lab"].str.strip()
-    ack_df["Authors"] = ack_df["Authors"].str.strip()
+    df["Originating lab"] = df["covv_orig_lab"].str.strip()
+    df["Submitting lab"] = df["covv_subm_lab"].str.strip()
+    df["Authors"] = df["covv_authors"].str.strip()
 
     print("done")
 
     print("Factorizing acknowledgements into IDs...", end="", flush=True)
     code, uniques = pd.factorize(
-        list(
-            zip(ack_df["Originating lab"], ack_df["Submitting lab"], ack_df["Authors"])
-        )
+        list(zip(df["Originating lab"], df["Submitting lab"], df["Authors"]))
     )
 
     # Create map of ID -> acknowledgement entry
@@ -127,16 +115,17 @@ def process_ack(ack_files):
 
     # Append code to acknowledgement dataframe, and take
     # subset of columns
-    ack_df = pd.concat([ack_df, pd.Series(code, name="ack_id")], axis=1)[
-        ["Accession ID", "ack_id"]
-    ]
-    ack_df = ack_df.set_index("Accession ID")
-    # Cast ack_id to integer
-    ack_df["ack_id"] = ack_df["ack_id"].astype(int)
+    df["ack_id"] = code
+
+    # Drop original columns in the main dataframe
+    df = df.drop(columns=[
+        'covv_orig_lab', 'covv_subm_lab', 'covv_authors',
+        'Originating lab', 'Submitting lab', 'Authors'
+    ])
 
     print("done")
 
-    return ack_df, ack_map
+    return df, ack_map
 
 
 # if __name__ == "__main__":
