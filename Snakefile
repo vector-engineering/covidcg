@@ -50,11 +50,19 @@ rule all:
         data_package = data_folder + '/data_package.json',
         data_package_gz = data_folder + '/data_package.json.gz'
 
+# Throw an error if the data feed credentials don't exist
+if not Path("credentials/data_feed_credentials").exists():
+    error_msg = "Credentials file in \"credentials/data_feed_credentials\" (contents of username:password) does not exist. GISAID data feed credentials are required to process the data for this app. To obtain data feed credentials, please contact techdev@gisaid.org. If you are working with in-house datasets, please contact the authors at covidcg@broadinstitute.org"
+    raise Exception(error_msg)
+
 # Get the login:password string from the "data_feed_credentials" file in the "credentials/" folder
 with open("credentials/data_feed_credentials", "r") as fp:
     cred_str = fp.read().strip()
 
+
 rule download_data_feed:
+    """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
+    """
     output:
         temp(os.path.join(data_folder, "feed.json.xz"))
     params:
@@ -62,7 +70,11 @@ rule download_data_feed:
     shell:
         "curl -L https://{params.cred_str}@www.epicov.org/epi3/3p/broad/export/export.json.xz > {output}"
 
+
 rule decompress_data_feed:
+    """Decompress the downloaded data feed from `download_data_feed`
+    Touches a result status file that the main rule will look for every day
+    """
     input:
         data_feed = os.path.join(data_folder, "feed.json.xz")
     output:
@@ -75,21 +87,27 @@ rule decompress_data_feed:
         """
 
 checkpoint rewrite_data_feed:
-    """
-    Rewrite the data feed from JSON to CSV so it can be sorted
+    """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
+    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with thousands of files, but the filesystem seems to be handling it well.
     """
     input:
         data_feed = os.path.join(data_folder, "feed.json")
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
         metadata = os.path.join(data_folder, "metadata.csv")
+    params:
+        chunk_size = 200
     run:
 
+        # Make the output directory, if it hasn't been made yet
+        # Snakemake won't make the directory itself, since it's a special
+        # directory output
         Path(output.fasta).mkdir(exist_ok=True)
 
+        # Keep track of which chunk we're on and how far we're along the
+        # current chunk
         chunk_i = 0
         cur_i = 0
-        chunk_step = 200
 
         # Get fields for each isolate
         fields = []
@@ -100,13 +118,17 @@ checkpoint rewrite_data_feed:
                 if key == "sequence":
                     continue
                 fields.append(key)
+
+        # Store metadata entries as a list of dictionaries, for now
+        # We'll wrap it in a pandas DataFrame later for easier serialization
         metadata_df = []
         
         with open(input.data_feed, "r") as fp_in:
 
+            # Open up the initial fasta file for the first chunk
             fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
 
-            # I"m pretty sure the output file is write-buffered,
+            # I'm pretty sure the output file is write-buffered,
             # so we can just spam the write() function
             for line in fp_in:
                 isolate = json.loads(line.strip())
@@ -120,49 +142,82 @@ checkpoint rewrite_data_feed:
                     isolate["sequence"] + "\n"
                 )
 
-                if cur_i == chunk_step:
+                # If we've hit the end of the current chunk, then close out
+                # the current chunk's fasta file, iterate the chunk counter,
+                # and open up the new chunk's fasta file in place of the old one
+                if cur_i == params.chunk_size:
                     fasta_out.close()
                     cur_i = 0
                     chunk_i += 1
                     fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
 
+                # Iterate the intra-chunk counter
                 cur_i += 1
 
-
+        # Cast the list of dictionaries (list of metadata entries) into a pandas
+        # DataFrame, and then serialize it to disk
+        # Do this step since pandas can handle some special serialization options
+        # that I didn't want to implement manually (such as wrapping certain strings 
+        # in double quotes)
         metadata_df = pd.DataFrame(metadata_df, columns=fields)
         metadata_df.to_csv(output.metadata, index=False)
 
 
 def get_changed_chunks(wildcards):
+    """Helper function for detecting which chunks have changed in terms of their contents 
+    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
+    isolates on GISAID, aligning them would take 1 week for the whole batch.
+    """
+    
+    # Get all chunks from the fasta_temp directory
     checkpoint_output = checkpoints.rewrite_data_feed.get(**wildcards).output[0]
     chunks, = glob_wildcards(os.path.join(checkpoint_output, "{i}.fa"))
+
+    # Keep track of which chunks have changed
     changed_chunks = []
 
     for chunk in chunks:
         fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
         fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa")
 
+        # The chunk has changed if:
+        # 1) The current chunk does not exist yet
+        # 2) The new chunk and the current chunk are different sizes (in bytes)
         if (
                 not fasta_raw_path.exists() or 
                 not fasta_raw_path.is_file() or 
                 fasta_temp_path.stat().st_size != fasta_raw_path.stat().st_size
             ):
-            # print(fasta_raw_path, fasta_temp_path)
-            # print(fasta_temp_path.stat().st_size, fasta_raw_path.stat().st_size)
             
             changed_chunks.append(chunk)
 
+    # Return a list of fasta_temp files that have changed, so that they can be copied
+    # over to fasta_raw by the below `copy_changed_files` rule
     return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa"), i=changed_chunks)
 
 
 checkpoint copy_changed_files:
+    """Using the `get_changed_chunks` function, only copy fasta files which have changed
+    from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
+    it will flag to snakemake that they (and only they - not the others) will need to be
+    reprocessed and realigned.
+    """
     input:
         get_changed_chunks
     output:
+        # Instead of explicitly defining the fasta_raw outputs
+        # (and risking touching fasta files that haven't actually changed)
+        # Have the output be a flag instead, that the "all" rule checks for
+        # to make sure that we actually run this rule
         touch(os.path.join(data_folder, "status", "merge_sequences_" + today_str + ".done"))
     run:
+        # Make the fasta_raw folder if it doesn't already exist yet
+        # snakemake won't do this automatically since no fasta_raw files
+        # are explicitly defined in any output
         (Path(data_folder) / "fasta_raw").mkdir(exist_ok=True)
 
+        # For each changed chunk (as defined by `get_changed_chunks`),
+        # copy over the fasta file from the `fasta_temp` folder to the `fasta_raw` folder
         for chunk in input:
             chunk = Path(chunk).stem
             fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
@@ -173,6 +228,12 @@ checkpoint copy_changed_files:
 
 
 rule preprocess_sequences:
+    """Filter out sequences (adapted from van Dorp et al, 2020)
+    1. Filter against nextstrain exclusion list
+    2. Remove animal/environmental isolates (bat, pangolin, mink, tiger, cat, canine, env)
+    3. Can't be less than 29700NT
+	4. Can't have more than 5% ambiguous NT
+    """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa"),
         nextstrain_exclude = os.path.join(static_data_folder, "nextstrain_exclude_20200520.txt")
@@ -181,7 +242,11 @@ rule preprocess_sequences:
     run:
         preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
 
+
 rule bt2build:
+    """Build the bowtie2 index for the reference sequence
+    This should only be run once - it shouldn't ever change
+    """
     input: os.path.join(static_data_folder, "reference.fasta")
     params:
         basename = os.path.join(data_folder, "reference_index", "reference")
@@ -198,6 +263,10 @@ rule bt2build:
         """
         
 rule align_sequences:
+    """Align each sequence to the reference using bowtie2
+    The alignment is costly but this allows us to get SNVs for each sequence
+    by using a widely used tool, without having to write any bespoke code ourselves
+    """
     input:
         fasta = os.path.join(data_folder, "fasta_processed", "{sample}.fa"),
         bt2_1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
@@ -219,6 +288,8 @@ rule align_sequences:
         """
 
 rule get_dna_snps:
+    """Find SNVs on the NT level for each sequence
+    """
     input:
         reference = os.path.join(static_data_folder, "reference.fasta"),
         sam = os.path.join(data_folder, "sam", "{sample}.sam")
@@ -230,6 +301,9 @@ rule get_dna_snps:
 
 
 rule get_aa_snps:
+    """Using the NT SNVs, translate genes/proteins and find SNVs on the AA level
+    using both gene and protein definitions
+    """
     input:
         dna_snp = os.path.join(data_folder, "dna_snp", "{sample}_dna_snp.csv"),
         reference = os.path.join(static_data_folder, "reference.fasta"),
@@ -256,6 +330,13 @@ rule get_aa_snps:
         protein_aa_snp_df.to_csv(output.protein_aa_snp, index=False)
 
 
+# These functions will run after the `copy_changed_files` rule/checkpoint has completed
+# This will return a list of all chunks (not just those that have changed), so that the
+# `combine_snps` rule below can aggregate all SNV data. This is required since we don't
+# know how many chunks to expect after each download, so there's no way to define the list
+# of chunks during the initial compilation of the DAG. We'll only know the final structure
+# of the DAG after running the `copy_changed_files` rule.
+
 def get_all_dna_snp_chunks(wildcards):
     # Only do this to trigger the DAG recalculation
     checkpoint_output = checkpoints.copy_changed_files.get().output[0]
@@ -281,6 +362,8 @@ def get_all_protein_aa_snp_chunks(wildcards):
     )
 
 rule combine_snps:
+    """Merge the NT and AA SNVs from each chunk back into one file
+    """
     input:
         dna_snp = get_all_dna_snp_chunks,
         gene_aa_snp = get_all_gene_aa_snp_chunks,
@@ -298,6 +381,10 @@ rule combine_snps:
         """
 
 rule process_snps:
+    """Filter out low-occurrence SNVs and assign each
+    SNV an integer ID, to be mapped back on the front-end
+    This saves a lot of data transfer space within the data package
+    """
     input:
         dna_snp = os.path.join(data_folder, "dna_snp.csv"),
         gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
@@ -340,9 +427,11 @@ rule process_snps:
         gene_aa_snp_map.to_json(output.gene_aa_snp_map, orient="index")
         protein_aa_snp_map.to_json(output.protein_aa_snp_map, orient="index")
 
-# Main rule for generating the data files for the browser
-# Mostly just a bunch of joins
+
 rule generate_ui_data:
+    """Main rule for generating the data files for the browser
+    Mostly just a bunch of joins
+    """
     input:
         metadata = os.path.join(data_folder, "metadata.csv"),
         dna_snp_group = os.path.join(data_folder, "dna_snp_group.csv"),
@@ -485,6 +574,9 @@ rule generate_ui_data:
 
 
 rule write_reference_files:
+    """Write some of the reference sequence data as JSON
+    files that can be easily loaded by the front-end
+    """
     input:
         reference = static_data_folder + "/reference.fasta",
         primers = static_data_folder + "/primers.csv"
@@ -512,6 +604,12 @@ rule write_reference_files:
 
 
 rule get_consensus_snps:
+    """For each lineage and clade, get the lineage/clade-defining SNVs,
+    on both the NT and AA level
+    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
     input:
         case_data = os.path.join(data_folder, "case_data.csv")
     params:
@@ -546,6 +644,9 @@ rule get_consensus_snps:
 
 
 rule get_global_group_counts:
+    """Get the number of sequences in each group
+    Doing this in the pipeline just saves some work for the browser later
+    """
     input:
         case_data = os.path.join(data_folder, "case_data.csv")
     output:
@@ -589,6 +690,9 @@ rule get_global_group_counts:
 
 
 rule process_artic_primers:
+    """Write ARTIC primer data from GitHub into our primer.csv format
+    This should only be run once - and not part of the pipeline generally
+    """
     input:
         reference_file = static_data_folder + "/reference.fasta"
     params:
@@ -612,6 +716,9 @@ rule process_artic_primers:
 
 
 rule calc_global_sequencing_efforts:
+    """Merge sequence data with case counts and ISO geographical data,
+    to produce the "Global Sequencing Effort" plot in the web app
+    """
     input:
         case_data = os.path.join(data_folder, "case_data.csv"),
         location_map = os.path.join(data_folder, "location_map.json")
@@ -795,6 +902,9 @@ rule calc_global_sequencing_efforts:
 
 
 rule assemble_data_package:
+    """Assemble the complete data package, that will be downloaded
+    by the app upon initial load
+    """
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         ack_map = os.path.join(data_folder, "ack_map.json"),
@@ -844,6 +954,8 @@ rule assemble_data_package:
             fp.write(json.dumps(data_package))
 
 rule compress_data_package:
+    """Compress the above data package for quicker transport
+    """
     input:
         os.path.join(data_folder, "data_package.json")
     output:
