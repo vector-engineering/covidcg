@@ -1,11 +1,14 @@
 ## COVID-19 CG (CoV Genetics)
 
+**Preprint now up on bioRxiv: [https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2](https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2)**
+
 Table of Contents
 
 - [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
 - [Installation](#installation)
   - [Python](#python)
     - [Data Requirements](#data-requirements)
+    - [Data Package](#data-package)
   - [Javascript](#javascript)
     - [macOS](#macos)
     - [Linux](#linux)

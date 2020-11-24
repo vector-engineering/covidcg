@@ -57,6 +57,7 @@ export class DataStore {
   lineageDataStoreInstance;
 
   dataDate;
+  numSequences;
   rawCaseData = [];
   filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
@@ -98,6 +99,7 @@ export class DataStore {
         row.collection_date > new Date(this.dataDate).getTime()
       );
     });
+    this.numSequences = this.rawCaseData.length;
 
     // Calculate global group counts
     // Make a copy

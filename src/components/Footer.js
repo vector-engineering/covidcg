@@ -84,8 +84,8 @@ const Footer = () => {
           </ExternalLink>
         </div>
         <div className="data-date">
-          Sequences Analyzed: Up to{' '}
-          <span className="date">{dataStore.dataDate}</span>
+          <b>{dataStore.numSequences}</b> Sequences Analyzed (Up to{' '}
+          <span className="date">{dataStore.dataDate}</span>)
         </div>
       </Version>
     </FooterContainer>
