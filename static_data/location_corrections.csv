@@ -1,5 +1,6 @@
 region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_country,out_division,out_location,comment
 ,,Unknown|unknown,,,,-1,,Unset unknown divisions
+,CotedIvoire,,,,Côte D'Ivoire,,,
 ,Democratic Republic of the Congo,,,,DRC,,,Abbreviate name to save space
 ,DRC,Kongo Central,,,,Kongo-Central,,Fix typos
 ,Marocco,,,,Morocco,,,Fix typos
@@ -8,23 +9,26 @@ region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_
 ,Nigeria,Ekiti,,,,Ekiti State,,Fix typos
 ,Nigeria,Ondo,,,,Ondo State,,
 ,Nigeria,Oyo,,,,Oyo State,,
+,Nigeria,Osun,,,,Osun State,,
 ,Senegal,St Louis|St Louis (RTL),,,,St-Louis,,Fix typos
 ,Senegal,Dakarhuman,,,,Dakar,,
+,Republic of Congo,,,,Republic of the Congo,,,
 ,South Africa,EC,,,,Eastern Cape,,Unabbreviate province names
 ,South Africa,KZN,,,,KwaZulu-Natal,,
 ,South Africa,GP,,,,Gauteng,,
-,South Africa,LP,,,,Limpopo,,
+,South Africa,LP|LM,,,,Limpopo,,
 ,South Africa,MP,,,,Mpumalanga,,
 ,South Africa,NW,,,,North West,,
 ,South Africa,FS,,,,Free State,,
 ,South Africa,WC|Western Cape Province,,,,Western Cape,,
 ,South Africa,KwaZulu-Natal,Harry gwala,,,,Harry Gwala,Fix typos
 ,South Africa,KwaZulu-Natal,ilembe,,,,Ilembe,
+,South Africa,KwaZulu-Natal,ugu,,,,Ugu,
 ,South Africa,KwaZulu-Natal,Uthukela,,,,uThukela,
 ,South Africa,KwaZulu-Natal,Uthungulu,,,,uThungulu,
 ,South Africa,KwaZulu-Natal,Umzinyathi,,,,uMzinyathi,
 ,South Africa,KwaZulu-Natal,Umkhanyakude,,,,uMkhanyakude,
-,South Africa,KwaZulu-Natal,Umgungundlovu,,,,uMgungundlovu,
+,South Africa,KwaZulu-Natal,Umgungundlovu|umgungundlovu,,,,uMgungundlovu,
 Asian,,,,Asia,,,,Fix typos
 ,Bangladesh,Ragshahi,,,,Rajshahi,,
 ,China,NanChang,,,,Jiangxi,Nanchang,Move cities to provinces
@@ -37,6 +41,7 @@ Asian,,,,Asia,,,,Fix typos
 ,China,Yuecheng,,,,Zhejiang,Yuecheng,
 ,China,Harbin,,,,Heilongjiang,Harbin,
 ,China,Shenzhen,,,,Guangdong,Shenzhen,
+,China,Weifang,,,,Shandong,Weifang,
 ,China,Chongqinq,,,,Chongqing,,Fix Typos
 ,China,HuaShang,,,,Guangdong,,"Move HuaShang into Guangdong (province of submitting lab), can't find a location for this. The sequences are super short so these won't get displayed anyways"
 ,India,West_Bengal,,,,West Bengal,,Fix typos
@@ -49,46 +54,63 @@ Asian,,,,Asia,,,,Fix typos
 ,India,Uttar_Pradesh,,,,Uttar Pradesh,,Fix typos
 ,India,Gujarat,Daskoi,,,,Daskroi,
 ,India,Karnataka,Bengaluru_Urban,,,,Bengaluru Urban,
+,India,Telangana,Mahboobnagar,,,,Mahbubnagar,
+,India,Telangana,Rangaraddy,,,,Rangareddy,
 ,India,Uttar Pradesh,LAKHIMPUR,,,,Lakhimpur,
 ,India,Uttarakhand,Pauri_Garhwal,,,,Pauri Garhwal,
 ,India,Uttarakhand,Tehri_Garhwal,,,,Tehri Garhwal,
 ,India,West Bengal,Hoogly,,,,Hooghly,
 ,ISRAEL,,,,Israel,,,Fix typos
 ,Israel,South Coast District|Southern District,,,,South District,,District names
-,Israel,Central District,,,,Center District,,
+,Israel,Central District|Central region,,,,Center District,,
 ,Israel,Northern District,,,,North District,,
 ,Israel,Tel Aviv,,,,Tel Aviv District,,
-,Israel,ELAD,,,,Center District,El'ad,Move cities into districts
-,Israel,GANI TIKVA,,,,Center District,Ganei Tikva,
-,Israel,GEDERA,,,,Center District,Gedera,
-,Israel,KFAR-HABAD,,,,Center District,Kfar Chabad,
-,Israel,NETANYA,,,,Center District,Netanya,
-,Israel,PARDESIA,,,,Center District,Pardesia,
-,Israel,PETAH-TIKVA,,,,Center District,Petah Tikva,
-,Israel,RAANANA,,,,Center District,Ra'anana,
-,Israel,RAMLA,,,,Center District,Ramla,
-,Israel,SHOAM,,,,Center District,Shoham,
-,Israel,YAVNE,,,,Center District,Yavne,
-,Israel,YEHUD,,,,Center District,Yehud,
+,Israel,ELAD|Elad,,,,Center District,El'ad,Move cities into districts
+,Israel,Beerot-Itzhak,,,,Center District,Be'erot Yitzhak,
+,Israel,GANI TIKVA|Gani Tikva,,,,Center District,Ganei Tikva,
+,Israel,GEDERA|Gedera,,,,Center District,Gedera,
+,Israel,KFAR-HABAD|Kfar-Habad,,,,Center District,Kfar Chabad,
+,Israel,Lod,,,,Center District,Lod,
+,Israel,Nir-Tzvi,,,,Center District,Nir-Tzvi,
+,Israel,NETANYA|Netanya,,,,Center District,Netanya,
+,Israel,Modiin,,,,Center District,Modi'in,
+,Israel,PARDESIA|Pardesia,,,,Center District,Pardesia,
+,Israel,PETAH-TIKVA|Petah-Tikva|Petach-Tikva,,,,Center District,Petah Tikva,
+,Israel,RAANANA|Raanana,,,,Center District,Ra'anana,
+,Israel,RAMLA|Ramla,,,,Center District,Ramla,
+,Israel,Rishon-Letsion,,,,Center District,Rishon LeZion,
+,Israel,Rishpon,,,,Center District,Rishpon,
+,Israel,SHOAM|Shoam|Shoham,,,,Center District,Shoham,
+,Israel,YAVNE|Yavne,,,,Center District,Yavne,
+,Israel,YEHUD|Yehud,,,,Center District,Yehud,
 ,Israel,Kefar Sava|Kfar Saba,,,,Center District,Kfar Saba,
-,Israel,HAIFA,,,,Haifa District,Haifa,
-,Israel,BEIT SHEMESH,,,,Jerusalem District,Beit Shemesh,
-,Israel,JERUSALEM,,,,Jerusalem District,Jerusalem,
-,Israel,ELKANA,,,,Judea and Samaria Area,Elkana,
-,Israel,HUKUK,,,,North District,Hukok,
-,Israel,MAALOT-TARSHICHA,,,,North District,Ma'alot-Tarshiha,
-,Israel,TIRAT ZVI,,,,North District,Tirat Zvi,
-,Israel,TVERIA,,,,North District,Tiberias,
-,Israel,ZEFAT,,,,North District,Safed,
-,Israel,ASHDOD,,,,South District,Ashdod,
-,Israel,KIRYAT-GAT,,,,South District,Kiryat Gat,
-,Israel,NETIVOT,,,,South District,Netivot,
-,Israel,BAT-YAM,,,,Tel Aviv District,Bat Yam,
-,Israel,BENI-BRAK,,,,Tel Aviv District,Bnei Brak,
-,Israel,HOLON,,,,Tel Aviv District,Holon,
-,Israel,KIRYAT ONO,,,,Tel Aviv District,Kiryat Ono,
-,Israel,RAMAT-GAN|Ramat Gan,,,,Tel Aviv District,Ramat Gan,
-,Israel,TEL-AVIV,,,,Tel Aviv District,Tel Aviv,
+,Israel,HAIFA|Haifa,,,,Haifa District,Haifa,
+,Israel,Ceasaria,,,,Haifa District,Caesarea,
+,Israel,BEIT SHEMESH|Beit Shemesh,,,,Jerusalem District,Beit Shemesh,
+,Israel,JERUSALEM|Jerusalem,,,,Jerusalem District,Jerusalem,
+,Israel,ELKANA|Elkana,,,,Judea and Samaria Area,Elkana,
+,Israel,Maale-Edumim,,,,Judea and Samaria Area,Ma'ale Adumim,
+,Israel,Tkoa,,,,Judea and Samaria Area,Tekoa,
+,Israel,HUKUK|Hukuk,,,,North District,Hukok,
+,Israel,MAALOT-TARSHICHA|Maalot-Tarshicha,,,,North District,Ma'alot-Tarshiha,
+,Israel,TIRAT ZVI|Tirat Zvi,,,,North District,Tirat Zvi,
+,Israel,TVERIA|Tveria,,,,North District,Tiberias,
+,Israel,ZEFAT|Tzfat|Zefat|Safed,,,,North District,Safed,
+,Israel,Yuvalim,,,,North District,Yuvalim,
+,Israel,ASHDOD|Ashdod,,,,South District,Ashdod,
+,Israel,Beer-Sheva,,,,South District,Beer-Sheva,
+,Israel,KIRYAT-GAT|Kiryat-Gat,,,,South District,Kiryat Gat,
+,Israel,NETIVOT|Netivot,,,,South District,Netivot,
+,Israel,Orot,,,,South District,Orot,
+,Israel,Yeruham,,,,South District,Yeruham,
+,Israel,BAT-YAM|Bat-Yam,,,,Tel Aviv District,Bat Yam,
+,Israel,BENI-BRAK|Beni-Brak,,,,Tel Aviv District,Bnei Brak,
+,Israel,HOLON|Holon,,,,Tel Aviv District,Holon,
+,Israel,KIRYAT ONO|Kiryat Ono,,,,Tel Aviv District,Kiryat Ono,
+,Israel,Or-Yehuda,,,,Tel Aviv District,Or Yehuda,
+,Israel,RAMAT-GAN|Ramat Gan|Ramat-Gan,,,,Tel Aviv District,Ramat Gan,
+,Israel,Ramat-Hasharon,,,,Tel Aviv District,Ramat HaSharon,
+,Israel,TEL-AVIV|Tel-Aviv,,,,Tel Aviv District,Tel Aviv,
 ,Oman,Muscta|Musca,,,,Muscat,,Fix typos
 ,Oman,Buraymi,,,,Buraimi,,
 ,Pakistan,KPK,,,,Khyber Pakhtunkhwa,,Unabbreviate province names
@@ -104,6 +126,7 @@ Asian,,,,Asia,,,,Fix typos
 ,Belgium,Bonheiden,,,,Antwerp,Bonheiden,
 ,Belgium,Bornem|Hingene|Wintam|Mariekerke|Weert,,,,Antwerp,Bornem,
 ,Belgium,Brasschaat,,,,Antwerp,Brasschaat,
+,Belgium,Edegem,,,,Antwerp,Edegem,
 ,Belgium,Grobbendonk|Bouwel,,,,Antwerp,Grobbendonk,
 ,Belgium,Hemisem|Hemiksem,,,,Antwerp,Hemiksem,
 ,Belgium,Herselt|Ramsel,,,,Antwerp,Herselt,
@@ -331,7 +354,7 @@ Asian,,,,Asia,,,,Fix typos
 ,Belgium,Mepel,,,,-1,,Can't find a division for this location
 ,Bosnia and Hercegovina,,,,Bosnia and Herzegovina,,,Fix typos
 ,Croatia,Varazdin,,,,Varaždin County,,Fix typos
-,Czech Republic,,,,Czechia,,,Rename from "Czech Republic" --> "Czechia"
+,Czech Republic|Czech Repubic,,,,Czechia,,,Rename from "Czech Republic" --> "Czechia"
 ,Czechia,Prague,,,,Central Czechia and Prague,,Move "Prague" --> "Central Czhechia and Prague"
 ,Czechia,Vysocina Region,,,,Vysocina,,Fix typos
 ,Czechia,Plzen,,,,Plzeň,,
@@ -339,16 +362,14 @@ Asian,,,,Asia,,,,Fix typos
 ,Belgium,Saint-Saulve,,,France,Hauts-de-France,,Move Saint-Saulve from Belgium to France
 ,Belgium,Roucourt,,,France,Hauts-de-France,,Move Roucourt from belgium to France
 ,Belgium,Flines-Les-Morta,,,France,Hauts-de-France,Flines-lès-Mortagne,Move Flines-les-Mortagne (Flines-les-Morta) from Belgium into France
+,Denmark,NA,,,Denmark,-1,,,"Remove NA province"
 ,France,Bourgogne Franche comte|Bourgogne-France-Comté|Bourgogne-Franche Comte|Bourgogne-France-Comte|Bourgogne,,,,Bourgogne-Franche-Comté,,Fix typos
 ,France,ARA,,,,Auvergne-Rhône-Alpes,,"Unabbreviate province names, unify province names"
 ,France,Centre - Val de Loire,,,,Centre-Val de Loire,,
 ,France,Grand-Est|Grand-est,,,,Grand Est,,
 ,France,Hauts De France|Hauts de France,,,,Hauts-de-France,,
 ,France,IDF|Ile De France|Ile de France|Ile-de-France,,,,Île-de-France,,
-,France,MP,,,,Midi-Pyrénées,,
-,France,PACA,,,,Provence-Alpes-Côte d'Azur,,
-,France,NA,,,,Nouvelle-Aquitaine,,
-,France,Toulouse,,,,Occitanie,Toulouse,Move Toulouse to Occitanie
+,France,Toulouse,,,France,Occitanie,Toulouse,Move Toulouse to Occitanie
 ,France,,Chateau-Thierry|Chateau-thierry,,,,Château-Thierry,Fix typos
 ,France,,Crépy-en -Valois|Crépy en Valois,,,,Crépy-en-Valois,
 ,France,,Asnieres sur Seine,,,,Asnières-sur-Seine,
@@ -356,6 +377,9 @@ Asian,,,,Asia,,,,Fix typos
 ,France,,Gondrecourt-le-chateau,,,,Gondrecourt-le-Chateau,
 ,France,,Compiegne,,,,Compiègne,
 ,France,Paris,,,,Île-de-France,Paris,Move Paris into Ile-de-France
+,France,MP,,,France,Midi-Pyrénées,,
+,France,PACA,,,France,Provence-Alpes-Côte d'Azur,,
+,France,NA,,,France,Nouvelle-Aquitaine,,
 Europe,Georgia,,,Asia,,,,Move to Asia
 ,Germany,Munich,,,,Bavaria,Munich,Move Munich division into Bavaria division
 ,Germany,Duesseldorf,,,,North Rhine-Westphalia,Duesseldorf,Move cities to provinces
@@ -363,7 +387,9 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Germany,Rostock,,,,Mecklenburg-Vorpommern,Rostock,
 ,Germany,Baden-Wuerttemberg,,,,Baden-Württemberg,,Fix typos
 ,Germany,North Rhine Westphalia,,,,North Rhine-Westphalia,,
-,Hungary,Borsod-Abauj-Zemplen county,,,,Borsod-Abauj-Zemplen County,,Fix typos
+,Germany,North Rhine-Westphalia,Duesseldorf area|Duesseldorf,,,,Düsseldorf,
+,Germany,North Rhine-Westphalia,Heinsberg District,,,,Heinsberg,
+,Hungary,Borsod-Abauj-Zemplen county|Borsod-Abauj-Zemplen County,,,,Borsod-Abaúj-Zemplén County,,Fix typos
 ,Italy,Lombarida|Lombardia,,,,Lombardy,,Fix typos
 ,Italy,Castel di Sangro,,,,Abruzzo,Castel di Sangro,Move cities to provinces
 ,Italy,Teramo,,,,Abruzzo,Teramo,
@@ -371,6 +397,7 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Italy,Milan,,,,Lombardy,Milan,
 ,Italy,Palermo,,,,Sicily,Palermo,
 ,Italy,Rome,,,,Lazio,Rome,
+,Lithuania,Vilnius r.,,,,Vilnius,,
 ,Netherlands,Coevorden|Dalen,,,,Drenthe,Coevorden,Move municipalities into provinces
 ,Netherlands,Drente,,,,Drenthe,,
 ,Netherlands,Zeewolde,,,,Flevoland,Zeewolde,
@@ -383,21 +410,25 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Netherlands,Oisterwijk,,,,North Brabant,Oisterwijk,
 ,Netherlands,Oss,,,,North Brabant,Oss,
 ,Netherlands,Tilburg,,,,North Brabant,Tilburg,
-,Netherlands,Noord Brabant,,,,North Brabant,,
+,Netherlands,Noord Brabant|NoordBrabant,,,,North Brabant,,
 ,Netherlands,Blaricum,,,,North Holland,Blaricum,
 ,Netherlands,Diemen,,,,North Holland,Diemen,
 ,Netherlands,Haarlem,,,,North Holland,Haarlem,
 ,Netherlands,Naarden,,,,North Holland,Gooise Meren,
-,Netherlands,Noord Holland,,,,North Holland,,
+,Netherlands,Noord Holland|NoordHolland,,,,North Holland,,
 ,Netherlands,Delft,,,,South Holland,Delft,
 ,Netherlands,Hardinxveld Giessendam,,,,South Holland,Hardinxveld-Giessendam,
 ,Netherlands,Leiden,,,,South Holland,Leiden,
 ,Netherlands,Nieuwendijk,,,,South Holland,Nieuwendijk,
 ,Netherlands,Nootdorp,,,,South Holland,Nootdorp,
 ,Netherlands,Rotterdam,,,,South Holland,Rotterdam,
-,Netherlands,Zuid Holland,,,,South Holland,,
+,Netherlands,Zuid Holland|ZuidHolland,,,,South Holland,,
 ,Netherlands,Houten,,,,Utrecht,Houten,
-,Poland,Dolnoslakie,,,,Dolnoslaskie,,Fix typos
+,Norway,MoreogRomsdal,,,,More og Romsdal,,
+,Norway,TromsogFinnmark,,,,Troms og Finnmark,,
+,Norway,Trondelag,,,,Trøndelag,,
+,Norway,Vestlandet,,,,Vestland,,
+,Poland,Dolnoslakie|Dolnoslaskie,,,,Dolnośląskie,,Fix typos
 ,Poland,Pomorze|Pomerania,,,,Pomorskie,,Don't use anglicized names here
 ,Poland,Malopolska,,,,Malopolskie,,
 ,Poland,Wielkopolska,,,,Wielkopolskie,,
@@ -461,13 +492,14 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Sweden,Gavleborgs lan,,,,Gavleborg,,
 ,Sweden,Orebro lan,,,,Orebro,,
 ,Sweden,Jamtland Harjedalen,,,,Jamtland,,
+,Sweden,Västra Götaland,,,,Vastra Gotaland,,
 ,Switzerland,Basel|Basel Stadt|Basel Land,,,,Basel-Stadt,,Fix typos
 ,Switzerland,Genève|Geneve,,,,Geneva,,
 ,Switzerland,Luzern,,,,Lucerne,,
 ,Switzerland,Argovie,,,,Aargau,,
 ,Switzerland,Zurich,,,,Zürich,,
 ,Switzerland,Graubunden,,,,Graubünden,,
-,Switzerland,Sankt Gallen,,,,St Gallen,,
+,Switzerland,Sankt Gallen|St. Gallen,,,,St Gallen,,
 ,United Kingdom,,Northamtonshire,,,,Northamptonshire,Fix typos
 ,England,,,,United Kingdom,England,,Move England into UK
 ,Canada,MB,,,,Manitoba,,Unabbreviate province names
@@ -536,12 +568,14 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Massachusetts,Middlesex county,,,,Middlesex County,Fix typos
 ,USA,Massachusetts,Norfolk county,,,,Norfolk County,
 ,USA,Minnesota,Stearns county,,,,Stearns County,Fix typos
+,USA,Minnesota,Houston county,,,,Houston County,
 ,USA,Missouri,Saint Louis county|St. Louis,,,,Saint Louis County,
 ,USA,Misssouri,,,,Missouri,,Fix typos
 ,USA,New Jersey,Bergen county,,,,Bergen County,Fix typos
 ,USA,New Jersey,Essex county,,,,Essex County,
-,USA,NY,,,,New York,,Assume NY is NY State
-,USA,New York City,,,,New York,New York City,Move NYC division into NY State division
+,USA,NY,,,,New York,,"Assume NY is NY State"
+,USA,New York City,,,,New York,New York City,"Move NYC division into NY State division"
+,USA,New York County,,,,New York,New York City,
 ,USA,New York,New York,,,,-1,Remove redundant "New York"
 ,USA,New York,Bronx|Brooklyn|Manhattan|Queens|Staten Island|New York county,,,,New York City,
 ,USA,New York,Nassau|Nassau county,,,,Nassau County,Merge NYC boroughs into one NYC
@@ -561,6 +595,11 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,South Carolina,Richland,,,,Richland County,Fix typos
 ,USA,South Carolina,Fairfield,,,,Fairfield County,
 ,USA,South Carolina,Berkeley,,,,Berkeley County,
+,USA,Texas,Cameron,,,,Cameron County,
+,USA,Texas,El Paso,,,,El Paso County,
+,USA,Texas,Harris,,,,Harris County,
+,USA,Texas,Hidalgo,,,,Hidalgo County,
+,USA,Texas,Houston,,,,Houston County,
 ,USA,VT,,,,Vermont,,VT -> Vermont
 ,USA,Washington,Unknown,,,,-1,Unknown -> -1
 ,USA,Washington,Kirkland|Seattle,,,,King County,Move towns into counties
@@ -627,7 +666,7 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Wisconsin,Rock county,,,,Rock County,
 ,USA,Wisconsin,Lafayette county,,,,Lafayette County,
 ,USA,Wisconsin,Columbia county,,,,Columbia County,
-,USA,Wisconsin,Fond du Lac county,,,,Fond du Lac County,
+,USA,Wisconsin,Fond du Lac county|Fond du lac County,,,,Fond du Lac County,
 ,USA,Wisconsin,Jefferson county,,,,Jefferson County,
 ,USA,Wisconsin,Milwaukee county,,,,Milwaukee County,
 ,USA,Wisconsin,Washington county,,,,Washington County,
@@ -645,6 +684,8 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Wisconsin,Vernon county,,,,Vernon County,
 ,USA,Wisconsin,Waupaca county,,,,Waupaca County,
 ,USA,Wisconsin,Winnebago county,,,,Winnebago County,
+,USA,Wisconsin,Eau claire County,,,,Eau Claire County,
+,USA,Wisconsin,Iowa county,,,,Iowa County,
 ,Reunion,,,Oceania,,,,Move to oceania
 ,Australia,NSW,,,,New South Wales,,"Fix typos, unabbreviate province names"
 ,Australia,Northern territory,,,,Northern Territory,,

@@ -134,6 +134,7 @@ def clean_location_data(location_df, location_corretions):
             # Make it a list if it's just a single value
             if type(vals) is not list:
                 vals = [vals]
+            vals = [str(val) for val in vals]
 
             # Turn each value into a logical mask
             vals = [location_df[key] == v for v in vals]
