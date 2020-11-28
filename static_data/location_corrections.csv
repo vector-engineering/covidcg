@@ -359,27 +359,27 @@ Asian,,,,Asia,,,,Fix typos
 ,Czechia,Vysocina Region,,,,Vysocina,,Fix typos
 ,Czechia,Plzen,,,,Plzeň,,
 ,Czechia,Usti nad Labem Region,,,,Usti nad Labem,,
-,Belgium,Saint-Saulve,,,France,Hauts-de-France,,Move Saint-Saulve from Belgium to France
-,Belgium,Roucourt,,,France,Hauts-de-France,,Move Roucourt from belgium to France
-,Belgium,Flines-Les-Morta,,,France,Hauts-de-France,Flines-lès-Mortagne,Move Flines-les-Mortagne (Flines-les-Morta) from Belgium into France
-,Denmark,NA,,,Denmark,-1,,,"Remove NA province"
-,France,Bourgogne Franche comte|Bourgogne-France-Comté|Bourgogne-Franche Comte|Bourgogne-France-Comte|Bourgogne,,,,Bourgogne-Franche-Comté,,Fix typos
-,France,ARA,,,,Auvergne-Rhône-Alpes,,"Unabbreviate province names, unify province names"
-,France,Centre - Val de Loire,,,,Centre-Val de Loire,,
+,Belgium,Saint-Saulve,,,France,Hauts-de-France,,"Move Saint-Saulve from Belgium to France"
+,Belgium,Roucourt,,,France,Hauts-de-France,,"Move Roucourt from belgium to France"
+,Belgium,Flines-Les-Morta,,,France,Hauts-de-France,Flines-lès-Mortagne,"Move Flines-les-Mortagne (Flines-les-Morta) from Belgium into France"
+,Denmark,NA,,,Denmark,-1,,"Remove NA province"
+,France,Bourgogne Franche comte|Bourgogne-France-Comté|Bourgogne-Franche Comte|Bourgogne-France-Comte|Bourgogne,,,France,Bourgogne-Franche-Comté,,"Fix typos"
+,France,ARA|Auvergne-Rhone-Alpes,,,,Auvergne-Rhône-Alpes,,"Unabbreviate province names, unify province names"
+,France,Centre - Val de Loire|Centre Val de Loire,,,,Centre-Val de Loire,,
 ,France,Grand-Est|Grand-est,,,,Grand Est,,
 ,France,Hauts De France|Hauts de France,,,,Hauts-de-France,,
 ,France,IDF|Ile De France|Ile de France|Ile-de-France,,,,Île-de-France,,
-,France,Toulouse,,,France,Occitanie,Toulouse,Move Toulouse to Occitanie
-,France,,Chateau-Thierry|Chateau-thierry,,,,Château-Thierry,Fix typos
+,France,Toulouse,,,France,Occitanie,Toulouse,"Move Toulouse to Occitanie"
+,France,,Chateau-Thierry|Chateau-thierry,,,,Château-Thierry,"Fix typos"
 ,France,,Crépy-en -Valois|Crépy en Valois,,,,Crépy-en-Valois,
 ,France,,Asnieres sur Seine,,,,Asnières-sur-Seine,
 ,France,,Moussy le Neuf,,,,Moussy Le Neuf,
 ,France,,Gondrecourt-le-chateau,,,,Gondrecourt-le-Chateau,
 ,France,,Compiegne,,,,Compiègne,
-,France,Paris,,,,Île-de-France,Paris,Move Paris into Ile-de-France
+,France,Paris,,,,Île-de-France,Paris,"Move Paris into Ile-de-France"
 ,France,MP,,,France,Midi-Pyrénées,,
-,France,PACA,,,France,Provence-Alpes-Côte d'Azur,,
-,France,NA,,,France,Nouvelle-Aquitaine,,
+,France,PACA|Provence-Alpes-Cote d'Azur|Provence-Alpes-Cote-d’Azur|Provence-Alpes-Côte d'Azur,,,France,Provence-Alpes-Côte-d’Azur,,
+# ,France,NA,,,France,Nouvelle-Aquitaine,,
 Europe,Georgia,,,Asia,,,,Move to Asia
 ,Germany,Munich,,,,Bavaria,Munich,Move Munich division into Bavaria division
 ,Germany,Duesseldorf,,,,North Rhine-Westphalia,Duesseldorf,Move cities to provinces
@@ -441,21 +441,23 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Russia,Saint-Petersburg|St. Petersburg|St.Petersburg,,,,Saint Petersburg,,
 ,Sweden,Andalusia,,,Spain,,,Move Andalusia from Sweden to Spain
 ,Spain,BasqueCountry|Basque_Country,,,,Basque Country,,"Fix typos, unify provinces/locations"
+,Spain,Balear_Islands|Balear Islands|Illes Balears,,,,Balearic Islands,,
 ,Spain,Castilla La Mancha,,,,Castilla-La Mancha,,
 ,Spain,Castilla y Leon,,,,Castilla y León,,
 ,Spain,Catalunya,,,,Catalonia,,
 ,Spain,Comunitat_Valenciana,,,,Comunitat Valenciana,,
+,Spain,Canary_Islands,,,,Canary Islands,,
 ,Spain,,Bonrepos_i_Mirambell,,,,Bonrepos i Mirambell,
 ,Spain,,Canet_d'En_Berenguer,,,,Canet d'En Berenguer,
 ,Spain,,El_Puig,,,,El Puig,
 ,Spain,,Grau_de_Sagunt,,,,Grau de Sagunt,
 ,Spain,,Palma_de_Gandia,,,,Palma de Gandia,
 ,Spain,,Tavernes_de_la_Valldigna,,,,Tavernes de la Valldigna,
-,Spain,,Valencia_h,,,,Valencia,
+,Spain,,Valencia_h|Valencia h,,,,Valencia,
 ,Spain,,Malaga_h|Malaga h,,,,Malaga,
 ,Spain,LaRioja|La_Rioja,,,,La Rioja,,
-,Spain,Barcelona,,,,Catalonia,,Barcelona -> Catalonia
-,Spain,,Alhaurin_de_la_Torre,,,,Alhaurin de la Torre,Fix more typos
+,Spain,Barcelona,,,,Catalonia,,"Barcelona -> Catalonia"
+,Spain,,Alhaurin_de_la_Torre,,,,Alhaurin de la Torre,"Fix more typos"
 ,Spain,,Jerez_de_la_Frontera,,,,Jerez de la Frontera,
 ,Spain,,La_Linea,,,,La Linea,
 ,Spain,,Mairena_Aljarafe,,,,Mairena Aljarafe,
@@ -468,32 +470,33 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Spain,,Simat_de_la_Valldigna,,,,Simat de la Valldigna,
 ,Spain,,Torres_de_Elorz,,,,Torres de Elorz,
 ,Spain,,Velez_Malaga,,,,Velez Malaga,
-,Spain,Balear_Islands|Balear Islands,,,,Balearic Islands,,More typos
-,Spain,Canary_Islands,,,,Canary Islands,,
 ,Spain,,Rio_San_Pedro,,,,Rio San Pedro,
-,Spain,,Las_Palmas,,,,Las Palmas,
+,Spain,Canary Islands,Las_Palmas|Las Palmas|Las_Palmas_de_Gran_Canaria,,,,Las Palmas de Gran Canaria,
 ,Spain,,La_Estrada,,,,La Estrada,
 ,Spain,,Santa_Comba,,,,Santa Comba,
 ,Spain,,Santiago_de_Compostela,,,,Santiago de Compostela,
 ,Spain,,LeganA(c)s,,,,Leganés,
 ,Spain,,Santa_Fe,,,,Santa Fe,
 ,Spain,,Campo_Real,,,,Campo Real,
-,Spain,,Palma_de_Mallorca_h,,,,Palma de Mallorca,More typos
+,Spain,,Palma_de_Mallorca_h,,,,Palma de Mallorca,"More typos"
 ,Spain,,Santa_Maria_del_Camino,,,,Santa Maria del Camino,
 ,Spain,,Son_Servera,,,,Son Servera,
 ,Spain,,Logrono_h,,,,Logrono,
-,Spain,,Barcelona_h|Barcelona h,,,,Barcelona,More typos
+,Spain,,Barcelona_h|Barcelona h,,,,Barcelona,"More typos"
 ,Spain,,Badalona_h|Badalona h,,,,Badalona,
 ,Spain,,Alcala_de_Henares,,,,Alcala de Henares,
 ,Spain,,Arganda_del_Rey,,,,Arganda del Rey,
-,Spain,Donostia-San Sebatian|Donostia-San Sebastian|Donostia-San Sebastián,,,Spain,Basque Country,Donostia-San Sebastián,Move Donostia-San Sebastian into Basque Country
-,Spain,Andalucia,,,,Andalusia,,Fix typos
+,Spain,Donostia-San Sebatian|Donostia-San Sebastian|Donostia-San Sebastián|San Sebatian|Donostia-San Sebastian,,,Spain,Basque Country,San Sebastian,"Move Donostia-San Sebastian into Basque Country"
+,Spain,Andalucia,,,,Andalusia,,"Fix typos"
+,Spain,Madrid,Alcala deenares,,,,Alcala de Henares
+,Spain,Madrid,Arganda,,,,Arganda del Rey
 ,Sweden,Vasterbotten,,,,Västerbotten,,Fix typos
 ,Sweden,Gavleborgs lan,,,,Gavleborg,,
 ,Sweden,Orebro lan,,,,Orebro,,
 ,Sweden,Jamtland Harjedalen,,,,Jamtland,,
 ,Sweden,Västra Götaland,,,,Vastra Gotaland,,
-,Switzerland,Basel|Basel Stadt|Basel Land,,,,Basel-Stadt,,Fix typos
+,Switzerland,Basel|Basel Stadt,,,,Basel-Stadt,,"Fix typos"
+,Switzerland,Basel-Land,,,,Basel-Landschaft,,
 ,Switzerland,Genève|Geneve,,,,Geneva,,
 ,Switzerland,Luzern,,,,Lucerne,,
 ,Switzerland,Argovie,,,,Aargau,,
@@ -530,6 +533,7 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,California,Marin county,,,,Marin County,Fix typos
 ,USA,California,San Diego county,,,,San Diego County,
 ,USA,California,Santa Clara county,,,,Santa Clara County,
+,USA,California,Santa Barbara,,,,Santa Barbara County,
 ,USA,Grand Princess,,,USA,California,Grand Princess Cruise Ship,Move Grand Princess into California
 ,USA,Alameda County,,,USA,California,Alameda County,Move counties from USA into California
 ,USA,Imperial County,,,USA,California,Imperial County,

@@ -104,7 +104,7 @@ def clean_location_data(location_df, location_corretions):
     """
 
     # Load rules
-    location_correction_df = pd.read_csv(location_corretions)
+    location_correction_df = pd.read_csv(location_corretions, comment="#")
     # region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_country,out_division,out_location,comment
 
     for i, rule in location_correction_df.iterrows():
