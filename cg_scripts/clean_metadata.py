@@ -175,6 +175,17 @@ def clean_age_metadata(df):
             df.loc[i, "age_start"] = years + (months / 12.0)
             df.loc[i, "age_end"] = years + ((months + 1) / 12.0)
 
+        # Match "(year), (x) month". e.g., "62, 1 month"
+        elif re.match(r"^([0-9]+),\s([0-9]+)\smonth$", v, re.IGNORECASE):
+            # Re-run to extract years and months
+            m = re.match(r"^([0-9]+),\s([0-9]+)\smonth$", v, re.IGNORECASE)
+            # Extract years, months
+            years = int(m.groups()[0])
+            months = int(m.groups()[1])
+            # Round to nearest year
+            df.loc[i, "age_start"] = years + (months / 12.0)
+            df.loc[i, "age_end"] = years + ((months + 1) / 12.0)
+
         # Extract decade ranges. e.g., "30s"
         elif re.match(r"^([0-9]+)\'?s$", v):
             # Re-run to extract decade
@@ -184,7 +195,7 @@ def clean_age_metadata(df):
             df.loc[i, "age_end"] = float(decade + 10)
 
         # Extract year ranges, e.g., "10-20"
-        elif re.match(r"^([0-9]+)\s?-\s?([0-9])+$", v):
+        elif re.match(r"^([0-9]+)\s?[-|–]\s?([0-9])+$", v):
             # Re-run to extract range
             m = re.match(r"^([0-9]+)\s?-\s?([0-9])+$", v)
             start = int(m.groups()[0])
@@ -195,21 +206,37 @@ def clean_age_metadata(df):
                 end + 1
             )  # Assume that the provided range is [start, end]
 
-        # Extract inequalities, e.g., ">60"
-        elif re.match(r"^>([0-9]+)$", v):
+        # Extract inequalities, e.g., ">60" or "over 60"
+        elif re.match(r"^(?:>|over)\s?([0-9]+)$", v, flags=re.IGNORECASE):
             # Re-run to extract year
-            m = re.match(r"^>([0-9]+)$", v)
+            m = re.match(r"^(?:>|over)\s?([0-9]+)$", v, flags=re.IGNORECASE)
             start = int(m.groups()[0])
 
             # Assume that the range is just one year
             df.loc[i, "age_start"] = float(start)
             df.loc[i, "age_end"] = float(start + 1)
 
-        # Extract "year+" or "yearx". i.e., "30+" or "30x"
+        # Extract <18. This could be anywhere from 0 - 18
+        elif re.match(r"^<\s?18$", v):
+            df.loc[i, "age_start"] = 0.0
+            df.loc[i, "age_end"] = 18.0
+
+        # Extract "(year)+" or "(year)x". i.e., "30+" or "30x"
         # Assume that the age_end is just the next year
         elif re.match(r"^([0-9]+)[\+|x]$", v):
             # Re-run to extract year
             m = re.match(r"^([0-9]+)[\+|x]$", v)
+            start = int(m.groups()[0])
+
+            # Assume that the range is just one year
+            df.loc[i, "age_start"] = float(start)
+            df.loc[i, "age_end"] = float(start + 1)
+
+        # Extract "(x) Year"
+        # Assume that the age_end is just the next year
+        elif re.match(r"^([0-9]+)\syears?$", v, flags=re.IGNORECASE):
+            # Re-run to extract year
+            m = re.match(r"^([0-9]+)\s[Yy]ears?$", v, flags=re.IGNORECASE)
             start = int(m.groups()[0])
 
             # Assume that the range is just one year
