@@ -1,19 +1,20 @@
 region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_country,out_division,out_location,comment
-,,Unknown|unknown,,,,-1,,Unset unknown divisions
+,,Unknown|unknown,,,,-1,,"Unset unknown divisions"
+,,,Unknown|unknown,,,,-1,"Unset unknown locations"
 ,CotedIvoire,,,,Côte D'Ivoire,,,
-,Democratic Republic of the Congo,,,,DRC,,,Abbreviate name to save space
-,DRC,Kongo Central,,,,Kongo-Central,,Fix typos
-,Marocco,,,,Morocco,,,Fix typos
-,Morocco,,,Africa,,,,Move to Africa
+,Democratic Republic of the Congo,,,,DRC,,,"Abbreviate name to save space"
+,DRC,Kongo Central,,,,Kongo-Central,,"Fix typos"
+,Marocco,,,,Morocco,,,"Fix typos"
+,Morocco,,,Africa,,,,"Move to Africa"
 ,Morocco,,Cadiz_h,Europe,Spain,Andalusia,Cadiz,"Move Cadiz to Andalusia, Spain"
-,Nigeria,Ekiti,,,,Ekiti State,,Fix typos
+,Nigeria,Ekiti,,,,Ekiti State,,"Fix typos"
 ,Nigeria,Ondo,,,,Ondo State,,
 ,Nigeria,Oyo,,,,Oyo State,,
 ,Nigeria,Osun,,,,Osun State,,
-,Senegal,St Louis|St Louis (RTL),,,,St-Louis,,Fix typos
+,Senegal,St Louis|St Louis (RTL),,,,St-Louis,,"Fix typos"
 ,Senegal,Dakarhuman,,,,Dakar,,
 ,Republic of Congo,,,,Republic of the Congo,,,
-,South Africa,EC,,,,Eastern Cape,,Unabbreviate province names
+,South Africa,EC,,,,Eastern Cape,,"Unabbreviate province names"
 ,South Africa,KZN,,,,KwaZulu-Natal,,
 ,South Africa,GP,,,,Gauteng,,
 ,South Africa,LP|LM,,,,Limpopo,,
@@ -21,7 +22,7 @@ region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_
 ,South Africa,NW,,,,North West,,
 ,South Africa,FS,,,,Free State,,
 ,South Africa,WC|Western Cape Province,,,,Western Cape,,
-,South Africa,KwaZulu-Natal,Harry gwala,,,,Harry Gwala,Fix typos
+,South Africa,KwaZulu-Natal,Harry gwala,,,,Harry Gwala,"Fix typos"
 ,South Africa,KwaZulu-Natal,ilembe,,,,Ilembe,
 ,South Africa,KwaZulu-Natal,ugu,,,,Ugu,
 ,South Africa,KwaZulu-Natal,Uthukela,,,,uThukela,
@@ -29,9 +30,9 @@ region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_
 ,South Africa,KwaZulu-Natal,Umzinyathi,,,,uMzinyathi,
 ,South Africa,KwaZulu-Natal,Umkhanyakude,,,,uMkhanyakude,
 ,South Africa,KwaZulu-Natal,Umgungundlovu|umgungundlovu,,,,uMgungundlovu,
-Asian,,,,Asia,,,,Fix typos
+Asian,,,,Asia,,,,"Fix typos"
 ,Bangladesh,Ragshahi,,,,Rajshahi,,
-,China,NanChang,,,,Jiangxi,Nanchang,Move cities to provinces
+,China,NanChang,,,,Jiangxi,Nanchang,"Move cities to provinces"
 ,China,Guangzhou,,,,Guangdong,Guangzhou,
 ,China,Meizhou,,,,Guangdong,Meizhou,
 ,China,Hangzhou,,,,Zhejiang,Hangzhou,
@@ -42,16 +43,16 @@ Asian,,,,Asia,,,,Fix typos
 ,China,Harbin,,,,Heilongjiang,Harbin,
 ,China,Shenzhen,,,,Guangdong,Shenzhen,
 ,China,Weifang,,,,Shandong,Weifang,
-,China,Chongqinq,,,,Chongqing,,Fix Typos
+,China,Chongqinq,,,,Chongqing,,"Fix Typos"
 ,China,HuaShang,,,,Guangdong,,"Move HuaShang into Guangdong (province of submitting lab), can't find a location for this. The sequences are super short so these won't get displayed anyways"
-,India,West_Bengal,,,,West Bengal,,Fix typos
+,India,West_Bengal,,,,West Bengal,,"Fix typos"
 ,India,Telengana,,,,Telangana,,
 ,India,Rajsathan,,,,Rajasthan,,
-,India,Jammu,,,,Jammu and Kashmir,Jammu,Move cities to provinces
+,India,Jammu,,,,Jammu and Kashmir,Jammu,"Move cities to provinces"
 ,India,Kargil,,,,Ladakh,Kargil,
 ,India,Mumbai,,,,Maharashtra,Mumbai,
-,India,MP,,,,Madhya Pradesh,,MP -> Madhya Pradesh
-,India,Uttar_Pradesh,,,,Uttar Pradesh,,Fix typos
+,India,MP,,,,Madhya Pradesh,,"MP -> Madhya Pradesh"
+,India,Uttar_Pradesh,,,,Uttar Pradesh,,"Fix typos"
 ,India,Gujarat,Daskoi,,,,Daskroi,
 ,India,Karnataka,Bengaluru_Urban,,,,Bengaluru Urban,
 ,India,Telangana,Mahboobnagar,,,,Mahbubnagar,
@@ -60,12 +61,12 @@ Asian,,,,Asia,,,,Fix typos
 ,India,Uttarakhand,Pauri_Garhwal,,,,Pauri Garhwal,
 ,India,Uttarakhand,Tehri_Garhwal,,,,Tehri Garhwal,
 ,India,West Bengal,Hoogly,,,,Hooghly,
-,ISRAEL,,,,Israel,,,Fix typos
-,Israel,South Coast District|Southern District,,,,South District,,District names
+,ISRAEL,,,,Israel,,,"Fix typos"
+,Israel,South Coast District|Southern District,,,,South District,,"District names"
 ,Israel,Central District|Central region,,,,Center District,,
 ,Israel,Northern District,,,,North District,,
 ,Israel,Tel Aviv,,,,Tel Aviv District,,
-,Israel,ELAD|Elad,,,,Center District,El'ad,Move cities into districts
+,Israel,ELAD|Elad,,,,Center District,El'ad,"Move cities into districts"
 ,Israel,Beerot-Itzhak,,,,Center District,Be'erot Yitzhak,
 ,Israel,GANI TIKVA|Gani Tikva,,,,Center District,Ganei Tikva,
 ,Israel,GEDERA|Gedera,,,,Center District,Gedera,
@@ -111,16 +112,16 @@ Asian,,,,Asia,,,,Fix typos
 ,Israel,RAMAT-GAN|Ramat Gan|Ramat-Gan,,,,Tel Aviv District,Ramat Gan,
 ,Israel,Ramat-Hasharon,,,,Tel Aviv District,Ramat HaSharon,
 ,Israel,TEL-AVIV|Tel-Aviv,,,,Tel Aviv District,Tel Aviv,
-,Oman,Muscta|Musca,,,,Muscat,,Fix typos
+,Oman,Muscta|Musca,,,,Muscat,,"Fix typos"
 ,Oman,Buraymi,,,,Buraimi,,
-,Pakistan,KPK,,,,Khyber Pakhtunkhwa,,Unabbreviate province names
-,Korea|South korea,,,,South Korea,,,Korea --> South Korea. I assume North Korea is not submitting genomes...
-,Sri Lanka,KK,,,,Kahanda Kanda,,Unabbreviate
-,Taiwan,New Taipei city,,,,New Taipei City,,Fix typos
-,Thailand,Phatum thani,,,,Pathum Thani,,Fix typos
-,Vietnam,Quangning,,,,Quangninh,,Fix typos
+,Pakistan,KPK,,,,Khyber Pakhtunkhwa,,"Unabbreviate province names"
+,Korea|South korea,,,,South Korea,,,"Korea --> South Korea. I assume North Korea is not submitting genomes..."
+,Sri Lanka,KK,,,,Kahanda Kanda,,"Unabbreviate"
+,Taiwan,New Taipei city,,,,New Taipei City,,"Fix typos"
+,Thailand,Phatum thani,,,,Pathum Thani,,"Fix typos"
+,Vietnam,Quangning,,,,Quangninh,,"Fix typos"
 ,Vietnam,Thanh Hoa,,,,Thanhhoa,,
-,Belgium,Antwerp|Antwerpen|Anvers|Berchem|Berendrech-Zandvliet-Lillo|Borgerhout|Deurne|Ekeren|Hoboken|Merksem|Wilrijk,,,,Antwerp,Antwerp,Move Belgian cities into provinces. Since it is getting out of hand. the list is too big. And merge towns into parent municipalities
+,Belgium,Antwerp|Antwerpen|Anvers|Berchem|Berendrech-Zandvliet-Lillo|Borgerhout|Deurne|Ekeren|Hoboken|Merksem|Wilrijk,,,,Antwerp,Antwerp,"Move Belgian cities into provinces. Since it is getting out of hand. the list is too big. And merge towns into parent municipalities"
 ,Belgium,Balen,,,,Antwerp,Balen,
 ,Belgium,Beerse|Vlimmeren,,,,Antwerp,Beerse,
 ,Belgium,Bonheiden,,,,Antwerp,Bonheiden,
@@ -351,12 +352,12 @@ Asian,,,,Asia,,,,Fix typos
 ,Belgium,Ukkel,,,,Brussels-Capital Region,Uccle,
 ,Belgium,Watermaal-Bosvoorde,,,,Brussels-Capital Region,Watermael-Boitsfort,
 ,Belgium,Sint-Pieter-Woluwe|Sint-Pieters-Woluwe|Sint-pieters-woluwe,,,,Brussels-Capital Region,Woluwe-Saint-Pierre,
-,Belgium,Mepel,,,,-1,,Can't find a division for this location
-,Bosnia and Hercegovina,,,,Bosnia and Herzegovina,,,Fix typos
-,Croatia,Varazdin,,,,Varaždin County,,Fix typos
-,Czech Republic|Czech Repubic,,,,Czechia,,,Rename from "Czech Republic" --> "Czechia"
-,Czechia,Prague,,,,Central Czechia and Prague,,Move "Prague" --> "Central Czhechia and Prague"
-,Czechia,Vysocina Region,,,,Vysocina,,Fix typos
+,Belgium,Mepel,,,,-1,,"Can't find a division for this location"
+,Bosnia and Hercegovina,,,,Bosnia and Herzegovina,,,"Fix typos"
+,Croatia,Varazdin,,,,Varaždin County,,"Fix typos"
+,Czech Republic|Czech Repubic,,,,Czechia,,,"Rename from 'Czech Republic' --> 'Czechia'"
+,Czechia,Prague,,,,Central Czechia and Prague,,"Move 'Prague' --> 'Central Czhechia and Prague'"
+,Czechia,Vysocina Region,,,,Vysocina,,"Fix typos"
 ,Czechia,Plzen,,,,Plzeň,,
 ,Czechia,Usti nad Labem Region,,,,Usti nad Labem,,
 ,Belgium,Saint-Saulve,,,France,Hauts-de-France,,"Move Saint-Saulve from Belgium to France"
@@ -380,25 +381,25 @@ Asian,,,,Asia,,,,Fix typos
 ,France,MP,,,France,Midi-Pyrénées,,
 ,France,PACA|Provence-Alpes-Cote d'Azur|Provence-Alpes-Cote-d’Azur|Provence-Alpes-Côte d'Azur,,,France,Provence-Alpes-Côte-d’Azur,,
 # ,France,NA,,,France,Nouvelle-Aquitaine,,
-Europe,Georgia,,,Asia,,,,Move to Asia
-,Germany,Munich,,,,Bavaria,Munich,Move Munich division into Bavaria division
-,Germany,Duesseldorf,,,,North Rhine-Westphalia,Duesseldorf,Move cities to provinces
+Europe,Georgia,,,Asia,,,,"Move to Asia"
+,Germany,Munich,,,,Bavaria,Munich,"Move Munich division into Bavaria division"
+,Germany,Duesseldorf,,,,North Rhine-Westphalia,Duesseldorf,"Move cities to provinces"
 ,Germany,Frankfurt,,,,Hesse,Frankfurt,
 ,Germany,Rostock,,,,Mecklenburg-Vorpommern,Rostock,
-,Germany,Baden-Wuerttemberg,,,,Baden-Württemberg,,Fix typos
+,Germany,Baden-Wuerttemberg,,,,Baden-Württemberg,,"Fix typos"
 ,Germany,North Rhine Westphalia,,,,North Rhine-Westphalia,,
 ,Germany,North Rhine-Westphalia,Duesseldorf area|Duesseldorf,,,,Düsseldorf,
 ,Germany,North Rhine-Westphalia,Heinsberg District,,,,Heinsberg,
-,Hungary,Borsod-Abauj-Zemplen county|Borsod-Abauj-Zemplen County,,,,Borsod-Abaúj-Zemplén County,,Fix typos
-,Italy,Lombarida|Lombardia,,,,Lombardy,,Fix typos
-,Italy,Castel di Sangro,,,,Abruzzo,Castel di Sangro,Move cities to provinces
+,Hungary,Borsod-Abauj-Zemplen county|Borsod-Abauj-Zemplen County,,,,Borsod-Abaúj-Zemplén County,,"Fix typos"
+,Italy,Lombarida|Lombardia,,,,Lombardy,,"Fix typos"
+,Italy,Castel di Sangro,,,,Abruzzo,Castel di Sangro,"Move cities to provinces"
 ,Italy,Teramo,,,,Abruzzo,Teramo,
 ,Italy,Cagliari,,,,Sardinia,Cagliari,
 ,Italy,Milan,,,,Lombardy,Milan,
 ,Italy,Palermo,,,,Sicily,Palermo,
 ,Italy,Rome,,,,Lazio,Rome,
 ,Lithuania,Vilnius r.,,,,Vilnius,,
-,Netherlands,Coevorden|Dalen,,,,Drenthe,Coevorden,Move municipalities into provinces
+,Netherlands,Coevorden|Dalen,,,,Drenthe,Coevorden,"Move municipalities into provinces"
 ,Netherlands,Drente,,,,Drenthe,,
 ,Netherlands,Zeewolde,,,,Flevoland,Zeewolde,
 ,Netherlands,Andel,,,,North Brabant,Altena,
@@ -428,18 +429,18 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Norway,TromsogFinnmark,,,,Troms og Finnmark,,
 ,Norway,Trondelag,,,,Trøndelag,,
 ,Norway,Vestlandet,,,,Vestland,,
-,Poland,Dolnoslakie|Dolnoslaskie,,,,Dolnośląskie,,Fix typos
-,Poland,Pomorze|Pomerania,,,,Pomorskie,,Don't use anglicized names here
+,Poland,Dolnoslakie|Dolnoslaskie,,,,Dolnośląskie,,"Fix typos"
+,Poland,Pomorze|Pomerania,,,,Pomorskie,,"Don't use anglicized names here"
 ,Poland,Malopolska,,,,Malopolskie,,
 ,Poland,Wielkopolska,,,,Wielkopolskie,,
-,Poland,Zielonogorskie,,,,Lubusz,,Zielonogorskie -> Lubusz
-,Poland,,Krakow,,,,Kraków,Fix typos
+,Poland,Zielonogorskie,,,,Lubusz,,"Zielonogorskie -> Lubusz"
+,Poland,,Krakow,,,,Kraków,"Fix typos"
 ,Poland,,Łódzkie,,,,Lodzkie,
-,ÄéRomania|‎Romania,,,,Romania,,,Fix weird encoding issue
-,Romania,Bucuresti,,,,Bucharest,,Anglicize
-,Russia,Moscow,,,,Moscow Region,,Fix typos
+,ÄéRomania|‎Romania,,,,Romania,,,"Fix weird encoding issue"
+,Romania,Bucuresti,,,,Bucharest,,"Anglicize"
+,Russia,Moscow,,,,Moscow Region,,"Fix typos"
 ,Russia,Saint-Petersburg|St. Petersburg|St.Petersburg,,,,Saint Petersburg,,
-,Sweden,Andalusia,,,Spain,,,Move Andalusia from Sweden to Spain
+,Sweden,Andalusia,,,Spain,,,"Move Andalusia from Sweden to Spain"
 ,Spain,BasqueCountry|Basque_Country,,,,Basque Country,,"Fix typos, unify provinces/locations"
 ,Spain,Balear_Islands|Balear Islands|Illes Balears,,,,Balearic Islands,,
 ,Spain,Castilla La Mancha,,,,Castilla-La Mancha,,
@@ -490,7 +491,7 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Spain,Andalucia,,,,Andalusia,,"Fix typos"
 ,Spain,Madrid,Alcala deenares,,,,Alcala de Henares
 ,Spain,Madrid,Arganda,,,,Arganda del Rey
-,Sweden,Vasterbotten,,,,Västerbotten,,Fix typos
+,Sweden,Vasterbotten,,,,Västerbotten,,"Fix typos"
 ,Sweden,Gavleborgs lan,,,,Gavleborg,,
 ,Sweden,Orebro lan,,,,Orebro,,
 ,Sweden,Jamtland Harjedalen,,,,Jamtland,,
@@ -503,39 +504,39 @@ Europe,Georgia,,,Asia,,,,Move to Asia
 ,Switzerland,Zurich,,,,Zürich,,
 ,Switzerland,Graubunden,,,,Graubünden,,
 ,Switzerland,Sankt Gallen|St. Gallen,,,,St Gallen,,
-,United Kingdom,,Northamtonshire,,,,Northamptonshire,Fix typos
-,England,,,,United Kingdom,England,,Move England into UK
-,Canada,MB,,,,Manitoba,,Unabbreviate province names
+,United Kingdom,,Northamtonshire,,,,Northamptonshire,"Fix typos"
+,England,,,,United Kingdom,England,,"Move England into UK"
+,Canada,MB,,,,Manitoba,,"Unabbreviate province names"
 ,Canada,NB,,,,New Brunswick,,
 ,Canada,NL,,,,Newfoundland and Labrador,,
 ,Canada,NS,,,,Nova Scotia,,
 ,Canada,SK,,,,Saskatchewan,,
-,Canada,Toronto,,,,Ontario,Toronto,Toronto -> Ontario
-,Mexico,CDMX,,,,Mexico City,,Unabbreviate province names
+,Canada,Toronto,,,,Ontario,Toronto,"Toronto -> Ontario"
+,Mexico,CDMX,,,,Mexico City,,"Unabbreviate province names"
 ,Mexico,BC,,,,Baja California,,
 ,Mexico,BCS,,,,Baja California Sur,,
-Noth America|North america,,,,North America,,,,Who misspelled north??
+Noth America|North america,,,,North America,,,,"Who misspelled north??"
 ,United States,,,,USA,,,Merge with "United States"
-USA,,,,North America,USA,,,Merge with USA region
-,USA,District of Columbia,,,,Washington DC,,Unify with "District of Columbia"
-,USA,Arizona,Maricopa county|Phoenix,,,,Maricopa County,Move Phoenix into Maricopa County
-,USA,Califonia,,,,California,,Fix typos
-,USA,California,Grand Princess|Grand Princess cruise ship,,,,Grand Princess Cruise Ship,Unify county names
+USA,,,,North America,USA,,,"Merge with USA region"
+,USA,District of Columbia,,,,Washington DC,,"Unify with 'District of Columbia'"
+,USA,Arizona,Maricopa county|Phoenix,,,,Maricopa County,"Move Phoenix into Maricopa County"
+,USA,Califonia,,,,California,,"Fix typos"
+,USA,California,Grand Princess|Grand Princess cruise ship,,,,Grand Princess Cruise Ship,"Unify county names"
 ,USA,California,San Diego,,,,San Diego County,
 ,USA,California,San Francisco,,,,San Francisco County,
-,USA,California,Davis,,,,Yolo County,Davis -> Yolo County
-,USA,California,Los Angeles|Los Angeles county,,,,Los Angeles County,LA -> LA County
-,USA,Los Angeles,,,,California,Los Angeles County,Los Angeles division -> California
+,USA,California,Davis,,,,Yolo County,"Davis -> Yolo County"
+,USA,California,Los Angeles|Los Angeles county,,,,Los Angeles County,"LA -> LA County"
+,USA,Los Angeles,,,,California,Los Angeles County,"Los Angeles division -> California"
 ,USA,California,Alameda,,,,Alameda County,
 ,USA,California,Solano,,,,Solano County,
-,USA,San Diego,,,,California,San Diego County,Move San Diego division into California
-,USA,California,Imperial,,,,Imperial County,Imperial -> Imperial County
-,USA,California,Marin county,,,,Marin County,Fix typos
+,USA,San Diego,,,,California,San Diego County,"Move San Diego division into California"
+,USA,California,Imperial,,,,Imperial County,"Imperial -> Imperial County"
+,USA,California,Marin county,,,,Marin County,"Fix typos"
 ,USA,California,San Diego county,,,,San Diego County,
 ,USA,California,Santa Clara county,,,,Santa Clara County,
 ,USA,California,Santa Barbara,,,,Santa Barbara County,
-,USA,Grand Princess,,,USA,California,Grand Princess Cruise Ship,Move Grand Princess into California
-,USA,Alameda County,,,USA,California,Alameda County,Move counties from USA into California
+,USA,Grand Princess,,,USA,California,Grand Princess Cruise Ship,"Move Grand Princess into California"
+,USA,Alameda County,,,USA,California,Alameda County,"Move counties from USA into California"
 ,USA,Imperial County,,,USA,California,Imperial County,
 ,USA,Kings County,,,USA,California,Kings County,
 ,USA,Lake County,,,USA,California,Lake County,
@@ -548,55 +549,55 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Santa Barbara County,,,USA,California,Santa Barbara County,
 ,USA,Solano County,,,USA,California,Solano County,
 ,USA,Tuolumne County,,,USA,California,Tuolumne County,
-,USA,Wisconsin,Coloardo Springs,,,Colorado,Colorado Springs,Move Colorado Springs from Wisconsin to Colorado
-,USA,Colorado,Colorado Springs,,,,El Paso County,Colorado Springs -> El Paso County
-,USA,Colorado,Denver county,,,,Denver County,Fix typos
-,USA,CT,,,,Connecticut,,CT --> Connecticut
+,USA,Wisconsin,Coloardo Springs,,,Colorado,Colorado Springs,"Move Colorado Springs from Wisconsin to Colorado"
+,USA,Colorado,Colorado Springs,,,,El Paso County,"Colorado Springs -> El Paso County"
+,USA,Colorado,Denver county,,,,Denver County,"Fix typos"
+,USA,CT,,,,Connecticut,,"CT --> Connecticut"
 ,USA,Connecticut,Fairfield county|Fairfield|Greenwich|NEWTOWN|Newtown|Bridgeport|New Fairfield|Port Chester|Riverside|Shelton|Stratford|Trumbull,,,,Fairfield County,Move towns to counties
 ,USA,Connecticut,Bristol|Glastonbury|Manchester,,,,Hartford County,
 ,USA,Connecticut,Beacon Falls|BRANFORD|Branford|North-Branford|Bethany|Cheshire|East-Haven|East Haven|HAMDEN|Hamden|MADISON|Madison|MERIDEN|Meriden|Milford|NORTHFORD|Northford|New-Haven|New Haven|North-Haven|North Haven|Prospect|SEYMOUR|Seymour|Seymor|WALLINGFORD|Wallingford|Waterbury|WOODBRIDGE|Woodbridge|West-Haven|West Haven,,,,New Haven County,
 ,USA,Connecticut,Mount-Vernon,,,,Tolland County,
-,USA,FLorida,,,,Florida,,Fix typos
+,USA,FLorida,,,,Florida,,"Fix typos"
 ,USA,Florida,Miami|Miami-dade county,,,,Miami-Dade County,
 ,USA,Florida,Palm Beach county,,,,Palm Beach County,
-,USA,Illinois,Chicago|Cook county,,,,Cook County,Move Chicago -> Cook County
-,USA,Illinois,Dupage county,,,,Dupage County,Fix typos
+,USA,Illinois,Chicago|Cook county,,,,Cook County,"Move Chicago -> Cook County"
+,USA,Illinois,Dupage county,,,,Dupage County,"Fix typos"
 ,USA,Illinois,Kane county,,,,Kane County,
 ,USA,Illinois,Lake county,,,,Lake County,
 ,USA,Illinois,Mchenry county|McHenry county,,,,McHenry County,
 ,USA,Illinois,Winnebago county,,,,Winnebago County,
-,USA,Iowa,Jackson county,,,,Jackson County,Fix typos
-,USA,LA,,,,Louisiana,,Assume LA is Louisiana and not Los Angeles
-,USA,New Jersey,Hudson,,,,Hudson County,Fix typos
-,USA,MD,,,,Maryland,,Fix typos
-,USA,Massachusetts,Middlesex county,,,,Middlesex County,Fix typos
+,USA,Iowa,Jackson county,,,,Jackson County,"Fix typos"
+,USA,LA,,,,Louisiana,,"Assume LA is Louisiana and not Los Angeles"
+,USA,New Jersey,Hudson,,,,Hudson County,"Fix typos"
+,USA,MD,,,,Maryland,,"Fix typos"
+,USA,Massachusetts,Middlesex county,,,,Middlesex County,"Fix typos"
 ,USA,Massachusetts,Norfolk county,,,,Norfolk County,
-,USA,Minnesota,Stearns county,,,,Stearns County,Fix typos
+,USA,Minnesota,Stearns county,,,,Stearns County,"Fix typos"
 ,USA,Minnesota,Houston county,,,,Houston County,
 ,USA,Missouri,Saint Louis county|St. Louis,,,,Saint Louis County,
-,USA,Misssouri,,,,Missouri,,Fix typos
-,USA,New Jersey,Bergen county,,,,Bergen County,Fix typos
+,USA,Misssouri,,,,Missouri,,"Fix typos"
+,USA,New Jersey,Bergen county,,,,Bergen County,"Fix typos"
 ,USA,New Jersey,Essex county,,,,Essex County,
 ,USA,NY,,,,New York,,"Assume NY is NY State"
 ,USA,New York City,,,,New York,New York City,"Move NYC division into NY State division"
 ,USA,New York County,,,,New York,New York City,
 ,USA,New York,New York,,,,-1,Remove redundant "New York"
 ,USA,New York,Bronx|Brooklyn|Manhattan|Queens|Staten Island|New York county,,,,New York City,
-,USA,New York,Nassau|Nassau county,,,,Nassau County,Merge NYC boroughs into one NYC
-,USA,New York,Rockland,,,,Rockland County,Unify county names
+,USA,New York,Nassau|Nassau county,,,,Nassau County,"Merge NYC boroughs into one NYC"
+,USA,New York,Rockland,,,,Rockland County,"Unify county names"
 ,USA,New York,Suffolk|Suffolk county,,,,Suffolk County,
 ,USA,New York,Westchester,,,,Westchester County,
-,USA,New York,,,,,-1,Remove empty location
-,USA,Nassau County,,,,New York,Nassau County,Move Nassau County into NY
-,USA,,Yorktown Heights,,,New York,Westchester County,Move Yorktown Heights from CT into NY
+,USA,New York,,,,,-1,"Remove empty location"
+,USA,Nassau County,,,,New York,Nassau County,"Move Nassau County into NY"
+,USA,,Yorktown Heights,,,New York,Westchester County,"Move Yorktown Heights from CT into NY"
 ,USA,New York,New Rochelle,,,,Westchester County,"Move towns into counties, fix typos"
 ,USA,New York,Onondaga county,,,,Onondaga County,
 ,USA,New York,Rockland county,,,,Rockland County,
 ,USA,New York,Westchester county,,,,Westchester County,
 ,USA,New York,Putnam county,,,,Putnam County,
-,USA,Pennsylvania,Montgomery county,,,,Montgomery County,Fix typos
-,USA,Pennsylvania,Pittsburgh|Allegheny county|Alleghany County,,,,Allegheny County,Pittsburgh -> Alleghany County
-,USA,South Carolina,Richland,,,,Richland County,Fix typos
+,USA,Pennsylvania,Montgomery county,,,,Montgomery County,"Fix typos"
+,USA,Pennsylvania,Pittsburgh|Allegheny county|Alleghany County,,,,Allegheny County,"Pittsburgh -> Alleghany County"
+,USA,South Carolina,Richland,,,,Richland County,"Fix typos"
 ,USA,South Carolina,Fairfield,,,,Fairfield County,
 ,USA,South Carolina,Berkeley,,,,Berkeley County,
 ,USA,Texas,Cameron,,,,Cameron County,
@@ -604,13 +605,12 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Texas,Harris,,,,Harris County,
 ,USA,Texas,Hidalgo,,,,Hidalgo County,
 ,USA,Texas,Houston,,,,Houston County,
-,USA,VT,,,,Vermont,,VT -> Vermont
-,USA,Washington,Unknown,,,,-1,Unknown -> -1
-,USA,Washington,Kirkland|Seattle,,,,King County,Move towns into counties
+,USA,VT,,,,Vermont,,"VT -> Vermont"
+,USA,Washington,Kirkland|Seattle,,,,King County,"Move towns into counties"
 ,USA,Washington,Tacoma,,,,Pierce County,
-,USA,Washington,Unknown County,,,,-1,Remove unknown county
+,USA,Washington,Unknown County,,,,-1,"Remove unknown county"
 ,USA,Wisconsin,Campbellsp,,,,Campbellsport,
-,USA,Wisconsin,Jackson,,,,Jackson County,Unify county names
+,USA,Wisconsin,Jackson,,,,Jackson County,"Unify county names"
 ,USA,Wisconsin,Bayside,,,,Milwaukee County,
 ,USA,Wisconsin,Belleville,,,,Dane County,"Move towns into counties. If a town straddles a county line, move into the one its in more, population-wise"
 ,USA,Wisconsin,Beloit,,,,Rock County,
@@ -629,8 +629,8 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Wisconsin,Elm Grove,,,,Waukesha County,
 ,USA,Wisconsin,Fitchburg,,,,Dane County,
 ,USA,Wisconsin,Fitchburg,,,,Dane County,
-,USA,Wisconsin,Franklin,,,,Milwaukee County,Assume this Franklin is in milwaukee
-,USA,Wisconsin,Glendale,,,,Milwaukee County,Just dump this all in Milwaukee
+,USA,Wisconsin,Franklin,,,,Milwaukee County,"Assume this Franklin is in milwaukee"
+,USA,Wisconsin,Glendale,,,,Milwaukee County,"Just dump this all in Milwaukee"
 ,USA,Wisconsin,Grafton,,,,Ozaukee County,
 ,USA,Wisconsin,Greater Milwaukee Area,,,,Milwaukee County,
 ,USA,Wisconsin,Greenfield,,,,Milwaukee County,
@@ -666,7 +666,7 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Wisconsin,Waunakee,,,,Dane County,
 ,USA,Wisconsin,Wauwatosa,,,,Milwaukee County,
 ,USA,Wisconsin,Whitefish,,,,Milwaukee County,
-,USA,Wisconsin,Ozaukee county,,,,Ozaukee County,Fix typos
+,USA,Wisconsin,Ozaukee county,,,,Ozaukee County,"Fix typos"
 ,USA,Wisconsin,Rock county,,,,Rock County,
 ,USA,Wisconsin,Lafayette county,,,,Lafayette County,
 ,USA,Wisconsin,Columbia county,,,,Columbia County,
@@ -690,16 +690,16 @@ USA,,,,North America,USA,,,Merge with USA region
 ,USA,Wisconsin,Winnebago county,,,,Winnebago County,
 ,USA,Wisconsin,Eau claire County,,,,Eau Claire County,
 ,USA,Wisconsin,Iowa county,,,,Iowa County,
-,Reunion,,,Oceania,,,,Move to oceania
+,Reunion,,,Oceania,,,,"Move to oceania"
 ,Australia,NSW,,,,New South Wales,,"Fix typos, unabbreviate province names"
 ,Australia,Northern territory,,,,Northern Territory,,
-,New Zealand,Combined Wellington,,,,Wellington,,Fix typos
+,New Zealand,Combined Wellington,,,,Wellington,,"Fix typos"
 ,New Zealand,Counties Manukau,,,,Auckland,,
-,Argentina,Ciudad Autonoma de Buenos Aires,,,,Buenos Aires,,Fix typos
-,Brazil,Minas gerais,,,,Minas Gerais,,Fix typos
+,Argentina,Ciudad Autonoma de Buenos Aires,,,,Buenos Aires,,"Fix typos"
+,Brazil,Minas gerais,,,,Minas Gerais,,"Fix typos"
 ,Brazil,São Paulo,,,,Sao Paulo,,
-,Brazil,,Sao Paulo,,,,-1,Remove redundant Sao Paolo location
-,Brazil,,DUQUE DE CAXIAS,,,,Duque de Caxias,Fix more typos
+,Brazil,,Sao Paulo,,,,-1,"Remove redundant Sao Paolo location"
+,Brazil,,DUQUE DE CAXIAS,,,,Duque de Caxias,"Fix more typos"
 ,Brazil,,NITEROI,,,,Niteroi,
 ,Brazil,,NOVA IGUACU,,,,Nova Iguacu,
 ,Brazil,,PETROPOLIS,,,,Petropolis,
@@ -710,7 +710,7 @@ USA,,,,North America,USA,,,Merge with USA region
 ,Brazil,Goiais,,,,Goiás,,
 ,Brazil,Maranhao,,,,Maranhão,,
 ,Brazil,Parana,,,,Paraná,,
-,Colombia,Norte de santander,,,,Norte de Santander,,Fix more typos
+,Colombia,Norte de santander,,,,Norte de Santander,,"Fix more typos"
 ,Colombia,,Cúcuta,,,,Cucuta,
 ,Colombia,,El cerrito,,,,El Cerrito,
 ,Colombia,Armenia,,,,Quindio,Armenia,"Clean up, move cities to departments"
@@ -733,4 +733,4 @@ USA,,,,North America,USA,,,Merge with USA region
 ,Colombia,Santa Marta,,,,Magdalena,Santa Marta,
 ,Colombia,Tumaco,,,,Narino,Tumaco,
 ,Colombia,Villavicencio,,,,Meta,Villavicencio,
-Central America,,,,North America,,,,Move to North America
+Central America,,,,North America,,,,"Move to North America"
