@@ -5,6 +5,7 @@
 Table of Contents
 
 - [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
+- [Requirements](#requirements)
 - [Installation](#installation)
   - [Python](#python)
     - [Data Requirements](#data-requirements)
@@ -19,19 +20,23 @@ Table of Contents
   - [License](#license)
   - [Contributing](#contributing)
 
+
+## Requirements
+
+- Get a conda distribution of python, we recommend [miniconda3](https://docs.conda.io/en/latest/miniconda.html).
+- curl
+- node.js > 8.0.0
+- npm
+
 ## Installation
 
 `git clone https://github.com/vector-engineering/covidcg.git`
 
-### Python
+Install dependencies
 
-1. Get a conda distribution of python, we recommend [miniconda3](https://docs.conda.io/en/latest/miniconda.html).
-
-2. Install dependencies
-
-   ```sh
-   conda env create -n covidcg -f environment.yml
-   ```
+```sh
+conda env create -n covidcg -f environment.yml
+```
 
 #### Data Requirements
 
