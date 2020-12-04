@@ -197,7 +197,7 @@ def clean_age_metadata(df):
         # Extract year ranges, e.g., "10-20"
         elif re.match(r"^([0-9]+)\s?[-|–]\s?([0-9])+$", v):
             # Re-run to extract range
-            m = re.match(r"^([0-9]+)\s?-\s?([0-9])+$", v)
+            m = re.match(r"^([0-9]+)\s?[-|–]\s?([0-9])+$", v)
             start = int(m.groups()[0])
             end = int(m.groups()[1])
 
