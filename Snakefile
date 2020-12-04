@@ -45,19 +45,24 @@ rule all:
         static_data_folder + "/proteins.json",
         static_data_folder + "/primers.json",
         # Calculate global sequencing stats?
-        country_seq_stats = data_folder + '/country_score.json',
+        country_seq_stats = data_folder + "/country_score.json",
         # Packaged data
-        data_package = data_folder + '/data_package.json',
-        data_package_gz = data_folder + '/data_package.json.gz'
+        data_package = data_folder + "/data_package.json",
+        data_package_gz = data_folder + "/data_package.json.gz",
+        # Standalone map spec
+        standalone_map_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
 
 # Throw an error if the data feed credentials don't exist
 if not Path("credentials/data_feed_credentials").exists():
-    error_msg = "Credentials file in \"credentials/data_feed_credentials\" (contents of username:password) does not exist. GISAID data feed credentials are required to process the data for this app. To obtain data feed credentials, please contact techdev@gisaid.org. If you are working with in-house datasets, please contact the authors at covidcg@broadinstitute.org"
+    error_msg = "Credentials file in \"credentials/data_feed_credentials\" (contents of username:password) does not exist. GISAID data feed credentials are required to process the data for this app. If you are working with in-house datasets, please contact the authors at covidcg@broadinstitute.org"
     raise Exception(error_msg)
 
 # Get the login:password string from the "data_feed_credentials" file in the "credentials/" folder
 with open("credentials/data_feed_credentials", "r") as fp:
     cred_str = fp.read().strip()
+
+with open("credentials/data_feed_url", "r") as fp:
+    feed_url = fp.read().strip()
 
 
 rule download_data_feed:
@@ -67,8 +72,9 @@ rule download_data_feed:
         temp(os.path.join(data_folder, "feed.json.xz"))
     params:
         cred_str = cred_str
+        feed_url = feed_url
     shell:
-        "curl -L https://{params.cred_str}@www.epicov.org/epi3/3p/broad/export/export.json.xz > {output}"
+        "curl -L https://{params.cred_str}@{params.feed_url} > {output}"
 
 
 rule decompress_data_feed:
@@ -130,8 +136,14 @@ checkpoint rewrite_data_feed:
 
             # I'm pretty sure the output file is write-buffered,
             # so we can just spam the write() function
+            line_counter = 0
             for line in fp_in:
-                isolate = json.loads(line.strip())
+                try:
+                    isolate = json.loads(line.strip())
+                except json.JSONDecodeError as err:
+                    print("ERROR PARSING LINE", line_counter)
+                    print(line)
+                    continue
 
                 # Add to metadata list
                 metadata_df.append({k:isolate[k] for k in fields})
@@ -153,6 +165,8 @@ checkpoint rewrite_data_feed:
 
                 # Iterate the intra-chunk counter
                 cur_i += 1
+
+                line_counter += 1
 
         # Cast the list of dictionaries (list of metadata entries) into a pandas
         # DataFrame, and then serialize it to disk
@@ -964,6 +978,29 @@ rule compress_data_package:
         """
         gzip -9 -k {input} -c > {output}
         """
+
+
+rule create_standalone_map_spec:
+    input:
+        data = os.path.join(data_folder, "country_score.json"),
+        spec = os.path.join("src", "vega_specs", "map_combined.vg.json")
+    output:
+        standalone_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
+    run:
+        # Load vega spec JSON
+        with open(input.spec, "r") as fp:
+            spec = json.loads(fp.read())
+        
+        # Load data JSON
+        with open(input.data, "r") as fp:
+            data = json.loads(fp.read())
+        
+        # Inject data array into spec object
+        spec["data"][0]["values"] = data
+
+        # Save spec with injected data
+        with open(output.standalone_spec, "w") as fp:
+            fp.write(json.dumps(spec))
 
 
 # # This is only for site maintainers

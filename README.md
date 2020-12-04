@@ -38,33 +38,6 @@ Install dependencies
 conda env create -n covidcg -f environment.yml
 ```
 
-#### Data Requirements
-
-Data processing is handled by a snakemake pipeline as defined in `Snakefile` in the project root. Input data is currently downloaded from a GISAID feed, where each isolate is a line of a serialized JSON object. The fields required for each isolate's JSON object are:
-
-- sequence
-- covv_virus_name
-- covv_passage
-- covv_gender
-- covv_specimen
-- covv_location
-- covv_patient_age
-- covv_seq_technology
-- covv_lineage
-- covv_patient_status
-- covv_orig_lab
-- covv_collection_date
-- covv_accession_id
-- covv_subm_lab
-- covv_comment_type
-- covv_clade
-- covv_subm_date
-- covv_host
-- covv_authors
-- covv_assembly_method
-
-Instructions for processing data from another data source, such as in-house data, is coming soon.
-
 ### Javascript
 
 This app was built from the [react-slingshot](https://github.com/coryhouse/react-slingshot) example app.

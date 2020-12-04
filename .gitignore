@@ -98,3 +98,4 @@ server/htpasswd
 
 # Ignore data feed credentials
 credentials/data_feed_credentials
+credentials/data_feed_url
