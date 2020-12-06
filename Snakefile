@@ -5,6 +5,7 @@ import os
 import numpy as np
 import shutil
 
+from collections import defaultdict
 from pathlib import Path
 
 from cg_scripts.clean_metadata import clean_metadata
@@ -69,28 +70,15 @@ rule download_data_feed:
     """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
     """
     output:
-        temp(os.path.join(data_folder, "feed.json.xz"))
-    params:
-        cred_str = cred_str
-        feed_url = feed_url
-    shell:
-        "curl -L https://{params.cred_str}@{params.feed_url} > {output}"
-
-
-rule decompress_data_feed:
-    """Decompress the downloaded data feed from `download_data_feed`
-    Touches a result status file that the main rule will look for every day
-    """
-    input:
-        data_feed = os.path.join(data_folder, "feed.json.xz")
-    output:
-        data_feed = os.path.join(data_folder, "feed.json"),
+        feed = temp(os.path.join(data_folder, "feed.json")),
         status = touch(os.path.join(data_folder, "status", "download_" + today_str + ".done"))
+    params:
+        cred_str = cred_str,
+        feed_url = feed_url
     threads: workflow.cores
     shell:
-        """
-        unxz {input.data_feed} --threads={threads}
-        """
+        "curl -L https://{params.cred_str}@{params.feed_url} | unxz --threads={threads} -c - > {output.feed}"
+
 
 checkpoint rewrite_data_feed:
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
@@ -102,13 +90,21 @@ checkpoint rewrite_data_feed:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
         metadata = os.path.join(data_folder, "metadata.csv")
     params:
-        chunk_size = 200
+        chunk_size = 10000
     run:
+
+        output_path = Path(output.fasta)
 
         # Make the output directory, if it hasn't been made yet
         # Snakemake won't make the directory itself, since it's a special
         # directory output
-        Path(output.fasta).mkdir(exist_ok=True)
+        if not output_path.exists():
+            output_path.mkdir(exist_ok=True)
+        else:
+            # Erase all files in the output directory
+            for fasta_file in output_path.iterdir():
+                if fasta_file.is_file():
+                    fasta_file.unlink()
 
         # Keep track of which chunk we're on and how far we're along the
         # current chunk
@@ -131,13 +127,30 @@ checkpoint rewrite_data_feed:
         
         with open(input.data_feed, "r") as fp_in:
 
+
             # Open up the initial fasta file for the first chunk
-            fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
+            # fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
+            fasta_by_subm_date = defaultdict(list)
 
             # I'm pretty sure the output file is write-buffered,
             # so we can just spam the write() function
             line_counter = 0
             for line in fp_in:
+
+                # Flush results if chunk is full, or if we hit the end of the feed
+                if not line or cur_i == params.chunk_size:
+                    for date, seqs in fasta_by_subm_date.items():
+                        # Open the output fasta file for this date chunk
+                        fasta_out_path = output_path / (date + ".fa")
+                        with fasta_out_path.open("a") as fp_out:
+                            for seq in seqs:
+                                fp_out.write(">" + seq[0] + "\n" + seq[1] + "\n")
+                    # Reset chunk counter
+                    chunk_i += 1
+                    cur_i = 0
+                    # Reset sequence dictionary
+                    fasta_by_subm_date = defaultdict(list)
+
                 try:
                     isolate = json.loads(line.strip())
                 except json.JSONDecodeError as err:
@@ -148,20 +161,10 @@ checkpoint rewrite_data_feed:
                 # Add to metadata list
                 metadata_df.append({k:isolate[k] for k in fields})
 
-                # Write sequence
-                fasta_out.write(
-                    ">" + isolate["covv_accession_id"] + "\n" + 
-                    isolate["sequence"] + "\n"
-                )
-
-                # If we've hit the end of the current chunk, then close out
-                # the current chunk's fasta file, iterate the chunk counter,
-                # and open up the new chunk's fasta file in place of the old one
-                if cur_i == params.chunk_size:
-                    fasta_out.close()
-                    cur_i = 0
-                    chunk_i += 1
-                    fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
+                # Store sequence in dictionary
+                fasta_by_subm_date[isolate['covv_subm_date']].append((
+                    isolate["covv_accession_id"], isolate["sequence"]
+                ))
 
                 # Iterate the intra-chunk counter
                 cur_i += 1
@@ -386,14 +389,32 @@ rule combine_snps:
         dna_snp = os.path.join(data_folder, "dna_snp.csv"),
         gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
         protein_aa_snp = os.path.join(data_folder, "protein_aa_snp.csv")
-    shell:
+    run:
+        # This was originally done with this shell command:
         """
         # https://apple.stackexchange.com/questions/80611/merging-multiple-csv-files-without-merging-the-header
         awk '(NR == 1) || (FNR > 1)' {input.dna_snp} > {output.dna_snp}
         awk '(NR == 1) || (FNR > 1)' {input.gene_aa_snp} > {output.gene_aa_snp}
         awk '(NR == 1) || (FNR > 1)' {input.protein_aa_snp} > {output.protein_aa_snp}
         """
+        # But this did not handle empty files well. So instead just writing this part in
+        # python. It'll be a bit slower but whatever
 
+        snp_types = ["dna_snp", "gene_aa_snp", "protein_aa_snp"]
+
+        for snp_type in snp_types:
+            with open(output[snp_type], "w") as fp_out:
+                chunks = input[snp_type]
+                for i, chunk in enumerate(chunks):
+                    with open(chunk, "r") as fp_in:
+                        for j, line in enumerate(fp_in):
+                            # Write the header of the first file
+                            # Or write any line that's not the header
+                            # (to avoid writing the header more than once)
+                            if (i == 0 and j == 0) or j > 0:
+                                fp_out.write(line)
+
+        
 rule process_snps:
     """Filter out low-occurrence SNVs and assign each
     SNV an integer ID, to be mapped back on the front-end
@@ -414,32 +435,18 @@ rule process_snps:
         gene_aa_snp_map = os.path.join(data_folder, "gene_aa_snp_map.json"),
         protein_aa_snp_map = os.path.join(data_folder, "protein_aa_snp_map.json")
     run:
-        dna_snp_group_df, dna_snp_map = process_snps(
-            input.dna_snp, 
-            mode="dna", 
-            count_threshold=params.count_threshold
-        )
-        gene_aa_snp_group_df, gene_aa_snp_map = process_snps(
-            input.gene_aa_snp, 
-            mode="gene_aa", 
-            count_threshold=params.count_threshold
-        )
-        protein_aa_snp_group_df, protein_aa_snp_map = process_snps(
-            input.protein_aa_snp, 
-            mode="protein_aa", 
-            count_threshold=params.count_threshold
-        )
+        snp_types = ["dna_snp", "gene_aa_snp", "protein_aa_snp"]
+        snp_modes = ["dna", "gene_aa", "protein_aa"]
+        for snp_type, snp_mode in zip(snp_types, snp_modes):
+            snp_group_df, snp_map = process_snps(
+                input[snp_type], 
+                mode=snp_mode, 
+                count_threshold=params.count_threshold
+            )
 
-        # Save files
-        dna_snp_group_df.to_csv(output.dna_snp_group, index=False)
-        gene_aa_snp_group_df.to_csv(output.gene_aa_snp_group, index=False)
-        protein_aa_snp_group_df.to_csv(output.protein_aa_snp_group, index=False)
-
-        # Save maps
-        # snp_map.to_csv(data_dir / "snp_map.csv", index_label="snp", header=["id"])
-        dna_snp_map.to_json(output.dna_snp_map, orient="index")
-        gene_aa_snp_map.to_json(output.gene_aa_snp_map, orient="index")
-        protein_aa_snp_map.to_json(output.protein_aa_snp_map, orient="index")
+            # Save files
+            snp_group_df.to_csv(output[snp_type + "_group"], index=False)
+            snp_map.to_json(output[snp_type + "_map"], orient="index")
 
 
 rule generate_ui_data:
