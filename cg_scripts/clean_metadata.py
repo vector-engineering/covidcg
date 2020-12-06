@@ -44,6 +44,7 @@ def clean_gender_metadata(df):
             "nan",
             "Not reported to protect privacy",
             "unknow",
+            "?",
         ],
     }
 
@@ -357,20 +358,18 @@ def clean_passage_metadata(df):
             "Origional",
             "Original (first sample)",
             "original",
-            "Clinical specimen",
-            "Clinicial specimen",
-            "Original (Clinical sample)",
             "Orignial",
-            "Original (Clinical Sample)",
-            "Liver",
-            "Original (Brain tissue)",
             "Oroginal",
-            "Original(Clinical Sample)",
             "Orginial",
             "Original, from nasopharyngeal aspirate",
             "ORIGINAL",
             "origin",
         ],
+        "Original (Clinical Sample)": [
+            "Original (Clinical sample)",
+            "Original(Clinical Sample)",
+        ],
+        "Clinical Specimen": ["Clinical specimen", "Clinicial specimen"],
         "Vero": ["Vero cells"],
         "Vero P1": [
             "Vero p1",
@@ -384,9 +383,11 @@ def clean_passage_metadata(df):
         "Vero P3": ["Vero cell P3"],
         "Vero P4": ["Vero cell P4"],
         "LLC-MK2": [],
-        "P1": ["Virus Isolate, Passage 1", "C1"],
+        "P1": ["Virus Isolate, Passage 1", "C1", "Viral culture P1", "V1"],
         "P2": ["Passage 2"],
         "P3": [],
+        "P4": [],
+        "P5": [],
         "Vero E6": [
             "VeroE6",
             "Vero-E6",
@@ -405,16 +406,25 @@ def clean_passage_metadata(df):
             "Passage 1 / Vero-E6",
             "P1 / Vero-E6",
             "P1/ Vero-E6",
+            "VeroE6 P1",
         ],
-        "Vero E6 P2": ["VeroE6/P2", "VERO E6 / P2", "Vero E6 cells, P2"],
+        "Vero E6 P2": [
+            "VeroE6/P2",
+            "VERO E6 / P2",
+            "Vero E6 cells, P2",
+            "Vero E6 / P2",
+            "Vero E6/P2",
+            "VeroE6 P2",
+            "Vero C2",
+        ],
         "Vero E6 P3": ["VeroE6/P3", "Vero E6-P3", "VeroE6, passage 3"],
         "Vero E6 P4": ["Passage 4 in Vero E6 cells"],
         "Vero/hSLAM P1": [],
-        "Vero E6/TMPRSS2": ["VeroE6/TMPRSS2"],
-        "Caco-2": ["C2", "Caco2"],
+        "Vero E6/TMPRSS2": ["VeroE6/TMPRSS2", "Vero E6 / TMPRSS2"],
+        "Caco-2": ["Caco2"],
         "Caco-2 P1": [],
         "Caco-2 P2": ["Passage 2, Caco2"],
-        "Culture (unknown)": ["Virus culture"],
+        "Culture (unknown)": ["Virus culture", "Viral culture"],
     }
 
     passage_map = {}
@@ -424,15 +434,15 @@ def clean_passage_metadata(df):
         for _v in v:
             passage_map[_v] = k
 
-    df["passage"] = df["passage"].map(passage_map)
-
     print("done")
     print(
-        'Setting "Passage" values to "Unknown": {}'.format(
+        'Unmapped "Passage" values: {}'.format(
             ", ".join(
                 [
                     '"{}"'.format(x)
-                    for x in df["covv_passage"][pd.isnull(df["passage"])]
+                    for x in df["covv_passage"][
+                        pd.isnull(df["passage"].map(passage_map))
+                    ]
                     .astype(str)
                     .str.strip()
                     .unique()
@@ -442,10 +452,16 @@ def clean_passage_metadata(df):
         )
     )
 
-    df["passage"] = df["passage"].fillna("Unknown")
+    df["passage"] = (
+        (df["passage"].map(passage_map)).combine_first(df["passage"]).fillna("Unknown")
+    )
 
     # Only keep rows that are Original (throw out unknown as well)
-    df = df.loc[df["passage"] == "Original"]
+    original_passage = df["passage"].isin(
+        ["Original", "Original (Clinical Sample)", "Clinical Specimen"]
+    )
+    print("Excluding {} isolates passaged in culture".format((~original_passage).sum()))
+    df = df.loc[original_passage, :]
 
     return df
 
