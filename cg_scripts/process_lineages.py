@@ -5,6 +5,7 @@
 Author: Albert Chen (Deverman Lab, Broad Institute)
 """
 
+import itertools
 import pandas as pd
 import numpy as np
 
@@ -31,57 +32,43 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     group_snp_df = []
     unique_groups = sorted(case_df[group_key].unique())
 
-    for i, group in enumerate(unique_groups):
-        lin_df = case_df.loc[case_df[group_key] == group, :]
-
-        dna_snp_freqs = dict(
-            Counter(sum(lin_df["dna_snp_str"].values, [])).most_common()
-        )
-
-        dna_consensus_snps = sorted(
-            [
-                int(k)
-                for k, v in dna_snp_freqs.items()
-                if (v / len(lin_df)) >= consensus_fraction
-            ]
-        )
-
-        gene_aa_snp_freqs = dict(
-            Counter(sum(lin_df["gene_aa_snp_str"].values, [])).most_common()
-        )
-
-        gene_aa_consensus_snps = sorted(
-            [
-                int(k)
-                for k, v in gene_aa_snp_freqs.items()
-                if (v / len(lin_df)) >= consensus_fraction
-            ]
-        )
-
-        protein_aa_snp_freqs = dict(
-            Counter(sum(lin_df["protein_aa_snp_str"].values, [])).most_common()
-        )
-
-        protein_aa_consensus_snps = sorted(
-            [
-                int(k)
-                for k, v in protein_aa_snp_freqs.items()
-                if (v / len(lin_df)) >= consensus_fraction
-            ]
-        )
-
-        group_snp_df.append(
-            (
-                group,
-                dna_consensus_snps,
-                gene_aa_consensus_snps,
-                protein_aa_consensus_snps,
-            )
-        )
-
-    group_snp_df = pd.DataFrame.from_records(
-        group_snp_df,
-        columns=[group_key, "dna_snp_ids", "gene_aa_snp_ids", "protein_aa_snp_ids"],
+    collapsed_snvs = (
+        case_df.groupby(group_key)[
+            ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+        ]
+        # Instead of trying to flatten this list of lists
+        # (and calling like 100K+ mem allocs)
+        # Just make an iterator over each element of the nested lists
+        # Also, package the number of isolates per lineage in with the
+        # iterator so we can use a single aggregate function later
+        # to determine which SNVs are consensus SNVs
+        .agg(list).applymap(lambda x: (len(x), itertools.chain.from_iterable(x)))
     )
 
-    return group_snp_df
+    # For a given number of isolates per group, and the iterator
+    # over all SNVs in that group, get the consensus SNVs
+    def count_consensus(pkg):
+        # Unbundle the input tuple
+        n_isolates, it = pkg
+        # Count unique occurrences
+        counts = dict(Counter(it))
+        # Base the minimum frequency off of the required consensus fraction
+        # and the number of isolates for this group
+        min_freq = int(consensus_fraction * n_isolates)
+        # Return all SNVs which pass the min_freq threshold, sorted
+        # in ascending order?
+        return sorted([int(k) for k, v in counts.items() if v >= min_freq])
+
+    consensus_snvs = (
+        collapsed_snvs.applymap(count_consensus)
+        .reset_index()
+        .rename(
+            columns={
+                "dna_snp_str": "dna_snp_ids",
+                "gene_aa_snp_str": "gene_aa_snp_ids",
+                "protein_aa_snp_str": "protein_aa_snp_ids",
+            }
+        )
+    )
+
+    return consensus_snvs
