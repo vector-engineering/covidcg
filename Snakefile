@@ -106,10 +106,8 @@ checkpoint rewrite_data_feed:
                 if fasta_file.is_file():
                     fasta_file.unlink()
 
-        # Keep track of which chunk we're on and how far we're along the
-        # current chunk
+        # Keep track of how far we're along the current chunk
         chunk_i = 0
-        cur_i = 0
 
         # Get fields for each isolate
         fields = []
@@ -124,6 +122,14 @@ checkpoint rewrite_data_feed:
         # Store metadata entries as a list of dictionaries, for now
         # We'll wrap it in a pandas DataFrame later for easier serialization
         metadata_df = []
+
+        def flush_chunk(fasta_by_subm_date):
+            for date, seqs in fasta_by_subm_date.items():
+                # Open the output fasta file for this date chunk
+                fasta_out_path = output_path / (date + ".fa")
+                with fasta_out_path.open("a") as fp_out:
+                    for seq in seqs:
+                        fp_out.write(">" + seq[0] + "\n" + seq[1] + "\n")
         
         with open(input.data_feed, "r") as fp_in:
 
@@ -137,17 +143,11 @@ checkpoint rewrite_data_feed:
             line_counter = 0
             for line in fp_in:
 
-                # Flush results if chunk is full, or if we hit the end of the feed
-                if not line or cur_i == params.chunk_size:
-                    for date, seqs in fasta_by_subm_date.items():
-                        # Open the output fasta file for this date chunk
-                        fasta_out_path = output_path / (date + ".fa")
-                        with fasta_out_path.open("a") as fp_out:
-                            for seq in seqs:
-                                fp_out.write(">" + seq[0] + "\n" + seq[1] + "\n")
+                # Flush results if chunk is full
+                if chunk_i == params.chunk_size:
+                    flush_chunk(fasta_by_subm_date)
                     # Reset chunk counter
-                    chunk_i += 1
-                    cur_i = 0
+                    chunk_i = 0
                     # Reset sequence dictionary
                     fasta_by_subm_date = defaultdict(list)
 
@@ -167,9 +167,12 @@ checkpoint rewrite_data_feed:
                 ))
 
                 # Iterate the intra-chunk counter
-                cur_i += 1
+                chunk_i += 1
 
                 line_counter += 1
+
+            # Flush the last chunk
+            flush_chunk(fasta_by_subm_date)
 
         # Cast the list of dictionaries (list of metadata entries) into a pandas
         # DataFrame, and then serialize it to disk
