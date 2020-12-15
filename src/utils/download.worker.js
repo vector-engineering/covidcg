@@ -138,6 +138,15 @@ function downloadAggCaseDataGroup({
     csvString +=
       row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
+    // If it's the "Other" row, then don't try to get any SNVs
+    if (row['group'] === GROUPS.OTHER_GROUP) {
+      csvString += ',,';
+      // Add empty field for each changing position
+      csvString += changingPositions.map(() => '').join(',');
+      csvString += '\n';
+      continue;
+    }
+
     // Get NT SNPs
     let ntSnps = groupSnvMap[groupKey][row['group']]['dna_snp_ids'].map(
       (snvId) => {
@@ -206,8 +215,7 @@ function downloadAggCaseDataGroup({
     }
 
     // Add letters at positions
-    csvString += _.map(
-      changingPositions,
+    csvString += changingPositions.map(
       (pos) => row['pos_' + pos.toString()]
     ).join(',');
 
@@ -269,8 +277,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     csvString += row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Add letters at positions
-    csvString += _.map(
-      changingPositions,
+    csvString += changingPositions.map(
       (pos) => row['pos_' + pos.toString()]
     ).join(',');
 
