@@ -264,7 +264,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     } else {
       // Handle reference row
       if (Object.values(GROUPS).includes(row['group'])) {
-        csvString += row['group'] + ',,,,';
+        csvString += row['group'] + ',,,,,';
       } else {
         csvString +=
           [row['gene'], row['pos'], row['ref'], row['alt']].join('|') + ',';
