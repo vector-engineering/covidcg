@@ -14,7 +14,7 @@ class ObservableAsyncDataStore {
     try {
       const res = await fetch(
         'https://storage.googleapis.com/ve-public/data_package.json.gz?nocache=' +
-          new Date().getDate(),
+        Math.floor(new Date().getTime() / (1000 * 60 * 60)), // 1000 ms/s * 60 s/min * 60 min/hr
         {
           headers: {
             'Accept-Encoding': 'gzip',
