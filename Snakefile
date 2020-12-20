@@ -1,4 +1,5 @@
 import datetime
+import gzip
 import json
 import pandas as pd
 import os
@@ -29,24 +30,24 @@ static_data_folder = "static_data"
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
+reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
+gene_defs_path = os.path.join(static_data_folder, "genes.json")
+protein_defs_path = os.path.join(static_data_folder, "proteins.json")
+
 rule all:
     input:
         # Download latest data feed
         os.path.join(data_folder, "status", "download_" + today_str + ".done"),
         os.path.join(data_folder, "status", "merge_sequences_" + today_str + ".done"),
         # Process SNVs
-        os.path.join(data_folder, "dna_snp.csv"),
-        os.path.join(data_folder, "gene_aa_snp.csv"),
-        os.path.join(data_folder, "protein_aa_snp.csv"),
-        # Process case data
-        os.path.join(data_folder, "case_data.json"),
+        # os.path.join(data_folder, "dna_snp.csv"),
+        # os.path.join(data_folder, "gene_aa_snp.csv"),
+        # os.path.join(data_folder, "protein_aa_snp.csv"),
         # Generate reference-related data
         static_data_folder + "/reference.json", 
         static_data_folder + "/genes.json",
         static_data_folder + "/proteins.json",
         static_data_folder + "/primers.json",
-        # Calculate global sequencing stats?
-        country_seq_stats = data_folder + "/country_score.json",
         # Packaged data
         data_package = data_folder + "/data_package.json",
         data_package_gz = data_folder + "/data_package.json.gz",
@@ -85,7 +86,7 @@ checkpoint rewrite_data_feed:
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with thousands of files, but the filesystem seems to be handling it well.
     """
     input:
-        data_feed = os.path.join(data_folder, "feed.json")
+        data_feed = rules.download_data_feed.output.feed
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
         metadata = os.path.join(data_folder, "metadata.csv")
@@ -126,16 +127,15 @@ checkpoint rewrite_data_feed:
         def flush_chunk(fasta_by_subm_date):
             for date, seqs in fasta_by_subm_date.items():
                 # Open the output fasta file for this date chunk
-                fasta_out_path = output_path / (date + ".fa")
-                with fasta_out_path.open("a") as fp_out:
+                fasta_out_path = output_path / (date + ".fa.gz")
+                # Mode 'at' is append, in text mode
+                with gzip.open(str(fasta_out_path), 'at') as fp_out:
                     for seq in seqs:
                         fp_out.write(">" + seq[0] + "\n" + seq[1] + "\n")
         
         with open(input.data_feed, "r") as fp_in:
 
-
             # Open up the initial fasta file for the first chunk
-            # fasta_out = open(output.fasta + "/" + str(chunk_i) + ".fa", "w")
             fasta_by_subm_date = defaultdict(list)
 
             # I'm pretty sure the output file is write-buffered,
@@ -191,14 +191,14 @@ def get_changed_chunks(wildcards):
     
     # Get all chunks from the fasta_temp directory
     checkpoint_output = checkpoints.rewrite_data_feed.get(**wildcards).output[0]
-    chunks, = glob_wildcards(os.path.join(checkpoint_output, "{i}.fa"))
+    chunks, = glob_wildcards(os.path.join(checkpoint_output, "{i}.fa.gz"))
 
     # Keep track of which chunks have changed
     changed_chunks = []
 
     for chunk in chunks:
-        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
-        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa")
+        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
 
         # The chunk has changed if:
         # 1) The current chunk does not exist yet
@@ -213,7 +213,7 @@ def get_changed_chunks(wildcards):
 
     # Return a list of fasta_temp files that have changed, so that they can be copied
     # over to fasta_raw by the below `copy_changed_files` rule
-    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa"), i=changed_chunks)
+    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
 
 
 checkpoint copy_changed_files:
@@ -239,9 +239,9 @@ checkpoint copy_changed_files:
         # For each changed chunk (as defined by `get_changed_chunks`),
         # copy over the fasta file from the `fasta_temp` folder to the `fasta_raw` folder
         for chunk in input:
-            chunk = Path(chunk).stem
-            fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa")
-            fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa")
+            chunk = re.sub(r'\.fa\.gz$', '', Path(chunk).name)
+            fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+            fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
 
             shutil.copyfile(fasta_temp_path, fasta_raw_path)
             shutil.copystat(fasta_temp_path, fasta_raw_path)
@@ -255,10 +255,10 @@ rule preprocess_sequences:
 	4. Can't have more than 5% ambiguous NT
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa"),
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
         nextstrain_exclude = os.path.join(static_data_folder, "nextstrain_exclude_20200520.txt")
     output:
-        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa")
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     run:
         preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
 
@@ -267,7 +267,8 @@ rule bt2build:
     """Build the bowtie2 index for the reference sequence
     This should only be run once - it shouldn't ever change
     """
-    input: os.path.join(static_data_folder, "reference.fasta")
+    input: 
+        reference = reference_sequence_path
     params:
         basename = os.path.join(data_folder, "reference_index", "reference")
     output:
@@ -279,7 +280,7 @@ rule bt2build:
         outputrev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
     shell:
         """
-        bowtie2-build {input} {params.basename}
+        bowtie2-build {input.reference} {params.basename}
         """
         
 rule align_sequences:
@@ -288,35 +289,35 @@ rule align_sequences:
     by using a widely used tool, without having to write any bespoke code ourselves
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_processed", "{sample}.fa"),
-        bt2_1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
-        bt2_2 = os.path.join(data_folder, "reference_index", "reference.2.bt2"),
-        bt2_3 = os.path.join(data_folder, "reference_index", "reference.3.bt2"),
-        bt2_4 = os.path.join(data_folder, "reference_index", "reference.4.bt2"),
-        bt2_rev1 = os.path.join(data_folder, "reference_index", "reference.rev.1.bt2"),
-        bt2_rev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
+        fasta = rules.preprocess_sequences.output.fasta,
+        bt2_1 = rules.bt2build.output.output1,
+        bt2_2 = rules.bt2build.output.output2,
+        bt2_3 = rules.bt2build.output.output3,
+        bt2_4 = rules.bt2build.output.output4,
+        bt2_rev1 = rules.bt2build.output.outputrev1,
+        bt2_rev2 = rules.bt2build.output.outputrev2
     params:
         index_name = os.path.join(data_folder, "reference_index", "reference")
     threads: workflow.cores
     output:
-        sam = os.path.join(data_folder, "sam", "{sample}.sam")
+        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
     # bowtie2 is really memory intensive (10GB per thread), so make sure it 
     # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
     shell:
         """
-        bowtie2 --end-to-end --very-fast --xeq --reorder --sam-no-qname-trunc -x {params.index_name} -f -U {input.fasta} -S {output.sam} --threads {threads}
+        bowtie2 --end-to-end --very-fast --xeq --reorder --sam-no-qname-trunc -x {params.index_name} -f -U {input.fasta} --threads {threads} | samtools view -b > {output.bam}
         """
 
 rule get_dna_snps:
     """Find SNVs on the NT level for each sequence
     """
     input:
-        reference = os.path.join(static_data_folder, "reference.fasta"),
-        sam = os.path.join(data_folder, "sam", "{sample}.sam")
+        reference = reference_sequence_path,
+        bam = rules.align_sequences.output.bam
     output:
-        dna_snp = os.path.join(data_folder, "dna_snp", "{sample}_dna_snp.csv")
+        dna_snp = os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv")
     run:
-        dna_snp_df = get_dna_snps(input.sam, input.reference)
+        dna_snp_df = get_dna_snps(input.bam, input.reference)
         dna_snp_df.to_csv(output.dna_snp, index=False)
 
 
@@ -325,13 +326,13 @@ rule get_aa_snps:
     using both gene and protein definitions
     """
     input:
-        dna_snp = os.path.join(data_folder, "dna_snp", "{sample}_dna_snp.csv"),
-        reference = os.path.join(static_data_folder, "reference.fasta"),
-        genes_file = os.path.join(static_data_folder, "genes.json"),
-        proteins_file = os.path.join(static_data_folder, "proteins.json")
+        dna_snp = rules.get_dna_snps.output.dna_snp,
+        reference = reference_sequence_path,
+        genes_file = gene_defs_path,
+        proteins_file = protein_defs_path
     output:
-        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp", "{sample}_gene_aa_snp.csv"),
-        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp", "{sample}_protein_aa_snp.csv")
+        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
+        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv")
     run:
         gene_aa_snp_df = get_aa_snps(
             input.dna_snp, 
@@ -362,7 +363,7 @@ def get_all_dna_snp_chunks(wildcards):
     checkpoint_output = checkpoints.copy_changed_files.get().output[0]
     return expand(
         os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
     )
 
 def get_all_gene_aa_snp_chunks(wildcards):
@@ -370,7 +371,7 @@ def get_all_gene_aa_snp_chunks(wildcards):
     checkpoint_output = checkpoints.copy_changed_files.get().output[0]
     return expand(
         os.path.join(data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
     )
 
 def get_all_protein_aa_snp_chunks(wildcards):
@@ -378,7 +379,7 @@ def get_all_protein_aa_snp_chunks(wildcards):
     checkpoint_output = checkpoints.copy_changed_files.get().output[0]
     return expand(
         os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa")).i
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
     )
 
 rule combine_snps:
@@ -393,15 +394,6 @@ rule combine_snps:
         gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
         protein_aa_snp = os.path.join(data_folder, "protein_aa_snp.csv")
     run:
-        # This was originally done with this shell command:
-        """
-        # https://apple.stackexchange.com/questions/80611/merging-multiple-csv-files-without-merging-the-header
-        awk '(NR == 1) || (FNR > 1)' {input.dna_snp} > {output.dna_snp}
-        awk '(NR == 1) || (FNR > 1)' {input.gene_aa_snp} > {output.gene_aa_snp}
-        awk '(NR == 1) || (FNR > 1)' {input.protein_aa_snp} > {output.protein_aa_snp}
-        """
-        # But this did not handle empty files well. So instead just writing this part in
-        # python. It'll be a bit slower but whatever
 
         snp_types = ["dna_snp", "gene_aa_snp", "protein_aa_snp"]
 
@@ -424,9 +416,9 @@ rule process_snps:
     This saves a lot of data transfer space within the data package
     """
     input:
-        dna_snp = os.path.join(data_folder, "dna_snp.csv"),
-        gene_aa_snp = os.path.join(data_folder, "gene_aa_snp.csv"),
-        protein_aa_snp = os.path.join(data_folder, "protein_aa_snp.csv")
+        dna_snp = rules.combine_snps.output.dna_snp,
+        gene_aa_snp = rules.combine_snps.output.gene_aa_snp,
+        protein_aa_snp = rules.combine_snps.output.protein_aa_snp
     params:
         count_threshold = 3
     output:
@@ -457,10 +449,10 @@ rule generate_ui_data:
     Mostly just a bunch of joins
     """
     input:
-        metadata = os.path.join(data_folder, "metadata.csv"),
-        dna_snp_group = os.path.join(data_folder, "dna_snp_group.csv"),
-        gene_aa_snp_group = os.path.join(data_folder, "gene_aa_snp_group.csv"),
-        protein_aa_snp_group = os.path.join(data_folder, "protein_aa_snp_group.csv"),
+        metadata = rules.rewrite_data_feed.output.metadata,
+        dna_snp_group = rules.process_snps.output.dna_snp_group,
+        gene_aa_snp_group = rules.process_snps.output.gene_aa_snp_group,
+        protein_aa_snp_group = rules.process_snps.output.protein_aa_snp_group,
         location_corrections = os.path.join(static_data_folder, "location_corrections.csv"),
         emoji_map_file = os.path.join(static_data_folder, "country_to_emoji.xls")
     output:
@@ -602,12 +594,12 @@ rule write_reference_files:
     files that can be easily loaded by the front-end
     """
     input:
-        reference = static_data_folder + "/reference.fasta",
-        primers = static_data_folder + "/primers.csv"
+        reference = reference_sequence_path,
+        primers = os.path.join(static_data_folder, "/primers.csv")
     output:
         # Write data to JSON for the JS/UI to handle
-        reference = static_data_folder + "/reference.json",
-        primers = static_data_folder + "/primers.json"
+        reference = os.path.join(static_data_folder, "/reference.json"),
+        primers = os.path.join(static_data_folder, "/primers.json")
     run:
         # Write the reference fasta file to json
         # Load the reference sequence
@@ -635,7 +627,7 @@ rule get_consensus_snps:
     [consensus_fraction] is a parameter which can be adjusted here
     """
     input:
-        case_data = os.path.join(data_folder, "case_data.csv")
+        case_data = rules.generate_ui_data.output.case_data_csv
     params:
         consensus_fraction = 0.9
     output:
@@ -672,7 +664,7 @@ rule get_global_group_counts:
     Doing this in the pipeline just saves some work for the browser later
     """
     input:
-        case_data = os.path.join(data_folder, "case_data.csv")
+        case_data = rules.generate_ui_data.output.case_data_csv
     output:
         global_group_counts = os.path.join(data_folder, "global_group_counts.json")
     run:
@@ -718,7 +710,7 @@ rule process_artic_primers:
     This should only be run once - and not part of the pipeline generally
     """
     input:
-        reference_file = static_data_folder + "/reference.fasta"
+        reference_file = reference_sequence_path
     params:
         artic_files = [
             "https://raw.githubusercontent.com/artic-network/artic-ncov2019/master/primer_schemes/nCoV-2019/V1/nCoV-2019.tsv",
@@ -744,10 +736,10 @@ rule calc_global_sequencing_efforts:
     to produce the "Global Sequencing Effort" plot in the web app
     """
     input:
-        case_data = os.path.join(data_folder, "case_data.csv"),
-        location_map = os.path.join(data_folder, "location_map.json")
+        case_data = rules.generate_ui_data.output.case_data_csv,
+        location_map = rules.generate_ui_data.output.location_map
     output:
-        country_seq_stats = data_folder + "/country_score.json"
+        country_score = os.path.join(data_folder, "country_score.json")
     run:
         # Load case counts by country
         case_count_df = pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
@@ -921,7 +913,7 @@ rule calc_global_sequencing_efforts:
             ',{"UID":-99,"Country_Region":"Northern Cyprus","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}' + 
             "]"
         )
-        with open(output.country_seq_stats, "w") as fp:
+        with open(output.country_score, "w") as fp:
             fp.write(country_df_str)
 
 
@@ -930,18 +922,18 @@ rule assemble_data_package:
     by the app upon initial load
     """
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
-        ack_map = os.path.join(data_folder, "ack_map.json"),
-        clade_snp = os.path.join(data_folder, "clade_snp.json"),
-        country_score = os.path.join(data_folder, "country_score.json"),
-        dna_snp_map = os.path.join(data_folder, "dna_snp_map.json"),
-        gene_aa_snp_map = os.path.join(data_folder, "gene_aa_snp_map.json"),
-        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json"),
-        global_group_counts = os.path.join(data_folder, "global_group_counts.json"),
-        lineage_snp = os.path.join(data_folder, "lineage_snp.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
-        metadata_map = os.path.join(data_folder, "metadata_map.json"),
-        protein_aa_snp_map = os.path.join(data_folder, "protein_aa_snp_map.json")
+        case_data = rules.generate_ui_data.output.case_data,
+        ack_map = rules.generate_ui_data.output.ack_map,
+        clade_snp = rules.get_consensus_snps.output.clade_snp,
+        country_score = rules.calc_global_sequencing_efforts.output.country_score,
+        dna_snp_map = rules.process_snps.output.dna_snp_map,
+        gene_aa_snp_map = rules.process_snps.output.gene_aa_snp_map,
+        geo_select_tree = rules.generate_ui_data.output.geo_select_tree,
+        global_group_counts = rules.get_global_group_counts.output.global_group_counts,
+        lineage_snp = rules.get_consensus_snps.output.lineage_snp,
+        location_map = rules.generate_ui_data.output.location_map,
+        metadata_map = rules.generate_ui_data.output.metadata_map,
+        protein_aa_snp_map = rules.process_snps.output.protein_aa_snp_map
     output:
         data_package = os.path.join(data_folder, "data_package.json")
     run:
@@ -981,18 +973,18 @@ rule compress_data_package:
     """Compress the above data package for quicker transport
     """
     input:
-        os.path.join(data_folder, "data_package.json")
+        data_package = rules.assemble_data_package.output.data_package
     output:
-        os.path.join(data_folder, "data_package.json.gz")
+        data_package = os.path.join(data_folder, "data_package.json.gz")
     shell:
         """
-        gzip -9 -k {input} -c > {output}
+        gzip -9 -k {input.data_package} -c > {output.data_package}
         """
 
 
 rule create_standalone_map_spec:
     input:
-        data = os.path.join(data_folder, "country_score.json"),
+        data = rules.calc_global_sequencing_efforts.output.country_score,
         spec = os.path.join("src", "vega_specs", "map_combined.vg.json")
     output:
         standalone_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
