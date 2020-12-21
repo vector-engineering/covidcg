@@ -2,10 +2,6 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-// import dnaSnvMap from '../../data/dna_snp_map.json';
-// import geneAaSnvMap from '../../data/gene_aa_snp_map.json';
-// import proteinAaSnvMap from '../../data/protein_aa_snp_map.json';
-
 import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
@@ -41,9 +37,9 @@ export class SnpDataStore {
   }
 
   init() {
-    this.dnaSnvMap = asyncDataStoreInstance.data.dna_snp_map;
-    this.geneAaSnvMap = asyncDataStoreInstance.data.gene_aa_snp_map;
-    this.proteinAaSnvMap = asyncDataStoreInstance.data.protein_aa_snp_map;
+    this.dnaSnvMap = asyncDataStoreInstance.data.metadata_map.dna_snp;
+    this.geneAaSnvMap = asyncDataStoreInstance.data.metadata_map.gene_aa_snp;
+    this.proteinAaSnvMap = asyncDataStoreInstance.data.metadata_map.protein_aa_snp;
     // debugger;
 
     //snv -> color map
