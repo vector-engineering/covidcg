@@ -12,14 +12,12 @@ import datetime
 
 def assemble_data_package(
     case_data,
-    clade_snp,
     country_score,
     dna_snp_map,
     gene_aa_snp_map,
     geo_select_tree,
     global_group_counts,
-    lineage_snp,
-    location_map,
+    group_consensus_snps,
     metadata_map,
     protein_aa_snp_map,
     data_package_out,
@@ -28,8 +26,7 @@ def assemble_data_package(
 
     with open(case_data, "r") as fp:
         data_package["case_data"] = json.loads(fp.read())
-    with open(clade_snp, "r") as fp:
-        data_package["clade_snp"] = json.loads(fp.read())
+
     with open(country_score, "r") as fp:
         data_package["country_score"] = json.loads(fp.read())
     with open(dna_snp_map, "r") as fp:
@@ -40,10 +37,8 @@ def assemble_data_package(
         data_package["geo_select_tree"] = json.loads(fp.read())
     with open(global_group_counts, "r") as fp:
         data_package["global_group_counts"] = json.loads(fp.read())
-    with open(lineage_snp, "r") as fp:
-        data_package["lineage_snp"] = json.loads(fp.read())
-    with open(location_map, "r") as fp:
-        data_package["location_map"] = json.loads(fp.read())
+    with open(group_consensus_snps, "r") as fp:
+        data_package["group_consensus_snps"] = json.loads(fp.read())
     with open(metadata_map, "r") as fp:
         data_package["metadata_map"] = json.loads(fp.read())
     with open(protein_aa_snp_map, "r") as fp:

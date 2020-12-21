@@ -4,7 +4,7 @@
 """Clean location metadata
 Build hierarchical location tree for the UI
 
-Author: Albert Chen (Deverman Lab - Broad Institute)
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import json
