@@ -1,22 +1,40 @@
-#!/usr/bin/env python3
 # coding: utf-8
 
 """Load SNP data, create SNP signatures
 
-Author: Albert Chen - Deverman Lab, Broad Institute
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import io
 import numpy as np
 import pandas as pd
 
 
 def process_snps(
-    snp_file,
+    snp_files,
+    snp_group_df_out,
+    snp_map_out,
     # SNPs must occur at least this many times to pass filters
     count_threshold=3,
     mode="dna",  # dna, gene_aa, protein_aa
 ):
-    snp_df = pd.read_csv(snp_file)
+
+    # Dump all SNP chunks into a text buffer
+    snp_df_io = io.StringIO()
+    for i, chunk in enumerate(snp_files):
+        with open(chunk, "r") as fp_in:
+            for j, line in enumerate(fp_in):
+                # Write the header of the first file
+                # Or write any line that's not the header
+                # (to avoid writing the header more than once)
+                if (i == 0 and j == 0) or j > 0:
+                    snp_df_io.write(line)
+
+    # Read the buffer into a dataframe, then discard the buffer
+    snp_df_io.seek(0)
+    snp_df = pd.read_csv(snp_df_io)
+    snp_df_io.close()
+
     snp_df = snp_df.fillna("-")
 
     groupby_cols = ["pos", "ref", "alt"]
@@ -72,4 +90,6 @@ def process_snps(
         .apply(lambda x: ";".join([str(snp_map[a]) for a in x] if x else None))
     )
 
-    return snp_group_df, snp_map
+    # Save files
+    snp_group_df.to_csv(snp_group_df_out, index=False)
+    snp_map.to_json(snp_map_out, orient="index")

@@ -6,7 +6,7 @@ and SNP-tolerant manner
 Modified and heavily trimmed down version of read_extractor.py (v0.1.0) 
 from the variant_extractor project
 
-Author: Albert Chen (Deverman Lab, Broad Institute)
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import numpy as np
@@ -14,14 +14,14 @@ import pandas as pd
 
 from collections import defaultdict
 
-from cg_scripts.util import translate, reverse_complement
+from scripts.util import translate, reverse_complement
 
 
 class ReadExtractor:
     """Extract variable regions from a pysam AlignedSegment
     """
 
-    RefSeq = ''
+    RefSeq = ""
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -272,11 +272,13 @@ class ReadExtractor:
             j = i
             while j < len(self.mutation_str) and (
                 # Both insertions
-                ((not self.mutation_str[j][2] and not ref)
-                # Both deletions
-                or ( not self.mutation_str[j][3] and not alt))
+                (
+                    (not self.mutation_str[j][2] and not ref)
+                    # Both deletions
+                    or (not self.mutation_str[j][3] and not alt)
+                )
                 # New position must be adjacent to the previous one
-                and self.mutation_str[j][1] == int(pos - 1 + (j - i)) 
+                and self.mutation_str[j][1] == int(pos - 1 + (j - i))
             ):
                 j += 1
 

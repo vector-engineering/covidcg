@@ -1,12 +1,20 @@
+# coding: utf-8
+
+"""Extract AA SNPs from NT SNPs
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+
 import json
 import numpy as np
 import pandas as pd
 
-from cg_scripts.fasta import read_fasta_file
-from cg_scripts.util import translate
+from scripts.fasta import read_fasta_file
+from scripts.util import translate
 
 
-def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
+def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
