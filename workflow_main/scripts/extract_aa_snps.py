@@ -1,12 +1,20 @@
+# coding: utf-8
+
+"""Extract AA SNPs from NT SNPs
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+
 import json
 import numpy as np
 import pandas as pd
 
-from cg_scripts.fasta import read_fasta_file
-from cg_scripts.util import translate
+from scripts.fasta import read_fasta_file
+from scripts.util import translate
 
 
-def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
+def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
@@ -110,12 +118,11 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
                         ]
                     )
                     if not ref_snp_seq == snp["ref"]:
-                        print(
+                        raise Exception(
                             "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
                                 ref_snp_seq, snp["ref"],
                             )
                         )
-                        # I guess just move on.....
 
                 # Remove the reference base(s)
                 if len(snp["ref"]) > 0:
@@ -142,6 +149,10 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
 
                     if ref_aa[b] == alt_aa[b]:
                         remove_inds.append(b)
+                        # Increment the AA index start so that
+                        # we end up on the correct position
+                        # (This should only affect deletions)
+                        codon_ind_start += 1
                     else:
                         break
 

@@ -1,3 +1,11 @@
+# coding: utf-8
+
+"""Filter out sequences
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+import gzip
 import math
 import re
 
@@ -37,8 +45,8 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
     animal_env_tags = ["/{}/".format(t) for t in animal_env_tags]
 
     num_excluded = 0
-    fp_in = Path(input_file).open("r")
-    fp_out = Path(output_file).open("w")
+    fp_in = gzip.open(input_file, 'rt')
+    fp_out = gzip.open(output_file, 'wt')
 
     cur_entry = ""
     cur_seq = ""

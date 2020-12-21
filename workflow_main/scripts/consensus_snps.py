@@ -2,7 +2,7 @@
 
 """Process pangolin lineage/clade information
 
-Author: Albert Chen (Deverman Lab, Broad Institute)
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
@@ -79,3 +79,36 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     )
 
     return collapsed_snvs
+
+
+def get_all_consensus_snps(case_data, lineage_out, clade_out, consensus_fraction=0.9):
+    """For each lineage and clade, get the lineage/clade-defining SNVs,
+    on both the NT and AA level
+    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
+
+    case_df = pd.read_csv(case_data, index_col="Accession ID")
+
+    # Serialized list back to list 
+    cols = ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+    for col in cols:
+        case_df[col] = (
+            case_df[col]
+            .str.strip("[]")
+            .str.split(",")
+            .apply(lambda x: [int(_x) for _x in x])
+        )
+
+    lineage_snp_df = get_consensus_snps(
+        case_df, "lineage",
+        consensus_fraction=consensus_fraction
+    )
+    lineage_snp_df.to_json(lineage_out, orient="records")
+
+    clade_snp_df = get_consensus_snps(
+        case_df, "clade",
+        consensus_fraction=consensus_fraction
+    )
+    clade_snp_df.to_json(clade_out, orient="records")
