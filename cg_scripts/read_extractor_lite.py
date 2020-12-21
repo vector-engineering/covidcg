@@ -271,10 +271,12 @@ class ReadExtractor:
             # Check ahead for adjacent positions and the same indel type
             j = i
             while j < len(self.mutation_str) and (
-                (not self.mutation_str[j][2] and not ref)
-                or (  # Both insertions
-                    not self.mutation_str[j][3] and not alt
-                )  # Both deletions
+                # Both insertions
+                ((not self.mutation_str[j][2] and not ref)
+                # Both deletions
+                or ( not self.mutation_str[j][3] and not alt))
+                # New position must be adjacent to the previous one
+                and self.mutation_str[j][1] == int(pos - 1 + (j - i)) 
             ):
                 j += 1
 
