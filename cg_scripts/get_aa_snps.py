@@ -141,6 +141,10 @@ def get_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene")
 
                     if ref_aa[b] == alt_aa[b]:
                         remove_inds.append(b)
+                        # Increment the AA index start so that
+                        # we end up on the correct position
+                        # (This should only affect deletions)
+                        codon_ind_start += 1
                     else:
                         break
 
