@@ -39,19 +39,12 @@ def extract_dna_snps(sam_file, reference_file):
     samfile.close()
 
     dna_snp_df = pd.DataFrame.from_records(
-        all_dna_snps, columns=["taxon", "pos", "ref", "alt"]
+        all_dna_snps, columns=["Accession ID", "pos", "ref", "alt"]
     )
-
-    # Extract the GISAID ID
-    dna_snp_df["gisaid_id"] = dna_snp_df["taxon"]
 
     # Fill NaN values
     dna_snp_df["ref"].fillna("", inplace=True)
     dna_snp_df["alt"].fillna("", inplace=True)
-
-    # Drop duplicate entries
-    # dna_snp_df.drop_duplicates(["taxon", "pos"], inplace=True)
-    # dna_snp_df = dna_snp_df.reset_index(drop=True)
 
     return dna_snp_df
 

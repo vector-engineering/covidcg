@@ -168,14 +168,14 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
 
                 aa_snps.append(
                     (
-                        snp["taxon"],
+                        snp["Accession ID"],
                         ref_name,
                         resi_counter + codon_ind_start + 1,
                         "".join(ref_aa),
                         "".join(alt_aa),
                     )
                 )
-            # END FOR TAXON
+            # END FOR ACCESSION ID
 
             resi_counter += (segment_end - segment_start + 1) // 3
         # END FOR SEGMENT
@@ -183,11 +183,11 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
 
     if mode == "gene":
         aa_snp_df = pd.DataFrame.from_records(
-            aa_snps, columns=["taxon", "gene", "pos", "ref", "alt"]
+            aa_snps, columns=["Accession ID", "gene", "pos", "ref", "alt"]
         )
     else:
         aa_snp_df = pd.DataFrame.from_records(
-            aa_snps, columns=["taxon", "protein", "pos", "ref", "alt"]
+            aa_snps, columns=["Accession ID", "protein", "pos", "ref", "alt"]
         )
 
     return aa_snp_df

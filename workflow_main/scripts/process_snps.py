@@ -43,11 +43,11 @@ def process_snps(
     elif mode == "protein_aa":
         groupby_cols.insert(0, "protein")
 
-    # Collapse by taxon and count occurrences
+    # Collapse by Accession ID and count occurrences
     snp_count_df = (
         snp_df.groupby(groupby_cols, as_index=False)
         .count()
-        .rename(columns={"taxon": "count"})
+        .rename(columns={"Accession ID": "count"})
     )
 
     # Filter out low global occurrence SNPs
@@ -70,11 +70,9 @@ def process_snps(
     snp_df = snp_df.loc[snp_df["snp_str"].isin(valid_snps["snp_str"]), :].reset_index(
         drop=True
     )
-    # Group by taxon and make a ';' delimited list of snp_strs
-    snp_group_df = snp_df.groupby("taxon")["snp_str"].agg(";".join).reset_index()
+    # Group by Accession ID and make a ';' delimited list of snp_strs
+    snp_group_df = snp_df.groupby("Accession ID")["snp_str"].agg(";".join).reset_index()
 
-    # Extract the GISAID id from the taxon column
-    snp_group_df["Accession ID"] = snp_group_df["taxon"]
     # Map SNPs to integer IDs
     snp_map = pd.Series(
         np.unique(np.concatenate(snp_group_df["snp_str"].str.split(";").values).ravel())
