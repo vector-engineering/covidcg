@@ -5,7 +5,7 @@ import { DataStore } from './dataStore';
 import { UIStore } from './UIStore';
 import { ConfigStore } from './configStore';
 import { PlotSettingsStore } from './plotSettingsStore';
-import { LineageDataStore } from './lineageData';
+import { GroupDataStore } from './groupData';
 import { SnpDataStore } from './snpData';
 import { LocationDataStore } from './locationData';
 import { MetadataStore } from './metadata';
@@ -18,7 +18,7 @@ class RootStore {
 
   locationDataStore;
   snpDataStore;
-  lineageDataStore;
+  groupDataStore;
 
   configStore;
   dataStore;
@@ -31,7 +31,7 @@ class RootStore {
     this.metadataStore = new MetadataStore();
     this.locationDataStore = new LocationDataStore();
     this.snpDataStore = new SnpDataStore();
-    this.lineageDataStore = new LineageDataStore();
+    this.groupDataStore = new GroupDataStore();
 
     this.configStore = new ConfigStore();
     this.dataStore = new DataStore();
@@ -47,7 +47,7 @@ class RootStore {
     this.metadataStore.init();
     this.locationDataStore.init();
     this.snpDataStore.init();
-    this.lineageDataStore.init();
+    this.groupDataStore.init();
 
     this.configStore.init();
     this.dataStore.init();

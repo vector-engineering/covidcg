@@ -54,7 +54,7 @@ export class DataStore {
   UIStoreInstance;
   configStoreInstance;
   snpDataStoreInstance;
-  lineageDataStoreInstance;
+  groupDataStoreInstance;
 
   dataDate;
   numSequences;
@@ -126,7 +126,7 @@ export class DataStore {
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.configStoreInstance = rootStoreInstance.configStore;
     this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-    this.lineageDataStoreInstance = rootStoreInstance.lineageDataStore;
+    this.groupDataStoreInstance = rootStoreInstance.groupDataStore;
 
     this.updateCaseData();
   }
@@ -142,7 +142,7 @@ export class DataStore {
       intToProteinAaSnvMap,
     } = this.snpDataStoreInstance;
 
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     aggCaseDataByGroup(
       {
@@ -226,7 +226,7 @@ export class DataStore {
       intToProteinAaSnvMap,
       snvColorMap,
     } = this.snpDataStoreInstance;
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     processCaseData(
       {
@@ -441,7 +441,7 @@ export class DataStore {
       intToProteinAaSnvMap,
     } = this.snpDataStoreInstance;
 
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     downloadAggCaseData(
       {

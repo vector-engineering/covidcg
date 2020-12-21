@@ -1,5 +1,3 @@
-// import lineageSnpData from '../../data/lineage_snp.json';
-// import cladeSnpData from '../../data/clade_snp.json';
 import refSeq from '../../static_data/reference.json';
 
 import _ from 'underscore';
@@ -9,7 +7,7 @@ import { GROUP_KEYS } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 import { asyncDataStoreInstance } from '../components/App';
 
-export class LineageDataStore {
+export class GroupDataStore {
   // Internal counters for generating lineage colors
   coolColorInd;
   warmColorInd;
@@ -48,8 +46,8 @@ export class LineageDataStore {
   }
 
   init() {
-    this.lineageSnpData = asyncDataStoreInstance.data.lineage_snp;
-    this.cladeSnpData = asyncDataStoreInstance.data.clade_snp;
+    this.lineageSnpData = asyncDataStoreInstance.data.group_consensus_snps.lineage;
+    this.cladeSnpData = asyncDataStoreInstance.data.group_consensus_snps.clade;
 
     // TODO: Do this in python instead
     this.lineageSnpData.forEach((lineageObj) => {
