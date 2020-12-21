@@ -5,8 +5,9 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import pandas as pd
+import json
 import numpy as np
+import pandas as pd
 
 from itertools import chain
 from collections import Counter
@@ -81,7 +82,7 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     return collapsed_snvs
 
 
-def get_all_consensus_snps(case_data, lineage_out, clade_out, consensus_fraction=0.9):
+def get_all_consensus_snps(case_data, consensus_out, consensus_fraction=0.9):
     """For each lineage and clade, get the lineage/clade-defining SNVs,
     on both the NT and AA level
     Lineage/clade-defining SNVs are defined as SNVs which occur in
@@ -101,14 +102,17 @@ def get_all_consensus_snps(case_data, lineage_out, clade_out, consensus_fraction
             .apply(lambda x: [int(_x) for _x in x])
         )
 
-    lineage_snp_df = get_consensus_snps(
-        case_df, "lineage",
-        consensus_fraction=consensus_fraction
-    )
-    lineage_snp_df.to_json(lineage_out, orient="records")
+    # Hardcode this for now
+    # TODO: move this into a config file that can be loaded by the front-end too
+    groups = ['lineage', 'clade']
 
-    clade_snp_df = get_consensus_snps(
-        case_df, "clade",
-        consensus_fraction=consensus_fraction
-    )
-    clade_snp_df.to_json(clade_out, orient="records")
+    consensus_dict = {}
+    for group in groups:
+        group_snp_df = get_consensus_snps(
+            case_df, group,
+            consensus_fraction=consensus_fraction
+        )
+        consensus_dict[group] = group_snp_df.to_dict(orient='records')
+    
+    with open(consensus_out, 'w') as fp:
+        fp.write(json.dumps(consensus_dict))

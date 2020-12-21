@@ -41,6 +41,10 @@ CHUNKS, = glob_wildcards(os.path.join(
 
 rule all:
     input:
+        # Mostly redundant - make sure we're getting all of our SNPs
+        os.path.join(config["data_folder"], "dna_snp_group.csv"),
+        os.path.join(config["data_folder"], "gene_aa_snp_group.csv"),
+        os.path.join(config["data_folder"], "protein_aa_snp_group.csv"),
         # Generate reference-related data
         os.path.join(config["static_data_folder"], "reference.json"), 
         os.path.join(config["static_data_folder"], "genes.json"),
@@ -253,9 +257,9 @@ rule combine_all_data:
     output:
         accession_hashmap = os.path.join(config["data_folder"], "accession_hashmap.csv"),
         metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
+        # Only used to build the location tree
         location_map = os.path.join(config["data_folder"], "location_map.json"),
         case_data = os.path.join(config["data_folder"], "case_data.json"),
-        # CSV is just for excel/debugging
         case_data_csv = os.path.join(config["data_folder"], "case_data.csv")
     run:
         combine_all_data(**input, **output)
@@ -307,12 +311,10 @@ rule get_consensus_snps:
     params:
         consensus_fraction = 0.9
     output:
-        lineage_snp = os.path.join(config["data_folder"], "lineage_snp.json"),
-        clade_snp = os.path.join(config["data_folder"], "clade_snp.json")
+        group_consensus_snps = os.path.join(config["data_folder"], "group_consensus_snps.json")
     run:
         get_all_consensus_snps(
-            input.case_data, 
-            output.lineage_snp, output.clade_snp, 
+            input.case_data, output.group_consensus_snps,
             consensus_fraction=params.consensus_fraction
         )
 
@@ -347,21 +349,18 @@ rule global_sequencing_efforts:
         )
 
 
-
 rule assemble_data_package:
     """Assemble the complete data package, that will be downloaded
     by the app upon initial load
     """
     input:
         case_data = rules.combine_all_data.output.case_data,
-        clade_snp = rules.get_consensus_snps.output.clade_snp,
         country_score = rules.global_sequencing_efforts.output.country_score,
         dna_snp_map = rules.process_dna_snps.output.dna_snp_map,
         gene_aa_snp_map = rules.process_gene_aa_snps.output.gene_aa_snp_map,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.get_global_group_counts.output.global_group_counts,
-        lineage_snp = rules.get_consensus_snps.output.lineage_snp,
-        location_map = rules.combine_all_data.output.location_map,
+        group_consensus_snps = rules.get_consensus_snps.output.group_consensus_snps,
         metadata_map = rules.combine_all_data.output.metadata_map,
         protein_aa_snp_map = rules.process_protein_aa_snps.output.protein_aa_snp_map
     output:
