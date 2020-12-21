@@ -10,6 +10,8 @@ import json
 import numpy as np
 import pandas as pd
 
+from scripts.process_snps import process_snps
+
 
 def hash_accession_id(accession_id):
     m = hashlib.sha256()
@@ -20,16 +22,29 @@ def hash_accession_id(accession_id):
 def combine_all_data(
     # Input
     metadata,
-    dna_snp_group,
-    gene_aa_snp_group,
-    protein_aa_snp_group,
+    dna_snp_files,
+    gene_aa_snp_files,
+    protein_aa_snp_files,
     # Output
     accession_hashmap,
     metadata_map,
     location_map,
     case_data,
     case_data_csv,
+    count_threshold=3,
 ):
+
+    # Count SNPs
+    dna_snp_group_df, dna_snp_map = process_snps(
+        dna_snp_files, mode="dna", count_threshold=count_threshold
+    )
+    gene_aa_snp_group_df, gene_aa_snp_map = process_snps(
+        gene_aa_snp_files, mode="gene_aa", count_threshold=count_threshold
+    )
+    protein_aa_snp_group_df, protein_aa_snp_map = process_snps(
+        protein_aa_snp_files, mode="protein_aa", count_threshold=count_threshold
+    )
+
     # Load metadata
     df = pd.read_csv(metadata).set_index("Accession ID")
 
@@ -39,12 +54,6 @@ def combine_all_data(
     # Exclude sequences without a lineage/clade assignment
     df = df.loc[~pd.isnull(df["lineage"]), :]
     df = df.loc[~pd.isnull(df["clade"]), :]
-
-    dna_snp_group_df = pd.read_csv(dna_snp_group, index_col="Accession ID")
-    gene_aa_snp_group_df = pd.read_csv(gene_aa_snp_group, index_col="Accession ID")
-    protein_aa_snp_group_df = pd.read_csv(
-        protein_aa_snp_group, index_col="Accession ID"
-    )
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences
@@ -152,6 +161,11 @@ def combine_all_data(
 
     # Drop the original metadata columns
     df = df.drop(columns=map_cols)
+
+    # Add SNP maps into the metadata map
+    metadata_maps["dna_snp"] = dna_snp_map.to_dict()
+    metadata_maps["gene_aa_snp"] = gene_aa_snp_map.to_dict()
+    metadata_maps["protein_aa_snp"] = protein_aa_snp_map.to_dict()
 
     # Write the metadata map to a JSON file
     with open(metadata_map, "w") as fp:

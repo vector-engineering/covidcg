@@ -17,7 +17,6 @@ from scripts.extract_dna_snps import extract_dna_snps
 from scripts.global_group_counts import global_group_counts
 from scripts.global_sequencing_efforts import global_sequencing_efforts
 from scripts.preprocess_sequences import preprocess_sequences
-from scripts.process_snps import process_snps
 from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
 
@@ -41,14 +40,8 @@ CHUNKS, = glob_wildcards(os.path.join(
 
 rule all:
     input:
-        # Mostly redundant - make sure we're getting all of our SNPs
-        os.path.join(config["data_folder"], "dna_snp_group.csv"),
-        os.path.join(config["data_folder"], "gene_aa_snp_group.csv"),
-        os.path.join(config["data_folder"], "protein_aa_snp_group.csv"),
         # Generate reference-related data
         os.path.join(config["static_data_folder"], "reference.json"), 
-        os.path.join(config["static_data_folder"], "genes.json"),
-        os.path.join(config["static_data_folder"], "proteins.json"),
         os.path.join(config["static_data_folder"], "primers.json"),
         # Packaged data
         data_package = os.path.join(config["data_folder"], "data_package.json.gz"),
@@ -134,17 +127,21 @@ rule extract_dna_snps:
         dna_snp_df.to_csv(output.dna_snp, index=False)
 
 
-rule get_gene_aa_snps:
+rule extract_aa_snps:
     """Using the NT SNVs, translate genes/proteins and find SNVs 
     on the AA level, for genes
     """
     input:
         dna_snp = rules.extract_dna_snps.output.dna_snp,
         reference = reference_sequence_path,
-        genes_file = gene_defs_path
+        genes_file = gene_defs_path,
+        proteins_file = protein_defs_path
     output:
         gene_aa_snp = os.path.join(
             config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
+        ),
+        protein_aa_snp = os.path.join(
+            config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
         )
     run:
         extract_aa_snps(
@@ -154,20 +151,6 @@ rule get_gene_aa_snps:
             mode="gene"
         ).to_csv(output.gene_aa_snp, index=False)
 
-
-rule get_protein_aa_snps:
-    """Using the NT SNVs, translate genes/proteins and find SNVs 
-    on the AA level, for proteins
-    """
-    input:
-        dna_snp = rules.extract_dna_snps.output.dna_snp,
-        reference = reference_sequence_path,
-        proteins_file = protein_defs_path
-    output:
-        protein_aa_snp = os.path.join(
-            config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
-        )
-    run:
         extract_aa_snps(
             input.dna_snp, 
             input.proteins_file, 
@@ -176,84 +159,24 @@ rule get_protein_aa_snps:
         ).to_csv(output.protein_aa_snp, index=False)
 
 
-rule process_dna_snps:
-    """Combine DNA SNP chunks, filter for counts, and map to integer IDs
-    """
-    input:
-        dna_snp = expand(
-            os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"), 
-            chunk=CHUNKS
-        )
-    output:
-        dna_snp_group = os.path.join(config["data_folder"], "dna_snp_group.csv"),
-        dna_snp_map = os.path.join(config["data_folder"], "dna_snp_map.json"),
-    params:
-        count_threshold = snp_count_threshold
-    run:
-        process_snps(
-            input.dna_snp,
-            output.dna_snp_group,
-            output.dna_snp_map,
-            mode='dna', 
-            count_threshold=params.count_threshold
-        )
-
-
-rule process_gene_aa_snps:
-    """Combine gene AA SNP chunks, filter for counts, and map to integer IDs
-    """
-    input:
-        gene_aa_snp = expand(
-            os.path.join(config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"), 
-            chunk=CHUNKS
-        )
-    output:
-        gene_aa_snp_group = os.path.join(config["data_folder"], "gene_aa_snp_group.csv"),
-        gene_aa_snp_map = os.path.join(config["data_folder"], "gene_aa_snp_map.json"),
-    params:
-        count_threshold = snp_count_threshold
-    run:
-        process_snps(
-            input.gene_aa_snp,
-            output.gene_aa_snp_group,
-            output.gene_aa_snp_map,
-            mode='gene_aa', 
-            count_threshold=params.count_threshold
-        )
-
-
-rule process_protein_aa_snps:
-    """Combine protein AA SNP chunks, filter for counts, and map to integer IDs
-    """
-    input:
-        protein_aa_snp = expand(
-            os.path.join(config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"), 
-            chunk=CHUNKS
-        )
-    output:
-        protein_aa_snp_group = os.path.join(config["data_folder"], "protein_aa_snp_group.csv"),
-        protein_aa_snp_map = os.path.join(config["data_folder"], "protein_aa_snp_map.json"),
-    params:
-        count_threshold = snp_count_threshold
-    run:
-        process_snps(
-            input.protein_aa_snp,
-            output.protein_aa_snp_group,
-            output.protein_aa_snp_map,
-            mode='protein_aa', 
-            count_threshold=params.count_threshold
-        )
-
-
 rule combine_all_data:
     """Main rule for generating the data files for the browser
     Mostly just a bunch of joins
     """
     input:
         metadata = os.path.join(config["data_folder"], "metadata.csv"),
-        dna_snp_group = rules.process_dna_snps.output.dna_snp_group,
-        gene_aa_snp_group = rules.process_gene_aa_snps.output.gene_aa_snp_group,
-        protein_aa_snp_group = rules.process_protein_aa_snps.output.protein_aa_snp_group,
+        dna_snp_files = expand(
+            os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"), 
+            chunk=CHUNKS
+        ),
+        gene_aa_snp_files = expand(
+            os.path.join(config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"), 
+            chunk=CHUNKS
+        ),
+        protein_aa_snp_files = expand(
+            os.path.join(config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"), 
+            chunk=CHUNKS
+        )
     output:
         accession_hashmap = os.path.join(config["data_folder"], "accession_hashmap.csv"),
         metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
@@ -261,8 +184,10 @@ rule combine_all_data:
         location_map = os.path.join(config["data_folder"], "location_map.json"),
         case_data = os.path.join(config["data_folder"], "case_data.json"),
         case_data_csv = os.path.join(config["data_folder"], "case_data.csv")
+    params:
+        count_threshold = snp_count_threshold
     run:
-        combine_all_data(**input, **output)
+        combine_all_data(**input, **output, count_threshold=params.count_threshold)
 
 
 rule build_location_tree:
@@ -356,13 +281,10 @@ rule assemble_data_package:
     input:
         case_data = rules.combine_all_data.output.case_data,
         country_score = rules.global_sequencing_efforts.output.country_score,
-        dna_snp_map = rules.process_dna_snps.output.dna_snp_map,
-        gene_aa_snp_map = rules.process_gene_aa_snps.output.gene_aa_snp_map,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.get_global_group_counts.output.global_group_counts,
         group_consensus_snps = rules.get_consensus_snps.output.group_consensus_snps,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        protein_aa_snp_map = rules.process_protein_aa_snps.output.protein_aa_snp_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(config["data_folder"], "data_package.json.gz")
     run:

@@ -12,8 +12,6 @@ import pandas as pd
 
 def process_snps(
     snp_files,
-    snp_group_df_out,
-    snp_map_out,
     # SNPs must occur at least this many times to pass filters
     count_threshold=3,
     mode="dna",  # dna, gene_aa, protein_aa
@@ -88,6 +86,4 @@ def process_snps(
         .apply(lambda x: ";".join([str(snp_map[a]) for a in x] if x else None))
     )
 
-    # Save files
-    snp_group_df.to_csv(snp_group_df_out, index=False)
-    snp_map.to_json(snp_map_out, orient="index")
+    return snp_group_df.set_index("Accession ID"), snp_map
