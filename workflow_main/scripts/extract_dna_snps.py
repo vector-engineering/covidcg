@@ -1,12 +1,19 @@
+# coding: utf-8
+
+"""Extract DNA SNPs from bowtie2 alignments
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 import pysam
 from pathlib import Path
 
-from cg_scripts.fasta import read_fasta_file
-from cg_scripts.read_extractor_lite import ReadExtractor
+from scripts.fasta import read_fasta_file
+from scripts.read_extractor_lite import ReadExtractor
 
 
-def get_dna_snps(sam_file, reference_file):
+def extract_dna_snps(sam_file, reference_file):
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()

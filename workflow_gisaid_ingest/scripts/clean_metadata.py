@@ -4,12 +4,14 @@
 Merger of old scripts for cleaning patient metadata, sequencing metadata, and 
 acknowledgements separately. Now they're all merged into this big file
 
-Author: Albert Chen (Deverman Lab - Broad Institute)
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import numpy as np
 import pandas as pd
 import re
+
+from scripts.process_location_metadata import process_location_metadata
 
 
 def clean_gender_metadata(df):
@@ -733,23 +735,19 @@ def clean_specimen_metadata(df):
 
     df.loc[:, "specimen"] = df["specimen"].map(specimen_map)
 
-    print("done")
-    print(
-        'Setting "Specimen" values to "Unknown": {}'.format(
-            ", ".join(
-                [
-                    '"{}"'.format(x)
-                    for x in df["covv_specimen"][pd.isnull(df["specimen"])]
-                    .astype(str)
-                    .str.strip()
-                    .unique()
-                    .astype(str)
-                ]
-            )
-        )
+    df.loc[:, "specimen"] = (
+        df["specimen"]
+        .map(specimen_map)
+        .combine_first(df["specimen"])
+        .fillna("Unknown")
     )
 
-    df.loc[:, "specimen"] = df["specimen"].fillna("Unknown")
+    print("done")
+    print(
+        '"Specimen" values: {}'.format(
+            ", ".join(['"{}"'.format(x) for x in df["specimen"].unique()])
+        )
+    )
 
     return df
 
@@ -984,7 +982,28 @@ def clean_comment_type_metadata(df):
     return df
 
 
-def clean_metadata(df):
+def clean_author_metadata(df):
+    df["authors"] = df["covv_authors"].astype(str).str.strip()
+    return df
+
+
+def clean_originating_lab_metadata(df):
+    df["originating_lab"] = df["covv_orig_lab"].astype(str).str.strip()
+    return df
+
+
+def clean_submitting_lab_metadata(df):
+    df["submitting_lab"] = df["covv_subm_lab"].astype(str).str.strip()
+    return df
+
+
+def clean_metadata(metadata_in, location_corrections, metadata_out):
+
+    # Load metadata
+    df = pd.read_csv(metadata_in)
+    df = df.rename(columns={"covv_accession_id": "Accession ID"}).set_index(
+        "Accession ID"
+    )
 
     df = clean_gender_metadata(df)
     df = clean_age_metadata(df)
@@ -997,13 +1016,17 @@ def clean_metadata(df):
     df = clean_seq_tech_metadata(df)
     df = clean_assembly_metadata(df)
     df = clean_comment_type_metadata(df)
+    df = clean_author_metadata(df)
+    df = clean_originating_lab_metadata(df)
+    df = clean_submitting_lab_metadata(df)
+
+    df = process_location_metadata(df, location_corrections)
 
     # Take subset of columns
     df = df[
         [
             "collection_date",
             "submission_date",
-            "covv_location",
             "gender",
             "age_start",
             "age_end",
@@ -1015,10 +1038,15 @@ def clean_metadata(df):
             "sequencing_tech",
             "assembly_method",
             "comment_type",
-            "covv_orig_lab",
-            "covv_subm_lab",
-            "covv_authors",
+            "authors",
+            "originating_lab",
+            "submitting_lab",
+            # Location data
+            "region", 
+            "country", 
+            "division", 
+            "location"
         ]
     ]
 
-    return df
+    df.to_csv(metadata_out)

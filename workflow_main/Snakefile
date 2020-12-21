@@ -1,0 +1,384 @@
+# coding: utf-8
+
+"""Main data processing workflow from ingested data
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+import os
+
+# Import scripts
+from scripts.assemble_data_package import assemble_data_package
+from scripts.build_location_tree import build_location_tree
+from scripts.combine_all_data import combine_all_data
+from scripts.consensus_snps import get_all_consensus_snps
+from scripts.extract_aa_snps import extract_aa_snps
+from scripts.extract_dna_snps import extract_dna_snps
+from scripts.global_group_counts import global_group_counts
+from scripts.global_sequencing_efforts import global_sequencing_efforts
+from scripts.preprocess_sequences import preprocess_sequences
+from scripts.process_snps import process_snps
+from scripts.standalone_map_spec import standalone_map_spec
+from scripts.write_reference_files import write_reference_files
+
+if "data_folder" not in config:
+    config["data_folder"] = "../data"
+
+if "static_data_folder" not in config:
+    config["static_data_folder"] = "../static_data"
+
+reference_sequence_path = os.path.join(config["static_data_folder"], "reference.fasta")
+gene_defs_path = os.path.join(config["static_data_folder"], "genes.json")
+protein_defs_path = os.path.join(config["static_data_folder"], "proteins.json")
+
+bt2_index_name = os.path.join(config["data_folder"], "reference_index", "reference")
+snp_count_threshold = 3
+
+# Find chunks
+CHUNKS, = glob_wildcards(os.path.join(
+    config["data_folder"], "fasta_raw", "{chunk}.fa.gz"
+))
+
+rule all:
+    input:
+        # Generate reference-related data
+        os.path.join(config["static_data_folder"], "reference.json"), 
+        os.path.join(config["static_data_folder"], "genes.json"),
+        os.path.join(config["static_data_folder"], "proteins.json"),
+        os.path.join(config["static_data_folder"], "primers.json"),
+        # Packaged data
+        data_package = os.path.join(config["data_folder"], "data_package.json.gz"),
+        # Standalone map spec
+        standalone_map_spec = os.path.join(config["data_folder"], "map_combined_standalone.vg.json")
+
+
+rule preprocess_sequences:
+    """Filter out sequences (adapted from van Dorp et al, 2020)
+    1. Filter against nextstrain exclusion list
+    2. Remove animal/environmental isolates (bat, pangolin, mink, tiger, cat, canine, env)
+    3. Can't be less than 29700NT
+	4. Can't have more than 5% ambiguous NT
+    """
+    input:
+        fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz"),
+        nextstrain_exclude = os.path.join(
+            config["static_data_folder"], "nextstrain_exclude_20200520.txt"
+        )
+    output:
+        fasta = os.path.join(config["data_folder"], "fasta_processed", "{chunk}.fa.gz")
+    run:
+        preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
+
+
+rule bt2build:
+    """Build the bowtie2 index for the reference sequence
+    This should only be run once - it shouldn't ever change
+    """
+    input: 
+        reference = reference_sequence_path
+    params:
+        bt2_index_name = bt2_index_name
+    output:
+        output1 = os.path.join(config["data_folder"], "reference_index", "reference.1.bt2"),
+        output2 = os.path.join(config["data_folder"], "reference_index", "reference.2.bt2"),
+        output3 = os.path.join(config["data_folder"], "reference_index", "reference.3.bt2"),
+        output4 = os.path.join(config["data_folder"], "reference_index", "reference.4.bt2"),
+        outputrev1 = os.path.join(config["data_folder"], "reference_index", "reference.rev.1.bt2"),
+        outputrev2 = os.path.join(config["data_folder"], "reference_index", "reference.rev.2.bt2")
+    shell:
+        """
+        bowtie2-build {input.reference} {params.bt2_index_name}
+        """
+
+
+rule align_sequences:
+    """Align each sequence to the reference using bowtie2
+    The alignment is costly but this allows us to get SNVs for each sequence
+    by using a widely used tool, without having to write any bespoke code ourselves
+    """
+    input:
+        fasta = rules.preprocess_sequences.output.fasta,
+        bt2_1 = rules.bt2build.output.output1,
+        bt2_2 = rules.bt2build.output.output2,
+        bt2_3 = rules.bt2build.output.output3,
+        bt2_4 = rules.bt2build.output.output4,
+        bt2_rev1 = rules.bt2build.output.outputrev1,
+        bt2_rev2 = rules.bt2build.output.outputrev2
+    params:
+        bt2_index_name = bt2_index_name
+    threads: workflow.cores
+    output:
+        bam = os.path.join(config["data_folder"], "bam", "{chunk}.bam")
+    # bowtie2 is really memory intensive (10GB per thread), so make sure it 
+    # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
+    shell:
+        """
+        bowtie2 --end-to-end --very-fast --xeq --reorder --sam-no-qname-trunc -x {params.bt2_index_name} -f -U {input.fasta} --threads {threads} | samtools view -b > {output.bam}
+        """
+
+
+rule extract_dna_snps:
+    """Find SNVs on the NT level for each sequence
+    """
+    input:
+        reference = reference_sequence_path,
+        bam = rules.align_sequences.output.bam
+    output:
+        dna_snp = os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv")
+    run:
+        dna_snp_df = extract_dna_snps(input.bam, input.reference)
+        dna_snp_df.to_csv(output.dna_snp, index=False)
+
+
+rule get_gene_aa_snps:
+    """Using the NT SNVs, translate genes/proteins and find SNVs 
+    on the AA level, for genes
+    """
+    input:
+        dna_snp = rules.extract_dna_snps.output.dna_snp,
+        reference = reference_sequence_path,
+        genes_file = gene_defs_path
+    output:
+        gene_aa_snp = os.path.join(
+            config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
+        )
+    run:
+        extract_aa_snps(
+            input.dna_snp, 
+            input.genes_file, 
+            input.reference, 
+            mode="gene"
+        ).to_csv(output.gene_aa_snp, index=False)
+
+
+rule get_protein_aa_snps:
+    """Using the NT SNVs, translate genes/proteins and find SNVs 
+    on the AA level, for proteins
+    """
+    input:
+        dna_snp = rules.extract_dna_snps.output.dna_snp,
+        reference = reference_sequence_path,
+        proteins_file = protein_defs_path
+    output:
+        protein_aa_snp = os.path.join(
+            config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
+        )
+    run:
+        extract_aa_snps(
+            input.dna_snp, 
+            input.proteins_file, 
+            input.reference, 
+            mode="protein"
+        ).to_csv(output.protein_aa_snp, index=False)
+
+
+rule process_dna_snps:
+    """Combine DNA SNP chunks, filter for counts, and map to integer IDs
+    """
+    input:
+        dna_snp = expand(
+            os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"), 
+            chunk=CHUNKS
+        )
+    output:
+        dna_snp_group = os.path.join(config["data_folder"], "dna_snp_group.csv"),
+        dna_snp_map = os.path.join(config["data_folder"], "dna_snp_map.json"),
+    params:
+        count_threshold = snp_count_threshold
+    run:
+        process_snps(
+            input.dna_snp,
+            output.dna_snp_group,
+            output.dna_snp_map,
+            mode='dna', 
+            count_threshold=params.count_threshold
+        )
+
+
+rule process_gene_aa_snps:
+    """Combine gene AA SNP chunks, filter for counts, and map to integer IDs
+    """
+    input:
+        gene_aa_snp = expand(
+            os.path.join(config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"), 
+            chunk=CHUNKS
+        )
+    output:
+        gene_aa_snp_group = os.path.join(config["data_folder"], "gene_aa_snp_group.csv"),
+        gene_aa_snp_map = os.path.join(config["data_folder"], "gene_aa_snp_map.json"),
+    params:
+        count_threshold = snp_count_threshold
+    run:
+        process_snps(
+            input.gene_aa_snp,
+            output.gene_aa_snp_group,
+            output.gene_aa_snp_map,
+            mode='gene_aa', 
+            count_threshold=params.count_threshold
+        )
+
+
+rule process_protein_aa_snps:
+    """Combine protein AA SNP chunks, filter for counts, and map to integer IDs
+    """
+    input:
+        protein_aa_snp = expand(
+            os.path.join(config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"), 
+            chunk=CHUNKS
+        )
+    output:
+        protein_aa_snp_group = os.path.join(config["data_folder"], "protein_aa_snp_group.csv"),
+        protein_aa_snp_map = os.path.join(config["data_folder"], "protein_aa_snp_map.json"),
+    params:
+        count_threshold = snp_count_threshold
+    run:
+        process_snps(
+            input.protein_aa_snp,
+            output.protein_aa_snp_group,
+            output.protein_aa_snp_map,
+            mode='protein_aa', 
+            count_threshold=params.count_threshold
+        )
+
+
+rule combine_all_data:
+    """Main rule for generating the data files for the browser
+    Mostly just a bunch of joins
+    """
+    input:
+        metadata = os.path.join(config["data_folder"], "metadata.csv"),
+        dna_snp_group = rules.process_dna_snps.output.dna_snp_group,
+        gene_aa_snp_group = rules.process_gene_aa_snps.output.gene_aa_snp_group,
+        protein_aa_snp_group = rules.process_protein_aa_snps.output.protein_aa_snp_group,
+    output:
+        accession_hashmap = os.path.join(config["data_folder"], "accession_hashmap.csv"),
+        metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
+        location_map = os.path.join(config["data_folder"], "location_map.json"),
+        case_data = os.path.join(config["data_folder"], "case_data.json"),
+        # CSV is just for excel/debugging
+        case_data_csv = os.path.join(config["data_folder"], "case_data.csv")
+    run:
+        combine_all_data(**input, **output)
+
+
+rule build_location_tree:
+    input:
+        case_data = rules.combine_all_data.output.case_data_csv,
+        location_map = rules.combine_all_data.output.location_map,
+        emoji_map_file = os.path.join(
+            config["static_data_folder"], "country_to_emoji.xls"
+        )
+    output:
+        geo_select_tree = os.path.join(config["data_folder"], "geo_select_tree.json")
+    run:
+        geo_select_tree = build_location_tree(
+            input.case_data, input.location_map, input.emoji_map_file,
+            output.geo_select_tree
+        )
+
+
+rule write_reference_files:
+    """Write some of the reference sequence data as JSON
+    files that can be easily loaded by the front-end
+    """
+    input:
+        reference = reference_sequence_path,
+        primers = os.path.join(config["static_data_folder"], "primers.csv")
+    output:
+        # Write data to JSON for the JS/UI to handle
+        reference = os.path.join(config["static_data_folder"], "reference.json"),
+        primers = os.path.join(config["static_data_folder"], "primers.json")
+    run:
+        write_reference_files(
+            input.reference, input.primers,
+            output.reference, output.primers
+        )
+
+
+rule get_consensus_snps:
+    """For each lineage and clade, get the lineage/clade-defining SNVs,
+    on both the NT and AA level
+    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data_csv
+    params:
+        consensus_fraction = 0.9
+    output:
+        lineage_snp = os.path.join(config["data_folder"], "lineage_snp.json"),
+        clade_snp = os.path.join(config["data_folder"], "clade_snp.json")
+    run:
+        get_all_consensus_snps(
+            input.case_data, 
+            output.lineage_snp, output.clade_snp, 
+            consensus_fraction=params.consensus_fraction
+        )
+
+
+rule get_global_group_counts:
+    """Get the number of sequences in each group
+    Doing this in the pipeline just saves some work for the browser later
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data_csv
+    output:
+        global_group_counts = os.path.join(
+            config["data_folder"], "global_group_counts.json"
+        )
+    run:
+        global_group_counts(input.case_data, output.global_group_counts)
+
+
+rule global_sequencing_efforts:
+    """Merge sequence data with case counts and ISO geographical data,
+    to produce the "Global Sequencing Effort" plot in the web app
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data_csv,
+        location_map = rules.combine_all_data.output.location_map
+    output:
+        country_score = os.path.join(config["data_folder"], "country_score.json")
+    run:
+        global_sequencing_efforts(
+            input.case_data, input.location_map, 
+            output.country_score
+        )
+
+
+
+rule assemble_data_package:
+    """Assemble the complete data package, that will be downloaded
+    by the app upon initial load
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        clade_snp = rules.get_consensus_snps.output.clade_snp,
+        country_score = rules.global_sequencing_efforts.output.country_score,
+        dna_snp_map = rules.process_dna_snps.output.dna_snp_map,
+        gene_aa_snp_map = rules.process_gene_aa_snps.output.gene_aa_snp_map,
+        geo_select_tree = rules.build_location_tree.output.geo_select_tree,
+        global_group_counts = rules.get_global_group_counts.output.global_group_counts,
+        lineage_snp = rules.get_consensus_snps.output.lineage_snp,
+        location_map = rules.combine_all_data.output.location_map,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        protein_aa_snp_map = rules.process_protein_aa_snps.output.protein_aa_snp_map
+    output:
+        data_package = os.path.join(config["data_folder"], "data_package.json.gz")
+    run:
+        assemble_data_package(
+            **input,
+            data_package_out = output.data_package
+        )
+
+
+rule create_standalone_map_spec:
+    input:
+        spec = os.path.join("../src", "vega_specs", "map_combined.vg.json"),
+        data = rules.global_sequencing_efforts.output.country_score
+    output:
+        standalone_spec = os.path.join(config["data_folder"], "map_combined_standalone.vg.json")
+    run:
+        standalone_map_spec(input.spec, input.data, output.standalone_spec)
+

@@ -1,3 +1,10 @@
+# coding: utf-8
+
+"""Filter out sequences
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import gzip
 import math
 import re

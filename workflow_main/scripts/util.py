@@ -1,10 +1,9 @@
 # coding: utf-8
 
 """Utility functions
-Author: Albert Chen (Deverman Lab, Broad Institute)
-"""
 
-import hashlib
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
 
 from pathlib import Path
 
@@ -127,9 +126,3 @@ def reverse_complement(seq):
         rev_comp_seq += complement_map[char]
 
     return rev_comp_seq
-
-
-def hash_accession_id(accession_id):
-    m = hashlib.sha256()
-    m.update(str(accession_id).encode("utf-8"))
-    return m.hexdigest()
