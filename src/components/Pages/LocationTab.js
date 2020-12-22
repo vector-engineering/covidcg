@@ -10,12 +10,12 @@ import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import VegaLegend from '../Vega/VegaLegend';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
 import { GROUP_KEYS } from '../../constants/config';
 import { TABS } from '../../constants/UI';
+import VegaLegend from '../Legend/VegaLegend';
 
 const LocationTabContainer = styled.div`
   padding-top: 10px;
@@ -26,7 +26,7 @@ const LocationTab = observer(({ width }) => {
 
   return (
     <LocationTabContainer>
-      <AccordionWrapper
+      {/* <AccordionWrapper
         title="Legend"
         defaultCollapsed={false}
         maxHeight={'500px'}
@@ -69,7 +69,7 @@ const LocationTab = observer(({ width }) => {
         }
       >
         <VegaLegend />
-      </AccordionWrapper>
+      </AccordionWrapper> */}
       <AccordionWrapper
         title="Location-Date Plot"
         defaultCollapsed={false}

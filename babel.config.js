@@ -6,5 +6,6 @@ module.exports = {
         legacy: true,
       },
     ],
+    ['babel-plugin-styled-components'],
   ],
 };
