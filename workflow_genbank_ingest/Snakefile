@@ -1,0 +1,156 @@
+# coding: utf-8
+
+import datetime
+import os
+
+from pathlib import Path
+
+# Import scripts
+from scripts.chunk_data import chunk_data
+from scripts.clean_metadata import clean_metadata
+from scripts.combine_lineages import combine_lineages
+from scripts.copy_changed_files import copy_changed_files
+
+configfile: "config.yaml"
+
+if "data_folder" not in config:
+    config["data_folder"] = "../data_genbank"
+
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
+
+rule all:
+    input:
+        os.path.join(
+            config["data_folder"], "status", "download_" + today_str + ".done"
+        ),
+        os.path.join(
+            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+        ),
+        os.path.join(config["data_folder"], "metadata.csv")
+
+
+rule download:
+    output:
+        feed = os.path.join(config["data_folder"], "feed.json"),
+        status = touch(os.path.join(
+            config["data_folder"], "status", "download_" + today_str + ".done"
+        ))
+    shell:
+        """
+        python3 scripts/download.py > {output.feed}
+        """
+
+
+checkpoint chunk_data:
+    input:
+        feed = rules.download.output.feed
+    output:
+        fasta = directory(os.path.join(config["data_folder"], "fasta_temp")),
+        metadata_dirty = temp(os.path.join(config["data_folder"], "metadata_dirty.csv"))
+    params:
+        chunk_size = config["chunk_size"]
+    run:
+        chunk_data(
+            input.feed, output.fasta, output.metadata_dirty, 
+            chunk_size=params.chunk_size, 
+            processes=workflow.cores
+        )
+
+
+def get_changed_chunks(wildcards):
+    """Helper function for detecting which chunks have changed in terms of their contents 
+    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
+    isolates on GISAID, aligning them would take 1 week for the whole batch.
+    """
+    # Only do this to trigger DAG recalculation
+    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
+    # print('checkpoint_out', checkpoint_output)
+
+    # Get all chunks from the fasta_temp directory
+    chunks, = glob_wildcards(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"))
+    # print('chunks', chunks)
+
+    # Keep track of which chunks have changed
+    changed_chunks = []
+
+    for chunk in chunks:
+        fasta_temp_path = Path(config["data_folder"]) / "fasta_temp" / (chunk + ".fa.gz")
+        fasta_raw_path = Path(config["data_folder"]) / "fasta_raw" / (chunk + ".fa.gz")
+
+        # The chunk has changed if:
+        # 1) The current chunk does not exist yet
+        # 2) The new chunk and the current chunk are different sizes (in bytes)
+        if (
+                not fasta_raw_path.exists() or 
+                not fasta_raw_path.is_file() or 
+                fasta_temp_path.stat().st_size != fasta_raw_path.stat().st_size
+            ):
+            
+            changed_chunks.append(chunk)
+
+    # Return a list of fasta_temp files that have changed, so that they can be copied
+    # over to fasta_raw by the below `copy_changed_files` rule
+    return expand(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
+
+
+checkpoint copy_changed_files:
+    """Using the `get_changed_chunks` function, only copy fasta files which have changed
+    from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
+    it will flag to snakemake that they (and only they - not the others) will need to be
+    reprocessed and realigned.
+    """
+    input:
+        get_changed_chunks
+    output:
+        # Instead of explicitly defining the fasta_raw outputs
+        # (and risking touching fasta files that haven't actually changed)
+        # Have the output be a flag instead, that the "all" rule checks for
+        # to make sure that we actually run this rule
+        status = touch(os.path.join(
+            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+        ))
+    run:
+        copy_changed_files(input, config["data_folder"])
+
+
+def get_chunks(wildcards):
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
+    
+    return expand(
+        os.path.join(config["data_folder"], "lineages", "{chunk}.csv"),
+        chunk=glob_wildcards(os.path.join(config["data_folder"], "fasta_raw", "{i}.fa.gz")).i
+    )
+
+rule pangolin_lineages:
+    input:
+        fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = temp(os.path.join(config["data_folder"], "lineages", "{chunk}.fa")),
+        lineages = os.path.join(config["data_folder"], "lineages", "{chunk}.csv")
+    conda: "envs/pangolin.yaml"
+    shell:
+        """
+        # Pangolin can only use un-gzipped fasta files
+        gunzip -c {input.fasta} > {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta}
+        """
+
+rule combine_lineages:
+    input:
+        lineages = get_chunks
+    output:
+        lineages = os.path.join(config["data_folder"], "lineages.csv")
+    run:
+        combine_lineages(input.lineages, output.lineages)
+
+        
+rule clean_metadata:
+    input:
+        metadata_dirty = rules.chunk_data.output.metadata_dirty,
+        lineages = rules.combine_lineages.output.lineages
+    output:
+        metadata_clean = os.path.join(config["data_folder"], "metadata.csv")
+    run:
+        clean_metadata(input.metadata_dirty, input.lineages, output.metadata_clean)
