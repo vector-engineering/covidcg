@@ -1,0 +1,60 @@
+# ------------------
+#       GLOBAL
+# ------------------
+
+# Path to folder with genome information (reference.fasta, genes.json, proteins.json)
+# This path is relative to the workflow folders
+static_data_folder: "../static_data"
+
+# ------------------
+#       INGEST
+# ------------------
+
+# ingest_strategy: "gisaid"
+ingest_strategy: "genbank"
+
+# Number of genomes to load into memory before flushing to disk
+chunk_size: 100000
+
+# --------------------
+#       ANALYSIS
+# --------------------
+
+# SNPs with less than this number of global occurrences will be ignored
+snp_count_threshold: 3
+# Percentage of sequences within a group (e.g., clade, lineage) that need
+# to have a SNV, in order for the SNV to be called as a "consensus" SNV
+consensus_fraction: 0.9
+
+metadata_cols:
+  - gisaid:
+    - "gender"
+    - "patient_status"
+    - "passage"
+    - "specimen"
+    - "sequencing_tech"
+    - "assembly_method"
+    - "comment_type"
+    - "authors"
+    - "originating_lab"
+    - "submitting_lab"
+  - genbank:
+    - "database"
+    - "strain"
+    - "host"
+    - "isolation_source"
+    - "biosample_accession"
+    - "authors"
+    - "publications"
+
+group_cols:
+  - gisaid:
+    - "lineage"
+    - "clade"
+  - genbank:
+    - "lineage"
+
+
+# ----------------------
+#     VISUALIZATION
+# ----------------------

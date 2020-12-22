@@ -14,9 +14,9 @@ The environment file for `pangolin` is placed in `envs/pangolin.yaml`
 
 ## Configuration
 
-All configuration options, and their descriptions, are available in `config.yaml`
+All configuration options, and their descriptions, are available in `config.yaml` in the project root
 
-Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config.yaml` file inside the `workflow_main` folder, under the "GenBank" heading.
+Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config.yaml` file under the `genbank` key.
 
 ## Metadata Requirements
 

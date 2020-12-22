@@ -11,7 +11,7 @@ from scripts.clean_metadata import clean_metadata
 from scripts.combine_lineages import combine_lineages
 from scripts.copy_changed_files import copy_changed_files
 
-configfile: "config.yaml"
+configfile: "../config.yaml"
 
 if "data_folder" not in config:
     config["data_folder"] = "../data_genbank"

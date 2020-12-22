@@ -8,7 +8,7 @@ from scripts.clean_metadata import clean_metadata
 from scripts.copy_changed_files import copy_changed_files
 from scripts.chunk_data import chunk_data
 
-configfile: "config.yaml"
+configfile: "../config.yaml"
 
 envvars:
     "GISAID_URL",
