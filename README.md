@@ -79,6 +79,8 @@ Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable
 
 Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts SNVs, and compiles data for display in the web application.
 
+Configuration of the pipeline is defined in the `config.yaml` file in the project root
+
 ### Ingestion
 
 Two ingestion workflows are currently available, `workflow_genbank_ingest` and `workflow_gisaid_ingest`. 

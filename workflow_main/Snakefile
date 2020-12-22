@@ -20,7 +20,7 @@ from scripts.preprocess_sequences import preprocess_sequences
 from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
 
-configfile: "config.yaml"
+configfile: "../config.yaml"
 
 if "data_folder" not in config:
     config["data_folder"] = "../data"
@@ -186,8 +186,8 @@ rule combine_all_data:
         combine_all_data(
             **input, **output, 
             count_threshold=config["snp_count_threshold"],
-            group_cols=config["group_cols"],
-            metadata_cols=config["metadata_cols"]
+            group_cols=config["group_cols"][config["ingest_strategy"]],
+            metadata_cols=config["metadata_cols"][config["ingest_strategy"]]
         )
 
 
@@ -239,7 +239,7 @@ rule consensus_snps:
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snps,
-            group_cols=config["group_cols"],
+            group_cols=config["group_cols"][config["ingest_strategy"]],
             consensus_fraction=config["consensus_fraction"]
         )
 

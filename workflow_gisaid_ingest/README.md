@@ -16,9 +16,9 @@ Lineage/clade assignments are provided by GISAID, so therefore we don't run `pan
 
 ## Configuration
 
-All configuration options, and their descriptions, are available in `config.yaml`
+All configuration options, and their descriptions, are available in the `config.yaml` file on the project root
 
-Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config.yaml` file inside the `workflow_main` folder, under the "GISAID" heading.
+Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config.yaml` file under the "gisaid" key.
 
 ## Metadata Requirements
 
