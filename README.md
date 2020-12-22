@@ -7,13 +7,12 @@ Table of Contents
 - [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
 - [Requirements](#requirements)
 - [Installation](#installation)
-  - [Python](#python)
-    - [Data Requirements](#data-requirements)
-    - [Data Package](#data-package)
   - [Javascript](#javascript)
     - [macOS](#macos)
     - [Linux](#linux)
 - [Analysis Pipeline](#analysis-pipeline)
+  - [Ingestion](#ingestion)
+  - [Main Analysis](#main-analysis)
 - [About the project](#about-the-project)
 - [Data enabling COVID CG](#data-enabling-covid-cg)
 - [Citing COVID CG](#citing-covid-cg)
@@ -76,21 +75,43 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
 ## Analysis Pipeline
 
-Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Python](#Python)) and that all [data files](#Data-Requirements) are present and linked correctly to the `data/` folder.
+Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Installation](#Installation)).
 
-Preview (dry-run) the pipeline by running:
+Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts SNVs, and compiles data for display in the web application.
 
+### Ingestion
+
+Two ingestion workflows are currently available, `workflow_genbank_ingest` and `workflow_gisaid_ingest`. 
+
+**NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**. 
+
+You can use either ingestion pipeline as the basis for developing your own data ingestion pipeline to analyze and visualize in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder.
+
+For example, you can run the GenBank ingestion pipeline with:
+
+```bash
+cd workflow_genbank_ingest
+snakemake --config data_folder=../data_genbank --use-conda
 ```
-snakemake -n
+
+Both ingestion pipelines are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step.
+
+### Main Analysis
+
+The main data analysis pipeline is located in `workflow_main`. It requires data, in a data folder, from the ingestion pipeline. The data folder defaults to `data` in the project root, but you can specify it when running the snakemake command with `--config data_folder=/path/to/data_folder`.
+
+**NOTE**: `bowtie2`, the sequence aligner we use, usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
+
+For example, if you ingested data from GenBank, run the main analysis pipeline with:
+
+```bash
+cd workflow_main
+snakemake --config data_folder=../data_genbank
 ```
 
-and run the pipeline with:
+This pipeline will align sequences to the reference sequence with `bowtie2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
 
-```
-snakemake
-```
-
-**NOTE**: `bowtie2` usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
+To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in `src/stores/asyncDataStore.js` (A better solution for the following is being developed).
 
 ---
 
@@ -98,7 +119,7 @@ snakemake
 
 This project is developed by the [Vector Engineering Lab](https://vector.engineering/):
 
-- Albert Chen (Broad Institute)
+- Albert Tian Chen (Broad Institute)
 - [Kevin Altschuler](https://www.linkedin.com/in/kevinaltschuler/)
 - Shing Hei Zhan, PhD (University of British Columbia)
 - Alina Yujia Chan, PhD (Broad Institute)
@@ -118,7 +139,9 @@ Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’
 
 ## Citing COVID CG
 
-Users are encouraged to share, download, and further analyze data from this site. Plots can be downloaded as PNG or SVG files, and the data powering the plots and tables can be downloaded as well. Please attribute any data/images to [covidcg.org](https://covidcg.org/).
+Users are encouraged to share, download, and further analyze data from this site. Plots can be downloaded as PNG or SVG files, and the data powering the plots and tables can be downloaded as well. Please attribute any data/images to [covidcg.org](https://covidcg.org/), or cite our manuscript:
+
+Chen AT, Altschuler K, Zhan SH, Chan YA, Deverman BE. COVID-19 CG: Tracking SARS-CoV-2 mutations by locations and dates of interest. _bioRxiv_ (2020), doi: [https://doi.org/10.1101/2020.09.23.310565](https://doi.org/10.1101/2020.09.23.310565)
 
 Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
 
