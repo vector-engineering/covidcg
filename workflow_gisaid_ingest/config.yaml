@@ -1,0 +1,4 @@
+# Path to folder with genome information (reference.fasta, genes.json, proteins.json)
+static_data_folder: "../static_data"
+# Number of genomes to load into memory before flushing to disk
+chunk_size: 100000

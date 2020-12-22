@@ -776,6 +776,12 @@ def clean_date_metadata(df):
 
 def clean_lineage_metadata(df):
     df["lineage"] = df["covv_lineage"].astype(str).str.strip()
+
+    # Filter out "None" lineages
+    remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
+    df = df.loc[~remove_seqs, :]
+    print('Removed {} sequences without a lineage assignment'.format(remove_seqs.sum()))
+
     return df
 
 

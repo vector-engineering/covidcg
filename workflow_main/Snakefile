@@ -20,18 +20,16 @@ from scripts.preprocess_sequences import preprocess_sequences
 from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
 
+configfile: "config.yaml"
+
 if "data_folder" not in config:
     config["data_folder"] = "../data"
-
-if "static_data_folder" not in config:
-    config["static_data_folder"] = "../static_data"
 
 reference_sequence_path = os.path.join(config["static_data_folder"], "reference.fasta")
 gene_defs_path = os.path.join(config["static_data_folder"], "genes.json")
 protein_defs_path = os.path.join(config["static_data_folder"], "proteins.json")
 
 bt2_index_name = os.path.join(config["data_folder"], "reference_index", "reference")
-snp_count_threshold = 3
 
 # Find chunks
 CHUNKS, = glob_wildcards(os.path.join(
@@ -184,10 +182,13 @@ rule combine_all_data:
         location_map = os.path.join(config["data_folder"], "location_map.json"),
         case_data = os.path.join(config["data_folder"], "case_data.json"),
         case_data_csv = os.path.join(config["data_folder"], "case_data.csv")
-    params:
-        count_threshold = snp_count_threshold
     run:
-        combine_all_data(**input, **output, count_threshold=params.count_threshold)
+        combine_all_data(
+            **input, **output, 
+            count_threshold=config["snp_count_threshold"],
+            group_cols=config["group_cols"],
+            metadata_cols=config["metadata_cols"]
+        )
 
 
 rule build_location_tree:
@@ -224,7 +225,7 @@ rule write_reference_files:
         )
 
 
-rule get_consensus_snps:
+rule consensus_snps:
     """For each lineage and clade, get the lineage/clade-defining SNVs,
     on both the NT and AA level
     Lineage/clade-defining SNVs are defined as SNVs which occur in
@@ -233,18 +234,17 @@ rule get_consensus_snps:
     """
     input:
         case_data = rules.combine_all_data.output.case_data_csv
-    params:
-        consensus_fraction = 0.9
     output:
         group_consensus_snps = os.path.join(config["data_folder"], "group_consensus_snps.json")
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snps,
-            consensus_fraction=params.consensus_fraction
+            group_cols=config["group_cols"],
+            consensus_fraction=config["consensus_fraction"]
         )
 
 
-rule get_global_group_counts:
+rule global_group_counts:
     """Get the number of sequences in each group
     Doing this in the pipeline just saves some work for the browser later
     """
@@ -282,8 +282,8 @@ rule assemble_data_package:
         case_data = rules.combine_all_data.output.case_data,
         country_score = rules.global_sequencing_efforts.output.country_score,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-        global_group_counts = rules.get_global_group_counts.output.global_group_counts,
-        group_consensus_snps = rules.get_consensus_snps.output.group_consensus_snps,
+        global_group_counts = rules.global_group_counts.output.global_group_counts,
+        group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
         metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(config["data_folder"], "data_package.json.gz")

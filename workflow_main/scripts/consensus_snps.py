@@ -78,13 +78,20 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     return collapsed_snvs
 
 
-def get_all_consensus_snps(case_data, consensus_out, consensus_fraction=0.9):
+def get_all_consensus_snps(
+    case_data, consensus_out, group_cols=[], consensus_fraction=0.9
+):
     """For each lineage and clade, get the lineage/clade-defining SNVs,
     on both the NT and AA level
     Lineage/clade-defining SNVs are defined as SNVs which occur in
     >= [consensus_fraction] of sequences within that lineage/clade.
     [consensus_fraction] is a parameter which can be adjusted here
     """
+
+    # If no group columns are defined, then just write an empty JSON object
+    if not group_cols:
+        with open(consensus_out, "w") as fp:
+            fp.write(json.dumps({}))
 
     case_df = pd.read_csv(case_data, index_col="Accession ID")
 
@@ -98,12 +105,10 @@ def get_all_consensus_snps(case_data, consensus_out, consensus_fraction=0.9):
             .apply(lambda x: [int(_x) for _x in x])
         )
 
-    # Hardcode this for now
-    # TODO: move this into a config file that can be loaded by the front-end too
-    groups = ["lineage", "clade"]
-
     consensus_dict = {}
-    for group in groups:
+    # group_cols is defined under the "group_cols" field
+    # in the config.yaml file
+    for group in group_cols:
         group_snp_df = get_consensus_snps(
             case_df, group, consensus_fraction=consensus_fraction
         )

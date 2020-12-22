@@ -6,7 +6,9 @@ from pathlib import Path
 # Import scripts
 from scripts.clean_metadata import clean_metadata
 from scripts.copy_changed_files import copy_changed_files
-from scripts.rewrite_data_feed import rewrite_data_feed
+from scripts.chunk_data import chunk_data
+
+configfile: "config.yaml"
 
 envvars:
     "GISAID_URL",
@@ -17,20 +19,24 @@ envvars:
 if "data_folder" not in config:
     config["data_folder"] = "../data"
 
-if "static_data_folder" not in config:
-    config["static_data_folder"] = "../static_data"
-
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
+
 
 rule all:
     input:
         # Download latest data feed, process sequences
-        os.path.join(data_folder, "status", "download_" + today_str + ".done"),
-        os.path.join(data_folder, "status", "merge_sequences_" + today_str + ".done")
+        download_status = os.path.join(
+            config["data_folder"], "status", "download_" + today_str + ".done"
+        ),
+        copy_status = os.path.join(
+            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+        )
+        # Cleaned metadata
+        metadata = os.path.join(config["data_folder"], "metadata.csv")
 
 
-rule download_data_feed:
+rule download:
     """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
     """
     output:
@@ -38,28 +44,25 @@ rule download_data_feed:
         status = touch(os.path.join(
             config["data_folder"], "status", "download_" + today_str + ".done"
         ))
-    params:
-        cred_str = os.getenv("GISAID_USERNAME") + ":" + os.getenv("GISAID_PASSWORD"),
-        feed_url = os.getenv("GISAID_URL")
     threads: workflow.cores
     shell:
-        "curl -L https://{params.cred_str}@{params.feed_url} | unxz --threads={threads} -c - > {output.feed}"
+        "scripts/download.sh | unxz --threads={threads} -c - > {output.feed}"
 
 
-checkpoint rewrite_data_feed:
+checkpoint chunk_data:
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        data_feed = rules.download_data_feed.output.feed
+        feed = rules.download.output.feed
     output:
         fasta = directory(os.path.join(config["data_folder"], "fasta_temp")),
         metadata_dirty = temp(os.path.join(config["data_folder"], "metadata_dirty.csv"))
     params:
-        chunk_size = 100000
+        chunk_size = config["chunk_size"]
     run:
-        rewrite_data_feed(
-            input.data_feed, output.fasta, output.metadata_dirty, 
+        chunk_data(
+            input.feed, output.fasta, output.metadata_dirty, 
             chunk_size=params.chunk_size, 
             processes=workflow.cores
         )
@@ -69,7 +72,7 @@ rule clean_metadata:
     """Clean up metadata from GISAID
     """
     input:
-        metadata_dirty = rules.rewrite_data_feed.output.metadata_dirty,
+        metadata_dirty = rules.chunk_data.output.metadata_dirty,
         location_corrections = os.path.join(
             config["static_data_folder"], "location_corrections.csv"
         ),
@@ -85,9 +88,9 @@ def get_changed_chunks(wildcards):
     isolates on GISAID, aligning them would take 1 week for the whole batch.
     """
     
-    # Get all chunks from the fasta_temp directory
-    checkpoint_output = checkpoints.rewrite_data_feed.get(**wildcards).output[0]
-    chunks, = glob_wildcards(os.path.join(checkpoint_output, "{i}.fa.gz"))
+    # Only run to trigger DAG re-evaluation
+    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
+    chunks, = glob_wildcards(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"))
 
     # Keep track of which chunks have changed
     changed_chunks = []
@@ -112,7 +115,7 @@ def get_changed_chunks(wildcards):
     return expand(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
 
 
-checkpoint copy_changed_files:
+rule copy_changed_files:
     """Using the `get_changed_chunks` function, only copy fasta files which have changed
     from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
     it will flag to snakemake that they (and only they - not the others) will need to be
@@ -125,7 +128,7 @@ checkpoint copy_changed_files:
         # (and risking touching fasta files that haven't actually changed)
         # Have the output be a flag instead, that the "all" rule checks for
         # to make sure that we actually run this rule
-        touch(os.path.join(
+        status = touch(os.path.join(
             config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
         ))
     run:

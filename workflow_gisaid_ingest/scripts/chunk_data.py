@@ -1,6 +1,7 @@
 # coding: utf-8
 
-"""
+"""Chunk data feed, collect metadata
+
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
@@ -21,9 +22,7 @@ def write_sequences_day(fasta_out_path, seqs):
             fp_out.write(">" + seq[0] + "\n" + seq[1] + "\n")
 
 
-def rewrite_data_feed(
-    data_feed, out_fasta, out_metadata, chunk_size=100000, processes=1
-):
+def chunk_data(data_feed, out_fasta, out_metadata, chunk_size=100000, processes=1):
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
 
@@ -44,7 +43,7 @@ def rewrite_data_feed(
     -------
     None
     """
-    output_path = Path(output.fasta)
+    output_path = Path(out_fasta)
 
     # Make the output directory, if it hasn't been made yet
     # Snakemake won't make the directory itself, since it's a special
@@ -62,7 +61,7 @@ def rewrite_data_feed(
 
     # Get fields for each isolate
     fields = []
-    with open(input.data_feed, "r") as fp_in:
+    with open(data_feed, "r") as fp_in:
         isolate = json.loads(fp_in.readline().strip())
         for i, key in enumerate(isolate.keys()):
             # Skip the special sequence column
@@ -84,7 +83,7 @@ def rewrite_data_feed(
             pool.close()
             pool.join()
 
-    with open(input.data_feed, "r") as fp_in:
+    with open(data_feed, "r") as fp_in:
 
         # Open up the initial fasta file for the first chunk
         fasta_by_subm_date = defaultdict(list)
@@ -93,7 +92,7 @@ def rewrite_data_feed(
         for line in fp_in:
 
             # Flush results if chunk is full
-            if chunk_i == params.chunk_size:
+            if chunk_i == chunk_size:
                 flush_chunk(fasta_by_subm_date)
                 # Reset chunk counter
                 chunk_i = 0
@@ -129,4 +128,4 @@ def rewrite_data_feed(
     # that I didn't want to implement manually (such as wrapping certain strings
     # in double quotes)
     metadata_df = pd.DataFrame(metadata_df, columns=fields)
-    metadata_df.to_csv(output.metadata, index=False)
+    metadata_df.to_csv(out_metadata, index=False)

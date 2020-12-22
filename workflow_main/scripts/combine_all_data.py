@@ -31,7 +31,10 @@ def combine_all_data(
     location_map,
     case_data,
     case_data_csv,
+    # Parameters
     count_threshold=3,
+    group_cols=[],
+    metadata_cols=[],
 ):
 
     # Count SNPs
@@ -48,12 +51,12 @@ def combine_all_data(
     # Load metadata
     df = pd.read_csv(metadata).set_index("Accession ID")
 
-    # Filter out "None" lineages
-    df = df.loc[df["lineage"] != "None", :]
-    df = df.loc[df["lineage"] != "nan", :]
-    # Exclude sequences without a lineage/clade assignment
-    df = df.loc[~pd.isnull(df["lineage"]), :]
-    df = df.loc[~pd.isnull(df["clade"]), :]
+    # Exclude sequences without a group assignment
+    # (i.e., lineage or clade assignment)
+    # "group_cols" is defined in the "group_cols" field in the
+    # config.yaml file
+    for col in group_cols:
+        df = df.loc[~pd.isnull(df[col]), :]
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences
@@ -137,21 +140,11 @@ def combine_all_data(
     )
 
     # Factorize some more metadata columns
-    map_cols = [
-        "gender",
-        "patient_status",
-        "passage",
-        "specimen",
-        "sequencing_tech",
-        "assembly_method",
-        "comment_type",
-        "authors",
-        "originating_lab",
-        "submitting_lab",
-    ]
     metadata_maps = {}
 
-    for i, col in enumerate(map_cols):
+    # Metadata cols passed in as kwarg, and defined
+    # in config.yaml as "metadata_cols"
+    for i, col in enumerate(metadata_cols):
         factor = pd.factorize(df[col])
 
         id_col = col + "_id"
@@ -160,7 +153,7 @@ def combine_all_data(
         metadata_maps[col] = pd.Series(factor[1]).to_dict()
 
     # Drop the original metadata columns
-    df = df.drop(columns=map_cols)
+    df = df.drop(columns=metadata_cols)
 
     # Add SNP maps into the metadata map
     metadata_maps["dna_snp"] = dna_snp_map.to_dict()
