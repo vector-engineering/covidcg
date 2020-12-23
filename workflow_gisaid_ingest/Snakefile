@@ -31,7 +31,7 @@ rule all:
         ),
         copy_status = os.path.join(
             config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
-        )
+        ),
         # Cleaned metadata
         metadata = os.path.join(config["data_folder"], "metadata.csv")
 

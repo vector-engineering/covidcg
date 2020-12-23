@@ -8,11 +8,19 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import io
 import pandas as pd
 
+from pathlib import Path
+
 
 def combine_lineages(lineages, lineage_out):
     # Dump all SNP chunks into a text buffer
     df_io = io.StringIO()
     for i, chunk in enumerate(lineages):
+
+        # For some reason, snakemake likes to pass folders in
+        # just skip these
+        if not Path(chunk).is_file():
+            continue
+
         with open(chunk, "r") as fp_in:
             for j, line in enumerate(fp_in):
                 # Write the header of the first file
