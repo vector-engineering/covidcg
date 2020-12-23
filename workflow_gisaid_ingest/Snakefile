@@ -1,4 +1,7 @@
+# coding: utf-8
+
 import datetime
+import gzip
 import os
 
 from pathlib import Path
@@ -7,6 +10,7 @@ from pathlib import Path
 from scripts.clean_metadata import clean_metadata
 from scripts.copy_changed_files import copy_changed_files
 from scripts.chunk_data import chunk_data
+from scripts.get_changed_chunks import get_changed_chunks
 
 configfile: "../config.yaml"
 
@@ -31,7 +35,7 @@ rule all:
         ),
         copy_status = os.path.join(
             config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
-        )
+        ),
         # Cleaned metadata
         metadata = os.path.join(config["data_folder"], "metadata.csv")
 
@@ -82,6 +86,17 @@ rule clean_metadata:
         clean_metadata(input.metadata_dirty, input.location_corrections, output.metadata_clean)
 
 
+def get_num_seqs(fasta_gz):
+    """Get the number of entries in a gzipped fasta file
+    """
+    num_seqs = 0
+    with gzip.open(fasta_gz, 'rt') as fp:
+        for line in fp:
+            # Only check the first character of each line
+            if line[0] == '>':
+                num_seqs += 1
+    return num_seqs
+
 def get_changed_chunks(wildcards):
     """Helper function for detecting which chunks have changed in terms of their contents 
     (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
@@ -99,15 +114,21 @@ def get_changed_chunks(wildcards):
         fasta_temp_path = Path(config["data_folder"]) / "fasta_temp" / (chunk + ".fa.gz")
         fasta_raw_path = Path(config["data_folder"]) / "fasta_raw" / (chunk + ".fa.gz")
 
-        # The chunk has changed if:
-        # 1) The current chunk does not exist yet
-        # 2) The new chunk and the current chunk are different sizes (in bytes)
+        # If the current chunk doesn't exist yet, then mark it as changed
         if (
                 not fasta_raw_path.exists() or 
-                not fasta_raw_path.is_file() or 
-                fasta_temp_path.stat().st_size != fasta_raw_path.stat().st_size
+                not fasta_raw_path.is_file()
             ):
-            
+            changed_chunks.append(chunk)
+            continue
+
+        # Count ">" characters in both the temp and raw files
+        # as a proxy for the number of sequences in each
+        # If they're different, then mark as changed
+        num_seqs_temp = get_num_seqs(str(fasta_temp_path))
+        num_seqs_raw = get_num_seqs(str(fasta_raw_path))
+
+        if num_seqs_temp != num_seqs_raw:
             changed_chunks.append(chunk)
 
     # Return a list of fasta_temp files that have changed, so that they can be copied

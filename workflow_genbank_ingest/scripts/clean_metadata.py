@@ -5,6 +5,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import datetime
 import pandas as pd
 
 
@@ -74,6 +75,13 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     )
     df = df.loc[~remove_rows]
 
+    # Remove "Z" from the end of the submission date string, and convert from
+    # ISO datetime to ISO date
+    def datetime_to_date(x):
+        return datetime.datetime.fromisoformat(x[:-1]).strftime("%Y-%m-%d")
+
+    df.loc[:, "submission_date"] = df["submission_date"].apply(datetime_to_date)
+
     # Parse location data
     def parse_genbank_location(s):
         """Convert a Genbank location string into a tuple of (country, division, location)
@@ -138,4 +146,4 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     # Fill in missing values
     df.loc[:, "lineage"] = df["lineage"].fillna("None")
 
-    df.to_csv(metadata_out, index=False)
+    df.to_csv(metadata_out)

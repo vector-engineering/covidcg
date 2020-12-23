@@ -255,7 +255,10 @@ rule global_group_counts:
             config["data_folder"], "global_group_counts.json"
         )
     run:
-        global_group_counts(input.case_data, output.global_group_counts)
+        global_group_counts(
+            input.case_data, output.global_group_counts,
+            group_cols=config["group_cols"][config["ingest_strategy"]]
+        )
 
 
 rule global_sequencing_efforts:

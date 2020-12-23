@@ -12,9 +12,20 @@ from itertools import chain
 from collections import Counter
 
 
-def global_group_counts(case_data, out_global_group_counts):
+def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
     """Get the number of sequences in each group
     Doing this in the pipeline just saves some work for the browser later
+
+    Parameters
+    ----------
+    case_data: str
+    out_global_group_counts: str
+    group_cols: list of str
+        - List of sequence groupings (e.g., "lineage", "clade")
+
+    Returns
+    -------
+    None
     """
 
     case_df = pd.read_csv(case_data, index_col="Accession ID")
@@ -30,9 +41,9 @@ def global_group_counts(case_data, out_global_group_counts):
         )
 
     global_group_counts = {}
-    # Count lineages and clades
-    global_group_counts["lineage"] = case_df["lineage"].value_counts().to_dict()
-    global_group_counts["clade"] = case_df["clade"].value_counts().to_dict()
+    # Count sequence groupings (e.g., lineages and clades)
+    for col in group_cols:
+        global_group_counts[col] = case_df[col].value_counts().to_dict()
 
     # Count global SNV frequencies
     # Collapse list of lists into one list, then count individual
