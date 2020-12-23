@@ -1,8 +1,8 @@
 import config from '../../config.yaml';
 
 export const appConfig = Object.assign({}, config);
-export const GROUP_COLS = config.group_cols[config.ingest_strategy];
-export const METADATA_COLS = config.metadata_cols[config.ingest_strategy];
+export const GROUP_COLS = config.group_cols[config.ingest_method];
+export const METADATA_COLS = config.metadata_cols[config.ingest_method];
 
 const LOCAL_COUNTS = 'local';
 const GLOBAL_COUNTS = 'global';

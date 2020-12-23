@@ -10,8 +10,8 @@ static_data_folder: "../static_data"
 #       INGEST
 # ------------------
 
-# ingest_strategy: "gisaid"
-ingest_strategy: "genbank"
+# ingest_method: "gisaid"
+ingest_method: "genbank"
 
 # Number of genomes to load into memory before flushing to disk
 chunk_size: 100000

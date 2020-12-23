@@ -186,8 +186,8 @@ rule combine_all_data:
         combine_all_data(
             **input, **output, 
             count_threshold=config["snp_count_threshold"],
-            group_cols=config["group_cols"][config["ingest_strategy"]],
-            metadata_cols=config["metadata_cols"][config["ingest_strategy"]]
+            group_cols=config["group_cols"][config["ingest_method"]],
+            metadata_cols=config["metadata_cols"][config["ingest_method"]]
         )
 
 
@@ -239,7 +239,7 @@ rule consensus_snps:
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snps,
-            group_cols=config["group_cols"][config["ingest_strategy"]],
+            group_cols=config["group_cols"][config["ingest_method"]],
             consensus_fraction=config["consensus_fraction"]
         )
 
