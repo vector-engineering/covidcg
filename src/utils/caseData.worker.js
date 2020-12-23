@@ -7,7 +7,8 @@ import _ from 'underscore';
 
 import {
   LOW_FREQ_FILTER_TYPES,
-  GROUP_SNV, GROUP_COLS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../constants/config';
@@ -189,7 +190,7 @@ function filterByMetadataFieldsAndAgeRange(
 function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
   // If we're grouping by lineage or SNP signature, then the group
   // keys are literal
-  if (GROUP_COLS.includes(groupKey)) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     return [row[groupKey]];
   }
   // If we're grouping by SNP, then the value is a semicolon-delimited
@@ -312,7 +313,7 @@ function processCaseData({
     });
   } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS) {
     let globalCounts;
-    if (GROUP_COLS.includes(groupKey)) {
+    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
       globalCounts = globalGroupCounts[groupKey];
     } else if (groupKey === GROUP_SNV) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
@@ -416,7 +417,7 @@ function processCaseData({
   // });
 
   let getColorMethod;
-  if (GROUP_COLS.includes(groupKey)) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     getColorMethod = (group) => groupColorMap[groupKey][group];
   } else if (groupKey === GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
@@ -498,7 +499,7 @@ function aggCaseDataByGroup({
   groupColorMap,
 }) {
   let getColorMethod;
-  if (GROUP_COLS.includes(groupKey)) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     getColorMethod = (group) => groupColorMap[groupKey][group];
   } else if (groupKey === GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
@@ -584,7 +585,7 @@ function aggCaseDataByGroup({
       return intToSnvMap[snvId];
     });
   };
-  if (GROUP_COLS.includes(groupKey)) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     if (dnaOrAa === DNA_OR_AA.DNA) {
       getSnvsFromGroup = getSnvsFromGroupBase.bind(
         this,
@@ -794,7 +795,7 @@ function aggCaseDataByGroup({
       }
       // If we grouped by lineage, use the lineage name
       // to find a potential SNP at this location
-      else if (GROUP_COLS.includes(groupKey)) {
+      else if (Object.keys(appConfig.group_cols).includes(groupKey)) {
         // lineageSnpFunc is defined above
         let groupSnps = getSnvsFromGroup(group);
 

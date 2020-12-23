@@ -11,10 +11,7 @@ from scripts.clean_metadata import clean_metadata
 from scripts.combine_lineages import combine_lineages
 from scripts.copy_changed_files import copy_changed_files
 
-configfile: "../config.yaml"
-
-if "data_folder" not in config:
-    config["data_folder"] = "../data_genbank"
+configfile: "../config/config_genbank.yaml"
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()

@@ -189,7 +189,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: appConfig.group_defs.lineage.name,
+          groupKey: appConfig.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.DNA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -212,7 +212,7 @@ const ExampleTab = observer(() => {
     //       activeTab: TABS.TAB_GROUP,
     //     },
     //     config: {
-    //       groupKey: appConfig.group_defs.lineage.name,
+    //       groupKey: appConfig.group_cols.lineage.name,
     //       dnaOrAa: DNA_OR_AA.AA,
     //       selectedGene: getGene('S'),
     //       coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -235,7 +235,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: appConfig.group_defs.lineage.name,
+          groupKey: appConfig.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,

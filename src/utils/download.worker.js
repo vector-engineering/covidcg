@@ -2,7 +2,7 @@
 // import { intToISO } from './date';
 import _ from 'underscore';
 
-import { GROUP_SNV, GROUP_COLS, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
+import { appConfig, GROUP_SNV, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
 import { GROUPS } from '../constants/groups';
 
 function downloadAccessionIdsData({ accessionIds }) {
@@ -74,7 +74,7 @@ function downloadAggCaseData({
   });
 
   // If we're in lineage mode, then we need to get SNPs for this lineage
-  if (GROUP_COLS.includes(groupKey)) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     csvString = downloadAggCaseDataGroup({
       groupKey,
       dataAggGroup,

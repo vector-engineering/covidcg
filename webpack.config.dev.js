@@ -2,6 +2,7 @@ import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
 import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
+import { configfile } from './tools/loadConfigFile';
 
 export default {
   resolve: {
@@ -31,6 +32,9 @@ export default {
     filename: 'bundle.js',
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'CG_CONFIG': JSON.stringify(configfile)
+    }),
     new HardSourceWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
@@ -42,7 +46,7 @@ export default {
         collapseWhitespace: true,
       },
       inject: true,
-    }),
+    })
   ],
   module: {
     rules: [

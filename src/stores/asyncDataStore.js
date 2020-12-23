@@ -1,3 +1,4 @@
+import { appConfig } from '../constants/config';
 import { observable, action, runInAction } from 'mobx';
 import { ASYNC_STATES } from '../constants/UI';
 import { Zlib } from 'zlibjs/bin/gunzip.min.js';
@@ -13,8 +14,7 @@ class ObservableAsyncDataStore {
     this.status = ASYNC_STATES.STARTED;
     try {
       const res = await fetch(
-        'https://storage.googleapis.com/ve-public/data_package.json.gz?nocache=' +
-        Math.floor(new Date().getTime() / (1000 * 60 * 60)), // 1000 ms/s * 60 s/min * 60 min/hr
+        appConfig.data_package_url + '?nocache=' + Math.floor(new Date().getTime() / appConfig.data_package_refresh_freq),
         {
           headers: {
             'Accept-Encoding': 'gzip',

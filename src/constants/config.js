@@ -1,8 +1,9 @@
-import config from '../../config.yaml';
+// The configuration YAML file (defined by the environment variable CONFIGFILE
+// when the app build is launched) is injected in place of the string "CG_CONFIG"
+// as a JSON object, via webpack.DefinePlugin
+const config = CG_CONFIG; // eslint-disable-line no-undef
 
 export const appConfig = Object.assign({}, config);
-export const GROUP_COLS = config.group_cols[config.ingest_method];
-export const METADATA_COLS = config.metadata_cols[config.ingest_method];
 
 const LOCAL_COUNTS = 'local';
 const GLOBAL_COUNTS = 'global';

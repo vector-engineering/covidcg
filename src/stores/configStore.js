@@ -17,7 +17,6 @@ import {
 } from '../constants/plotSettings';
 import {
   appConfig,
-  GROUP_COLS,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
@@ -244,8 +243,8 @@ export class ConfigStore {
 
   // Get a pretty name for the group
   getGroupLabel() {
-    if (GROUP_COLS.includes(this.groupKey)) {
-      return appConfig.group_defs[this.groupKey].title;
+    if (Object.keys(appConfig.group_cols).includes(this.groupKey)) {
+      return appConfig.group_cols[this.groupKey].title;
     } else if (this.groupKey === GROUP_SNV) {
       if (this.dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';

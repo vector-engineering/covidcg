@@ -41,7 +41,6 @@ import RowRenderer from './RowRenderer';
 
 import {
   appConfig,
-  GROUP_COLS,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
@@ -84,7 +83,7 @@ const NewLineageDataTable = observer(() => {
   const calculatePosOffsets = (groupKey, dnaOrAa) => {
     let posTitleOffset = 0;
     let posColOffset = 0;
-    if (GROUP_COLS.includes(groupKey)) {
+    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
       posTitleOffset = 220;
       posColOffset = 4;
     } else if (groupKey === GROUP_SNV) {
@@ -102,8 +101,8 @@ const NewLineageDataTable = observer(() => {
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (GROUP_COLS.includes(configStore.groupKey)) {
-      _columns.push(groupColumn({ title: appConfig.group_defs[configStore.groupKey].title }));
+    if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
+      _columns.push(groupColumn({ title: appConfig.group_cols[configStore.groupKey].title }));
     }
     // For SNP grouping, add each SNP chunk as its own column
     else if (configStore.groupKey === GROUP_SNV) {
@@ -352,7 +351,7 @@ const NewLineageDataTable = observer(() => {
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore
     if (
-      selectedGroup === REFERENCE_GROUP && GROUP_COLS.includes(configStore.groupKey)
+      selectedGroup === REFERENCE_GROUP && Object.keys(appConfig.group_cols).includes(configStore.groupKey)
     ) {
       return;
     }

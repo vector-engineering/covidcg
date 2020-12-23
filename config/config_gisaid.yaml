@@ -2,6 +2,10 @@
 #       GLOBAL
 # ------------------
 
+# Path to folder with downloaded and processed data
+# This path is relative to the workflow folders
+data_folder: "../data"
+
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the workflow folders
 static_data_folder: "../static_data"
@@ -9,9 +13,6 @@ static_data_folder: "../static_data"
 # ------------------
 #       INGEST
 # ------------------
-
-# ingest_method: "gisaid"
-ingest_method: "genbank"
 
 # Number of genomes to load into memory before flushing to disk
 chunk_size: 100000
@@ -27,56 +28,29 @@ snp_count_threshold: 3
 consensus_fraction: 0.9
 
 metadata_cols:
-  gisaid:
-    gender:
-      title: "Gender"
-    patient_status:
-      title: "Patient Status"
-    passage:
-      title: "Passage"
-      disabled: true
-    specimen:
-      title: "Specimen"
-    sequencing_tech:
-      title: "Sequencing"
-    assembly_method:
-      title: "Assembly"
-    comment_type:
-      title: "Flag"
-    authors:
-      title: "Authors"
-    originating_lab:
-      title: "Originating lab"
-    submitting_lab:
-      title: "Submitting lab"
-  genbank:
-    database:
-      title: "Database"
-    strain:
-      title: "Strain"
-    host:
-      title: "Host"
-    isolation_source:
-      title: "Isolation source"
-    biosample_accession:
-      title: "Biosample accession"
-    authors:
-      title: "Authors"
-    publications:
-      title: "Publications"
+  gender:
+    title: "Gender"
+  patient_status:
+    title: "Patient Status"
+  passage:
+    title: "Passage"
+    disabled: true
+  specimen:
+    title: "Specimen"
+  sequencing_tech:
+    title: "Sequencing"
+  assembly_method:
+    title: "Assembly"
+  comment_type:
+    title: "Flag"
+  authors:
+    title: "Authors"
+  originating_lab:
+    title: "Originating lab"
+  submitting_lab:
+    title: "Submitting lab"
 
 group_cols:
-  gisaid:
-    - "lineage"
-    - "clade"
-  genbank:
-    - "lineage"
-
-# ----------------------
-#     VISUALIZATION
-# ----------------------
-
-group_defs:
   lineage:
     name: "lineage"
     title: "Lineage"
@@ -91,3 +65,12 @@ group_defs:
     link:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
+
+# ----------------------
+#     VISUALIZATION
+# ----------------------
+
+data_package_url: "https://storage.googleapis.com/ve-public/v1.4/data_package.json.gz"
+# Force a reload of the data package every X milliseconds
+# 1000 ms/s * 60 s/min * 60 min/hr = 3600000
+data_package_refresh_freq: 3600000

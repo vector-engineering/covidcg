@@ -20,10 +20,8 @@ from scripts.preprocess_sequences import preprocess_sequences
 from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
 
-configfile: "../config.yaml"
-
-if "data_folder" not in config:
-    config["data_folder"] = "../data"
+# Force the user to define the configfile on the CLI
+# configfile: "../config.yaml"
 
 reference_sequence_path = os.path.join(config["static_data_folder"], "reference.fasta")
 gene_defs_path = os.path.join(config["static_data_folder"], "genes.json")
@@ -186,8 +184,8 @@ rule combine_all_data:
         combine_all_data(
             **input, **output, 
             count_threshold=config["snp_count_threshold"],
-            group_cols=config["group_cols"][config["ingest_method"]],
-            metadata_cols=config["metadata_cols"][config["ingest_method"]]
+            group_cols=list(config["group_cols"].keys()),
+            metadata_cols=list(config["metadata_cols"].keys())
         )
 
 
@@ -239,7 +237,7 @@ rule consensus_snps:
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snps,
-            group_cols=config["group_cols"][config["ingest_method"]],
+            group_cols=list(config["group_cols"].keys()),
             consensus_fraction=config["consensus_fraction"]
         )
 

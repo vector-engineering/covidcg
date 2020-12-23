@@ -18,7 +18,7 @@ import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-import { appConfig, GROUP_COLS, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
+import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { TABS } from '../../constants/UI';
 
 const GroupTabContainer = styled.div`
@@ -51,11 +51,11 @@ const GroupTab = observer(({ width }) => {
                 Compare Locations
               </TabIndicator>{' '}
               tab.
-              {GROUP_COLS.includes(configStore.groupKey) && (
+              {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
                 <>
-                  { appConfig.group_defs[configStore.groupKey].description }
-                  <ExternalLink href={appConfig.group_defs[configStore.groupKey].link.href}>
-                    {appConfig.group_defs[configStore.groupKey].link.title}
+                  { appConfig.group_cols[configStore.groupKey].description }
+                  <ExternalLink href={appConfig.group_cols[configStore.groupKey].link.href}>
+                    {appConfig.group_cols[configStore.groupKey].link.title}
                   </ExternalLink>
                 </>
               )}

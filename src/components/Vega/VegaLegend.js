@@ -7,7 +7,7 @@ import _ from 'underscore';
 
 import { ASYNC_STATES } from '../../constants/UI';
 import {
-  GROUP_COLS,
+  appConfig,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
@@ -188,7 +188,7 @@ const VegaLegend = observer(() => {
   const sortLegendItems = (groupKey, dnaOrAa, coordinateMode, a, b) => {
     // If we're grouping by lineage or clade, then sort alphabetically
     // on the lineage/clade
-    if (GROUP_COLS.includes(groupKey)) {
+    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
       return a.group > b.group ? 1 : -1;
     } else if (groupKey === GROUP_SNV) {
       // If we're grouping by SNV, figure out whether we're in DNA or AA mode

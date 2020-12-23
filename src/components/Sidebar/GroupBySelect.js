@@ -9,7 +9,6 @@ import ExternalLink from '../Common/ExternalLink';
 import {
   appConfig,
   GROUP_SNV,
-  GROUP_COLS,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
@@ -119,7 +118,7 @@ const GroupBySelect = observer(() => {
   }
 
   const groupSelectItems = [];
-  GROUP_COLS.forEach(group => {
+  Object.keys(appConfig.group_cols).forEach(group => {
     groupSelectItems.push(
       <div className="radio-item" key={`select-${group}`}>
         <label>
@@ -130,7 +129,7 @@ const GroupBySelect = observer(() => {
             checked={configStore.groupKey === group}
             onChange={handleGroupKeyChange}
           />
-          <span>{appConfig.group_defs[group].title}</span>
+          <span>{appConfig.group_cols[group].title}</span>
         </label>
       </div>
     );
@@ -155,11 +154,11 @@ const GroupBySelect = observer(() => {
             </label>
           </div>
         </div>
-        {GROUP_COLS.includes(configStore.groupKey) && (
+        {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
             <>
-              { appConfig.group_defs[configStore.groupKey].description }
-              <Link href={appConfig.group_defs[configStore.groupKey].link.href}>
-                {appConfig.group_defs[configStore.groupKey].link.title}
+              { appConfig.group_cols[configStore.groupKey].description }
+              <Link href={appConfig.group_cols[configStore.groupKey].link.href}>
+                {appConfig.group_cols[configStore.groupKey].link.title}
               </Link>
             </>
           )}

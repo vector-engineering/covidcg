@@ -12,16 +12,12 @@ from scripts.copy_changed_files import copy_changed_files
 from scripts.chunk_data import chunk_data
 from scripts.get_changed_chunks import get_changed_chunks
 
-configfile: "../config.yaml"
+configfile: "../config/config_gisaid.yaml"
 
 envvars:
     "GISAID_URL",
     "GISAID_USERNAME",
     "GISAID_PASSWORD"
-
-
-if "data_folder" not in config:
-    config["data_folder"] = "../data"
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()

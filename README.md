@@ -79,7 +79,7 @@ Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable
 
 Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts SNVs, and compiles data for display in the web application.
 
-Configuration of the pipeline is defined in the `config.yaml` file in the project root
+Configuration of the pipeline is defined in the `config/config_[workflow].yaml` files.
 
 ### Ingestion
 
@@ -87,33 +87,33 @@ Two ingestion workflows are currently available, `workflow_genbank_ingest` and `
 
 **NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**. 
 
-You can use either ingestion pipeline as the basis for developing your own data ingestion pipeline to analyze and visualize in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder.
+You can use either ingestion pipeline as the basis for developing your own data ingestion pipeline to analyze and visualize in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file . i.e., `config/config_genbank.yaml` for the GenBank workflow.
 
 For example, you can run the GenBank ingestion pipeline with:
 
 ```bash
 cd workflow_genbank_ingest
-snakemake --config data_folder=../data_genbank --use-conda
+snakemake --use-conda
 ```
 
 Both ingestion pipelines are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step.
 
 ### Main Analysis
 
-The main data analysis pipeline is located in `workflow_main`. It requires data, in a data folder, from the ingestion pipeline. The data folder defaults to `data` in the project root, but you can specify it when running the snakemake command with `--config data_folder=/path/to/data_folder`.
-
-**NOTE**: `bowtie2`, the sequence aligner we use, usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
+The main data analysis pipeline is located in `workflow_main`. It requires data, in a data folder, from the ingestion pipeline. The data folder is defined in the `config/config_[workflow].yaml` file. The path to the config file is required for the main workflow, as it needs to know what kind of data to expect (as described in the config files).
 
 For example, if you ingested data from GenBank, run the main analysis pipeline with:
 
 ```bash
 cd workflow_main
-snakemake --config data_folder=../data_genbank
+snakemake --configfile config/config_genbank.yaml
 ```
 
 This pipeline will align sequences to the reference sequence with `bowtie2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
 
-To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in `src/stores/asyncDataStore.js` (A better solution for the following is being developed).
+**NOTE**: `bowtie2`, the sequence aligner we use, usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
+
+To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in the `data_package_url` field in the `config/config_[workflow]` file that you are using.
 
 ---
 
