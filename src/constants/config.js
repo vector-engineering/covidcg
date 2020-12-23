@@ -1,3 +1,9 @@
+import config from '../../config.yaml';
+
+export const appConfig = Object.assign({}, config);
+export const GROUP_COLS = config.group_cols[config.ingest_strategy];
+export const METADATA_COLS = config.metadata_cols[config.ingest_strategy];
+
 const LOCAL_COUNTS = 'local';
 const GLOBAL_COUNTS = 'global';
 const GROUP_COUNTS = 'group';
@@ -7,14 +13,7 @@ export const LOW_FREQ_FILTER_TYPES = {
   GROUP_COUNTS,
 };
 
-const GROUP_LINEAGE = 'lineage';
-const GROUP_CLADE = 'clade';
-const GROUP_SNV = 'snv';
-export const GROUP_KEYS = {
-  GROUP_LINEAGE,
-  GROUP_CLADE,
-  GROUP_SNV,
-};
+export const GROUP_SNV = 'snv';
 
 const DNA = 'DNA';
 const AA = 'AA';

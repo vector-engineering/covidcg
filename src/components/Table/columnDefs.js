@@ -75,21 +75,9 @@ export const proteinColumn = () => ({
   ),
 });
 
-export const lineageColumn = () => ({
+export const groupColumn = ({ title }) => ({
   key: 'group',
-  name: 'Lineage',
-  selector: 'group',
-  sortable: true,
-  width: 85,
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['group']} color={val.row['color']} />
-  ),
-});
-
-export const cladeColumn = () => ({
-  key: 'group',
-  name: 'Clade',
+  name: title,
   selector: 'group',
   sortable: true,
   width: 85,

@@ -27,34 +27,67 @@ snp_count_threshold: 3
 consensus_fraction: 0.9
 
 metadata_cols:
-  - gisaid:
-    - "gender"
-    - "patient_status"
-    - "passage"
-    - "specimen"
-    - "sequencing_tech"
-    - "assembly_method"
-    - "comment_type"
-    - "authors"
-    - "originating_lab"
-    - "submitting_lab"
-  - genbank:
-    - "database"
-    - "strain"
-    - "host"
-    - "isolation_source"
-    - "biosample_accession"
-    - "authors"
-    - "publications"
+  gisaid:
+    gender:
+      title: "Gender"
+    patient_status:
+      title: "Patient Status"
+    passage:
+      title: "Passage"
+      disabled: true
+    specimen:
+      title: "Specimen"
+    sequencing_tech:
+      title: "Sequencing"
+    assembly_method:
+      title: "Assembly"
+    comment_type:
+      title: "Flag"
+    authors:
+      title: "Authors"
+    originating_lab:
+      title: "Originating lab"
+    submitting_lab:
+      title: "Submitting lab"
+  genbank:
+    database:
+      title: "Database"
+    strain:
+      title: "Strain"
+    host:
+      title: "Host"
+    isolation_source:
+      title: "Isolation source"
+    biosample_accession:
+      title: "Biosample accession"
+    authors:
+      title: "Authors"
+    publications:
+      title: "Publications"
 
 group_cols:
-  - gisaid:
+  gisaid:
     - "lineage"
     - "clade"
-  - genbank:
+  genbank:
     - "lineage"
-
 
 # ----------------------
 #     VISUALIZATION
 # ----------------------
+
+group_defs:
+  lineage:
+    name: "lineage"
+    title: "Lineage"
+    description: ""
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
+  clade:
+    name: "clade"
+    title: "Clade"
+    description: "For more information about clade and lineage nomenclature, visit this:"
+    link:
+      title: "[GISAID note]"
+      href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"

@@ -16,7 +16,7 @@ import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { GROUP_KEYS } from '../constants/config';
+import { GROUP_SNV } from '../constants/config';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 
@@ -291,7 +291,7 @@ export class DataStore {
         this.countsPerGroup = countsPerGroup;
 
         this.updateAggCaseDataByGroup(callback);
-        if (this.configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+        if (this.configStoreInstance.groupKey === GROUP_SNV) {
           this.processSelectedSnvs();
         }
       }

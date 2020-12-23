@@ -158,6 +158,10 @@ export default {
         test: /\.worker\.js$/,
         use: { loader: 'worker-loader' },
       },
+      {
+        test: /\.ya?ml$/,
+        use: 'js-yaml-loader',
+      }
     ],
   },
 };

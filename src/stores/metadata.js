@@ -11,6 +11,6 @@ export class MetadataStore {
   }
 
   getMetadataValueFromId(field, id) {
-    return this.metadataMap[field.slice(0, -3)][id];
+    return this.metadataMap[field][id];
   }
 }

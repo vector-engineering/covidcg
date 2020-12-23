@@ -18,7 +18,7 @@ import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
+import { appConfig, GROUP_COLS, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { TABS } from '../../constants/UI';
 
 const GroupTabContainer = styled.div`
@@ -51,24 +51,15 @@ const GroupTab = observer(({ width }) => {
                 Compare Locations
               </TabIndicator>{' '}
               tab.
-              {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+              {GROUP_COLS.includes(configStore.groupKey) && (
                 <>
-                  {' '}
-                  <ExternalLink href="https://cov-lineages.org/descriptions.html">
-                    (Lineage Descriptions)
+                  { appConfig.group_defs[configStore.groupKey].description }
+                  <ExternalLink href={appConfig.group_defs[configStore.groupKey].link.href}>
+                    {appConfig.group_defs[configStore.groupKey].link.title}
                   </ExternalLink>
                 </>
               )}
             </li>
-            {configStore.groupKey === GROUP_KEYS.GROUP_CLADE && (
-              <li>
-                For more information about clade and lineage nomenclature, visit
-                this{' '}
-                <ExternalLink href="https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/">
-                  [GISAID note]
-                </ExternalLink>
-              </li>
-            )}
           </ul>
         }
       >
@@ -78,7 +69,7 @@ const GroupTab = observer(({ width }) => {
   };
 
   const renderEntropyPlot = () => {
-    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey !== GROUP_SNV) {
       return null;
     }
 
@@ -119,7 +110,7 @@ const GroupTab = observer(({ width }) => {
   };
 
   const renderCooccurrencePlot = () => {
-    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey !== GROUP_SNV) {
       return null;
     }
 
@@ -174,7 +165,7 @@ const GroupTab = observer(({ width }) => {
               The plot shows sequences grouped by their respective{' '}
               <b>{configStore.getGroupLabel()}</b> and plotted over time.
             </li>
-            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+            {configStore.groupKey === GROUP_SNV && (
               <li>
                 In <b>SNV Mode</b>, sequences are split into two groups: those
                 that have the SNV (or combination of SNVs), and those that
@@ -219,17 +210,12 @@ const GroupTab = observer(({ width }) => {
         }
       >
         <VegaStackedBars width={width - 150} />
-        {configStore.groupKey !== GROUP_KEYS.GROUP_SNV && (
+        {configStore.groupKey !== GROUP_SNV && (
           <LocationGroupPlot width={width - 250} />
         )}
       </AccordionWrapper>
     );
   };
-
-  // const renderTree = () => {
-  //   if (configStore.groupKey !== GROUP_KEYS.GROUP_LINEAGE) return null;
-  //   return <VegaTree width={width} data={dataStore.caseDataAggGroup} />;
-  // };
 
   const renderDataTable = () => {
     return (
