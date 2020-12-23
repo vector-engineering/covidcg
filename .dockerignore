@@ -1,8 +1,9 @@
 node_modules
-data/sam
-data/fasta_raw
-data/fasta_processed
-data/pymol_sessions
+data
+data_genbank
+workflow_main
+workflow_gisaid_ingest
+workflow_genbank_ingest
 .git
 .snakemake
 .vscode

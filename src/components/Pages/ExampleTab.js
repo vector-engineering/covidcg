@@ -13,10 +13,12 @@ import { queryPrimers } from '../../utils/primer';
 import { ISOToInt } from '../../utils/date';
 
 import {
-  GROUP_KEYS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
+
 import {
   NORM_MODES,
   COUNT_MODES,
@@ -187,7 +189,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_LINEAGE,
+          groupKey: appConfig.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.DNA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -210,7 +212,7 @@ const ExampleTab = observer(() => {
     //       activeTab: TABS.TAB_GROUP,
     //     },
     //     config: {
-    //       groupKey: GROUP_KEYS.GROUP_LINEAGE,
+    //       groupKey: appConfig.group_cols.lineage.name,
     //       dnaOrAa: DNA_OR_AA.AA,
     //       selectedGene: getGene('S'),
     //       coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -233,7 +235,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_LINEAGE,
+          groupKey: appConfig.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -258,7 +260,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_SNV,
+          groupKey: GROUP_SNV,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -287,7 +289,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_LOCATION,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_SNV,
+          groupKey: GROUP_SNV,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -324,7 +326,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_SNV,
+          groupKey: GROUP_SNV,
           dnaOrAa: DNA_OR_AA.DNA,
           coordinateMode: COORDINATE_MODES.COORD_PRIMER,
           selectedLocationNodes: [
@@ -367,7 +369,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_SNV,
+          groupKey: GROUP_SNV,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('N'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -392,7 +394,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: GROUP_KEYS.GROUP_SNV,
+          groupKey: GROUP_SNV,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,

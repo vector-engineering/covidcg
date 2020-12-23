@@ -4,10 +4,12 @@ import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
+import { configfile } from './tools/loadConfigFile';
 
 const GLOBALS = {
   'process.env.NODE_ENV': JSON.stringify('production'),
   __DEV__: false,
+  'CG_CONFIG': JSON.stringify(configfile)
 };
 
 export default {
@@ -158,6 +160,10 @@ export default {
         test: /\.worker\.js$/,
         use: { loader: 'worker-loader' },
       },
+      {
+        test: /\.ya?ml$/,
+        use: 'js-yaml-loader',
+      }
     ],
   },
 };

@@ -7,7 +7,8 @@ import _ from 'underscore';
 
 import { ASYNC_STATES } from '../../constants/UI';
 import {
-  GROUP_KEYS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
@@ -21,7 +22,7 @@ const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     text:
-      configStore.groupKey === GROUP_KEYS.GROUP_SNV
+      configStore.groupKey === GROUP_SNV
         ? formatSnv(group, configStore.dnaOrAa)
         : group,
     hovered: false,
@@ -187,12 +188,9 @@ const VegaLegend = observer(() => {
   const sortLegendItems = (groupKey, dnaOrAa, coordinateMode, a, b) => {
     // If we're grouping by lineage or clade, then sort alphabetically
     // on the lineage/clade
-    if (
-      groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-      groupKey === GROUP_KEYS.GROUP_CLADE
-    ) {
+    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
       return a.group > b.group ? 1 : -1;
-    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    } else if (groupKey === GROUP_SNV) {
       // If we're grouping by SNV, figure out whether we're in DNA or AA mode
       if (dnaOrAa === DNA_OR_AA.DNA) {
         // If we're grouping by DNA SNV, then sort by position

@@ -16,7 +16,8 @@ import {
   COMPARE_COLORS,
 } from '../constants/plotSettings';
 import {
-  GROUP_KEYS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
@@ -29,7 +30,7 @@ import { rootStoreInstance } from './rootStore';
 // Define initial values
 
 export const initialConfigValues = {
-  groupKey: GROUP_KEYS.GROUP_SNV,
+  groupKey: 'snv',
   dnaOrAa: DNA_OR_AA.AA,
 
   // Select the Spike gene and nsp13 protein by default
@@ -194,7 +195,7 @@ export class ConfigStore {
     if (this.groupKey !== groupKey) {
       // If groupings were changed, then clear selected groups
       this.selectedGroups = [];
-    } else if (groupKey === GROUP_KEYS.GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
+    } else if (groupKey === GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
       // While in SNV mode, if we switched from DNA to AA, or vice-versa,
       // then clear selected groups
       this.selectedGroups = [];
@@ -224,7 +225,7 @@ export class ConfigStore {
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
     if (
-      this.groupKey !== GROUP_KEYS.GROUP_SNV &&
+      this.groupKey !== GROUP_SNV &&
       this.dnaOrAa === DNA_OR_AA.AA
     ) {
       if (this.selectedGene.gene === 'All Genes') {
@@ -242,11 +243,9 @@ export class ConfigStore {
 
   // Get a pretty name for the group
   getGroupLabel() {
-    if (this.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-      return 'Lineage';
-    } else if (this.groupKey === GROUP_KEYS.GROUP_CLADE) {
-      return 'Clade';
-    } else if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (Object.keys(appConfig.group_cols).includes(this.groupKey)) {
+      return appConfig.group_cols[this.groupKey].title;
+    } else if (this.groupKey === GROUP_SNV) {
       if (this.dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';
       } else {
@@ -466,7 +465,7 @@ export class ConfigStore {
   selectDateRange(dateRange) {
     this.dateRange = dateRange;
     this.dataStoreInstance.updateAggCaseDataByGroup();
-    if (this.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (this.groupKey === GROUP_SNV) {
       this.dataStoreInstance.processCooccurrenceData();
     }
   }

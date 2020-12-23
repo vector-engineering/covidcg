@@ -23,27 +23,17 @@ function assignObjectPaths(obj, stack) {
 }
 
 export class LocationDataStore {
-  locations = [];
   @observable selectTree = {};
-
-  // ID -> location object/hashmap
-  locationIdToNameMap = {};
 
   constructor() {}
 
   init() {
-    this.locations = asyncDataStoreInstance.data.location_map;
     const selectTree = asyncDataStoreInstance.data.geo_select_tree;
     // Create object paths on each node for easier traversal back and forth
     assignObjectPaths(selectTree);
     // By default, show the tree as expanded so it doesn't only show the "All" node
     selectTree.expanded = true;
     this.selectTree = selectTree;
-
-    // Create ID -> location object/hashmap
-    this.locations.forEach((loc) => {
-      this.locationIdToNameMap[loc['index']] = loc;
-    });
   }
 
   @action

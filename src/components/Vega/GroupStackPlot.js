@@ -8,7 +8,7 @@ import {
   COUNT_MODES,
   DATE_BINS,
 } from '../../constants/plotSettings';
-import { GROUP_KEYS } from '../../constants/config';
+import { GROUP_SNV } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { GROUPS } from '../../constants/groups';
 import _ from 'underscore';
@@ -63,7 +63,7 @@ const GroupStackPlot = observer(({ width }) => {
     // console.log(args);
 
     // Ignore selections in SNV mode
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       return;
     }
 
@@ -94,7 +94,7 @@ const GroupStackPlot = observer(({ width }) => {
 
   const processData = () => {
     // console.log('PROCESS DATA');
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
     }
 
@@ -150,7 +150,7 @@ const GroupStackPlot = observer(({ width }) => {
   useEffect(() => {
     // console.log('SELECTED GROUPS');
     // Skip this update if we're in SNV mode
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       return;
     }
 
@@ -166,7 +166,7 @@ const GroupStackPlot = observer(({ width }) => {
   useEffect(() => {
     // console.log('SNV DATA STATE');
     // Skip this if we're not in SNV mode
-    if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey !== GROUP_SNV) {
       return;
     }
 
@@ -286,7 +286,7 @@ const GroupStackPlot = observer(({ width }) => {
   // Hide the detail view in SNV mode when there's no selections
   // Also disable the plot options when the detail panel is hidden
   const hideDetail =
-    configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+    configStore.groupKey === GROUP_SNV &&
     configStore.selectedGroups.length === 0;
   const detailHeight = hideDetail ? 0 : 280;
   const height = hideDetail ? 60 : 380;
@@ -375,7 +375,7 @@ const GroupStackPlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           signals={{
             disableSelectionColoring:
-              configStore.groupKey === GROUP_KEYS.GROUP_SNV,
+              configStore.groupKey === GROUP_SNV,
             detailHeight,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,

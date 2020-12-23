@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import ExternalLink from '../Common/ExternalLink';
 
 import {
-  GROUP_KEYS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
@@ -76,12 +77,6 @@ const Link = styled(ExternalLink)`
   font-size: 0.9em;
   margin-left: 10px;
 `;
-const CladeText = styled.span`
-  font-size: 0.9em;
-  margin-left: 10px;
-  line-height: normal;
-  font-weight: normal;
-`;
 
 const GroupBySelect = observer(() => {
   const { configStore } = useStores();
@@ -122,77 +117,51 @@ const GroupBySelect = observer(() => {
     aaDisabledMessage = ' (please select protein-coding gene)';
   }
 
-  const renderLineageLink = () => {
-    if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-      return (
-        <Link href="https://cov-lineages.org/descriptions.html">
-          Lineage Descriptions
-        </Link>
-      );
-    }
-
-    return null;
-  };
-
-  const renderCladeLink = () => {
-    if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
-      return (
-        <CladeText>
-          For more information about clade and lineage nomenclature, visit this{' '}
-          <ExternalLink href="https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/">
-            [GISAID note]
-          </ExternalLink>
-        </CladeText>
-      );
-    }
-
-    return null;
-  };
+  const groupSelectItems = [];
+  Object.keys(appConfig.group_cols).forEach(group => {
+    groupSelectItems.push(
+      <div className="radio-item" key={`select-${group}`}>
+        <label>
+          <input
+            className="radio-input"
+            type="radio"
+            value={group}
+            checked={configStore.groupKey === group}
+            onChange={handleGroupKeyChange}
+          />
+          <span>{appConfig.group_cols[group].title}</span>
+        </label>
+      </div>
+    );
+  });
 
   return (
     <SelectContainer>
       <RadioForm>
         <span className="form-title">Group sequences by</span>
         <div className="radio-row">
+          {groupSelectItems}
           <div className="radio-item">
             <label>
               <input
                 className="radio-input"
                 type="radio"
-                value={GROUP_KEYS.GROUP_LINEAGE}
-                checked={configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE}
-                onChange={handleGroupKeyChange}
-              />
-              <span>Lineage</span>
-            </label>
-          </div>
-          <div className="radio-item">
-            <label>
-              <input
-                className="radio-input"
-                type="radio"
-                value={GROUP_KEYS.GROUP_CLADE}
-                checked={configStore.groupKey === GROUP_KEYS.GROUP_CLADE}
-                onChange={handleGroupKeyChange}
-              />
-              <span>Clade</span>
-            </label>
-          </div>
-          <div className="radio-item">
-            <label>
-              <input
-                className="radio-input"
-                type="radio"
-                value={GROUP_KEYS.GROUP_SNV}
-                checked={configStore.groupKey === GROUP_KEYS.GROUP_SNV}
+                value={GROUP_SNV}
+                checked={configStore.groupKey === GROUP_SNV}
                 onChange={handleGroupKeyChange}
               />
               <span>SNV</span>
             </label>
           </div>
         </div>
-        {renderLineageLink()}
-        {renderCladeLink()}
+        {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
+            <>
+              { appConfig.group_cols[configStore.groupKey].description }
+              <Link href={appConfig.group_cols[configStore.groupKey].link.href}>
+                {appConfig.group_cols[configStore.groupKey].link.title}
+              </Link>
+            </>
+          )}
       </RadioForm>
       <RadioForm>
         <span>Mutation format</span>

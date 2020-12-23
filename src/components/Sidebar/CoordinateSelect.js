@@ -146,7 +146,7 @@ const CoordinateSelect = observer(() => {
   // useEffect(() => {
   //   let _geneOptionElements = state.geneOptionElements;
   //   let _proteinOptionElements = state.proteinOptionElements;
-  //   if (configStore.groupKey !== GROUP_KEYS.GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
+  //   if (configStore.groupKey !== GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
   //   }
   // }, [configStore.groupKey, configStore.dnaOrAa]);
 

@@ -1,3 +1,10 @@
+// The configuration YAML file (defined by the environment variable CONFIGFILE
+// when the app build is launched) is injected in place of the string "CG_CONFIG"
+// as a JSON object, via webpack.DefinePlugin
+const config = CG_CONFIG; // eslint-disable-line no-undef
+
+export const appConfig = Object.assign({}, config);
+
 const LOCAL_COUNTS = 'local';
 const GLOBAL_COUNTS = 'global';
 const GROUP_COUNTS = 'group';
@@ -7,14 +14,7 @@ export const LOW_FREQ_FILTER_TYPES = {
   GROUP_COUNTS,
 };
 
-const GROUP_LINEAGE = 'lineage';
-const GROUP_CLADE = 'clade';
-const GROUP_SNV = 'snv';
-export const GROUP_KEYS = {
-  GROUP_LINEAGE,
-  GROUP_CLADE,
-  GROUP_SNV,
-};
+export const GROUP_SNV = 'snv';
 
 const DNA = 'DNA';
 const AA = 'AA';
