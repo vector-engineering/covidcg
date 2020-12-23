@@ -612,7 +612,7 @@ export class DataStore {
   @action
   downloadCountryScoreData() {
     let jsonString = JSON.stringify(
-      asyncDataStoreInstance.data.countryScoreData
+      asyncDataStoreInstance.data.country_score
     );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
