@@ -30,8 +30,7 @@ import {
   indexColumn,
   refColumn,
   altColumn,
-  lineageColumn,
-  cladeColumn,
+  groupColumn,
   getDefaultColumns,
   getSinglePosColumn,
 } from './columnDefs';
@@ -41,7 +40,9 @@ import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
 
 import {
-  GROUP_KEYS,
+  appConfig,
+  GROUP_COLS,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
@@ -83,13 +84,10 @@ const NewLineageDataTable = observer(() => {
   const calculatePosOffsets = (groupKey, dnaOrAa) => {
     let posTitleOffset = 0;
     let posColOffset = 0;
-    if (
-      groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-      groupKey === GROUP_KEYS.GROUP_CLADE
-    ) {
+    if (GROUP_COLS.includes(groupKey)) {
       posTitleOffset = 220;
       posColOffset = 4;
-    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    } else if (groupKey === GROUP_SNV) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
         posTitleOffset = 335;
         posColOffset = 6;
@@ -104,14 +102,11 @@ const NewLineageDataTable = observer(() => {
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-      _columns.push(lineageColumn());
-    } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
-      _columns.push(cladeColumn());
+    if (GROUP_COLS.includes(configStore.groupKey)) {
+      _columns.push(groupColumn({ title: appConfig.group_defs[configStore.groupKey].title }));
     }
-
     // For SNP grouping, add each SNP chunk as its own column
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    else if (configStore.groupKey === GROUP_SNV) {
       // Add the gene column, if we're in AA mode
       if (configStore.dnaOrAa === DNA_OR_AA.AA) {
         if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
@@ -241,7 +236,7 @@ const NewLineageDataTable = observer(() => {
         pos += 1;
       }
       if (
-        configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+        configStore.groupKey === GROUP_SNV &&
         configStore.dnaOrAa === DNA_OR_AA.AA
       ) {
         pos += 1;
@@ -357,9 +352,7 @@ const NewLineageDataTable = observer(() => {
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore
     if (
-      selectedGroup === REFERENCE_GROUP &&
-      (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-        configStore.groupKey === GROUP_KEYS.GROUP_CLADE)
+      selectedGroup === REFERENCE_GROUP && GROUP_COLS.includes(configStore.groupKey)
     ) {
       return;
     }

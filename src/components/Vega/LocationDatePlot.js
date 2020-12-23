@@ -13,7 +13,7 @@ import {
 } from '../../constants/plotSettings';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { GROUPS } from '../../constants/groups';
-import { GROUP_KEYS } from '../../constants/config';
+import { GROUP_SNV } from '../../constants/config';
 import { ASYNC_STATES } from '../../constants/UI';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -53,7 +53,7 @@ const LocationDatePlot = observer(({ width }) => {
 
   const processLocationData = () => {
     let locationData;
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       if (dataStore.dataAggLocationSnvDate === undefined) {
         return [];
       }
@@ -107,7 +107,7 @@ const LocationDatePlot = observer(({ width }) => {
       });
     });
 
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       // Filter out 'All Other Sequences' group
       locationData = locationData.filter((row) => {
         return row.group !== GROUPS.ALL_OTHER_GROUP;
@@ -249,7 +249,7 @@ const LocationDatePlot = observer(({ width }) => {
 
   useEffect(() => {
     if (
-      configStore.groupKey !== GROUP_KEYS.GROUP_SNV ||
+      configStore.groupKey !== GROUP_SNV ||
       UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;
@@ -267,7 +267,7 @@ const LocationDatePlot = observer(({ width }) => {
 
   useEffect(() => {
     if (
-      configStore.groupKey === GROUP_KEYS.GROUP_SNV ||
+      configStore.groupKey === GROUP_SNV ||
       UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;
@@ -329,7 +329,7 @@ const LocationDatePlot = observer(({ width }) => {
   }
 
   if (
-    configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+    configStore.groupKey === GROUP_SNV &&
     state.data.location_data.length === 0
   ) {
     return (
@@ -353,7 +353,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES) {
     yLabel += '% ';
   }
-  if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (configStore.groupKey === GROUP_SNV) {
     yLabel += 'Sequences with this ' + configStore.getGroupLabel();
   } else {
     yLabel += 'Sequences by ' + configStore.getGroupLabel();
@@ -387,7 +387,7 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
   if (configStore.selectedGroups.length > 0) {
-    if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (configStore.groupKey === GROUP_SNV) {
       plotTitle += ` (${configStore.selectedGroups
         .map((group) => formatSnv(group.group, configStore.dnaOrAa))
         .join(' & ')})`;
@@ -474,7 +474,7 @@ const LocationDatePlot = observer(({ width }) => {
             cumulative:
               plotSettingsStore.locationDateCountMode ===
               COUNT_MODES.COUNT_CUMULATIVE,
-            skipFiltering: configStore.groupKey === GROUP_KEYS.GROUP_SNV,
+            skipFiltering: configStore.groupKey === GROUP_SNV,
             hoverLocation: { location: configStore.hoverLocation },
             yLabel,
           }}
