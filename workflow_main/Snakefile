@@ -187,7 +187,7 @@ rule combine_all_data:
             **input, **output, 
             count_threshold=config["snp_count_threshold"],
             group_cols=config["group_cols"][config["ingest_strategy"]],
-            metadata_cols=config["metadata_cols"][config["ingest_strategy"]]
+            metadata_cols=list(config["metadata_cols"][config["ingest_strategy"]].keys())
         )
 
 
@@ -255,7 +255,10 @@ rule global_group_counts:
             config["data_folder"], "global_group_counts.json"
         )
     run:
-        global_group_counts(input.case_data, output.global_group_counts)
+        global_group_counts(
+            input.case_data, output.global_group_counts,
+            group_cols=config["group_cols"][config["ingest_strategy"]]
+        )
 
 
 rule global_sequencing_efforts:

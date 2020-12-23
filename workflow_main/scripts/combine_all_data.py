@@ -146,14 +146,8 @@ def combine_all_data(
     # in config.yaml as "metadata_cols"
     for i, col in enumerate(metadata_cols):
         factor = pd.factorize(df[col])
-
-        id_col = col + "_id"
-        df[id_col] = factor[0]
-
+        df[col] = factor[0]
         metadata_maps[col] = pd.Series(factor[1]).to_dict()
-
-    # Drop the original metadata columns
-    df = df.drop(columns=metadata_cols)
 
     # Add SNP maps into the metadata map
     metadata_maps["dna_snp"] = dna_snp_map.to_dict()

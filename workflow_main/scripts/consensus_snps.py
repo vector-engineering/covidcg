@@ -67,7 +67,7 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     for col in ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]:
         collapsed_snvs[col] = collapsed_snvs[col].apply(count_consensus)
 
-    collapsed_snvs = collapsed_snvs.reset_index().rename(
+    collapsed_snvs = collapsed_snvs.rename(
         columns={
             "dna_snp_str": "dna_snp_ids",
             "gene_aa_snp_str": "gene_aa_snp_ids",
@@ -112,7 +112,7 @@ def get_all_consensus_snps(
         group_snp_df = get_consensus_snps(
             case_df, group, consensus_fraction=consensus_fraction
         )
-        consensus_dict[group] = group_snp_df.to_dict(orient="records")
+        consensus_dict[group] = group_snp_df.to_dict(orient="index")
 
     with open(consensus_out, "w") as fp:
         fp.write(json.dumps(consensus_dict))
