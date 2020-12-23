@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import VegaLegend from '../Legend/VegaLegend';
+import LegendContainer from '../Legend/LegendContainer';
 
 const Container = styled.div`
   width: 90px;
@@ -12,7 +12,7 @@ const Container = styled.div`
 const LineageSidebar = () => {
   return (
     <Container>
-      <VegaLegend />
+      <LegendContainer />
     </Container>
   );
 };
