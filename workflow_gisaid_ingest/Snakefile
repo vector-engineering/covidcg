@@ -10,7 +10,6 @@ from pathlib import Path
 from scripts.clean_metadata import clean_metadata
 from scripts.copy_changed_files import copy_changed_files
 from scripts.chunk_data import chunk_data
-from scripts.get_changed_chunks import get_changed_chunks
 
 configfile: "../config/config_gisaid.yaml"
 

@@ -255,7 +255,7 @@ rule global_group_counts:
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
-            group_cols=config["group_cols"][config["ingest_strategy"]]
+            group_cols=config["group_cols"]
         )
 
 
