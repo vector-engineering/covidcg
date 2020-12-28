@@ -18,6 +18,8 @@ import MRCLogo from '../../assets/images/mrc_logo.png';
 import KaustLogo from '../../assets/images/kaust_logo.png';
 import NIAIDLogo from '../../assets/images/niaid_logo.png';
 import VIPRLogo from '../../assets/images/vipr_logo@4x.png';
+import UCSCLogo from '../../assets/images/ucscHelixLogo.png';
+import WUSTLVirusGatewayLogo from '../../assets/images/wustl_virusgateway.svg';
 
 import {
   TabContainer,
@@ -127,6 +129,43 @@ const RelatedProjectsTab = () => {
               </ImageRow>
             </div>
           </div>
+
+          <div className="content-block">
+            <div className="content-text">
+              <p>
+                <b>
+                  <ExternalLink href="https://genome.ucsc.edu/covid19.html">
+                    COVID-19 Pandemic Resources at UCSC
+                  </ExternalLink>
+                </b>
+              </p>
+              <p>
+                <b>
+                  <ExternalLink href="https://genome.ucsc.edu/cgi-bin/hgGateway?db=wuhCor1">
+                  UCSC Genome Browser for SARS-Cov-2
+                  </ExternalLink>
+                </b>
+              </p>
+              <p>
+                &quot;We at the <ExternalLink href='https://ucscgenomics.soe.ucsc.edu/'>UC Santa Cruz Genomics Institute</ExternalLink> are responding to the urgency of supporting biomedical research aimed at developing treatments and a vaccine for this devastating illness by fast-tracking visualization of genome sequences and analyses in the <ExternalLink href='https://genome.ucsc.edu/cgi-bin/hgGateway?db=wuhCor1'>UCSC Genome Browser for SARS-Cov-2</ExternalLink>. Moreover, we are incorporating relevant biomedical datasets such as single-cell lung gene expression into the <ExternalLink href='https://genome.ucsc.edu/singlecell.html'>UCSC Cell Browser</ExternalLink>, and are creating data tracks of <ExternalLink href='https://genome.ucsc.edu/covid19.html#covidHgiGwas'>COVID-19 annotations in our Human Genome Browsers</ExternalLink> as datasets become publicly available. These annotations can further understanding of the human genetic determinants of infection susceptibility, disease severity, and outcomes.&quot;
+              </p>
+              <p>
+                &quot;A manuscript describing The <ExternalLink href='https://www.nature.com/articles/s41588-020-0700-8'>UCSC SARS-CoV-2 Genome Browser</ExternalLink>, was published in the September 9 issue of Nature Genetics.&quot;
+              </p>
+              <p>
+                Fernandes J.D., Hinrichs, A.S., Clawson, H. <i>et al</i>. The UCSC SARS-CoV-2 Genome Browser. <i>Nat Genet</i> <b>52</b>, 991–998 (2020). <ExternalLink href='https://doi.org/10.1038/s41588-020-0700-8'>https://doi.org/10.1038/s41588-020-0700-8</ExternalLink>
+              </p>
+            </div>
+            <div className="content-images">
+              <ExternalLink
+                href="https://genome.ucsc.edu/covid19.html"
+                showIcon={false}
+              >
+                <img src={UCSCLogo} height="70"></img>
+              </ExternalLink>
+            </div>
+          </div>
+
           <div className="content-block">
             <div className="content-text">
               <p>
@@ -439,6 +478,51 @@ const RelatedProjectsTab = () => {
               </ImageRow>
             </div>
           </div>
+
+          <div className="content-block">
+            <div className="content-text">
+              <p>
+                <b>
+                  <ExternalLink href="https://virusgateway.wustl.edu/">
+                    WashU Virus Genome Browser
+                  </ExternalLink>
+                </b>
+              </p>
+              <p>
+                &quot;Explore the many ways to visualize viral sequencing data on our openly available platform.
+                <br />
+                <ExternalLink href='https://youtu.be/-DdH3mxBBK0'>Quick Walkthrough</ExternalLink>
+                <br />
+                <ExternalLink href='https://virusgateway.wustl.edu/manuscript/WashU_Virus_Genome_Browser.pdf'>Manuscript</ExternalLink>
+                &quot;
+              </p>
+              <p>
+                &quot;
+                <b>Browser View</b>
+                <br />
+                Compare -omics data across multiple SARS-CoV-2 strains or between SARS-CoV-2 and related viral sequences&quot;
+              </p>
+              <p>
+                &quot;
+                <b>Datahub Therapeutic Utility</b>
+                <br />
+                Identify predicted antigenic epitopes conserved across SARS-CoV-2 sequences and locate optimal primer locations&quot;
+              </p>
+              <p>
+                &quot;
+                <b>Tree View</b>
+                <br />
+                Visualize a strain of interest in the phylogenetic context of all available species strains&quot;
+              </p>
+            </div>
+            <div className="content-images">
+              <ExternalLink href="https://virusgateway.wustl.edu/" showIcon={false}>
+                <img src={WUSTLVirusGatewayLogo} height="80" />
+              </ExternalLink>
+            </div>
+          </div>
+
+          
         </ContentSection>
 
         <ContentSection>
