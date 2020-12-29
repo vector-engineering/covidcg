@@ -102,18 +102,19 @@ const TableLegendItem = observer(
         style={style}
         onMouseEnter={onMouseMove}
         onMouseOut={onMouseOut}
-        onMouseDown={updateSelectGroup}
-        data-group={group}
+        onClick={updateSelectGroup}
         hovered={hovered}
         selected={selected}
       >
         <ColorBar color={color} />
-        <GroupNameContainer>
+        <GroupNameContainer data-group={group}>
           {configStore.groupKey === GROUP_SNV
             ? formatSnv(group, configStore.dnaOrAa)
             : group}
         </GroupNameContainer>
-        <PercentageContainer>{displayPercentage}</PercentageContainer>
+        <PercentageContainer data-group={group}>
+          {displayPercentage}
+        </PercentageContainer>
       </Container>
     );
   }

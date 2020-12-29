@@ -39,6 +39,7 @@ const LegendContainer = observer(() => {
 
   const onItemSelect = (e) => {
     const selectedGroup = e.target.getAttribute('data-group');
+    console.log(selectedGroup);
     let newGroups;
 
     // If the click was not on an item, then unset the selection
