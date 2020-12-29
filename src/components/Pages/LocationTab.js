@@ -13,7 +13,7 @@ import AccordionWrapper from '../Common/AccordionWrapper';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
-import { GROUP_KEYS } from '../../constants/config';
+import { appConfig, GROUP_SNV } from '../../constants/config';
 import { TABS } from '../../constants/UI';
 import VegaLegend from '../Legend/VegaLegend';
 
@@ -47,24 +47,15 @@ const LocationTab = observer(({ width }) => {
                 Compare {configStore.getGroupLabel()}s
               </TabIndicator>{' '}
               tab.
-              {configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE && (
+              {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
                 <>
-                  {' '}
-                  <ExternalLink href="https://cov-lineages.org/descriptions.html">
-                    (Lineage Descriptions)
+                  { appConfig.group_cols[configStore.groupKey].description }
+                  <ExternalLink href={appConfig.group_cols[configStore.groupKey].link.href}>
+                    {appConfig.group_cols[configStore.groupKey].link.title}
                   </ExternalLink>
                 </>
               )}
             </li>
-            {configStore.groupKey === GROUP_KEYS.GROUP_CLADE && (
-              <li>
-                For more information about clade and lineage nomenclature, visit
-                this{' '}
-                <ExternalLink href="https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/">
-                  [GISAID note]
-                </ExternalLink>
-              </li>
-            )}
           </ul>
         }
       >
@@ -81,7 +72,7 @@ const LocationTab = observer(({ width }) => {
               selected <b>{configStore.getGroupLabel()}s</b>, between the
               selected locations.
             </li>
-            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+            {configStore.groupKey === GROUP_SNV && (
               <li>
                 In SNV mode, matching sequences are defined as sequences having
                 the selected {configStore.getGroupLabel()}s or combination of{' '}
@@ -126,7 +117,7 @@ const LocationTab = observer(({ width }) => {
               This plot shows the cumulative proportion of{' '}
               <b>{configStore.getGroupLabel()}s</b> per location.
             </li>
-            {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+            {configStore.groupKey === GROUP_SNV && (
               <li>
                 In SNV mode, sequences are shown as counts and not proportions.
                 This is because sequences can be counted multiple times, as a

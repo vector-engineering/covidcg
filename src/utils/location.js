@@ -93,9 +93,3 @@ export function selectAll(rootNode) {
   };
   traverseAndSelect(rootNode);
 }
-
-// Given locObj (a row from location_map), get the name of the most
-// specific level of the object, starting from location --> region
-// export function getMostSpecificLocationName(locObj) {
-//   if (locObj.location !== -1)
-// }

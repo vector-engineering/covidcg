@@ -16,7 +16,7 @@ import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { decryptAccessionIds } from '../utils/decrypt';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { GROUP_KEYS } from '../constants/config';
+import { GROUP_SNV } from '../constants/config';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 
@@ -54,7 +54,7 @@ export class DataStore {
   UIStoreInstance;
   configStoreInstance;
   snpDataStoreInstance;
-  lineageDataStoreInstance;
+  groupDataStoreInstance;
 
   dataDate;
   numSequences;
@@ -126,7 +126,7 @@ export class DataStore {
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.configStoreInstance = rootStoreInstance.configStore;
     this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-    this.lineageDataStoreInstance = rootStoreInstance.lineageDataStore;
+    this.groupDataStoreInstance = rootStoreInstance.groupDataStore;
 
     this.updateCaseData();
   }
@@ -142,7 +142,7 @@ export class DataStore {
       intToProteinAaSnvMap,
     } = this.snpDataStoreInstance;
 
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     aggCaseDataByGroup(
       {
@@ -226,7 +226,7 @@ export class DataStore {
       intToProteinAaSnvMap,
       snvColorMap,
     } = this.snpDataStoreInstance;
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     processCaseData(
       {
@@ -291,7 +291,7 @@ export class DataStore {
         this.countsPerGroup = countsPerGroup;
 
         this.updateAggCaseDataByGroup(callback);
-        if (this.configStoreInstance.groupKey === GROUP_KEYS.GROUP_SNV) {
+        if (this.configStoreInstance.groupKey === GROUP_SNV) {
           this.processSelectedSnvs();
         }
       }
@@ -441,7 +441,7 @@ export class DataStore {
       intToProteinAaSnvMap,
     } = this.snpDataStoreInstance;
 
-    const { groupSnvMap, groupColorMap } = this.lineageDataStoreInstance;
+    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
     downloadAggCaseData(
       {
@@ -612,7 +612,7 @@ export class DataStore {
   @action
   downloadCountryScoreData() {
     let jsonString = JSON.stringify(
-      asyncDataStoreInstance.data.countryScoreData
+      asyncDataStoreInstance.data.country_score
     );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);

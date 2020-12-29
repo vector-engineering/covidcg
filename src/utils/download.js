@@ -1,6 +1,6 @@
 // Download utilities
 import { intToISO } from './date';
-import { GROUP_KEYS } from '../constants/config';
+import { GROUP_SNV } from '../constants/config';
 
 export function downloadBlobURL(blob_url, filename) {
   const link = window.document.getElementById('hidden-download-link');
@@ -24,7 +24,7 @@ export function generateSelectionString(
   // Add group key
   out += groupKey + '_';
   // Add DNA/AA, only if in SNP mode
-  if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (groupKey === GROUP_SNV) {
     out += dnaOrAa + '_';
   }
 

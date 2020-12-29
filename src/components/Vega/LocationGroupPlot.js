@@ -11,7 +11,7 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
 
-import { GROUP_KEYS, DNA_OR_AA } from '../../constants/config';
+import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { GROUPS } from '../../constants/groups';
 import { ASYNC_STATES } from '../../constants/UI';
 import initialSpec from '../../vega_specs/location_group.vg.json';
@@ -75,7 +75,7 @@ const LocationGroupPlot = observer(({ width }) => {
     );
 
     if (
-      configStore.groupKey === GROUP_KEYS.GROUP_SNV &&
+      configStore.groupKey === GROUP_SNV &&
       plotSettingsStore.locationGroupHideReference
     ) {
       // Filter out 'Reference' group, when in SNV mode
@@ -190,11 +190,9 @@ const LocationGroupPlot = observer(({ width }) => {
   }
 
   let xLabel, xLabelFormat, stackOffset;
-  if (configStore.groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    xLabel += 'Lineage ';
-  } else if (configStore.groupKey === GROUP_KEYS.GROUP_CLADE) {
-    xLabel += 'Clade ';
-  } else if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
+    xLabel += `${appConfig.group_cols[configStore.groupKey].title} `;
+  } else if (configStore.groupKey === GROUP_SNV) {
     if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       xLabel += 'NT';
     } else {
@@ -204,7 +202,7 @@ const LocationGroupPlot = observer(({ width }) => {
   }
   xLabel += ' (Cumulative, All Sequences)';
 
-  if (configStore.groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (configStore.groupKey === GROUP_SNV) {
     xLabelFormat = 's';
     stackOffset = 'zero';
     xLabel = `# Sequences with ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
@@ -217,7 +215,7 @@ const LocationGroupPlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <PlotOptions>
-        {configStore.groupKey === GROUP_KEYS.GROUP_SNV && (
+        {configStore.groupKey === GROUP_SNV && (
           <OptionCheckboxContainer>
             <label>
               <input

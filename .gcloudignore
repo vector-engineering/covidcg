@@ -8,12 +8,14 @@
 .gitignore
 .dockerignore
 
-cg_scripts
 data
-data_link
+data_genbank
 dist
 figures
 node_modules
 notebooks
 pymol
+workflow_main
+workflow_gisaid_ingest
+workflow_genbank_ingest
 versions

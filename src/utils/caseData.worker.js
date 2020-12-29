@@ -7,7 +7,8 @@ import _ from 'underscore';
 
 import {
   LOW_FREQ_FILTER_TYPES,
-  GROUP_KEYS,
+  appConfig,
+  GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../constants/config';
@@ -189,14 +190,12 @@ function filterByMetadataFieldsAndAgeRange(
 function getGroupKeys(row, groupKey, dnaOrAa, coordinateMode) {
   // If we're grouping by lineage or SNP signature, then the group
   // keys are literal
-  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    return [row['lineage']];
-  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    return [row['clade']];
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+    return [row[groupKey]];
   }
   // If we're grouping by SNP, then the value is a semicolon-delimited
   // list of SNPs that we should treat separately
-  else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  else if (groupKey === GROUP_SNV) {
     if (dnaOrAa === DNA_OR_AA.DNA) {
       return row['dna_snp_str'];
     } else {
@@ -237,7 +236,7 @@ function processCaseData({
   snvColorMap,
 
   // Lineage data
-  groupSnvMap,
+  // groupSnvMap, 
   groupColorMap,
 }) {
   let caseData = JSON.parse(JSON.stringify(rawCaseData));
@@ -314,11 +313,9 @@ function processCaseData({
     });
   } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS) {
     let globalCounts;
-    if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-      globalCounts = globalGroupCounts.lineage;
-    } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-      globalCounts = globalGroupCounts.clade;
-    } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+      globalCounts = globalGroupCounts[groupKey];
+    } else if (groupKey === GROUP_SNV) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
         globalCounts = globalGroupCounts.dna_snp;
       } else {
@@ -386,10 +383,10 @@ function processCaseData({
         group = GROUPS.OTHER_GROUP;
       }
       // Replace the integer SNP ID with the actual SNP string
-      else if (groupKey === GROUP_KEYS.GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
+      else if (groupKey === GROUP_SNV && dnaOrAa === DNA_OR_AA.DNA) {
         group = intToDnaSnvMap[group].snp_str;
       } else if (
-        groupKey === GROUP_KEYS.GROUP_SNV &&
+        groupKey === GROUP_SNV &&
         dnaOrAa === DNA_OR_AA.AA
       ) {
         if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
@@ -420,11 +417,9 @@ function processCaseData({
   // });
 
   let getColorMethod;
-  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = (lineage) => groupColorMap['lineage'][lineage];
-  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = (clade) => groupColorMap['clade'][clade];
-  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+    getColorMethod = (group) => groupColorMap[groupKey][group];
+  } else if (groupKey === GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
   }
 
@@ -439,7 +434,7 @@ function processCaseData({
           date: parseInt(date),
           group: group,
           groupName:
-            groupKey === GROUP_KEYS.GROUP_SNV
+            groupKey === GROUP_SNV
               ? formatSnv(group, dnaOrAa)
               : group,
           cases_sum: aggCaseData[location][date][group],
@@ -504,11 +499,9 @@ function aggCaseDataByGroup({
   groupColorMap,
 }) {
   let getColorMethod;
-  if (groupKey === GROUP_KEYS.GROUP_LINEAGE) {
-    getColorMethod = (lineage) => groupColorMap['lineage'][lineage];
-  } else if (groupKey === GROUP_KEYS.GROUP_CLADE) {
-    getColorMethod = (clade) => groupColorMap['clade'][clade];
-  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+    getColorMethod = (group) => groupColorMap[groupKey][group];
+  } else if (groupKey === GROUP_SNV) {
     getColorMethod = (snv) => snvColorMap[snv];
   }
 
@@ -548,7 +541,7 @@ function aggCaseDataByGroup({
     item.push(getColorMethod(item[0]));
     // Push the formatted group/SNV
     item.push(
-      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
+      groupKey === GROUP_SNV ? formatSnv(item[0], dnaOrAa) : item[0]
     );
   });
   countsPerGroupDateFiltered.sort((a, b) => {
@@ -592,10 +585,7 @@ function aggCaseDataByGroup({
       return intToSnvMap[snvId];
     });
   };
-  if (
-    groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-    groupKey === GROUP_KEYS.GROUP_CLADE
-  ) {
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
     if (dnaOrAa === DNA_OR_AA.DNA) {
       getSnvsFromGroup = getSnvsFromGroupBase.bind(
         this,
@@ -670,7 +660,7 @@ function aggCaseDataByGroup({
         });
       }
     });
-  } else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  } else if (groupKey === GROUP_SNV) {
     // If we're grouping by SNP, then just take the position embedded in each SNP string
     let snp_str_split = [];
     let pos = -1;
@@ -749,7 +739,7 @@ function aggCaseDataByGroup({
   }
 
   // For SNP data, break out the (gene), position, ref, and alt
-  if (groupKey === GROUP_KEYS.GROUP_SNV) {
+  if (groupKey === GROUP_SNV) {
     let row_split;
     Object.keys(dataAggGroup).forEach((row) => {
       // Skip reference
@@ -805,10 +795,7 @@ function aggCaseDataByGroup({
       }
       // If we grouped by lineage, use the lineage name
       // to find a potential SNP at this location
-      else if (
-        groupKey === GROUP_KEYS.GROUP_LINEAGE ||
-        groupKey === GROUP_KEYS.GROUP_CLADE
-      ) {
+      else if (Object.keys(appConfig.group_cols).includes(groupKey)) {
         // lineageSnpFunc is defined above
         let groupSnps = getSnvsFromGroup(group);
 
@@ -828,7 +815,7 @@ function aggCaseDataByGroup({
       }
       // If we grouped by SNP, then the ref and alt base information
       // is embedded into the SNP string
-      else if (groupKey === GROUP_KEYS.GROUP_SNV) {
+      else if (groupKey === GROUP_SNV) {
         // DNA SNP string: pos|ref|alt
         if (dnaOrAa === DNA_OR_AA.DNA) {
           if (pos === dataAggGroup[group]['pos'] - 1) {
@@ -851,7 +838,7 @@ function aggCaseDataByGroup({
   Object.keys(dataAggGroup).forEach((group) => {
     dataAggGroup[group]['group'] = group;
     dataAggGroup[group]['groupName'] =
-      groupKey === GROUP_KEYS.GROUP_SNV ? formatSnv(group, dnaOrAa) : group;
+      groupKey === GROUP_SNV ? formatSnv(group, dnaOrAa) : group;
     dataAggGroup[group]['color'] = getColorMethod(group);
     // FOR VEGA TREE:
     // const parentkey = getParent(group);
