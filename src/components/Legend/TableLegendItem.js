@@ -14,6 +14,7 @@ const Container = styled.div`
     if (selected) return 'background-color: rgba(0,0,0,0.3);';
     if (hovered) return 'background-color: rgba(0,0,0,0.1);';
   }}
+  font-size: 12px;
 `;
 
 const ColorBar = styled.div`
