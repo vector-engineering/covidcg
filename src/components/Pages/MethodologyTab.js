@@ -9,7 +9,7 @@ import {
   // ImageRow,
 } from './TextTab.styles';
 
-import WorkflowImage from '../../assets/images/Fig2_workflow_V4.svg';
+import WorkflowImage from '../../assets/images/Fig2_workflow_V5.svg';
 
 const MethodologyTab = () => {
   return (
