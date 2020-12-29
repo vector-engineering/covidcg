@@ -122,6 +122,10 @@ const LegendContainer = observer(() => {
     );
   }, [UIStore.caseDataState]);
 
+  if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+    return <div />;
+  }
+
   return (
     <TableLegend
       legendItems={legendItems}
