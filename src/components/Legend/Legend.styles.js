@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { lighten, transparentize } from 'polished';
 
-export const LegendList = styled.div`
+export const StyledLegendList = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

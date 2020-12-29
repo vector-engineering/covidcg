@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import LegendContainer from '../Legend/LegendContainer';
 
 const Container = styled.div`
-  width: 90px;
+  width: 150px;
   height: 100vh;
-  overflow-y: scroll;
+  overflow-y: hidden;
+  overflow-x: hidden;
   border-left: 1px #eaeaea solid;
 `;
 

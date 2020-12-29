@@ -8,14 +8,34 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
 
+const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
+  if (sortDirection === 'ASC' || sortDirection === 'None') {
+    return a[sortColumn] > b[sortColumn] ? 1 : -1;
+  }
+  if (sortDirection === 'DESC') {
+    return a[sortColumn] < b[sortColumn] ? 1 : -1;
+  }
+};
+
 const LegendContainer = observer(() => {
   const { dataStore, UIStore, configStore } = useStores();
 
   const [legendItems, setLegendItems] = useState([]);
+  const [sortColumn, setSortColumn] = useState('cases_percent');
+  const [sortDir, setSortDir] = useState('DESC');
 
   const updateHoverGroup = _.debounce((group) => {
     configStore.updateHoverGroup(group);
   }, 10);
+
+  const onClickColumnHeader = ({ columnName }) => {
+    if (sortColumn === columnName && sortDir === 'DESC') {
+      setSortDir('ASC');
+    } else {
+      setSortColumn(columnName);
+      setSortDir('DESC');
+    }
+  };
 
   const onItemSelect = (e) => {
     const selectedGroup = e.target.getAttribute('data-group');
@@ -79,20 +99,29 @@ const LegendContainer = observer(() => {
   };
 
   useEffect(() => {
+    let _arr = [...legendItems];
+    _arr = _arr.sort(comparer({ sortColumn, sortDirection: sortDir }));
+    setLegendItems(_arr);
+  }, [sortColumn, sortDir]);
+
+  useEffect(() => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
-    setLegendItems(getLegendKeys());
+    setLegendItems(
+      getLegendKeys().sort(comparer({ sortColumn, sortDirection: sortDir }))
+    );
   }, [UIStore.caseDataState]);
-
-  console.log(legendItems);
 
   return (
     <TableLegend
       legendItems={legendItems}
       updateHoverGroup={updateHoverGroup}
       updateSelectGroup={onItemSelect}
+      sortColumn={sortColumn}
+      sortDir={sortDir}
+      onClickColumnHeader={onClickColumnHeader}
     />
   );
 

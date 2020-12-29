@@ -5,7 +5,7 @@ import { useStores } from '../../stores/connect';
 import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
-import { GROUP_KEYS } from '../../constants/config';
+import { appConfig } from '../../constants/config';
 import { formatSnv } from '../../utils/snpUtils';
 import { LegendItem } from './Legend.styles';
 
@@ -13,7 +13,7 @@ const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
   const { configStore } = useStores();
   const [state, setState] = useState({
     text:
-      configStore.groupKey === GROUP_KEYS.GROUP_SNV
+      configStore.groupKey === appConfig.group_cols
         ? formatSnv(group, configStore.dnaOrAa)
         : group,
     hovered: false,

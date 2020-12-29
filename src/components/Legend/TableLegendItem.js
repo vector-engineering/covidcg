@@ -2,7 +2,7 @@ import { observer } from 'mobx-react';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import _ from 'underscore';
-import { GROUP_KEYS } from '../../constants/config';
+import { GROUP_SNV } from '../../constants/config';
 import { useStores } from '../../stores/connect';
 import { formatSnv } from '../../utils/snpUtils';
 
@@ -20,11 +20,34 @@ const Container = styled.div`
 const ColorBar = styled.div`
   height: 100%;
   border-right: 5px solid ${({ color }) => color};
-  margin-right: 10px;
+  margin-right: 6px;
+`;
+
+const GroupNameContainer = styled.div`
+  border-right: 1px #eee solid;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+`;
+
+const PercentageContainer = styled.div`
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const TableLegendItem = observer(
-  ({ style, group, color, updateHoverGroup, updateSelectGroup }) => {
+  ({
+    style,
+    group,
+    color,
+    updateHoverGroup,
+    updateSelectGroup,
+    percentage,
+  }) => {
     const { configStore } = useStores();
     const [hovered, setHovered] = useState();
     const [selected, setSelected] = useState();
@@ -71,6 +94,9 @@ const TableLegendItem = observer(
       setSelected(_selected);
     }, [configStore.selectedGroups]);
 
+    const displayPercentage = (percentage =
+      (percentage * 100).toFixed(2) + '%');
+
     return (
       <Container
         style={style}
@@ -82,9 +108,12 @@ const TableLegendItem = observer(
         selected={selected}
       >
         <ColorBar color={color} />
-        {configStore.groupKey === GROUP_KEYS.GROUP_SNV
-          ? formatSnv(group, configStore.dnaOrAa)
-          : group}
+        <GroupNameContainer>
+          {configStore.groupKey === GROUP_SNV
+            ? formatSnv(group, configStore.dnaOrAa)
+            : group}
+        </GroupNameContainer>
+        <PercentageContainer>{displayPercentage}</PercentageContainer>
       </Container>
     );
   }

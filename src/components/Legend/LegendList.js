@@ -13,7 +13,7 @@ import {
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 import SkeletonElement from '../Common/SkeletonElement';
-import { LegendList } from './Legend.styles';
+import { StyledLegendList } from './Legend.styles';
 import LegendItemWrapper from './LegendItem';
 
 const LegendList = observer(() => {
@@ -163,7 +163,9 @@ const LegendList = observer(() => {
   }
 
   return (
-    <LegendList onMouseDown={onItemSelect}>{state.legendItems}</LegendList>
+    <StyledLegendList onMouseDown={onItemSelect}>
+      {state.legendItems}
+    </StyledLegendList>
   );
 });
 

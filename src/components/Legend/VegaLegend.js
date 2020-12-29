@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { LegendList } from './Legend.styles';
+import { StyledLegendList } from './Legend.styles';
 import LegendItemWrapper from './LegendItem';
 
 const VegaLegend = ({ legendItems, updateHoverGroup, updateSelectGroup }) => {
@@ -23,9 +23,9 @@ const VegaLegend = ({ legendItems, updateHoverGroup, updateSelectGroup }) => {
   };
 
   return (
-    <LegendList onMouseDown={updateSelectGroup}>
+    <StyledLegendList onMouseDown={updateSelectGroup}>
       {renderLegendKeys()}
-    </LegendList>
+    </StyledLegendList>
   );
 };
 

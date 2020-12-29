@@ -15,7 +15,7 @@ import SidebarAccordionWrapper from './SidebarAccordionWrapper';
 import LineageSidebar from './LineageSideBar';
 
 const Container = styled.div`
-  width: 399px;
+  width: 450px;
   display: flex;
   height: 100vh;
   overflow-y: hidden;
@@ -44,7 +44,7 @@ const FilterSidebarContainer = styled.div`
 `;
 
 const LineageSidebarContainer = styled.div`
-  width: 90px;
+  width: 150px;
   height: 100%;
   border-right: 1px solid #aaa;
   padding-bottom: 15px;
