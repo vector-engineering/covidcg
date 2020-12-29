@@ -9,6 +9,13 @@ import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
 
 const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
+  //special sorting for snv group
+  if (sortColumn === 'group' && a.gene === b.gene && sortDirection === 'ASC') {
+    return a.pos - b.pos;
+  }
+  if (sortColumn === 'group' && a.gene === b.gene && sortDirection === 'DESC') {
+    return b.pos - a.pos;
+  }
   if (sortDirection === 'ASC' || sortDirection === 'None') {
     return a[sortColumn] > b[sortColumn] ? 1 : -1;
   }
