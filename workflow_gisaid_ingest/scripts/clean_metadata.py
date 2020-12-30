@@ -366,6 +366,8 @@ def clean_passage_metadata(df):
             "Original, from nasopharyngeal aspirate",
             "ORIGINAL",
             "origin",
+            "Original,",
+            "Original isolate"
         ],
         "Original (Clinical Sample)": [
             "Original (Clinical sample)",
