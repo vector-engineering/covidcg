@@ -1,0 +1,62 @@
+# ------------------
+#       GLOBAL
+# ------------------
+
+# Path to folder with downloaded and processed data
+# This path is relative to the workflow folders
+data_folder: "../data_custom"
+
+# Path to folder with genome information (reference.fasta, genes.json, proteins.json)
+# This path is relative to the workflow folders
+static_data_folder: "../static_data"
+
+# ------------------
+#       INGEST
+# ------------------
+
+# Number of genomes to load into memory before flushing to disk
+chunk_size: 100000
+
+# --------------------
+#       ANALYSIS
+# --------------------
+
+# SNPs with less than this number of global occurrences will be ignored
+snp_count_threshold: 3
+# Percentage of sequences within a group (e.g., clade, lineage) that need
+# to have a SNV, in order for the SNV to be called as a "consensus" SNV
+consensus_fraction: 0.9
+
+metadata_cols:
+  database:
+    title: "Database"
+  strain:
+    title: "Strain"
+  host:
+    title: "Host"
+  isolation_source:
+    title: "Isolation source"
+  biosample_accession:
+    title: "Biosample accession"
+  authors:
+    title: "Authors"
+  publications:
+    title: "Publications"
+
+group_cols:
+  lineage:
+    name: "lineage"
+    title: "Lineage"
+    description: ""
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
+
+# ----------------------
+#     VISUALIZATION
+# ----------------------
+
+data_package_url: "https://storage.googleapis.com/ve-public/genbank/data_package.json.gz"
+# Force a reload of the data package every X milliseconds
+# 1000 ms/s * 60 s/min * 60 min/hr = 3600000
+data_package_refresh_freq: 3600000
