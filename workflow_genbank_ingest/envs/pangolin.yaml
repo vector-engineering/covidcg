@@ -20,4 +20,4 @@ dependencies:
       - git+https://github.com/cov-ert/datafunk.git
       - git+https://github.com/cov-lineages/pangoLEARN.git@2020-12-17
       - git+https://github.com/cov-lineages/lineages.git@2020-05-19-2
-      - git+https://github.com/cov-lineages/pangolin.git@v2.1.2
+      - git+https://github.com/cov-lineages/pangolin.git@v2.1.6
