@@ -1,16 +1,12 @@
 # coding: utf-8
 
-import datetime
 import os
-import gzip
 
 from pathlib import Path
 
 # Import scripts
-from scripts.chunk_data import chunk_data
 from scripts.clean_metadata import clean_metadata
 from scripts.combine_lineages import combine_lineages
-from scripts.copy_changed_files import copy_changed_files
 
 configfile: "../config/config_custom.yaml"
 
@@ -24,9 +20,6 @@ rule all:
         # Cleaned metadata, with lineage assignments
         os.path.join(config["data_folder"], "metadata.csv")
 
-def get_input_chunks(wildcards):
-    chunks = glob_wildcards(os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz"))
-    return chunks
 
 rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
@@ -43,6 +36,7 @@ rule pangolin_lineages:
         gunzip -c {input.fasta} > {output.fasta}
         pangolin --outfile {output.lineages} {output.fasta}
         """
+
 
 rule combine_lineages:
     """Combine all lineage result chunks
