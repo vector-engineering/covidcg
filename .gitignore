@@ -92,6 +92,7 @@ workflow*/**/__pycache__/**
 # Ignore data folder/links
 data/**
 data_genbank/**
+data_custom/**
 
 # Ignore server passwords
 server/htpasswd

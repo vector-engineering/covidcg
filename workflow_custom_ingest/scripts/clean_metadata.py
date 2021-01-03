@@ -14,6 +14,8 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
 
     Required columns:
         "Accession ID": index
+        # For later processing this must be unique
+        # within the first 8 characters.
 
         # date information
         "collection_date"
@@ -40,19 +42,14 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
 
     # Fields:
     #   Accession ID,
-    #   database,
     #   strain,
     #   region,
     #   country,
     #   division,
     #   location,
-    #   collected,
-    #   submitted,
+    #   collection_date,
+    #   submission_date,
     #   host,
-    #   isolation_source,
-    #   biosample_accession,
-    #   authors,
-    #   publications
 
     # Remove sequences without region, collection date, or submission date
     remove_rows = (
@@ -65,13 +62,8 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     # Fill in missing values with empty strings, for remaining
     # metadata columns
     fill_in_cols = [
-        "database",
         "strain",
         "host",
-        "isolation_source",
-        "biosample_accession",
-        "authors",
-        "publications",
     ]
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
