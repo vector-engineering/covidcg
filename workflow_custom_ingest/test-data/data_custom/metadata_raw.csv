@@ -1,5 +1,5 @@
-genbank_accession,database,strain,region,location,collected,submitted,length,host,isolation_source,biosample_accession,title,authors,publications
-MW422884,GenBank,SARS-CoV-2/human/IND/THSTI-BL2010D/2020,Asia,India,2020-04-29,2020-12-31T00:00:00Z,29866,Homo sapiens,,,"Severe acute respiratory syndrome coronavirus 2 isolate SARS-CoV-2/human/IND/THSTI-BL2010D/2020, complete genome","Kumar,S., Wangchuk,J., Pandey,A.K., Das,A., Medigeshi,G.R.",
-MW423685,GenBank,SARS-CoV-2/human/ITA/CB543/2020,Europe,Italy: Abruzzo,2020-12-10,2020-12-31T00:00:00Z,29877,Homo sapiens,oronasopharynx,,"Severe acute respiratory syndrome coronavirus 2 isolate SARS-CoV-2/human/ITA/CB543/2020, complete genome","Ferrante,R., Mandatori,D., De Fabritiis,S.",
-MW423684,GenBank,SARS-CoV-2/human/ITA/CH360/2020,Europe,Italy: Abruzzo,2020-12-22,2020-12-31T00:00:00Z,29871,Homo sapiens,oronasopharynx,,"Severe acute respiratory syndrome coronavirus 2 isolate SARS-CoV-2/human/ITA/CH360/2020, complete genome","Ferrante,R., Mandatori,D., De Fabritiis,S.",
-MW423686,GenBank,SARS-CoV-2/human/ITA/CL106/2020,Europe,Italy: Abruzzo,2020-12-27,2020-12-31T00:00:00Z,29903,Homo sapiens,oronasopharynx,,"Severe acute respiratory syndrome coronavirus 2 isolate SARS-CoV-2/human/ITA/CL106/2020, complete genome","Ferrante,R., Mandatori,D., De Fabritiis,S.",
+Accession ID,database,strain,region,country,division,location,collection_date,submission_date,host,isolation_source,biosample_accession,authors,publications
+MW422884,GenBank,SARS-CoV-2/human/IND/THSTI-BL2010D/2020,Asia,India,-1,-1,2020-04-29,2020-12-31,Homo sapiens,,,"Kumar,S., Wangchuk,J., Pandey,A.K., Das,A., Medigeshi,G.R.",
+MW423685,GenBank,SARS-CoV-2/human/ITA/CB543/2020,Europe,Italy,Abruzzo,-1,2020-12-10,2020-12-31,Homo sapiens,oronasopharynx,,"Ferrante,R., Mandatori,D., De Fabritiis,S.",
+MW423684,GenBank,SARS-CoV-2/human/ITA/CH360/2020,Europe,Italy,Abruzzo,-1,2020-12-22,2020-12-31,Homo sapiens,oronasopharynx,,"Ferrante,R., Mandatori,D., De Fabritiis,S.",
+MW423686,GenBank,SARS-CoV-2/human/ITA/CL106/2020,Europe,Italy,Abruzzo,-1,2020-12-27,2020-12-31,Homo sapiens,oronasopharynx,,"Ferrante,R., Mandatori,D., De Fabritiis,S.",
