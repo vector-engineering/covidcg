@@ -83,11 +83,11 @@ Configuration of the pipeline is defined in the `config/config_[workflow].yaml` 
 
 ### Ingestion
 
-Two ingestion workflows are currently available, `workflow_genbank_ingest` and `workflow_gisaid_ingest`. 
+Three ingestion workflows are currently available, `workflow_genbank_ingest`, `workflow_custom_ingest`, and `workflow_gisaid_ingest`. 
 
 **NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**. 
 
-You can use either ingestion pipeline as the basis for developing your own data ingestion pipeline to analyze and visualize in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file . i.e., `config/config_genbank.yaml` for the GenBank workflow.
+Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to automatically download and process data from their respective data source. The `workflow_custom_ingest` can be used for analyzing and visualizing your own in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file . i.e., `config/config_genbank.yaml` for the GenBank workflow.
 
 For example, you can run the GenBank ingestion pipeline with:
 
@@ -96,7 +96,7 @@ cd workflow_genbank_ingest
 snakemake --use-conda
 ```
 
-Both ingestion pipelines are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step.
+Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step. The `workflow_custom_ingest` pipeline does not attempt to chunk data to minimize expensive reprocessing but this can be accomplished outside of covidcg by dividing up your sequence data into separate FASTA files.
 
 ### Main Analysis
 
