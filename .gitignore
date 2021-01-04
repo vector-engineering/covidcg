@@ -96,3 +96,5 @@ data_custom/**
 
 # Ignore server passwords
 server/htpasswd
+
+/src/assets/data_package.json.gz
