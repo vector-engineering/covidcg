@@ -68,6 +68,11 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
 
+    # Fill in missing location information with -1
+    # To be consistent with other covidcg ingestion workflows
+    for col in ["region", "country", "division", "location"]:
+        df.loc[:, col] = df[col].fillna("-1")
+
     # Load lineages and join to dataframe
     lineages_df = pd.read_csv(lineages_in)
     lineages_df = lineages_df.rename(columns={"taxon": "Accession ID"}).set_index(
