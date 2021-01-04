@@ -10,14 +10,14 @@ An example dataset is included with this code in the folder [test-data/data_cust
 
 To make use of this data please do the following:
 
-1. Copy test data to `data_custom/` directory in the covidcg root:
+1. Copy test data to the `data_custom/` directory in the covidcg root:
 
    ```bash
    cd workflow_custom_ingest
    cp -r test-data/data_custom ../
    ```
 
-2. Run in `workflow_custom_ingest` workflow to assign lineages with pangolin and clean up the metadata.
+2. Run the workflow in `workflow_custom_ingest` to assign lineages with pangolin and clean up the metadata.
 
    ```bash
    snakemake --cores 1 --use-conda
