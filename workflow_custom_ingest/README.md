@@ -1,22 +1,67 @@
-# GenBank ingestion for COVID-CG
+# Custom ingestion for COVID-CG
 
-This workflow downloads data from GenBank, chunks data into files by submission date, and cleans the metadata as provided by GenBank. Additionally, lineages are assigned to each sequence with [pangolin](https://github.com/cov-lineages/pangolin).
+This processes custom data that has been inserted into the `data_custom/` directory by a user. No chunking on sequence data is performed, it is assumed that the data will be organized by the user of this workflow outside of covidcg. Lineages are assigned to each sequence with [pangolin](https://github.com/cov-lineages/pangolin).
 
 ## Running
 
-Please include `--use-conda` in the snakemake call, to automatically install `pangolin` and its dependent packages/libraries. For example:
+### Example dataset
 
-```
-snakemake --cores 8 --config data_folder=../data_genbank --use-conda
+An example dataset is included with this code in the folder [test-data/data_custom](test-data/data_custom). This data was derived from a portion of data downloaded from the `workflow_genbank_ingest` version of covidcg (so all sequences and metadata are available on Genbank).
+
+To make use of this data please do the following:
+
+1. Copy test data to `data_custom/` directory in the covidcg root:
+
+   ```bash
+   cd workflow_custom_ingest
+   cp -r test-data/data_custom ../
+   ```
+
+2. Run in `workflow_custom_ingest` workflow to assign lineages with pangolin and clean up the metadata.
+
+   ```bash
+   snakemake --cores 1 --use-conda
+   ```
+
+3. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
+
+   ```bash
+   cd ../workflow_main
+   snakemake --cores 1 --use-conda
+   ```
+4. Copy the produced `data_custom/data_package.json.gz` file to a web-accessible location. An easy location is in the `src/assets` folder of covidcg:
+
+   ```bash
+   cd .. # cd to covidcg root
+   cp data_custom/data_package.json.gz src/assets/
+   ```
+5. Start up covidcg (see [Main covidcg instructions](../README.md#javascript)).
+
+   ```bash
+   # The CONFIGFILE environment variable needs to be set first 
+   # So that covidcg knows which type of data to load
+   export CONFIGFILE=config/config_custom.yaml
+
+   npm start
+   ```
+
+### Your own data
+
+To run on your own data, please follow the template in the [test-data/data_custom](test-data/data_custom) directory. In particular, copy your gzipped FASTA sequences to `data_custom/fasta_raw` (you can have as many files as you like) and the metadata for all sequences in the `data_custom/metadata_raw.csv` file.
+
+Once you've copied your own data and metadata, you can run with:
+
+```bash
+snakemake --cores 1 --use-conda
 ```
 
-The environment file for `pangolin` is placed in `envs/pangolin.yaml`
+Make sure to include `--use-conda` so that `pangolin` gets automatically installed from `envs/pangolin.yaml`
 
 ## Configuration
 
-All configuration options, and their descriptions, are available in the `config/config_genbank.yaml` file.
+All configuration options, and their descriptions, are available in the `config/config_custom.yaml` file.
 
-Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config/config_genbank.yaml` file.
+Metadata columns (`metadata_cols`) and sequence groupings (`group_cols`) specific to this pipeline are defined in the `config/config_custom.yaml` file.
 
 ## Metadata Requirements
 
@@ -36,6 +81,6 @@ For more granular location metadata (`country`, `division`, `location`), missing
 
 ## Acknowledgements
 
-The GenBank download code is derived from the ncov-ingest tool ([https://github.com/nextstrain/ncov-ingest](https://github.com/nextstrain/ncov-ingest)) from the [Nextstrain](https://nextstrain.org/) team. The license for this code can be found in the `LICENSE_NEXTSTRAIN` file.
+The code for this method of ingestion of data is derived from the `workflow_genbank_ingest` code.
 
 The `pangolin` lineage assignment tool is hosted on GitHub: [https://github.com/cov-lineages/pangolin](https://github.com/cov-lineages/pangolin).
