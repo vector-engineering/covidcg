@@ -5,16 +5,25 @@ import _ from 'underscore';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/UI';
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
+import { COORDINATE_MODES, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
 
-const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
-  //special sorting for snv group
-  if (sortColumn === 'group' && a.gene === b.gene && sortDirection === 'ASC') {
-    return a.pos - b.pos;
-  }
-  if (sortColumn === 'group' && a.gene === b.gene && sortDirection === 'DESC') {
-    return b.pos - a.pos;
+const comparer = ({ sortDirection, sortColumn, groupKey, dnaOrAa, coordinateMode }) => (a, b) => {
+
+  // special sorting for snv group
+  // If in SNV mode, then sort by position IF:
+  // We're in DNA mode OR
+  // We're comparing rows that have the same gene/protein
+  if (groupKey === GROUP_SNV) {
+    let sameGeneOrProtein = ((a.gene === b.gene && coordinateMode === COORDINATE_MODES.COORD_GENE) || (a.protein === b.protein && coordinateMode === COORDINATE_MODES.COORD_PROTEIN));
+
+    if (sortColumn === 'group' && (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) && sortDirection === 'ASC') {
+      return a.pos - b.pos;
+    }
+    if (sortColumn === 'group' && (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) && sortDirection === 'DESC') {
+      return b.pos - a.pos;
+    }
   }
   if (sortDirection === 'ASC' || sortDirection === 'None') {
     return a[sortColumn] > b[sortColumn] ? 1 : -1;
@@ -108,7 +117,13 @@ const LegendContainer = observer(() => {
 
   useEffect(() => {
     let _arr = [...legendItems];
-    _arr = _arr.sort(comparer({ sortColumn, sortDirection: sortDir }));
+    _arr = _arr.sort(comparer({ 
+      sortColumn, 
+      sortDirection: sortDir,
+      groupKey: configStore.groupKey, 
+      dnaOrAa: configStore.dnaOrAa,
+      coordinateMode: configStore.coordinateMode 
+    }));
     setLegendItems(_arr);
   }, [sortColumn, sortDir]);
 
@@ -118,7 +133,13 @@ const LegendContainer = observer(() => {
     }
 
     setLegendItems(
-      getLegendKeys().sort(comparer({ sortColumn, sortDirection: sortDir }))
+      getLegendKeys().sort(comparer({ 
+        sortColumn, 
+        sortDirection: sortDir,
+        groupKey: configStore.groupKey,
+        dnaOrAa: configStore.dnaOrAa,
+        coordinateMode: configStore.coordinateMode 
+      }))
     );
   }, [UIStore.caseDataState]);
 
