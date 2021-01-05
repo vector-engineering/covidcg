@@ -12,11 +12,11 @@ import {
 export const initialPlotSettingsValues = {
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
   groupStackCountMode: COUNT_MODES.COUNT_NEW,
-  groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+  groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
 
   locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
   locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-  locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+  locationDateDateBin: DATE_BINS.DATE_BIN_WEEK,
 
   locationGroupHideReference: true,
 

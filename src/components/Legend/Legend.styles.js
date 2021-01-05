@@ -1,13 +1,12 @@
 import styled from 'styled-components';
 import { lighten, transparentize } from 'polished';
 
-export const LegendList = styled.div`
+export const StyledLegendList = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  border: 1px #eaeaea solid;
   border-radius: 2px;
-  padding: 6px 12px;
+  padding: 6px 3px;
 `;
 
 export const LegendItem = styled.div`
