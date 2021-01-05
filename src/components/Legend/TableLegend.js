@@ -81,7 +81,7 @@ const TableLegend = observer(
           {({ height, width }) => (
             <List
               className="List"
-              height={height}
+              height={height - 30}
               itemCount={legendItems ? legendItems.length : 0}
               itemSize={35}
               width={width}
