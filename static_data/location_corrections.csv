@@ -1,7 +1,7 @@
 region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_country,out_division,out_location,comment
 ,,Unknown|unknown,,,,-1,,"Unset unknown divisions"
 ,,,Unknown|unknown,,,,-1,"Unset unknown locations"
-,CotedIvoire,,,,Côte D'Ivoire,,,
+,CotedIvoire|Cote dIvoire,,,,Côte D'Ivoire,,,
 ,Democratic Republic of the Congo,,,,DRC,,,"Abbreviate name to save space"
 ,DRC,Kongo Central,,,,Kongo-Central,,"Fix typos"
 ,Marocco,,,,Morocco,,,"Fix typos"
@@ -363,7 +363,6 @@ Asian,,,,Asia,,,,"Fix typos"
 ,Belgium,Saint-Saulve,,,France,Hauts-de-France,,"Move Saint-Saulve from Belgium to France"
 ,Belgium,Roucourt,,,France,Hauts-de-France,,"Move Roucourt from belgium to France"
 ,Belgium,Flines-Les-Morta,,,France,Hauts-de-France,Flines-lès-Mortagne,"Move Flines-les-Mortagne (Flines-les-Morta) from Belgium into France"
-,Denmark,NA,,,Denmark,-1,,"Remove NA province"
 ,France,Bourgogne Franche comte|Bourgogne-France-Comté|Bourgogne-Franche Comte|Bourgogne-France-Comte|Bourgogne,,,France,Bourgogne-Franche-Comté,,"Fix typos"
 ,France,ARA|Auvergne-Rhone-Alpes,,,,Auvergne-Rhône-Alpes,,"Unabbreviate province names, unify province names"
 ,France,Centre - Val de Loire|Centre Val de Loire,,,,Centre-Val de Loire,,
@@ -380,17 +379,31 @@ Asian,,,,Asia,,,,"Fix typos"
 ,France,Paris,,,,Île-de-France,Paris,"Move Paris into Ile-de-France"
 ,France,MP,,,France,Midi-Pyrénées,,
 ,France,PACA|Provence-Alpes-Cote d'Azur|Provence-Alpes-Cote-d’Azur|Provence-Alpes-Côte d'Azur,,,France,Provence-Alpes-Côte-d’Azur,,
+,France,Pays de la Loire,,,France,Pays-de-la-Loire,,
 # ,France,NA,,,France,Nouvelle-Aquitaine,,
 Europe,Georgia,,,Asia,,,,"Move to Asia"
 ,Germany,Munich,,,,Bavaria,Munich,"Move Munich division into Bavaria division"
 ,Germany,Duesseldorf,,,,North Rhine-Westphalia,Duesseldorf,"Move cities to provinces"
 ,Germany,Frankfurt,,,,Hesse,Frankfurt,
 ,Germany,Rostock,,,,Mecklenburg-Vorpommern,Rostock,
-,Germany,Baden-Wuerttemberg,,,,Baden-Württemberg,,"Fix typos"
+,Germany,Baden-Wuerttemberg|Baden-Wurttemberg,,,,Baden-Württemberg,,"Fix typos"
 ,Germany,North Rhine Westphalia,,,,North Rhine-Westphalia,,
 ,Germany,North Rhine-Westphalia,Duesseldorf area|Duesseldorf,,,,Düsseldorf,
 ,Germany,North Rhine-Westphalia,Heinsberg District,,,,Heinsberg,
+,Germany,Mecklenburg-Vorpommern,,,Germany,Mecklenburg-Western Pomerania,,
 ,Hungary,Borsod-Abauj-Zemplen county|Borsod-Abauj-Zemplen County,,,,Borsod-Abaúj-Zemplén County,,"Fix typos"
+,Hungary,Borsod-Abaúj-Zemplén county,,,Hungary,Borsod-Abaúj-Zemplén County,,
+,Hungary,Bács-Kiskun county,,,Hungary,Bács-Kiskun County,,
+,Hungary,Békés county,,,Hungary,Békés County,,
+,Hungary,Csongrád county,,,Hungary,Csongrád County,,
+,Hungary,Győr-Moson-Sopron county,,,Hungary,Győr-Moson-Sopron County,,
+,Hungary,Hajdú-Bihar county,,,Hungary,Hajdú-Bihar County,,
+,Hungary,Heves county,,,Hungary,Heves County,,
+,Hungary,Jász-Nagykun-Szolnok county,,,Hungary,Jász-Nagykun-Szolnok County,,
+,Hungary,Pest county,,,Hungary,Pest County,,
+,Hungary,Somogy county,,,Hungary,Somogy County,,
+,Hungary,Szabolcs-Szatmár-Bereg county,,,Hungary,Szabolcs-Szatmár-Bereg County,,
+,Hungary,Veszprém county,,,Hungary,Veszprém County,,
 ,Italy,Lombarida|Lombardia,,,,Lombardy,,"Fix typos"
 ,Italy,Castel di Sangro,,,,Abruzzo,Castel di Sangro,"Move cities to provinces"
 ,Italy,Teramo,,,,Abruzzo,Teramo,
@@ -411,19 +424,19 @@ Europe,Georgia,,,Asia,,,,"Move to Asia"
 ,Netherlands,Oisterwijk,,,,North Brabant,Oisterwijk,
 ,Netherlands,Oss,,,,North Brabant,Oss,
 ,Netherlands,Tilburg,,,,North Brabant,Tilburg,
-,Netherlands,Noord Brabant|NoordBrabant,,,,North Brabant,,
+,Netherlands,Noord Brabant|NoordBrabant|Noord-Brabant,,,,North Brabant,,
 ,Netherlands,Blaricum,,,,North Holland,Blaricum,
 ,Netherlands,Diemen,,,,North Holland,Diemen,
 ,Netherlands,Haarlem,,,,North Holland,Haarlem,
 ,Netherlands,Naarden,,,,North Holland,Gooise Meren,
-,Netherlands,Noord Holland|NoordHolland,,,,North Holland,,
+,Netherlands,Noord Holland|NoordHolland|Noord-Holland,,,,North Holland,,
 ,Netherlands,Delft,,,,South Holland,Delft,
 ,Netherlands,Hardinxveld Giessendam,,,,South Holland,Hardinxveld-Giessendam,
 ,Netherlands,Leiden,,,,South Holland,Leiden,
 ,Netherlands,Nieuwendijk,,,,South Holland,Nieuwendijk,
 ,Netherlands,Nootdorp,,,,South Holland,Nootdorp,
 ,Netherlands,Rotterdam,,,,South Holland,Rotterdam,
-,Netherlands,Zuid Holland|ZuidHolland,,,,South Holland,,
+,Netherlands,Zuid Holland|ZuidHolland|Zuid-holland,,,,South Holland,,
 ,Netherlands,Houten,,,,Utrecht,Houten,
 ,Norway,MoreogRomsdal,,,,More og Romsdal,,
 ,Norway,TromsogFinnmark,,,,Troms og Finnmark,,
@@ -435,7 +448,7 @@ Europe,Georgia,,,Asia,,,,"Move to Asia"
 ,Poland,Wielkopolska,,,,Wielkopolskie,,
 ,Poland,Zielonogorskie,,,,Lubusz,,"Zielonogorskie -> Lubusz"
 ,Poland,,Krakow,,,,Kraków,"Fix typos"
-,Poland,,Łódzkie,,,,Lodzkie,
+,Poland,Lodzkie,,,Poland,Łódzkie,,
 ,ÄéRomania|‎Romania,,,,Romania,,,"Fix weird encoding issue"
 ,Romania,Bucuresti,,,,Bucharest,,"Anglicize"
 ,Russia,Moscow,,,,Moscow Region,,"Fix typos"
@@ -515,7 +528,7 @@ Europe,Georgia,,,Asia,,,,"Move to Asia"
 ,Mexico,CDMX,,,,Mexico City,,"Unabbreviate province names"
 ,Mexico,BC,,,,Baja California,,
 ,Mexico,BCS,,,,Baja California Sur,,
-Noth America|North america,,,,North America,,,,"Who misspelled north??"
+Noth America|North america|North Amercia,,,,North America,,,,
 ,United States,,,,USA,,,Merge with "United States"
 USA,,,,North America,USA,,,"Merge with USA region"
 ,USA,District of Columbia,,,,Washington DC,,"Unify with 'District of Columbia'"
@@ -549,6 +562,9 @@ USA,,,,North America,USA,,,"Merge with USA region"
 ,USA,Santa Barbara County,,,USA,California,Santa Barbara County,
 ,USA,Solano County,,,USA,California,Solano County,
 ,USA,Tuolumne County,,,USA,California,Tuolumne County,
+,USA,California,Orange,,USA,California,Orange County,
+,USA,California,Riverside,,USA,California,Riverside County,
+,USA,California,San Bernadino,,USA,California,San Bernadino County,
 ,USA,Wisconsin,Coloardo Springs,,,Colorado,Colorado Springs,"Move Colorado Springs from Wisconsin to Colorado"
 ,USA,Colorado,Colorado Springs,,,,El Paso County,"Colorado Springs -> El Paso County"
 ,USA,Colorado,Denver county,,,,Denver County,"Fix typos"
@@ -605,10 +621,15 @@ USA,,,,North America,USA,,,"Merge with USA region"
 ,USA,Texas,Harris,,,,Harris County,
 ,USA,Texas,Hidalgo,,,,Hidalgo County,
 ,USA,Texas,Houston,,,,Houston County,
+,USA,Texas,Bexar,,USA,Texas,Bexar County,
+,USA,Texas,Comanche,,USA,Texas,Comanche County,
+,USA,Texas,Dallas,,USA,Texas,Dallas County,
+,USA,Texas,Gonzales,,USA,Texas,Gonzales County,
 ,USA,VT,,,,Vermont,,"VT -> Vermont"
 ,USA,Washington,Kirkland|Seattle,,,,King County,"Move towns into counties"
 ,USA,Washington,Tacoma,,,,Pierce County,
 ,USA,Washington,Unknown County,,,,-1,"Remove unknown county"
+,USA,Washington,King county,,USA,Washington,King County,
 ,USA,Wisconsin,Campbellsp,,,,Campbellsport,
 ,USA,Wisconsin,Jackson,,,,Jackson County,"Unify county names"
 ,USA,Wisconsin,Bayside,,,,Milwaukee County,
@@ -693,6 +714,7 @@ USA,,,,North America,USA,,,"Merge with USA region"
 ,Reunion,,,Oceania,,,,"Move to oceania"
 ,Australia,NSW,,,,New South Wales,,"Fix typos, unabbreviate province names"
 ,Australia,Northern territory,,,,Northern Territory,,
+,Australia,ACT,,,Australia,Australian Capital Territory,,
 ,New Zealand,Combined Wellington,,,,Wellington,,"Fix typos"
 ,New Zealand,Counties Manukau,,,,Auckland,,
 ,Argentina,Ciudad Autonoma de Buenos Aires,,,,Buenos Aires,,"Fix typos"

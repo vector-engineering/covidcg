@@ -106,7 +106,7 @@ For example, if you ingested data from GenBank, run the main analysis pipeline w
 
 ```bash
 cd workflow_main
-snakemake --configfile config/config_genbank.yaml
+snakemake --configfile ../config/config_genbank.yaml
 ```
 
 This pipeline will align sequences to the reference sequence with `bowtie2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
