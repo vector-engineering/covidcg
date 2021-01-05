@@ -8,6 +8,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import json
 import pandas as pd
 
+from scripts.fasta import read_fasta_file
+
 
 def write_reference_files(reference_fasta, primers_csv, reference_json, primers_json):
 
