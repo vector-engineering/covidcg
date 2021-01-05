@@ -29,6 +29,10 @@ const GroupNameContainer = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
+
+  font-size: 0.85em;
+  line-height: normal;
+  word-break: break-all;
 `;
 
 const PercentageContainer = styled.div`
