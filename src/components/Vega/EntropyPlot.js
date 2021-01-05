@@ -7,6 +7,7 @@ import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
+import WarningBox from '../Common/WarningBox';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
@@ -17,12 +18,20 @@ import { ASYNC_STATES } from '../../constants/UI';
 import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
 import { GROUPS } from '../../constants/groups';
+import ExternalLink from '../Common/ExternalLink';
 
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
   const { configStore, dataStore, UIStore, plotSettingsStore } = useStores();
+
+  const onDismissWarning = () => {
+    setState({
+      ...state,
+      showWarning: false,
+    });
+  };
 
   const handleDownloadSelect = (option) => {
     // console.log(option);
@@ -133,6 +142,7 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
+    showWarning: true,
     xRange: getXRange(),
     data: {
       table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
@@ -217,6 +227,12 @@ const EntropyPlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
+      <WarningBox
+        show={state.showWarning}
+        onDismiss={onDismissWarning}
+      >
+        Systematic errors are sometimes observed specific to particular labs or methods (<ExternalLink href='https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14'>https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14</ExternalLink>, <ExternalLink href='https://doi.org/10.1371/journal.pgen.1009175'>https://doi.org/10.1371/journal.pgen.1009175</ExternalLink>), users are advised to consider these errors in their high resolution analyses.
+      </WarningBox>
       <PlotOptions>
         <div className="spacer"></div>
         <DropdownButton
