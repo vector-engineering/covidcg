@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
-import _ from 'underscore';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import TableLegendItem from './TableLegendItem';
+import { useStores } from '../../stores/connect';
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -42,6 +42,9 @@ const TableLegend = observer(
     sortDir,
     onClickColumnHeader,
   }) => {
+
+    const { configStore } = useStores();
+
     const Row = ({ index, style }) => {
       const legendItem = legendItems[index];
       return (
@@ -68,10 +71,10 @@ const TableLegend = observer(
       <StyledContainer>
         <Columns>
           <ColumnHeader columnName="group" width="55%">
-            gene
+            {configStore.getGroupLabel()}
           </ColumnHeader>
           <ColumnHeader columnName="cases_percent" width="45%">
-            % seqs
+            % Seqs
           </ColumnHeader>
         </Columns>
         <AutoSizer>
