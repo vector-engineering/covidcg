@@ -84,6 +84,8 @@ Sequences without `submission_date`, `collection_date`, or `region` are filtered
 
 For more granular location metadata (`country`, `division`, `location`), missing or undetermined values are replaced by the integer -1. This is to facilitate easier groupby-aggregate operations downstream.
 
+Please see [test-data/data_custom/metadata_raw.csv](test-data/data_custom/metadata_raw.csv) for an example.
+
 ## Acknowledgements
 
 The code for this method of ingestion of data is derived from the `workflow_genbank_ingest` code.
