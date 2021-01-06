@@ -296,10 +296,11 @@ const GroupStackPlot = observer(({ width }) => {
       <WarningBox
         show={state.showWarning}
         onDismiss={onDismissWarning}
-        text="Inconsistent sampling in the underlying data can result in missing
-          data and artefacts in this visualization. Please interpret this data
-          with care."
-      />
+      >
+        Inconsistent sampling in the underlying data can result in missing
+        data and artefacts in this visualization. Please interpret this data
+        with care.
+      </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>
           <p>

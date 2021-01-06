@@ -24,7 +24,10 @@ import { TABS } from '../../constants/UI';
 
 const HomePageDiv = styled.div`
   display: grid;
-  grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];
+  ${({ showDefaultSidebar }) =>
+    showDefaultSidebar
+      ? `grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];`
+      : `grid-template-columns: [col1] 450px [col2] calc(100vw - 450px) [col3];`}
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;
@@ -34,16 +37,14 @@ const HomePageDiv = styled.div`
 const PlotContainer = styled.div`
   grid-column: col2 / col3;
   grid-row: row1 / row2;
-
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   box-sizing: border-box;
-
   position: relative;
-
   overflow-y: scroll;
+  border-left: 1px #eaeaea solid;
 `;
 
 const HomePage = observer(({ UIStore }) => {
@@ -105,14 +106,15 @@ const HomePage = observer(({ UIStore }) => {
     );
   }
 
+  const showDefaultSidebar =
+    UIStore.activeTab !== TABS.TAB_GROUP &&
+    UIStore.activeTab !== TABS.TAB_LOCATION;
+
   return (
     <>
       <KeyListener />
-      <HomePageDiv>
-        {(UIStore.activeTab === TABS.TAB_GROUP ||
-          UIStore.activeTab === TABS.TAB_LOCATION) && <FilterSidebar />}
-        {UIStore.activeTab !== TABS.TAB_GROUP &&
-          UIStore.activeTab !== TABS.TAB_LOCATION && <DefaultSidebar />}
+      <HomePageDiv showDefaultSidebar={showDefaultSidebar}>
+        {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer ref={ref}>
           <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}

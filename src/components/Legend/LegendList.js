@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { meetsContrastGuidelines } from 'polished';
 import _ from 'underscore';
 
 import { ASYNC_STATES } from '../../constants/UI';
@@ -15,97 +13,16 @@ import {
 import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 
 import SkeletonElement from '../Common/SkeletonElement';
-import { LegendList, LegendItem } from './Legend.styles';
-import { formatSnv } from '../../utils/snpUtils';
+import { StyledLegendList } from './Legend.styles';
+import LegendItemWrapper from './LegendItem';
 
-const LegendItemWrapper = observer(({ group, color, updateHoverGroup }) => {
-  const { configStore } = useStores();
-  const [state, setState] = useState({
-    text:
-      configStore.groupKey === GROUP_SNV
-        ? formatSnv(group, configStore.dnaOrAa)
-        : group,
-    hovered: false,
-    selected: false,
-    textColor: meetsContrastGuidelines(color, '#fff')['AALarge']
-      ? '#fff'
-      : '#000',
-  });
-
-  const onMouseMove = () => {
-    setState({
-      ...state,
-      hovered: true,
-    });
-    if (group !== configStore.hoverGroup) {
-      updateHoverGroup(group);
-    }
-  };
-
-  const onMouseOut = () => {
-    setState({
-      ...state,
-      hovered: false,
-    });
-    if (configStore.hoverGroup !== null) {
-      updateHoverGroup(null);
-    }
-  };
-
-  useEffect(() => {
-    const hovered =
-      configStore.hoverGroup === null
-        ? false
-        : configStore.hoverGroup === group;
-
-    if (hovered !== state.hovered) {
-      // console.log(hovered, state.hovered);
-      setState({ ...state, hovered });
-    }
-  }, [configStore.hoverGroup]);
-
-  useEffect(() => {
-    let selected = null;
-    if (configStore.selectedGroups.length > 0) {
-      if (
-        _.findWhere(configStore.selectedGroups, { group: group }) !== undefined
-      ) {
-        selected = true;
-      } else {
-        selected = false;
-      }
-    }
-
-    setState({ ...state, selected });
-  }, [configStore.selectedGroups]);
-
-  // console.log('re-rendering legend item');
-
-  return (
-    <LegendItem
-      hovered={state.hovered}
-      selected={state.selected}
-      color={color}
-      textColor={state.textColor}
-      data-group={group}
-      onMouseEnter={onMouseMove}
-      onMouseOut={onMouseOut}
-    >
-      {state.text}
-    </LegendItem>
-  );
-});
-LegendItemWrapper.propTypes = {
-  group: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
-};
-
-const VegaLegend = observer(() => {
+const LegendList = observer(() => {
   const { dataStore, UIStore, configStore } = useStores();
 
   const [state, setState] = useState({
     legendItems: [],
   });
+  console.log(state);
 
   const onItemSelect = (e) => {
     const selectedGroup = e.target.getAttribute('data-group');
@@ -246,10 +163,12 @@ const VegaLegend = observer(() => {
   }
 
   return (
-    <LegendList onMouseDown={onItemSelect}>{state.legendItems}</LegendList>
+    <StyledLegendList onMouseDown={onItemSelect}>
+      {state.legendItems}
+    </StyledLegendList>
   );
 });
 
-VegaLegend.displayName = 'VegaLegend';
+LegendList.displayName = 'LegendList';
 
-export default VegaLegend;
+export default LegendList;

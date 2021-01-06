@@ -39,7 +39,7 @@ WarningContainer.defaultProps = {
   show: true,
 };
 
-const WarningBox = ({ title, text, show, onDismiss }) => {
+const WarningBox = ({ children, title, show, onDismiss }) => {
   const onDismissWarning = (event) => {
     event.preventDefault();
     onDismiss();
@@ -54,19 +54,22 @@ const WarningBox = ({ title, text, show, onDismiss }) => {
           Dismiss
         </button>
       </div>
-      <p className="warning-text">{text}</p>
+      <p className="warning-text">{children}</p>
     </WarningContainer>
   );
 };
 WarningBox.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   title: PropTypes.string,
-  text: PropTypes.string,
   show: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };
 WarningBox.defaultProps = {
   title: 'WARNING:',
-  text: 'Default warning text',
+  children: 'Default warning text',
 };
 
 export default WarningBox;

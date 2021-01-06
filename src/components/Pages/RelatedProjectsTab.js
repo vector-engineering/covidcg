@@ -203,7 +203,7 @@ const RelatedProjectsTab = () => {
             <div className="content-text">
               <p>
                 <b>
-                  <ExternalLink href="http://geco.deib.polimi.it/virusurf_gisaid/">
+                  <ExternalLink href="https://www.cbrc.kaust.edu.sa/covmt/index.php?p=home">
                     COVID-19 Virus Mutation Tracker
                   </ExternalLink>
                   : A mutation fingerprint resource providing tracking of

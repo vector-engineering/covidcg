@@ -10,7 +10,6 @@ import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import VegaLegend from '../Vega/VegaLegend';
 import VegaStackedBars from '../Vega/GroupStackPlot';
 import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
@@ -20,6 +19,7 @@ import CooccurrencePlot from '../Vega/CooccurrencePlot';
 
 import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { TABS } from '../../constants/UI';
+import VegaLegend from '../Legend/VegaLegend';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -289,7 +289,7 @@ const GroupTab = observer(({ width }) => {
 
   return (
     <GroupTabContainer>
-      {renderLegend()}
+      {/* {renderLegend()} */}
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
