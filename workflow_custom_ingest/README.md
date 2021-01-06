@@ -17,25 +17,30 @@ To make use of this data please do the following:
    cp -r test-data/data_custom ../
    ```
 
-2. Run the workflow in `workflow_custom_ingest` to assign lineages with pangolin and clean up the metadata.
+2. Review the configuration settings in [config/config_custom.yaml](../config/config_custom.yaml). In particular, for this test you may want to change `snp_count_threshold` to `0` (so that covidcg does not remove any low-frequency SNVs since the test dataset is very small).
+
+3. Run the workflow in `workflow_custom_ingest` to assign lineages with pangolin and clean up the metadata.
 
    ```bash
    snakemake --cores 1 --use-conda
    ```
 
-3. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
+4. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
 
    ```bash
    cd ../workflow_main
    snakemake --cores 1 --use-conda
    ```
-4. Copy the produced `data_custom/data_package.json.gz` file to a web-accessible location. An easy location is in the `src/assets` folder of covidcg:
+5. Copy the produced `data_custom/data_package.json.gz` file to a web-accessible location. An easy location is in the `src/assets` folder of covidcg:
 
    ```bash
    cd .. # cd to covidcg root
    cp data_custom/data_package.json.gz src/assets/
    ```
-5. Start up covidcg (see [Main covidcg instructions](../README.md#javascript)).
+
+   If you copy the data package to a different location you will need to modify the `data_package_url` setting in the [config/config_custom.yaml](../config/config_custom.yaml) file.
+
+6. Start up covidcg (see [Main covidcg instructions](../README.md#javascript)).
 
    ```bash
    # The CONFIGFILE environment variable needs to be set first 
