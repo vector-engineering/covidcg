@@ -26,8 +26,8 @@ const HomePageDiv = styled.div`
   display: grid;
   ${({ showDefaultSidebar }) =>
     showDefaultSidebar
-      ? `grid-template-columns: [col1] 300px [col2] calc(100vw - 300px) [col3];`
-      : `grid-template-columns: [col1] 450px [col2] calc(100vw - 450px) [col3];`}
+      ? `grid-template-columns: [col1] 300px [col2] auto [col3];`
+      : `grid-template-columns: [col1] 450px [col2] auto [col3];`}
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;
