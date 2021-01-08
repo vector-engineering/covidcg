@@ -403,10 +403,11 @@ const LocationDatePlot = observer(({ width }) => {
       <WarningBox
         show={state.showWarning}
         onDismiss={onDismissWarning}
-        text="Inconsistent sampling in the underlying data can result in missing
-          data and artefacts in this visualization. Please interpret this data
-          with care."
-      />
+      >
+        Inconsistent sampling in the underlying data can result in missing
+        data and artefacts in this visualization. Please interpret this data
+        with care.
+      </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>
         <OptionSelectContainer>
