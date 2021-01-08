@@ -133,7 +133,6 @@ def global_sequencing_efforts(case_data, location_map, country_score_out):
                 "Congo (Brazzaville)": "Republic of the Congo",
                 "Korea, South": "South Korea",
                 "Taiwan*": "Taiwan",
-                "Czechia": "Czech Republic",
                 "Burma": "Myanmar",
             }
         )
@@ -156,6 +155,7 @@ def global_sequencing_efforts(case_data, location_map, country_score_out):
             max_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.max),
             num_sequences=pd.NamedAgg(column="Accession ID", aggfunc="count"),
         )
+        .rename({"Palestine": "West Bank and Gaza"})
         .join(
             case_count_df.groupby("Country/Region")["cumulative_cases"]
             .agg(np.max)
@@ -166,7 +166,6 @@ def global_sequencing_efforts(case_data, location_map, country_score_out):
                     "Congo (Brazzaville)": "Republic of the Congo",
                     "Korea, South": "South Korea",
                     "Taiwan*": "Taiwan",
-                    "Czechia": "Czech Republic",
                     "Burma": "Myanmar",
                 }
             )
