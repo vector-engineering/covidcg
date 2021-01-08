@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -28,7 +29,7 @@ const SortArrow = ({ dir }) => {
 const StyledColumnHeader = styled.div`
   cursor: pointer;
   border-bottom: 1px solid #eee;
-  width: 50%;
+  width: ${({ width }) => width};
   font-size: 12px;
   padding-left: 2px;
 `;
@@ -58,13 +59,28 @@ const TableLegend = observer(
         />
       );
     };
+    Row.propTypes = {
+      index: PropTypes.number,
+      style: PropTypes.object
+    };
 
     const ColumnHeader = ({ columnName, width, children }) => {
       return (
-        <StyledColumnHeader onClick={() => onClickColumnHeader({ columnName })}>
+        <StyledColumnHeader onClick={() => onClickColumnHeader({ columnName })} width={width}>
           {children} {sortColumn === columnName && <SortArrow dir={sortDir} />}
         </StyledColumnHeader>
       );
+    };
+    ColumnHeader.propTypes = {
+      columnName: PropTypes.string,
+      width: PropTypes.string,
+      children: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.node),
+        PropTypes.node,
+      ]),
+    };
+    ColumnHeader.defaultProps = {
+      width: "50%"
     };
 
     return (
