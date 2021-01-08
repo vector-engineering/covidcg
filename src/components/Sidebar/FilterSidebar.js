@@ -12,7 +12,7 @@ import MetaFieldSelect from './MetaFieldSelect';
 import DropdownContainer from './DropdownContainer';
 import FilterDataIntoOther from './FilterDataIntoOther';
 import SidebarAccordionWrapper from './SidebarAccordionWrapper';
-import LineageSidebar from './LineageSideBar';
+import LegendSidebar from './LegendSidebar';
 
 const Container = styled.div`
   width: 450px;
@@ -43,7 +43,7 @@ const FilterSidebarContainer = styled.div`
   }
 `;
 
-const LineageSidebarContainer = styled.div`
+const LegendSidebarContainer = styled.div`
   width: 150px;
   height: 100%;
   border-right: 1px solid #aaa;
@@ -115,9 +115,9 @@ const FilterSidebar = observer(() => {
     </SidebarAccordionWrapper>*/}
         <DropdownContainer />
       </FilterSidebarContainer>
-      <LineageSidebarContainer>
-        <LineageSidebar />
-      </LineageSidebarContainer>
+      <LegendSidebarContainer>
+        <LegendSidebar />
+      </LegendSidebarContainer>
     </Container>
   );
 });
