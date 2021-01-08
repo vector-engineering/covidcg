@@ -4,18 +4,14 @@ import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 
-import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
-import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
-import { appConfig, GROUP_SNV } from '../../constants/config';
-import { TABS } from '../../constants/UI';
-import VegaLegend from '../Legend/VegaLegend';
+import { GROUP_SNV } from '../../constants/config';
 
 const LocationTabContainer = styled.div`
   padding-top: 10px;
@@ -26,41 +22,6 @@ const LocationTab = observer(({ width }) => {
 
   return (
     <LocationTabContainer>
-      {/* <AccordionWrapper
-        title="Legend"
-        defaultCollapsed={false}
-        maxHeight={'500px'}
-        helpText={
-          <ul>
-            <li>
-              Items in the legend represent{' '}
-              <b>{configStore.getGroupLabel()}s</b>.
-            </li>
-            <li>
-              Click to select one, or hold <KBD>Shift</KBD> and click to select
-              multiple {configStore.getGroupLabel()}s.
-            </li>
-            <li>
-              Selected {configStore.getGroupLabel()}s will be highlighted in the
-              plots and table below, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_GROUP}>
-                Compare {configStore.getGroupLabel()}s
-              </TabIndicator>{' '}
-              tab.
-              {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
-                <>
-                  { appConfig.group_cols[configStore.groupKey].description }
-                  <ExternalLink href={appConfig.group_cols[configStore.groupKey].link.href}>
-                    {appConfig.group_cols[configStore.groupKey].link.title}
-                  </ExternalLink>
-                </>
-              )}
-            </li>
-          </ul>
-        }
-      >
-        <VegaLegend />
-      </AccordionWrapper> */}
       <AccordionWrapper
         title="Location-Date Plot"
         defaultCollapsed={false}

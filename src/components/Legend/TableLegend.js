@@ -1,10 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { FixedSizeList as List } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import TableLegendItem from './TableLegendItem';
 import { useStores } from '../../stores/connect';
+
+
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList as List } from 'react-window';
+import QuestionButton from '../Buttons/QuestionButton';
+import ReactTooltip from 'react-tooltip';
+import TableLegendItem from './TableLegendItem';
+
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -28,10 +34,14 @@ const SortArrow = ({ dir }) => {
 const StyledColumnHeader = styled.div`
   cursor: pointer;
   border-bottom: 1px solid #eee;
-  width: 50%;
+  width: ${({ width }) => width};
   font-size: 12px;
   padding-left: 2px;
 `;
+
+/*
+
+*/
 
 const TableLegend = observer(
   ({
@@ -58,20 +68,61 @@ const TableLegend = observer(
         />
       );
     };
+    Row.propTypes = {
+      index: PropTypes.number,
+      style: PropTypes.object
+    };
 
     const ColumnHeader = ({ columnName, width, children }) => {
       return (
-        <StyledColumnHeader onClick={() => onClickColumnHeader({ columnName })}>
+        <StyledColumnHeader onClick={() => onClickColumnHeader({ columnName })} width={width}>
           {children} {sortColumn === columnName && <SortArrow dir={sortDir} />}
         </StyledColumnHeader>
       );
+    };
+    ColumnHeader.propTypes = {
+      columnName: PropTypes.string,
+      width: PropTypes.string,
+      children: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.node),
+        PropTypes.node,
+      ]),
+    };
+    ColumnHeader.defaultProps = {
+      width: "50%"
     };
 
     return (
       <StyledContainer>
         <Columns>
           <ColumnHeader columnName="group" width="55%">
+            <ReactTooltip
+              className="legend-sidebar-tooltip"
+              id="legend-sidebar-tooltip"
+              type="light"
+              effect="solid"
+              border={true}
+              borderColor="#888"
+            />
             {configStore.getGroupLabel()}
+            <QuestionButton
+              data-tip={`
+              <ul>
+                <li>Items in the legend represent <b>${configStore.getGroupLabel()}s</b>.
+                </li>
+                <li>
+                  Click to select one, or hold Shift and click to select
+                  multiple ${configStore.getGroupLabel()}s.
+                </li>
+                <li>
+                  Selected ${configStore.getGroupLabel()}s will be highlighted in the
+                  plots and table below.
+                </li>
+              </ul>
+              `}
+              data-html="true"
+              data-for="legend-sidebar-tooltip"
+            />
           </ColumnHeader>
           <ColumnHeader columnName="cases_percent" width="45%">
             % Seqs

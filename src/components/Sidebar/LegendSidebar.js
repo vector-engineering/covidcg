@@ -10,7 +10,7 @@ const Container = styled.div`
   border-left: 1px #eaeaea solid;
 `;
 
-const LineageSidebar = () => {
+const LegendSidebar = () => {
   return (
     <Container>
       <LegendContainer />
@@ -18,4 +18,4 @@ const LineageSidebar = () => {
   );
 };
 
-export default LineageSidebar;
+export default LegendSidebar;

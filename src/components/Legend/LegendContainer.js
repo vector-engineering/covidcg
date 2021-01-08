@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import _ from 'underscore';
 
@@ -8,6 +9,11 @@ import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
 import { COORDINATE_MODES, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
+
+const TableLegendContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 const comparer = ({ sortDirection, sortColumn, groupKey, dnaOrAa, coordinateMode }) => (a, b) => {
 
@@ -148,14 +154,16 @@ const LegendContainer = observer(() => {
   }
 
   return (
-    <TableLegend
-      legendItems={legendItems}
-      updateHoverGroup={updateHoverGroup}
-      updateSelectGroup={onItemSelect}
-      sortColumn={sortColumn}
-      sortDir={sortDir}
-      onClickColumnHeader={onClickColumnHeader}
-    />
+    <TableLegendContainer>
+      <TableLegend
+        legendItems={legendItems}
+        updateHoverGroup={updateHoverGroup}
+        updateSelectGroup={onItemSelect}
+        sortColumn={sortColumn}
+        sortDir={sortDir}
+        onClickColumnHeader={onClickColumnHeader}
+      />
+    </TableLegendContainer>
   );
 
   /*
