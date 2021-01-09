@@ -4,7 +4,6 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 
-import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
@@ -17,9 +16,8 @@ import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
+import { GROUP_SNV, DNA_OR_AA } from '../../constants/config';
 import { TABS } from '../../constants/UI';
-import VegaLegend from '../Legend/VegaLegend';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -27,46 +25,6 @@ const GroupTabContainer = styled.div`
 
 const GroupTab = observer(({ width }) => {
   const { configStore } = useStores();
-
-  const renderLegend = () => {
-    return (
-      <AccordionWrapper
-        title="Legend"
-        defaultCollapsed={false}
-        maxHeight={'500px'}
-        helpText={
-          <ul>
-            <li>
-              Items in the legend represent{' '}
-              <b>{configStore.getGroupLabel()}s</b>.
-            </li>
-            <li>
-              Click to select one, or hold <KBD>Shift</KBD> and click to select
-              multiple {configStore.getGroupLabel()}s.
-            </li>
-            <li>
-              Selected {configStore.getGroupLabel()}s will be highlighted in the
-              plots and table below, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_LOCATION}>
-                Compare Locations
-              </TabIndicator>{' '}
-              tab.
-              {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
-                <>
-                  { appConfig.group_cols[configStore.groupKey].description }
-                  <ExternalLink href={appConfig.group_cols[configStore.groupKey].link.href}>
-                    {appConfig.group_cols[configStore.groupKey].link.title}
-                  </ExternalLink>
-                </>
-              )}
-            </li>
-          </ul>
-        }
-      >
-        <VegaLegend />
-      </AccordionWrapper>
-    );
-  };
 
   const renderEntropyPlot = () => {
     if (configStore.groupKey !== GROUP_SNV) {

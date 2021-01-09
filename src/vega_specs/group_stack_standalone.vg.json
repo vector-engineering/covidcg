@@ -17,7 +17,7 @@
       "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
     },
     {
-      "name": "dateRangeEnd", "value": 1609372800000
+      "name": "dateRangeEnd", "value": 4070908800000
     },
     {
       "name": "dateBin", "value": 86400000,
