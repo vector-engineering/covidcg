@@ -6,11 +6,6 @@ import os
 
 from pathlib import Path
 
-# Import scripts
-from scripts.clean_metadata import clean_metadata
-from scripts.copy_changed_files import copy_changed_files
-from scripts.chunk_data import chunk_data
-
 configfile: "../config/config_gisaid.yaml"
 
 envvars:
@@ -39,113 +34,43 @@ rule download:
     """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
     """
     output:
-        feed = temp(os.path.join(config["data_folder"], "feed.json")),
-        status = touch(os.path.join(
-            config["data_folder"], "status", "download_" + today_str + ".done"
-        ))
+        feed = os.path.join(config["data_folder"], "feed.json"),
+        status = touch(rules.all.input.download_status)
     threads: workflow.cores
     shell:
         "scripts/download.sh | unxz --threads={threads} -c - > {output.feed}"
 
 
-checkpoint chunk_data:
+rule process_feed:
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.download.output.feed
+        feed = rules.download.output.feed,
     output:
-        fasta = directory(os.path.join(config["data_folder"], "fasta_temp")),
-        metadata_dirty = temp(os.path.join(config["data_folder"], "metadata_dirty.csv"))
+        metadata_dirty = os.path.join(config["data_folder"], "metadata_dirty.csv"),
+        status = touch(rules.all.input.copy_status)
     params:
-        chunk_size = config["chunk_size"]
-    run:
-        chunk_data(
-            input.feed, output.fasta, output.metadata_dirty, 
-            chunk_size=params.chunk_size, 
-            processes=workflow.cores
-        )
+        fasta = directory(os.path.join(config["data_folder"], "fasta_raw"))
+    threads: workflow.cores
+    shell:
+        """
+        python3 scripts/process_feed.py -d {input.feed} -f {params.fasta} -m {output.metadata_dirty} -p {threads}
+        """
 
 
 rule clean_metadata:
     """Clean up metadata from GISAID
     """
     input:
-        metadata_dirty = rules.chunk_data.output.metadata_dirty,
+        metadata_dirty = rules.process_feed.output.metadata_dirty,
         location_corrections = os.path.join(
             config["static_data_folder"], "location_corrections.csv"
         ),
     output:
         metadata_clean = os.path.join(config["data_folder"], "metadata.csv")
-    run:
-        clean_metadata(input.metadata_dirty, input.location_corrections, output.metadata_clean)
+    shell:
+        """
+        python3 scripts/clean_metadata.py -i {input.metadata_dirty} -l {input.location_corrections} -o {output.metadata_clean}
+        """
 
-
-def get_num_seqs(fasta_gz):
-    """Get the number of entries in a gzipped fasta file
-    """
-    num_seqs = 0
-    with gzip.open(fasta_gz, 'rt') as fp:
-        for line in fp:
-            # Only check the first character of each line
-            if line[0] == '>':
-                num_seqs += 1
-    return num_seqs
-
-def get_changed_chunks(wildcards):
-    """Helper function for detecting which chunks have changed in terms of their contents 
-    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
-    isolates on GISAID, aligning them would take 1 week for the whole batch.
-    """
-    
-    # Only run to trigger DAG re-evaluation
-    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
-    chunks, = glob_wildcards(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"))
-
-    # Keep track of which chunks have changed
-    changed_chunks = []
-
-    for chunk in chunks:
-        fasta_temp_path = Path(config["data_folder"]) / "fasta_temp" / (chunk + ".fa.gz")
-        fasta_raw_path = Path(config["data_folder"]) / "fasta_raw" / (chunk + ".fa.gz")
-
-        # If the current chunk doesn't exist yet, then mark it as changed
-        if (
-                not fasta_raw_path.exists() or 
-                not fasta_raw_path.is_file()
-            ):
-            changed_chunks.append(chunk)
-            continue
-
-        # Count ">" characters in both the temp and raw files
-        # as a proxy for the number of sequences in each
-        # If they're different, then mark as changed
-        num_seqs_temp = get_num_seqs(str(fasta_temp_path))
-        num_seqs_raw = get_num_seqs(str(fasta_raw_path))
-
-        if num_seqs_temp != num_seqs_raw:
-            changed_chunks.append(chunk)
-
-    # Return a list of fasta_temp files that have changed, so that they can be copied
-    # over to fasta_raw by the below `copy_changed_files` rule
-    return expand(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
-
-
-rule copy_changed_files:
-    """Using the `get_changed_chunks` function, only copy fasta files which have changed
-    from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
-    it will flag to snakemake that they (and only they - not the others) will need to be
-    reprocessed and realigned.
-    """
-    input:
-        get_changed_chunks
-    output:
-        # Instead of explicitly defining the fasta_raw outputs
-        # (and risking touching fasta files that haven't actually changed)
-        # Have the output be a flag instead, that the "all" rule checks for
-        # to make sure that we actually run this rule
-        status = touch(os.path.join(
-            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
-        ))
-    run:
-        copy_changed_files(input, config["data_folder"])

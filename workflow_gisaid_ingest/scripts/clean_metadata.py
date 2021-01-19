@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Clean metadata
@@ -7,11 +8,23 @@ acknowledgements separately. Now they're all merged into this big file
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import numpy as np
 import pandas as pd
 import re
 
-from scripts.process_location_metadata import process_location_metadata
+from process_location_metadata import process_location_metadata
+
+
+def clean_host_metadata(df):
+    """Clean host metadata
+    """
+    # print("Cleaning host metadata", end="", flush=True)
+    df["host"] = df["covv_host"].astype(str).str.strip()
+    # In the future - collapse common + taxonomy names?
+
+    # print("done")
+    return df
 
 
 def clean_gender_metadata(df):
@@ -367,7 +380,7 @@ def clean_passage_metadata(df):
             "ORIGINAL",
             "origin",
             "Original,",
-            "Original isolate"
+            "Original isolate",
         ],
         "Original (Clinical Sample)": [
             "Original (Clinical sample)",
@@ -738,10 +751,7 @@ def clean_specimen_metadata(df):
     df.loc[:, "specimen"] = df["specimen"].map(specimen_map)
 
     df.loc[:, "specimen"] = (
-        df["specimen"]
-        .map(specimen_map)
-        .combine_first(df["specimen"])
-        .fillna("Unknown")
+        df["specimen"].map(specimen_map).combine_first(df["specimen"]).fillna("Unknown")
     )
 
     print("done")
@@ -782,7 +792,7 @@ def clean_lineage_metadata(df):
     # Filter out "None" lineages
     remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
     df = df.loc[~remove_seqs, :]
-    print('Removed {} sequences without a lineage assignment'.format(remove_seqs.sum()))
+    print("Removed {} sequences without a lineage assignment".format(remove_seqs.sum()))
 
     return df
 
@@ -1005,14 +1015,43 @@ def clean_submitting_lab_metadata(df):
     return df
 
 
-def clean_metadata(metadata_in, location_corrections, metadata_out):
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-i",
+        "--metadata-in",
+        type=str,
+        required=True,
+        help="Path to input metadata CSV file",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--location-corrections",
+        type=str,
+        required=True,
+        help="Path to location corrections CSV file",
+    )
+
+    parser.add_argument(
+        "-o",
+        "--metadata-out",
+        type=str,
+        required=True,
+        help="Path to output metadata CSV file",
+    )
+
+    args = parser.parse_args()
 
     # Load metadata
-    df = pd.read_csv(metadata_in)
+    df = pd.read_csv(args.metadata_in)
     df = df.rename(columns={"covv_accession_id": "Accession ID"}).set_index(
         "Accession ID"
     )
 
+    df = clean_host_metadata(df)
     df = clean_gender_metadata(df)
     df = clean_age_metadata(df)
     df = clean_patient_status_metadata(df)
@@ -1028,13 +1067,14 @@ def clean_metadata(metadata_in, location_corrections, metadata_out):
     df = clean_originating_lab_metadata(df)
     df = clean_submitting_lab_metadata(df)
 
-    df = process_location_metadata(df, location_corrections)
+    df = process_location_metadata(df, args.location_corrections)
 
     # Take subset of columns
     df = df[
         [
             "collection_date",
             "submission_date",
+            "host",
             "gender",
             "age_start",
             "age_end",
@@ -1050,11 +1090,15 @@ def clean_metadata(metadata_in, location_corrections, metadata_out):
             "originating_lab",
             "submitting_lab",
             # Location data
-            "region", 
-            "country", 
-            "division", 
-            "location"
+            "region",
+            "country",
+            "division",
+            "location",
         ]
     ]
 
-    df.to_csv(metadata_out)
+    df.to_csv(args.metadata_out)
+
+
+if __name__ == "__main__":
+    main()
