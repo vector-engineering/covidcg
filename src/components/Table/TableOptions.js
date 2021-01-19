@@ -3,15 +3,15 @@ import styled from 'styled-components';
 import { snapGeneHighlightColors } from '../../constants/colors';
 import { capitalize } from '../../utils/string';
 import { useStores } from '../../stores/connect';
+
 import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
 } from '../../constants/plotSettings';
-import { DNA_OR_AA } from '../../constants/config';
+import { appConfig, DNA_OR_AA } from '../../constants/config';
 
-// import DropdownButton from '../Buttons/DropdownButton';
-import Button from '../Buttons/Button';
+import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
 
 const ColorModeSelectLabel = styled.label`
@@ -199,35 +199,43 @@ const Spacer = styled.div`
   flex-grow: 1;
 `;
 
+const DOWNLOAD_OPTIONS = {
+  AGGREGATE_DATA: 'Aggregate Data',
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
+};
+
 const TableOptions = observer(() => {
   const { dataStore } = useStores();
 
-  // const handleDownloadSelect = (option) => {
-  //   if (option === 'Acknowledgements') {
-  //     dataStore.downloadAcknowledgements();
-  //   } else if (option === 'Aggregate Data') {
-  //     dataStore.downloadAggCaseData();
-  //   } else if (option === 'Accession IDs') {
-  //     dataStore.downloadAccessionIds();
-  //   }
-  // };
-
-  const onDownload = (e) => {
-    e.preventDefault();
-    dataStore.downloadAggCaseData();
+  const handleDownloadSelect = (option) => {
+    // console.log(option);
+    // TODO: use the plot options and configStore options to build a more descriptive filename
+    //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
+    if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
+      dataStore.downloadAggCaseData();
+    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
+      dataStore.downloadSelectedSequenceMetadata();
+    }
   };
+
+  const downloadOptions = [
+    DOWNLOAD_OPTIONS.AGGREGATE_DATA
+  ];
+
+  if (appConfig.allow_metadata_download) {
+    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
+  }
 
   return (
     <DataTableOptions>
       <ColorModeSelect />
       <CompareModeSelect />
       <Spacer />
-      {/* <DropdownButton
+      <DropdownButton
         text={'Download'}
-        options={['Aggregate Data', 'Acknowledgements', 'Accession IDs']}
+        options={downloadOptions}
         onSelect={handleDownloadSelect}
-      /> */}
-      <Button onClick={onDownload}>Download Aggregate Data</Button>
+      />
     </DataTableOptions>
   );
 });

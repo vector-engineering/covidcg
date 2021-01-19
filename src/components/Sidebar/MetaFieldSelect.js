@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -130,61 +129,6 @@ const MetaFieldSelect = observer(() => {
     changed: false,
   });
 
-  // Update options when new data comes in
-  useEffect(() => {
-    const fieldOptions = {};
-    metadataFields.forEach((field) => {
-      fieldOptions[field] = [];
-
-      if (
-        !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
-      ) {
-        return;
-      }
-
-      Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
-        let initialCount = dataStore.metadataCounts[field][option];
-        let afterFilteringCount =
-          dataStore.metadataCountsAfterFiltering[field][option];
-        if (afterFilteringCount === undefined) {
-          afterFilteringCount = 0;
-        }
-        fieldOptions[field].push({
-          label:
-            metadataStore.getMetadataValueFromId(field, option) +
-            ' [' +
-            initialCount.toString() +
-            ' > ' +
-            afterFilteringCount.toString() +
-            ']',
-          value: option,
-        });
-      });
-    });
-
-    setState({ ...state, fieldOptions });
-  }, [dataStore.metadataCounts, dataStore.metadataCountsAfterFiltering]);
-
-  // When the selected fields are flushed to the store, see if we still need
-  // to display the update button
-  useEffect(() => {
-    // IDs back into options objects in state.fieldOptions
-    const fieldSelected = JSON.parse(
-      JSON.stringify(toJS(configStore.selectedMetadataFields))
-    );
-    Object.keys(fieldSelected).forEach((field) => {
-      fieldSelected[field] = fieldSelected[field].map((id) => {
-        return state.fieldOptions[field][id];
-      });
-    });
-
-    setState({
-      ...state,
-      fieldSelected,
-      changed: checkChanged(fieldSelected, state.ageRange),
-    });
-  }, [configStore.selectedMetadataFields, configStore.ageRange]);
-
   const checkChanged = (fieldSelected, ageRange) => {
     // Is the current selection different than the selection in the store?
     let changed = false;
@@ -259,6 +203,41 @@ const MetaFieldSelect = observer(() => {
     return changed;
   };
 
+  // Update options when new data comes in
+  useEffect(() => {
+    const fieldOptions = {};
+    metadataFields.forEach((field) => {
+      fieldOptions[field] = [];
+
+      if (
+        !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
+      ) {
+        return;
+      }
+
+      Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
+        let initialCount = dataStore.metadataCounts[field][option];
+        let afterFilteringCount =
+          dataStore.metadataCountsAfterFiltering[field][option];
+        if (afterFilteringCount === undefined) {
+          afterFilteringCount = 0;
+        }
+        fieldOptions[field].push({
+          label:
+            metadataStore.getMetadataValueFromId(field, option) +
+            ' [' +
+            initialCount.toString() +
+            ' > ' +
+            afterFilteringCount.toString() +
+            ']',
+          value: option,
+        });
+      });
+    });
+
+    setState({ ...state, fieldOptions });
+  }, [dataStore.metadataCounts, dataStore.metadataCountsAfterFiltering]);
+
   const setSelected = (field, options) => {
     // console.log(field, options);
     let fieldSelected = Object.assign({}, state.fieldSelected);
@@ -308,6 +287,11 @@ const MetaFieldSelect = observer(() => {
 
     // console.log(selectedFields, ageRange);
     configStore.updateSelectedMetadataFields(selectedFields, ageRange);
+
+    setState({
+      ...state,
+      changed: false
+    });
   };
 
   // Build all of the select components
