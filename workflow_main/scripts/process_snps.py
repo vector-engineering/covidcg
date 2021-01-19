@@ -22,7 +22,7 @@ def process_snps(
     # Dump all SNP chunks into a text buffer
     snp_df_io = io.StringIO()
     for i, chunk in enumerate(snp_files):
-        file_date = Path(chunk).name.replace("_dna_snp.csv", "")
+        file_date = Path(chunk).name.replace("_" + mode + "_snp.csv", "")
         with open(chunk, "r") as fp_in:
             # Write dates, so we can remove duplicate sequences
             # and default to the SNVs of the latest sequence, by date
@@ -55,35 +55,27 @@ def process_snps(
     duplicate_seqs["flag"] = 1
 
     # Flag sequences that have duplicates
-    snp_df = (
-        snp_df.join(
-            duplicate_seqs.set_index("Accession ID")[["flag"]],
-            on="Accession ID",
-            how="left",
-        )
-        .rename(columns={"flag": "has_duplicates"})
-        .reset_index()
-    )
+    snp_df = snp_df.join(
+        duplicate_seqs.set_index("Accession ID")[["flag"]],
+        on="Accession ID",
+        how="left",
+    ).rename(columns={"flag": "has_duplicates"})
     snp_df["has_duplicates"] = snp_df["has_duplicates"].fillna(0).astype(bool)
 
     # Flag duplicate sequences that aren't the latest sequence
-    snp_df = (
-        snp_df.join(
-            duplicate_seqs.reset_index()
-            .rename(columns={"max": "date"})
-            .set_index(["Accession ID", "date"])[["flag"]],
-            on=["Accession ID", "date"],
-            how="left",
-        )
-        .rename(columns={"flag": "latest_duplicate"})
-        .reset_index()
-    )
+    snp_df = snp_df.join(
+        duplicate_seqs.reset_index()
+        .rename(columns={"max": "date"})
+        .set_index(["Accession ID", "date"])[["flag"]],
+        on=["Accession ID", "date"],
+        how="left",
+    ).rename(columns={"flag": "latest_duplicate"})
     snp_df["latest_duplicate"] = snp_df["latest_duplicate"].fillna(0).astype(bool)
 
     # Remove rows where the sequence has duplicates, but the date
     # is not the latest date
     snp_df = (
-        snp_df.loc[snp_df["has_duplicates"] & ~snp_df["latest_duplicate"], :]
+        snp_df.loc[(~snp_df["has_duplicates"]) | (snp_df["latest_duplicate"]), :]
         .reset_index(drop=True)
         .drop(columns=["has_duplicates", "latest_duplicate", "date"])
     )
