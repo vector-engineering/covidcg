@@ -14,6 +14,7 @@ import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
+import AppStatusBox from '../Vega/AppStatusBox';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_SNV, DNA_OR_AA } from '../../constants/config';
@@ -26,6 +27,19 @@ const GroupTabContainer = styled.div`
 const GroupTab = observer(() => {
   const { configStore } = useStores();
   const [ref, { width }] = useDimensions();
+
+
+  const renderAppStatusBox = () => {
+    return (
+      <AccordionWrapper
+        title='Status'
+        defaultCollapsed={false}
+        maxHeight={'300px'}
+      >
+        <AppStatusBox />
+      </AccordionWrapper>
+    );
+  };
 
   const renderEntropyPlot = () => {
     if (configStore.groupKey !== GROUP_SNV) {
@@ -248,7 +262,7 @@ const GroupTab = observer(() => {
 
   return (
     <GroupTabContainer ref={ref}>
-      {/* {renderLegend()} */}
+      {renderAppStatusBox()}
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
