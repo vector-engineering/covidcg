@@ -10,6 +10,8 @@ import json
 import numpy as np
 import pandas as pd
 
+from pathlib import Path
+
 from scripts.process_snps import process_snps
 
 
@@ -32,6 +34,7 @@ def combine_all_data(
     case_data,
     case_data_csv,
     # Parameters
+    hash_accession_ids=False,
     count_threshold=3,
     group_cols=[],
     metadata_cols=[],
@@ -123,21 +126,25 @@ def combine_all_data(
     df = df.drop(columns=["region", "country", "division", "location"])
 
     # Hash Accession IDs. Only take the first 8 chars, that's good enough
-    df["hashed_id"] = np.random.rand(len(df))
-    df["hashed_id"] = (
-        df["hashed_id"].astype(str).apply(hash_accession_id).str.slice(stop=8)
-    )
-    # Create map of hash -> Accession ID
-    accession_hash_df = df[["hashed_id"]]
-    accession_hash_df.to_csv(accession_hashmap, index_label="Accession ID")
+    if hash_accession_ids:
+        df["hashed_id"] = np.random.rand(len(df))
+        df["hashed_id"] = (
+            df["hashed_id"].astype(str).apply(hash_accession_id).str.slice(stop=8)
+        )
+        # Create map of hash -> Accession ID
+        accession_hash_df = df[["hashed_id"]]
+        accession_hash_df.to_csv(accession_hashmap, index_label="Accession ID")
 
-    # Delete old accession ID column, reassign to hashed ID
-    df = (
-        df.reset_index()
-        .drop(columns=["Accession ID"])
-        .rename(columns={"hashed_id": "Accession ID"})
-        .set_index("Accession ID")
-    )
+        # Delete old accession ID column, reassign to hashed ID
+        df = (
+            df.reset_index()
+            .drop(columns=["Accession ID"])
+            .rename(columns={"hashed_id": "Accession ID"})
+            .set_index("Accession ID")
+        )
+    else:
+        # Touch accession hashmap file - so snakemake doesn't freak out
+        Path(accession_hashmap).touch()
 
     # Factorize some more metadata columns
     metadata_maps = {}
