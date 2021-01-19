@@ -1,0 +1,14 @@
+# Instructions: https://cloud.google.com/cloud-build/docs/building/build-containers#yaml
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "gcr.io/$PROJECT_ID/cg-private:${TAG_NAME}",
+        "-f",
+        "build/gisaid_private.Dockerfile",
+        ".",
+      ]
+
+images: ["gcr.io/$PROJECT_ID/cg-private:${TAG_NAME}"]

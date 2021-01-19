@@ -11,5 +11,8 @@ gcloud builds submit \
     --config build/cloudbuild_gisaid.yaml \
     --substitutions=TAG_NAME="${CG_VERSION}" . && \
 gcloud builds submit \
+    --config build/cloudbuild_gisaid_private.yaml \
+    --substitutions=TAG_NAME="${CG_VERSION}" . && \
+gcloud builds submit \
     --config build/cloudbuild_genbank.yaml \
     --substitutions=TAG_NAME="${CG_VERSION}" .
