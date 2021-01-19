@@ -9,6 +9,8 @@ import io
 import numpy as np
 import pandas as pd
 
+from pathlib import Path
+
 
 def process_snps(
     snp_files,
@@ -20,18 +22,71 @@ def process_snps(
     # Dump all SNP chunks into a text buffer
     snp_df_io = io.StringIO()
     for i, chunk in enumerate(snp_files):
+        file_date = Path(chunk).name.replace("_dna_snp.csv", "")
         with open(chunk, "r") as fp_in:
+            # Write dates, so we can remove duplicate sequences
+            # and default to the SNVs of the latest sequence, by date
             for j, line in enumerate(fp_in):
                 # Write the header of the first file
+                if i == 0 and j == 0:
+                    snp_df_io.write(line.strip() + ",date\n")
                 # Or write any line that's not the header
                 # (to avoid writing the header more than once)
-                if (i == 0 and j == 0) or j > 0:
-                    snp_df_io.write(line)
+                elif j > 0:
+                    snp_df_io.write(line.strip() + "," + file_date + "\n")
 
     # Read the buffer into a dataframe, then discard the buffer
     snp_df_io.seek(0)
     snp_df = pd.read_csv(snp_df_io)
     snp_df_io.close()
+
+    # -----------------------------------
+    # Remove duplicate sequences
+    # use SNVs from the latest sequence
+    # -----------------------------------
+
+    seqs_by_date = (
+        snp_df.drop_duplicates(["Accession ID", "date"])
+        .groupby("Accession ID")["date"]
+        .agg([len, "max"])
+    ).reset_index()
+    duplicate_seqs = seqs_by_date.loc[seqs_by_date["len"] > 1, :]
+    # Flag used for joins
+    duplicate_seqs["flag"] = 1
+
+    # Flag sequences that have duplicates
+    snp_df = (
+        snp_df.join(
+            duplicate_seqs.set_index("Accession ID")[["flag"]],
+            on="Accession ID",
+            how="left",
+        )
+        .rename(columns={"flag": "has_duplicates"})
+        .reset_index()
+    )
+    snp_df["has_duplicates"] = snp_df["has_duplicates"].fillna(0).astype(bool)
+
+    # Flag duplicate sequences that aren't the latest sequence
+    snp_df = (
+        snp_df.join(
+            duplicate_seqs.reset_index()
+            .rename(columns={"max": "date"})
+            .set_index(["Accession ID", "date"])[["flag"]],
+            on=["Accession ID", "date"],
+            how="left",
+        )
+        .rename(columns={"flag": "latest_duplicate"})
+        .reset_index()
+    )
+    snp_df["latest_duplicate"] = snp_df["latest_duplicate"].fillna(0).astype(bool)
+
+    # Remove rows where the sequence has duplicates, but the date
+    # is not the latest date
+    snp_df = (
+        snp_df.loc[snp_df["has_duplicates"] & ~snp_df["latest_duplicate"], :]
+        .reset_index(drop=True)
+        .drop(columns=["has_duplicates", "latest_duplicate", "date"])
+    )
 
     snp_df = snp_df.fillna("-")
 
