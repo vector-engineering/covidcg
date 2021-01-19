@@ -97,7 +97,9 @@ data_custom/**
 # Ignore server passwords
 server/htpasswd
 
-# Ignore site deployment script
+# Ignore site deployment scripts
 build/deploy.sh
+push_data.sh
+daily_update.sh
 
 /src/assets/data_package.json.gz
