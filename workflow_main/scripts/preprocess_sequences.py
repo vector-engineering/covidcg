@@ -11,18 +11,17 @@ import re
 
 from pathlib import Path
 
+
 def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
-    2. Remove animal/environmental isolates (bat, pangolin, mink, tiger, cat, canine, env)
-    3. Can't be less than 29700NT
-	4. Can't have more than 5% ambiguous NT
+    2. Can't be less than 29700NT
+	3. Can't have more than 5% ambiguous NT
     """
 
-    print("\nPreprocessing sequences")
-
+    # print("\nPreprocessing sequences")
     # Get latest nextstrain exclusion file
-    print("Using nextstrain exclusion list: {}".format(nextstrain_exclusion_file))
+    # print("Using nextstrain exclusion list: {}".format(nextstrain_exclusion_file))
     # Load lines, ignoring comments and empty lines
     exclude_taxons = []
     with Path(nextstrain_exclusion_file).open("r") as fp:
@@ -40,13 +39,9 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
 
             exclude_taxons.append(line)
 
-    animal_env_tags = ["bat", "pangolin", "mink", "tiger", "cat", "canine", "env"]
-    # Surround tags with '/' for easier and more explicit matching to taxons
-    animal_env_tags = ["/{}/".format(t) for t in animal_env_tags]
-
     num_excluded = 0
-    fp_in = gzip.open(input_file, 'rt')
-    fp_out = gzip.open(output_file, 'wt')
+    fp_in = gzip.open(input_file, "rt")
+    fp_out = gzip.open(output_file, "wt")
 
     cur_entry = ""
     cur_seq = ""
@@ -66,13 +61,10 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
                     # 1: Check against nextstrain exclusion list
                     (cur_entry in exclude_taxons)
                     or
-                    # 2: Remove animal/environmental isolates
-                    any([tag in cur_entry for tag in animal_env_tags])
-                    or
-                    # 3: Can't be less than 29700 NT
+                    # 2: Can't be less than 29700 NT
                     len(cur_seq) < 29700
                     or
-                    # 4: Can't have more than 5% ambiguous (N) NT
+                    # 3: Can't have more than 5% ambiguous (N) NT
                     num_ambiguous > math.floor(len(cur_seq) * 0.05)
                 ):
                     num_excluded += 1
