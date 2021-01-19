@@ -97,4 +97,7 @@ data_custom/**
 # Ignore server passwords
 server/htpasswd
 
+# Ignore site deployment script
+build/deploy.sh
+
 /src/assets/data_package.json.gz
