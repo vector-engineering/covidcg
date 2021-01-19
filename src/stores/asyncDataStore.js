@@ -14,11 +14,7 @@ class ObservableAsyncDataStore {
     this.status = ASYNC_STATES.STARTED;
     try {
       const res = await fetch(
-        appConfig.data_package_url +
-          '?nocache=' +
-          Math.floor(
-            new Date().getTime() / appConfig.data_package_refresh_freq
-          ),
+        appConfig.data_package_url,
         {
           headers: {
             'Accept-Encoding': 'gzip',

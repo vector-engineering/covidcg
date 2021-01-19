@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
@@ -796,11 +795,5 @@ const ExampleTab = observer(() => {
     </ExampleTabContainer>
   );
 });
-ExampleTab.propTypes = {
-  width: PropTypes.number,
-};
-ExampleTab.defaultProps = {
-  width: 100,
-};
 
 export default ExampleTab;

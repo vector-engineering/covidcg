@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
+import useDimensions from 'react-use-dimensions';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -23,8 +23,9 @@ const GroupTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const GroupTab = observer(({ width }) => {
+const GroupTab = observer(() => {
   const { configStore } = useStores();
+  const [ref, { width }] = useDimensions();
 
   const renderEntropyPlot = () => {
     if (configStore.groupKey !== GROUP_SNV) {
@@ -246,7 +247,7 @@ const GroupTab = observer(({ width }) => {
   // };
 
   return (
-    <GroupTabContainer>
+    <GroupTabContainer ref={ref}>
       {/* {renderLegend()} */}
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
@@ -256,11 +257,5 @@ const GroupTab = observer(({ width }) => {
     </GroupTabContainer>
   );
 });
-GroupTab.propTypes = {
-  width: PropTypes.number,
-};
-GroupTab.defaultProps = {
-  width: 100,
-};
 
 export default GroupTab;
