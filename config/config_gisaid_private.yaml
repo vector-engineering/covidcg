@@ -4,7 +4,7 @@
 
 # Path to folder with downloaded and processed data
 # This path is relative to the workflow folders
-data_folder: "../data_custom"
+data_folder: "../data_private"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the workflow folders
@@ -31,10 +31,29 @@ snp_count_threshold: 3
 consensus_fraction: 0.9
 
 metadata_cols:
-  strain:
-    title: "Strain"
   host:
     title: "Host"
+  gender:
+    title: "Gender"
+  patient_status:
+    title: "Patient Status"
+  passage:
+    title: "Passage"
+    disabled: true
+  specimen:
+    title: "Specimen"
+  sequencing_tech:
+    title: "Sequencing"
+  assembly_method:
+    title: "Assembly"
+  comment_type:
+    title: "Flag"
+  authors:
+    title: "Authors"
+  originating_lab:
+    title: "Originating lab"
+  submitting_lab:
+    title: "Submitting lab"
 
 group_cols:
   lineage:
@@ -44,13 +63,19 @@ group_cols:
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
+  clade:
+    name: "clade"
+    title: "Clade"
+    description: "For more information about clade and lineage nomenclature, visit this:"
+    link:
+      title: "[GISAID note]"
+      href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
 
 # ----------------------
 #     VISUALIZATION
 # ----------------------
 
-# Default data package to be a copy hosted within this repo
-data_package_url: "http://localhost:3000/assets/data_package.json.gz"
+data_package_url: "https://storage.googleapis.com/ve-public/v1.4/data_package.json.gz"
 # Force a reload of the data package every X milliseconds
 # 1000 ms/s * 60 s/min * 60 min/hr = 3600000
 data_package_refresh_freq: 3600000

@@ -183,6 +183,7 @@ rule combine_all_data:
     run:
         combine_all_data(
             **input, **output, 
+            hash_accession_ids=config['hash_accession_ids'],
             count_threshold=config["snp_count_threshold"],
             group_cols=list(config["group_cols"].keys()),
             metadata_cols=list(config["metadata_cols"].keys())
