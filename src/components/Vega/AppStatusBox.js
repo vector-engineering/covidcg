@@ -6,6 +6,7 @@ import { useStores } from '../../stores/connect';
 import { DNA_OR_AA, COORDINATE_MODES, GROUP_SNV } from '../../constants/config';
 
 import { formatSnv } from '../../utils/snpUtils';
+import { intToISO } from '../../utils/date';
 
 const Container = styled.div`
   margin: 0px 10px;
@@ -29,19 +30,6 @@ const Sequence = styled.span`
 const serializeCoordinates = (coordinateRanges) => {
   return coordinateRanges.map(coordRange => coordRange.join('..')).join(', ');
 };
-
-// I can't believe I have to write my own date formatting code. 
-// wtf happened to standard C formatting
-const dateToISO = (dateInUnixMS) => {
-  const dateObj = new Date(dateInUnixMS);
-  return (
-    dateObj.getFullYear() + '-' +
-    // Add 1 since month is in [0, 11], then pad to 2 characters
-    (dateObj.getMonth() + 1).toString().padStart(2, '0') + '-' +
-    // Pad to 2 characters. Date is [1, 31].
-    dateObj.getDate().toString().padStart(2, '0')
-  );
-}
 
 const AppStatusBox = observer(() => {
   const { configStore, dataStore } = useStores();
@@ -109,7 +97,7 @@ const AppStatusBox = observer(() => {
   } else {
     dateRange = (
       <>
-        <b>{dateToISO(configStore.dateRange[0])}</b> – <b>{dateToISO(configStore.dateRange[1])}</b>
+        <b>{intToISO(configStore.dateRange[0])}</b> – <b>{intToISO(configStore.dateRange[1])}</b>
       </>
     );
   }
