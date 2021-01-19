@@ -101,5 +101,6 @@ server/htpasswd
 build/deploy.sh
 push_data.sh
 daily_update.sh
+update_gisaid.sh
 
 /src/assets/data_package.json.gz
