@@ -28,6 +28,8 @@ snp_count_threshold: 3
 consensus_fraction: 0.9
 
 metadata_cols:
+  host:
+    title: "Host"
   gender:
     title: "Gender"
   patient_status:
