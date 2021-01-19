@@ -2,7 +2,7 @@
 FROM node:12-alpine as react-build
 WORKDIR /app
 COPY . ./
-ENV CONFIGFILE config/config_gisaid.yaml
+ENV CONFIGFILE config/config_gisaid_private.yaml
 RUN npm install
 RUN npm run build-only
 
