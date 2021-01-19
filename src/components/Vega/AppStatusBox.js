@@ -118,7 +118,7 @@ const AppStatusBox = observer(() => {
   return (
     <Container>
       <Line>
-        <b>{dataStore.filteredCaseData.length}</b> sequences selected. Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing mutations on the <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
+        <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected. Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing mutations on the <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
       </Line>
       <Line>
         Selected locations: <b>{configStore.selectedLocationNodes.map((node) => node.label).join(', ')}</b>

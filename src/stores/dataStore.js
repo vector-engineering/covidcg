@@ -55,6 +55,7 @@ export class DataStore {
 
   dataDate;
   numSequences;
+  @observable numSequencesAfterAllFiltering;
   rawCaseData = [];
   filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
@@ -277,6 +278,7 @@ export class DataStore {
         countsPerGroup,
       }) => {
         this.filteredCaseData = filteredCaseData;
+        this.numSequencesAfterAllFiltering = filteredCaseData.length;
         this.dataAggLocationGroupDate = dataAggLocationGroupDate;
         this.dataAggGroupDate = dataAggGroupDate;
         this.metadataCounts = metadataCounts;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { toJS } from 'mobx';
 import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -203,26 +202,6 @@ const MetaFieldSelect = observer(() => {
 
     return changed;
   };
-
-  // When the selected fields are flushed to the store, see if we still need
-  // to display the update button
-  // useEffect(() => {
-  //   // IDs back into options objects in state.fieldOptions
-  //   const fieldSelected = JSON.parse(
-  //     JSON.stringify(toJS(configStore.selectedMetadataFields))
-  //   );
-  //   Object.keys(fieldSelected).forEach((field) => {
-  //     fieldSelected[field] = fieldSelected[field].map((id) => {
-  //       return state.fieldOptions[field][id];
-  //     });
-  //   });
-
-  //   setState({
-  //     ...state,
-  //     fieldSelected,
-  //     changed: checkChanged(fieldSelected, state.ageRange),
-  //   });
-  // }, [configStore.selectedMetadataFields, configStore.ageRange]);
 
   // Update options when new data comes in
   useEffect(() => {
