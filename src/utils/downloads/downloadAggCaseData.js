@@ -1,103 +1,7 @@
-// import { getAckTextsFromAckIds } from './acknowledgements';
-// import { intToISO } from './date';
-import _ from 'underscore';
 
-import { appConfig, GROUP_SNV, DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { GROUPS } from '../constants/groups';
+import { GROUPS } from '../../constants/groups';
+import { appConfig, GROUP_SNV, DNA_OR_AA, COORDINATE_MODES } from '../../constants/config';
 
-function downloadAccessionIdsData({ accessionIds }) {
-  // console.log(accessionIds);
-
-  let csvString = accessionIds.join('\n');
-  let blob = new Blob([csvString]);
-  let url = URL.createObjectURL(blob);
-
-  return {
-    blobURL: url,
-  };
-}
-
-// function downloadAcknowledgementsData({
-//   selectedAccessionIds,
-//   selectedAckIds,
-// }) {
-//   // Get the list of selected Accession IDs, and map to
-//   // acknowledgement texts
-//   const ackTexts = getAckTextsFromAckIds(selectedAckIds);
-
-//   // Write to a CSV string
-//   // Accession ID and sample date first
-//   // Then acknowledgement texts
-//   let csvString = 'Accession ID,Originating lab,Submitting lab,Authors\n';
-
-//   for (let i = 0; i < selectedAccessionIds.length; i++) {
-//     // Write Accession ID
-//     csvString += selectedAccessionIds[i] + ',';
-
-//     // Write Acknowledgement texts
-//     // Since these can contain commas, wrap each in double quotes
-//     csvString += '"' + ackTexts[i]['Originating lab'] + '",';
-//     csvString += '"' + ackTexts[i]['Submitting lab'] + '",';
-//     csvString += '"' + ackTexts[i]['Authors'] + '"\n';
-//   }
-
-//   let blob = new Blob([csvString]);
-//   let url = URL.createObjectURL(blob);
-
-//   return {
-//     blobURL: url,
-//   };
-// }
-
-function downloadAggCaseData({
-  groupKey,
-  dnaOrAa,
-  coordinateMode,
-  dataAggGroup,
-
-  ...rest
-}) {
-  // console.log(groupKey, dnaOrAa, dataAggGroup);
-
-  let csvString = '';
-
-  // Get list of changing positions.
-  // We don't need to pass the store variable in. the positions will be
-  // encoded onto each row of dataAggGroup, so just grab one row
-  // to see what's there
-  const changingPositions = [];
-  Object.keys(dataAggGroup[0]).forEach((key) => {
-    if (key.slice(0, 4) === 'pos_') {
-      // Changing positions are 0-indexed
-      changingPositions.push(parseInt(key.slice(4)));
-    }
-  });
-
-  // If we're in lineage mode, then we need to get SNPs for this lineage
-  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
-    csvString = downloadAggCaseDataGroup({
-      groupKey,
-      dataAggGroup,
-      changingPositions,
-      coordinateMode,
-
-      ...rest,
-    });
-  } else if (groupKey === GROUP_SNV) {
-    csvString = downloadAggCaseDataSnp(
-      dnaOrAa,
-      dataAggGroup,
-      changingPositions
-    );
-  }
-
-  let blob = new Blob([csvString]);
-  let url = URL.createObjectURL(blob);
-
-  return {
-    blobURL: url,
-  };
-}
 
 function downloadAggCaseDataGroup({
   groupKey,
@@ -119,7 +23,7 @@ function downloadAggCaseDataGroup({
   // Write headers
   csvString = 'lineage,seqs,seqs_percent,nt_snps,aa_snps,';
   // Add position column headers
-  csvString += _.map(changingPositions, (pos) => (pos + 1).toString()).join(
+  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(
     ','
   );
   csvString += '\n';
@@ -155,7 +59,7 @@ function downloadAggCaseDataGroup({
       csvString += ',';
     } else {
       // Loop thru SNPs and print them as a list
-      ntSnps = _.map(ntSnps, (snp) => {
+      ntSnps = ntSnps.map((snp) => {
         // Format as pos|ref|alt
         // Position is 0-indexed, so make it 1-indexed
         return (
@@ -189,7 +93,7 @@ function downloadAggCaseDataGroup({
       csvString += ',';
     } else {
       // Loop thru SNPs and print them as a list
-      aaSnps = _.map(aaSnps, (snp) => {
+      aaSnps = aaSnps.map((snp) => {
         // Format as gene|pos|ref|alt
         // Position is 0-indexed, so make it 1-indexed
         let label = '';
@@ -238,7 +142,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
   // Add count headers
   csvString += 'seqs,seqs_percent,';
   // Add position column headers
-  csvString += _.map(changingPositions, (pos) => (pos + 1).toString()).join(
+  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(
     ','
   );
   csvString += '\n';
@@ -284,25 +188,57 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
   return csvString;
 }
 
-self.addEventListener(
-  'message',
-  function (e) {
-    const data = e.data;
-    //console.log('in downloadworker event listener', data);
 
-    let result;
-    // if (data.type === 'downloadAcknowledgementsData') {
-    //   // This is a terminal endpoint, we don't need to post a message back
-    //   result = downloadAcknowledgementsData(data);
-    // } else
-    if (data.type === 'downloadAggCaseData') {
-      result = downloadAggCaseData(data);
-    } else if (data.type === 'downloadAccessionIdsData') {
-      result = downloadAccessionIdsData(data);
+
+export function downloadAggCaseData({
+  groupKey,
+  dnaOrAa,
+  coordinateMode,
+  dataAggGroup,
+
+  ...rest
+}) {
+  // console.log(groupKey, dnaOrAa, dataAggGroup);
+
+  let csvString = '';
+
+  // Get list of changing positions.
+  // We don't need to pass the store variable in. the positions will be
+  // encoded onto each row of dataAggGroup, so just grab one row
+  // to see what's there
+  const changingPositions = [];
+  Object.keys(dataAggGroup[0]).forEach((key) => {
+    if (key.slice(0, 4) === 'pos_') {
+      // Changing positions are 0-indexed
+      changingPositions.push(parseInt(key.slice(4)));
     }
+  });
 
-    result.type = data.type;
-    self.postMessage(result);
-  },
-  false
-);
+  // If we're in lineage mode, then we need to get SNPs for this lineage
+  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+    csvString = downloadAggCaseDataGroup({
+      groupKey,
+      dataAggGroup,
+      changingPositions,
+      coordinateMode,
+
+      ...rest,
+    });
+  } else if (groupKey === GROUP_SNV) {
+    csvString = downloadAggCaseDataSnp(
+      dnaOrAa,
+      dataAggGroup,
+      changingPositions
+    );
+  }
+
+  let blob = new Blob([csvString]);
+  let url = URL.createObjectURL(blob);
+
+  return {
+    blobURL: url,
+  };
+}
+  
+  
+  

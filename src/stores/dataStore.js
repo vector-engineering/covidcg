@@ -8,14 +8,11 @@ import {
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
 import {
-  downloadAccessionIdsData,
-  // downloadAcknowledgementsData,
-  downloadAggCaseData,
-} from '../utils/downloadWorkerWrapper';
+  downloadBlobURL, generateSelectionString,
+} from '../utils/download';
+import { downloadAggCaseData } from '../utils/downloads/downloadAggCaseData';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
-import { decryptAccessionIds } from '../utils/decrypt';
-import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { GROUP_SNV } from '../constants/config';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
@@ -384,56 +381,6 @@ export class DataStore {
   }
 
   @action
-  downloadAccessionIds() {
-    decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
-      downloadAccessionIdsData(
-        { accessionIds: responseData['accession_ids'] },
-        (res) => {
-          downloadBlobURL(
-            res.blobURL,
-            generateSelectionString(
-              'accession_ids',
-              'txt',
-              toJS(this.configStoreInstance.groupKey),
-              toJS(this.configStoreInstance.dnaOrAa),
-              toJS(this.configStoreInstance.selectedLocationNodes),
-              toJS(this.configStoreInstance.dateRange)
-            )
-          );
-        }
-      );
-    });
-  }
-
-  // @action
-  // downloadAcknowledgements() {
-  //   // console.log('DOWNLOAD ACKNOWLEDGEMENTS');
-
-  //   decryptAccessionIds(this.selectedAccessionIds).then((responseData) => {
-  //     downloadAcknowledgementsData(
-  //       {
-  //         selectedAccessionIds: responseData['accession_ids'],
-  //         selectedAckIds: this.selectedAckIds,
-  //       },
-  //       (res) => {
-  //         // console.log(res);
-  //         downloadBlobURL(
-  //           res.blobURL,
-  //           generateSelectionString(
-  //             'acknowledgements',
-  //             'csv',
-  //             toJS(configStoreInstance.groupKey),
-  //             toJS(configStoreInstance.dnaOrAa),
-  //             toJS(configStoreInstance.selectedLocationNodes),
-  //             toJS(configStoreInstance.dateRange)
-  //           )
-  //         );
-  //       }
-  //     );
-  //   });
-  // }
-
-  @action
   downloadAggCaseData() {
     const {
       intToDnaSnvMap,
@@ -443,7 +390,7 @@ export class DataStore {
 
     const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
-    downloadAggCaseData(
+    const { blobURL } = downloadAggCaseData(
       {
         groupKey: this.configStoreInstance.groupKey,
         dnaOrAa: this.configStoreInstance.dnaOrAa,
@@ -458,20 +405,18 @@ export class DataStore {
         // Lineage data
         groupSnvMap,
         groupColorMap,
-      },
-      (res) => {
-        downloadBlobURL(
-          res.blobURL,
-          generateSelectionString(
-            'agg_data',
-            'csv',
-            toJS(this.configStoreInstance.groupKey),
-            toJS(this.configStoreInstance.dnaOrAa),
-            toJS(this.configStoreInstance.selectedLocationNodes),
-            toJS(this.configStoreInstance.dateRange)
-          )
-        );
       }
+    );
+    downloadBlobURL(
+      blobURL,
+      generateSelectionString(
+        'agg_data',
+        'csv',
+        toJS(this.configStoreInstance.groupKey),
+        toJS(this.configStoreInstance.dnaOrAa),
+        toJS(this.configStoreInstance.selectedLocationNodes),
+        toJS(this.configStoreInstance.dateRange)
+      )
     );
   }
 
