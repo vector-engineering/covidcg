@@ -1,7 +1,5 @@
 import { observable, toJS, action } from 'mobx';
-
 import { getNodeFromPath, deselectAll, selectAll } from '../utils/location';
-
 import { asyncDataStoreInstance } from '../components/App';
 
 // https://dowjones.github.io/react-dropdown-tree-select/#/story/hoc-readme
@@ -22,8 +20,28 @@ function assignObjectPaths(obj, stack) {
   });
 }
 
+function recursiveMapIdToStr(map, node) {
+  // Add self
+  if (Object.prototype.hasOwnProperty.call(node, 'location_id')) {
+    if(node.level === 'region') {
+      map[node.location_id] = [node.value, '', '', ''];
+    } else if (node.level === 'country') {
+      map[node.location_id] = [node.region, node.value, '', ''];
+    } else if (node.level === 'division') {
+      map[node.location_id] = [node.region, node.country, node.value, ''];
+    } else if (node.level === 'location') {
+      map[node.location_id] = [node.region, node.country, node.division, node.value];
+    }
+  }
+  // Add children
+  node.children.forEach(child => {
+    recursiveMapIdToStr(map, child);
+  });
+}
+
 export class LocationDataStore {
   @observable selectTree = {};
+  locationIdToStrMap = {};
 
   constructor() {}
 
@@ -34,6 +52,7 @@ export class LocationDataStore {
     // By default, show the tree as expanded so it doesn't only show the "All" node
     selectTree.expanded = true;
     this.selectTree = selectTree;
+    recursiveMapIdToStr(this.locationIdToStrMap, this.selectTree);
   }
 
   @action
@@ -56,5 +75,10 @@ export class LocationDataStore {
   @action
   deselectAll() {
     this.selectTree = deselectAll(toJS(this.selectTree));
+  }
+
+  @action
+  getLocationStrFromId(locationId) {
+    return this.locationIdToStrMap[locationId];
   }
 }
