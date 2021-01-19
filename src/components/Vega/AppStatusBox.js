@@ -4,18 +4,37 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
 import { ASYNC_STATES } from '../../constants/UI';
-import { DNA_OR_AA, COORDINATE_MODES, GROUP_SNV } from '../../constants/config';
+import { appConfig, DNA_OR_AA, COORDINATE_MODES, GROUP_SNV } from '../../constants/config';
 
 import { formatSnv } from '../../utils/snpUtils';
 import { intToISO } from '../../utils/date';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 
 const Container = styled.div`
+  display: grid;
+  grid-template-columns: [col1] auto [col2] 110px [col3];
+  grid-template-rows: [row1] auto [row2];
+
   margin: 0px 10px;
   padding: 5px 10px;
   border: 1px solid #CCC;
   border-radius: 5px;
+`;
+
+const LineColumn = styled.div`
+  grid-row: row1 / row2;
+  grid-column: col1 / col2;
+`;
+
+const ButtonColumn = styled.div`
+  grid-row: row1 / row2;
+  grid-column: col2 / col3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `;
 
 const Line = styled.p`
@@ -34,8 +53,21 @@ const serializeCoordinates = (coordinateRanges) => {
   return coordinateRanges.map(coordRange => coordRange.join('..')).join(', ');
 };
 
+const DOWNLOAD_OPTIONS = {
+  AGGREGATE_DATA: 'Aggregate Data',
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
+};
+
 const AppStatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
+
+  const handleDownloadSelect = (option) => {
+    if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
+      dataStore.downloadAggCaseData();
+    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
+      dataStore.downloadSelectedSequenceMetadata();
+    }
+  };
 
   let genomeSelection = '';
   const residuesOrBases = configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues';
@@ -118,6 +150,11 @@ const AppStatusBox = observer(() => {
     }
   }
 
+  const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
+  if (appConfig.allow_metadata_download) {
+    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
+  }
+
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
@@ -136,21 +173,30 @@ const AppStatusBox = observer(() => {
 
   return (
     <Container>
-      <Line>
-        <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected. Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing mutations on the <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
-      </Line>
-      <Line>
-        Selected locations: <b>{configStore.selectedLocationNodes.map((node) => node.label).join(', ')}</b>
-      </Line>
-      <Line>
-        Date range: {dateRange}
-      </Line>
-      <Line>
-        Genome selection: {genomeSelection}
-      </Line>
-      <Line>
-        Selected {configStore.getGroupLabel()}s: {selectedGroups}
-      </Line>
+      <LineColumn>
+        <Line>
+          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected. Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing mutations on the <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
+        </Line>
+        <Line>
+          Selected locations: <b>{configStore.selectedLocationNodes.map((node) => node.label).join(', ')}</b>
+        </Line>
+        <Line>
+          Date range: {dateRange}
+        </Line>
+        <Line>
+          Genome selection: {genomeSelection}
+        </Line>
+        <Line>
+          Selected {configStore.getGroupLabel()}s: {selectedGroups}
+        </Line>
+      </LineColumn>
+      <ButtonColumn>
+        <DropdownButton
+          text={'Download'}
+          options={downloadOptions}
+          onSelect={handleDownloadSelect}
+        />
+      </ButtonColumn>
     </Container>
   );
 });

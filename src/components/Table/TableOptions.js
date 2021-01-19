@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import { snapGeneHighlightColors } from '../../constants/colors';
 import { capitalize } from '../../utils/string';
 import { useStores } from '../../stores/connect';
+
 import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
 } from '../../constants/plotSettings';
-import { DNA_OR_AA } from '../../constants/config';
+import { appConfig, DNA_OR_AA } from '../../constants/config';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
@@ -217,6 +218,14 @@ const TableOptions = observer(() => {
     }
   };
 
+  const downloadOptions = [
+    DOWNLOAD_OPTIONS.AGGREGATE_DATA
+  ];
+
+  if (appConfig.allow_metadata_download) {
+    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
+  }
+
   return (
     <DataTableOptions>
       <ColorModeSelect />
@@ -224,10 +233,7 @@ const TableOptions = observer(() => {
       <Spacer />
       <DropdownButton
         text={'Download'}
-        options={[
-          DOWNLOAD_OPTIONS.AGGREGATE_DATA,
-          DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA
-        ]}
+        options={downloadOptions}
         onSelect={handleDownloadSelect}
       />
     </DataTableOptions>
