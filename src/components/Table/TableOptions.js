@@ -199,7 +199,8 @@ const Spacer = styled.div`
 `;
 
 const DOWNLOAD_OPTIONS = {
-  AGGREGATE_DATA: 'Aggregate Data'
+  AGGREGATE_DATA: 'Aggregate Data',
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
 };
 
 const TableOptions = observer(() => {
@@ -211,6 +212,8 @@ const TableOptions = observer(() => {
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
       dataStore.downloadAggCaseData();
+    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
+      dataStore.downloadSelectedSequenceMetadata();
     }
   };
 
@@ -222,7 +225,8 @@ const TableOptions = observer(() => {
       <DropdownButton
         text={'Download'}
         options={[
-          DOWNLOAD_OPTIONS.AGGREGATE_DATA
+          DOWNLOAD_OPTIONS.AGGREGATE_DATA,
+          DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA
         ]}
         onSelect={handleDownloadSelect}
       />

@@ -124,6 +124,8 @@ export class DataStore {
     this.configStoreInstance = rootStoreInstance.configStore;
     this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
     this.groupDataStoreInstance = rootStoreInstance.groupDataStore;
+    this.metadataStoreInstance = rootStoreInstance.metadataStore;
+    this.locationStoreInstance = rootStoreInstance.locationDataStore;
 
     this.updateCaseData();
   }
@@ -378,6 +380,72 @@ export class DataStore {
         this.UIStoreInstance.onCooccurrenceDataFinished();
       }
     );
+  }
+
+  @action
+  downloadSelectedSequenceMetadata() {
+    let csvString = [];
+    // Take the first sequence to get the keys/fields for this file
+    const keys = Object.keys(this.rawCaseData[0]);
+    // Special case - we're going to expand the location id into
+    // 4 fields (region, country, division, location)
+    // so add these to the end
+    csvString.push(keys.concat(['region', 'country', 'division', 'location']).join(','));
+
+    const metadataFields = Object.keys(this.metadataStoreInstance.metadataMap);
+
+    let vals = [];
+    let metadataVal;
+    this.filteredCaseData.forEach(row => {
+      //  vals = keys.map(key => row[key]);
+      vals = [];
+      keys.forEach(key => {
+        // Special cases for keys
+        if (key === 'collection_date') {
+          vals.push('"' + intToISO(row[key]) + '"');
+        } else if (key === 'age_start' || key === 'age_end') {
+          vals.push(row[key] === null ? '' : row[key]);
+        } else if (metadataFields.includes(key)) {
+          metadataVal = this.metadataStoreInstance.getMetadataValueFromId(key, row[key]);
+          vals.push('"' + ((metadataVal === undefined) ? '' : metadataVal) + '"');
+        } else if (key === 'dna_snp_str') {
+          vals.push(
+            '"' + row[key].map(snvId => { 
+              return this.snpDataStoreInstance.intToDnaSnv(snvId).snp_str 
+            }).join(';') + '"'
+          );
+        } else if (key === 'gene_aa_snp_str') {
+          vals.push(
+            '"' + row[key].map(snvId => { 
+              return this.snpDataStoreInstance.intToGeneAaSnv(snvId).snp_str 
+            }).join(';') + '"'
+          );
+        } else if (key === 'protein_aa_snp_str') {
+          vals.push(
+            '"' + row[key].map(snvId => { 
+              return this.snpDataStoreInstance.intToProteinAaSnv(snvId).snp_str 
+            }).join(';') + '"'
+          );
+        } else {
+          vals.push('"' + row[key] + '"');
+        }
+      });
+
+      // Add location data
+      vals = vals.concat(
+        this.locationStoreInstance.getLocationStrFromId(row.location_id).map(loc => {
+          return loc ? ('"' + loc + '"') : loc
+        })
+      );
+
+      csvString.push(vals.join(','));
+    });
+
+    csvString = csvString.join('\n')
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(url, 'selected_sequence_metadata.csv');
   }
 
   @action
