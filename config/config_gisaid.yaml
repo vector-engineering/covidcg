@@ -75,7 +75,10 @@ group_cols:
 #     VISUALIZATION
 # ----------------------
 
-data_package_url: "https://storage.googleapis.com/ve-public/v1.4/data_package.json.gz"
+data_package_url: "https://storage.googleapis.com/ve-public/v1.5/data_package.json.gz"
 # Force a reload of the data package every X milliseconds
 # 1000 ms/s * 60 s/min * 60 min/hr = 3600000
 data_package_refresh_freq: 3600000
+
+# Allow downloads of sequence metadata (before aggregation)
+allow_metadata_download: false
