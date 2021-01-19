@@ -101,7 +101,7 @@ const FilterSidebar = observer(() => {
             </div>
           }
           defaultCollapsed={true}
-          maxHeight={'240px'}
+          maxHeight={'360px'}
           allowOverflow={true}
         >
           <MetaFieldSelect />
