@@ -3,10 +3,13 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { ASYNC_STATES } from '../../constants/UI';
 import { DNA_OR_AA, COORDINATE_MODES, GROUP_SNV } from '../../constants/config';
 
 import { formatSnv } from '../../utils/snpUtils';
 import { intToISO } from '../../utils/date';
+
+import SkeletonElement from '../Common/SkeletonElement';
 
 const Container = styled.div`
   margin: 0px 10px;
@@ -32,7 +35,7 @@ const serializeCoordinates = (coordinateRanges) => {
 };
 
 const AppStatusBox = observer(() => {
-  const { configStore, dataStore } = useStores();
+  const { configStore, dataStore, UIStore } = useStores();
 
   let genomeSelection = '';
   const residuesOrBases = configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues';
@@ -113,6 +116,22 @@ const AppStatusBox = observer(() => {
         return <b key={group.group}>{group.group}</b>;
       }).reduce((prev, curr) => [prev, ' + ', curr]);
     }
+  }
+
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+        }}
+      >
+        <SkeletonElement delay={2} height={100}>
+        </SkeletonElement>
+      </div>
+    );
   }
 
   return (
