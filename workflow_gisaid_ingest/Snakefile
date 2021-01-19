@@ -34,7 +34,7 @@ rule download:
     """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
     """
     output:
-        feed = os.path.join(config["data_folder"], "feed.json"),
+        feed = temp(os.path.join(config["data_folder"], "feed.json")),
         status = touch(rules.all.input.download_status)
     threads: workflow.cores
     shell:
@@ -48,7 +48,7 @@ rule process_feed:
     input:
         feed = rules.download.output.feed,
     output:
-        metadata_dirty = os.path.join(config["data_folder"], "metadata_dirty.csv"),
+        metadata_dirty = temp(os.path.join(config["data_folder"], "metadata_dirty.csv")),
         status = touch(rules.all.input.copy_status)
     params:
         fasta = directory(os.path.join(config["data_folder"], "fasta_raw"))
