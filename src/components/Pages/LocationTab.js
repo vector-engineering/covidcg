@@ -1,13 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
+import useDimensions from 'react-use-dimensions';
 
 import KBD from '../Common/KBD';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
+import AppStatusBox from '../Vega/AppStatusBox';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
@@ -17,11 +18,24 @@ const LocationTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const LocationTab = observer(({ width }) => {
+const LocationTab = observer(() => {
   const { configStore } = useStores();
+  const [ref, { width }] = useDimensions();
 
-  return (
-    <LocationTabContainer>
+  const renderAppStatusBox = () => {
+    return (
+      <AccordionWrapper
+        title='Status'
+        defaultCollapsed={false}
+        maxHeight={'300px'}
+      >
+        <AppStatusBox />
+      </AccordionWrapper>
+    );
+  };
+
+  const renderLocationDatePlot = () => {
+    return (
       <AccordionWrapper
         title="Location-Date Plot"
         defaultCollapsed={false}
@@ -68,6 +82,11 @@ const LocationTab = observer(({ width }) => {
       >
         <LocationDatePlot width={width - 200} />
       </AccordionWrapper>
+    );
+  };
+
+  const renderLocationGroupPlot = () => {
+    return (
       <AccordionWrapper
         title="Location-Group Plot"
         defaultCollapsed={false}
@@ -96,16 +115,18 @@ const LocationTab = observer(({ width }) => {
           </ul>
         }
       >
-        <LocationGroupPlot width={width - 300} />
+        <LocationGroupPlot width={width - 200} />
       </AccordionWrapper>
+    );
+  };
+
+  return (
+    <LocationTabContainer ref={ref}>
+      {renderAppStatusBox()}
+      {renderLocationDatePlot()}
+      {renderLocationGroupPlot()}
     </LocationTabContainer>
   );
 });
-LocationTab.propTypes = {
-  width: PropTypes.number,
-};
-LocationTab.defaultProps = {
-  width: 100,
-};
 
 export default LocationTab;

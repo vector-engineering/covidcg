@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
+import useDimensions from 'react-use-dimensions';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -14,6 +14,7 @@ import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
+import AppStatusBox from '../Vega/AppStatusBox';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
 import { GROUP_SNV, DNA_OR_AA } from '../../constants/config';
@@ -23,8 +24,22 @@ const GroupTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const GroupTab = observer(({ width }) => {
+const GroupTab = observer(() => {
   const { configStore } = useStores();
+  const [ref, { width }] = useDimensions();
+
+
+  const renderAppStatusBox = () => {
+    return (
+      <AccordionWrapper
+        title='Status'
+        defaultCollapsed={false}
+        maxHeight={'300px'}
+      >
+        <AppStatusBox />
+      </AccordionWrapper>
+    );
+  };
 
   const renderEntropyPlot = () => {
     if (configStore.groupKey !== GROUP_SNV) {
@@ -246,8 +261,8 @@ const GroupTab = observer(({ width }) => {
   // };
 
   return (
-    <GroupTabContainer>
-      {/* {renderLegend()} */}
+    <GroupTabContainer ref={ref}>
+      {renderAppStatusBox()}
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
@@ -256,11 +271,5 @@ const GroupTab = observer(({ width }) => {
     </GroupTabContainer>
   );
 });
-GroupTab.propTypes = {
-  width: PropTypes.number,
-};
-GroupTab.defaultProps = {
-  width: 100,
-};
 
 export default GroupTab;

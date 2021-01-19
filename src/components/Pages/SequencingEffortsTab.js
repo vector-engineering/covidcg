@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import useDimensions from 'react-use-dimensions';
 
 import ExternalLink from '../Common/ExternalLink';
 import SequencingMapPlot from '../Vega/SequencingMapPlot';
@@ -34,9 +34,11 @@ const Title = styled.h2`
   margin-bottom: 10px;
 `;
 
-const SequencingEffortsTab = ({ width }) => {
+const SequencingEffortsTab = () => {
+  const [ref, { width }] = useDimensions();
+
   return (
-    <Container>
+    <Container ref={ref}>
       <Header>
         <Title>Global sequencing coverage</Title>
         <p>
@@ -65,15 +67,8 @@ const SequencingEffortsTab = ({ width }) => {
         </p>
       </Header>
 
-      <SequencingMapPlot width={width - 150} />
+      <SequencingMapPlot width={width - 250} />
     </Container>
   );
 };
-SequencingEffortsTab.propTypes = {
-  width: PropTypes.number,
-};
-SequencingEffortsTab.defaultProps = {
-  width: 100,
-};
-
 export default SequencingEffortsTab;

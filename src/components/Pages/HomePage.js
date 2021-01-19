@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { connect } from '../../stores/connect';
-import useDimensions from 'react-use-dimensions';
 import { onMobileDevice } from '../../utils/device';
 
 import TabBar from '../TabBar';
@@ -24,10 +23,7 @@ import { TABS } from '../../constants/UI';
 
 const HomePageDiv = styled.div`
   display: grid;
-  ${({ showDefaultSidebar }) =>
-    showDefaultSidebar
-      ? `grid-template-columns: [col1] 300px [col2] auto [col3];`
-      : `grid-template-columns: [col1] 450px [col2] auto [col3];`}
+  grid-template-columns: [col1] 300px [col2] 150px [col3] auto [col4];
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;
@@ -35,7 +31,8 @@ const HomePageDiv = styled.div`
 `;
 
 const PlotContainer = styled.div`
-  grid-column: col2 / col3;
+  grid-column: ${({ showDefaultSidebar }) =>
+    showDefaultSidebar ? 'col2 / col4' : 'col3 / col4'};
   grid-row: row1 / row2;
   display: flex;
   flex-direction: column;
@@ -48,19 +45,17 @@ const PlotContainer = styled.div`
 `;
 
 const HomePage = observer(({ UIStore }) => {
-  const [ref, { width }] = useDimensions();
-
   const onTabChange = (tab) => {
     UIStore.setActiveTab(tab);
   };
 
   const renderTab = () => {
     if (UIStore.activeTab === TABS.TAB_GROUP) {
-      return <GroupTab width={width} />;
+      return <GroupTab />;
     } else if (UIStore.activeTab === TABS.TAB_LOCATION) {
-      return <LocationTab width={width} />;
+      return <LocationTab />;
     } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
-      return <ExampleTab width={width} />;
+      return <ExampleTab />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
       return <AboutTab />;
     } else if (UIStore.activeTab === TABS.TAB_METHODOLOGY) {
@@ -68,7 +63,7 @@ const HomePage = observer(({ UIStore }) => {
     } else if (UIStore.activeTab === TABS.TAB_RELATED) {
       return <RelatedProjectsTab />;
     } else if (UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
-      return <SequencingEffortsTab width={width} />;
+      return <SequencingEffortsTab />;
     }
   };
 
@@ -113,9 +108,9 @@ const HomePage = observer(({ UIStore }) => {
   return (
     <>
       <KeyListener />
-      <HomePageDiv showDefaultSidebar={showDefaultSidebar}>
+      <HomePageDiv>
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
-        <PlotContainer ref={ref}>
+        <PlotContainer showDefaultSidebar={showDefaultSidebar}>
           <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer />

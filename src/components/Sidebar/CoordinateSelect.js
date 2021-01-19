@@ -676,7 +676,7 @@ const CoordinateSelect = observer(() => {
                   <QuestionButton
                     data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
                     data-html="true"
-                    data-for="gene-residue-index-tooltip"
+                    data-for="protein-residue-index-tooltip"
                   />
                 </DomainSelectForm>
                 <UpdateButton
