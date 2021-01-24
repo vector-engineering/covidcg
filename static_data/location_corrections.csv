@@ -621,7 +621,7 @@ Europe,Georgia,,,Asia,,,,"Move to Asia"
 ,Mexico,CDMX,,,,Mexico City,,"Unabbreviate province names"
 ,Mexico,BC,,,,Baja California,,
 ,Mexico,BCS,,,,Baja California Sur,,
-Noth America|North america|North Amercia,,,,North America,,,,
+Noth America|North america|North Amercia|North AmericA,,,,North America,,,,
 ,United States,,,,USA,,,Merge with "United States"
 USA,,,,North America,USA,,,"Merge with USA region"
 ,USA,District of Columbia,,,,Washington DC,,"Unify with 'District of Columbia'"
@@ -727,6 +727,7 @@ USA,,,,North America,USA,,,"Merge with USA region"
 ,USA,Texas,Dallas,,USA,Texas,Dallas County,
 ,USA,Texas,Gonzales,,USA,Texas,Gonzales County,
 ,USA,VT,,,,Vermont,,"VT -> Vermont"
+,USA,Virgina,,,,Virginia,,
 ,USA,Washington,Kirkland|Seattle,,,,King County,"Move towns into counties"
 ,USA,Washington,Tacoma,,,,Pierce County,
 ,USA,Washington,Unknown County,,,,-1,"Remove unknown county"
