@@ -50,7 +50,7 @@ def clean_gender_metadata(df):
         )
 
     gender_key_map = {
-        "Female": ["Woman", "Femal", "Famle", "Famale"],
+        "Female": ["Woman", "Femal", "Famle", "Famale", "Fenale", "Femele"],
         "Male": ["M"],
         "Unknown": [
             "unknwon",
@@ -381,6 +381,8 @@ def clean_passage_metadata(df):
             "origin",
             "Original,",
             "Original isolate",
+            "Origina",
+            "ORiginal",
         ],
         "Original (Clinical Sample)": [
             "Original (Clinical sample)",
