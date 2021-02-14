@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { intToISO, ISOToInt } from '../../utils/date';
-import { MIN_DATE } from '../../constants/config';
+import { MIN_DATE } from '../../constants/defs.json';
 
 import { Container, DateForm, FormColumn } from './DateSelect.styles';
 

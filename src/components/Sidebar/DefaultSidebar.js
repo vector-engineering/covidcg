@@ -7,7 +7,7 @@ import Header from './Header';
 import TabIndicator from '../Common/TabIndicator';
 import TabBar from './TabBar';
 
-import { TABS } from '../../constants/UI';
+import { TABS } from '../../constants/defs.json';
 
 const SidebarContainer = styled.div`
   position: fixed;

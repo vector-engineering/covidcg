@@ -1,0 +1,87 @@
+{
+  "LOW_FREQ_FILTER_TYPES": {
+    "LOCAL_COUNTS": "local",
+    "GLOBAL_COUNTS": "global",
+    "GROUP_COUNTS": "group"
+  },
+  "GROUP_SNV": "snv",
+  "DNA_OR_AA": {
+    "DNA": "DNA",
+    "AA": "AA"
+  },
+  "COORDINATE_MODES": {
+    "COORD_GENE": "gene",
+    "COORD_PROTEIN": "protein",
+    "COORD_PRIMER": "primer",
+    "COORD_CUSTOM": "custom",
+    "COORD_SEQUENCE": "sequence"
+  },
+  "MIN_DATE": 1576368000000,
+  "PLOT_DOWNLOAD_OPTIONS": {
+    "DOWNLOAD_DATA": "Plot Data",
+    "DOWNLOAD_PNG": "PNG",
+    "DOWNLOAD_PNG_2X": "PNG (2X)",
+    "DOWNLOAD_PNG_4X": "PNG (4X)",
+    "DOWNLOAD_SVG": "SVG"
+  },
+  "GROUPS": {
+    "REFERENCE_GROUP": "Reference",
+    "OTHER_GROUP": "Other",
+    "NONE_GROUP": "None",
+    "ALL_OTHER_GROUP": "All Other Sequences"
+  },
+  "NORM_MODES": {
+    "NORM_COUNTS": "counts",
+    "NORM_PERCENTAGES": "percentages"
+  },
+  "COUNT_MODES": {
+    "COUNT_NEW": "new",
+    "COUNT_CUMULATIVE": "cumulative"
+  },
+  "DATE_BINS": {
+    "DATE_BIN_DAY": "day",
+    "DATE_BIN_WEEK": "week",
+    "DATE_BIN_MONTH": "month"
+  },
+  "COLOR_MODES": {
+    "COLOR_MODE_COMPARE": "compare",
+    "COLOR_MODE_CODE": "code",
+    "COLOR_MODE_CLUSTAL": "clustal",
+    "COLOR_MODE_ZAPPO": "zappo",
+    "COLOR_MODE_ZHAO_LONDON": "zhao_london"
+  },
+  "COMPARE_MODES": {
+    "COMPARE_MODE_MATCH": "match",
+    "COMPARE_MODE_MISMATCH": "mismatch"
+  },
+  "COMPARE_COLORS": {
+    "COMPARE_COLOR_YELLOW": "yellow",
+    "COMPARE_COLOR_GREEN": "green",
+    "COMPARE_COLOR_BLUE": "blue",
+    "COMPARE_COLOR_PINK": "pink",
+    "COMPARE_COLOR_PURPLE": "purple",
+    "COMPARE_COLOR_ORANGE": "orange",
+    "COMPARE_COLOR_GRAY": "gray",
+    "COMPARE_COLOR_DOTS": "dots"
+  },
+  "SORT_DIRECTIONS": {
+    "SORT_ASC": "asc",
+    "SORT_DESC": "desc",
+    "SORT_NONE": "none"
+  },
+  "ASYNC_STATES": {
+    "STARTED": "STARTED",
+    "SUCCEEDED": "SUCCEEDED",
+    "FAILED": "FAILED",
+    "UNINITIALIZED": "UNINITIALIZED"
+  },
+  "TABS": {
+    "TAB_GROUP": "group",
+    "TAB_LOCATION": "location",
+    "TAB_EXAMPLE": "example",
+    "TAB_ABOUT": "acknowledgements",
+    "TAB_METHODOLOGY": "methodology",
+    "TAB_RELATED": "related_projects",
+    "TAB_GLOBAL_SEQUENCES": "global_sequencing"
+  }
+}

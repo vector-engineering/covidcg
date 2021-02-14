@@ -7,7 +7,7 @@ import _ from 'underscore';
 import { getGene, getProtein } from '../utils/gene_protein';
 
 import { snpColorArray } from '../constants/colors';
-import { GROUPS } from '../constants/groups';
+import { GROUPS } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 
 export class SnpDataStore {
@@ -39,7 +39,8 @@ export class SnpDataStore {
   init() {
     this.dnaSnvMap = asyncDataStoreInstance.data.metadata_map.dna_snp;
     this.geneAaSnvMap = asyncDataStoreInstance.data.metadata_map.gene_aa_snp;
-    this.proteinAaSnvMap = asyncDataStoreInstance.data.metadata_map.protein_aa_snp;
+    this.proteinAaSnvMap =
+      asyncDataStoreInstance.data.metadata_map.protein_aa_snp;
     // debugger;
 
     //snv -> color map

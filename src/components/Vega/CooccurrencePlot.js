@@ -14,11 +14,13 @@ import DropdownButton from '../Buttons/DropdownButton';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/cooccurrence_plot.vg.json';
-import { ASYNC_STATES } from '../../constants/UI';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { NORM_MODES } from '../../constants/plotSettings';
-import { GROUPS } from '../../constants/groups';
-import { DNA_OR_AA } from '../../constants/config';
+import {
+  ASYNC_STATES,
+  PLOT_DOWNLOAD_OPTIONS,
+  NORM_MODES,
+  GROUPS,
+  DNA_OR_AA,
+} from '../../constants/defs.json';
 import { formatSnv } from '../../utils/snpUtils';
 
 const PlotContainer = styled.div``;

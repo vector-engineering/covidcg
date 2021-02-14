@@ -7,11 +7,11 @@ import PosHeaderCell from '../Cells/PosHeaderCell';
 // import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
 import { snapGeneHighlightColors } from '../../constants/colors';
 import {
+  GROUPS,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../constants/plotSettings';
-import { REFERENCE_GROUP } from '../../constants/groups';
+} from '../../constants/defs.json';
 
 export const positionColumn = () => ({
   name: 'Position',
@@ -122,13 +122,13 @@ export const getSinglePosColumn = ({
       // OR, if we're coloring by code, then always color the reference row
       if (
         (conditionCompare(row[col], refRow[col], compareMode) ||
-          (row['group'] === REFERENCE_GROUP && colors !== null)) &&
+          (row['group'] === GROUPS.REFERENCE_GROUP && colors !== null)) &&
         row[col] !== null
       ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
-          if (row['group'] !== REFERENCE_GROUP) {
+          if (row['group'] !== GROUPS.REFERENCE_GROUP) {
             letter = '.';
           }
         } else if (colors === null) {

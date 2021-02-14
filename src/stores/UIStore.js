@@ -1,5 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-import { ASYNC_STATES, TABS } from '../constants/UI';
+import { ASYNC_STATES, TABS } from '../constants/defs.json';
 
 function removeItemAll(arr, value) {
   var i = 0;

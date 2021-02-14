@@ -12,7 +12,7 @@ import AppStatusBox from '../Vega/AppStatusBox';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
-import { GROUP_SNV } from '../../constants/config';
+import { GROUP_SNV } from '../../constants/defs.json';
 
 const LocationTabContainer = styled.div`
   padding-top: 10px;
@@ -25,7 +25,7 @@ const LocationTab = observer(() => {
   const renderAppStatusBox = () => {
     return (
       <AccordionWrapper
-        title='Status'
+        title="Status"
         defaultCollapsed={false}
         maxHeight={'300px'}
       >

@@ -18,10 +18,17 @@ import {
   transmembraneAAColors,
 } from '../../constants/colors';
 import {
+  GROUP_SNV,
+  DNA_OR_AA,
+  COORDINATE_MODES,
   COLOR_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
-} from '../../constants/plotSettings';
+  ASYNC_STATES,
+  GROUPS,
+} from '../../constants/defs.json';
+import { config } from '../../config';
+
 import TableOptions from './TableOptions';
 import {
   geneColumn,
@@ -38,15 +45,6 @@ import {
 import SkeletonElement from '../Common/SkeletonElement';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
-
-import {
-  appConfig,
-  GROUP_SNV,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-} from '../../constants/config';
-import { REFERENCE_GROUP } from '../../constants/groups';
-import { ASYNC_STATES } from '../../constants/UI';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -70,8 +68,8 @@ const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
 
 const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list
-  let refRow = _.findWhere(rows, { group: REFERENCE_GROUP });
-  rows = _.reject(rows, (row) => row.group == REFERENCE_GROUP);
+  let refRow = _.findWhere(rows, { group: GROUPS.REFERENCE_GROUP });
+  rows = _.reject(rows, (row) => row.group == GROUPS.REFERENCE_GROUP);
   rows = rows.sort(sortFn);
   rows.unshift(refRow);
   return rows;
@@ -83,7 +81,7 @@ const NewLineageDataTable = observer(() => {
   const calculatePosOffsets = (groupKey, dnaOrAa) => {
     let posTitleOffset = 0;
     let posColOffset = 0;
-    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+    if (Object.keys(config.group_cols).includes(groupKey)) {
       posTitleOffset = 220;
       posColOffset = 4;
     } else if (groupKey === GROUP_SNV) {
@@ -101,8 +99,10 @@ const NewLineageDataTable = observer(() => {
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
-      _columns.push(groupColumn({ title: appConfig.group_cols[configStore.groupKey].title }));
+    if (Object.keys(config.group_cols).includes(configStore.groupKey)) {
+      _columns.push(
+        groupColumn({ title: config.group_cols[configStore.groupKey].title })
+      );
     }
     // For SNP grouping, add each SNP chunk as its own column
     else if (configStore.groupKey === GROUP_SNV) {
@@ -169,7 +169,7 @@ const NewLineageDataTable = observer(() => {
 
     // Build a column for each changing position
     let refRow = _.findWhere(dataStore.dataAggGroup, {
-      group: REFERENCE_GROUP,
+      group: GROUPS.REFERENCE_GROUP,
     });
     if (!refRow) {
       return null;
@@ -351,7 +351,8 @@ const NewLineageDataTable = observer(() => {
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore
     if (
-      selectedGroup === REFERENCE_GROUP && Object.keys(appConfig.group_cols).includes(configStore.groupKey)
+      selectedGroup === GROUPS.REFERENCE_GROUP &&
+      Object.keys(config.group_cols).includes(configStore.groupKey)
     ) {
       return;
     }

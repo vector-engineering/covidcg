@@ -10,18 +10,16 @@ import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 
 import {
-  COLOR_MODES,
-  COMPARE_MODES,
-  COMPARE_COLORS,
-} from '../constants/plotSettings';
-import {
-  appConfig,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
   MIN_DATE,
-} from '../constants/config';
+  COLOR_MODES,
+  COMPARE_MODES,
+  COMPARE_COLORS,
+} from '../constants/defs.json';
+import { config } from '../config';
 
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
@@ -244,8 +242,8 @@ export class ConfigStore {
 
   // Get a pretty name for the group
   getGroupLabel() {
-    if (Object.keys(appConfig.group_cols).includes(this.groupKey)) {
-      return appConfig.group_cols[this.groupKey].title;
+    if (Object.keys(config.group_cols).includes(this.groupKey)) {
+      return config.group_cols[this.groupKey].title;
     } else if (this.groupKey === GROUP_SNV) {
       if (this.dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';

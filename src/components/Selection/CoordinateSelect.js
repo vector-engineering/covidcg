@@ -30,7 +30,7 @@ import {
 } from '../../utils/primer';
 import { referenceSequenceIncludes } from '../../utils/reference';
 
-import { DNA_OR_AA, COORDINATE_MODES } from '../../constants/config';
+import { DNA_OR_AA, COORDINATE_MODES } from '../../constants/defs.json';
 
 const genes = getAllGenes();
 const proteins = getAllProteins();

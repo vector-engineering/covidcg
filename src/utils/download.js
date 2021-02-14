@@ -1,6 +1,6 @@
 // Download utilities
 import { intToISO } from './date';
-import { GROUP_SNV } from '../constants/config';
+import { GROUP_SNV } from '../constants/defs.json';
 
 export function downloadBlobURL(blob_url, filename) {
   const link = window.document.getElementById('hidden-download-link');

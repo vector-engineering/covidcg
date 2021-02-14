@@ -1,8 +1,7 @@
 import { getLocationIds } from './location';
 import { aggregate } from './transform';
 
-import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { GROUPS } from '../constants/groups';
+import { DNA_OR_AA, COORDINATE_MODES, GROUPS } from '../constants/defs.json';
 import { formatSnv } from './snpUtils';
 
 function getCombinations(arr) {

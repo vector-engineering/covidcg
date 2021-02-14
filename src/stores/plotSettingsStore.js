@@ -7,7 +7,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
-} from '../constants/plotSettings';
+} from '../constants/defs.json';
 
 export const initialPlotSettingsValues = {
   groupStackNormMode: NORM_MODES.NORM_COUNTS,

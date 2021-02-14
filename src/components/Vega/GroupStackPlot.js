@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/UI';
 import {
+  ASYNC_STATES,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../constants/plotSettings';
-import { GROUP_SNV } from '../../constants/config';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
+  GROUP_SNV,
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+} from '../../constants/defs.json';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';

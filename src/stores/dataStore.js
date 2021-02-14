@@ -7,13 +7,11 @@ import {
   processSelectedSnvs,
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
-import {
-  downloadBlobURL, generateSelectionString,
-} from '../utils/download';
+import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { downloadAggCaseData } from '../utils/downloads/downloadAggCaseData';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
-import { GROUP_SNV } from '../constants/config';
+import { GROUP_SNV } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 
@@ -217,6 +215,40 @@ export class DataStore {
   }
 
   @action
+  async fetchData() {
+    const res = await fetch('http://localhost:5000', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        group_key: 'snv',
+        location_ids: {
+          Narnia: [1, 2, 3, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+          'Big Woods': [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        },
+        dna_or_aa: 'AA',
+        coordinate_mode: 'GENE',
+        coordinate_ranges: [[1, 2000]],
+        selected_gene: {
+          gene: 'S',
+        },
+        metadata_filters: {
+          database: 0,
+        },
+        low_count_filter: 'GROUP_COUNTS',
+        max_group_counts: 5,
+        min_local_counts: 10,
+        min_global_counts: 5,
+        date_range: [1585699200000, 1613091875364],
+      }),
+    });
+    const pkg = await res.json();
+    console.log(pkg);
+  }
+
+  @action
   updateCaseData(callback) {
     this.UIStoreInstance.onCaseDataStateStarted();
 
@@ -392,41 +424,60 @@ export class DataStore {
     // Special case - we're going to expand the location id into
     // 4 fields (region, country, division, location)
     // so add these to the end
-    csvString.push(keys.concat(['region', 'country', 'division', 'location']).join(','));
+    csvString.push(
+      keys.concat(['region', 'country', 'division', 'location']).join(',')
+    );
 
     const metadataFields = Object.keys(this.metadataStoreInstance.metadataMap);
 
     let vals = [];
     let metadataVal;
-    this.filteredCaseData.forEach(row => {
+    this.filteredCaseData.forEach((row) => {
       //  vals = keys.map(key => row[key]);
       vals = [];
-      keys.forEach(key => {
+      keys.forEach((key) => {
         // Special cases for keys
         if (key === 'collection_date') {
           vals.push('"' + intToISO(row[key]) + '"');
         } else if (key === 'age_start' || key === 'age_end') {
           vals.push(row[key] === null ? '' : row[key]);
         } else if (metadataFields.includes(key)) {
-          metadataVal = this.metadataStoreInstance.getMetadataValueFromId(key, row[key]);
-          vals.push('"' + ((metadataVal === undefined) ? '' : metadataVal) + '"');
+          metadataVal = this.metadataStoreInstance.getMetadataValueFromId(
+            key,
+            row[key]
+          );
+          vals.push('"' + (metadataVal === undefined ? '' : metadataVal) + '"');
         } else if (key === 'dna_snp_str') {
           vals.push(
-            '"' + row[key].map(snvId => { 
-              return this.snpDataStoreInstance.intToDnaSnv(snvId).snp_str 
-            }).join(';') + '"'
+            '"' +
+              row[key]
+                .map((snvId) => {
+                  return this.snpDataStoreInstance.intToDnaSnv(snvId).snp_str;
+                })
+                .join(';') +
+              '"'
           );
         } else if (key === 'gene_aa_snp_str') {
           vals.push(
-            '"' + row[key].map(snvId => { 
-              return this.snpDataStoreInstance.intToGeneAaSnv(snvId).snp_str 
-            }).join(';') + '"'
+            '"' +
+              row[key]
+                .map((snvId) => {
+                  return this.snpDataStoreInstance.intToGeneAaSnv(snvId)
+                    .snp_str;
+                })
+                .join(';') +
+              '"'
           );
         } else if (key === 'protein_aa_snp_str') {
           vals.push(
-            '"' + row[key].map(snvId => { 
-              return this.snpDataStoreInstance.intToProteinAaSnv(snvId).snp_str 
-            }).join(';') + '"'
+            '"' +
+              row[key]
+                .map((snvId) => {
+                  return this.snpDataStoreInstance.intToProteinAaSnv(snvId)
+                    .snp_str;
+                })
+                .join(';') +
+              '"'
           );
         } else {
           vals.push('"' + row[key] + '"');
@@ -435,15 +486,17 @@ export class DataStore {
 
       // Add location data
       vals = vals.concat(
-        this.locationStoreInstance.getLocationStrFromId(row.location_id).map(loc => {
-          return loc ? ('"' + loc + '"') : loc
-        })
+        this.locationStoreInstance
+          .getLocationStrFromId(row.location_id)
+          .map((loc) => {
+            return loc ? '"' + loc + '"' : loc;
+          })
       );
 
       csvString.push(vals.join(','));
     });
 
-    csvString = csvString.join('\n')
+    csvString = csvString.join('\n');
 
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
@@ -460,23 +513,21 @@ export class DataStore {
 
     const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
 
-    const { blobURL } = downloadAggCaseData(
-      {
-        groupKey: this.configStoreInstance.groupKey,
-        dnaOrAa: this.configStoreInstance.dnaOrAa,
-        coordinateMode: this.configStoreInstance.coordinateMode,
-        dataAggGroup: this.dataAggGroup,
+    const { blobURL } = downloadAggCaseData({
+      groupKey: this.configStoreInstance.groupKey,
+      dnaOrAa: this.configStoreInstance.dnaOrAa,
+      coordinateMode: this.configStoreInstance.coordinateMode,
+      dataAggGroup: this.dataAggGroup,
 
-        // SNV data
-        intToDnaSnvMap,
-        intToGeneAaSnvMap,
-        intToProteinAaSnvMap,
+      // SNV data
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
 
-        // Lineage data
-        groupSnvMap,
-        groupColorMap,
-      }
-    );
+      // Lineage data
+      groupSnvMap,
+      groupColorMap,
+    });
     downloadBlobURL(
       blobURL,
       generateSelectionString(
@@ -626,9 +677,7 @@ export class DataStore {
 
   @action
   downloadCountryScoreData() {
-    let jsonString = JSON.stringify(
-      asyncDataStoreInstance.data.country_score
-    );
+    let jsonString = JSON.stringify(asyncDataStoreInstance.data.country_score);
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
 

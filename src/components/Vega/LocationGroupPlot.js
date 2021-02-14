@@ -11,9 +11,13 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
 
-import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
-import { GROUPS } from '../../constants/groups';
-import { ASYNC_STATES } from '../../constants/UI';
+import { config } from '../../config';
+import {
+  GROUP_SNV,
+  DNA_OR_AA,
+  GROUPS,
+  ASYNC_STATES,
+} from '../../constants/defs.json';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
 const PlotContainer = styled.div``;
@@ -190,8 +194,8 @@ const LocationGroupPlot = observer(({ width }) => {
   }
 
   let xLabel, xLabelFormat, stackOffset;
-  if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
-    xLabel += `${appConfig.group_cols[configStore.groupKey].title} `;
+  if (Object.keys(config.group_cols).includes(configStore.groupKey)) {
+    xLabel += `${config.group_cols[configStore.groupKey].title} `;
   } else if (configStore.groupKey === GROUP_SNV) {
     if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       xLabel += 'NT';

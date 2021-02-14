@@ -5,7 +5,7 @@ import { useStores } from '../../stores/connect';
 // import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 import _ from 'underscore';
 
-import { ASYNC_STATES } from '../../constants/UI';
+import { ASYNC_STATES } from '../../constants/defs.json';
 
 import DataGrid from 'react-data-grid';
 import AckCell from '../Cells/AckCell';

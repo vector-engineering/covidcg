@@ -1,11 +1,10 @@
 import refSeq from '../../static_data/reference.json';
 
 import { cladeColorArray } from '../constants/colors';
-import { GROUPS } from '../constants/groups';
+import { GROUPS } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 
 export class GroupDataStore {
-
   // Group -> SNV data as maps
   groupSnvMap;
 
@@ -21,7 +20,7 @@ export class GroupDataStore {
     this.groupSnvMap = asyncDataStoreInstance.data.group_consensus_snps;
 
     // Build colors
-    Object.keys(this.groupSnvMap).forEach(groupDef => {
+    Object.keys(this.groupSnvMap).forEach((groupDef) => {
       // Initialize color map, with the "Other" group as grey by default
       const colorMap = {};
       colorMap[GROUPS.OTHER_GROUP] = '#AAA';

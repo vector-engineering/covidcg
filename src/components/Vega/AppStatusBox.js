@@ -3,8 +3,13 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import { ASYNC_STATES } from '../../constants/UI';
-import { appConfig, DNA_OR_AA, COORDINATE_MODES, GROUP_SNV } from '../../constants/config';
+import {
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  GROUP_SNV,
+  ASYNC_STATES,
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import { formatSnv } from '../../utils/snpUtils';
 import { intToISO } from '../../utils/date';
@@ -19,7 +24,7 @@ const Container = styled.div`
 
   margin: 0px 10px;
   padding: 5px 10px;
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
   border-radius: 5px;
 `;
 
@@ -50,12 +55,12 @@ const Sequence = styled.span`
 `;
 
 const serializeCoordinates = (coordinateRanges) => {
-  return coordinateRanges.map(coordRange => coordRange.join('..')).join(', ');
+  return coordinateRanges.map((coordRange) => coordRange.join('..')).join(', ');
 };
 
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
-  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
 };
 
 const AppStatusBox = observer(() => {
@@ -70,19 +75,20 @@ const AppStatusBox = observer(() => {
   };
 
   let genomeSelection = '';
-  const residuesOrBases = configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues';
+  const residuesOrBases =
+    configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues';
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     genomeSelection = (
-    <>
-      Gene: <b>{configStore.selectedGene.gene}</b>.{' '}
-      {residuesOrBases}: <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
-    </>
+      <>
+        Gene: <b>{configStore.selectedGene.gene}</b>. {residuesOrBases}:{' '}
+        <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
+      </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
     genomeSelection = (
       <>
-        Protein: <b>{configStore.selectedProtein.protein}</b>.{' '}
-        {residuesOrBases}: <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
+        Protein: <b>{configStore.selectedProtein.protein}</b>. {residuesOrBases}
+        : <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
@@ -90,39 +96,40 @@ const AppStatusBox = observer(() => {
       <>
         Primers:{' '}
         <b>
-          {(
-            configStore.selectedPrimers.length === 0 
-              ? 'None' 
-              : configStore.selectedPrimers.map(primer => primer.Name).join(', ')
-          )}
-        </b>.
-        {' '}
-        {configStore.selectedPrimers.length === 0 ? '' : (residuesOrBases + ': ')}
+          {configStore.selectedPrimers.length === 0
+            ? 'None'
+            : configStore.selectedPrimers
+                .map((primer) => primer.Name)
+                .join(', ')}
+        </b>
+        .{' '}
+        {configStore.selectedPrimers.length === 0 ? '' : residuesOrBases + ': '}
         <b>
-          {(
-            configStore.selectedPrimers.length === 0 
-              ? '' 
-              : serializeCoordinates(configStore.getCoordinateRanges())
-          )}
+          {configStore.selectedPrimers.length === 0
+            ? ''
+            : serializeCoordinates(configStore.getCoordinateRanges())}
         </b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
     genomeSelection = (
       <>
-        Custom coordinates: <b>{serializeCoordinates(configStore.customCoordinates)}</b>
+        Custom coordinates:{' '}
+        <b>{serializeCoordinates(configStore.customCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
-    const sequenceList = configStore.customSequences.map((seq) => {
-      return <Sequence key={seq}>{seq}</Sequence>
-    }).reduce((prev, curr) => [prev, ', ', curr]);
+    const sequenceList = configStore.customSequences
+      .map((seq) => {
+        return <Sequence key={seq}>{seq}</Sequence>;
+      })
+      .reduce((prev, curr) => [prev, ', ', curr]);
     genomeSelection = (
       <>
-        Matching sequence(s): {sequenceList}.{' '}
-        {residuesOrBases}: <b>{serializeCoordinates(configStore.getCoordinateRanges())}</b>
+        Matching sequence(s): {sequenceList}. {residuesOrBases}:{' '}
+        <b>{serializeCoordinates(configStore.getCoordinateRanges())}</b>
       </>
-    )
+    );
   }
 
   let dateRange = '';
@@ -132,7 +139,8 @@ const AppStatusBox = observer(() => {
   } else {
     dateRange = (
       <>
-        <b>{intToISO(configStore.dateRange[0])}</b> – <b>{intToISO(configStore.dateRange[1])}</b>
+        <b>{intToISO(configStore.dateRange[0])}</b> –{' '}
+        <b>{intToISO(configStore.dateRange[1])}</b>
       </>
     );
   }
@@ -140,18 +148,26 @@ const AppStatusBox = observer(() => {
   let selectedGroups = <b>None</b>;
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_SNV) {
-      selectedGroups = configStore.selectedGroups.map((group) => {
-        return <b key={group.group}>{formatSnv(group.group, configStore.dnaOrAa)}</b>;
-      }).reduce((prev, curr) => [prev, ' + ', curr]);
+      selectedGroups = configStore.selectedGroups
+        .map((group) => {
+          return (
+            <b key={group.group}>
+              {formatSnv(group.group, configStore.dnaOrAa)}
+            </b>
+          );
+        })
+        .reduce((prev, curr) => [prev, ' + ', curr]);
     } else {
-      selectedGroups = configStore.selectedGroups.map((group) => {
-        return <b key={group.group}>{group.group}</b>;
-      }).reduce((prev, curr) => [prev, ' + ', curr]);
+      selectedGroups = configStore.selectedGroups
+        .map((group) => {
+          return <b key={group.group}>{group.group}</b>;
+        })
+        .reduce((prev, curr) => [prev, ' + ', curr]);
     }
   }
 
   const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
-  if (appConfig.allow_metadata_download) {
+  if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
   }
 
@@ -165,8 +181,7 @@ const AppStatusBox = observer(() => {
           paddingBottom: '24px',
         }}
       >
-        <SkeletonElement delay={2} height={100}>
-        </SkeletonElement>
+        <SkeletonElement delay={2} height={100}></SkeletonElement>
       </div>
     );
   }
@@ -175,17 +190,21 @@ const AppStatusBox = observer(() => {
     <Container>
       <LineColumn>
         <Line>
-          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected. Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing mutations on the <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
+          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected.
+          Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing
+          mutations on the{' '}
+          <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
         </Line>
         <Line>
-          Selected locations: <b>{configStore.selectedLocationNodes.map((node) => node.label).join(', ')}</b>
+          Selected locations:{' '}
+          <b>
+            {configStore.selectedLocationNodes
+              .map((node) => node.label)
+              .join(', ')}
+          </b>
         </Line>
-        <Line>
-          Date range: {dateRange}
-        </Line>
-        <Line>
-          Genome selection: {genomeSelection}
-        </Line>
+        <Line>Date range: {dateRange}</Line>
+        <Line>Genome selection: {genomeSelection}</Line>
         <Line>
           Selected {configStore.getGroupLabel()}s: {selectedGroups}
         </Line>

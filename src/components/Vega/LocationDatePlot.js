@@ -10,11 +10,11 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../constants/plotSettings';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
-import { GROUP_SNV } from '../../constants/config';
-import { ASYNC_STATES } from '../../constants/UI';
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+  GROUP_SNV,
+  ASYNC_STATES,
+} from '../../constants/defs.json';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -400,13 +400,10 @@ const LocationDatePlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Inconsistent sampling in the underlying data can result in missing
-        data and artefacts in this visualization. Please interpret this data
-        with care.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Inconsistent sampling in the underlying data can result in missing data
+        and artefacts in this visualization. Please interpret this data with
+        care.
       </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>

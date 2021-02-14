@@ -13,7 +13,7 @@ import {
 
 import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
-import { LOW_FREQ_FILTER_TYPES } from '../../constants/config';
+import { LOW_FREQ_FILTER_TYPES } from '../../constants/defs.json';
 
 const FilterDataIntoOther = observer(() => {
   const { configStore } = useStores();

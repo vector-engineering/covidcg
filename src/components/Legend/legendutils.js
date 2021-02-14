@@ -1,14 +1,14 @@
 import {
   COORDINATE_MODES,
   DNA_OR_AA,
-  appConfig,
   GROUP_SNV,
-} from '../../constants/config';
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 export const sortLegendItems = (groupKey, dnaOrAa, coordinateMode, a, b) => {
   // If we're grouping by lineage or clade, then sort alphabetically
   // on the lineage/clade
-  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+  if (Object.keys(config.group_cols).includes(groupKey)) {
     return a.group > b.group ? 1 : -1;
   } else if (groupKey === GROUP_SNV) {
     // If we're grouping by SNV, figure out whether we're in DNA or AA mode

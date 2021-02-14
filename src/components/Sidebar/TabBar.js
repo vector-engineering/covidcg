@@ -7,7 +7,7 @@ import { updateQueryStringParam } from '../../utils/updateQueryParam';
 
 import DropdownButton from '../Buttons/DropdownButton';
 
-import { TABS } from '../../constants/UI';
+import { TABS } from '../../constants/defs.json';
 
 const TabBarContainer = styled.div`
   display: flex;
@@ -25,14 +25,14 @@ const TabBarList = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   flex-grow: 1;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #ccc;
 `;
 
 const TabItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #ccc;
 
   a.tab-link {
     display: flex;

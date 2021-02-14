@@ -1,7 +1,10 @@
-
-import { GROUPS } from '../../constants/groups';
-import { appConfig, GROUP_SNV, DNA_OR_AA, COORDINATE_MODES } from '../../constants/config';
-
+import {
+  GROUP_SNV,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  GROUPS,
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 function downloadAggCaseDataGroup({
   groupKey,
@@ -23,9 +26,7 @@ function downloadAggCaseDataGroup({
   // Write headers
   csvString = 'lineage,seqs,seqs_percent,nt_snps,aa_snps,';
   // Add position column headers
-  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(
-    ','
-  );
+  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(',');
   csvString += '\n';
 
   for (let i = 0; i < dataAggGroup.length; i++) {
@@ -116,9 +117,9 @@ function downloadAggCaseDataGroup({
     }
 
     // Add letters at positions
-    csvString += changingPositions.map(
-      (pos) => row['pos_' + pos.toString()]
-    ).join(',');
+    csvString += changingPositions
+      .map((pos) => row['pos_' + pos.toString()])
+      .join(',');
 
     csvString += '\n';
   }
@@ -142,9 +143,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
   // Add count headers
   csvString += 'seqs,seqs_percent,';
   // Add position column headers
-  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(
-    ','
-  );
+  csvString += changingPositions.map((pos) => (pos + 1).toString()).join(',');
   csvString += '\n';
 
   for (let i = 0; i < dataAggGroup.length; i++) {
@@ -178,17 +177,15 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     csvString += row['cases_sum'] + ',' + row['cases_percent'] + ',';
 
     // Add letters at positions
-    csvString += changingPositions.map(
-      (pos) => row['pos_' + pos.toString()]
-    ).join(',');
+    csvString += changingPositions
+      .map((pos) => row['pos_' + pos.toString()])
+      .join(',');
 
     csvString += '\n';
   }
 
   return csvString;
 }
-
-
 
 export function downloadAggCaseData({
   groupKey,
@@ -215,7 +212,7 @@ export function downloadAggCaseData({
   });
 
   // If we're in lineage mode, then we need to get SNPs for this lineage
-  if (Object.keys(appConfig.group_cols).includes(groupKey)) {
+  if (Object.keys(config.group_cols).includes(groupKey)) {
     csvString = downloadAggCaseDataGroup({
       groupKey,
       dataAggGroup,
@@ -239,6 +236,3 @@ export function downloadAggCaseData({
     blobURL: url,
   };
 }
-  
-  
-  

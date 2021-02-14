@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'underscore';
-import { GROUP_SNV } from '../../constants/config';
+import { GROUP_SNV } from '../../constants/defs.json';
 import { useStores } from '../../stores/connect';
 import { formatSnv } from '../../utils/snpUtils';
 import { reds } from '../../constants/colors';
@@ -71,7 +71,9 @@ const PercentageCell = ({ value, min, max, percent }) => {
   }
 
   return (
-    <PercentageContainer style={{ backgroundColor: color }}>{value}</PercentageContainer>
+    <PercentageContainer style={{ backgroundColor: color }}>
+      {value}
+    </PercentageContainer>
   );
 };
 
@@ -152,7 +154,7 @@ const TableLegendItem = observer(
             ? formatSnv(group, configStore.dnaOrAa)
             : group}
         </GroupNameContainer>
-        <PercentageCell 
+        <PercentageCell
           data-group={group}
           min={0}
           max={1}

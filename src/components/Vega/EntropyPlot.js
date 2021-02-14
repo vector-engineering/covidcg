@@ -14,10 +14,13 @@ import DropdownButton from '../Buttons/DropdownButton';
 import { PlotOptions } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
-import { ASYNC_STATES } from '../../constants/UI';
-import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
+import {
+  ASYNC_STATES,
+  COORDINATE_MODES,
+  DNA_OR_AA,
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+} from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
 const PlotContainer = styled.div``;
@@ -227,11 +230,18 @@ const EntropyPlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Systematic errors are sometimes observed specific to particular labs or methods (<ExternalLink href='https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14'>https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14</ExternalLink>, <ExternalLink href='https://doi.org/10.1371/journal.pgen.1009175'>https://doi.org/10.1371/journal.pgen.1009175</ExternalLink>), users are advised to consider these errors in their high resolution analyses.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Systematic errors are sometimes observed specific to particular labs or
+        methods (
+        <ExternalLink href="https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14">
+          https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14
+        </ExternalLink>
+        ,{' '}
+        <ExternalLink href="https://doi.org/10.1371/journal.pgen.1009175">
+          https://doi.org/10.1371/journal.pgen.1009175
+        </ExternalLink>
+        ), users are advised to consider these errors in their high resolution
+        analyses.
       </WarningBox>
       <PlotOptions>
         <div className="spacer"></div>

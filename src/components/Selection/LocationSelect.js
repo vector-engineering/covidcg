@@ -8,11 +8,10 @@ import {
   ContainerDiv,
   DropdownHeader,
   UnselectButton,
-  StyledDropdownTreeSelect
+  StyledDropdownTreeSelect,
 } from './LocationSelect.styles';
 
-import { ASYNC_STATES } from '../../constants/UI';
-
+import { ASYNC_STATES } from '../../constants/defs.json';
 
 const LocationSelect = observer(() => {
   const { UIStore, configStore, locationDataStore } = useStores();

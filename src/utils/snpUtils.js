@@ -1,5 +1,4 @@
-import { DNA_OR_AA } from '../constants/config';
-import { GROUPS } from '../constants/groups';
+import { DNA_OR_AA, GROUPS } from '../constants/defs.json';
 
 export const formatSnv = (snvStr, dnaOrAa) => {
   // Don't do this if it's a special group

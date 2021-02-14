@@ -6,11 +6,11 @@ import { useStores } from '../../stores/connect';
 import { SelectContainer, RadioForm, Link } from './GroupBySelect.styles';
 
 import {
-  appConfig,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-} from '../../constants/config';
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 const GroupBySelect = observer(() => {
   const { configStore } = useStores();
@@ -52,7 +52,7 @@ const GroupBySelect = observer(() => {
   }
 
   const groupSelectItems = [];
-  Object.keys(appConfig.group_cols).forEach((group) => {
+  Object.keys(config.group_cols).forEach((group) => {
     groupSelectItems.push(
       <div className="radio-item" key={`select-${group}`}>
         <label>
@@ -63,7 +63,7 @@ const GroupBySelect = observer(() => {
             checked={configStore.groupKey === group}
             onChange={handleGroupKeyChange}
           />
-          <span>{appConfig.group_cols[group].title}</span>
+          <span>{config.group_cols[group].title}</span>
         </label>
       </div>
     );
@@ -88,11 +88,11 @@ const GroupBySelect = observer(() => {
             </label>
           </div>
         </div>
-        {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
+        {Object.keys(config.group_cols).includes(configStore.groupKey) && (
           <>
-            {appConfig.group_cols[configStore.groupKey].description}
-            <Link href={appConfig.group_cols[configStore.groupKey].link.href}>
-              {appConfig.group_cols[configStore.groupKey].link.title}
+            {config.group_cols[configStore.groupKey].description}
+            <Link href={config.group_cols[configStore.groupKey].link.href}>
+              {config.group_cols[configStore.groupKey].link.title}
             </Link>
           </>
         )}

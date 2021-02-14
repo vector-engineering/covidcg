@@ -4,9 +4,13 @@ import { observer } from 'mobx-react';
 import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/UI';
-import { REFERENCE_GROUP, OTHER_GROUP } from '../../constants/groups';
-import { COORDINATE_MODES, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
+import {
+  ASYNC_STATES,
+  GROUPS,
+  COORDINATE_MODES,
+  GROUP_SNV,
+  DNA_OR_AA,
+} from '../../constants/defs.json';
 import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
 
@@ -15,19 +19,35 @@ const TableLegendContainer = styled.div`
   height: 100%;
 `;
 
-const comparer = ({ sortDirection, sortColumn, groupKey, dnaOrAa, coordinateMode }) => (a, b) => {
-
+const comparer = ({
+  sortDirection,
+  sortColumn,
+  groupKey,
+  dnaOrAa,
+  coordinateMode,
+}) => (a, b) => {
   // special sorting for snv group
   // If in SNV mode, then sort by position IF:
   // We're in DNA mode OR
   // We're comparing rows that have the same gene/protein
   if (groupKey === GROUP_SNV) {
-    let sameGeneOrProtein = ((a.gene === b.gene && coordinateMode === COORDINATE_MODES.COORD_GENE) || (a.protein === b.protein && coordinateMode === COORDINATE_MODES.COORD_PROTEIN));
+    let sameGeneOrProtein =
+      (a.gene === b.gene && coordinateMode === COORDINATE_MODES.COORD_GENE) ||
+      (a.protein === b.protein &&
+        coordinateMode === COORDINATE_MODES.COORD_PROTEIN);
 
-    if (sortColumn === 'group' && (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) && sortDirection === 'ASC') {
+    if (
+      sortColumn === 'group' &&
+      (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) &&
+      sortDirection === 'ASC'
+    ) {
       return a.pos - b.pos;
     }
-    if (sortColumn === 'group' && (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) && sortDirection === 'DESC') {
+    if (
+      sortColumn === 'group' &&
+      (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) &&
+      sortDirection === 'DESC'
+    ) {
       return b.pos - a.pos;
     }
   }
@@ -97,11 +117,15 @@ const LegendContainer = observer(() => {
     // Also set aside the "Other" group, if it exists
     // Sort the list, then add the reference back to the beginning
     // and add the other group back to the end
-    const refItem = _.findWhere(_legendItems, { group: REFERENCE_GROUP });
-    const otherItem = _.findWhere(_legendItems, { group: OTHER_GROUP });
+    const refItem = _.findWhere(_legendItems, {
+      group: GROUPS.REFERENCE_GROUP,
+    });
+    const otherItem = _.findWhere(_legendItems, { group: GROUPS.OTHER_GROUP });
     _legendItems = _.reject(
       _legendItems,
-      (item) => item.group === REFERENCE_GROUP || item.group === OTHER_GROUP
+      (item) =>
+        item.group === GROUPS.REFERENCE_GROUP ||
+        item.group === GROUPS.OTHER_GROUP
     );
     _legendItems = _legendItems.sort(
       sortLegendItems.bind(
@@ -123,13 +147,15 @@ const LegendContainer = observer(() => {
 
   useEffect(() => {
     let _arr = [...legendItems];
-    _arr = _arr.sort(comparer({ 
-      sortColumn, 
-      sortDirection: sortDir,
-      groupKey: configStore.groupKey, 
-      dnaOrAa: configStore.dnaOrAa,
-      coordinateMode: configStore.coordinateMode 
-    }));
+    _arr = _arr.sort(
+      comparer({
+        sortColumn,
+        sortDirection: sortDir,
+        groupKey: configStore.groupKey,
+        dnaOrAa: configStore.dnaOrAa,
+        coordinateMode: configStore.coordinateMode,
+      })
+    );
     setLegendItems(_arr);
   }, [sortColumn, sortDir]);
 
@@ -139,13 +165,15 @@ const LegendContainer = observer(() => {
     }
 
     setLegendItems(
-      getLegendKeys().sort(comparer({ 
-        sortColumn, 
-        sortDirection: sortDir,
-        groupKey: configStore.groupKey,
-        dnaOrAa: configStore.dnaOrAa,
-        coordinateMode: configStore.coordinateMode 
-      }))
+      getLegendKeys().sort(
+        comparer({
+          sortColumn,
+          sortDirection: sortDir,
+          groupKey: configStore.groupKey,
+          dnaOrAa: configStore.dnaOrAa,
+          coordinateMode: configStore.coordinateMode,
+        })
+      )
     );
   }, [UIStore.caseDataState]);
 

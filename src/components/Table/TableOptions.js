@@ -5,11 +5,12 @@ import { capitalize } from '../../utils/string';
 import { useStores } from '../../stores/connect';
 
 import {
+  DNA_OR_AA,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../constants/plotSettings';
-import { appConfig, DNA_OR_AA } from '../../constants/config';
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
@@ -201,7 +202,7 @@ const Spacer = styled.div`
 
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
-  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
 };
 
 const TableOptions = observer(() => {
@@ -218,11 +219,9 @@ const TableOptions = observer(() => {
     }
   };
 
-  const downloadOptions = [
-    DOWNLOAD_OPTIONS.AGGREGATE_DATA
-  ];
+  const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
 
-  if (appConfig.allow_metadata_download) {
+  if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
   }
 

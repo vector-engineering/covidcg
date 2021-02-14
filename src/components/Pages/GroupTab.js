@@ -17,8 +17,7 @@ import CooccurrencePlot from '../Vega/CooccurrencePlot';
 import AppStatusBox from '../Vega/AppStatusBox';
 // import AcknowledgementsTable from '../Table/AcknowledgementsTable';
 
-import { GROUP_SNV, DNA_OR_AA } from '../../constants/config';
-import { TABS } from '../../constants/UI';
+import { GROUP_SNV, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
 const GroupTabContainer = styled.div`
   padding-top: 10px;
@@ -28,11 +27,10 @@ const GroupTab = observer(() => {
   const { configStore } = useStores();
   const [ref, { width }] = useDimensions();
 
-
   const renderAppStatusBox = () => {
     return (
       <AccordionWrapper
-        title='Status'
+        title="Status"
         defaultCollapsed={false}
         maxHeight={'300px'}
       >

@@ -18,7 +18,7 @@ import SequencingEffortsTab from './SequencingEffortsTab';
 import Footer from '../Footer';
 import KeyListener from '../KeyListener';
 
-import { TABS } from '../../constants/UI';
+import { TABS } from '../../constants/defs.json';
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -44,7 +44,6 @@ const PlotContainer = styled.div`
 `;
 
 const HomePage = observer(({ UIStore }) => {
-
   const renderTab = () => {
     if (UIStore.activeTab === TABS.TAB_GROUP) {
       return <GroupTab />;
