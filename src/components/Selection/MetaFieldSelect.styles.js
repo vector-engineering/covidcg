@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 
-import Button from '../Buttons/Button';
-
 const formWidth = '160px';
 
 export const MetaFieldSelectContainer = styled.div`

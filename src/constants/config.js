@@ -35,3 +35,5 @@ export const COORDINATE_MODES = {
   COORD_CUSTOM,
   COORD_SEQUENCE,
 };
+
+export const MIN_DATE = 1576368000000;

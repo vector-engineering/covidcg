@@ -47,7 +47,7 @@ const LegendSidebarContainer = styled.div`
 `;
 
 const FilterSidebar = observer(() => {
-  const { configStore, UIStore } = useStores();
+  const { UIStore } = useStores();
 
   const [modalActive, setModalActive] = useState(false);
 

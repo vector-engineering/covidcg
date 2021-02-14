@@ -20,6 +20,7 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
+  MIN_DATE,
 } from '../constants/config';
 
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
@@ -44,6 +45,8 @@ export const initialConfigValues = {
   coordinateMode: COORDINATE_MODES.COORD_GENE,
 
   dateRange: [-1, -1], // No initial date range
+  startDate: MIN_DATE,
+  endDate: new Date().getTime(),
 
   selectedLocationNodes: [],
 
@@ -98,6 +101,9 @@ export class ConfigStore {
   @observable coordinateMode = initialConfigValues.coordinateMode;
 
   @observable dateRange = initialConfigValues.dateRange;
+  @observable startDate = initialConfigValues.startDate;
+  @observable endDate = initialConfigValues.endDate;
+  @observable validDateRange = true;
 
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
 
@@ -190,13 +196,6 @@ export class ConfigStore {
 
   @action
   changeGrouping(groupKey, dnaOrAa) {
-    // console.log(
-    //   'CHANGE GROUPING. GROUP KEY:',
-    //   groupKey,
-    //   'DNA OR AA:',
-    //   dnaOrAa
-    // );
-
     if (this.groupKey !== groupKey) {
       // If groupings were changed, then clear selected groups
       this.selectedGroups = [];
@@ -451,12 +450,24 @@ export class ConfigStore {
   }
 
   @action
-  selectDateRange(dateRange) {
+  updateDateRange(dateRange) {
     this.dateRange = dateRange;
-    this.dataStoreInstance.updateAggCaseDataByGroup();
-    if (this.groupKey === GROUP_SNV) {
-      this.dataStoreInstance.processCooccurrenceData();
-    }
+    // this.dataStoreInstance.updateAggCaseDataByGroup();
+    // if (this.groupKey === GROUP_SNV) {
+    //   this.dataStoreInstance.processCooccurrenceData();
+    // }
+  }
+  @action
+  updateStartDate(startDate) {
+    this.startDate = startDate;
+  }
+  @action
+  updateEndDate(endDate) {
+    this.endDate = endDate;
+  }
+  @action
+  updateValidDateRange(validDateRange) {
+    this.validDateRange = validDateRange;
   }
 
   @action

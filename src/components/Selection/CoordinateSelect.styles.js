@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import Button from '../Buttons/Button';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
 export const SelectContainer = styled.div`

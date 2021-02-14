@@ -32,14 +32,14 @@ const GroupStackPlot = observer(({ width }) => {
 
     if (dateRange === null) {
       // Reset time range
-      configStore.selectDateRange([-1, -1]);
+      configStore.updateDateRange([-1, -1]);
     } else if (
       dateRange[0] === configStore.dateRange[0] &&
       dateRange[1] === configStore.dateRange[1]
     ) {
       // No change, return
     } else if (dateRange !== null) {
-      configStore.selectDateRange([
+      configStore.updateDateRange([
         dateRange[0].getTime(),
         dateRange[1].getTime(),
       ]);
@@ -293,13 +293,10 @@ const GroupStackPlot = observer(({ width }) => {
 
   return (
     <div>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Inconsistent sampling in the underlying data can result in missing
-        data and artefacts in this visualization. Please interpret this data
-        with care.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Inconsistent sampling in the underlying data can result in missing data
+        and artefacts in this visualization. Please interpret this data with
+        care.
       </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>
@@ -375,8 +372,7 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            disableSelectionColoring:
-              configStore.groupKey === GROUP_SNV,
+            disableSelectionColoring: configStore.groupKey === GROUP_SNV,
             detailHeight,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,
