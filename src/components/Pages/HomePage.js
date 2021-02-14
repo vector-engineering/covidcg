@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { connect } from '../../stores/connect';
 import { onMobileDevice } from '../../utils/device';
 
-import TabBar from '../TabBar';
 import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
@@ -23,7 +22,7 @@ import { TABS } from '../../constants/UI';
 
 const HomePageDiv = styled.div`
   display: grid;
-  grid-template-columns: [col1] 300px [col2] 150px [col3] auto [col4];
+  grid-template-columns: [col1] 200px [col2] 150px [col3] auto [col4];
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;
@@ -45,9 +44,6 @@ const PlotContainer = styled.div`
 `;
 
 const HomePage = observer(({ UIStore }) => {
-  const onTabChange = (tab) => {
-    UIStore.setActiveTab(tab);
-  };
 
   const renderTab = () => {
     if (UIStore.activeTab === TABS.TAB_GROUP) {
@@ -111,7 +107,6 @@ const HomePage = observer(({ UIStore }) => {
       <HomePageDiv>
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
           {renderTab()}
           <Footer />
         </PlotContainer>

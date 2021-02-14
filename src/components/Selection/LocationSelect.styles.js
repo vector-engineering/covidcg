@@ -1,26 +1,21 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { useStores } from '../../stores/connect';
-import { getNodeFromPath } from '../../utils/location';
 
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
-import { ASYNC_STATES } from '../../constants/UI';
+export const ContainerDiv = styled.div`
+  width: 100%;
+  height: 100%;
 
-const ContainerDiv = styled.div`
   margin-top: 2px;
   padding-top: 8px;
 
-  border-top: 1px solid #aaa;
   display: flex;
   flex-direction: column;
   // overflow-y: hidden;
   overflow-y: scroll;
 `;
 
-const DropdownHeader = styled.div`
+export const DropdownHeader = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -28,7 +23,7 @@ const DropdownHeader = styled.div`
   margin-left: 15px;
 `;
 
-const UnselectButton = styled.button`
+export const UnselectButton = styled.button`
   display: ${({ show }) => (show ? 'block' : 'none')};
   margin-left: 10px;
 `;
@@ -36,12 +31,90 @@ UnselectButton.defaultProps = {
   show: true,
 };
 
-const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
+// export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
+//   .hide:not(.match-in-children) {
+//     display: none;
+//   }
+
+//   .dropdown {
+//     position: relative;
+//     display: table;
+
+//     .dropdown-trigger {
+//       padding: 4px;
+//       line-height: 20px;
+//       max-height: 200px;
+//       display: inline-block;
+//       overflow: auto;
+//       border: 1px solid rgb(185, 185, 185);
+
+//       &.arrow {
+//         cursor: pointer;
+
+//         &.bottom::after {
+//           content: '+';
+//           vertical-align: middle;
+//           color: #3c3c3c;
+//           margin-right: 2px;
+//         }
+
+//         &.top::after {
+//           content: '+';
+//           vertical-align: middle;
+//           color: #3c3c3c;
+//           margin-right: 2px;
+//         }
+
+//         &.disabled {
+//           cursor: not-allowed;
+
+//           &.bottom::after {
+//             color: rgb(185, 185, 185);
+//           }
+//         }
+//       }
+//     }
+
+//     .toggle {
+//       white-space: pre;
+//       margin-right: 4px;
+//       cursor:pointer &:after {
+//         content: ' ';
+//       }
+//       &.collapsed:after {
+//         content: '+';
+//       }
+//       &.expanded:after {
+//         content: '-';
+//       }
+//     }
+
+//     .dropdown-content {
+//       position: absolute;
+//       padding: 4px;
+//       z-index: 1;
+//       background: white;
+//       border-top: rgba(0, 0, 0, 0.05) 1px solid;
+//       box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+
+//       .search {
+//         width: 100%;
+//         border: none;
+//         border-bottom: solid 1px #ccc;
+//         outline: none;
+//       }
+
+//       ul {
+//         margin: 0;
+//         padding: 0;
+//       }
+//     }
+//   }
+// `;
+
+export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
-  flex-direction: column;
-  display: flex;
-  // overflow-y: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
 
   ul.tag-list {
     li:first-child {
@@ -173,8 +246,7 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
 
   .dropdown {
     width: 100%;
-    display: block;
-    position: relative;
+    height: 100%;
     flex-direction: column;
     display: flex;
     // overflow: hidden;
@@ -193,16 +265,13 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
 
     .dropdown-content {
       position: relative;
-      //width: calc(100% - 10px);
-      flex-grow: 1;
+      height: calc(100vh - 220px);
       padding: 4px;
       padding-left: 15px;
       padding-right: 15px;
       background-color: #f8f8f8;
       z-index: 1;
-      flex-direction: column;
-      display: flex;
-      overflow-y: hidden;
+      overflow-y: scroll;
 
       input.search {
         font-size: 1em;
@@ -247,98 +316,3 @@ const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     font-style: normal;
   }
 `;
-
-const DropdownContainer = observer(() => {
-  const { UIStore, configStore, locationDataStore } = useStores();
-
-  const [state, setState] = useState({
-    data: locationDataStore.selectTree,
-  });
-
-  useEffect(() => {
-    setState({ ...state, data: locationDataStore.selectTree });
-  }, [locationDataStore.selectTree]);
-
-  const onUnselectAll = (e) => {
-    e.preventDefault();
-    configStore.selectLocations([]);
-  };
-
-  const treeSelectOnChange = (currentNode, selectedNodes) => {
-    // Since the tree is rendered in a flat state, we need to get all node
-    // children from the original data, via. the node paths
-    let selectedNodeObjs = selectedNodes.map((node) => {
-      // If the path doesn't exist, then we're at the root node
-      if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
-        return state.data;
-      }
-
-      return getNodeFromPath(state.data, node['path']);
-    });
-
-    if (
-      UIStore.caseDataState === ASYNC_STATES.STARTED ||
-      UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-    ) {
-      return;
-    }
-
-    configStore.selectLocations(selectedNodeObjs);
-  };
-  // const treeSelectOnAction = (node, action) => {
-  //   console.log('onAction::', action, node);
-  // };
-  // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-  //   console.log('onNodeToggle::', currentNode);
-  // };
-
-  const dropdownContainer = useMemo(
-    () => (
-      <StyledDropdownTreeSelect
-        data={state.data}
-        className="geo-dropdown-tree-select"
-        clearSearchOnChange={false}
-        keepTreeOnSearch={true}
-        keepChildrenOnSearch={true}
-        showPartiallySelected={true}
-        showDropdown="always"
-        inlineSearchInput={true}
-        texts={{
-          placeholder: 'Search...',
-          noMatches: 'No matches found',
-        }}
-        onChange={treeSelectOnChange}
-        // onAction={treeSelectOnAction}
-        // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-      />
-    ),
-    [state.data]
-  );
-
-  return (
-    <ContainerDiv>
-      <DropdownHeader>
-        <span className="location-tree-title">Selected Locations</span>
-        <UnselectButton
-          show={configStore.selectedLocationNodes.length > 0}
-          onClick={onUnselectAll}
-        >
-          Unselect All
-        </UnselectButton>
-      </DropdownHeader>
-      {dropdownContainer}
-    </ContainerDiv>
-  );
-});
-
-DropdownContainer.defaultProps = {
-  data: {},
-};
-
-DropdownContainer.propTypes = {
-  data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
-};
-
-DropdownContainer.displayName = 'DropdownContainer';
-
-export default DropdownContainer;

@@ -14,8 +14,6 @@ import {
   ModeSelectForm,
   ModeRadioVertical,
   SelectForm,
-  UpdatePrimersButton,
-  UpdateButton,
   CoordForm,
   PrimerSelectContainer,
   ValidationInput,
@@ -121,24 +119,16 @@ const CoordinateSelect = observer(() => {
 
   const [state, setState] = useState({
     primerTreeData: Object.assign(getPrimerSelectTree()),
-    selectedPrimers: [],
-    primersChanged: false,
 
     customCoordText: configStore.customCoordinates
       .map((range) => range.join('..'))
       .join(';'),
-    validCustomCoords: true,
-    customCoordinatesChanged: false,
 
     customSequences: configStore.customSequences.join(';'),
-    validCustomSequences: true,
-    customSequencesChanged: false,
 
     residueCoordsText: configStore.residueCoordinates
       .map((range) => range.join('..'))
       .join(';'),
-    validResidueCoords: true,
-    residueCoordsChanged: false,
   });
 
   // Disable "All Genes" and "All Proteins" option
@@ -157,8 +147,6 @@ const CoordinateSelect = observer(() => {
       customCoordText: configStore.customCoordinates
         .map((range) => range.join('..'))
         .join(';'),
-      customCoordinatesChanged: false,
-      validCustomCoords: true,
     });
   }, [configStore.customCoordinates]);
 
@@ -167,68 +155,25 @@ const CoordinateSelect = observer(() => {
     setState({
       ...state,
       customSequences: configStore.customSequences.join(';'),
-      customSequencesChanged: false,
-      validCustomSequences: true,
     });
   }, [configStore.customSequences]);
 
-  const changeCoordinateMode = ({
-    coordinateMode,
-    selectedGene,
-    selectedProtein,
-    residueCoordinates,
-    selectedPrimers,
-    customCoordinates,
-    customSequences,
-  }) => {
-    configStore.changeCoordinateMode({
-      coordinateMode:
-        coordinateMode === undefined
-          ? configStore.coordinateMode
-          : coordinateMode,
-      selectedGene:
-        selectedGene === undefined
-          ? configStore.selectedGene.gene
-          : selectedGene,
-      selectedProtein:
-        selectedProtein === undefined
-          ? configStore.selectedProtein.protein
-          : selectedProtein,
-      residueCoordinates:
-        residueCoordinates === undefined
-          ? configStore.residueCoordinates
-          : residueCoordinates,
-      selectedPrimers:
-        selectedPrimers === undefined
-          ? configStore.selectedPrimers
-          : selectedPrimers,
-      customCoordinates:
-        customCoordinates === undefined
-          ? configStore.customCoordinates
-          : customCoordinates,
-      customSequences:
-        customSequences === undefined
-          ? configStore.customSequences
-          : customSequences,
-    });
-  };
-
   const handleModeChange = (event) => {
-    changeCoordinateMode({ coordinateMode: event.target.value });
+    configStore.updateCoordinateMode(event.target.value);
   };
 
   const handleGeneChange = (event) => {
-    changeCoordinateMode({
-      coordinateMode: COORDINATE_MODES.COORD_GENE,
-      selectedGene: event.target.value,
-    });
+    if (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE) {
+      configStore.updateCoordinateMode(COORDINATE_MODES.COORD_GENE);
+    }
+    configStore.updateSelectedGene(event.target.value);
   };
 
   const handleProteinChange = (event) => {
-    changeCoordinateMode({
-      coordinateMode: COORDINATE_MODES.COORD_PROTEIN,
-      selectedProtein: event.target.value,
-    });
+    if (configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN) {
+      configStore.updateCoordinateMode(COORDINATE_MODES.COORD_PROTEIN);
+    }
+    configStore.updateSelectedProtein(event.target.value);
   };
 
   // Use a regex to match numbers, since just because JS
@@ -236,18 +181,13 @@ const CoordinateSelect = observer(() => {
   const numPattern = /^([0-9]+)$/;
 
   const handleResidueCoordsChange = (event) => {
-    // Serialize custom coordinates of the store
-    const storeResidueCoords = configStore.residueCoordinates
-      .map((range) => range.join('..'))
-      .join(';');
-
     // Parse current custom coordinates
     const curResidueCoords = event.target.value
       .split(';')
       .map((range) => range.split('..'));
 
     // Check that these are valid
-    const validResidueCoords = !curResidueCoords.some((range) => {
+    const validResidueCoordinates = !curResidueCoords.some((range) => {
       // Return true if invalid
       return (
         range.length !== 2 ||
@@ -260,18 +200,15 @@ const CoordinateSelect = observer(() => {
     setState({
       ...state,
       residueCoordsText: event.target.value,
-      validResidueCoords,
-      residueCoordsChanged: storeResidueCoords !== event.target.value,
     });
-  };
 
-  const handleResidueCoordsSubmit = (event) => {
-    event.preventDefault();
-    changeCoordinateMode({
-      residueCoordinates: state.residueCoordsText
-        .split(';')
-        .map((range) => range.split('..').map((coord) => parseInt(coord))),
-    });
+    configStore.updateValidResidueCoordinates(validResidueCoordinates);
+
+    if (validResidueCoordinates) {
+      configStore.updateResidueCoordinates(
+        curResidueCoords.map((range) => range.map((coord) => parseInt(coord)))
+      );
+    }
   };
 
   // Use the selected domain to fill in the residue coordinates input
@@ -291,14 +228,9 @@ const CoordinateSelect = observer(() => {
         .join(';');
     }
 
-    const residueCoordsChanged =
-      state.residueCoordsText !== newResidueCoordsText;
-
     setState({
       ...state,
       residueCoordsText: newResidueCoordsText,
-      validResidueCoords: true,
-      residueCoordsChanged,
     });
   };
 
@@ -317,14 +249,10 @@ const CoordinateSelect = observer(() => {
         .map((range) => range.join('..'))
         .join(';');
     }
-    const residueCoordsChanged =
-      state.residueCoordsText !== newResidueCoordsText;
 
     setState({
       ...state,
       residueCoordsText: newResidueCoordsText,
-      validResidueCoords: true,
-      residueCoordsChanged,
     });
   };
 
@@ -335,23 +263,17 @@ const CoordinateSelect = observer(() => {
       residueCoordsText: configStore.residueCoordinates
         .map((range) => range.join('..'))
         .join(';'),
-      validResidueCoords: true,
-      residueCoordsChanged: false,
     });
   }, [configStore.residueCoordinates]);
 
   const handleCustomCoordChange = (event) => {
-    // Serialize custom coordinates of the store
-    const storeCustomCoords = configStore.customCoordinates
-      .map((range) => range.join('..'))
-      .join(';');
-
     // Parse current custom coordinates
     const curCustomCoords = event.target.value
       .split(';')
       .map((range) => range.split('..'));
+
     // Check that these are valid
-    const validCustomCoords = !curCustomCoords.some((range) => {
+    const validCustomCoordinates = !curCustomCoords.some((range) => {
       // Return true if invalid
       return (
         range.length !== 2 ||
@@ -364,20 +286,17 @@ const CoordinateSelect = observer(() => {
     setState({
       ...state,
       customCoordText: event.target.value,
-      validCustomCoords,
-      customCoordinatesChanged: storeCustomCoords !== event.target.value,
     });
-  };
 
-  const handleCustomCoordSubmit = (event) => {
-    event.preventDefault();
-    // Change to custom mode implicitly
-    changeCoordinateMode({
-      coordinateMode: COORDINATE_MODES.COORD_CUSTOM,
-      customCoordinates: state.customCoordText
-        .split(';')
-        .map((range) => range.split('..').map((coord) => parseInt(coord))),
-    });
+    configStore.updateValidCustomCoordinates(validCustomCoordinates);
+
+    if (validCustomCoordinates) {
+      // Change to custom mode implicitly
+      configStore.updateCoordinateMode(COORDINATE_MODES.COORD_CUSTOM);
+      configStore.updateCustomCoordinates(
+        curCustomCoords.map((range) => range.map((coord) => parseInt(coord)))
+      );
+    }
   };
 
   const handleCustomSequencesChange = (event) => {
@@ -395,39 +314,19 @@ const CoordinateSelect = observer(() => {
         !referenceSequenceIncludes(seq)
       );
     });
-    const customSequencesChanged =
-      curText !== configStore.customSequences.join(';');
 
     setState({
       ...state,
       customSequences: curText,
-      validCustomSequences,
-      customSequencesChanged,
     });
-  };
 
-  const handleCustomSequencesSubmit = (event) => {
-    event.preventDefault();
-    // Change to sequences mode implicitly
-    changeCoordinateMode({
-      coordinateMode: COORDINATE_MODES.COORD_SEQUENCE,
-      customSequences: state.customSequences.split(';'),
-    });
-  };
+    configStore.updateValidCustomSequences(validCustomSequences);
 
-  const checkPrimersChanged = (selectedPrimers) => {
-    // Is the current configStore.selectedPrimers the same as the current selection?
-    let changed = selectedPrimers.length !== configStore.selectedPrimers.length;
-    if (!changed && selectedPrimers.length > 0) {
-      // Run through once - both selectedPrimers and the configStore version are sorted
-      for (let i = 0; i < selectedPrimers.length; i++) {
-        if (!_.isEqual(selectedPrimers[i], configStore.selectedPrimers[i])) {
-          changed = true;
-          break;
-        }
-      }
+    if (validCustomSequences) {
+      // Change to sequences mode implicitly
+      configStore.updateCoordinateMode(COORDINATE_MODES.COORD_SEQUENCE);
+      configStore.updateCustomSequences(curText.split(';'));
     }
-    return changed;
   };
 
   useEffect(() => {
@@ -449,8 +348,7 @@ const CoordinateSelect = observer(() => {
       traverseAndDeselect(node);
     });
 
-    const selectedPrimers = configStore.selectedPrimers;
-    selectedPrimers.forEach((primer) => {
+    configStore.selectedPrimers.forEach((primer) => {
       const institutionNode = _.findWhere(primerTreeData, {
         value: primer.Institution,
       });
@@ -463,8 +361,6 @@ const CoordinateSelect = observer(() => {
     setState({
       ...state,
       primerTreeData,
-      selectedPrimers,
-      primersChanged: false,
     });
   }, [configStore.selectedPrimers]);
 
@@ -486,21 +382,10 @@ const CoordinateSelect = observer(() => {
       return primer.Institution.concat('-', primer.Name);
     });
 
-    setState({
-      ...state,
-      selectedPrimers: selectedPrimers,
-      primersChanged: checkPrimersChanged(selectedPrimers),
-    });
-  };
-
-  const updatePrimerSelection = (event) => {
-    event.preventDefault();
     // In addition to updating the selection, also
     // switch to primer mode here implicitly
-    changeCoordinateMode({
-      coordinateMode: COORDINATE_MODES.COORD_PRIMER,
-      selectedPrimers: state.selectedPrimers,
-    });
+    configStore.updateCoordinateMode(COORDINATE_MODES.COORD_PRIMER);
+    configStore.updateSelectedPrimers(selectedPrimers);
   };
 
   // This component needs to be in a memoized function
@@ -527,6 +412,7 @@ const CoordinateSelect = observer(() => {
 
   return (
     <SelectContainer>
+      <span className="title">Genomic Coordinates</span>
       <ModeSelectForm>
         {/* GENE SELECT */}
         <ModeRadioVertical>
@@ -581,6 +467,9 @@ const CoordinateSelect = observer(() => {
                     data-for="gene-residue-index-tooltip"
                   />
                 </CoordForm>
+                {!configStore.validResidueCoordinates && (
+                  <InvalidText>Invalid coordinate format</InvalidText>
+                )}
                 <DomainSelectForm>
                   <span>Domain:</span>
                   <select
@@ -595,15 +484,6 @@ const CoordinateSelect = observer(() => {
                     data-for="gene-residue-index-tooltip"
                   />
                 </DomainSelectForm>
-
-                <UpdateButton
-                  show={state.residueCoordsChanged}
-                  disabled={!state.validResidueCoords}
-                  onClick={handleResidueCoordsSubmit}
-                  style={{ marginTop: 5 }}
-                >
-                  Confirm
-                </UpdateButton>
               </>
             )}
         </ModeRadioVertical>
@@ -661,6 +541,9 @@ const CoordinateSelect = observer(() => {
                     data-for="protein-residue-index-tooltip"
                   />
                 </CoordForm>
+                {!configStore.validResidueCoordinates && (
+                  <InvalidText>Invalid coordinate format</InvalidText>
+                )}
                 <DomainSelectForm>
                   <span>Domain:</span>
                   <select
@@ -679,14 +562,6 @@ const CoordinateSelect = observer(() => {
                     data-for="protein-residue-index-tooltip"
                   />
                 </DomainSelectForm>
-                <UpdateButton
-                  show={state.residueCoordsChanged}
-                  disabled={!state.validResidueCoords}
-                  onClick={handleResidueCoordsSubmit}
-                  style={{ marginTop: 5 }}
-                >
-                  Confirm
-                </UpdateButton>
               </>
             )}
         </ModeRadioVertical>
@@ -707,14 +582,6 @@ const CoordinateSelect = observer(() => {
             {configStore.coordinateMode !== COORDINATE_MODES.COORD_PRIMER && (
               <span className="hint-text">Select to show options</span>
             )}
-            {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
-              <UpdatePrimersButton
-                show={state.primersChanged}
-                onClick={updatePrimerSelection}
-              >
-                Update Selection
-              </UpdatePrimersButton>
-            )}
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
             <ExternalLink
@@ -727,9 +594,9 @@ const CoordinateSelect = observer(() => {
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
             <PrimerSelectContainer
               placeholderText={
-                state.selectedPrimers.length === 0
+                configStore.selectedPrimers.length === 0
                   ? 'Select or search...'
-                  : state.selectedPrimers.length.toString() +
+                  : configStore.selectedPrimers.length.toString() +
                     ' primers/probes selected...'
               }
             >
@@ -754,16 +621,6 @@ const CoordinateSelect = observer(() => {
             {configStore.coordinateMode !== COORDINATE_MODES.COORD_CUSTOM && (
               <span className="hint-text">Select to show options</span>
             )}
-            <UpdateButton
-              show={
-                state.customCoordinatesChanged &&
-                configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM
-              }
-              disabled={!state.validCustomCoords}
-              onClick={handleCustomCoordSubmit}
-            >
-              Confirm
-            </UpdateButton>
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM && (
             <CoordForm>
@@ -787,6 +644,9 @@ const CoordinateSelect = observer(() => {
               />
             </CoordForm>
           )}
+          {!configStore.validCustomCoordinates && (
+            <InvalidText>Invalid coordinate format</InvalidText>
+          )}
         </ModeRadioVertical>
 
         {/* CUSTOM SEQUENCES */}
@@ -805,16 +665,6 @@ const CoordinateSelect = observer(() => {
             {configStore.coordinateMode !== COORDINATE_MODES.COORD_SEQUENCE && (
               <span className="hint-text">Select to show options</span>
             )}
-            <UpdateButton
-              show={
-                state.customSequencesChanged &&
-                configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE
-              }
-              disabled={!state.validCustomSequences}
-              onClick={handleCustomSequencesSubmit}
-            >
-              Confirm
-            </UpdateButton>
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE && (
             <>
@@ -823,7 +673,7 @@ const CoordinateSelect = observer(() => {
                   type="text"
                   value={state.customSequences}
                   onChange={handleCustomSequencesChange}
-                  invalid={!state.validCustomSequences}
+                  invalid={!configStore.validCustomSequences}
                 />
                 <ReactTooltip
                   className="filter-sidebar-tooltip"
@@ -839,19 +689,20 @@ const CoordinateSelect = observer(() => {
                   data-for="custom-sequence-tooltip"
                 />
               </CoordForm>
-              {!state.validCustomSequences && (
+              {!configStore.validCustomSequences && (
                 <InvalidText>One or more sequences are invalid</InvalidText>
               )}
-              {configStore.coordinateMode ===
-                COORDINATE_MODES.COORD_SEQUENCE && (
-                <RangesText>
-                  Coordinates:{' '}
-                  {configStore
-                    .getCoordinateRanges()
-                    .map((range) => range.join('..'))
-                    .join(';')}
-                </RangesText>
-              )}
+              {configStore.validCustomSequences &&
+                configStore.coordinateMode ===
+                  COORDINATE_MODES.COORD_SEQUENCE && (
+                  <RangesText>
+                    Coordinates:{' '}
+                    {configStore
+                      .getCoordinateRanges()
+                      .map((range) => range.join('..'))
+                      .join(';')}
+                  </RangesText>
+                )}
             </>
           )}
         </ModeRadioVertical>

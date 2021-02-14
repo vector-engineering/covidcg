@@ -4,7 +4,6 @@ import {
   toJS,
   //intercept, autorun
 } from 'mobx';
-import _ from 'underscore';
 
 import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
@@ -86,9 +85,15 @@ export class ConfigStore {
   @observable selectedGene = initialConfigValues.selectedGene;
   @observable selectedProtein = initialConfigValues.selectedProtein;
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
+
   @observable customCoordinates = initialConfigValues.customCoordinates;
+  @observable validCustomCoordinates = true;
+
   @observable customSequences = initialConfigValues.customSequences;
+  @observable validCustomSequences = true;
+
   @observable residueCoordinates = initialConfigValues.residueCoordinates;
+  @observable validResidueCoordinates = true;
 
   @observable coordinateMode = initialConfigValues.coordinateMode;
 
@@ -203,11 +208,11 @@ export class ConfigStore {
 
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
-      this.plotSettingsStoreInstanceInstance.tableColorMode =
+      this.plotSettingsStoreInstance.tableColorMode =
         COLOR_MODES.COLOR_MODE_COMPARE;
-      this.plotSettingsStoreInstanceInstance.tableCompareMode =
+      this.plotSettingsStoreInstance.tableCompareMode =
         COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      this.plotSettingsStoreInstanceInstance.tableCompareColor =
+      this.plotSettingsStoreInstance.tableCompareColor =
         COMPARE_COLORS.COLOR_MODE_ZAPPO;
     } else {
       // Clear table coloring settings
@@ -224,10 +229,7 @@ export class ConfigStore {
 
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (
-      this.groupKey !== GROUP_SNV &&
-      this.dnaOrAa === DNA_OR_AA.AA
-    ) {
+    if (this.groupKey !== GROUP_SNV && this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.selectedGene.gene === 'All Genes') {
         // Switch back to S gene
         this.selectedGene = getGene('S');
@@ -238,7 +240,7 @@ export class ConfigStore {
       }
     }
 
-    this.dataStoreInstance.updateCaseData();
+    // this.dataStoreInstance.updateCaseData();
   }
 
   // Get a pretty name for the group
@@ -254,57 +256,29 @@ export class ConfigStore {
     }
   }
 
-  @action
-  changeCoordinateMode({
-    coordinateMode,
-    selectedGene,
-    selectedProtein,
-    residueCoordinates,
-    selectedPrimers,
-    customCoordinates,
-    customSequences,
-  }) {
-    let initial = Object.assign({
-      coordinateMode: toJS(this.coordinateMode),
-      selectedGene: toJS(this.selectedGene),
-      selectedProtein: toJS(this.selectedProtein),
-      residueCoordinates: toJS(this.residueCoordinates),
-      selectedPrimers: toJS(this.selectedPrimers),
-      customCoordinates: toJS(this.customCoordinates),
-      customSequences: toJS(this.customSequences),
-    });
-    // console.log(initial);
-
-    this.coordinateMode = coordinateMode;
-    this.selectedGene = getGene(selectedGene);
-    this.selectedProtein = getProtein(selectedProtein);
-    this.residueCoordinates = residueCoordinates;
-    this.selectedPrimers = selectedPrimers;
-    this.customCoordinates = customCoordinates;
-    this.customSequences = customSequences;
-
-    // If we selected a new gene/protein, then update the residue coordinates
-    if (
-      this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      (this.selectedGene.gene !== initial.selectedGene.gene ||
-        this.coordinateMode !== initial.coordinateMode)
-    ) {
-      if (this.selectedGene.gene === 'All Genes') {
-        this.residueCoordinates = [];
-      } else {
-        this.residueCoordinates = [[1, this.selectedGene.len_aa]];
-      }
-    } else if (
-      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-      (this.selectedProtein.protein !== initial.selectedProtein.protein ||
-        this.coordinateMode !== initial.coordinateMode)
-    ) {
-      if (this.selectedProtein.protein === 'All Proteins') {
-        this.residueCoordinates = [];
-      } else {
-        this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
-      }
+  setDefaultGeneResidueCoordinates() {
+    if (this.selectedGene.gene === 'All Genes') {
+      this.residueCoordinates = [];
+    } else {
+      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
     }
+    // Clear valid residue coordinates flag
+    this.validResidueCoordinates = true;
+  }
+
+  setDefaultProteinResidueCoordinates() {
+    if (this.selectedProtein.protein === 'All Proteins') {
+      this.residueCoordinates = [];
+    } else {
+      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+    }
+    // Clear valid residue coordinates flag
+    this.validResidueCoordinates = true;
+  }
+
+  @action
+  updateCoordinateMode(coordinateMode) {
+    this.coordinateMode = coordinateMode;
 
     // If we switched to a coordinate mode that doesn't support AA SNPs,
     // then switch off of it now
@@ -316,54 +290,65 @@ export class ConfigStore {
       this.dnaOrAa = DNA_OR_AA.DNA;
     }
 
-    // If nothing changed, then skip the update
-    if (this.coordinateMode !== initial.coordinateMode) {
-      // Do nothing
-    } else if (
-      this.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      this.selectedGene.gene === initial.selectedGene.gene &&
-      _.isEqual(toJS(this.residueCoordinates), initial.residueCoordinates)
-    ) {
-      return;
-    } else if (
-      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-      this.selectedProtein.protein == initial.selectedProtein.protein &&
-      _.isEqual(toJS(this.residueCoordinates), initial.residueCoordinates)
-    ) {
-      return;
-    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
-      let changed = false;
-      if (this.selectedPrimers.length !== initial.selectedPrimers.length) {
-        changed = true;
-      } else {
-        for (let i = 0; i < this.selectedPrimers.length; i++) {
-          if (!_.isEqual(this.selectedPrimers[i], initial.selectedPrimers[i])) {
-            changed = true;
-            break;
-          }
-        }
-      }
-      if (!changed) {
-        return;
-      }
-    } else if (
-      this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
-      _.isEqual(toJS(this.customCoordinates), initial.customCoordinates)
-    ) {
-      return;
-    } else if (
-      this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE &&
-      _.isEqual(toJS(this.customSequences), initial.customSequences)
-    ) {
-      return;
+    if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      this.setDefaultGeneResidueCoordinates();
+    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      this.setDefaultProteinResidueCoordinates();
     }
+  }
 
-    // Clear selected groups?
-    // TODO: we don't need to do this, depending on the selection.
-    //       do this in a smarter way
-    this.selectedGroups = [];
+  @action
+  updateSelectedGene(selectedGene) {
+    const initialSelectedGene = this.selectedGene;
+    this.selectedGene = getGene(selectedGene);
 
-    this.dataStoreInstance.updateCaseData();
+    // If we selected a new gene, then update the residue coordinates
+    if (this.selectedGene.gene !== initialSelectedGene.gene) {
+      this.setDefaultGeneResidueCoordinates();
+    }
+  }
+
+  @action
+  updateSelectedProtein(selectedProtein) {
+    const initialSelectedProtein = this.selectedProtein;
+    this.selectedProtein = getProtein(selectedProtein);
+
+    // If we selected a new protein, then update the residue coordinates
+    if (this.selectedProtein.protein !== initialSelectedProtein.protein) {
+      this.setDefaultProteinResidueCoordinates();
+    }
+  }
+
+  @action
+  updateResidueCoordinates(residueCoordinates) {
+    this.residueCoordinates = residueCoordinates;
+  }
+  @action
+  updateValidResidueCoordinates(valid) {
+    this.validResidueCoordinates = valid;
+  }
+
+  @action
+  updateSelectedPrimers(selectedPrimers) {
+    this.selectedPrimers = selectedPrimers;
+  }
+
+  @action
+  updateCustomCoordinates(customCoordinates) {
+    this.customCoordinates = customCoordinates;
+  }
+  @action
+  updateValidCustomCoordinates(valid) {
+    this.validCustomCoordinates = valid;
+  }
+
+  @action
+  updateCustomSequences(customSequences) {
+    this.customSequences = customSequences;
+  }
+  @action
+  updateValidCustomSequences(valid) {
+    this.validCustomSequences = valid;
   }
 
   getCoordinateRanges() {
@@ -446,19 +431,23 @@ export class ConfigStore {
     // Clear metadata fields
     this.selectedMetadataFields = {};
 
-    if (!selectedLocationNodes || !selectedLocationNodes[0]) {
-      this.locationDataStoreInstance.deselectAll();
-      this.dataStoreInstance.emptyCaseData();
-    } else {
-      this.dataStoreInstance.updateCaseData();
-    }
+    // if (!selectedLocationNodes || !selectedLocationNodes[0]) {
+    //   this.locationDataStoreInstance.deselectAll();
+    //   this.dataStoreInstance.emptyCaseData();
+    // } else {
+    //   this.dataStoreInstance.updateCaseData();
+    // }
   }
 
   @action
-  updateSelectedMetadataFields(selectedMetadataFields, ageRange) {
-    this.selectedMetadataFields = selectedMetadataFields;
+  updateSelectedMetadataFields(field, options) {
+    this.selectedMetadataFields[field] = options;
+    // this.dataStoreInstance.updateCaseData();
+  }
+
+  @action
+  updateAgeRange(ageRange) {
     this.ageRange = ageRange;
-    this.dataStoreInstance.updateCaseData();
   }
 
   @action
@@ -497,16 +486,22 @@ export class ConfigStore {
   }
 
   @action
-  setLowFreqFilters({
-    lowFreqFilterType,
-    minLocalCountsToShow,
-    minGlobalCountsToShow,
-    maxGroupCounts,
-  }) {
+  setLowFreqFilterType(lowFreqFilterType) {
     this.lowFreqFilterType = lowFreqFilterType;
+  }
+
+  @action
+  setMinLocalCountsToShow(minLocalCountsToShow) {
     this.minLocalCountsToShow = minLocalCountsToShow;
+  }
+
+  @action
+  setMinGlobalCountsToShow(minGlobalCountsToShow) {
     this.minGlobalCountsToShow = minGlobalCountsToShow;
+  }
+
+  @action
+  setMaxGroupCounts(maxGroupCounts) {
     this.maxGroupCounts = maxGroupCounts;
-    this.dataStoreInstance.updateCaseData();
   }
 }

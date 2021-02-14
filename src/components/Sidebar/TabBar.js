@@ -1,20 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { useStores } from '../stores/connect';
+import { useStores } from '../../stores/connect';
 import styled from 'styled-components';
-import { updateQueryStringParam } from '../utils/updateQueryParam';
+import { updateQueryStringParam } from '../../utils/updateQueryParam';
 
-import DropdownButton from './Buttons/DropdownButton';
+import DropdownButton from '../Buttons/DropdownButton';
 
-import { TABS } from '../constants/UI';
+import { TABS } from '../../constants/UI';
 
 const TabBarContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: stretch;
-
-  padding-top: 5px;
 
   width: 100%;
   min-height: 30px;
@@ -23,37 +21,31 @@ const TabBarContainer = styled.div`
 
 const TabBarList = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   flex-grow: 1;
-
-  padding-left: 10px;
-  padding-right: 10px;
+  border-bottom: 1px solid #CCC;
 `;
 
 const TabItem = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: stretch;
-
-  max-width: 250px;
+  border-bottom: 1px solid #CCC;
 
   a.tab-link {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    justify-content: center;
 
     flex-grow: 1;
     text-decoration: none;
     color: ${({ active }) => (active ? '#000' : '#888')};
-    text-align: center;
-    border-radius: 10px 10px 0px 0px;
     background-color: ${({ active }) => (active ? '#fff' : 'transparent')};
     transition: 0.1s all ease-in-out;
 
-    padding: 0px 15px;
+    padding: 4px 10px;
 
     &:hover {
       color: #666;

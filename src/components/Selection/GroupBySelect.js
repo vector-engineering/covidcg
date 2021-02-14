@@ -2,9 +2,8 @@ import React from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import styled from 'styled-components';
 
-import ExternalLink from '../Common/ExternalLink';
+import { SelectContainer, RadioForm, Link } from './GroupBySelect.styles';
 
 import {
   appConfig,
@@ -12,71 +11,6 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/config';
-
-const SelectContainer = styled.div`
-  padding: 7px 13px 0px 13px;
-  box-shadow: 0px 2px 4px #aaa;
-  background-color: #fcfcfc;
-`;
-
-const RadioForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  margin-bottom: 10px;
-  // margin-bottom: 5px;
-
-  // background-color: #fff;
-  // padding: 5px 10px;
-  // border: 1px solid #ccc;
-
-  span {
-    flex-shrink: 0;
-    margin-right: 10px;
-  }
-
-  .radio-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    margin-top: 3px;
-    margin-left: 12px;
-  }
-
-  .radio-item {
-    margin-left: 0.65em;
-    &:first-child {
-      margin-left: 0px;
-    }
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    input {
-      margin: 0px;
-      margin-right: 0.5em;
-    }
-
-    span.disabled-text {
-      font-weight: normal;
-      font-size: 0.8em;
-      color: #888;
-      flex-shrink: 1;
-      white-space: normal;
-      line-height: normal;
-      margin-left: 5px;
-    }
-  }
-`;
-
-const Link = styled(ExternalLink)`
-  font-size: 0.9em;
-  margin-left: 10px;
-`;
 
 const GroupBySelect = observer(() => {
   const { configStore } = useStores();
@@ -118,7 +52,7 @@ const GroupBySelect = observer(() => {
   }
 
   const groupSelectItems = [];
-  Object.keys(appConfig.group_cols).forEach(group => {
+  Object.keys(appConfig.group_cols).forEach((group) => {
     groupSelectItems.push(
       <div className="radio-item" key={`select-${group}`}>
         <label>
@@ -155,16 +89,16 @@ const GroupBySelect = observer(() => {
           </div>
         </div>
         {Object.keys(appConfig.group_cols).includes(configStore.groupKey) && (
-            <>
-              { appConfig.group_cols[configStore.groupKey].description }
-              <Link href={appConfig.group_cols[configStore.groupKey].link.href}>
-                {appConfig.group_cols[configStore.groupKey].link.title}
-              </Link>
-            </>
-          )}
+          <>
+            {appConfig.group_cols[configStore.groupKey].description}
+            <Link href={appConfig.group_cols[configStore.groupKey].link.href}>
+              {appConfig.group_cols[configStore.groupKey].link.title}
+            </Link>
+          </>
+        )}
       </RadioForm>
       <RadioForm>
-        <span>Mutation format</span>
+        <span className="form-title">Mutation format</span>
         <div className="radio-row">
           <div className="radio-item">
             <input

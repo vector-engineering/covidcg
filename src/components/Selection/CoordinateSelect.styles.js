@@ -9,10 +9,12 @@ export const SelectContainer = styled.div`
   align-items: stretch;
   justify-content: flex-start;
 
-  margin: 5px 5px 0px 5px;
-  padding: 0px 8px 0px 8px;
+  margin: 5px 0px;
+  padding-right: 10px;
 
   span.title {
+    font-weight: 500;
+    font-size: 1rem;
     margin-bottom: 5px;
   }
 `;
@@ -115,18 +117,6 @@ export const DomainSelectForm = styled.form`
     border-radius: 3px;
   }
 `;
-
-export const UpdatePrimersButton = styled(Button)`
-  display: ${(props) => (props.show ? 'block' : 'none')};
-  font-size: 0.9em;
-  margin-left: 20px;
-  padding: 2px 5px;
-  font-weight: normal;
-`;
-
-UpdatePrimersButton.defaultProps = {
-  show: false,
-};
 
 export const PrimerSelectContainer = styled.div`
   span.placeholder {
@@ -273,16 +263,6 @@ export const CoordForm = styled.form`
     flex-grow: 1;
   }
 `;
-
-export const UpdateButton = styled(Button)`
-  display: ${(props) => (props.show ? 'block' : 'none')};
-  font-size: 0.9em;
-  padding: 3px 8px;
-  margin-left: 10px;
-`;
-UpdateButton.defaultProps = {
-  show: false,
-};
 
 export const ValidationInput = styled.input`
   border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
