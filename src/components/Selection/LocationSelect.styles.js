@@ -31,87 +31,6 @@ UnselectButton.defaultProps = {
   show: true,
 };
 
-// export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
-//   .hide:not(.match-in-children) {
-//     display: none;
-//   }
-
-//   .dropdown {
-//     position: relative;
-//     display: table;
-
-//     .dropdown-trigger {
-//       padding: 4px;
-//       line-height: 20px;
-//       max-height: 200px;
-//       display: inline-block;
-//       overflow: auto;
-//       border: 1px solid rgb(185, 185, 185);
-
-//       &.arrow {
-//         cursor: pointer;
-
-//         &.bottom::after {
-//           content: '+';
-//           vertical-align: middle;
-//           color: #3c3c3c;
-//           margin-right: 2px;
-//         }
-
-//         &.top::after {
-//           content: '+';
-//           vertical-align: middle;
-//           color: #3c3c3c;
-//           margin-right: 2px;
-//         }
-
-//         &.disabled {
-//           cursor: not-allowed;
-
-//           &.bottom::after {
-//             color: rgb(185, 185, 185);
-//           }
-//         }
-//       }
-//     }
-
-//     .toggle {
-//       white-space: pre;
-//       margin-right: 4px;
-//       cursor:pointer &:after {
-//         content: ' ';
-//       }
-//       &.collapsed:after {
-//         content: '+';
-//       }
-//       &.expanded:after {
-//         content: '-';
-//       }
-//     }
-
-//     .dropdown-content {
-//       position: absolute;
-//       padding: 4px;
-//       z-index: 1;
-//       background: white;
-//       border-top: rgba(0, 0, 0, 0.05) 1px solid;
-//       box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
-
-//       .search {
-//         width: 100%;
-//         border: none;
-//         border-bottom: solid 1px #ccc;
-//         outline: none;
-//       }
-
-//       ul {
-//         margin: 0;
-//         padding: 0;
-//       }
-//     }
-//   }
-// `;
-
 export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   overflow-y: hidden;
@@ -270,7 +189,6 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
       padding-left: 15px;
       padding-right: 15px;
       background-color: #f8f8f8;
-      z-index: 1;
       overflow-y: scroll;
 
       input.search {

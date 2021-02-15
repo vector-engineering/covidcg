@@ -412,7 +412,22 @@ const CoordinateSelect = observer(() => {
 
   return (
     <SelectContainer>
-      <span className="title">Genomic Coordinates</span>
+      <ReactTooltip
+        className="filter-sidebar-tooltip"
+        id="coordinate-title-tooltip"
+        type="light"
+        effect="solid"
+        border={true}
+        borderColor="#888"
+      />
+      <span className="title">
+        Genomic Coordinates
+        <QuestionButton
+          data-tip="<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p>"
+          data-html="true"
+          data-for="coordinate-title-tooltip"
+        />
+      </span>
       <ModeSelectForm>
         {/* GENE SELECT */}
         <ModeRadioVertical>

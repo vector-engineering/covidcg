@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
-import { COORDINATE_MODES } from '../../constants/defs.json';
+import { COORDINATE_MODES, ASYNC_STATES } from '../../constants/defs.json';
 
 import Modal from 'react-modal';
 
@@ -13,6 +13,8 @@ import DateSelect from '../Selection/DateSelect';
 import MetaFieldSelect from '../Selection/MetaFieldSelect';
 import FilterDataIntoOther from '../Selection/FilterDataIntoOther';
 
+import LoadingSpinner from '../Common/LoadingSpinner';
+
 import {
   Wrapper,
   Content,
@@ -22,15 +24,20 @@ import {
   CancelButton,
   ApplyButton,
   InvalidText,
+  Overlay,
+  ProgressContainer,
+  ProgressText,
 } from './SelectSequencesModal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, dataStore } = useStores();
+  const { configStore, dataStore, UIStore } = useStores();
+  const sentRequest = useRef(false);
 
   const applyChanges = () => {
+    sentRequest.current = true;
     dataStore.fetchData();
   };
 
@@ -56,8 +63,27 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     invalid = true;
   }
 
+  // When our request goes through, close the modal
+  useEffect(() => {
+    if (
+      sentRequest.current &&
+      UIStore.caseDataState === ASYNC_STATES.SUCCEEDED
+    ) {
+      // This ref should be unset as when the modal closes it gets wiped from
+      // the DOM along with the ref. But just do this in case...
+      sentRequest.current = false;
+      onRequestClose();
+    }
+  }, [UIStore.caseDataState]);
+
   return (
     <Wrapper>
+      <Overlay visible={UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED}>
+        <ProgressContainer>
+          <LoadingSpinner size={'3rem'} color={'#026cb6'} />
+          <ProgressText>Fetching data...</ProgressText>
+        </ProgressContainer>
+      </Overlay>
       <Content>
         <Column width={300}>
           <Header>
@@ -117,7 +143,6 @@ const SelectSequencesModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
           marginRight: '-50%',
           transform: 'translate(-50%, -50%)',
           maxWidth: '100vw',
-          padding: '20px 20px 0px 20px',
           zIndex: 3,
         },
       }}

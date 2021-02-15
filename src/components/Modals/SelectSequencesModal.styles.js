@@ -24,8 +24,6 @@ export const Footer = styled.div`
   border-top: 1px solid #ccc;
 
   padding: 5px 10px;
-  margin-left: -20px;
-  margin-right: -20px;
 `;
 
 export const Header = styled.div`
@@ -60,6 +58,8 @@ export const Content = styled.div`
   flex-direction: row;
   align-items: flex-start;
   flex-wrap: wrap;
+
+  padding: 20px 20px 0px 20px;
 `;
 
 export const Column = styled.div`
@@ -116,4 +116,36 @@ export const InvalidText = styled.span`
   font-weight: normal;
   line-height: normal;
   color: #dc3545;
+`;
+
+export const Overlay = styled.div`
+  visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(230, 230, 230, 0.8);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+export const ProgressContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const ProgressText = styled.span`
+  margin-left: 20px;
+  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.4em;
+  color: #4d4d4d;
+
+  font-size: 2rem;
+  font-weight: 500;
 `;
