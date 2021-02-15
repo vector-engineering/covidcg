@@ -23,7 +23,7 @@
         {
           "op": "count",
           "field": "gisaid_id",
-          "as": "cases_sum"
+          "as": "counts"
         }
       ],
       "groupby": ["sample_date", "lineage"]
@@ -60,7 +60,7 @@
           }
         },
         "y": {
-          "field": "cases_sum",
+          "field": "counts",
           "type": "quantitative",
           "axis": {
             "title": "Cases by Lineage"
@@ -116,7 +116,7 @@
         },
         "y": {
           "aggregate": "sum",
-          "field": "cases_sum",
+          "field": "counts",
           "type": "quantitative",
           "axis": {
             "title": "All Cases"

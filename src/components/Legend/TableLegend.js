@@ -4,13 +4,11 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 import QuestionButton from '../Buttons/QuestionButton';
 import ReactTooltip from 'react-tooltip';
 import TableLegendItem from './TableLegendItem';
-
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -52,7 +50,6 @@ const TableLegend = observer(
     sortDir,
     onClickColumnHeader,
   }) => {
-
     const { configStore } = useStores();
 
     const Row = ({ index, style }) => {
@@ -64,18 +61,21 @@ const TableLegend = observer(
           color={legendItem.color}
           updateHoverGroup={updateHoverGroup}
           updateSelectGroup={updateSelectGroup}
-          percentage={legendItem.cases_percent}
+          percentage={legendItem.percent}
         />
       );
     };
     Row.propTypes = {
       index: PropTypes.number,
-      style: PropTypes.object
+      style: PropTypes.object,
     };
 
     const ColumnHeader = ({ columnName, width, children }) => {
       return (
-        <StyledColumnHeader onClick={() => onClickColumnHeader({ columnName })} width={width}>
+        <StyledColumnHeader
+          onClick={() => onClickColumnHeader({ columnName })}
+          width={width}
+        >
           {children} {sortColumn === columnName && <SortArrow dir={sortDir} />}
         </StyledColumnHeader>
       );
@@ -89,7 +89,7 @@ const TableLegend = observer(
       ]),
     };
     ColumnHeader.defaultProps = {
-      width: "50%"
+      width: '50%',
     };
 
     return (
@@ -124,7 +124,7 @@ const TableLegend = observer(
               data-for="legend-sidebar-tooltip"
             />
           </ColumnHeader>
-          <ColumnHeader columnName="cases_percent" width="45%">
+          <ColumnHeader columnName="percent" width="45%">
             % Seqs
           </ColumnHeader>
         </Columns>

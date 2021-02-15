@@ -127,32 +127,32 @@ const NewLineageDataTable = observer(() => {
       _columns.push(altColumn());
     }
 
-    // Get the maximum and minimum cases_sum and cases_percent for the colormaps
+    // Get the maximum and minimum counts and percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
     let maxCasesSum = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_sum),
+      (memo, group) => nanmax(memo, group.counts),
       0
     );
     let minCasesSum = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_sum),
+      (memo, group) => nanmin(memo, group.counts),
       0
     );
     let maxCasesPercent = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_percent),
+      (memo, group) => nanmax(memo, group.percent),
       0
     );
     let minCasesPercent = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_percent),
+      (memo, group) => nanmin(memo, group.percent),
       0
     );
 
     // example row
-    // cases_percent: 0.6880290205562273
-    // cases_sum: 569
+    // percent: 0.6880290205562273
+    // counts: 569
     // group: "B.1"
     // pos_23402: "G"
     // pos_23730: "C"

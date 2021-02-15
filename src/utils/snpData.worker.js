@@ -177,7 +177,7 @@ function processSelectedSnvs({
             .split(' + ')
             .map((group) => formatSnv(group, dnaOrAa))
             .join(' + '),
-          cases_sum: dataAggLocationSnvDateObj[location][date][group],
+          counts: dataAggLocationSnvDateObj[location][date][group],
           // For multiple SNVs, just use this nice blue color
           color:
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
@@ -193,9 +193,9 @@ function processSelectedSnvs({
   const dataAggSnvDate = aggregate({
     data: dataAggLocationSnvDate,
     groupby: ['date', 'group', 'groupName'],
-    fields: ['cases_sum', 'color'],
+    fields: ['counts', 'color'],
     ops: ['sum', 'max'],
-    as: ['cases_sum', 'color'],
+    as: ['counts', 'color'],
   });
   // Convert dates back into ints
   dataAggSnvDate.forEach((row) => {

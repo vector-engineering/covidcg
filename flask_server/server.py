@@ -461,14 +461,15 @@ def hello_world():
     # COUNT GROUPS
     # ------------
     group_counts_after_date_filter = (
-        (res_snv if group_key == constants["GROUP_SNV"] else res_df)
-        .groupby(group_col)
-        .size()
-        .to_dict()
+        counts_per_date_group.groupby("group")
+        .agg(
+            counts=("counts", "sum"),
+            color=("color", "first"),
+            group_name=("group_name", "first"),
+        )
+        .reset_index()
     )
-    group_counts_after_date_filter = OrderedDict(
-        sorted(group_counts_after_date_filter.items(), key=lambda kv: -1 * kv[1])
-    )
+    print(group_counts_after_date_filter)
 
     # AGGREGATE BY GROUP (COLLAPSE LOCATION + DATE)
     # ---------------------------------------------
@@ -651,7 +652,9 @@ def hello_world():
         group_counts=json.dumps(group_counts),
         counts_per_group=counts_per_group.to_json(orient="records"),
         changing_positions=json.dumps(changing_positions),
-        group_counts_after_date_filter=json.dumps(group_counts_after_date_filter),
+        group_counts_after_date_filter=group_counts_after_date_filter.to_json(
+            orient="values"
+        ),
     )
 
     return res

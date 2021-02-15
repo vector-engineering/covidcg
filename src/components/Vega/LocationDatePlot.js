@@ -129,9 +129,9 @@ const LocationDatePlot = observer(({ width }) => {
     locationData = aggregate({
       data: locationData,
       groupby: ['location', 'date', 'group', 'groupName'],
-      fields: ['cases_sum', 'location_counts'],
+      fields: ['counts', 'location_counts'],
       ops: ['sum', 'max'],
-      as: ['cases_sum', 'location_counts'],
+      as: ['counts', 'location_counts'],
     });
 
     // Manually join the countsPerLocationDate to locationData

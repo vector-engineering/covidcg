@@ -563,7 +563,7 @@ export class DataStore {
     let csvString = `collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
     this.dataAggGroupDate.forEach((row) => {
       csvString += `${intToISO(parseInt(row.date))},${row.group},${
-        row.cases_sum
+        row.counts
       }\n`;
     });
 
@@ -609,9 +609,9 @@ export class DataStore {
     locationData = aggregate({
       data: locationData,
       groupby: ['location', 'date', 'group', 'groupName'],
-      fields: ['cases_sum', 'location_counts'],
+      fields: ['counts', 'location_counts'],
       ops: ['sum', 'max'],
-      as: ['cases_sum', 'location_counts'],
+      as: ['counts', 'location_counts'],
     });
 
     // Manually join the countsPerLocationDate to locationData
@@ -626,7 +626,7 @@ export class DataStore {
     locationData.forEach((row) => {
       csvString += `${row.location},${intToISO(parseInt(row.date))},${
         row.group
-      },${row.cases_sum},${row.location_date_count}\n`;
+      },${row.counts},${row.location_date_count}\n`;
     });
 
     const blob = new Blob([csvString]);

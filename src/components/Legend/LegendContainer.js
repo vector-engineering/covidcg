@@ -62,7 +62,7 @@ const LegendContainer = observer(() => {
   const { dataStore, UIStore, configStore } = useStores();
 
   const [legendItems, setLegendItems] = useState([]);
-  const [sortColumn, setSortColumn] = useState('cases_percent');
+  const [sortColumn, setSortColumn] = useState('percent');
   const [sortDir, setSortDir] = useState('DESC');
 
   const updateHoverGroup = _.debounce((group) => {

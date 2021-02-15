@@ -266,7 +266,7 @@ const GroupStackPlot = observer(({ width }) => {
   }
   // If running in cumulative mode, add the vega transformation
   // By default the cumulative transformation is dumped into a column
-  // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+  // "counts_cumulative", so if active, just overwrite the "counts"
   // column with this cumulative count
   const cumulativeWindow =
     plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE

@@ -38,7 +38,7 @@ function downloadAggCaseDataGroup({
 
     // Write lineage and counts
     csvString +=
-      row['group'] + ',' + row['cases_sum'] + ',' + row['cases_percent'] + ',';
+      row['group'] + ',' + row['counts'] + ',' + row['percent'] + ',';
 
     // If it's the "Other" row, then don't try to get any SNVs
     if (row['group'] === GROUPS.OTHER_GROUP) {
@@ -174,7 +174,7 @@ function downloadAggCaseDataSnp(dnaOrAa, dataAggGroup, changingPositions) {
     }
 
     // Write the sequence counts/percents
-    csvString += row['cases_sum'] + ',' + row['cases_percent'] + ',';
+    csvString += row['counts'] + ',' + row['percent'] + ',';
 
     // Add letters at positions
     csvString += changingPositions

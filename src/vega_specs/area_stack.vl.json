@@ -6,7 +6,7 @@
       "type": "json",
       "parse": {
         "date": "number",
-        "cases_sum": "number"
+        "counts": "number"
       }
     }
   },
@@ -38,7 +38,7 @@
           }
         },
         "y": {
-          "field": "cases_sum",
+          "field": "counts",
           "type": "quantitative",
           "axis": {
             "title": "Sequences by Group"
@@ -67,7 +67,7 @@
             "timeUnit": "monthdate"
           },
           {
-            "field": "cases_sum",
+            "field": "counts",
             "title": "Sequences",
             "type": "quantitative"
           },
@@ -95,7 +95,7 @@
         },
         "y": {
           "aggregate": "sum",
-          "field": "cases_sum",
+          "field": "counts",
           "type": "quantitative",
           "axis": {
             "title": "All Seqs"

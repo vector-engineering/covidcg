@@ -431,7 +431,7 @@ function processCaseData({
           date: parseInt(date),
           group: group,
           groupName: groupKey === GROUP_SNV ? formatSnv(group, dnaOrAa) : group,
-          cases_sum: aggCaseData[location][date][group],
+          counts: aggCaseData[location][date][group],
           location_counts: countsPerLocation[location],
           color: getColorMethod(group),
         });
@@ -443,9 +443,9 @@ function processCaseData({
   const dataAggGroupDate = aggregate({
     data: dataAggLocationGroupDate,
     groupby: ['date', 'group', 'groupName'],
-    fields: ['cases_sum', 'color', 'location_counts'],
+    fields: ['counts', 'color', 'location_counts'],
     ops: ['sum', 'max', 'max'],
-    as: ['cases_sum', 'color', 'location_counts'],
+    as: ['counts', 'color', 'location_counts'],
   });
   // Dates from strings to ints
   dataAggGroupDate.forEach((row) => {
@@ -501,8 +501,8 @@ function aggCaseDataByGroup({
 
   const groupCountObj = {};
   dataAggGroupDate.forEach((row) => {
-    if (groupCountObj[row.group]) groupCountObj[row.group] += row.cases_sum;
-    else groupCountObj[row.group] = row.cases_sum;
+    if (groupCountObj[row.group]) groupCountObj[row.group] += row.counts;
+    else groupCountObj[row.group] = row.counts;
   });
 
   // Filter by date
@@ -518,8 +518,8 @@ function aggCaseDataByGroup({
   const countsPerGroupDateFilteredObj = {};
   dataAggGroupDate.forEach((row) => {
     if (countsPerGroupDateFilteredObj[row.group])
-      countsPerGroupDateFilteredObj[row.group] += row.cases_sum;
-    else countsPerGroupDateFilteredObj[row.group] = row.cases_sum;
+      countsPerGroupDateFilteredObj[row.group] += row.counts;
+    else countsPerGroupDateFilteredObj[row.group] = row.counts;
   });
   let countsPerGroupDateFiltered = Object.entries(
     countsPerGroupDateFilteredObj
@@ -545,16 +545,16 @@ function aggCaseDataByGroup({
   dataAggGroupDate.forEach((row) => {
     if (!Object.prototype.hasOwnProperty.call(dataAggGroup, row.group)) {
       dataAggGroup[row.group] = {};
-      dataAggGroup[row.group]['cases_sum'] = 0;
+      dataAggGroup[row.group]['counts'] = 0;
     }
-    dataAggGroup[row.group]['cases_sum'] += row.cases_sum;
+    dataAggGroup[row.group]['counts'] += row.counts;
   });
 
   // Calculate percentages for cases
   // TODO: calculate growth rates
   Object.keys(dataAggGroup).forEach((row) => {
-    dataAggGroup[row]['cases_percent'] =
-      dataAggGroup[row]['cases_sum'] / totalSequenceCount;
+    dataAggGroup[row]['percent'] =
+      dataAggGroup[row]['counts'] / totalSequenceCount;
   });
 
   // We need a list of 0-indexed positions for the data table
@@ -718,8 +718,8 @@ function aggCaseDataByGroup({
     !Object.prototype.hasOwnProperty.call(dataAggGroup, GROUPS.REFERENCE_GROUP)
   ) {
     dataAggGroup[GROUPS.REFERENCE_GROUP] = {
-      cases_sum: NaN,
-      cases_percent: NaN,
+      counts: NaN,
+      percent: NaN,
     };
   }
 

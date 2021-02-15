@@ -161,7 +161,7 @@ export const getDefaultColumns = ({
 }) => [
   {
     name: 'Seqs',
-    key: 'cases_sum',
+    key: 'counts',
     sortable: true,
     width: 55,
     frozen: true,
@@ -170,7 +170,7 @@ export const getDefaultColumns = ({
       const row = val.row;
       return (
         <HeatmapCell
-          value={row.cases_sum}
+          value={row.counts}
           min={minCasesSum}
           max={maxCasesSum}
           percent={false}
@@ -180,7 +180,7 @@ export const getDefaultColumns = ({
   },
   {
     name: '% Seqs',
-    key: 'cases_percent',
+    key: 'percent',
     sortable: true,
     width: 70,
     frozen: true,
@@ -189,7 +189,7 @@ export const getDefaultColumns = ({
       const row = val.row;
       return (
         <HeatmapCell
-          value={row.cases_percent}
+          value={row.percent}
           min={minCasesPercent}
           max={maxCasesPercent}
           percent={true}

@@ -139,7 +139,7 @@
       "format": {
         "parse": {
           "group": "string",
-          "cases_sum": "number",
+          "counts": "number",
           "date": "date:'%Q'"
         }
       },
@@ -148,7 +148,7 @@
           "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",
           "type": "joinaggregate",
           "ops": ["sum"],
-          "fields": ["cases_sum"],
+          "fields": ["counts"],
           "as": ["group_counts"],
           "groupby": ["group", "groupName"]
         },
@@ -173,14 +173,14 @@
             "day_start",
             "day_end"
           ],
-          "fields": ["cases_sum", "group_counts", "color"],
+          "fields": ["counts", "group_counts", "color"],
           "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "group_counts", "color"]
+          "as": ["counts", "group_counts", "color"]
         },
         {
           "comment": "If a group isn't present in a dateBin that others are, then impute an empty value. This is only important for the cumulative view, so as to keep things consistent. Unfortunately I don't know how to impute for days with no data at all yet. This leads to some gaps in the cumulative view.",
           "type": "impute",
-          "field": "cases_sum",
+          "field": "counts",
           "key": "day_start",
           "groupby": ["group", "groupName", "color", "group_counts"],
           "value": 0
@@ -192,13 +192,13 @@
           "as": "day_end"
         },
         {
-          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the cases_sum field.",
+          "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the counts field.",
           "type": "window",
           "sort": { "field": "day_start" },
           "groupby": ["group", "groupName"],
           "ops": ["sum"],
-          "fields": ["cases_sum"],
-          "as": ["cases_sum_new"],
+          "fields": ["counts"],
+          "as": ["counts_new"],
           "frame": { "signal": "cumulativeWindow" }
         },
         {
@@ -206,7 +206,7 @@
           "type": "stack",
           "groupby": ["day_start"],
           "sort": { "field": "group" },
-          "field": "cases_sum_new",
+          "field": "counts_new",
           "offset": { "signal": "stackOffset" }
         }
       ]
@@ -219,9 +219,9 @@
         {
           "type": "aggregate",
           "groupby": ["day_start", "day_end"],
-          "fields": ["cases_sum"],
+          "fields": ["counts"],
           "ops": ["sum"],
-          "as": ["cases_sum_by_date"]
+          "as": ["counts_by_date"]
         }
       ]
     }
@@ -339,7 +339,7 @@
                 },
                 "update": {
                   "tooltip": {
-                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.cases_sum_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.counts_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   },
                   "x": { "scale": "x", "field": "day_start" },
                   "x2": { "scale": "x", "field": "day_end" },
@@ -347,7 +347,7 @@
                   "y2": { "scale": "y", "field": "y1" },
                   "fill": [
                     {
-                      "test": "disableSelectionColoring || (!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.cases_sum_new > 0)",
+                      "test": "disableSelectionColoring || (!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.counts_new > 0)",
                       "field": "color",
                       "comment": "If this group is selected, or if nothing is selected, then color it normally."
                     },
@@ -358,7 +358,7 @@
                   ],
                   "stroke": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum_new > 0",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.counts_new > 0",
                       "value": "#000",
                       "comment": "If this group is being hovered over, then set outline it black. Since we're imputing empty groups, only highlight groups with more than zero cases."
                     },
@@ -366,7 +366,7 @@
                   ],
                   "zindex": [
                     {
-                      "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
+                      "test": "hoverBar && hoverBar.group == datum.group && datum.counts > 0",
                       "value": 3,
                       "comment": "Same as the 'stroke' test, but we also need to set the z-index here since it's possible the outline stroke will get hidden under other bars"
                     },
@@ -518,7 +518,7 @@
           "name": "yOverview",
           "type": "linear",
           "range": [{ "signal": "overviewHeight" }, 0],
-          "domain": { "data": "cases_by_date", "field": "cases_sum_by_date" },
+          "domain": { "data": "cases_by_date", "field": "counts_by_date" },
           "nice": true,
           "zero": true
         }
@@ -569,7 +569,7 @@
               "x": { "scale": "xOverview", "field": "day_start" },
               "x2": { "scale": "xOverview", "field": "day_end" },
               "y": { "scale": "yOverview", "value": 0 },
-              "y2": { "scale": "yOverview", "field": "cases_sum_by_date" },
+              "y2": { "scale": "yOverview", "field": "counts_by_date" },
               "fill": [
                 {
                   "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",
