@@ -4,6 +4,6 @@ export const PARAMS_TO_TRACK = [
   'coordinateMode',
   'lowFreqFilterType',
   'maxGroupCounts',
-  'minLocalCountsToShow',
-  'minGlobalCountsToShow',
+  'minLocalCounts',
+  'minGlobalCounts',
 ];

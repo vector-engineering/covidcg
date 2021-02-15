@@ -17,23 +17,17 @@ export const sortLegendItems = (groupKey, dnaOrAa, coordinateMode, a, b) => {
       return a.pos > b.pos ? 1 : -1;
     } else {
       // If we're grouping by AA SNV, determine if we're in gene/protein mode
-      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        // If the same gene, then sort by position
-        if (a.gene === b.gene) {
+      if (
+        coordinateMode === COORDINATE_MODES.COORD_GENE ||
+        coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        // If the same gene/protein, then sort by position
+        if (a.name === b.name) {
           return a.pos > b.pos ? 1 : -1;
         }
-        // Otherwise, sort by gene
+        // Otherwise, sort by name of the gene/protein
         else {
-          return a.gene > b.gene ? 1 : -1;
-        }
-      } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-        // If the same protein, then sort by position
-        if (a.protein === b.protein) {
-          return a.pos > b.pos ? 1 : -1;
-        }
-        // Otherwise, sort by protein
-        else {
-          return a.protein.toLowerCase() > b.protein.toLowerCase() ? 1 : -1;
+          return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1;
         }
       }
     }

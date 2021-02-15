@@ -22,12 +22,12 @@ const FilterDataIntoOther = observer(() => {
     configStore.setLowFreqFilterType(e.target.value);
   };
 
-  const setMinLocalCountsToShow = (e) => {
-    configStore.setMinLocalCountsToShow(e.target.value);
+  const setMinLocalCounts = (e) => {
+    configStore.setMinLocalCounts(e.target.value);
   };
 
-  const setMinGlobalCountsToShow = (e) => {
-    configStore.setMinGlobalCountsToShow(e.target.value);
+  const setMinGlobalCounts = (e) => {
+    configStore.setMinGlobalCounts(e.target.value);
   };
 
   const setMaxGroupCounts = (e) => {
@@ -74,8 +74,8 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.minLocalCountsToShow}
-            onChange={setMinLocalCountsToShow}
+            value={configStore.minLocalCounts}
+            onChange={setMinLocalCounts}
             disabled={
               configStore.lowFreqFilterType !==
               LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS
@@ -86,7 +86,7 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
-            configStore.minLocalCountsToShow
+            configStore.minLocalCounts
           }</b> counts in the selected locations will be grouped into "Other"</p>`}
           data-html="true"
           data-for="low-count-filter-tooltip"
@@ -115,8 +115,8 @@ const FilterDataIntoOther = observer(() => {
         <NumberInput>
           <input
             type="number"
-            value={configStore.minGlobalCountsToShow}
-            onChange={setMinGlobalCountsToShow}
+            value={configStore.minGlobalCounts}
+            onChange={setMinGlobalCounts}
             disabled={
               configStore.lowFreqFilterType !==
               LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
@@ -127,7 +127,7 @@ const FilterDataIntoOther = observer(() => {
         </NumberInput>
         <QuestionButton
           data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${
-            configStore.minGlobalCountsToShow
+            configStore.minGlobalCounts
           }</b> counts globally will be grouped into "Other"</p>`}
           data-html="true"
           data-for="low-count-filter-tooltip"

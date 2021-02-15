@@ -11,6 +11,7 @@ import gzip
 from collections import defaultdict, Counter, OrderedDict
 from functools import partial
 from flask import Flask, request, make_response
+from flask_cors import CORS
 from pathlib import Path
 from yaml import load, dump
 
@@ -23,14 +24,27 @@ except ImportError:
     from yaml import Loader, Dumper
 
 from .color import get_categorical_colormap, get_snv_colors, snv_colors
+from .genes_and_proteins import load_genes_or_proteins
+
+from .dna_snv import process_dna_snvs
+from .aa_snv import process_aa_snvs
+
 
 app = Flask(__name__)
+CORS(app)
 
 # Load app configuration
 with open("config/config_genbank.yaml", "r") as fp:
     config = load(fp.read(), Loader=Loader)
 
 print(config)
+
+# Load constant defs
+with open("src/constants/defs.json", "r") as fp:
+    constants = json.loads(fp.read())
+
+genes = load_genes_or_proteins("static_data/genes.json")
+proteins = load_genes_or_proteins("static_data/proteins.json")
 
 with urllib.request.urlopen(config["data_package_url"]) as f:
     print("Download complete")
@@ -84,80 +98,11 @@ for group in sequence_groups:
     )
 
 
-dna_snp = (
-    pd.DataFrame.from_dict(metadata_map["dna_snp"], orient="index", columns=["id"])
-    .reset_index()
-    .rename(columns={"index": "snp_str"})
-)
-dna_snp = dna_snp.join(
-    dna_snp["snp_str"]
-    .str.split("|", expand=True)
-    .rename(columns={0: "pos", 1: "ref", 2: "alt"})
-).set_index("id")
-dna_snp.loc[:, "pos"] = dna_snp["pos"].astype(int)
-dna_snp["color"] = get_snv_colors(dna_snp.index.values)
-
-
-def format_nt_snv(snv_str):
-    # Don't do this if it's a special group
-    #   if (Object.values(GROUPS).includes(snvStr)) {
-    #     return snvStr;
-    #   }
-
-    # Print as REF POS ALT
-    # i.e., 23403|A|G -> A23403G
-    chunks = snv_str.split("|")
-    return "{}{}{}".format(chunks[1], chunks[0], chunks[2])
-
-
-dna_snp["snv_name"] = dna_snp["snp_str"].apply(format_nt_snv)
-
+dna_snp = process_dna_snvs(metadata_map["dna_snp"])
 # print(dna_snp)
 
-gene_aa_snp = (
-    pd.DataFrame.from_dict(metadata_map["gene_aa_snp"], orient="index", columns=["id"])
-    .reset_index()
-    .rename(columns={"index": "snp_str"})
-)
-gene_aa_snp = gene_aa_snp.join(
-    gene_aa_snp["snp_str"]
-    .str.split("|", expand=True)
-    .rename(columns={0: "gene", 1: "pos", 2: "ref", 3: "alt"})
-).set_index("id")
-gene_aa_snp.loc[:, "pos"] = gene_aa_snp["pos"].astype(int)
-gene_aa_snp["color"] = get_snv_colors(gene_aa_snp.index.values)
-
-protein_aa_snp = (
-    pd.DataFrame.from_dict(
-        metadata_map["protein_aa_snp"], orient="index", columns=["id"]
-    )
-    .reset_index()
-    .rename(columns={"index": "snp_str"})
-)
-protein_aa_snp = protein_aa_snp.join(
-    protein_aa_snp["snp_str"]
-    .str.split("|", expand=True)
-    .rename(columns={0: "protein", 1: "pos", 2: "ref", 3: "alt"})
-).set_index("id")
-protein_aa_snp.loc[:, "pos"] = protein_aa_snp["pos"].astype(int)
-protein_aa_snp["color"] = get_snv_colors(protein_aa_snp.index.values)
-
-
-def format_aa_snv(snv_str):
-    # Don't do this if it's a special group
-    #   if (Object.values(GROUPS).includes(snvStr)) {
-    #     return snvStr;
-    #   }
-
-    # Print as GENE/PROTEIN · REF POS ALT
-    # i.e., S|614|D|G -> S · D614G
-    chunks = snv_str.split("|")
-    return "{} · {}{}{}".format(chunks[0], chunks[2], chunks[1], chunks[3])
-
-
-gene_aa_snp["snv_name"] = gene_aa_snp["snp_str"].apply(format_aa_snv)
-protein_aa_snp["snv_name"] = protein_aa_snp["snp_str"].apply(format_aa_snv)
-
+gene_aa_snp = process_aa_snvs(metadata_map["gene_aa_snp"], "gene", genes)
+protein_aa_snp = process_aa_snvs(metadata_map["protein_aa_snp"], "protein", proteins)
 # print(gene_aa_snp)
 # print(protein_aa_snp)
 
@@ -202,20 +147,24 @@ def filter_coordinate_ranges(
     include_mask = pd.Series(True, index=_df.index)
     # The range is inclusive on both sides, i.e., [start, end]
     for start, end in coordinate_ranges:
-        include_mask = include_mask & (_df["pos"] >= start)
-        include_mask = include_mask & (_df["pos"] <= end)
-        if dna_or_aa == "AA" and coordinate_mode == "GENE":
-            include_mask = include_mask & (_df["gene"] == selected_gene["gene"])
-        elif dna_or_aa == "AA" and coordinate_mode == "PROTEIN":
-            include_mask = include_mask & (
-                _df["protein"] == selected_protein["protein"]
-            )
+        if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
+            include_mask = include_mask & (_df["pos"] >= start)
+            include_mask = include_mask & (_df["pos"] <= end)
+        elif dna_or_aa == constants["DNA_OR_AA"]["AA"]:
+            include_mask = include_mask & (_df["nt_pos"] >= start)
+            include_mask = include_mask & (_df["nt_pos"] <= end)
+            if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
+                include_mask = include_mask & (_df["gene"] == selected_gene["name"])
+            elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
+                include_mask = include_mask & (
+                    _df["protein"] == selected_protein["name"]
+                )
 
     _df = _df.loc[include_mask, :]
     return _df
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def hello_world():
     print("args", request.args)
     print("form", request.form)
@@ -227,24 +176,26 @@ def hello_world():
 
     # REQUIRED?
     # lineage, clade, SNV
-    group_key = req.get("group_key", "snv")
-    dna_or_aa = req.get("dna_or_aa", "DNA")
-    coordinate_mode = req.get("coordinate_mode", "GENE")
+    group_key = req.get("group_key", constants["GROUP_SNV"])
+    dna_or_aa = req.get("dna_or_aa", constants["DNA_OR_AA"]["AA"])
+    coordinate_mode = req.get(
+        "coordinate_mode", constants["COORDINATE_MODES"]["COORD_GENE"]
+    )
 
     snv_col = ""
     group_col = group_key
-    if dna_or_aa == "DNA":
+    if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
         snp_df = dna_snp
         snv_col = "dna_snp"
     else:
-        if coordinate_mode == "GENE":
+        if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
             snp_df = gene_aa_snp
             snv_col = "gene_aa_snp"
-        else:
+        elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
             snp_df = protein_aa_snp
             snv_col = "protein_aa_snp"
 
-    if group_key == "snv":
+    if group_key == constants["GROUP_SNV"]:
         group_col = snv_col
 
     res_df = case_data
@@ -274,11 +225,12 @@ def hello_world():
 
         snv_field = "dna_snp"
         snv_cols = ["pos"]
-        if dna_or_aa == "AA":
-            if coordinate_mode == "GENE":
+        if dna_or_aa == constants["DNA_OR_AA"]["AA"]:
+            snv_cols.append("nt_pos")
+            if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
                 snv_field = "gene_aa_snp"
                 snv_cols.append("gene")
-            else:
+            elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
                 snv_field = "protein_aa_snp"
                 snv_cols.append("protein")
 
@@ -309,6 +261,7 @@ def hello_world():
 
     # INITIAL METADATA COUNTS
     # -----------------------
+    num_sequences_before_metadata_filtering = len(res_df)
     pre_metadata_counts = dict()
     for key in config["metadata_cols"].keys():
         pre_metadata_counts[key] = res_df[key].value_counts().to_dict()
@@ -317,11 +270,12 @@ def hello_world():
     # -------------------------
     # Metadata filters will come in the form of a JSON object
     # of { metadata_field: metadata_value }
-    metadata_filters = req.get("metadata_filters", None)
-    if metadata_filters is not None:
+    selected_metadata_fields = req.get("selected_metadata_fields", None)
+    if selected_metadata_fields is not None:
         include_mask = pd.Series(True, index=res_df.index)
-        for md_key, md_val in metadata_filters.items():
-            include_mask = include_mask & (res_df[md_key] == md_val)
+        for md_key, md_vals in selected_metadata_fields.items():
+            for md_val in md_vals:
+                include_mask = include_mask & (res_df[md_key] == md_val)
         res_df = res_df.loc[include_mask, :]
 
     # FILTER BY PATIENT AGE RANGE (special case)
@@ -336,31 +290,39 @@ def hello_world():
 
     res_snv = res_snv.join(res_df[["collection_date", "location_id"]], how="right")
     res_snv[snv_field].fillna(-1, inplace=True)
-    # print(res_snv.head())
+
+    print("After metadata filtering")
+    print(res_df)
+    print(res_snv)
 
     # COUNT GROUPS
     # ------------
     group_counts = (
-        (res_snv if group_key == "snv" else res_df).groupby(group_col).size().to_dict()
+        (res_snv if group_key == constants["GROUP_SNV"] else res_df)
+        .groupby(group_col)
+        .size()
+        .to_dict()
     )
     group_counts = OrderedDict(sorted(group_counts.items(), key=lambda kv: -1 * kv[1]))
 
     # FILTER OUT LOW COUNT GROUPS
     # ---------------------------
-    low_count_filter = req.get("low_count_filter", "GROUP_COUNTS")
+    low_count_filter = req.get(
+        "low_count_filter", constants["LOW_FREQ_FILTER_TYPES"]["GROUP_COUNTS"]
+    )
     max_group_counts = req.get("max_group_counts", 20)
     min_local_counts = req.get("min_local_counts", 10)
     min_global_counts = req.get("min_global_counts", 5)
 
     # Sort groups and take the top N
-    if low_count_filter == "GROUP_COUNTS":
+    if low_count_filter == constants["LOW_FREQ_FILTER_TYPES"]["GROUP_COUNTS"]:
         # maxGroupCounts
         valid_groups = list(itertools.islice(group_counts, max_group_counts))
-    elif low_count_filter == "LOCAL_COUNTS":
-        # minLocalCountsToShow
+    elif low_count_filter == constants["LOW_FREQ_FILTER_TYPES"]["LOCAL_COUNTS"]:
+        # minLocalCounts
         valid_groups = [k for k, v in group_counts.items() if v > min_local_counts]
-    elif low_count_filter == "GLOBAL_COUNTS":
-        # minGlobalCountsToShow
+    elif low_count_filter == constants["LOW_FREQ_FILTER_TYPES"]["GLOBAL_COUNTS"]:
+        # minGlobalCounts
         _global_group_counts = global_group_counts[group_col]
         valid_groups = [
             k
@@ -372,11 +334,12 @@ def hello_world():
 
     # If we're in SNV mode, always show the reference
     # no matter what
-    if group_key == "snv":
+    if group_key == constants["GROUP_SNV"]:
         valid_groups = set(valid_groups)
         valid_groups.add(-1)
         valid_groups = list(valid_groups)
 
+    print("Valid groups")
     print(valid_groups)
     # print(res_df.head())
 
@@ -404,7 +367,7 @@ def hello_world():
     # print(counts_per_location_date)
 
     counts_per_location_date_group = (
-        (res_snv if group_key == "snv" else res_df)
+        (res_snv if group_key == constants["GROUP_SNV"] else res_df)
         .groupby(["location", "collection_date", group_col])
         .size()
         .rename("counts")
@@ -412,7 +375,7 @@ def hello_world():
         .rename(columns={"collection_date": "date", group_col: "group_id"})
     )
 
-    if group_key == "snv":
+    if group_key == constants["GROUP_SNV"]:
         counts_per_location_date_group = counts_per_location_date_group.join(
             snp_df[["snp_str", "snv_name", "color"]], on="group_id", how="left"
         ).rename(columns={"snp_str": "group", "snv_name": "group_name"})
@@ -421,7 +384,7 @@ def hello_world():
         ref_inds = counts_per_location_date_group["group_id"] == -1
         counts_per_location_date_group.loc[
             ref_inds, ["group", "group_name"]
-        ] = "Reference"
+        ] = constants["GROUPS"]["REFERENCE_GROUP"]
         counts_per_location_date_group.loc[ref_inds, "color"] = snv_colors[0]
 
     else:
@@ -441,7 +404,9 @@ def hello_world():
         .map(dict(zip(valid_groups, np.repeat(False, len(valid_groups)))))
         .fillna(True)
     )
-    counts_per_location_date_group.loc[other_inds, ["group", "group_name"]] = "Other"
+    counts_per_location_date_group.loc[other_inds, ["group", "group_name"]] = constants[
+        "GROUPS"
+    ]["OTHER_GROUP"]
     counts_per_location_date_group.loc[other_inds, ["color"]] = "#AAA"
 
     # Add location counts?
@@ -464,18 +429,20 @@ def hello_world():
         )
         .reset_index()
     )
+    print("Counts per date & group")
     print(counts_per_date_group)
 
     # FILTER BY DATE RANGE
     # --------------------
-    date_range = req.get("date_range", None)
+    start_date = req.get("start_date", None)
+    end_date = req.get("end_date", None)
 
-    if date_range is not None:
+    if start_date is not None and end_date is not None:
         # In the form of [start, end]
         # where start/end should be in milliseconds from Unix epoch
         # i.e., from Date().getTime() in JavaScript
-        start_date = pd.to_datetime(date_range[0], unit="ms")
-        end_date = pd.to_datetime(date_range[1], unit="ms")
+        start_date = pd.to_datetime(start_date, unit="ms")
+        end_date = pd.to_datetime(end_date, unit="ms")
 
         res_df = res_df.loc[
             (res_df["collection_date"] >= start_date)
@@ -488,8 +455,20 @@ def hello_world():
             :,
         ]
 
+        print("Counts per date & group (after date filtering)")
         print(counts_per_date_group)
-        print(res_df.head())
+
+    # COUNT GROUPS
+    # ------------
+    group_counts_after_date_filter = (
+        (res_snv if group_key == constants["GROUP_SNV"] else res_df)
+        .groupby(group_col)
+        .size()
+        .to_dict()
+    )
+    group_counts_after_date_filter = OrderedDict(
+        sorted(group_counts_after_date_filter.items(), key=lambda kv: -1 * kv[1])
+    )
 
     # AGGREGATE BY GROUP (COLLAPSE LOCATION + DATE)
     # ---------------------------------------------
@@ -505,103 +484,177 @@ def hello_world():
         .reset_index()
     )
     counts_per_group["percent"] = counts_per_group["counts"] / len(res_df)
+
+    print("Counts per group")
     print(counts_per_group)
 
     # CHANGING POSITIONS
     # ------------------
+    changing_positions = {}
 
-    if group_key == 'snv':
+    if group_key == constants["GROUP_SNV"]:
 
         # Use SNV ids to get SNV data
-        counts_per_group = (
-            counts_per_group
-            .join(snp_df[snv_cols + ['ref', 'alt']], on='group_id', how='left')
+        counts_per_group = counts_per_group.join(
+            snp_df[snv_cols + ["ref", "alt"]], on="group_id", how="left"
         )
 
         # Process "Reference" and "Other" group separately
-        group_pos_inds = (counts_per_group['group'] != 'Other') & (counts_per_group['group'] != 'Reference')
+        group_pos_inds = (
+            counts_per_group["group"] != constants["GROUPS"]["OTHER_GROUP"]
+        ) & (counts_per_group["group"] != constants["GROUPS"]["REFERENCE_GROUP"])
         # Wipe out all SNV-specific data for these groups
         # Set position to -1 so they show up first
-        counts_per_group.loc[~group_pos_inds, snv_cols + ['ref', 'alt']] = np.nan
-        counts_per_group.loc[~group_pos_inds, 'pos'] = -1
+        counts_per_group.loc[~group_pos_inds, snv_cols + ["ref", "alt"]] = np.nan
+        counts_per_group.loc[~group_pos_inds, "pos"] = -1
 
-        counts_per_group.sort_values('pos', inplace=True)
-        counts_per_group.loc[:, 'pos'] = counts_per_group['pos'].astype(int)
+        counts_per_group.sort_values("pos", inplace=True)
+        counts_per_group.loc[:, "pos"] = counts_per_group["pos"].astype(int)
 
         # Create position columns, fill with reference values
-        for pos, ref in zip(
-                counts_per_group.loc[group_pos_inds, 'pos'].values, 
-                counts_per_group.loc[group_pos_inds, 'ref'].values
-            ):
+        for i, pos, ref in zip(
+            counts_per_group.index[group_pos_inds],
+            counts_per_group.loc[group_pos_inds, "pos"].values,
+            counts_per_group.loc[group_pos_inds, "ref"].values,
+        ):
+            pos = int(pos)
             counts_per_group[pos] = ref
+            changing_positions[pos] = {"ref": ref}
+            if "gene" in snv_cols:
+                changing_positions[pos]["gene"] = counts_per_group.at[i, "gene"]
+            elif "protein" in snv_cols:
+                changing_positions[pos]["protein"] = counts_per_group.at[i, "protein"]
 
         # Fill in alternative values
         for i, pos, alt in zip(
-                counts_per_group.index[group_pos_inds].values, 
-                counts_per_group.loc[group_pos_inds, 'pos'].values, 
-                counts_per_group.loc[group_pos_inds, 'alt'].values
-            ):
+            counts_per_group.index[group_pos_inds].values,
+            counts_per_group.loc[group_pos_inds, "pos"].values,
+            counts_per_group.loc[group_pos_inds, "alt"].values,
+        ):
             counts_per_group.loc[i, pos] = alt
-            
+
         counts_per_group.reset_index(drop=True, inplace=True)
-        
+
     else:
-        
+
         # Add the reference row
-        counts_per_group = pd.concat([
-            counts_per_group,
-            pd.DataFrame(
-                # group, group_id, group_name, counts, color, percent
-                [('Reference', 'Reference', 'Reference', np.nan, clade_colors[0], np.nan)],
-                columns=counts_per_group.columns
-            )
-        ], axis=0, ignore_index=True)
+        counts_per_group = pd.concat(
+            [
+                counts_per_group,
+                pd.DataFrame(
+                    # group, group_id, group_name, counts, color, percent
+                    [
+                        (
+                            constants["GROUPS"]["REFERENCE_GROUP"],
+                            constants["GROUPS"]["REFERENCE_GROUP"],
+                            constants["GROUPS"]["REFERENCE_GROUP"],
+                            np.nan,
+                            clade_colors[0],
+                            np.nan,
+                        )
+                    ],
+                    columns=counts_per_group.columns,
+                ),
+            ],
+            axis=0,
+            ignore_index=True,
+        )
 
         # Get the consensus SNVs for each group
         counts_per_group[snv_col] = (
-            counts_per_group['group']
+            counts_per_group["group"]
             .map(group_consensus_snvs[group_key])
-            .apply(lambda x: x[snv_col + '_ids'] if type(x) is dict else [])
+            .apply(lambda x: x[snv_col + "_ids"] if type(x) is dict else [])
         )
-        
+
         # Get SNV data for all of the SNV ids
         group_snvs = (
-            pd.DataFrame({
-                snv_col: sorted(set(sum(counts_per_group[snv_col].values, [])))
-            })
+            pd.DataFrame(
+                {snv_col: sorted(set(sum(counts_per_group[snv_col].values, [])))}
+            )
             .set_index(snv_col)
-            .join(snp_df, how='left')
+            .join(snp_df, how="left")
         )
-        
+
         # Filter for only the SNVs in the specified coordinate ranges
         group_snvs = filter_coordinate_ranges(
             group_snvs,
-            dna_or_aa, 
-            coordinate_mode, 
-            coordinate_ranges, 
-            selected_gene, 
-            selected_protein
+            dna_or_aa,
+            coordinate_mode,
+            coordinate_ranges,
+            selected_gene,
+            selected_protein,
         )
-        group_snvs = group_snvs.sort_values('pos')
-        
+        group_snvs = group_snvs.sort_values("pos")
+
         # Fill in reference bases/residues
-        for pos, ref in zip(group_snvs['pos'].values, group_snvs['ref'].values):
+        for i, pos, ref in zip(
+            group_snvs.index.values, group_snvs["pos"].values, group_snvs["ref"].values
+        ):
+            pos = int(pos)
             counts_per_group[pos] = ref
-            
+
+            changing_positions[pos] = {"ref": ref}
+            if "gene" in snv_cols:
+                changing_positions[pos]["gene"] = counts_per_group.at[i, "gene"]
+            elif "protein" in snv_cols:
+                changing_positions[pos]["protein"] = counts_per_group.at[i, "protein"]
+
         # Fill in alternative bases/residues
-        for i, snvs in zip(counts_per_group.index.values, counts_per_group[snv_col].values):
+        for i, snvs in zip(
+            counts_per_group.index.values, counts_per_group[snv_col].values
+        ):
             snvs = [snv for snv in snvs if snv in group_snvs.index]
             for snv in snvs:
-                pos = group_snvs.at[snv, 'pos']
-                alt = group_snvs.at[snv, 'alt']
+                pos = group_snvs.at[snv, "pos"]
+                alt = group_snvs.at[snv, "alt"]
                 counts_per_group.loc[i, pos] = alt
-        
+
         counts_per_group.drop(columns=[snv_col], inplace=True)
 
+    print("Counts per group (changing positions)")
     print(counts_per_group)
 
+    # SELECTED SNVS
+    # -------------
 
-    return res_df.head(10).to_json(orient="records")
+    # if group_key == 'snv':
+
+    res = """
+    {{
+        "filteredCaseData": {filtered_case_data},
+        "dataAggLocationGroupDate": {counts_per_location_date_group},
+        "dataAggGroupDate": {counts_per_date_group},
+        "metadataCounts": {pre_metadata_counts},
+        "metadataCountsAfterFiltering": {post_metadata_counts},
+        "numSequencesBeforeMetadataFiltering": {num_sequences_before_metadata_filtering},
+        "countsPerLocation": {counts_per_location},
+        "countsPerLocationDate": {counts_per_location_date},
+        "validGroups": {valid_groups},
+        "countsPerGroup": {group_counts},
+        "dataAggGroup": {counts_per_group},
+        "changingPositions": {changing_positions},
+        "countsPerGroupDateFiltered": {group_counts_after_date_filter}
+    }}
+    """.format(
+        filtered_case_data=res_df.to_json(orient="records"),
+        counts_per_location_date_group=counts_per_location_date_group.to_json(
+            orient="records"
+        ),
+        counts_per_date_group=counts_per_date_group.to_json(orient="records"),
+        pre_metadata_counts=json.dumps(pre_metadata_counts),
+        post_metadata_counts=json.dumps(post_metadata_counts),
+        num_sequences_before_metadata_filtering=num_sequences_before_metadata_filtering,
+        counts_per_location=json.dumps(counts_per_location),
+        counts_per_location_date=counts_per_location_date.to_json(orient="records"),
+        valid_groups=json.dumps({k: 1 for k in valid_groups}),
+        group_counts=json.dumps(group_counts),
+        counts_per_group=counts_per_group.to_json(orient="records"),
+        changing_positions=json.dumps(changing_positions),
+        group_counts_after_date_filter=json.dumps(group_counts_after_date_filter),
+    )
+
+    return res
 
 
 # print("starting...")

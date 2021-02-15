@@ -45,13 +45,13 @@ const CoordinateSelect = observer(() => {
   genes.forEach((gene) => {
     geneOptionElements.push(
       <option
-        key={gene.gene}
-        value={gene.gene}
+        key={gene.name}
+        value={gene.name}
         disabled={
           gene.protein_coding === 0 && configStore.dnaOrAa === DNA_OR_AA.AA
         }
       >
-        {gene.gene}&nbsp;&nbsp;({gene.segments})
+        {gene.name}&nbsp;&nbsp;({gene.segments})
       </option>
     );
   });
@@ -59,21 +59,21 @@ const CoordinateSelect = observer(() => {
   // GENE DOMAINS
   let geneDomainOptionElements = {};
   genes.forEach((gene) => {
-    geneDomainOptionElements[gene.gene] = [
+    geneDomainOptionElements[gene.name] = [
       <option
-        key={`${gene.gene}-default`}
-        value={`${gene.gene}-default`}
+        key={`${gene.name}-default`}
+        value={`${gene.name}-default`}
         disabled={true}
       >
         - select an option -
       </option>,
-      <option key={`${gene.gene}-all`} value={`${gene.gene}-all`}>
-        Entire {gene.gene} Gene (1..{gene.len_aa})
+      <option key={`${gene.name}-all`} value={`${gene.name}-all`}>
+        Entire {gene.name} Gene (1..{gene.len_aa})
       </option>,
     ];
     gene.domains.forEach((domain) => {
-      geneDomainOptionElements[gene.gene].push(
-        <option key={`${gene.gene}-${domain.name}`} value={domain.name}>
+      geneDomainOptionElements[gene.name].push(
+        <option key={`${gene.name}-${domain.name}`} value={domain.name}>
           {domain.name}&nbsp;&nbsp;(
           {domain.ranges.map((range) => range.join('..')).join(';')})
         </option>
@@ -85,8 +85,8 @@ const CoordinateSelect = observer(() => {
   let proteinOptionElements = [];
   proteins.forEach((protein) => {
     proteinOptionElements.push(
-      <option key={protein.protein} value={protein.protein}>
-        {protein.protein}&nbsp;&nbsp;({protein.segments})
+      <option key={protein.name} value={protein.name}>
+        {protein.name}&nbsp;&nbsp;({protein.segments})
       </option>
     );
   });
@@ -94,22 +94,22 @@ const CoordinateSelect = observer(() => {
   // PROTEIN DOMAINS
   let proteinDomainOptionElements = {};
   proteins.forEach((protein) => {
-    proteinDomainOptionElements[protein.protein] = [
+    proteinDomainOptionElements[protein.name] = [
       <option
-        key={`${protein.protein}-default`}
-        value={`${protein.protein}-default`}
+        key={`${protein.name}-default`}
+        value={`${protein.name}-default`}
         disabled={true}
       >
         {' '}
         - select an option -
       </option>,
-      <option key={`${protein.protein}-all`} value={`${protein.protein}-all`}>
-        Entire {protein.protein} Protein (1..{protein.len_aa})
+      <option key={`${protein.name}-all`} value={`${protein.name}-all`}>
+        Entire {protein.name} Protein (1..{protein.len_aa})
       </option>,
     ];
     protein.domains.forEach((domain) => {
-      proteinDomainOptionElements[protein.protein].push(
-        <option key={`${protein.protein}-${domain.name}`} value={domain.name}>
+      proteinDomainOptionElements[protein.name].push(
+        <option key={`${protein.name}-${domain.name}`} value={domain.name}>
           {domain.name}&nbsp;&nbsp;(
           {domain.ranges.map((range) => range.join('..')).join(';')})
         </option>
@@ -216,7 +216,7 @@ const CoordinateSelect = observer(() => {
     const domainName = event.target.value;
     let newResidueCoordsText;
 
-    if (event.target.value === configStore.selectedGene.gene + '-all') {
+    if (event.target.value === configStore.selectedGene.name + '-all') {
       newResidueCoordsText = `1..${configStore.selectedGene.len_aa}`;
     } else {
       const domainObj = _.findWhere(configStore.selectedGene.domains, {
@@ -238,7 +238,7 @@ const CoordinateSelect = observer(() => {
     const domainName = event.target.value;
     let newResidueCoordsText;
 
-    if (event.target.value === configStore.selectedProtein.protein + '-all') {
+    if (event.target.value === configStore.selectedProtein.name + '-all') {
       newResidueCoordsText = `1..${configStore.selectedProtein.len_aa}`;
     } else {
       const domainObj = _.findWhere(configStore.selectedProtein.domains, {
@@ -429,7 +429,7 @@ const CoordinateSelect = observer(() => {
             <span className="option-text">Gene</span>
             <SelectForm>
               <select
-                value={configStore.selectedGene.gene}
+                value={configStore.selectedGene.name}
                 onChange={handleGeneChange}
               >
                 <option
@@ -444,7 +444,7 @@ const CoordinateSelect = observer(() => {
             </SelectForm>
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-            configStore.selectedGene.gene !== 'All Genes' && (
+            configStore.selectedGene.name !== 'All Genes' && (
               <>
                 <CoordForm>
                   <span className="coord-prefix">Residue indices:</span>
@@ -473,10 +473,10 @@ const CoordinateSelect = observer(() => {
                 <DomainSelectForm>
                   <span>Domain:</span>
                   <select
-                    value={`${configStore.selectedGene.gene}-default`}
+                    value={`${configStore.selectedGene.name}-default`}
                     onChange={handleGeneDomainChange}
                   >
-                    {geneDomainOptionElements[configStore.selectedGene.gene]}
+                    {geneDomainOptionElements[configStore.selectedGene.name]}
                   </select>
                   <QuestionButton
                     data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
@@ -503,7 +503,7 @@ const CoordinateSelect = observer(() => {
             <span className="option-text">Protein</span>
             <SelectForm>
               <select
-                value={configStore.selectedProtein.protein}
+                value={configStore.selectedProtein.name}
                 onChange={handleProteinChange}
               >
                 <option
@@ -518,7 +518,7 @@ const CoordinateSelect = observer(() => {
             </SelectForm>
           </ModeLabel>
           {configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-            configStore.selectedProtein.protein !== 'All Proteins' && (
+            configStore.selectedProtein.name !== 'All Proteins' && (
               <>
                 <CoordForm>
                   <span className="coord-prefix">Residue indices:</span>
@@ -547,12 +547,12 @@ const CoordinateSelect = observer(() => {
                 <DomainSelectForm>
                   <span>Domain:</span>
                   <select
-                    value={`${configStore.selectedProtein.protein}-default`}
+                    value={`${configStore.selectedProtein.name}-default`}
                     onChange={handleProteinDomainChange}
                   >
                     {
                       proteinDomainOptionElements[
-                        configStore.selectedProtein.protein
+                        configStore.selectedProtein.name
                       ]
                     }
                   </select>

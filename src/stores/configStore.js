@@ -61,8 +61,8 @@ export const initialConfigValues = {
 
   lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
   maxGroupCounts: 100,
-  minLocalCountsToShow: 50,
-  minGlobalCountsToShow: 100,
+  minLocalCounts: 50,
+  minGlobalCounts: 100,
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -117,8 +117,8 @@ export class ConfigStore {
 
   @observable lowFreqFilterType = initialConfigValues.lowFreqFilterType;
   @observable maxGroupCounts = initialConfigValues.maxGroupCounts;
-  @observable minLocalCountsToShow = initialConfigValues.minLocalCountsToShow;
-  @observable minGlobalCountsToShow = initialConfigValues.minGlobalCountsToShow;
+  @observable minLocalCounts = initialConfigValues.minLocalCounts;
+  @observable minGlobalCounts = initialConfigValues.minGlobalCounts;
 
   constructor() {}
 
@@ -177,13 +177,13 @@ export class ConfigStore {
     if (
       'selectedGene' in values &&
       !('residueCoordinates' in values) &&
-      this.selectedGene.gene !== 'All Genes'
+      this.selectedGene.name !== 'All Genes'
     ) {
       this.residueCoordinates = [[1, this.selectedGene.len_aa]];
     } else if (
       'selectedProtein' in values &&
       !('residueCoordinates' in values) &&
-      this.selectedProtein.protein !== 'All Proteins'
+      this.selectedProtein.name !== 'All Proteins'
     ) {
       this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
     }
@@ -227,11 +227,11 @@ export class ConfigStore {
     // If we switched to non-SNP grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
     if (this.groupKey !== GROUP_SNV && this.dnaOrAa === DNA_OR_AA.AA) {
-      if (this.selectedGene.gene === 'All Genes') {
+      if (this.selectedGene.name === 'All Genes') {
         // Switch back to S gene
         this.selectedGene = getGene('S');
       }
-      if (this.selectedProtein.protein === 'All Proteins') {
+      if (this.selectedProtein.name === 'All Proteins') {
         // Switch back to nsp12 protein
         this.selectedProtein = getProtein('nsp12 - RdRp');
       }
@@ -254,7 +254,7 @@ export class ConfigStore {
   }
 
   setDefaultGeneResidueCoordinates() {
-    if (this.selectedGene.gene === 'All Genes') {
+    if (this.selectedGene.name === 'All Genes') {
       this.residueCoordinates = [];
     } else {
       this.residueCoordinates = [[1, this.selectedGene.len_aa]];
@@ -264,7 +264,7 @@ export class ConfigStore {
   }
 
   setDefaultProteinResidueCoordinates() {
-    if (this.selectedProtein.protein === 'All Proteins') {
+    if (this.selectedProtein.name === 'All Proteins') {
       this.residueCoordinates = [];
     } else {
       this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
@@ -300,7 +300,7 @@ export class ConfigStore {
     this.selectedGene = getGene(selectedGene);
 
     // If we selected a new gene, then update the residue coordinates
-    if (this.selectedGene.gene !== initialSelectedGene.gene) {
+    if (this.selectedGene.name !== initialSelectedGene.name) {
       this.setDefaultGeneResidueCoordinates();
     }
   }
@@ -311,7 +311,7 @@ export class ConfigStore {
     this.selectedProtein = getProtein(selectedProtein);
 
     // If we selected a new protein, then update the residue coordinates
-    if (this.selectedProtein.protein !== initialSelectedProtein.protein) {
+    if (this.selectedProtein.name !== initialSelectedProtein.name) {
       this.setDefaultProteinResidueCoordinates();
     }
   }
@@ -500,13 +500,13 @@ export class ConfigStore {
   }
 
   @action
-  setMinLocalCountsToShow(minLocalCountsToShow) {
-    this.minLocalCountsToShow = minLocalCountsToShow;
+  setMinLocalCounts(minLocalCounts) {
+    this.minLocalCounts = minLocalCounts;
   }
 
   @action
-  setMinGlobalCountsToShow(minGlobalCountsToShow) {
-    this.minGlobalCountsToShow = minGlobalCountsToShow;
+  setMinGlobalCounts(minGlobalCounts) {
+    this.minGlobalCounts = minGlobalCounts;
   }
 
   @action

@@ -11,6 +11,7 @@ import { downloadBlobURL, generateSelectionString } from '../utils/download';
 import { downloadAggCaseData } from '../utils/downloads/downloadAggCaseData';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
+import { getLocationIdsByNode } from '../utils/location';
 import { GROUP_SNV } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
@@ -28,9 +29,6 @@ export const initialDataValues = {
   numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
   metadataCountsAfterFiltering: {},
-
-  selectedAccessionIds: [],
-  selectedAckIds: [],
 
   dataAggLocationSnvDate: [],
   dataAggSnvDate: [],
@@ -65,9 +63,6 @@ export class DataStore {
   @observable metadataCounts = initialDataValues.metadataCounts;
   @observable metadataCountsAfterFiltering =
     initialDataValues.metadataCountsAfterFiltering;
-
-  selectedAccessionIds = initialDataValues.selectedAccessionIds;
-  selectedAckIds = initialDataValues.selectedAckIds;
 
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
   dataAggSnvDate = initialDataValues.dataAggSnvDate;
@@ -164,20 +159,13 @@ export class DataStore {
         groupSnvMap,
         groupColorMap,
       },
-      ({
-        dataAggGroup,
-        changingPositions,
-        selectedAccessionIds,
-        selectedAckIds,
-        countsPerGroupDateFiltered,
-      }) => {
+      ({ dataAggGroup, changingPositions, countsPerGroupDateFiltered }) => {
         // console.log(caseDataAggGroup);
         this.dataAggGroup = dataAggGroup;
         this.changingPositions = changingPositions;
         this.countsPerGroupDateFiltered = countsPerGroupDateFiltered;
 
-        this.selectedAccessionIds = selectedAccessionIds;
-        this.selectedAckIds = selectedAckIds;
+        console.log(countsPerGroupDateFiltered);
 
         // Fire callback
         if (callback !== undefined) {
@@ -200,9 +188,6 @@ export class DataStore {
     this.dataAggGroup = initialDataValues.dataAggGroup;
     this.changingPositions = initialDataValues.changingPositions;
 
-    this.selectedAccessionIds = initialDataValues.selectedAccessionIds;
-    this.selectedAckIds = initialDataValues.selectedAckIds;
-
     this.dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
     this.dataAggSnvDate = initialDataValues.dataAggSnvDate;
     this.snvCooccurrence = initialDataValues.snvCooccurrence;
@@ -216,6 +201,20 @@ export class DataStore {
 
   @action
   async fetchData() {
+    this.UIStoreInstance.onCaseDataStateStarted();
+    this.UIStoreInstance.onAggCaseDataStarted();
+
+    const selectedMetadataFields = toJS(
+      this.configStoreInstance.selectedMetadataFields
+    );
+    Object.keys(selectedMetadataFields).forEach((metadataField) => {
+      selectedMetadataFields[metadataField] = selectedMetadataFields[
+        metadataField
+      ].map((item) => {
+        return parseInt(item.value);
+      });
+    });
+
     const res = await fetch('http://localhost:5000', {
       method: 'POST',
       headers: {
@@ -223,29 +222,46 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        group_key: 'snv',
-        location_ids: {
-          Narnia: [1, 2, 3, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
-          'Big Woods': [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-        },
-        dna_or_aa: 'AA',
-        coordinate_mode: 'GENE',
-        coordinate_ranges: [[1, 2000]],
-        selected_gene: {
-          gene: 'S',
-        },
-        metadata_filters: {
-          database: 0,
-        },
-        low_count_filter: 'GROUP_COUNTS',
-        max_group_counts: 5,
-        min_local_counts: 10,
-        min_global_counts: 5,
-        date_range: [1585699200000, 1613091875364],
+        group_key: toJS(this.configStoreInstance.groupKey),
+        dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
+        coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
+        coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
+        selected_gene: toJS(this.configStoreInstance.selectedGene),
+        selected_protein: toJS(this.configStoreInstance.selectedProtein),
+        location_ids: getLocationIdsByNode(
+          toJS(this.configStoreInstance.selectedLocationNodes)
+        ),
+        selected_metadata_fields: selectedMetadataFields,
+        ageRange: toJS(this.configStoreInstance.ageRange),
+        low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
+        max_group_counts: toJS(this.configStoreInstance.maxGroupCounts),
+        min_local_counts: toJS(this.configStoreInstance.minLocalCounts),
+        min_global_counts: toJS(this.configStoreInstance.minGlobalCounts),
+        start_date: toJS(this.configStoreInstance.startDate),
+        end_date: toJS(this.configStoreInstance.endDate),
       }),
     });
     const pkg = await res.json();
-    console.log(pkg);
+    // console.log(pkg);
+
+    this.filteredCaseData = pkg.filteredCaseData;
+    this.numSequencesAfterAllFiltering = pkg.filteredCaseData.length;
+    this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
+    this.dataAggGroupDate = pkg.dataAggGroupDate;
+    this.metadataCounts = pkg.metadataCounts;
+    this.metadataCountsAfterFiltering = pkg.metadataCountsAfterFiltering;
+    this.numSequencesBeforeMetadataFiltering =
+      pkg.numSequencesBeforeMetadataFiltering;
+    this.countsPerLocation = pkg.countsPerLocation;
+    this.countsPerLocationDate = pkg.countsPerLocationDate;
+    this.validGroups = pkg.validGroups;
+    this.countsPerGroup = pkg.countsPerGroup;
+    this.dataAggGroup = pkg.dataAggGroup;
+    this.changingPositions = pkg.changingPositions;
+    this.countsPerGroupDateFiltered = pkg.countsPerGroupDateFiltered;
+
+    this.UIStoreInstance.onAggCaseDataFinished();
+    this.UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
@@ -283,8 +299,8 @@ export class DataStore {
 
         lowFreqFilterType: this.configStoreInstance.lowFreqFilterType,
         maxGroupCounts: this.configStoreInstance.maxGroupCounts,
-        minLocalCountsToShow: this.configStoreInstance.minLocalCountsToShow,
-        minGlobalCountsToShow: this.configStoreInstance.minGlobalCountsToShow,
+        minLocalCounts: this.configStoreInstance.minLocalCounts,
+        minGlobalCounts: this.configStoreInstance.minGlobalCounts,
         globalGroupCounts: this.globalGroupCounts,
 
         // SNV data

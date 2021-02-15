@@ -88,12 +88,12 @@ function filterByCoordinateRange({
       if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
         snvField = 'gene_aa_snp_str';
         intToSnvMap = intToGeneAaSnvMap;
-        geneOrProtein = selectedGene.gene;
+        geneOrProtein = selectedGene.name;
         geneOrProteinField = 'gene';
       } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         snvField = 'protein_aa_snp_str';
         intToSnvMap = intToProteinAaSnvMap;
-        geneOrProtein = selectedProtein.protein;
+        geneOrProtein = selectedProtein.name;
         geneOrProteinField = 'protein';
       }
 
@@ -225,8 +225,8 @@ function processCaseData({
 
   lowFreqFilterType,
   maxGroupCounts,
-  minLocalCountsToShow,
-  minGlobalCountsToShow,
+  minLocalCounts,
+  minGlobalCounts,
   globalGroupCounts,
 
   // SNV data
@@ -307,7 +307,7 @@ function processCaseData({
       });
   } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
     Object.keys(countsPerGroup).forEach((group) => {
-      if (countsPerGroup[group] >= minLocalCountsToShow) {
+      if (countsPerGroup[group] >= minLocalCounts) {
         validGroups[group] = 1;
       }
     });
@@ -327,7 +327,7 @@ function processCaseData({
       }
     }
     Object.keys(globalCounts).forEach((group) => {
-      if (globalCounts[group] >= minGlobalCountsToShow) {
+      if (globalCounts[group] >= minGlobalCounts) {
         validGroups[group] = 1;
       }
     });
@@ -513,13 +513,6 @@ function aggCaseDataByGroup({
     'collection_date'
   );
   const totalSequenceCount = filteredCaseData.length;
-  // Get a list of Accession IDs and sample dates that are currently selected
-  const selectedAccessionIds = [];
-  const selectedAckIds = [];
-  filteredCaseData.forEach((row) => {
-    selectedAccessionIds.push(row['Accession ID']);
-    selectedAckIds.push(row['ack_id']);
-  });
 
   // Create the same group count object, but after date filtering
   const countsPerGroupDateFilteredObj = {};
@@ -630,9 +623,9 @@ function aggCaseDataByGroup({
         // AA-mode
         groupSnps.forEach((snp) => {
           if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-            inRange = snp.gene === selectedGene.gene;
+            inRange = snp.gene === selectedGene.name;
           } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-            inRange = snp.protein === selectedProtein.protein;
+            inRange = snp.protein === selectedProtein.name;
           }
 
           if (inRange) {
@@ -847,10 +840,6 @@ function aggCaseDataByGroup({
   return {
     dataAggGroup: dataAggGroup,
     changingPositions: changingPositions,
-
-    selectedAccessionIds,
-    selectedAckIds,
-
     countsPerGroupDateFiltered,
   };
 }

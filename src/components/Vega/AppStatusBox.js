@@ -80,15 +80,15 @@ const AppStatusBox = observer(() => {
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     genomeSelection = (
       <>
-        Gene: <b>{configStore.selectedGene.gene}</b>. {residuesOrBases}:{' '}
+        Gene: <b>{configStore.selectedGene.name}</b>. {residuesOrBases}:{' '}
         <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
     genomeSelection = (
       <>
-        Protein: <b>{configStore.selectedProtein.protein}</b>. {residuesOrBases}
-        : <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
+        Protein: <b>{configStore.selectedProtein.name}</b>. {residuesOrBases}:{' '}
+        <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {

@@ -32,10 +32,9 @@ const comparer = ({
   // We're comparing rows that have the same gene/protein
   if (groupKey === GROUP_SNV) {
     let sameGeneOrProtein =
-      (a.gene === b.gene && coordinateMode === COORDINATE_MODES.COORD_GENE) ||
-      (a.protein === b.protein &&
-        coordinateMode === COORDINATE_MODES.COORD_PROTEIN);
-
+      a.name === b.name &&
+      (coordinateMode === COORDINATE_MODES.COORD_GENE ||
+        COORDINATE_MODES.COORD_PROTEIN);
     if (
       sortColumn === 'group' &&
       (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) &&

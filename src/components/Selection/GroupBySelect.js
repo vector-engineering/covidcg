@@ -33,13 +33,13 @@ const GroupBySelect = observer(() => {
     aaDisabled = true;
   } else if (
     configStore.coordinateMode === COORDINATE_MODES.COORD_GENE &&
-    configStore.selectedGene.gene === 'All Genes'
+    configStore.selectedGene.name === 'All Genes'
   ) {
     aaDisabled = true;
     aaDisabledMessage = ' (please select one gene)';
   } else if (
     configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN &&
-    configStore.selectedProtein.protein === 'All Proteins'
+    configStore.selectedProtein.name === 'All Proteins'
   ) {
     aaDisabled = true;
     aaDisabledMessage = ' (please select one protein)';
