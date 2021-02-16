@@ -189,6 +189,10 @@ const GroupTab = observer(() => {
   };
 
   const renderDataTable = () => {
+    if (configStore.groupKey === GROUP_SNV) {
+      return null;
+    }
+
     return (
       <AccordionWrapper
         title="Table"

@@ -18,9 +18,7 @@ import {
   transmembraneAAColors,
 } from '../../constants/colors';
 import {
-  GROUP_SNV,
   DNA_OR_AA,
-  COORDINATE_MODES,
   COLOR_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
@@ -31,12 +29,6 @@ import { config } from '../../config';
 
 import TableOptions from './TableOptions';
 import {
-  geneColumn,
-  proteinColumn,
-  positionColumn,
-  indexColumn,
-  refColumn,
-  altColumn,
   groupColumn,
   getDefaultColumns,
   getSinglePosColumn,
@@ -78,54 +70,12 @@ const sortRows = (rows, sortFn) => {
 const NewLineageDataTable = observer(() => {
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
-  const calculatePosOffsets = (groupKey, dnaOrAa) => {
-    let posTitleOffset = 0;
-    let posColOffset = 0;
-    if (Object.keys(config.group_cols).includes(groupKey)) {
-      posTitleOffset = 220;
-      posColOffset = 4;
-    } else if (groupKey === GROUP_SNV) {
-      if (dnaOrAa === DNA_OR_AA.DNA) {
-        posTitleOffset = 335;
-        posColOffset = 6;
-      } else {
-        posTitleOffset = 380;
-        posColOffset = 7;
-      }
-    }
-    return [posColOffset, posTitleOffset];
-  };
-
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (Object.keys(config.group_cols).includes(configStore.groupKey)) {
-      _columns.push(
-        groupColumn({ title: config.group_cols[configStore.groupKey].title })
-      );
-    }
-    // For SNP grouping, add each SNP chunk as its own column
-    else if (configStore.groupKey === GROUP_SNV) {
-      // Add the gene column, if we're in AA mode
-      if (configStore.dnaOrAa === DNA_OR_AA.AA) {
-        if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          _columns.push(geneColumn());
-        } else if (
-          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-        ) {
-          _columns.push(proteinColumn());
-        }
-      }
-      // Add the position column
-      // We don't need as much space for this, for AA mode
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
-        _columns.push(positionColumn());
-      } else {
-        _columns.push(indexColumn());
-      }
-      _columns.push(refColumn());
-      _columns.push(altColumn());
-    }
+    _columns.push(
+      groupColumn({ title: config.group_cols[configStore.groupKey].title })
+    );
 
     // Get the maximum and minimum counts and percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
@@ -234,12 +184,6 @@ const NewLineageDataTable = observer(() => {
       if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         pos += 1;
       }
-      if (
-        configStore.groupKey === GROUP_SNV &&
-        configStore.dnaOrAa === DNA_OR_AA.AA
-      ) {
-        pos += 1;
-      }
 
       _columns.push(
         getSinglePosColumn({
@@ -260,15 +204,9 @@ const NewLineageDataTable = observer(() => {
     return _columns;
   };
 
-  const [initialPosColOffset, initialPosTitleOffset] = calculatePosOffsets(
-    configStore.groupKey,
-    configStore.dnaOrAa
-  );
   const [state, setState] = useState({
     columns: buildColumns() || [],
     rows: dataStore.dataAggGroup,
-    posColOffset: initialPosColOffset,
-    posTitleOffset: initialPosTitleOffset,
   });
 
   useEffect(() => {
@@ -276,15 +214,9 @@ const NewLineageDataTable = observer(() => {
       return;
     }
 
-    const [posColOffset, posTitleOffset] = calculatePosOffsets(
-      configStore.groupKey,
-      configStore.dnaOrAa
-    );
     setState({
       ...state,
       columns: buildColumns() || [],
-      posTitleOffset: posTitleOffset,
-      posColOffset: posColOffset,
       rows: sortRows(
         dataStore.dataAggGroup,
         comparer({
@@ -437,17 +369,14 @@ const NewLineageDataTable = observer(() => {
   return (
     <DataTableContainer>
       <TableOptions />
-      <span
-        className="position-title"
-        style={{ marginLeft: state.posTitleOffset }}
-      >
+      <span className="position-title" style={{ marginLeft: 220 }}>
         {configStore.dnaOrAa === DNA_OR_AA.DNA
           ? 'Genomic Coordinate'
           : 'Residue Index'}
       </span>
       <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
         <DataTable
-          posColOffset={state.posColOffset}
+          posColOffset={4}
           columns={state.columns}
           rows={state.rows}
           rowGetter={(i) => state.rows[i]}

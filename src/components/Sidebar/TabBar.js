@@ -69,6 +69,7 @@ const DropdownTab = styled.button`
   flex-direction: row;
   align-items: center;
 
+  width: 100%;
   height: 30px;
   padding: 0px 15px;
   padding-right: 20px;
@@ -83,7 +84,6 @@ const DropdownTab = styled.button`
   font-weight: 500;
   color: ${({ active }) => (active ? '#000' : '#888')};
 
-  border-radius: 10px 10px 0px 0px;
   transition: 0.1s all ease-in-out;
 
   .caret {

@@ -13,68 +13,6 @@ import {
   COMPARE_COLORS,
 } from '../../constants/defs.json';
 
-export const positionColumn = () => ({
-  name: 'Position',
-  key: 'pos',
-  sortable: true,
-  width: 70,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['pos']} color={val.row['color']} />
-  ),
-});
-
-export const indexColumn = () => ({
-  name: 'Index',
-  key: 'pos',
-  sortable: true,
-  width: 50,
-  frozen: true,
-});
-export const refColumn = () => ({
-  name: 'Ref',
-  key: 'ref',
-  sortable: true,
-  width: 36,
-  frozen: true,
-  cellClass: 'no-padding',
-  formatter: (val) => <LetterCell value={val.row['ref']} />,
-});
-export const altColumn = () => ({
-  name: 'Alt',
-  key: 'alt',
-  sortable: true,
-  width: 36,
-  frozen: true,
-  cellClass: 'no-padding',
-  formatter: (val) => <LetterCell value={val.row['alt']} />,
-});
-
-export const geneColumn = () => ({
-  name: 'Gene',
-  key: 'gene',
-  sortable: true,
-  width: 120,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['gene']} color={val.row['color']} />
-  ),
-});
-
-export const proteinColumn = () => ({
-  name: 'Protein',
-  key: 'protein',
-  sortable: true,
-  width: 120,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['protein']} color={val.row['color']} />
-  ),
-});
-
 export const groupColumn = ({ title }) => ({
   key: 'group',
   name: title,
