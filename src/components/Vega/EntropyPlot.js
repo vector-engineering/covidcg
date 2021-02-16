@@ -160,7 +160,7 @@ const EntropyPlot = observer(({ width }) => {
   });
 
   useEffect(() => {
-    if (UIStore.aggCaseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
@@ -172,7 +172,7 @@ const EntropyPlot = observer(({ width }) => {
         table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
       },
     });
-  }, [UIStore.aggCaseDataState, plotSettingsStore.entropyMinCount]);
+  }, [UIStore.caseDataState, plotSettingsStore.entropyMinCount]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -200,10 +200,7 @@ const EntropyPlot = observer(({ width }) => {
   }
   xLabel += ')';
 
-  if (
-    UIStore.caseDataState === ASYNC_STATES.STARTED ||
-    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-  ) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{

@@ -363,8 +363,13 @@ def hello_world():
         .reset_index()
         .rename(columns={"collection_date": "date"})
     )
+    counts_per_location_date["cumulative_count"] = counts_per_location_date.groupby(
+        ["location"]
+    ).cumsum()
+
     # print(counts_per_location)
-    # print(counts_per_location_date)
+    print("Counts per location date")
+    print(counts_per_location_date)
 
     counts_per_location_date_group = (
         (res_snv if group_key == constants["GROUP_SNV"] else res_df)
@@ -638,7 +643,9 @@ def hello_world():
         "countsPerGroupDateFiltered": {group_counts_after_date_filter}
     }}
     """.format(
-        filtered_case_data=res_df.to_json(orient="records"),
+        filtered_case_data=res_df.drop(
+            columns=list(config["metadata_cols"].keys())
+        ).to_json(orient="records"),
         counts_per_location_date_group=counts_per_location_date_group.to_json(
             orient="records"
         ),

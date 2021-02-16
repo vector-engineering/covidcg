@@ -41,10 +41,7 @@ const LocationSelect = observer(() => {
       return getNodeFromPath(state.data, node['path']);
     });
 
-    if (
-      UIStore.caseDataState === ASYNC_STATES.STARTED ||
-      UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-    ) {
+    if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
       return;
     }
 

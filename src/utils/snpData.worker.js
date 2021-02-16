@@ -48,20 +48,20 @@ function getSnvFields({
     selectedGroupIds = selectedGroups
       .map((item) => dnaSnvMap[item])
       .map((snpId) => (snpId === undefined ? -1 : snpId));
-    snvEntry = 'dna_snp_str';
+    snvEntry = 'dna_snp';
     intToSnvMap = intToDnaSnvMap;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
       selectedGroupIds = selectedGroups
         .map((item) => geneAaSnvMap[item])
         .map((snpId) => (snpId === undefined ? -1 : snpId));
-      snvEntry = 'gene_aa_snp_str';
+      snvEntry = 'gene_aa_snp';
       intToSnvMap = intToGeneAaSnvMap;
     } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       selectedGroupIds = selectedGroups
         .map((item) => proteinAaSnvMap[item])
         .map((snpId) => (snpId === undefined ? -1 : snpId));
-      snvEntry = 'protein_aa_snp_str';
+      snvEntry = 'protein_aa_snp';
       intToSnvMap = intToProteinAaSnvMap;
     }
   }

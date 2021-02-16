@@ -1,9 +1,5 @@
 import { observable, action, toJS } from 'mobx';
 import {
-  processCaseData,
-  aggCaseDataByGroup,
-} from '../utils/caseDataWorkerWrapper';
-import {
   processSelectedSnvs,
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
@@ -12,11 +8,8 @@ import { downloadAggCaseData } from '../utils/downloads/downloadAggCaseData';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
-import { GROUP_SNV } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
-
-//import countryScoreData from '../../data/country_score.json';
 
 export const initialDataValues = {
   filteredCaseData: [],
@@ -121,67 +114,12 @@ export class DataStore {
     this.metadataStoreInstance = rootStoreInstance.metadataStore;
     this.locationStoreInstance = rootStoreInstance.locationDataStore;
 
-    this.updateCaseData();
-  }
-
-  @action
-  updateAggCaseDataByGroup(callback) {
-    this.UIStoreInstance.onAggCaseDataStarted();
-
-    const {
-      snvColorMap,
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-    } = this.snpDataStoreInstance;
-
-    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
-
-    aggCaseDataByGroup(
-      {
-        filteredCaseData: JSON.parse(JSON.stringify(this.filteredCaseData)),
-        dataAggGroupDate: JSON.parse(JSON.stringify(this.dataAggGroupDate)),
-        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(this.configStoreInstance.getCoordinateRanges()),
-        selectedGene: toJS(this.configStoreInstance.selectedGene),
-        selectedProtein: toJS(this.configStoreInstance.selectedProtein),
-        groupKey: toJS(this.configStoreInstance.groupKey),
-        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        dateRange: toJS(this.configStoreInstance.dateRange),
-
-        // SNV data
-        snvColorMap,
-        intToDnaSnvMap,
-        intToGeneAaSnvMap,
-        intToProteinAaSnvMap,
-
-        // Lineage data
-        groupSnvMap,
-        groupColorMap,
-      },
-      ({ dataAggGroup, changingPositions, countsPerGroupDateFiltered }) => {
-        // console.log(caseDataAggGroup);
-        this.dataAggGroup = dataAggGroup;
-        this.changingPositions = changingPositions;
-        this.countsPerGroupDateFiltered = countsPerGroupDateFiltered;
-
-        console.log(countsPerGroupDateFiltered);
-
-        // Fire callback
-        if (callback !== undefined) {
-          callback();
-        }
-
-        this.UIStoreInstance.onAggCaseDataFinished();
-        this.UIStoreInstance.onCaseDataStateFinished();
-      }
-    );
+    this.fetchData();
   }
 
   @action
   emptyCaseData() {
     this.UIStoreInstance.onCaseDataStateStarted();
-    this.UIStoreInstance.onAggCaseDataStarted();
 
     this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
     this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
@@ -195,14 +133,12 @@ export class DataStore {
     this.countsPerLocation = initialDataValues.countsPerLocation;
     this.countsPerLocationDate = initialDataValues.countsPerLocationDate;
 
-    this.UIStoreInstance.onAggCaseDataFinished();
     this.UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
   async fetchData() {
     this.UIStoreInstance.onCaseDataStateStarted();
-    this.UIStoreInstance.onAggCaseDataStarted();
 
     const selectedMetadataFields = toJS(
       this.configStoreInstance.selectedMetadataFields
@@ -260,91 +196,7 @@ export class DataStore {
     this.changingPositions = pkg.changingPositions;
     this.countsPerGroupDateFiltered = pkg.countsPerGroupDateFiltered;
 
-    this.UIStoreInstance.onAggCaseDataFinished();
     this.UIStoreInstance.onCaseDataStateFinished();
-  }
-
-  @action
-  updateCaseData(callback) {
-    this.UIStoreInstance.onCaseDataStateStarted();
-
-    const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-      snvColorMap,
-    } = this.snpDataStoreInstance;
-    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
-
-    processCaseData(
-      {
-        rawCaseData: this.rawCaseData,
-
-        selectedLocationNodes: toJS(
-          this.configStoreInstance.selectedLocationNodes
-        ),
-        groupKey: toJS(this.configStoreInstance.groupKey),
-        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        selectedMetadataFields: toJS(
-          this.configStoreInstance.selectedMetadataFields
-        ),
-        ageRange: toJS(this.configStoreInstance.ageRange),
-        dateRange: toJS(this.configStoreInstance.dateRange),
-        selectedGroups: toJS(this.configStoreInstance.selectedGroups),
-
-        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
-        coordinateRanges: toJS(this.configStoreInstance.getCoordinateRanges()),
-        selectedGene: toJS(this.configStoreInstance.selectedGene),
-        selectedProtein: toJS(this.configStoreInstance.selectedProtein),
-
-        lowFreqFilterType: this.configStoreInstance.lowFreqFilterType,
-        maxGroupCounts: this.configStoreInstance.maxGroupCounts,
-        minLocalCounts: this.configStoreInstance.minLocalCounts,
-        minGlobalCounts: this.configStoreInstance.minGlobalCounts,
-        globalGroupCounts: this.globalGroupCounts,
-
-        // SNV data
-        intToDnaSnvMap,
-        intToGeneAaSnvMap,
-        intToProteinAaSnvMap,
-        snvColorMap,
-
-        // Lineage data
-        groupSnvMap,
-        groupColorMap,
-      },
-      ({
-        filteredCaseData,
-        dataAggLocationGroupDate,
-        dataAggGroupDate,
-        metadataCounts,
-        metadataCountsAfterFiltering,
-        numSequencesBeforeMetadataFiltering,
-        countsPerLocation,
-        countsPerLocationDate,
-        validGroups,
-        countsPerGroup,
-      }) => {
-        this.filteredCaseData = filteredCaseData;
-        this.numSequencesAfterAllFiltering = filteredCaseData.length;
-        this.dataAggLocationGroupDate = dataAggLocationGroupDate;
-        this.dataAggGroupDate = dataAggGroupDate;
-        this.metadataCounts = metadataCounts;
-        this.metadataCountsAfterFiltering = metadataCountsAfterFiltering;
-        this.numSequencesBeforeMetadataFiltering = numSequencesBeforeMetadataFiltering;
-        // console.log('CASE_DATA FINISHED');
-
-        this.countsPerLocation = countsPerLocation;
-        this.countsPerLocationDate = countsPerLocationDate;
-        this.validGroups = validGroups;
-        this.countsPerGroup = countsPerGroup;
-
-        this.updateAggCaseDataByGroup(callback);
-        if (this.configStoreInstance.groupKey === GROUP_SNV) {
-          this.processSelectedSnvs();
-        }
-      }
-    );
   }
 
   @action

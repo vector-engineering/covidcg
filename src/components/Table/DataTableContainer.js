@@ -272,7 +272,7 @@ const NewLineageDataTable = observer(() => {
   });
 
   useEffect(() => {
-    if (UIStore.aggCaseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
@@ -294,7 +294,7 @@ const NewLineageDataTable = observer(() => {
       ),
     });
   }, [
-    UIStore.aggCaseDataState,
+    UIStore.caseDataState,
     plotSettingsStore.tableColorMode,
     plotSettingsStore.tableCompareMode,
     plotSettingsStore.tableCompareColor,
@@ -403,10 +403,7 @@ const NewLineageDataTable = observer(() => {
     });
   }, [plotSettingsStore.tableSortColumn, plotSettingsStore.tableSortDirection]);
 
-  if (
-    UIStore.caseDataState === ASYNC_STATES.STARTED ||
-    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-  ) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
