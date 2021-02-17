@@ -4,7 +4,6 @@ import {
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
 import { downloadBlobURL, generateSelectionString } from '../utils/download';
-import { downloadAggCaseData } from '../utils/downloads/downloadAggCaseData';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
@@ -16,7 +15,6 @@ export const initialDataValues = {
   dataAggLocationGroupDate: [],
   dataAggGroupDate: [],
   dataAggGroup: [],
-  changingPositions: {},
 
   // Metadata filtering
   numSequencesBeforeMetadataFiltering: 0,
@@ -50,7 +48,6 @@ export class DataStore {
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
-  @observable changingPositions = initialDataValues.changingPositions;
   @observable numSequencesBeforeMetadataFiltering =
     initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
@@ -124,7 +121,6 @@ export class DataStore {
     this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
     this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
     this.dataAggGroup = initialDataValues.dataAggGroup;
-    this.changingPositions = initialDataValues.changingPositions;
 
     this.dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
     this.dataAggSnvDate = initialDataValues.dataAggSnvDate;
@@ -199,7 +195,6 @@ export class DataStore {
     this.validGroups = pkg.validGroups;
     this.countsPerGroup = pkg.countsPerGroup;
     this.dataAggGroup = pkg.dataAggGroup;
-    this.changingPositions = pkg.changingPositions;
     this.countsPerGroupDateFiltered = pkg.countsPerGroupDateFiltered;
 
     this.UIStoreInstance.onCaseDataStateFinished();
@@ -379,40 +374,36 @@ export class DataStore {
 
   @action
   downloadAggCaseData() {
-    const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-    } = this.snpDataStoreInstance;
-
-    const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
-
-    const { blobURL } = downloadAggCaseData({
-      groupKey: this.configStoreInstance.groupKey,
-      dnaOrAa: this.configStoreInstance.dnaOrAa,
-      coordinateMode: this.configStoreInstance.coordinateMode,
-      dataAggGroup: this.dataAggGroup,
-
-      // SNV data
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-
-      // Lineage data
-      groupSnvMap,
-      groupColorMap,
-    });
-    downloadBlobURL(
-      blobURL,
-      generateSelectionString(
-        'agg_data',
-        'csv',
-        toJS(this.configStoreInstance.groupKey),
-        toJS(this.configStoreInstance.dnaOrAa),
-        toJS(this.configStoreInstance.selectedLocationNodes),
-        toJS(this.configStoreInstance.dateRange)
-      )
-    );
+    // const {
+    //   intToDnaSnvMap,
+    //   intToGeneAaSnvMap,
+    //   intToProteinAaSnvMap,
+    // } = this.snpDataStoreInstance;
+    // const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
+    // const { blobURL } = downloadAggCaseData({
+    //   groupKey: this.configStoreInstance.groupKey,
+    //   dnaOrAa: this.configStoreInstance.dnaOrAa,
+    //   coordinateMode: this.configStoreInstance.coordinateMode,
+    //   dataAggGroup: this.dataAggGroup,
+    //   // SNV data
+    //   intToDnaSnvMap,
+    //   intToGeneAaSnvMap,
+    //   intToProteinAaSnvMap,
+    //   // Lineage data
+    //   groupSnvMap,
+    //   groupColorMap,
+    // });
+    // downloadBlobURL(
+    //   blobURL,
+    //   generateSelectionString(
+    //     'agg_data',
+    //     'csv',
+    //     toJS(this.configStoreInstance.groupKey),
+    //     toJS(this.configStoreInstance.dnaOrAa),
+    //     toJS(this.configStoreInstance.selectedLocationNodes),
+    //     toJS(this.configStoreInstance.dateRange)
+    //   )
+    // );
   }
 
   @action

@@ -496,7 +496,6 @@ def hello_world():
 
     # CHANGING POSITIONS
     # ------------------
-    changing_positions = {}
 
     if group_key == constants["GROUP_SNV"]:
         # Use SNV ids to get SNV data
@@ -562,7 +561,6 @@ def hello_world():
         ):
             pos = int(pos)
             counts_per_group["pos_" + str(pos)] = ref
-            changing_positions[pos] = {"ref": ref}
 
         # Fill in alternative bases/residues
         for i, snvs in zip(
@@ -597,7 +595,6 @@ def hello_world():
         "validGroups": {valid_groups},
         "countsPerGroup": {group_counts},
         "dataAggGroup": {counts_per_group},
-        "changingPositions": {changing_positions},
         "countsPerGroupDateFiltered": {group_counts_after_date_filter}
     }}
     """.format(
@@ -616,7 +613,6 @@ def hello_world():
         valid_groups=json.dumps({k: 1 for k in valid_groups}),
         group_counts=json.dumps(group_counts),
         counts_per_group=counts_per_group.to_json(orient="records"),
-        changing_positions=json.dumps(changing_positions),
         group_counts_after_date_filter=group_counts_after_date_filter.to_json(
             orient="values"
         ),
