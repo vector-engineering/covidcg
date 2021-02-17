@@ -15,6 +15,17 @@ export const Container = styled.div`
   }
 `;
 
+export const PresetForm = styled.div`
+  margin: 5px 0px;
+
+  label {
+    margin-right: 5px;
+  }
+
+  select {
+  }
+`;
+
 export const DateForm = styled.div`
   display: flex;
   flex-direction: row;

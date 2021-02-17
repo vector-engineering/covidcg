@@ -27,24 +27,25 @@ const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
-  const handleBrush = (...args) => {
-    let dateRange = args[1];
+  // disable this for now
+  // const handleBrush = (...args) => {
+  //   let dateRange = args[1];
 
-    if (dateRange === null) {
-      // Reset time range
-      configStore.updateDateRange([-1, -1]);
-    } else if (
-      dateRange[0] === configStore.dateRange[0] &&
-      dateRange[1] === configStore.dateRange[1]
-    ) {
-      // No change, return
-    } else if (dateRange !== null) {
-      configStore.updateDateRange([
-        dateRange[0].getTime(),
-        dateRange[1].getTime(),
-      ]);
-    }
-  };
+  //   if (dateRange === null) {
+  //     // Reset time range
+  //     configStore.updateDateRange([-1, -1]);
+  //   } else if (
+  //     dateRange[0] === configStore.dateRange[0] &&
+  //     dateRange[1] === configStore.dateRange[1]
+  //   ) {
+  //     // No change, return
+  //   } else if (dateRange !== null) {
+  //     configStore.updateDateRange([
+  //       dateRange[0].getTime(),
+  //       dateRange[1].getTime(),
+  //     ]);
+  //   }
+  // };
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
@@ -108,7 +109,7 @@ const GroupStackPlot = observer(({ width }) => {
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
-      detailDomain: _.debounce(handleBrush, 500),
+      // detailDomain: _.debounce(handleBrush, 500),
       hoverBar: _.throttle(handleHoverGroup, 100),
     },
     dataListeners: {
