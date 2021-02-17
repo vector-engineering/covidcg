@@ -22,7 +22,7 @@ import { TABS } from '../../constants/defs.json';
 
 const HomePageDiv = styled.div`
   display: grid;
-  grid-template-columns: [col1] 200px [col2] 150px [col3] auto [col4];
+  grid-template-columns: [col1] 250px [col2] 150px [col3] auto [col4];
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;

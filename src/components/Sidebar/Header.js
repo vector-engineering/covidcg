@@ -34,7 +34,7 @@ const ImageContainer = styled.div`
   margin-bottom: 2px;
   img {
     width: auto;
-    height: 50px;
+    height: 60px;
   }
 `;
 

@@ -8,7 +8,6 @@ import KBD from '../Common/KBD';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import AppStatusBox from '../Vega/AppStatusBox';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
 
@@ -21,18 +20,6 @@ const LocationTabContainer = styled.div`
 const LocationTab = observer(() => {
   const { configStore } = useStores();
   const [ref, { width }] = useDimensions();
-
-  const renderAppStatusBox = () => {
-    return (
-      <AccordionWrapper
-        title="Status"
-        defaultCollapsed={false}
-        maxHeight={'300px'}
-      >
-        <AppStatusBox />
-      </AccordionWrapper>
-    );
-  };
 
   const renderLocationDatePlot = () => {
     return (
@@ -122,7 +109,6 @@ const LocationTab = observer(() => {
 
   return (
     <LocationTabContainer ref={ref}>
-      {renderAppStatusBox()}
       {renderLocationDatePlot()}
       {renderLocationGroupPlot()}
     </LocationTabContainer>

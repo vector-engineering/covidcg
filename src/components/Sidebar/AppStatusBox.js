@@ -14,32 +14,31 @@ import { config } from '../../config';
 import { formatSnv } from '../../utils/snpUtils';
 import { intToISO } from '../../utils/date';
 
+import Button from '../Buttons/Button';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: [col1] auto [col2] 110px [col3];
-  grid-template-rows: [row1] auto [row2];
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 
   margin: 0px 10px;
   padding: 5px 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: #fff;
 `;
 
-const LineColumn = styled.div`
-  grid-row: row1 / row2;
-  grid-column: col1 / col2;
+const StatusText = styled.div`
+  font-size: 0.8rem;
 `;
 
-const ButtonColumn = styled.div`
-  grid-row: row1 / row2;
-  grid-column: col2 / col3;
-
+const ButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
+  margin-top: 5px;
 `;
 
 const Line = styled.p`
@@ -52,6 +51,22 @@ const Sequence = styled.span`
   font-family: monospace;
   display: inline;
   margin: 0px;
+`;
+
+const DownloadButton = styled(Button)`
+  background-color: #eee;
+  background-image: none;
+  color: #000;
+  border-color: #666;
+
+  .caret:after {
+    border-top-color: #666;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: #ddd;
+  }
 `;
 
 const serializeCoordinates = (coordinateRanges) => {
@@ -188,11 +203,15 @@ const AppStatusBox = observer(() => {
 
   return (
     <Container>
-      <LineColumn>
+      <StatusText>
         <Line>
           <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected.
-          Sequences grouped by <b>{configStore.getGroupLabel()}</b>. Viewing
-          mutations on the{' '}
+        </Line>
+        <Line>
+          Sequences grouped by <b>{configStore.getGroupLabel()}</b>.
+        </Line>
+        <Line>
+          Viewing mutations on the{' '}
           <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
         </Line>
         <Line>
@@ -203,19 +222,23 @@ const AppStatusBox = observer(() => {
               .join(', ')}
           </b>
         </Line>
-        <Line>Date range: {dateRange}</Line>
+        <Line>
+          Date range: {configStore.startDate} – {configStore.endDate}
+        </Line>
         <Line>Genome selection: {genomeSelection}</Line>
         <Line>
           Selected {configStore.getGroupLabel()}s: {selectedGroups}
         </Line>
-      </LineColumn>
-      <ButtonColumn>
+      </StatusText>
+      <ButtonContainer>
         <DropdownButton
+          button={DownloadButton}
           text={'Download'}
           options={downloadOptions}
           onSelect={handleDownloadSelect}
+          direction={'left'}
         />
-      </ButtonColumn>
+      </ButtonContainer>
     </Container>
   );
 });

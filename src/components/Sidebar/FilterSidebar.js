@@ -6,19 +6,20 @@ import { useStores } from '../../stores/connect';
 import Header from './Header';
 import LegendSidebar from './LegendSidebar';
 import TabBar from './TabBar';
+import AppStatusBox from './AppStatusBox';
 
 import Button from '../Buttons/Button';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
 
 const Container = styled.div`
-  width: 350px;
+  width: 400px;
   display: flex;
   height: 100vh;
   overflow-y: hidden;
 `;
 
 const FilterSidebarContainer = styled.div`
-  width: 199px;
+  width: 249px;
 
   background-color: #f8f8f8;
   //padding-right: 10px;
@@ -37,6 +38,11 @@ const FilterSidebarContainer = styled.div`
       margin-bottom: 2px;
     }
   }
+`;
+
+const SelectSequencesButton = styled(Button)`
+  margin: 5px;
+  font-size: 1rem;
 `;
 
 const LegendSidebarContainer = styled.div`
@@ -67,8 +73,11 @@ const FilterSidebar = observer(() => {
       <FilterSidebarContainer>
         <Header />
         <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
-        <Button onClick={showModal}>Select Sequences</Button>
+        <SelectSequencesButton onClick={showModal}>
+          Select Sequences
+        </SelectSequencesButton>
         <SelectSequencesModal isOpen={modalActive} onRequestClose={hideModal} />
+        <AppStatusBox />
       </FilterSidebarContainer>
       <LegendSidebarContainer>
         <LegendSidebar />
