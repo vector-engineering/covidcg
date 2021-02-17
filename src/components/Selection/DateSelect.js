@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { intToISO, ISOToInt } from '../../utils/date';
+import { intToISO } from '../../utils/date';
 import { MIN_DATE } from '../../constants/defs.json';
 
 import { Container, DateForm, FormColumn } from './DateSelect.styles';
@@ -12,61 +12,15 @@ import QuestionButton from '../Buttons/QuestionButton';
 const DateSelect = observer(() => {
   const { configStore } = useStores();
 
-  const minDateISO = intToISO(MIN_DATE);
   const maxDate = new Date().getTime();
   const maxDateISO = intToISO(maxDate);
 
-  const [state, setState] = useState({
-    startDate: intToISO(configStore.startDate),
-    endDate: intToISO(configStore.endDate),
-  });
-
-  // Update state from store
-  useEffect(() => {
-    setState({
-      ...state,
-      startDate: intToISO(configStore.startDate),
-    });
-  }, [configStore.startDate]);
-  useEffect(() => {
-    setState({
-      ...state,
-      endDate: intToISO(configStore.endDate),
-    });
-  }, [configStore.endDate]);
-
-  const updateDateRange = ({ startDate, endDate }) => {
-    const validDateRange = ISOToInt(startDate) < ISOToInt(endDate);
-
-    configStore.updateValidDateRange(validDateRange);
-
-    if (validDateRange) {
-      configStore.updateStartDate(startDate);
-    }
-  };
-
   const handleStartChange = (event) => {
-    setState({
-      ...state,
-      startDate: event.target.value,
-    });
-
-    updateDateRange({
-      startDate: event.target.value,
-      endDate: state.endDate,
-    });
+    configStore.updateStartDate(event.target.value);
   };
 
   const handleEndChange = (event) => {
-    setState({
-      ...state,
-      endDate: event.target.value,
-    });
-
-    updateDateRange({
-      startDate: state.startDate,
-      endDate: event.target.value,
-    });
+    configStore.updateEndDate(event.target.value);
   };
 
   return (
@@ -94,8 +48,8 @@ const DateSelect = observer(() => {
             type="date"
             id="start"
             name="date-range-start"
-            value={state.startDate}
-            min={minDateISO}
+            value={configStore.startDate}
+            min={MIN_DATE}
             max={maxDateISO}
             onChange={handleStartChange}
           />
@@ -107,8 +61,8 @@ const DateSelect = observer(() => {
             type="date"
             id="end"
             name="date-range-end"
-            value={state.endDate}
-            min={minDateISO}
+            value={configStore.endDate}
+            min={MIN_DATE}
             max={maxDateISO}
             onChange={handleEndChange}
           />

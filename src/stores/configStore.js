@@ -8,6 +8,7 @@ import {
 import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
+import { intToISO, ISOToInt } from '../utils/date';
 
 import {
   GROUP_SNV,
@@ -44,7 +45,7 @@ export const initialConfigValues = {
 
   dateRange: [-1, -1], // No initial date range
   startDate: MIN_DATE,
-  endDate: new Date().getTime(),
+  endDate: intToISO(new Date().getTime()),
 
   selectedLocationNodes: [],
 
@@ -458,14 +459,20 @@ export class ConfigStore {
   @action
   updateStartDate(startDate) {
     this.startDate = startDate;
+    this.checkValidDateRanges();
   }
   @action
   updateEndDate(endDate) {
     this.endDate = endDate;
+    this.checkValidDateRanges();
   }
   @action
   updateValidDateRange(validDateRange) {
     this.validDateRange = validDateRange;
+  }
+  checkValidDateRanges() {
+    const validDateRange = ISOToInt(this.startDate) < ISOToInt(this.endDate);
+    this.updateValidDateRange(validDateRange);
   }
 
   @action

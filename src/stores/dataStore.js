@@ -170,9 +170,15 @@ export class DataStore {
         selected_metadata_fields: selectedMetadataFields,
         ageRange: toJS(this.configStoreInstance.ageRange),
         low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
-        max_group_counts: toJS(this.configStoreInstance.maxGroupCounts),
-        min_local_counts: toJS(this.configStoreInstance.minLocalCounts),
-        min_global_counts: toJS(this.configStoreInstance.minGlobalCounts),
+        max_group_counts: parseInt(
+          toJS(this.configStoreInstance.maxGroupCounts)
+        ),
+        min_local_counts: parseInt(
+          toJS(this.configStoreInstance.minLocalCounts)
+        ),
+        min_global_counts: parseInt(
+          toJS(this.configStoreInstance.minGlobalCounts)
+        ),
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),

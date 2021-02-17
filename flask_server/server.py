@@ -23,7 +23,7 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-from .color import get_categorical_colormap, get_snv_colors, snv_colors
+from .color import get_categorical_colormap, get_snv_colors, snv_colors, clade_colors
 from .genes_and_proteins import load_genes_or_proteins
 
 from .dna_snv import process_dna_snvs
@@ -446,8 +446,8 @@ def hello_world():
         # In the form of [start, end]
         # where start/end should be in milliseconds from Unix epoch
         # i.e., from Date().getTime() in JavaScript
-        start_date = pd.to_datetime(start_date, unit="ms")
-        end_date = pd.to_datetime(end_date, unit="ms")
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
 
         res_df = res_df.loc[
             (res_df["collection_date"] >= start_date)
@@ -499,48 +499,11 @@ def hello_world():
     changing_positions = {}
 
     if group_key == constants["GROUP_SNV"]:
-
         # Use SNV ids to get SNV data
         counts_per_group = counts_per_group.join(
             snp_df[snv_cols + ["ref", "alt"]], on="group_id", how="left"
         )
-
-        # Process "Reference" and "Other" group separately
-        group_pos_inds = (
-            counts_per_group["group"] != constants["GROUPS"]["OTHER_GROUP"]
-        ) & (counts_per_group["group"] != constants["GROUPS"]["REFERENCE_GROUP"])
-        # Wipe out all SNV-specific data for these groups
-        # Set position to -1 so they show up first
-        counts_per_group.loc[~group_pos_inds, snv_cols + ["ref", "alt"]] = np.nan
-        counts_per_group.loc[~group_pos_inds, "pos"] = -1
-
-        counts_per_group.sort_values("pos", inplace=True)
-        counts_per_group.loc[:, "pos"] = counts_per_group["pos"].astype(int)
-
-        # Create position columns, fill with reference values
-        for i, pos, ref in zip(
-            counts_per_group.index[group_pos_inds],
-            counts_per_group.loc[group_pos_inds, "pos"].values,
-            counts_per_group.loc[group_pos_inds, "ref"].values,
-        ):
-            pos = int(pos)
-            counts_per_group[pos] = ref
-            changing_positions[pos] = {"ref": ref}
-            if "gene" in snv_cols:
-                changing_positions[pos]["gene"] = counts_per_group.at[i, "gene"]
-            elif "protein" in snv_cols:
-                changing_positions[pos]["protein"] = counts_per_group.at[i, "protein"]
-
-        # Fill in alternative values
-        for i, pos, alt in zip(
-            counts_per_group.index[group_pos_inds].values,
-            counts_per_group.loc[group_pos_inds, "pos"].values,
-            counts_per_group.loc[group_pos_inds, "alt"].values,
-        ):
-            counts_per_group.loc[i, pos] = alt
-
         counts_per_group.reset_index(drop=True, inplace=True)
-
     else:
 
         # Add the reference row
@@ -598,13 +561,8 @@ def hello_world():
             group_snvs.index.values, group_snvs["pos"].values, group_snvs["ref"].values
         ):
             pos = int(pos)
-            counts_per_group[pos] = ref
-
+            counts_per_group["pos_" + str(pos)] = ref
             changing_positions[pos] = {"ref": ref}
-            if "gene" in snv_cols:
-                changing_positions[pos]["gene"] = counts_per_group.at[i, "gene"]
-            elif "protein" in snv_cols:
-                changing_positions[pos]["protein"] = counts_per_group.at[i, "protein"]
 
         # Fill in alternative bases/residues
         for i, snvs in zip(
@@ -614,7 +572,7 @@ def hello_world():
             for snv in snvs:
                 pos = group_snvs.at[snv, "pos"]
                 alt = group_snvs.at[snv, "alt"]
-                counts_per_group.loc[i, pos] = alt
+                counts_per_group.loc[i, "pos_" + str(pos)] = alt
 
         counts_per_group.drop(columns=[snv_col], inplace=True)
 
