@@ -12,7 +12,7 @@ import { TABS } from '../../constants/defs.json';
 const SidebarContainer = styled.div`
   position: fixed;
   top: 0;
-  width: 199px;
+  width: 249px;
 
   background-color: #f8f8f8;
   //padding-right: 10px;

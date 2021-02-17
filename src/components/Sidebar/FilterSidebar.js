@@ -6,7 +6,7 @@ import { useStores } from '../../stores/connect';
 import Header from './Header';
 import LegendSidebar from './LegendSidebar';
 import TabBar from './TabBar';
-import AppStatusBox from './AppStatusBox';
+import StatusBox from './StatusBox';
 
 import Button from '../Buttons/Button';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
@@ -77,7 +77,7 @@ const FilterSidebar = observer(() => {
           Select Sequences
         </SelectSequencesButton>
         <SelectSequencesModal isOpen={modalActive} onRequestClose={hideModal} />
-        <AppStatusBox />
+        <StatusBox />
       </FilterSidebarContainer>
       <LegendSidebarContainer>
         <LegendSidebar />

@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
@@ -12,62 +11,18 @@ import {
 import { config } from '../../config';
 
 import { formatSnv } from '../../utils/snpUtils';
-import { intToISO } from '../../utils/date';
 
-import Button from '../Buttons/Button';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  margin: 0px 10px;
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-`;
-
-const StatusText = styled.div`
-  font-size: 0.8rem;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: 5px;
-`;
-
-const Line = styled.p`
-  font-size: 1em;
-  font-weight: normal;
-  margin: 0px;
-`;
-
-const Sequence = styled.span`
-  font-family: monospace;
-  display: inline;
-  margin: 0px;
-`;
-
-const DownloadButton = styled(Button)`
-  background-color: #eee;
-  background-image: none;
-  color: #000;
-  border-color: #666;
-
-  .caret:after {
-    border-top-color: #666;
-  }
-
-  &:hover,
-  &:focus {
-    background-color: #ddd;
-  }
-`;
+import {
+  Container,
+  StatusText,
+  ButtonContainer,
+  Line,
+  Sequence,
+  DownloadButton,
+} from './StatusBox.styles';
 
 const serializeCoordinates = (coordinateRanges) => {
   return coordinateRanges.map((coordRange) => coordRange.join('..')).join(', ');
@@ -78,7 +33,7 @@ const DOWNLOAD_OPTIONS = {
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
 };
 
-const AppStatusBox = observer(() => {
+const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
 
   const handleDownloadSelect = (option) => {
@@ -143,19 +98,6 @@ const AppStatusBox = observer(() => {
       <>
         Matching sequence(s): {sequenceList}. {residuesOrBases}:{' '}
         <b>{serializeCoordinates(configStore.getCoordinateRanges())}</b>
-      </>
-    );
-  }
-
-  let dateRange = '';
-  // Uninitialized date range is [-1, -1]
-  if (configStore.dateRange[0] === -1 && configStore.dateRange[1] === -1) {
-    dateRange = <b>All</b>;
-  } else {
-    dateRange = (
-      <>
-        <b>{intToISO(configStore.dateRange[0])}</b> –{' '}
-        <b>{intToISO(configStore.dateRange[1])}</b>
       </>
     );
   }
@@ -243,4 +185,4 @@ const AppStatusBox = observer(() => {
   );
 });
 
-export default AppStatusBox;
+export default StatusBox;
