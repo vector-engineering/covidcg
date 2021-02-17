@@ -15,7 +15,6 @@ import AboutTab from './AboutTab';
 import MethodologyTab from './MethodologyTab';
 import RelatedProjectsTab from './RelatedProjectsTab';
 import SequencingEffortsTab from './SequencingEffortsTab';
-import Footer from '../Footer';
 import KeyListener from '../KeyListener';
 
 import { TABS } from '../../constants/defs.json';
@@ -107,7 +106,6 @@ const HomePage = observer(({ UIStore }) => {
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
           {renderTab()}
-          <Footer />
         </PlotContainer>
       </HomePageDiv>
     </>

@@ -7,6 +7,7 @@ import Header from './Header';
 import Legend from '../Legend/Legend';
 import TabBar from './TabBar';
 import StatusBox from './StatusBox';
+import Footer from './Footer';
 
 import Button from '../Buttons/Button';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
@@ -78,6 +79,7 @@ const FilterSidebar = observer(() => {
         </SelectSequencesButton>
         <SelectSequencesModal isOpen={modalActive} onRequestClose={hideModal} />
         <StatusBox />
+        <Footer />
       </FilterSidebarContainer>
       <LegendSidebarContainer>
         <Legend />

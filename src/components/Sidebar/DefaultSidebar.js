@@ -6,6 +6,7 @@ import { useStores } from '../../stores/connect';
 import Header from './Header';
 import TabIndicator from '../Common/TabIndicator';
 import TabBar from './TabBar';
+import Footer from './Footer';
 
 import { TABS } from '../../constants/defs.json';
 
@@ -63,6 +64,7 @@ const DefaultSidebar = observer(() => {
         </TabIndicator>{' '}
         tab
       </SidebarChunk>
+      <Footer />
     </SidebarContainer>
   );
 });
