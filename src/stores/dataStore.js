@@ -424,7 +424,7 @@ export class DataStore {
 
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group', 'groupName'],
+      groupby: ['location', 'date', 'group', 'group_name'],
       fields: ['counts', 'location_counts'],
       ops: ['sum', 'max'],
       as: ['counts', 'location_counts'],

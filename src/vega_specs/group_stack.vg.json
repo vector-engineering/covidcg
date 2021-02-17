@@ -150,7 +150,7 @@
           "ops": ["sum"],
           "fields": ["counts"],
           "as": ["group_counts"],
-          "groupby": ["group", "groupName"]
+          "groupby": ["group", "group_name"]
         },
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
@@ -168,7 +168,7 @@
           "type": "aggregate",
           "groupby": [
             "group",
-            "groupName",
+            "group_name",
             "new_group",
             "day_start",
             "day_end"
@@ -182,7 +182,7 @@
           "type": "impute",
           "field": "counts",
           "key": "day_start",
-          "groupby": ["group", "groupName", "color", "group_counts"],
+          "groupby": ["group", "group_name", "color", "group_counts"],
           "value": 0
         },
         {
@@ -195,7 +195,7 @@
           "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the counts field.",
           "type": "window",
           "sort": { "field": "day_start" },
-          "groupby": ["group", "groupName"],
+          "groupby": ["group", "group_name"],
           "ops": ["sum"],
           "fields": ["counts"],
           "as": ["counts_new"],
@@ -339,7 +339,7 @@
                 },
                 "update": {
                   "tooltip": {
-                    "signal": "{title: datum.groupName, 'Total sequences': datum.group_counts, 'Sequences': datum.counts_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
+                    "signal": "{title: datum.group_name, 'Total sequences': datum.group_counts, 'Sequences': datum.counts_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   },
                   "x": { "scale": "x", "field": "day_start" },
                   "x2": { "scale": "x", "field": "day_end" },

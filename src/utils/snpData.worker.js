@@ -173,7 +173,7 @@ function processSelectedSnvs({
           location: location,
           date: parseInt(date),
           group: group,
-          groupName: group
+          group_name: group
             .split(' + ')
             .map((group) => formatSnv(group, dnaOrAa))
             .join(' + '),
@@ -192,7 +192,7 @@ function processSelectedSnvs({
   // Aggregate by SNV and date
   const dataAggSnvDate = aggregate({
     data: dataAggLocationSnvDate,
-    groupby: ['date', 'group', 'groupName'],
+    groupby: ['date', 'group', 'group_name'],
     fields: ['counts', 'color'],
     ops: ['sum', 'max'],
     as: ['counts', 'color'],

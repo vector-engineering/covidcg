@@ -102,7 +102,7 @@ const LocationGroupPlot = observer(({ width }) => {
 
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group', 'groupName'],
+      groupby: ['location', 'date', 'group', 'group_name'],
       fields: ['counts', 'color', 'location_counts'],
       ops: ['sum', 'first', 'max'],
       as: ['counts', 'color', 'location_counts'],

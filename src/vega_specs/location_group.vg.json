@@ -171,7 +171,7 @@
       "transform": [
         {
           "type": "aggregate",
-          "groupby": ["location", "group", "groupName"],
+          "groupby": ["location", "group", "group_name"],
           "fields": ["counts", "color", "location_counts"],
           "ops": ["sum", "max", "max"],
           "as": ["counts", "color", "location_counts"]
@@ -301,7 +301,7 @@
             },
             "update": {
               "tooltip": {
-                "signal": "{title: datum.groupName, 'Location': datum.location, 'Sequences': datum.counts, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.group_name, 'Location': datum.location, 'Sequences': datum.counts, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
               },
               "y": { "scale": "yscale", "field": "location" },
               "height": { "scale": "yscale", "band": 1 },
