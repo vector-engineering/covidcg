@@ -38,7 +38,6 @@ export class DataStore {
   UIStoreInstance;
   configStoreInstance;
   snpDataStoreInstance;
-  groupDataStoreInstance;
 
   dataDate;
   numSequences;
@@ -107,7 +106,6 @@ export class DataStore {
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.configStoreInstance = rootStoreInstance.configStore;
     this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-    this.groupDataStoreInstance = rootStoreInstance.groupDataStore;
     this.metadataStoreInstance = rootStoreInstance.metadataStore;
     this.locationStoreInstance = rootStoreInstance.locationDataStore;
 
@@ -373,38 +371,7 @@ export class DataStore {
   }
 
   @action
-  downloadAggCaseData() {
-    // const {
-    //   intToDnaSnvMap,
-    //   intToGeneAaSnvMap,
-    //   intToProteinAaSnvMap,
-    // } = this.snpDataStoreInstance;
-    // const { groupSnvMap, groupColorMap } = this.groupDataStoreInstance;
-    // const { blobURL } = downloadAggCaseData({
-    //   groupKey: this.configStoreInstance.groupKey,
-    //   dnaOrAa: this.configStoreInstance.dnaOrAa,
-    //   coordinateMode: this.configStoreInstance.coordinateMode,
-    //   dataAggGroup: this.dataAggGroup,
-    //   // SNV data
-    //   intToDnaSnvMap,
-    //   intToGeneAaSnvMap,
-    //   intToProteinAaSnvMap,
-    //   // Lineage data
-    //   groupSnvMap,
-    //   groupColorMap,
-    // });
-    // downloadBlobURL(
-    //   blobURL,
-    //   generateSelectionString(
-    //     'agg_data',
-    //     'csv',
-    //     toJS(this.configStoreInstance.groupKey),
-    //     toJS(this.configStoreInstance.dnaOrAa),
-    //     toJS(this.configStoreInstance.selectedLocationNodes),
-    //     toJS(this.configStoreInstance.dateRange)
-    //   )
-    // );
-  }
+  downloadAggCaseData() {}
 
   @action
   downloadDataAggGroupDate() {
