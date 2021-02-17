@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 
 import Header from './Header';
-import LegendSidebar from './LegendSidebar';
+import Legend from '../Legend/Legend';
 import TabBar from './TabBar';
 import StatusBox from './StatusBox';
 
@@ -12,7 +12,7 @@ import Button from '../Buttons/Button';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
 
 const Container = styled.div`
-  width: 400px;
+  width: 430px;
   display: flex;
   height: 100vh;
   overflow-y: hidden;
@@ -46,7 +46,7 @@ const SelectSequencesButton = styled(Button)`
 `;
 
 const LegendSidebarContainer = styled.div`
-  width: 150px;
+  width: 180px;
   height: 100%;
   border-right: 1px solid #aaa;
   padding-bottom: 15px;
@@ -80,7 +80,7 @@ const FilterSidebar = observer(() => {
         <StatusBox />
       </FilterSidebarContainer>
       <LegendSidebarContainer>
-        <LegendSidebar />
+        <Legend />
       </LegendSidebarContainer>
     </Container>
   );

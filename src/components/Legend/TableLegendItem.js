@@ -1,5 +1,5 @@
-import { observer } from 'mobx-react';
 import React, { useState, useEffect } from 'react';
+import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'underscore';
@@ -29,7 +29,7 @@ const ColorBar = styled.div`
 
 const GroupNameContainer = styled.div`
   border-right: 1px #eee solid;
-  width: 50%;
+  width: 40%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -40,11 +40,14 @@ const GroupNameContainer = styled.div`
 `;
 
 const PercentageContainer = styled.div`
-  width: 50%;
+  width: 30%;
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+
+  padding: 0px 5px;
+  font-size: 0.7rem;
 `;
 
 const PercentageCell = ({ value, min, max, percent }) => {
@@ -85,22 +88,15 @@ PercentageCell.propTypes = {
 };
 
 const TableLegendItem = observer(
-  ({
-    style,
-    group,
-    color,
-    updateHoverGroup,
-    updateSelectGroup,
-    percentage,
-  }) => {
+  ({ item, style, maxCounts, updateHoverGroup, updateSelectGroup }) => {
     const { configStore } = useStores();
     const [hovered, setHovered] = useState();
     const [selected, setSelected] = useState();
 
     const onMouseMove = () => {
       setHovered(true);
-      if (group !== configStore.hoverGroup) {
-        updateHoverGroup(group);
+      if (item.group !== configStore.hoverGroup) {
+        updateHoverGroup(item.group);
       }
     };
 
@@ -115,7 +111,7 @@ const TableLegendItem = observer(
       const _hovered =
         configStore.hoverGroup === null
           ? false
-          : configStore.hoverGroup === group;
+          : configStore.hoverGroup === item.group;
 
       if (_hovered !== hovered) {
         // console.log(hovered, state.hovered);
@@ -127,7 +123,7 @@ const TableLegendItem = observer(
       let _selected = null;
       if (configStore.selectedGroups.length > 0) {
         if (
-          _.findWhere(configStore.selectedGroups, { group: group }) !==
+          _.findWhere(configStore.selectedGroups, { group: item.group }) !==
           undefined
         ) {
           _selected = true;
@@ -148,22 +144,36 @@ const TableLegendItem = observer(
         hovered={hovered}
         selected={selected}
       >
-        <ColorBar color={color} />
-        <GroupNameContainer data-group={group}>
+        <ColorBar color={item.color} />
+        <GroupNameContainer data-group={item.group}>
           {configStore.groupKey === GROUP_SNV
-            ? formatSnv(group, configStore.dnaOrAa)
-            : group}
+            ? formatSnv(item.group, configStore.dnaOrAa)
+            : item.group}
         </GroupNameContainer>
         <PercentageCell
-          data-group={group}
+          data-group={item.group}
+          min={0}
+          max={maxCounts}
+          value={item.counts}
+          percent={false}
+        />
+        <PercentageCell
+          data-group={item.group}
           min={0}
           max={1}
-          value={percentage}
+          value={item.percent}
           percent={true}
         />
       </Container>
     );
   }
 );
+TableLegendItem.propTypes = {
+  item: PropTypes.object.isRequired,
+  style: PropTypes.object,
+  maxCounts: PropTypes.number,
+  updateHoverGroup: PropTypes.func,
+  updateSelectGroup: PropTypes.func,
+};
 
 export default TableLegendItem;

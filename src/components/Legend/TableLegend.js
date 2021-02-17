@@ -15,10 +15,17 @@ const StyledContainer = styled.div`
   height: 100%;
 `;
 
-const Columns = styled.div`
+const Header = styled.div`
+  height: 48px;
+  border-bottom: 1px solid #ccc;
+`;
+
+const HeaderRow = styled.div`
   width: 100%;
+  height: 50%;
   display: flex;
-  margin: 4px 2px;
+  flex-direction: row;
+  align-items: center;
 `;
 
 const SortArrow = ({ dir }) => {
@@ -31,15 +38,10 @@ const SortArrow = ({ dir }) => {
 
 const StyledColumnHeader = styled.div`
   cursor: pointer;
-  border-bottom: 1px solid #eee;
   width: ${({ width }) => width};
   font-size: 12px;
-  padding-left: 2px;
+  padding: 0px 3px;
 `;
-
-/*
-
-*/
 
 const TableLegend = observer(
   ({
@@ -52,16 +54,19 @@ const TableLegend = observer(
   }) => {
     const { configStore } = useStores();
 
+    const maxCounts = legendItems.reduce((prev, cur) => {
+      return cur.counts > prev ? cur.counts : prev;
+    }, 0);
+
     const Row = ({ index, style }) => {
       const legendItem = legendItems[index];
       return (
         <TableLegendItem
           style={style}
-          group={legendItem.group}
-          color={legendItem.color}
+          item={legendItem}
+          maxCounts={maxCounts}
           updateHoverGroup={updateHoverGroup}
           updateSelectGroup={updateSelectGroup}
-          percentage={legendItem.percent}
         />
       );
     };
@@ -94,19 +99,20 @@ const TableLegend = observer(
 
     return (
       <StyledContainer>
-        <Columns>
-          <ColumnHeader columnName="group" width="55%">
-            <ReactTooltip
-              className="legend-sidebar-tooltip"
-              id="legend-sidebar-tooltip"
-              type="light"
-              effect="solid"
-              border={true}
-              borderColor="#888"
-            />
-            {configStore.getGroupLabel()}
-            <QuestionButton
-              data-tip={`
+        <Header>
+          <HeaderRow>
+            <ColumnHeader columnName="group" width="100%">
+              <ReactTooltip
+                className="legend-sidebar-tooltip"
+                id="legend-sidebar-tooltip"
+                type="light"
+                effect="solid"
+                border={true}
+                borderColor="#888"
+              />
+              {configStore.getGroupLabel()}
+              <QuestionButton
+                data-tip={`
               <ul>
                 <li>Items in the legend represent <b>${configStore.getGroupLabel()}s</b>.
                 </li>
@@ -120,19 +126,26 @@ const TableLegend = observer(
                 </li>
               </ul>
               `}
-              data-html="true"
-              data-for="legend-sidebar-tooltip"
-            />
-          </ColumnHeader>
-          <ColumnHeader columnName="percent" width="45%">
-            % Seqs
-          </ColumnHeader>
-        </Columns>
+                data-html="true"
+                data-for="legend-sidebar-tooltip"
+              />
+            </ColumnHeader>
+          </HeaderRow>
+          <HeaderRow>
+            <ColumnHeader columnName="spacer" width="40%"></ColumnHeader>
+            <ColumnHeader columnName="counts" width="30%">
+              #
+            </ColumnHeader>
+            <ColumnHeader columnName="percent" width="30%">
+              %
+            </ColumnHeader>
+          </HeaderRow>
+        </Header>
         <AutoSizer>
           {({ height, width }) => (
             <List
               className="List"
-              height={height - 30}
+              height={height - 48}
               itemCount={legendItems ? legendItems.length : 0}
               itemSize={35}
               width={width}

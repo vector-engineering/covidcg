@@ -11,12 +11,14 @@ import {
   GROUP_SNV,
   DNA_OR_AA,
 } from '../../constants/defs.json';
-import { sortLegendItems } from './legendutils';
 import TableLegend from './TableLegend';
 
 const TableLegendContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border-left: 1px #eaeaea solid;
 `;
 
 const comparer = ({
@@ -58,23 +60,24 @@ const comparer = ({
   }
 };
 
-const LegendContainer = observer(() => {
+const Legend = observer(() => {
   const { dataStore, UIStore, configStore } = useStores();
 
-  const [legendItems, setLegendItems] = useState([]);
-  const [sortColumn, setSortColumn] = useState('percent');
-  const [sortDir, setSortDir] = useState('DESC');
+  const [state, setState] = useState({
+    legendItems: [],
+    sortColumn: 'percent',
+    sortDir: 'DESC',
+  });
 
   const updateHoverGroup = _.debounce((group) => {
     configStore.updateHoverGroup(group);
   }, 10);
 
   const onClickColumnHeader = ({ columnName }) => {
-    if (sortColumn === columnName && sortDir === 'DESC') {
-      setSortDir('ASC');
+    if (state.sortColumn === columnName && state.sortDir === 'DESC') {
+      setState({ ...state, sortDir: 'ASC' });
     } else {
-      setSortColumn(columnName);
-      setSortDir('DESC');
+      setState({ ...state, sortColumn: columnName, sortDir: 'DESC' });
     }
   };
 
@@ -127,12 +130,13 @@ const LegendContainer = observer(() => {
         item.group === GROUPS.OTHER_GROUP
     );
     _legendItems = _legendItems.sort(
-      sortLegendItems.bind(
-        this,
-        configStore.groupKey,
-        configStore.dnaOrAa,
-        configStore.coordinateMode
-      )
+      comparer({
+        sortColumn: state.sortColumn,
+        sortDirection: state.sortDir,
+        groupKey: configStore.groupKey,
+        dnaOrAa: configStore.dnaOrAa,
+        coordinateMode: configStore.coordinateMode,
+      })
     );
     if (refItem !== undefined) {
       _legendItems.unshift(refItem);
@@ -145,35 +149,36 @@ const LegendContainer = observer(() => {
   };
 
   useEffect(() => {
-    let _arr = [...legendItems];
+    let _arr = [...state.legendItems];
     _arr = _arr.sort(
       comparer({
-        sortColumn,
-        sortDirection: sortDir,
+        sortColumn: state.sortColumn,
+        sortDirection: state.sortDir,
         groupKey: configStore.groupKey,
         dnaOrAa: configStore.dnaOrAa,
         coordinateMode: configStore.coordinateMode,
       })
     );
-    setLegendItems(_arr);
-  }, [sortColumn, sortDir]);
+    setState({ ...state, legendItems: _arr });
+  }, [state.sortColumn, state.sortDir]);
 
   useEffect(() => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
-    setLegendItems(
-      getLegendKeys().sort(
+    setState({
+      ...state,
+      legendItems: getLegendKeys().sort(
         comparer({
-          sortColumn,
-          sortDirection: sortDir,
+          sortColumn: state.sortColumn,
+          sortDirection: state.sortDir,
           groupKey: configStore.groupKey,
           dnaOrAa: configStore.dnaOrAa,
           coordinateMode: configStore.coordinateMode,
         })
-      )
-    );
+      ),
+    });
   }, [UIStore.caseDataState]);
 
   if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
@@ -183,23 +188,15 @@ const LegendContainer = observer(() => {
   return (
     <TableLegendContainer>
       <TableLegend
-        legendItems={legendItems}
+        legendItems={state.legendItems}
         updateHoverGroup={updateHoverGroup}
         updateSelectGroup={onItemSelect}
-        sortColumn={sortColumn}
-        sortDir={sortDir}
+        sortColumn={state.sortColumn}
+        sortDir={state.sortDir}
         onClickColumnHeader={onClickColumnHeader}
       />
     </TableLegendContainer>
   );
-
-  /*
-  return <VegaLegend
-      legendItems={legendItems}
-      updateHoverGroup={updateHoverGroup}
-      updateSelectGroup={onItemSelect} 
-      />;
-  */
 });
 
-export default LegendContainer;
+export default Legend;
