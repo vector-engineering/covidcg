@@ -102,8 +102,8 @@ const CompareModeSelect = observer(() => {
   // Add the color-code option
   colorOptionElements.push(
     <option
-      key={COMPARE_COLORS.COLOR_MODE_CODE}
-      value={COMPARE_COLORS.COLOR_MODE_CODE}
+      key={`color-option-${COLOR_MODES.COLOR_MODE_CODE}`}
+      value={COLOR_MODES.COLOR_MODE_CODE}
     >
       {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-color code
     </option>
@@ -112,20 +112,20 @@ const CompareModeSelect = observer(() => {
   if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
-        key={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
-        value={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_CLUSTAL}`}
+        value={COLOR_MODES.COLOR_MODE_CLUSTAL}
       >
         ClustalX (Properties)
       </option>,
       <option
-        key={COMPARE_COLORS.COLOR_MODE_ZAPPO}
-        value={COMPARE_COLORS.COLOR_MODE_ZAPPO}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_ZAPPO}`}
+        value={COLOR_MODES.COLOR_MODE_ZAPPO}
       >
         Zappo (Physiochemical Properties)
       </option>,
       <option
-        key={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
-        value={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_ZHAO_LONDON}`}
+        value={COLOR_MODES.COLOR_MODE_ZHAO_LONDON}
       >
         Zhao and London (Transmembrane Tendency)
       </option>
@@ -134,7 +134,7 @@ const CompareModeSelect = observer(() => {
 
   colorOptions.forEach((color) => {
     colorOptionElements.push(
-      <option key={color} value={color}>
+      <option key={`color-option-${color}`} value={color}>
         {capitalize(color)}
       </option>
     );
@@ -144,7 +144,7 @@ const CompareModeSelect = observer(() => {
   if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
-        key={COMPARE_COLORS.COMPARE_COLOR_DOTS}
+        key={`color-option-${COMPARE_COLORS.COMPARE_COLOR_DOTS}`}
         value={COMPARE_COLORS.COMPARE_COLOR_DOTS}
       >
         Dots
@@ -163,8 +163,16 @@ const CompareModeSelect = observer(() => {
         value={plotSettingsStore.tableCompareMode}
         onChange={handleCompareModeChange}
       >
-        <option value={COMPARE_MODES.COMPARE_MODE_MATCH}>Match</option>
-        <option value={COMPARE_MODES.COMPARE_MODE_MISMATCH}>
+        <option
+          key={COMPARE_MODES.COMPARE_MODE_MATCH}
+          value={COMPARE_MODES.COMPARE_MODE_MATCH}
+        >
+          Match
+        </option>
+        <option
+          key={COMPARE_MODES.COMPARE_MODE_MISMATCH}
+          value={COMPARE_MODES.COMPARE_MODE_MISMATCH}
+        >
           Don&apos;t Match
         </option>
       </select>
