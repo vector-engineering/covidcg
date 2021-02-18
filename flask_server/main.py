@@ -2,11 +2,9 @@
 
 import itertools
 import json
+import os
 import pandas as pd
 import numpy as np
-
-import urllib.request
-import gzip
 
 from collections import defaultdict, Counter, OrderedDict
 from functools import partial
@@ -15,7 +13,6 @@ from flask_cors import CORS
 from pathlib import Path
 from yaml import load, dump
 
-from threading import Timer
 from time import sleep
 
 try:
@@ -23,14 +20,17 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-from .color import get_categorical_colormap, get_snv_colors, snv_colors, clade_colors
-from .genes_and_proteins import load_genes_or_proteins
+from flask_server.color import (
+    get_categorical_colormap,
+    get_snv_colors,
+    snv_colors,
+    clade_colors,
+)
+from flask_server.load_data import load_data
+from flask_server.RepeatedTimer import RepeatedTimer
 
-from .dna_snv import process_dna_snvs
-from .aa_snv import process_aa_snvs
 
-
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="", static_folder="dist")
 CORS(app)
 
 # Load app configuration
@@ -43,101 +43,7 @@ print(config)
 with open("src/constants/defs.json", "r") as fp:
     constants = json.loads(fp.read())
 
-genes = load_genes_or_proteins("static_data/genes.json")
-proteins = load_genes_or_proteins("static_data/proteins.json")
-
-with urllib.request.urlopen(config["data_package_url"]) as f:
-    print("Download complete")
-    f = gzip.decompress(f.read())
-    print("Decompression complete")
-    f = json.loads(f)
-    print("Loaded into memory")
-
-case_data = (
-    pd.DataFrame.from_dict(f["case_data"], orient="columns")
-    .set_index("Accession ID")
-    .rename(
-        columns={
-            "dna_snp_str": "dna_snp",
-            "gene_aa_snp_str": "gene_aa_snp",
-            "protein_aa_snp_str": "protein_aa_snp",
-        }
-    )
-)
-case_data["collection_date"] = pd.to_datetime(case_data["collection_date"])
-# print(case_data)
-
-# Load metadata map
-metadata_map = f["metadata_map"]
-# print(list(metadata_map.keys()))
-
-# Load global group counts
-global_group_counts = f["global_group_counts"]
-# Convert SNV keys from strings to integers
-global_group_counts["dna_snp"] = {
-    int(k): v for k, v in global_group_counts["dna_snp"].items()
-}
-global_group_counts["gene_aa_snp"] = {
-    int(k): v for k, v in global_group_counts["gene_aa_snp"].items()
-}
-global_group_counts["protein_aa_snp"] = {
-    int(k): v for k, v in global_group_counts["protein_aa_snp"].items()
-}
-# print(global_group_counts)
-
-# Group consensus SNVs
-group_consensus_snvs = f["group_consensus_snps"]
-# print(group_consensus_snps)
-
-# Build colormaps
-sequence_groups = list(group_consensus_snvs.keys())
-group_colormaps = dict()
-for group in sequence_groups:
-    group_colormaps[group] = get_categorical_colormap(
-        list(group_consensus_snvs[group].keys())
-    )
-
-
-dna_snp = process_dna_snvs(metadata_map["dna_snp"])
-# print(dna_snp)
-
-gene_aa_snp = process_aa_snvs(metadata_map["gene_aa_snp"], "gene", genes)
-protein_aa_snp = process_aa_snvs(metadata_map["protein_aa_snp"], "protein", proteins)
-# print(gene_aa_snp)
-# print(protein_aa_snp)
-
-"""
-class RepeatedTimer(object):
-    def __init__(self, interval, function, *args, **kwargs):
-        self._timer = None
-        self.interval = interval
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        self.is_running = False
-        self.start()
-
-    def _run(self):
-        self.is_running = False
-        self.start()
-        self.function(*self.args, **self.kwargs)
-
-    def start(self):
-        if not self.is_running:
-            self._timer = Timer(self.interval, self._run)
-            self._timer.start()
-            self.is_running = True
-
-    def stop(self):
-        self._timer.cancel()
-        self.is_running = False
-
-msg = {"a": 0}
-
-def hello(name):
-    # print("Hello {}!".format(name))
-    msg["a"] += 1
-"""
+data = load_data(config["data_package_url"])
 
 
 def filter_coordinate_ranges(
@@ -164,8 +70,24 @@ def filter_coordinate_ranges(
     return _df
 
 
-@app.route("/", methods=["GET", "POST"])
-def hello_world():
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
+
+
+@app.route("/init")
+def init():
+    return {
+        "data_date": data["data_date"],
+        "num_sequences": data["num_sequences"],
+        "country_score": data["country_score"],
+        "geo_select_tree": data["geo_select_tree"],
+        "metadata_map": data["metadata_map"],
+    }
+
+
+@app.route("/data", methods=["GET", "POST"])
+def get_sequences():
     print("args", request.args)
     print("form", request.form)
     print("json", request.json)
@@ -185,20 +107,20 @@ def hello_world():
     snv_col = ""
     group_col = group_key
     if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
-        snp_df = dna_snp
+        snp_df = data["dna_snp"]
         snv_col = "dna_snp"
     else:
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
-            snp_df = gene_aa_snp
+            snp_df = data["gene_aa_snp"]
             snv_col = "gene_aa_snp"
         elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
-            snp_df = protein_aa_snp
+            snp_df = data["protein_aa_snp"]
             snv_col = "protein_aa_snp"
 
     if group_key == constants["GROUP_SNV"]:
         group_col = snv_col
 
-    res_df = case_data
+    res_df = data["case_data"]
 
     # FILTER BY LOCATION
     # ------------------
@@ -213,7 +135,7 @@ def hello_world():
             return make_response(("Invalid format for location_ids", 400))
 
         all_location_ids = sum(location_ids.values(), [])
-        res_df = res_df.loc[case_data["location_id"].isin(all_location_ids), :]
+        res_df = res_df.loc[data["case_data"]["location_id"].isin(all_location_ids), :]
 
     # FILTER BY COORDINATE RANGE
     # --------------------------
@@ -323,7 +245,7 @@ def hello_world():
         valid_groups = [k for k, v in group_counts.items() if v > min_local_counts]
     elif low_count_filter == constants["LOW_FREQ_FILTER_TYPES"]["GLOBAL_COUNTS"]:
         # minGlobalCounts
-        _global_group_counts = global_group_counts[group_col]
+        _global_group_counts = data["global_group_counts"][group_col]
         valid_groups = [
             k
             for k in group_counts.keys()
@@ -401,7 +323,7 @@ def hello_world():
         ]
         counts_per_location_date_group["color"] = counts_per_location_date_group[
             "group"
-        ].map(group_colormaps[group_key])
+        ].map(data["group_colormaps"][group_key])
 
     # Label invalid groups "Other"
     other_inds = (
@@ -531,7 +453,7 @@ def hello_world():
         # Get the consensus SNVs for each group
         counts_per_group[snv_col] = (
             counts_per_group["group"]
-            .map(group_consensus_snvs[group_key])
+            .map(data["group_consensus_snvs"][group_key])
             .apply(lambda x: x[snv_col + "_ids"] if type(x) is dict else [])
         )
 
@@ -621,9 +543,16 @@ def hello_world():
     return res
 
 
-# print("starting...")
-# rt = RepeatedTimer(1, hello, "World")  # it auto-starts, no need of rt.start()
+def reload_data():
+    print("Reloading data")
+    data = load_data(config["data_package_url"])
+
+
+if os.environ.get("FLASK_ENV", None) == "production":
+    sec_per_day = 60 * 60 * 24
+    rt = RepeatedTimer(60 * 5, reload_data)
 # try:
-#     sleep(100)  # your long-running job goes here...
+#    sleep(1)  # your long-running job goes here...
 # finally:
-#     rt.stop()  # better in a try/finally block to make sure the program ends!
+# rt.stop()  # better in a try/finally block to make sure the program ends!
+

@@ -33,14 +33,10 @@ consensus_fraction: 0.9
 metadata_cols:
   database:
     title: "Database"
-  strain:
-    title: "Strain"
   host:
     title: "Host"
   isolation_source:
     title: "Isolation source"
-  biosample_accession:
-    title: "Biosample accession"
   authors:
     title: "Authors"
   publications:
@@ -54,6 +50,16 @@ group_cols:
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
+
+# ---------------
+#     SERVER
+# ---------------
+
+dev_hostname: "http://localhost:5000"
+prod_hostname: "https://genbank.covidcg.org"
+
+init_endpoint: "/init"
+data_endpoint: "/data"
 
 # ----------------------
 #     VISUALIZATION

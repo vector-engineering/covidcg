@@ -25,7 +25,6 @@ export const initialDataValues = {
   dataAggSnvDate: [],
   snvCooccurrence: [],
 
-  globalGroupCounts: {},
   countsPerLocation: {},
   countsPerLocationDate: {},
   validGroups: {},
@@ -42,7 +41,6 @@ export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
-  rawCaseData = [];
   filteredCaseData = initialDataValues.filteredCaseData;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
@@ -57,7 +55,6 @@ export class DataStore {
   dataAggSnvDate = initialDataValues.dataAggSnvDate;
   snvCooccurrence = initialDataValues.snvCooccurrence;
 
-  globalGroupCounts = initialDataValues.globalGroupCounts;
   countsPerLocation = initialDataValues.countsPerLocation;
   countsPerLocationDate = initialDataValues.countsPerLocationDate;
   validGroups = initialDataValues.validGroups;
@@ -68,40 +65,7 @@ export class DataStore {
 
   init() {
     this.dataDate = asyncDataStoreInstance.data.data_date;
-    this.rawCaseData = asyncDataStoreInstance.data.case_data.map((row) => {
-      row.collection_date = new Date(row.collection_date).getTime();
-      return row;
-    });
-    this.rawCaseData = this.rawCaseData.filter((row) => {
-      // Remove cases before 2019-12-15 and after the dataDate
-      return !(
-        row.collection_date < 1576368000000 ||
-        row.collection_date > new Date(this.dataDate).getTime()
-      );
-    });
-    this.numSequences = this.rawCaseData.length;
-
-    // Calculate global group counts
-    // Make a copy
-    const globalGroupCounts = Object.assign(
-      {},
-      asyncDataStoreInstance.data.global_group_counts
-    );
-
-    // Replace integer IDs with SNP strings
-    Object.keys(globalGroupCounts.dna_snp).forEach((snpId) => {
-      globalGroupCounts.dna_snp[snpId.toString()] =
-        globalGroupCounts.dna_snp[snpId];
-    });
-    Object.keys(globalGroupCounts.gene_aa_snp).forEach((snpId) => {
-      globalGroupCounts.gene_aa_snp[snpId.toString()] =
-        globalGroupCounts.gene_aa_snp[snpId];
-    });
-    Object.keys(globalGroupCounts.protein_aa_snp).forEach((snpId) => {
-      globalGroupCounts.protein_aa_snp[snpId.toString()] =
-        globalGroupCounts.protein_aa_snp[snpId];
-    });
-    this.globalGroupCounts = globalGroupCounts;
+    this.numSequences = asyncDataStoreInstance.data.num_sequences;
 
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.configStoreInstance = rootStoreInstance.configStore;
@@ -145,7 +109,7 @@ export class DataStore {
       });
     });
 
-    const res = await fetch('http://localhost:5000', {
+    const res = await fetch('http://localhost:5000/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

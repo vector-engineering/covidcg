@@ -4,6 +4,12 @@ import path from 'path';
 import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
 import { configfile } from './tools/loadConfigFile';
 
+const GLOBALS = {
+  'process.env.NODE_ENV': JSON.stringify('development'),
+  __DEV__: true,
+  CG_CONFIG: JSON.stringify(configfile),
+};
+
 export default {
   resolve: {
     extensions: ['*', '.js', '.jsx', '.json'],
@@ -32,9 +38,7 @@ export default {
     filename: 'bundle.js',
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'CG_CONFIG': JSON.stringify(configfile)
-    }),
+    new webpack.DefinePlugin(GLOBALS),
     new HardSourceWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
@@ -46,7 +50,7 @@ export default {
         collapseWhitespace: true,
       },
       inject: true,
-    })
+    }),
   ],
   module: {
     rules: [
@@ -141,7 +145,7 @@ export default {
       {
         test: /\.ya?ml$/,
         use: 'js-yaml-loader',
-      }
+      },
     ],
   },
 };

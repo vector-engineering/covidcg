@@ -9,7 +9,7 @@ def format_aa_snv(snv_str):
     # Print as GENE/PROTEIN · REF POS ALT
     # i.e., S|614|D|G -> S · D614G
     chunks = snv_str.split("|")
-    return "{} · {}{}{}".format(chunks[0], chunks[2], chunks[1], chunks[3])
+    return "{}:{}{}{}".format(chunks[0], chunks[2], chunks[1], chunks[3])
 
 
 # TODO: maybe this should be moved into workflow_main?

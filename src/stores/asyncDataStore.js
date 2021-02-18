@@ -1,37 +1,17 @@
-import { config } from '../config';
+import { init_endpoint } from '../config';
 import { observable, action, runInAction } from 'mobx';
 import { ASYNC_STATES } from '../constants/defs.json';
-import { Zlib } from 'zlibjs/bin/gunzip.min.js';
 
 class ObservableAsyncDataStore {
   @observable status = ASYNC_STATES.UNINITIALIZED;
   data = {};
 
-  @observable globalGroupCounts = [];
-
   @action
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
     try {
-      const res = await fetch(
-        config.data_package_url +
-          '?nocache=' +
-          Math.floor(new Date().getTime() / config.data_package_refresh_freq),
-        {
-          headers: {
-            'Accept-Encoding': 'gzip',
-          },
-        }
-      );
-      // Don't try to decode data, get it in memory as bytes
-      const blob = await res.blob();
-      const compressed = await blob.arrayBuffer();
-      // Feed into gunzip to decompress
-      const gunzip = new Zlib.Gunzip(new Uint8Array(compressed));
-      // Bytes to text, then text to JSON
-      const data = JSON.parse(
-        new TextDecoder('utf-8').decode(gunzip.decompress())
-      );
+      const res = await fetch(init_endpoint);
+      const data = await res.json();
       runInAction(() => {
         this.data = data;
         this.status = ASYNC_STATES.SUCCEEDED;
