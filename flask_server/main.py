@@ -10,6 +10,7 @@ from collections import defaultdict, Counter, OrderedDict
 from functools import partial
 from flask import Flask, request, make_response
 from flask_cors import CORS
+from flask_gzip import Gzip
 from pathlib import Path
 from yaml import load, dump
 
@@ -32,6 +33,7 @@ from flask_server.RepeatedTimer import RepeatedTimer
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 CORS(app)
+Gzip(app)
 
 # Load app configuration
 with open("config/config_genbank.yaml", "r") as fp:
