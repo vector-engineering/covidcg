@@ -19,3 +19,10 @@ workflow_genbank_ingest
 *.pyd
 __pycache__
 .pytest_cache
+
+README.md
+environment.yml
+.gitignore
+.gitattributes
+.gcloudignore
+.editorconfig

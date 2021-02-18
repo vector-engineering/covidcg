@@ -549,8 +549,7 @@ def reload_data():
 
 
 if os.environ.get("FLASK_ENV", None) == "production":
-    sec_per_day = 60 * 60 * 24
-    rt = RepeatedTimer(60 * 5, reload_data)
+    rt = RepeatedTimer(config["data_package_refresh_freq"], reload_data)
 # try:
 #    sleep(1)  # your long-running job goes here...
 # finally:

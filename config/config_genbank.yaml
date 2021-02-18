@@ -55,6 +55,11 @@ group_cols:
 #     SERVER
 # ---------------
 
+data_package_url: "https://storage.googleapis.com/ve-public/genbank/data_package.json.gz"
+# Force a reload of the data package every X seconds
+# 60 s/min * 60 min/hr * 24 hr/day = 86400
+data_package_refresh_freq: 86400
+
 dev_hostname: "http://localhost:5000"
 prod_hostname: "https://genbank.covidcg.org"
 
@@ -64,11 +69,6 @@ data_endpoint: "/data"
 # ----------------------
 #     VISUALIZATION
 # ----------------------
-
-data_package_url: "https://storage.googleapis.com/ve-public/genbank/data_package.json.gz"
-# Force a reload of the data package every X milliseconds
-# 1000 ms/s * 60 s/min * 60 min/hr = 3600000
-data_package_refresh_freq: 3600000
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: true
