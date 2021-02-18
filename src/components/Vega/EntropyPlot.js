@@ -148,7 +148,7 @@ const EntropyPlot = observer(({ width }) => {
     showWarning: true,
     xRange: getXRange(),
     data: {
-      table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
+      table: processData(toJS(dataStore.groupCounts)),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -169,7 +169,7 @@ const EntropyPlot = observer(({ width }) => {
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
+        table: processData(toJS(dataStore.groupCounts)),
       },
     });
   }, [UIStore.caseDataState, plotSettingsStore.entropyMinCount]);

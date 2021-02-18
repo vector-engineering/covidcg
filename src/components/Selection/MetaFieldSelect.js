@@ -61,7 +61,7 @@ const MetaFieldSelect = observer(() => {
     });
 
     setState({ ...state, fieldOptions });
-  }, [dataStore.metadataCounts, dataStore.metadataCountsAfterFiltering]);
+  }, [dataStore.metadataCounts]);
 
   const setSelected = (field, options) => {
     // console.log(field, options);
@@ -129,7 +129,7 @@ const MetaFieldSelect = observer(() => {
       <span className="title">
         Metadata Filters
         <QuestionButton
-          data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p><p>Metadata filters are shown in the format "[a &gt; b]", <br/>where "a" is the initial number of sequences matching that metadata field,<br/>and "b" is the number of sequences matching that metadata field after all current metadata filters are applied.</p>'
+          data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p>'
           data-html={true}
           data-for="metadata-filter-tooltip"
         />

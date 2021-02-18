@@ -185,7 +185,6 @@ def get_sequences():
 
     # INITIAL METADATA COUNTS
     # -----------------------
-    num_sequences_before_metadata_filtering = len(res_df)
     pre_metadata_counts = dict()
     for key in config["metadata_cols"].keys():
         pre_metadata_counts[key] = res_df[key].value_counts().to_dict()
@@ -205,12 +204,6 @@ def get_sequences():
     # FILTER BY PATIENT AGE RANGE (special case)
     # age_range = req.get("age_range", None)
     # if age_range is not None:
-
-    # METADATA COUNTS AFTER FILTERING
-    # -------------------------------
-    post_metadata_counts = dict()
-    for key in config["metadata_cols"].keys():
-        post_metadata_counts[key] = res_df[key].value_counts().to_dict()
 
     res_snv = res_snv.join(res_df[["collection_date", "location_id"]], how="right")
     res_snv[snv_field].fillna(-1, inplace=True)
@@ -512,14 +505,11 @@ def get_sequences():
         "dataAggLocationGroupDate": {counts_per_location_date_group},
         "dataAggGroupDate": {counts_per_date_group},
         "metadataCounts": {pre_metadata_counts},
-        "metadataCountsAfterFiltering": {post_metadata_counts},
-        "numSequencesBeforeMetadataFiltering": {num_sequences_before_metadata_filtering},
         "countsPerLocation": {counts_per_location},
         "countsPerLocationDate": {counts_per_location_date},
         "validGroups": {valid_groups},
-        "countsPerGroup": {group_counts},
         "dataAggGroup": {counts_per_group},
-        "countsPerGroupDateFiltered": {group_counts_after_date_filter}
+        "groupCounts": {group_counts_after_date_filter}
     }}
     """.format(
         filtered_case_data=res_df.drop(
@@ -530,12 +520,9 @@ def get_sequences():
         ),
         counts_per_date_group=counts_per_date_group.to_json(orient="records"),
         pre_metadata_counts=json.dumps(pre_metadata_counts),
-        post_metadata_counts=json.dumps(post_metadata_counts),
-        num_sequences_before_metadata_filtering=num_sequences_before_metadata_filtering,
         counts_per_location=json.dumps(counts_per_location),
         counts_per_location_date=counts_per_location_date.to_json(orient="records"),
         valid_groups=json.dumps({k: 1 for k in valid_groups}),
-        group_counts=json.dumps(group_counts),
         counts_per_group=counts_per_group.to_json(orient="records"),
         group_counts_after_date_filter=group_counts_after_date_filter.to_json(
             orient="values"

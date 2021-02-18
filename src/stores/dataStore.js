@@ -17,9 +17,7 @@ export const initialDataValues = {
   dataAggGroup: [],
 
   // Metadata filtering
-  numSequencesBeforeMetadataFiltering: 0,
   metadataCounts: {},
-  metadataCountsAfterFiltering: {},
 
   dataAggLocationSnvDate: [],
   dataAggSnvDate: [],
@@ -28,8 +26,7 @@ export const initialDataValues = {
   countsPerLocation: {},
   countsPerLocationDate: {},
   validGroups: {},
-  countsPerGroup: {},
-  countsPerGroupDateFiltered: [],
+  groupCounts: [],
 };
 
 export class DataStore {
@@ -45,11 +42,7 @@ export class DataStore {
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
-  @observable numSequencesBeforeMetadataFiltering =
-    initialDataValues.numSequencesBeforeMetadataFiltering;
   @observable metadataCounts = initialDataValues.metadataCounts;
-  @observable metadataCountsAfterFiltering =
-    initialDataValues.metadataCountsAfterFiltering;
 
   dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
   dataAggSnvDate = initialDataValues.dataAggSnvDate;
@@ -58,8 +51,7 @@ export class DataStore {
   countsPerLocation = initialDataValues.countsPerLocation;
   countsPerLocationDate = initialDataValues.countsPerLocationDate;
   validGroups = initialDataValues.validGroups;
-  countsPerGroup = initialDataValues.countsPerGroup;
-  countsPerGroupDateFiltered = initialDataValues.countsPerGroupDateFiltered;
+  groupCounts = initialDataValues.groupCounts;
 
   constructor() {}
 
@@ -149,17 +141,14 @@ export class DataStore {
     this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
     this.dataAggGroupDate = pkg.dataAggGroupDate;
     this.metadataCounts = pkg.metadataCounts;
-    this.metadataCountsAfterFiltering = pkg.metadataCountsAfterFiltering;
-    this.numSequencesBeforeMetadataFiltering =
-      pkg.numSequencesBeforeMetadataFiltering;
     this.countsPerLocation = pkg.countsPerLocation;
     this.countsPerLocationDate = pkg.countsPerLocationDate;
     this.validGroups = pkg.validGroups;
-    this.countsPerGroup = pkg.countsPerGroup;
     this.dataAggGroup = pkg.dataAggGroup;
-    this.countsPerGroupDateFiltered = pkg.countsPerGroupDateFiltered;
+    this.groupCounts = pkg.groupCounts;
 
     this.UIStoreInstance.onCaseDataStateFinished();
+    this.processSelectedSnvs();
   }
 
   @action
