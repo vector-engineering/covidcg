@@ -10,6 +10,7 @@ import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
+import { GROUP_SNV } from '../constants/defs.json';
 
 export const initialDataValues = {
   aggSequences: [],
@@ -139,7 +140,10 @@ export class DataStore {
     this.groupCounts = pkg.groupCounts;
 
     this.UIStoreInstance.onCaseDataStateFinished();
-    this.processSelectedSnvs();
+
+    if (this.configStoreInstance.groupKey === GROUP_SNV) {
+      this.processSelectedSnvs();
+    }
   }
 
   @action
@@ -153,13 +157,7 @@ export class DataStore {
         selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
         intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        selectedLocationNodes: toJS(
-          this.configStoreInstance.selectedLocationNodes
-        ),
         countsPerLocation: this.countsPerLocation,
-        selectedGroups: toJS(this.configStoreInstance.selectedGroups).map(
-          (item) => item.group
-        ),
         validGroups: this.validGroups,
         aggSequences: this.aggSequences,
         // SNV data
@@ -195,7 +193,6 @@ export class DataStore {
     );
   }
 
-  @action
   async downloadSelectedSequenceMetadata() {
     const res = await fetch(hostname + '/download_sequences', {
       method: 'POST',
@@ -234,10 +231,33 @@ export class DataStore {
     downloadBlobURL(url, 'selected_sequence_metadata.csv');
   }
 
-  @action
-  downloadAggCaseData() {}
+  downloadAggSequences() {
+    let csvString = `location,collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
 
-  @action
+    let intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    this.aggSequences.forEach((row) => {
+      // Location data, date
+      csvString += `"${row.location}","${intToISO(row.collection_date)}",`;
+
+      // Group
+      if (this.configStoreInstance.groupKey === GROUP_SNV) {
+        csvString += `"${row.group_id
+          .map((snvId) => intToSnvMap[snvId].snp_str)
+          .join(';')}",`;
+      } else {
+        csvString += `"${row.group_id}",`;
+      }
+
+      // Counts
+      csvString += `${row.counts}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(url, 'aggregate_sequences.csv');
+  }
+
   downloadDataAggGroupDate() {
     // Write to a CSV string
     let csvString = `collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
@@ -263,7 +283,6 @@ export class DataStore {
     );
   }
 
-  @action
   downloadDataAggLocationGroupDate() {
     // console.log(this.dataAggLocationGroupDate);
 
@@ -325,7 +344,6 @@ export class DataStore {
     );
   }
 
-  @action
   downloadSnvFrequencies() {
     let csvString = 'snv,count\n';
     // this.groupCountArr.forEach((item) => {
@@ -348,7 +366,6 @@ export class DataStore {
     );
   }
 
-  @action
   downloadSnvCooccurrence() {
     let csvString = 'combination,snv,count\n';
     this.snvCooccurrence.forEach((row) => {
@@ -371,7 +388,6 @@ export class DataStore {
     );
   }
 
-  @action
   downloadCountryScoreData() {
     let jsonString = JSON.stringify(asyncDataStoreInstance.data.country_score);
     const blob = new Blob([jsonString]);

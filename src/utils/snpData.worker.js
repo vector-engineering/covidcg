@@ -21,9 +21,7 @@ function processSelectedSnvs({
   selectedGroupIds,
   intToSnvMap,
   dnaOrAa,
-  selectedLocationNodes,
   countsPerLocation,
-  selectedGroups,
   validGroups,
   aggSequences,
   snvColorMap,
@@ -38,28 +36,16 @@ function processSelectedSnvs({
   // }
 
   const dataAggLocationSnvDateObj = {};
-  // Build a map of location_id --> node
-  // Also while we're at it, create an entry for this node
-  // in our data objects
-  const selectedLocationIds = getLocationIds(selectedLocationNodes);
-  const locationIdToNodeMap = {};
-  for (let i = 0; i < selectedLocationNodes.length; i++) {
-    selectedLocationIds[i].forEach((locationId) => {
-      locationIdToNodeMap[locationId] = selectedLocationNodes[i].value;
-    });
-  }
 
-  let _location;
   const matchGroupName = Array.from(selectedGroupIds)
     .map((id) => intToSnvMap[id].snp_str)
     .join(' + ');
 
   aggSequences.forEach((row) => {
-    _location = locationIdToNodeMap[row.location_id];
-    !(_location in dataAggLocationSnvDateObj) &&
-      (dataAggLocationSnvDateObj[_location] = {});
-    !(row.collection_date in dataAggLocationSnvDateObj[_location]) &&
-      (dataAggLocationSnvDateObj[_location][row.collection_date] = {});
+    !(row.location in dataAggLocationSnvDateObj) &&
+      (dataAggLocationSnvDateObj[row.location] = {});
+    !(row.collection_date in dataAggLocationSnvDateObj[row.location]) &&
+      (dataAggLocationSnvDateObj[row.location][row.collection_date] = {});
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
@@ -75,16 +61,16 @@ function processSelectedSnvs({
       group = GROUPS.OTHER_GROUP;
     } else if (
       matchingSnvIds.length != selectedGroupIds.size ||
-      selectedGroups.length === 0
+      selectedGroupIds.size === 0
     ) {
       group = GROUPS.ALL_OTHER_GROUP;
     } else {
       group = matchGroupName;
     }
 
-    !(group in dataAggLocationSnvDateObj[_location][row.collection_date]) &&
-      (dataAggLocationSnvDateObj[_location][row.collection_date][group] = 0);
-    dataAggLocationSnvDateObj[_location][row.collection_date][group] +=
+    !(group in dataAggLocationSnvDateObj[row.location][row.collection_date]) &&
+      (dataAggLocationSnvDateObj[row.location][row.collection_date][group] = 0);
+    dataAggLocationSnvDateObj[row.location][row.collection_date][group] +=
       row.counts;
   });
 

@@ -326,13 +326,11 @@ def get_sequences():
     if group_key == constants["GROUP_SNV"]:
         res_df[group_col] = res_df[group_col].apply(tuple)
     agg_sequences = (
-        res_df.groupby(["collection_date", "location_id", group_col])
+        res_df.groupby(["collection_date", "location", group_col])
         .size()
         .rename("counts")
         .reset_index()
-        .rename(columns={
-            group_col: 'group_id'
-        })
+        .rename(columns={group_col: "group_id"})
     )
 
     res = """

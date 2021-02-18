@@ -38,7 +38,7 @@ const StatusBox = observer(() => {
 
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
-      dataStore.downloadAggCaseData();
+      dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       dataStore.downloadSelectedSequenceMetadata();
     }

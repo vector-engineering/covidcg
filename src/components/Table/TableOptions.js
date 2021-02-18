@@ -221,7 +221,7 @@ const TableOptions = observer(() => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
-      dataStore.downloadAggCaseData();
+      dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       dataStore.downloadSelectedSequenceMetadata();
     }
