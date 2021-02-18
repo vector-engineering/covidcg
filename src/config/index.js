@@ -11,5 +11,3 @@ const _hostname =
     : config['prod_hostname']; // eslint-disable-line no-undef
 
 export const hostname = _hostname;
-export const init_endpoint = _hostname + config['init_endpoint'];
-export const data_endpoint = _hostname + config['data_endpoint'];

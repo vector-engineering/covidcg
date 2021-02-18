@@ -1,4 +1,4 @@
-import { init_endpoint } from '../config';
+import { hostname } from '../config';
 import { observable, action, runInAction } from 'mobx';
 import { ASYNC_STATES } from '../constants/defs.json';
 
@@ -10,7 +10,7 @@ class ObservableAsyncDataStore {
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
     try {
-      const res = await fetch(init_endpoint);
+      const res = await fetch(hostname + '/init');
       const data = await res.json();
       runInAction(() => {
         this.data = data;

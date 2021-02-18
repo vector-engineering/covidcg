@@ -127,6 +127,7 @@ export class ConfigStore {
     this.plotSettingsStoreInstance = rootStoreInstance.plotSettingsStore;
     this.locationDataStoreInstance = rootStoreInstance.locationDataStore;
     this.dataStoreInstance = rootStoreInstance.dataStore;
+    this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
 
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
@@ -443,6 +444,18 @@ export class ConfigStore {
     // this.dataStoreInstance.updateCaseData();
   }
 
+  getSelectedMetadataFields() {
+    const selectedMetadataFields = toJS(this.selectedMetadataFields);
+    Object.keys(selectedMetadataFields).forEach((metadataField) => {
+      selectedMetadataFields[metadataField] = selectedMetadataFields[
+        metadataField
+      ].map((item) => {
+        return parseInt(item.value);
+      });
+    });
+    return selectedMetadataFields;
+  }
+
   @action
   updateAgeRange(ageRange) {
     this.ageRange = ageRange;
@@ -489,6 +502,53 @@ export class ConfigStore {
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
     this.dataStoreInstance.processSelectedSnvs();
+  }
+
+  getSelectedGroupIds() {
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
+
+    let selectedGroupIds;
+    if (this.dnaOrAa === DNA_OR_AA.DNA) {
+      selectedGroupIds = this.selectedGroups
+        .map((item) => dnaSnvMap[item.group])
+        .map((snpId) => (snpId === undefined ? -1 : snpId));
+    } else if (this.dnaOrAa === DNA_OR_AA.AA) {
+      if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        selectedGroupIds = this.selectedGroups
+          .map((item) => geneAaSnvMap[item.group])
+          .map((snpId) => (snpId === undefined ? -1 : snpId));
+      } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        selectedGroupIds = this.selectedGroups
+          .map((item) => proteinAaSnvMap[item.group])
+          .map((snpId) => (snpId === undefined ? -1 : snpId));
+      }
+    }
+    // Array to Set
+    selectedGroupIds = new Set(selectedGroupIds);
+
+    return selectedGroupIds;
+  }
+
+  getIntToSnvMap() {
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+    } = this.snpDataStoreInstance;
+
+    if (this.dnaOrAa === DNA_OR_AA.DNA) {
+      return intToDnaSnvMap;
+    } else if (this.dnaOrAa === DNA_OR_AA.AA) {
+      if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return intToGeneAaSnvMap;
+      } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        return intToProteinAaSnvMap;
+      }
+    }
   }
 
   @action

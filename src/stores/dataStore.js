@@ -1,4 +1,5 @@
 import { observable, action, toJS } from 'mobx';
+import { hostname } from '../config';
 import {
   processSelectedSnvs,
   processCooccurrenceData,
@@ -11,7 +12,7 @@ import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 
 export const initialDataValues = {
-  filteredCaseData: [],
+  aggSequences: [],
   dataAggLocationGroupDate: [],
   dataAggGroupDate: [],
   dataAggGroup: [],
@@ -38,7 +39,7 @@ export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
-  filteredCaseData = initialDataValues.filteredCaseData;
+  aggSequences = initialDataValues.aggSequences;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
@@ -72,6 +73,7 @@ export class DataStore {
   emptyCaseData() {
     this.UIStoreInstance.onCaseDataStateStarted();
 
+    this.aggSequences = initialDataValues.aggSequences;
     this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
     this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
     this.dataAggGroup = initialDataValues.dataAggGroup;
@@ -90,18 +92,7 @@ export class DataStore {
   async fetchData() {
     this.UIStoreInstance.onCaseDataStateStarted();
 
-    const selectedMetadataFields = toJS(
-      this.configStoreInstance.selectedMetadataFields
-    );
-    Object.keys(selectedMetadataFields).forEach((metadataField) => {
-      selectedMetadataFields[metadataField] = selectedMetadataFields[
-        metadataField
-      ].map((item) => {
-        return parseInt(item.value);
-      });
-    });
-
-    const res = await fetch('http://localhost:5000/data', {
+    const res = await fetch(hostname + '/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -112,12 +103,12 @@ export class DataStore {
         dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
         coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
         coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
-        selected_gene: toJS(this.configStoreInstance.selectedGene),
-        selected_protein: toJS(this.configStoreInstance.selectedProtein),
+        selected_gene: toJS(this.configStoreInstance.selectedGene).name,
+        selected_protein: toJS(this.configStoreInstance.selectedProtein).name,
         location_ids: getLocationIdsByNode(
           toJS(this.configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: selectedMetadataFields,
+        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(this.configStoreInstance.ageRange),
         low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
         max_group_counts: parseInt(
@@ -136,8 +127,8 @@ export class DataStore {
     const pkg = await res.json();
     // console.log(pkg);
 
-    this.filteredCaseData = pkg.filteredCaseData;
-    this.numSequencesAfterAllFiltering = pkg.filteredCaseData.length;
+    this.aggSequences = pkg.aggSequences;
+    this.numSequencesAfterAllFiltering = pkg.numSequences;
     this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
     this.dataAggGroupDate = pkg.dataAggGroupDate;
     this.metadataCounts = pkg.metadataCounts;
@@ -154,38 +145,24 @@ export class DataStore {
   @action
   processSelectedSnvs() {
     this.UIStoreInstance.onSnvDataStarted();
-    const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-      snvColorMap,
-    } = this.snpDataStoreInstance;
+    const { snvColorMap } = this.snpDataStoreInstance;
 
     this.processCooccurrenceData();
     processSelectedSnvs(
       {
+        selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
+        intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
         selectedLocationNodes: toJS(
           this.configStoreInstance.selectedLocationNodes
         ),
         countsPerLocation: this.countsPerLocation,
-        filteredCaseData: this.filteredCaseData,
         selectedGroups: toJS(this.configStoreInstance.selectedGroups).map(
           (item) => item.group
         ),
         validGroups: this.validGroups,
-
+        aggSequences: this.aggSequences,
         // SNV data
-        intToDnaSnvMap,
-        intToGeneAaSnvMap,
-        intToProteinAaSnvMap,
-        dnaSnvMap,
-        geneAaSnvMap,
-        proteinAaSnvMap,
         snvColorMap,
       },
       ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
@@ -200,33 +177,15 @@ export class DataStore {
   processCooccurrenceData() {
     this.UIStoreInstance.onCooccurrenceDataStarted();
 
-    const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-      snvColorMap,
-    } = this.snpDataStoreInstance;
+    const { snvColorMap } = this.snpDataStoreInstance;
 
     processCooccurrenceData(
       {
+        selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
+        intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        coordinateMode: toJS(this.configStoreInstance.coordinateMode),
-        filteredCaseData: this.filteredCaseData,
-        selectedGroups: toJS(this.configStoreInstance.selectedGroups).map(
-          (item) => item.group
-        ),
-        dateRange: toJS(this.configStoreInstance.dateRange),
-
+        aggSequences: this.aggSequences,
         // SNV data
-        intToDnaSnvMap,
-        intToGeneAaSnvMap,
-        intToProteinAaSnvMap,
-        dnaSnvMap,
-        geneAaSnvMap,
-        proteinAaSnvMap,
         snvColorMap,
       },
       ({ snvCooccurrence }) => {
@@ -237,88 +196,40 @@ export class DataStore {
   }
 
   @action
-  downloadSelectedSequenceMetadata() {
-    let csvString = [];
-    // Take the first sequence to get the keys/fields for this file
-    const keys = Object.keys(this.rawCaseData[0]);
-    // Special case - we're going to expand the location id into
-    // 4 fields (region, country, division, location)
-    // so add these to the end
-    csvString.push(
-      keys.concat(['region', 'country', 'division', 'location']).join(',')
-    );
-
-    const metadataFields = Object.keys(this.metadataStoreInstance.metadataMap);
-
-    let vals = [];
-    let metadataVal;
-    this.filteredCaseData.forEach((row) => {
-      //  vals = keys.map(key => row[key]);
-      vals = [];
-      keys.forEach((key) => {
-        // Special cases for keys
-        if (key === 'collection_date') {
-          vals.push('"' + intToISO(row[key]) + '"');
-        } else if (key === 'age_start' || key === 'age_end') {
-          vals.push(row[key] === null ? '' : row[key]);
-        } else if (metadataFields.includes(key)) {
-          metadataVal = this.metadataStoreInstance.getMetadataValueFromId(
-            key,
-            row[key]
-          );
-          vals.push('"' + (metadataVal === undefined ? '' : metadataVal) + '"');
-        } else if (key === 'dna_snp_str') {
-          vals.push(
-            '"' +
-              row[key]
-                .map((snvId) => {
-                  return this.snpDataStoreInstance.intToDnaSnv(snvId).snp_str;
-                })
-                .join(';') +
-              '"'
-          );
-        } else if (key === 'gene_aa_snp_str') {
-          vals.push(
-            '"' +
-              row[key]
-                .map((snvId) => {
-                  return this.snpDataStoreInstance.intToGeneAaSnv(snvId)
-                    .snp_str;
-                })
-                .join(';') +
-              '"'
-          );
-        } else if (key === 'protein_aa_snp_str') {
-          vals.push(
-            '"' +
-              row[key]
-                .map((snvId) => {
-                  return this.snpDataStoreInstance.intToProteinAaSnv(snvId)
-                    .snp_str;
-                })
-                .join(';') +
-              '"'
-          );
-        } else {
-          vals.push('"' + row[key] + '"');
-        }
-      });
-
-      // Add location data
-      vals = vals.concat(
-        this.locationStoreInstance
-          .getLocationStrFromId(row.location_id)
-          .map((loc) => {
-            return loc ? '"' + loc + '"' : loc;
-          })
-      );
-
-      csvString.push(vals.join(','));
+  async downloadSelectedSequenceMetadata() {
+    const res = await fetch(hostname + '/download_sequences', {
+      method: 'POST',
+      headers: {
+        Accept: 'text/csv',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        group_key: toJS(this.configStoreInstance.groupKey),
+        dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
+        coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
+        coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
+        selected_gene: toJS(this.configStoreInstance.selectedGene),
+        selected_protein: toJS(this.configStoreInstance.selectedProtein),
+        location_ids: getLocationIdsByNode(
+          toJS(this.configStoreInstance.selectedLocationNodes)
+        ),
+        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(this.configStoreInstance.ageRange),
+        low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
+        max_group_counts: parseInt(
+          toJS(this.configStoreInstance.maxGroupCounts)
+        ),
+        min_local_counts: parseInt(
+          toJS(this.configStoreInstance.minLocalCounts)
+        ),
+        min_global_counts: parseInt(
+          toJS(this.configStoreInstance.minGlobalCounts)
+        ),
+        start_date: toJS(this.configStoreInstance.startDate),
+        end_date: toJS(this.configStoreInstance.endDate),
+      }),
     });
-
-    csvString = csvString.join('\n');
-
-    const blob = new Blob([csvString]);
+    const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     downloadBlobURL(url, 'selected_sequence_metadata.csv');
   }

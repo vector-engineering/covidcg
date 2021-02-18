@@ -217,7 +217,7 @@ const EntropyPlot = observer(({ width }) => {
 
   // If we have no rows, then return an empty element
   // We'll always have the "reference" row, so no rows = 1 row
-  if (dataStore.filteredCaseData.length === 0) {
+  if (dataStore.numSequencesAfterAllFiltering === 0) {
     return (
       <EmptyPlot height={150}>
         <p>No sequences selected</p>
@@ -260,7 +260,7 @@ const EntropyPlot = observer(({ width }) => {
         data={state.data}
         width={width}
         signals={{
-          totalSequences: dataStore.filteredCaseData.length,
+          totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
           hoverGroup: { group: configStore.hoverGroup },

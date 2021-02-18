@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import urllib.request
 
+from flask_server.config import config
 from flask_server.genes_and_proteins import load_genes_or_proteins
 from flask_server.dna_snv import process_dna_snvs
 from flask_server.aa_snv import process_aa_snvs
@@ -40,7 +41,13 @@ def load_data(url):
 
     # Load metadata map
     metadata_map = f["metadata_map"]
+    for meta_col in config["metadata_cols"].keys():
+        metadata_map[meta_col] = {int(k): v for k, v in metadata_map[meta_col].items()}
     # print(list(metadata_map.keys()))
+
+    # Load location map
+    location_map = pd.DataFrame(f["location_map"])
+    # print(location_map)
 
     # Load global group counts
     global_group_counts = f["global_group_counts"]
@@ -81,6 +88,7 @@ def load_data(url):
     return {
         "case_data": case_data,
         "metadata_map": metadata_map,
+        "location_map": location_map,
         "global_group_counts": global_group_counts,
         "group_consensus_snvs": group_consensus_snvs,
         "group_colormaps": group_colormaps,
