@@ -4,7 +4,7 @@ import {
   processSelectedSnvs,
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
-import { downloadBlobURL, generateSelectionString } from '../utils/download';
+import { downloadBlobURL } from '../utils/download';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
@@ -270,17 +270,7 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(
-      url,
-      generateSelectionString(
-        'data_agg_group_date',
-        'csv',
-        toJS(this.configStoreInstance.groupKey),
-        toJS(this.configStoreInstance.dnaOrAa),
-        toJS(this.configStoreInstance.selectedLocationNodes),
-        toJS(this.configStoreInstance.dateRange)
-      )
-    );
+    downloadBlobURL(url, 'data_agg_group_date.csv');
   }
 
   downloadDataAggLocationGroupDate() {
@@ -291,19 +281,19 @@ export class DataStore {
     );
 
     // Filter by date
-    if (
-      this.configStoreInstance.dateRange[0] != -1 ||
-      this.configStoreInstance.dateRange[1] != -1
-    ) {
-      locationData = locationData.filter((row) => {
-        return (
-          (this.configStoreInstance.dateRange[0] == -1 ||
-            row.date > this.configStoreInstance.dateRange[0]) &&
-          (this.configStoreInstance.dateRange[1] == -1 ||
-            row.date < this.configStoreInstance.dateRange[1])
-        );
-      });
-    }
+    // if (
+    //   this.configStoreInstance.dateRange[0] != -1 ||
+    //   this.configStoreInstance.dateRange[1] != -1
+    // ) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (this.configStoreInstance.dateRange[0] == -1 ||
+    //         row.date > this.configStoreInstance.dateRange[0]) &&
+    //       (this.configStoreInstance.dateRange[1] == -1 ||
+    //         row.date < this.configStoreInstance.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
@@ -331,17 +321,7 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(
-      url,
-      generateSelectionString(
-        'data_agg_location_group_date',
-        'csv',
-        toJS(this.configStoreInstance.groupKey),
-        toJS(this.configStoreInstance.dnaOrAa),
-        toJS(this.configStoreInstance.selectedLocationNodes),
-        toJS(this.configStoreInstance.dateRange)
-      )
-    );
+    downloadBlobURL(url, 'data_agg_location_group_date.csv');
   }
 
   downloadSnvFrequencies() {
@@ -353,17 +333,7 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(
-      url,
-      generateSelectionString(
-        'snv_frequencies',
-        'csv',
-        toJS(this.configStoreInstance.groupKey),
-        toJS(this.configStoreInstance.dnaOrAa),
-        toJS(this.configStoreInstance.selectedLocationNodes),
-        toJS(this.configStoreInstance.dateRange)
-      )
-    );
+    downloadBlobURL(url, 'snv_frequencies.csv');
   }
 
   downloadSnvCooccurrence() {
@@ -375,17 +345,7 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(
-      url,
-      generateSelectionString(
-        'snv_cooccurrence',
-        'csv',
-        toJS(this.configStoreInstance.groupKey),
-        toJS(this.configStoreInstance.dnaOrAa),
-        toJS(this.configStoreInstance.selectedLocationNodes),
-        toJS(this.configStoreInstance.dateRange)
-      )
-    );
+    downloadBlobURL(url, 'snv_cooccurrence.csv');
   }
 
   downloadCountryScoreData() {

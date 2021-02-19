@@ -7,7 +7,6 @@ import _ from 'underscore';
 import { getGene } from '../../utils/gene_protein';
 import { getLocationByNameAndLevel } from '../../utils/location';
 import { queryPrimers } from '../../utils/primer';
-import { ISOToInt } from '../../utils/date';
 
 import {
   GROUP_SNV,
@@ -265,7 +264,8 @@ const ExampleTab = observer(() => {
             getLocationByNameAndLevel(selectTree, 'Oregon', 'division')[0],
             getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
           ],
-          dateRange: [ISOToInt('2020-03-01'), ISOToInt('2020-06-01')],
+          startDate: '2020-03-01',
+          endDate: '2020-06-01',
           selectedGroups: [{ group: 'S|614|D|G' }],
         },
       },

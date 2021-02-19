@@ -89,16 +89,16 @@ const LocationGroupPlot = observer(({ width }) => {
     }
 
     // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-      locationData = locationData.filter((row) => {
-        return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
-        );
-      });
-    }
+    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (configStore.dateRange[0] == -1 ||
+    //         row.date > configStore.dateRange[0]) &&
+    //       (configStore.dateRange[1] == -1 ||
+    //         row.date < configStore.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
@@ -162,7 +162,6 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [
     UIStore.caseDataState,
     configStore.selectedGroups,
-    configStore.dateRange,
     plotSettingsStore.locationGroupHideReference,
   ]);
 

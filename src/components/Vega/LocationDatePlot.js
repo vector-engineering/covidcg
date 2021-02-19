@@ -78,17 +78,17 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
-    // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-      locationData = locationData.filter((row) => {
-        return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
-        );
-      });
-    }
+    // // Filter by date
+    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (configStore.dateRange[0] == -1 ||
+    //         row.date > configStore.dateRange[0]) &&
+    //       (configStore.dateRange[1] == -1 ||
+    //         row.date < configStore.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
@@ -247,7 +247,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.snvDataState, configStore.selectedGroups, configStore.dateRange]);
+  }, [UIStore.snvDataState, configStore.selectedGroups]);
 
   useEffect(() => {
     if (
@@ -265,11 +265,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [
-    UIStore.caseDataState,
-    configStore.selectedGroups,
-    configStore.dateRange,
-  ]);
+  }, [UIStore.caseDataState, configStore.selectedGroups]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

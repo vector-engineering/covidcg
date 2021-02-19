@@ -43,7 +43,6 @@ export const initialConfigValues = {
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
 
-  dateRange: [-1, -1], // No initial date range
   startDate: MIN_DATE,
   endDate: intToISO(new Date().getTime()),
 
@@ -99,7 +98,6 @@ export class ConfigStore {
 
   @observable coordinateMode = initialConfigValues.coordinateMode;
 
-  @observable dateRange = initialConfigValues.dateRange;
   @observable startDate = initialConfigValues.startDate;
   @observable endDate = initialConfigValues.endDate;
   @observable validDateRange = true;
@@ -461,14 +459,6 @@ export class ConfigStore {
     this.ageRange = ageRange;
   }
 
-  @action
-  updateDateRange(dateRange) {
-    this.dateRange = dateRange;
-    // this.dataStoreInstance.updateAggCaseDataByGroup();
-    // if (this.groupKey === GROUP_SNV) {
-    //   this.dataStoreInstance.processCooccurrenceData();
-    // }
-  }
   @action
   updateStartDate(startDate) {
     this.startDate = startDate;

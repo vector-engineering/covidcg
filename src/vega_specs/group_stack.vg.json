@@ -55,7 +55,7 @@
     },
     {
       "name": "detailDomain",
-      "value": [1583020800000, 1585612800000],
+      "value": null,
       "comment": "The date range selected on the overview (bottom) panel. The units are in JS date objects. If there is no date selected, this should be null."
     },
     {
