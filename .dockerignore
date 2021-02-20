@@ -7,6 +7,7 @@ figures
 notebooks
 pymol
 workflow_main
+workflow_custom_ingest
 workflow_gisaid_ingest
 workflow_genbank_ingest
 .ipynb_checkpoints
@@ -21,6 +22,7 @@ __pycache__
 .pytest_cache
 
 README.md
+LICENSE
 environment.yml
 .gitignore
 .gitattributes

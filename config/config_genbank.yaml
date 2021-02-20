@@ -62,6 +62,7 @@ data_package_refresh_freq: 86400
 
 dev_hostname: "http://localhost:5000"
 prod_hostname: "https://genbank.covidcg.org"
+# prod_hostname: "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION

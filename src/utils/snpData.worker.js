@@ -1,4 +1,3 @@
-import { getLocationIds } from './location';
 import { aggregate } from './transform';
 
 import { GROUPS } from '../constants/defs.json';
