@@ -11,7 +11,7 @@ export const ASYNC_STATES = {
 
 const TAB_GROUP = 'group';
 const TAB_LOCATION = 'location';
-const TAB_EXAMPLE = 'example';
+const TAB_EXAMPLE = 'home';
 const TAB_ABOUT = 'acknowledgements';
 const TAB_METHODOLOGY = 'methodology';
 const TAB_RELATED = 'related_projects';

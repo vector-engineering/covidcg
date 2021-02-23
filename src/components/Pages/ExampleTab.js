@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import _ from 'underscore';
+import useDimensions from 'react-use-dimensions';
 
 import { ASYNC_STATES, TABS } from '../../constants/UI';
 
@@ -27,6 +28,10 @@ import {
 import ExternalLink from '../Common/ExternalLink';
 import SkeletonElement from '../Common/SkeletonElement';
 // import LoadingSpinner from '../Common/LoadingSpinner';
+
+import SurveillancePlot from '../Vega/SurveillancePlot';
+import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
+
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
 import GlobalLineagesImage from '../../assets/analysis_screens/global_lineages.png';
@@ -38,20 +43,6 @@ import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
 import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
 import N203204Image from '../../assets/analysis_screens/n_203_204_coocurrence.png';
 
-import ImageExample1_1 from '../../assets/example_screens/example1_1.png';
-import ImageExample1_2 from '../../assets/example_screens/example1_2.png';
-import ImageExample1_3 from '../../assets/example_screens/example1_3.png';
-import ImageExample1_4 from '../../assets/example_screens/example1_4.png';
-
-import ImageExample2_1 from '../../assets/example_screens/example2_1.png';
-import ImageExample2_2 from '../../assets/example_screens/example2_2.png';
-import ImageExample2_3 from '../../assets/example_screens/example2_3.png';
-//import ImageExample2_4 from '../../assets/example_screens/example2_4.png';
-
-import ImageExample3_1 from '../../assets/example_screens/example3_1.png';
-import ImageExample3_2 from '../../assets/example_screens/example3_2.png';
-import ImageExample3_3 from '../../assets/example_screens/example3_3.png';
-
 const ExampleTabContainer = styled.div`
   background-color: #f8f8f8;
 `;
@@ -62,7 +53,6 @@ const ExampleTabContent = styled.div`
   align-items: stretch;
 
   flex-grow: 1;
-  max-width: 1000px;
   padding: 20px;
   margin: 0 auto;
 
@@ -137,32 +127,33 @@ const ExampleItemFooter = styled.div`
     margin: 3px 0px;
     line-height: normal;
   }
+  //
 `;
 
-const TOC = styled.div`
-  font-weight: normal;
-`;
+// const TOC = styled.div`
+//   font-weight: normal;
+// `;
 
-const ExampleTutorial = styled.div`
-  padding: 10px;
-  padding-top: 0px;
-  font-weight: normal;
-  line-height: normal;
-  max-width: 800px;
-`;
+// const ExampleTutorial = styled.div`
+//   padding: 10px;
+//   padding-top: 0px;
+//   font-weight: normal;
+//   line-height: normal;
+//   max-width: 800px;
+// `;
 
-const TutorialImage = styled.img`
-  width: 750px;
-  border: 1px solid #aaa;
-`;
+// const TutorialImage = styled.img`
+//   width: 750px;
+//   border: 1px solid #aaa;
+// `;
 
-const scrollToRef = (id, e) => {
-  if (e !== undefined) {
-    e.preventDefault();
-  }
-  const el = window.document.getElementById(id);
-  window.scrollTo(0, el.offsetTop);
-};
+// const scrollToRef = (id, e) => {
+//   if (e !== undefined) {
+//     e.preventDefault();
+//   }
+//   const el = window.document.getElementById(id);
+//   window.scrollTo(0, el.offsetTop);
+// };
 
 const ExampleTab = observer(() => {
   const {
@@ -171,6 +162,8 @@ const ExampleTab = observer(() => {
     UIStore,
     locationDataStore,
   } = useStores();
+
+  const [ref, { width }] = useDimensions();
 
   const selectTree = locationDataStore.selectTree;
   const exampleItems = [
@@ -473,10 +466,9 @@ const ExampleTab = observer(() => {
   };
 
   return (
-    <ExampleTabContainer>
-      <a id="getting-started-top" />
+    <ExampleTabContainer ref={ref} r>
       <ExampleTabContent>
-        <TOC>
+        {/* <TOC>
           <h3>Table of Contents</h3>
           <ul>
             <li>
@@ -489,31 +481,6 @@ const ExampleTab = observer(() => {
             </li>
             <li>
               <a
-                href="#tutorial-1"
-                onClick={scrollToRef.bind(this, 'tutorial-1')}
-              >
-                <b>Tutorial</b>: Tracking the new S477N mutation in Australia
-              </a>
-            </li>
-            <li>
-              <a
-                href="#tutorial-2"
-                onClick={scrollToRef.bind(this, 'tutorial-2')}
-              >
-                <b>Tutorial</b>: Checking diagnostic primers or probes for SNVs
-              </a>
-            </li>
-            <li>
-              <a
-                href="#tutorial-3"
-                onClick={scrollToRef.bind(this, 'tutorial-3')}
-              >
-                <b>Tutorial</b>: Tracking the Spike D614G mutant distribution in
-                your location of interest over time
-              </a>
-            </li>
-            <li>
-              <a
                 href="#example-analyses"
                 onClick={scrollToRef.bind(this, 'example-analyses')}
               >
@@ -521,262 +488,18 @@ const ExampleTab = observer(() => {
               </a>
             </li>
           </ul>
-        </TOC>
+        </TOC> */}
 
-        <ExampleHeader style={{ marginBottom: '10px' }}>
-          <a id="introduction" />
-          <ExampleTitle>Introduction</ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
-            Back
-          </a>
-        </ExampleHeader>
-
-        <ExampleTutorial>
-          <b style={{ fontSize: '1.4em', marginTop: '10px' }}>
-            Preprint:{' '}
-            <ExternalLink href="https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2">
-              https://www.biorxiv.org/content/10.1101/2020.09.23.310565v2
-            </ExternalLink>
-          </b>
-          <p>
-            <b>
-              The COVID-19 CoV Genetics browser was designed to empower diverse
-              projects on hCoV-19 (SARS-CoV-2) transmission, evolution,
-              emergence, immune interactions, diagnostics, therapeutics,
-              vaccines, and tracking of interventions.
-            </b>
-          </p>
-          <p>
-            Tracking the evolution of the emerging coronavirus is essential for
-            scientists and public health professionals, as well as developers of
-            vaccines, diagnostics, and therapeutics. This work is enabled by
-            data generously shared from contributors across the world via{' '}
-            <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>,
-            on which this research is based.
-          </p>
-          <p>
-            COVID-19 CG helps users to quickly find answers to questions
-            including but not limited to:
-          </p>
-          <ol>
-            <li>
-              Which clades and lineages are present in a given city or region
-              within a user-specified period of time?
-            </li>
-            <li>
-              Which variants should I test my therapeutic, antibody, or
-              diagnostic on before implementation in a specific region?
-            </li>
-            <li>
-              What are the community outcomes after particular policies,
-              vaccines, or therapeutics are applied in that population?
-            </li>
-            <li>
-              Are there data from transient mutations that can elucidate common
-              mechanisms of resistance to acquired immunity? Can this be
-              leveraged for vaccine, antibody, or small molecule drug design?
-            </li>
-          </ol>
-          <p>
-            Users can view the comprehensive nucleotide and amino acid residue
-            variation in their selection to inform their research hypothesis
-            generation or anti-COVID-19 product development. For example,
-            COVID-19 CG enables users to evaluate commonly used or custom
-            primers/probes or targets/epitopes based on their location and dates
-            of interest.
-            {/* As sequencing efforts start to include details about hCoV-19 (SARS-CoV-2)
-          isolates, users can also sort virus data according to patient
-          characteristics such as age, gender, clinical status, isolate type, as
-          well as passaging, sequencing, and assembly method. */}
-          </p>
-          <p>
-            To accelerate COVID-19 research and public health efforts, COVID-19
-            CG will be continually upgraded with new and improved features so
-            that users can quickly and reliably pinpoint critical mutations as
-            the virus evolves throughout the pandemic.
-          </p>
-          <p>
-            Towards this goal, we strongly advocate that countries continue to
-            generate data sampled from patients, animals, and environments and
-            share their data in a timely manner via{' '}
-            <ExternalLink href="https://www.gisaid.org/">GISAID</ExternalLink>,
-            so that scientists across the world are maximally informed about
-            developments in the spread of the emerging coronavirus responsible
-            for COVID-19.
-          </p>
-          <p>
-            Reach out to us{' '}
-            <ExternalLink href="https://twitter.com/covidcg">
-              @covidcg
-            </ExternalLink>{' '}
-            on twitter, or email us at{' '}
-            <ExternalLink href="mailto:covidcg@broadinstitute.org">
-              covidcg@broadinstitute.org
-            </ExternalLink>
-          </p>
-        </ExampleTutorial>
+        <SurveillancePlot width={width - 150} />
+        <div style={{ height: '15px' }} />
+        <GlobalSeqPlot width={width - 120} />
 
         <ExampleHeader>
-          <a id="tutorial-1" />
-          <ExampleTitle>
-            Tutorial: Tracking the new S477N mutation in Australia
-          </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
-            Back
-          </a>
-        </ExampleHeader>
-
-        <ExampleTutorial>
-          <p>
-            In this example, we will show you how to track mutations of interest
-            in your locations of interest. There is a new dominant SARS-CoV-2
-            variant in Australia as you can see in the COVID-19 CG{' '}
-            <b>Compare Lineages</b> tab.
-          </p>
-          <TutorialImage src={ImageExample1_1} />
-          <p>
-            To select the <b>B.1.1.25</b> lineage, click on it in the{' '}
-            <b>Legend</b>, or click on the bars representing the lineage in the{' '}
-            <b>Lineage Plot</b>.
-          </p>
-          <TutorialImage src={ImageExample1_2} />
-          <p>
-            Now that we know there could be a unique mutation in the Spike,
-            S477N, that sets apart this lineage, B.1.1.25, let’s check it out in
-            the <b>Compare AA SNVs</b> tab! You can get to this tab by simply
-            switching from Lineage to SNV view in the navigational menu (top
-            left sidebar).
-          </p>
-          <TutorialImage src={ImageExample1_3} />
-          <p>
-            Let’s find out how many sequences bearing the S477N mutation have
-            been detected in different parts of Australia in the{' '}
-            <b>Compare Locations</b> tab. One tip is to deselect one location
-            with the least number of SARS-CoV-2 sequences - this tells the
-            COVID-19 CG site that you want to compare locations within
-            Australia. From the data, it looks like the vast majority of
-            S477N-harboring sequences were obtained from Victoria, Australia
-            (and the earliest sequence was obtained in January!).
-          </p>
-          <TutorialImage src={ImageExample1_4} />
-          <p>
-            Alternatively, pick other countries to compare to Australia. For
-            S477N, we recommend the United Kingdom and Florida. Although, please
-            note that COVID-19 CG only reflects data contributed to GISAID.
-            Variants of interest could be present in other countries, and at
-            earlier dates, but not yet known to the public because the
-            sequencing centers in those countries have not collected or
-            deposited their data in GISAID.
-          </p>
-        </ExampleTutorial>
-
-        <ExampleHeader>
-          <a id="tutorial-2" />
-          <ExampleTitle>
-            Tutorial: Checking diagnostic primers or probes for SNVs
-          </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
-            Back
-          </a>
-        </ExampleHeader>
-
-        <ExampleTutorial>
-          <p>
-            In this example, we will show you how to check your diagnostic
-            primer or probe for SNVs present in your targeted location of
-            diagnostic implementation. Using this approach, we found at least 11
-            diagnostic primer pairs commonly used around the world that could be
-            impacted by SNVs found near their 3’ end.
-          </p>
-          <TutorialImage src={ImageExample2_1} />
-          <TutorialImage src={ImageExample2_2} />
-          <p>
-            To figure out where these SNVs are located globally, you can click
-            on the SNV of interest (e.g., G10097A) and switch to the{' '}
-            <b>Compare Locations</b> tab - simply click on the{' '}
-            <b>Compare Locations</b> tab! For G10097A, we found, using COVID-19
-            CG, that it has been detected in every continent but is particularly
-            common in some countries.
-          </p>
-          <TutorialImage src={ImageExample2_3} />
-          <p>
-            This image was downloaded in the <b>Compare Locations</b> tab.
-          </p>
-          <p>
-            We advocate that labs and clinics use COVID-19 CG (
-            <ExternalLink href="https://covidcg.org">
-              https://covidcg.org
-            </ExternalLink>
-            ) to check their most commonly used primers and probes against the
-            SARS-CoV-2 sequences that are prevalent in their geographic regions.
-            More than 700 commonly used primers or probes are now available for
-            COVID-19 CG users to select under the <b>Primers/Probes</b> menu.
-          </p>
-        </ExampleTutorial>
-
-        <ExampleHeader>
-          <a id="tutorial-3" />
-          <ExampleTitle>
-            Tutorial: Tracking the Spike D614G mutant distribution in your
-            location of interest over time
-          </ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
-            Back
-          </a>
-        </ExampleHeader>
-
-        <ExampleTutorial>
-          <p>
-            In this example, we will show you how to track the distribution of
-            the D614G mutation across SARS-CoV-2 isolates in your locations of
-            interest over time.
-          </p>
-          <p>
-            Warning: we strongly caution against inferring (i) chains or
-            directionality of transmission and (ii) changes in the
-            transmissibility of any SARS-CoV-2 SNV based on population dynamics
-            alone. Inconsistent sampling, sampling biases, differences in
-            founder host population traits (even median patient age),
-            superspreading events, regionally and temporally differential travel
-            restrictions, and numerous other factors instead of virus biological
-            differences can influence the global distribution of SNVs.
-          </p>
-          <p>
-            Let’s take a look at the city-island-country of Singapore.
-            SARS-CoV-2 sequences carrying the D614G mutation are shown in pink!
-            In other words, any variant that does not carry the G614 AA SNV is
-            shown in grey.
-          </p>
-          <TutorialImage src={ImageExample3_1} />
-          <p>
-            Let’s change things up and take a look at South Korea. The
-            population dynamics of the D614G SNV can look dramatically different
-            between locations. In Singapore, the D614 SNV appeared more common
-            over time as the bulk of the G614 variants waned by April. In South
-            Korea, the opposite trend is apparent, with the bulk of the D614
-            variants subsiding by April, and a wave of G614 variants appearing
-            in May through July.
-          </p>
-          <p>
-            We encourage you to explore other countries or regions on your own.
-          </p>
-          <TutorialImage src={ImageExample3_2} />
-          <p>
-            How about comparing the percent of SARS-CoV-2 sequences that carry
-            the G614 mutation by locations of interest? Here, we picked three
-            Indian cities in the <b>Compare Locations</b> tab. The{' '}
-            <b>Location-Date Plot</b> can be adjusted to show Cumulative or New
-            sequences, Percentages or Counts, grouped by Day, Week, or Month.
-          </p>
-          <TutorialImage src={ImageExample3_3} />
-        </ExampleTutorial>
-
-        <ExampleHeader>
-          <a id="example-analyses" />
+          {/* <a id="example-analyses" /> */}
           <ExampleTitle>Example Analyses</ExampleTitle>
-          <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
+          {/* <a href="#" onClick={scrollToRef.bind(this, 'getting-started-top')}>
             Back
-          </a>
+          </a> */}
           <p>
             Use these example analyses to get started and explore the features
             of this application. If you would like to add an analysis to this
