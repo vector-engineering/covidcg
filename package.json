@@ -1,6 +1,6 @@
 {
-  "name": "new-project",
-  "version": "0.1.0",
+  "name": "covidcg",
+  "version": "1.6.0",
   "description": "",
   "engines": {
     "node": ">=8",

@@ -124,7 +124,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
             className="tab-link"
             onClick={changeTab.bind(this, TABS.TAB_EXAMPLE)}
           >
-            <span>Getting Started</span>
+            <span>Home</span>
           </a>
         </TabItem>
         <TabItem active={activeTab === TABS.TAB_GROUP}>
