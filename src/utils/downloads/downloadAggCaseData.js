@@ -61,9 +61,8 @@ function downloadAggCaseDataGroup({
       // Loop thru SNPs and print them as a list
       ntSnps = ntSnps.map((snp) => {
         // Format as pos|ref|alt
-        // Position is 0-indexed, so make it 1-indexed
         return (
-          (parseInt(snp['pos']) + 1).toString() +
+          snp['pos']+
           '|' +
           snp['ref'] +
           '|' +
@@ -105,7 +104,7 @@ function downloadAggCaseDataGroup({
         return (
           label +
           '|' +
-          parseInt(snp['pos']).toString() +
+          snp['pos'] +
           '|' +
           snp['ref'] +
           '|' +
