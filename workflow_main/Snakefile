@@ -286,7 +286,8 @@ rule assemble_data_package:
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.global_group_counts.output.global_group_counts,
         group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
-        metadata_map = rules.combine_all_data.output.metadata_map
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        location_map = rules.combine_all_data.output.location_map
     output:
         data_package = os.path.join(config["data_folder"], "data_package.json.gz")
     run:

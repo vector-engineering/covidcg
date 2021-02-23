@@ -71,6 +71,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
             # Get the region in coordinates to translate/look for SNPs in
             segment_start = int(segment.split("..")[0])
             segment_end = int(segment.split("..")[1])
+            segment_len = ((segment_end - segment_start) // 3) + 1
 
             # Translate the sequence and store it for later
             aa_seqs[ref_name] += list(
@@ -166,11 +167,25 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                 if not ref_aa and not alt_aa:
                     continue
 
+                pos = resi_counter + codon_ind_start + 1
+
+                # If the positiion is outside of the segment, then skip
+                # (This happens sometimes for long deletions)
+                if pos > segment_len:
+                    continue
+
+                # If the ref AA sequence overruns the segment
+                # (this happens for long deletions near the end of a gene)
+                # then truncate the ref AAs
+                overrun = (pos + len(ref_aa) - 1) - segment_len
+                if overrun > 0:
+                    ref_aa = ref_aa[:-overrun]
+
                 aa_snps.append(
                     (
                         snp["Accession ID"],
                         ref_name,
-                        resi_counter + codon_ind_start + 1,
+                        pos,
                         "".join(ref_aa),
                         "".join(alt_aa),
                     )
