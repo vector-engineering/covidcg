@@ -8,14 +8,18 @@
 .gitignore
 .dockerignore
 
+__pycache__
 data
 data_genbank
+data_az
+data_ma
 dist
 figures
 node_modules
 notebooks
 pymol
 workflow_main
+workflow_custom_ingest
 workflow_gisaid_ingest
 workflow_genbank_ingest
 versions
