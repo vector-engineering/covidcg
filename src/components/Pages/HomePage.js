@@ -8,16 +8,16 @@ import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import ExampleTab from './ExampleTab';
-import GroupTab from './GroupTab';
-import LocationTab from './LocationTab';
-import AboutTab from './AboutTab';
-import MethodologyTab from './MethodologyTab';
-import RelatedProjectsTab from './RelatedProjectsTab';
-import SequencingEffortsTab from './SequencingEffortsTab';
+import { TABS } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
 
-import { TABS } from '../../constants/defs.json';
+const GroupTab = React.lazy(() => import('./GroupTab'));
+const ExampleTab = React.lazy(() => import('./ExampleTab'));
+const LocationTab = React.lazy(() => import('./LocationTab'));
+const AboutTab = React.lazy(() => import('./AboutTab'));
+const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
+const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
+const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
 const HomePageDiv = styled.div`
   display: grid;
@@ -105,7 +105,9 @@ const HomePage = observer(({ UIStore }) => {
       <HomePageDiv>
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          {renderTab()}
+          <React.Suspense fallback={<div>loading</div>}>
+            {renderTab()}
+          </React.Suspense>
         </PlotContainer>
       </HomePageDiv>
     </>
