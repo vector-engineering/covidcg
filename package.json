@@ -13,6 +13,7 @@
     "prestart": "npm run clean-cache && npm run start-message",
     "start": "concurrently -k -r -s first \"npm run open:src\" \"npm run lint:watch\"",
     "start:gisaid": "concurrently -k -r -s first \"CONFIGFILE=config/config_gisaid.yaml npm run open:src\" \"npm run lint:watch\"",
+    "start:genbank": "concurrently -k -r -s first \"CONFIGFILE=config/config_genbank.yaml npm run open:src\" \"npm run lint:watch\"",
     "open:src": "babel-node tools/srcServer.js",
     "open:dist": "babel-node tools/distServer.js",
     "lint": "esw webpack.config.* src tools --color",
@@ -28,7 +29,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@hot-loader/react-dom": "16.10.2",
     "litemol": "2.4.2",
     "mobx": "5.15.4",
     "mobx-react": "6.2.2",
@@ -92,7 +92,6 @@
     "open-cli": "6.0.1",
     "postcss-loader": "3.0.0",
     "prop-types": "15.7.2",
-    "react-hot-loader": "4.12.15",
     "rimraf": "3.0.0",
     "sass-loader": "8.0.0",
     "style-loader": "1.0.0",
@@ -117,8 +116,7 @@
         ],
         "plugins": [
           "@babel/plugin-transform-runtime",
-          "@babel/plugin-proposal-class-properties",
-          "react-hot-loader/babel"
+          "@babel/plugin-proposal-class-properties"
         ]
       },
       "production": {
