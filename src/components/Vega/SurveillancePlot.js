@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import { useStores } from '../../stores/connect';
 
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
+import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import { PlotOptions } from './Plot.styles';
