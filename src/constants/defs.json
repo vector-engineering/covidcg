@@ -82,7 +82,8 @@
     "TAB_ABOUT": "acknowledgements",
     "TAB_METHODOLOGY": "methodology",
     "TAB_RELATED": "related_projects",
-    "TAB_GLOBAL_SEQUENCES": "global_sequencing"
+    "TAB_GLOBAL_SEQUENCES": "global_sequencing",
+    "TAB_LITEMOL": "litemol"
   },
   "SNV_FORMAT": {
     "POS_REF_ALT": "pos_ref_alt",
