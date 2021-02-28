@@ -253,6 +253,7 @@ export class ConfigStore {
     }
   }
 
+  @action
   setDefaultGeneResidueCoordinates() {
     if (this.selectedGene.name === 'All Genes') {
       this.residueCoordinates = [];
@@ -263,6 +264,7 @@ export class ConfigStore {
     this.validResidueCoordinates = true;
   }
 
+  @action
   setDefaultProteinResidueCoordinates() {
     if (this.selectedProtein.name === 'All Proteins') {
       this.residueCoordinates = [];
