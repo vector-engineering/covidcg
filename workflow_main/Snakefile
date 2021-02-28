@@ -48,9 +48,8 @@ rule all:
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
-    2. Remove animal/environmental isolates (bat, pangolin, mink, tiger, cat, canine, env)
-    3. Can't be less than 29700NT
-	4. Can't have more than 5% ambiguous NT
+    2. Can't be less than 29700NT
+	3. Can't have more than 5% ambiguous NT
     """
     input:
         fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz"),
