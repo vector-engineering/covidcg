@@ -122,6 +122,23 @@ rule extract_dna_snps:
         dna_snp_df.to_csv(output.dna_snp, index=False)
 
 
+rule process_genes_and_proteins:
+    """Calculate some additional columns on top of the human-generated
+    genes.json and proteins.json annotations file
+    """
+    input:
+        genes = gene_defs_path,
+        proteins = protein_defs_path
+    output:
+        genes = os.path.join(config["static_data_folder"], "genes_processed.json"),
+        proteins = os.path.join(config["static_data_folder"], "proteins_processed.json")
+    shell:
+        """
+        python3 scripts/gene_protein_defs.py -i {input.genes} -o {output.genes}
+        python3 scripts/gene_protein_defs.py -i {input.proteins} -o {output.proteins}
+        """
+
+
 rule extract_aa_snps:
     """Using the NT SNVs, translate genes/proteins and find SNVs 
     on the AA level, for genes
@@ -129,8 +146,8 @@ rule extract_aa_snps:
     input:
         dna_snp = rules.extract_dna_snps.output.dna_snp,
         reference = reference_sequence_path,
-        genes_file = gene_defs_path,
-        proteins_file = protein_defs_path
+        genes_file = rules.process_genes_and_proteins.output.genes,
+        proteins_file = rules.process_genes_and_proteins.output.proteins
     output:
         gene_aa_snp = os.path.join(
             config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
