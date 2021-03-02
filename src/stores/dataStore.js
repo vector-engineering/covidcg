@@ -194,7 +194,29 @@ export class DataStore {
   }
 
   async downloadSelectedSequenceMetadata() {
-    const res = await fetch(hostname + '/download_sequences', {
+    const res = await fetch(hostname + '/download_metadata', {
+      method: 'POST',
+      headers: {
+        Accept: 'text/csv',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        location_ids: getLocationIdsByNode(
+          toJS(this.configStoreInstance.selectedLocationNodes)
+        ),
+        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(this.configStoreInstance.ageRange),
+        start_date: toJS(this.configStoreInstance.startDate),
+        end_date: toJS(this.configStoreInstance.endDate),
+      }),
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(url, 'selected_sequence_metadata.csv');
+  }
+
+  async downloadSelectedSNVs() {
+    const res = await fetch(hostname + '/download_snvs', {
       method: 'POST',
       headers: {
         Accept: 'text/csv',
@@ -205,30 +227,20 @@ export class DataStore {
         dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
         coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
         coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
-        selected_gene: toJS(this.configStoreInstance.selectedGene),
-        selected_protein: toJS(this.configStoreInstance.selectedProtein),
+        selected_gene: toJS(this.configStoreInstance.selectedGene).name,
+        selected_protein: toJS(this.configStoreInstance.selectedProtein).name,
         location_ids: getLocationIdsByNode(
           toJS(this.configStoreInstance.selectedLocationNodes)
         ),
         selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(this.configStoreInstance.ageRange),
-        low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
-        max_group_counts: parseInt(
-          toJS(this.configStoreInstance.maxGroupCounts)
-        ),
-        min_local_counts: parseInt(
-          toJS(this.configStoreInstance.minLocalCounts)
-        ),
-        min_global_counts: parseInt(
-          toJS(this.configStoreInstance.minGlobalCounts)
-        ),
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
     });
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'selected_sequence_metadata.csv');
+    downloadBlobURL(url, 'selected_snvs.csv');
   }
 
   downloadAggSequences() {

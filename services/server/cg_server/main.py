@@ -30,13 +30,13 @@ Gzip(app)
 CORS(app)
 
 connection_options = {
-    'dbname': os.environ["POSTGRES_DB"],
-    'user': os.environ["POSTGRES_USER"],
-    'password': os.environ["POSTGRES_PASSWORD"],
-    'host': os.environ["POSTGRES_HOST"],
+    "dbname": os.environ["POSTGRES_DB"],
+    "user": os.environ["POSTGRES_USER"],
+    "password": os.environ["POSTGRES_PASSWORD"],
+    "host": os.environ["POSTGRES_HOST"],
 }
 if port := os.getenv("POSTGRES_PORT", None):
-    connection_options['port'] = port
+    connection_options["port"] = port
 
 conn = psycopg2.connect(**connection_options)
 
@@ -45,15 +45,16 @@ conn = psycopg2.connect(**connection_options)
 def index():
     return app.send_static_file("index.html")
 
+
 @app.route("/seed")
 def seed_db():
     # Only allow in development mode
-    if os.getenv('FLASK_ENV', 'development') == 'development':
+    if os.getenv("FLASK_ENV", "development") == "development":
         print("Seeding DB")
         seed_database(conn)
         return "success"
     else:
-        return make_response(('Forbidden in production', 400))
+        return make_response(("Forbidden in production", 400))
 
 
 @app.route("/init")
@@ -359,7 +360,7 @@ def get_sequences():
         metadata_counts=json.dumps(metadata_counts),
         counts_per_location=json.dumps(counts_per_location),
         counts_per_location_date=counts_per_location_date.to_json(orient="records"),
-        valid_groups=json.dumps({k: 1 for k in valid_groups}),
+        valid_groups=json.dumps(valid_groups),
         counts_per_group=counts_per_group.to_json(orient="records"),
         group_counts_after_date_filter=group_counts_after_date_filter.to_json(
             orient="values"

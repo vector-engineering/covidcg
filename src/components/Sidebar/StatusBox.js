@@ -31,6 +31,7 @@ const serializeCoordinates = (coordinateRanges) => {
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
+  SELECTED_SNVS: 'Selected SNVs',
 };
 
 const StatusBox = observer(() => {
@@ -41,6 +42,8 @@ const StatusBox = observer(() => {
       dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       dataStore.downloadSelectedSequenceMetadata();
+    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SNVS) {
+      dataStore.downloadSelectedSNVs();
     }
   };
 
@@ -126,6 +129,7 @@ const StatusBox = observer(() => {
   const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
   if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
+    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SNVS);
   }
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
@@ -165,7 +169,8 @@ const StatusBox = observer(() => {
           </b>
         </Line>
         <Line>
-          Date range: {configStore.startDate} – {configStore.endDate}
+          Date range: <b>{configStore.startDate}</b> – 
+          <b>{configStore.endDate}</b>
         </Line>
         <Line>Genome selection: {genomeSelection}</Line>
         <Line>

@@ -36,11 +36,6 @@ def build_coordinate_filters(
 
 
 def select_sequences(cur, req):
-
-    group_key = req.get("group_key", None)
-    dna_or_aa = req.get("dna_or_aa", None)
-    coordinate_mode = req.get("coordinate_mode", None)
-
     location_ids = req.get("location_ids", None)
     all_location_ids = sum(location_ids.values(), [])
 
