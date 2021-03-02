@@ -190,7 +190,6 @@ rule combine_all_data:
             chunk=CHUNKS
         )
     output:
-        accession_hashmap = os.path.join(config["data_folder"], "accession_hashmap.csv"),
         metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
         # Only used to build the location tree
         location_map = os.path.join(config["data_folder"], "location_map.json"),
@@ -199,7 +198,6 @@ rule combine_all_data:
     run:
         combine_all_data(
             **input, **output, 
-            hash_accession_ids=config['hash_accession_ids'],
             count_threshold=config["snp_count_threshold"],
             group_cols=list(config["group_cols"].keys()),
             metadata_cols=list(config["metadata_cols"].keys())

@@ -4,7 +4,7 @@
 
 # Path to folder with downloaded and processed data
 # This path is relative to the workflow folders
-data_folder: "../data_private"
+data_folder: "../data"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the workflow folders
@@ -20,9 +20,6 @@ chunk_size: 100000
 # --------------------
 #       ANALYSIS
 # --------------------
-
-# Hash/anonymize Accession IDs?
-hash_accession_ids: false
 
 # SNPs with less than this number of global occurrences will be ignored
 snp_count_threshold: 3

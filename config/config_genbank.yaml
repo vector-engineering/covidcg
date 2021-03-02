@@ -21,9 +21,6 @@ chunk_size: 100000
 #       ANALYSIS
 # --------------------
 
-# Hash/anonymize Accession IDs?
-hash_accession_ids: false
-
 # SNPs with less than this number of global occurrences will be ignored
 snp_count_threshold: 3
 # Percentage of sequences within a group (e.g., clade, lineage) that need
