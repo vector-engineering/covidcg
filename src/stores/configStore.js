@@ -507,16 +507,16 @@ export class ConfigStore {
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       selectedGroupIds = this.selectedGroups
         .map((item) => dnaSnvMap[item.group])
-        .map((snpId) => (snpId === undefined ? -1 : snpId));
+        .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         selectedGroupIds = this.selectedGroups
           .map((item) => geneAaSnvMap[item.group])
-          .map((snpId) => (snpId === undefined ? -1 : snpId));
+          .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         selectedGroupIds = this.selectedGroups
           .map((item) => proteinAaSnvMap[item.group])
-          .map((snpId) => (snpId === undefined ? -1 : snpId));
+          .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
       }
     }
     // Array to Set
