@@ -22,7 +22,7 @@ Table of Contents
 
 ## Installation
 
-The COVID-19 CG website comprises of 3 services (PostgreSQL database, Flask server, React frontend). These can be run separately (see detailed instructions at ...), but we recommend using Docker to manage these services.
+The COVID-19 CG website comprises of 3 services (PostgreSQL database, Flask server, React frontend). These can be run separately (see detailed instructions at [per-service installation](#per-service-installation)) but we recommend using Docker to manage these services.
 
 The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate install, and described below in [Analysis Pipeline](#analysis-pipeline)
 
@@ -31,9 +31,13 @@ The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate instal
 
 ```bash
 > cd covidcg
-> docker-compose build # Build containers (Re-builds only necessary if packages/dependencies are changed)
+> docker-compose build # Build containers 
+                       # (Re-builds only necessary if packages or 
+                       # dependencies have changed)
 > docker-compose up -d # Run all services
-> curl localhost:5000/seed # Seed PostgreSQL database with example data (only need to run once, the Docker volume will persist the database)
+> curl localhost:5000/seed # Seed PostgreSQL database with example data 
+                           # (this only needs to be run once, the 
+                           # Docker volume will persist the database)
 > docker-compose down # Shut down all services when finished
 ```
 
