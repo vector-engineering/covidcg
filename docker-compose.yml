@@ -38,7 +38,6 @@ services:
     working_dir: /app
     volumes:
       - ./src:/app/src:cached
-      - ./tools:/app/tools:cached
       - ./static_data:/app/static_data:cached
     command: "npm start -s"
     ports:
