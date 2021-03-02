@@ -178,8 +178,6 @@ This project is developed by the [Vector Engineering Lab](https://vector.enginee
 - Alina Yujia Chan, PhD (Broad Institute)
 - Ben Deverman, PhD (Broad Institute)
 
-The manuscript for this project is currently being prepared.
-
 Contact the authors by email: [covidcg@broadinstitute.org](mailto:covidcg@broadinstitute.org)
 
 Python/snakemake scripts were run and tested on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 412 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL2 (48 threads, 128 GB RAM)
@@ -194,7 +192,7 @@ Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’
 
 Users are encouraged to share, download, and further analyze data from this site. Plots can be downloaded as PNG or SVG files, and the data powering the plots and tables can be downloaded as well. Please attribute any data/images to [covidcg.org](https://covidcg.org/), or cite our manuscript:
 
-Chen AT, Altschuler K, Zhan SH, Chan YA, Deverman BE. COVID-19 CG: Tracking SARS-CoV-2 mutations by locations and dates of interest. _bioRxiv_ (2020), doi: [https://doi.org/10.1101/2020.09.23.310565](https://doi.org/10.1101/2020.09.23.310565)
+Chen AT, Altschuler K, Zhan SH, Chan YA, Deverman BE. COVID-19 CG enables SARS-CoV-2 mutation and lineage tracking by locations and dates of interest. _eLife_ (2021), doi: [https://doi.org/10.7554/eLife.63409](https://doi.org/10.7554/eLife.63409)
 
 Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
 
