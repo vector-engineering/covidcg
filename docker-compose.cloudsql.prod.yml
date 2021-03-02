@@ -8,8 +8,9 @@ services:
       context: ./
       dockerfile: ./services/server/prod.Dockerfile
       args:
-        CONFIGFILE: ${CONFIGFILE} # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
+        CONFIGFILE: ${CONFIGFILE}
     environment:
+      - STATIC_DATA_PATH=/static_data
       - CLOUDSQL_CONNECTION_NAME
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -39,5 +40,4 @@ services:
       - cloudsql:/cloudsql
 
 volumes:
-  # This empty property initializes a named volume.
   cloudsql:

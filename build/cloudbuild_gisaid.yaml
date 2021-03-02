@@ -4,11 +4,18 @@ steps:
     args:
       [
         "build",
+        "--build-arg",
+        "CONFIGFILE=${_CONFIGFILE}",
         "-t",
-        "gcr.io/$PROJECT_ID/cg:${TAG_NAME}",
+        "gcr.io/$PROJECT_ID/${_TARGET}:${_TAG_NAME}",
         "-f",
-        "build/gisaid.Dockerfile",
+        "services/server/prod.Dockerfile",
         ".",
       ]
 
-images: ["gcr.io/$PROJECT_ID/cg:${TAG_NAME}"]
+substitutions:
+  _TARGET: cg
+  _CONFIGFILE: config/config_gisaid.yaml
+  _TAG_NAME: v2.0.0-dev4
+
+images: ["gcr.io/$PROJECT_ID/${_TARGET}:${_TAG_NAME}"]

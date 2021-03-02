@@ -4,12 +4,14 @@ services:
   server:
     build:
       context: ./
-      dockerfile: ./services/server/Dockerfile
+      dockerfile: ./services/server/dev.Dockerfile
       args:
         CONFIGFILE: ./config/config_genbank.yaml # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
     environment:
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
+      - DATA_PATH=/data
+      - STATIC_DATA_PATH=/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
       - POSTGRES_DB=cg_dev
