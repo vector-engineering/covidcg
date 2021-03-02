@@ -47,9 +47,13 @@ def index():
 
 @app.route("/seed")
 def seed_db():
-    print("Seeding DB")
-    seed_database(conn)
-    return "success"
+    # Only allow in development mode
+    if os.getenv('FLASK_ENV', 'development') == 'development':
+        print("Seeding DB")
+        seed_database(conn)
+        return "success"
+    else:
+        return make_response(('Forbidden in production', 400))
 
 
 @app.route("/init")
