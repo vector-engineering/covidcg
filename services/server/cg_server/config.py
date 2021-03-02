@@ -13,7 +13,8 @@ except ImportError:
 config = {}
 
 # Load app configuration
-with open("/opt/config.yaml", "r") as fp:
+config_file_path = os.getenv("CONFIGFILE", "/opt/config.yaml")
+with open(config_file_path, "r") as fp:
     config = load(fp.read(), Loader=Loader)
 
 # print(config)

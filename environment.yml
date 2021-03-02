@@ -20,3 +20,5 @@ dependencies:
   # If you want to run the notebooks:
   - jupyter=1.0.0
   - jupyter_contrib_nbextensions=0.5.1
+  # For pushing to database
+  - psycopg2==2.8.4

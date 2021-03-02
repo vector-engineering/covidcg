@@ -13,8 +13,8 @@ from cg_server.color import get_categorical_colormap
 from cg_server.config import config
 from cg_server.load_snvs import process_dna_snvs, process_aa_snvs
 
-data_path = Path("/data")
-static_data_path = Path("/static_data")
+data_path = Path(os.getenv("DATA_PATH", config["data_folder"]))
+static_data_path = Path(os.getenv("STATIC_DATA_PATH", config["static_data_folder"]))
 
 genes = pd.read_json(str(static_data_path / "genes_processed.json"))
 genes = genes.set_index("name")
@@ -26,7 +26,15 @@ def df_to_sql(cur, df, table, index_label="id"):
     buffer = io.StringIO()
     df.to_csv(buffer, index_label=index_label, header=False)
     buffer.seek(0)
-    cur.copy_from(buffer, table, sep=",")
+    # cur.copy_from(buffer, table, sep=",")
+    cur.copy_expert(
+        """
+        COPY "{table}" FROM STDIN WITH (FORMAT CSV)
+        """.format(
+            table=table
+        ),
+        buffer,
+    )
 
 
 def drop_all(cur):
@@ -41,6 +49,8 @@ def seed_database(conn):
 
     drop_all(cur)
     conn.commit()
+
+    print("Writing metadata maps...", end="", flush=True)
 
     # Load metadata map
     with open(data_path / "metadata_map.json", "r") as fp:
@@ -59,14 +69,10 @@ def seed_database(conn):
                 table_name=table_name
             )
         )
-        cur.executemany(
-            """
-            INSERT INTO "{table_name}" (id, value) VALUES (%s, %s)
-        """.format(
-                table_name=table_name
-            ),
-            list(metadata_map[field].items()),
-        )
+        metadata_df = pd.DataFrame.from_records(
+            list(metadata_map[field].items()), columns=["id", "value"]
+        ).set_index("id")
+        df_to_sql(cur, metadata_df, table_name, index_label="id")
         cur.execute(
             """
             CREATE INDEX "ix_{table_name}_id" ON "{table_name}"("id");
@@ -74,6 +80,10 @@ def seed_database(conn):
                 table_name=table_name
             )
         )
+
+    print("done")
+
+    print("Writing SNV maps...", end="", flush=True)
 
     # DNA SNVs
     dna_snp = process_dna_snvs(metadata_map["dna_snp"])
@@ -142,6 +152,10 @@ def seed_database(conn):
         'CREATE INDEX "ix_protein_aa_snp_protein" ON "protein_aa_snp"("protein");'
     )
 
+    print("done")
+
+    print("Writing location map...", end="", flush=True)
+
     # Locations
     location_map = pd.read_json(data_path / "location_map.json")
     cur.execute(
@@ -156,6 +170,10 @@ def seed_database(conn):
         """
     )
     df_to_sql(cur, location_map, "location", index_label="id")
+
+    print("done")
+
+    print("Writing groups and consensus SNVs...", end="", flush=True)
 
     # Consensus SNVs
     with (data_path / "group_consensus_snps.json").open("r") as fp:
@@ -187,13 +205,11 @@ def seed_database(conn):
                 ]:
                     group_snps.append((group, snp_id))
 
-            # Inserts
-            cur.executemany(
-                'INSERT INTO "{table_name}" (name, snp_id) VALUES (%s, %s);'.format(
-                    table_name=table_name
-                ),
-                group_snps,
-            )
+            group_snp_df = pd.DataFrame.from_records(
+                group_snps, columns=["name", "snp_id"]
+            ).set_index("name")
+            df_to_sql(cur, group_snp_df, table_name, index_label="name")
+
             cur.execute(
                 """
                 CREATE INDEX "idx_{table_name}_name" ON "{table_name}"("name");
@@ -230,6 +246,10 @@ def seed_database(conn):
                 grouping=grouping
             )
         )
+
+    print("done")
+
+    print("Writing sequence metadata...", end="", flush=True)
 
     # Sequence metadata
     case_data = pd.read_json(data_path / "case_data.json")
@@ -293,6 +313,10 @@ def seed_database(conn):
             )
         )
 
+    print("done")
+
+    print("Writing sequence SNVs...", end="", flush=True)
+
     # Sequence SNV data
     snp_fields = ["dna", "gene_aa", "protein_aa"]
     for snp_field in snp_fields:
@@ -308,12 +332,6 @@ def seed_database(conn):
                 table_name=table_name
             )
         )
-        # cur.executemany(
-        #     'INSERT INTO "sequence_{snp_field}_snp" (sequence_id, snp_id) VALUES (%s, %s);'.format(
-        #         snp_field=snp_field
-        #     ),
-        #     case_data[[snp_col]].explode(snp_col).to_records().tolist(),
-        # )
         df_to_sql(
             cur,
             case_data[[snp_col]].explode(snp_col),
@@ -330,6 +348,10 @@ def seed_database(conn):
                 table_name=table_name
             )
         )
+
+    print("done")
+
+    print("Writing JSONs...", end="", flush=True)
 
     # Stats table
     cur.execute(
@@ -389,6 +411,8 @@ def seed_database(conn):
         """,
         [Json(geo_select_tree)],
     )
+
+    print("done")
 
     conn.commit()
     cur.close()
