@@ -29,13 +29,16 @@ app = Flask(__name__)
 Gzip(app)
 CORS(app)
 
-conn = psycopg2.connect(
-    dbname=os.environ["POSTGRES_DB"],
-    user=os.environ["POSTGRES_USER"],
-    password=os.environ["POSTGRES_PASSWORD"],
-    host=os.environ["POSTGRES_HOST"],
-    port=os.environ["POSTGRES_PORT"],
-)
+connection_options = {
+    'dbname': os.environ["POSTGRES_DB"],
+    'user': os.environ["POSTGRES_USER"],
+    'password': os.environ["POSTGRES_PASSWORD"],
+    'host': os.environ["POSTGRES_HOST"],
+}
+if port := os.getenv("POSTGRES_PORT", None):
+    connection_options['port'] = port
+
+conn = psycopg2.connect(**connection_options)
 
 
 @app.route("/")

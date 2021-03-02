@@ -32,7 +32,7 @@ def df_to_sql(cur, df, table, index_label="id"):
 def drop_all(cur):
     cur.execute("DROP SCHEMA public CASCADE;")
     cur.execute("CREATE SCHEMA public;")
-    cur.execute("GRANT ALL ON SCHEMA public TO cg;")
+    cur.execute("GRANT ALL ON SCHEMA public TO postgres;")
     cur.execute("GRANT ALL ON SCHEMA public TO public;")
 
 
