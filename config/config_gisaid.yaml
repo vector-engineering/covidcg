@@ -72,13 +72,8 @@ group_cols:
 #     SERVER
 # ---------------
 
-data_package_url: "https://storage.googleapis.com/ve-public/v1.5/data_package.json.gz"
-# Force a reload of the data package every X seconds
-# 60 s/min * 60 min/hr * 24 hr/day = 86400
-data_package_refresh_freq: 86400
-
 dev_hostname: "http://localhost:5000"
-prod_hostname: "https://alpha.covidcg.org"
+prod_hostname: "https://covidcg.org"
 # prod_hostname: "http://localhost:8080"
 
 # ----------------------
