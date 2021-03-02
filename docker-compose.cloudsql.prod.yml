@@ -1,0 +1,43 @@
+# docker-compose -f docker-compose.cloudsql.prod.yml -p cgprod
+
+version: "3.7"
+
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: ./services/server/prod.Dockerfile
+      args:
+        CONFIGFILE: ${CONFIGFILE} # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
+    environment:
+      - CLOUDSQL_CONNECTION_NAME
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
+    command: "gunicorn --bind :8080 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    ports:
+      - 8080:8080
+    working_dir: /app
+    volumes:
+      # Mount the volume for the cloudsql proxy.
+      - cloudsql:/cloudsql
+    depends_on:
+      - sql_proxy
+
+  sql_proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.19.1
+    command:
+      - "/cloud_sql_proxy"
+      - "-dir=/cloudsql"
+      - "-instances=${CLOUDSQL_CONNECTION_NAME}"
+      - "-credential_file=/tmp/keys/keyfile.json"
+    # Allow the container to bind to the unix socket.
+    user: root
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/keyfile.json:ro
+      - cloudsql:/cloudsql
+
+volumes:
+  # This empty property initializes a named volume.
+  cloudsql:

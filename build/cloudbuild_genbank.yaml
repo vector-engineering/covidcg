@@ -4,11 +4,17 @@ steps:
     args:
       [
         "build",
+        "--build-arg",
+        "CONFIGFILE=${_CONFIGFILE}",
         "-t",
-        "gcr.io/$PROJECT_ID/cg-genbank:${TAG_NAME}",
+        "gcr.io/$PROJECT_ID/cg-genbank:${_TAG_NAME}",
         "-f",
-        "build/genbank.Dockerfile",
+        "services/server/prod.Dockerfile",
         ".",
       ]
 
-images: ["gcr.io/$PROJECT_ID/cg-genbank:${TAG_NAME}"]
+substitutions:
+  _CONFIGFILE: config/config_genbank.yaml
+  _TAG_NAME: v2.0.0-dev3
+
+images: ["gcr.io/$PROJECT_ID/cg-genbank:${_TAG_NAME}"]

@@ -25,7 +25,7 @@ from cg_server.database import seed_database
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
 CORS(app)
 
@@ -42,10 +42,8 @@ conn = psycopg2.connect(**connection_options)
 
 
 @app.route("/")
-def hello_world():
-    print("asdf")
-    return jsonify(hello="world")
-
+def index():
+    return app.send_static_file("index.html")
 
 @app.route("/seed")
 def seed_db():

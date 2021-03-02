@@ -8,10 +8,10 @@ services:
       context: ./
       dockerfile: ./services/server/cloudsql.Dockerfile
       args:
-        CONFIGFILE: ./config/config_genbank.yaml # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
-    env_file:
-      - ./services/.env.cloudsql
+        CONFIGFILE: ${CONFIGFILE} # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
     environment:
+      - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=development
       - CLOUDSQL_CONNECTION_NAME
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -48,7 +48,7 @@ services:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
       args:
-        CONFIGFILE: ./config/config_genbank.yaml
+        CONFIGFILE: ${CONFIGFILE}
     working_dir: /app
     volumes:
       - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes

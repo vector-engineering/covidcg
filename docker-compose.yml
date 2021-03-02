@@ -7,8 +7,14 @@ services:
       dockerfile: ./services/server/Dockerfile
       args:
         CONFIGFILE: ./config/config_genbank.yaml # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
-    env_file:
-      - ./services/.env.dev
+    environment:
+      - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=development
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=cg_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
     command: "flask run --host 0.0.0.0 --port=5000"
     ports:
@@ -21,8 +27,12 @@ services:
       - db
   db:
     image: postgres:12-alpine
-    env_file:
-      - ./services/.env.dev
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=cg_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports: # Expose 5432 so we can use DB administration tools
