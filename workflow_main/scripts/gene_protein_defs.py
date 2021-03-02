@@ -61,7 +61,7 @@ def main():
     args = parser.parse_args()
 
     df = load_genes_or_proteins(args.input)
-    df.to_json(args.output, orient="records")
+    df.reset_index().to_json(args.output, orient="records")
 
 
 if __name__ == "__main__":

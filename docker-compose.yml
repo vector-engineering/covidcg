@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: ./services/server/Dockerfile
+      args:
+        CONFIGFILE: config/config_genbank.yaml
+    env_file:
+      - ./services/server/.env.dev
+    # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    command: "flask run --host 0.0.0.0 --port=5000"
+    ports:
+      - 5000:5000
+    working_dir: /app
+    volumes:
+      - ./services/server:/app:cached
+      - ./data_genbank:/data:cached
+    depends_on:
+      - db
+  db:
+    image: postgres:12-alpine
+    env_file:
+      - ./services/server/.env.dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports: # Expose 5432 so we can use DB administration tools
+      - 5432:5432
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./services/frontend/Dockerfile
+      args:
+        CONFIGFILE: ./config/config_genbank.yaml
+    env_file:
+      - ./services/server/.env.dev
+    working_dir: /app
+    volumes:
+      - ./src:/app/src:cached
+      - ./tools:/app/tools:cached
+      - ./static_data:/app/static_data:cached
+    command: "npm start -s"
+    ports:
+      - 3000:3000
+
+volumes:
+  postgres_data:
