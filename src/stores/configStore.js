@@ -75,6 +75,9 @@ PARAMS_TO_TRACK.forEach((param) => {
 });
 
 export class ConfigStore {
+  // Maintain a reference to the initial values
+  initialConfigValues = initialConfigValues;
+
   // References to store instances
   plotSettingsStoreInstance;
   locationDataStoreInstance;
@@ -143,6 +146,9 @@ export class ConfigStore {
       )[0],
     ].filter((node) => node !== undefined);
     initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
+    this.initialConfigValues[
+      'selectedLocationNodes'
+    ] = this.selectedLocationNodes;
   }
 
   // modifyQueryParams = autorun(() => {
@@ -182,7 +188,7 @@ export class ConfigStore {
     }
 
     // Trigger data re-run
-    this.dataStoreInstance.updateCaseData(() => {});
+    this.dataStoreInstance.fetchData();
   }
 
   @action
