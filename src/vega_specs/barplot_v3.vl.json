@@ -12,7 +12,7 @@
       "aggregate": [{
         "op": "sum",
         "field": "cases",
-        "as": "cases_sum"
+        "as": "counts"
       }],
       "groupby": [
         "position"
@@ -33,7 +33,7 @@
             "axis": null
           },
           "y": {
-            "field": "cases_sum",
+            "field": "counts",
             "type": "quantitative",
             "axis": {
               "title": "Count"
@@ -169,7 +169,7 @@
             }
           },
           "y": {
-            "field": "cases_sum",
+            "field": "counts",
             "type": "quantitative",
             "axis": {
               "title": "Count"

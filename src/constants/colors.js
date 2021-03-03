@@ -1,4 +1,4 @@
-import { COMPARE_COLORS } from '../constants/plotSettings';
+import { COMPARE_COLORS } from '../constants/defs.json';
 
 export const warmColors = [
   // autumn palette, [0, 1, 0.15]

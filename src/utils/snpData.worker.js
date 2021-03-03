@@ -1,8 +1,6 @@
-import { getLocationIds } from './location';
 import { aggregate } from './transform';
 
-import { DNA_OR_AA, COORDINATE_MODES } from '../constants/config';
-import { GROUPS } from '../constants/groups';
+import { GROUPS } from '../constants/defs.json';
 import { formatSnv } from './snpUtils';
 
 function getCombinations(arr) {
@@ -17,97 +15,16 @@ function getCombinations(arr) {
   return result;
 }
 
-// dateRange is an array, [start, end]
-function filterByDate(caseData, dateRange, dateKey = 'collection_date') {
-  // Filter by date
-  if (dateRange[0] > -1 && dateRange[1] > -1) {
-    return caseData.filter((row) => {
-      return row[dateKey] >= dateRange[0] && row[dateKey] <= dateRange[1];
-    });
-  }
-
-  return caseData;
-}
-
-function getSnvFields({
-  dnaOrAa,
-  coordinateMode,
-  selectedGroups,
-
-  // SNV data
-  intToDnaSnvMap,
-  intToGeneAaSnvMap,
-  intToProteinAaSnvMap,
-  dnaSnvMap,
-  geneAaSnvMap,
-  proteinAaSnvMap,
-}) {
-  let selectedGroupIds;
-  let snvEntry;
-  let intToSnvMap;
-  if (dnaOrAa === DNA_OR_AA.DNA) {
-    selectedGroupIds = selectedGroups
-      .map((item) => dnaSnvMap[item])
-      .map((snpId) => (snpId === undefined ? -1 : snpId));
-    snvEntry = 'dna_snp_str';
-    intToSnvMap = intToDnaSnvMap;
-  } else if (dnaOrAa === DNA_OR_AA.AA) {
-    if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      selectedGroupIds = selectedGroups
-        .map((item) => geneAaSnvMap[item])
-        .map((snpId) => (snpId === undefined ? -1 : snpId));
-      snvEntry = 'gene_aa_snp_str';
-      intToSnvMap = intToGeneAaSnvMap;
-    } else if (coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      selectedGroupIds = selectedGroups
-        .map((item) => proteinAaSnvMap[item])
-        .map((snpId) => (snpId === undefined ? -1 : snpId));
-      snvEntry = 'protein_aa_snp_str';
-      intToSnvMap = intToProteinAaSnvMap;
-    }
-  }
-  // Array to Set
-  selectedGroupIds = new Set(selectedGroupIds);
-
-  return {
-    selectedGroupIds,
-    snvEntry,
-    intToSnvMap,
-  };
-}
-
+// mask unselected SNVs
 function processSelectedSnvs({
+  selectedGroupIds,
+  intToSnvMap,
   dnaOrAa,
-  coordinateMode,
-  selectedLocationNodes,
   countsPerLocation,
-  filteredCaseData,
-  selectedGroups,
   validGroups,
-
-  // SNV data
-  intToDnaSnvMap,
-  intToGeneAaSnvMap,
-  intToProteinAaSnvMap,
-  dnaSnvMap,
-  geneAaSnvMap,
-  proteinAaSnvMap,
+  aggSequences,
   snvColorMap,
 }) {
-  const { selectedGroupIds, snvEntry, intToSnvMap } = getSnvFields({
-    dnaOrAa,
-    coordinateMode,
-    selectedGroups,
-
-    // SNV data
-    intToDnaSnvMap,
-    intToGeneAaSnvMap,
-    intToProteinAaSnvMap,
-    dnaSnvMap,
-    geneAaSnvMap,
-    proteinAaSnvMap,
-  });
-
   // If no SNVs are selected, then return empty arrays now
   // if (selectedGroupIds.size === 0) {
   //   return {
@@ -118,49 +35,47 @@ function processSelectedSnvs({
   // }
 
   const dataAggLocationSnvDateObj = {};
-  // Build a map of location_id --> node
-  // Also while we're at it, create an entry for this node
-  // in our data objects
-  const selectedLocationIds = getLocationIds(selectedLocationNodes);
-  const locationIdToNodeMap = {};
-  for (let i = 0; i < selectedLocationNodes.length; i++) {
-    selectedLocationIds[i].forEach((locationId) => {
-      locationIdToNodeMap[locationId] = selectedLocationNodes[i].value;
-    });
-  }
 
-  let _location;
-  filteredCaseData.forEach((row) => {
-    _location = locationIdToNodeMap[row.location_id];
-    !(_location in dataAggLocationSnvDateObj) &&
-      (dataAggLocationSnvDateObj[_location] = {});
-    !(row.collection_date in dataAggLocationSnvDateObj[_location]) &&
-      (dataAggLocationSnvDateObj[_location][row.collection_date] = {});
+  const matchGroupName = Array.from(selectedGroupIds)
+    .map((id) => intToSnvMap[id].snp_str)
+    .join(' + ');
+
+  const validGroupMap = {};
+  validGroups.forEach((group) => {
+    validGroupMap[group] = 1;
+  });
+
+  aggSequences.forEach((row) => {
+    !(row.location in dataAggLocationSnvDateObj) &&
+      (dataAggLocationSnvDateObj[row.location] = {});
+    !(row.collection_date in dataAggLocationSnvDateObj[row.location]) &&
+      (dataAggLocationSnvDateObj[row.location][row.collection_date] = {});
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
-    const matchingSnvIds = row[snvEntry].filter((snvId) =>
+    const matchingSnvIds = row['group_id'].filter((snvId) =>
       selectedGroupIds.has(snvId)
     );
     let group;
     // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
       selectedGroupIds.has(-1) &&
-      row[snvEntry].some((id) => validGroups[id] === undefined)
+      row['group_id'].some((id) => validGroupMap[id] === undefined)
     ) {
       group = GROUPS.OTHER_GROUP;
     } else if (
       matchingSnvIds.length != selectedGroupIds.size ||
-      selectedGroups.length === 0
+      selectedGroupIds.size === 0
     ) {
       group = GROUPS.ALL_OTHER_GROUP;
     } else {
-      group = matchingSnvIds.map((id) => intToSnvMap[id].snp_str).join(' + ');
+      group = matchGroupName;
     }
 
-    !(group in dataAggLocationSnvDateObj[_location][row.collection_date]) &&
-      (dataAggLocationSnvDateObj[_location][row.collection_date][group] = 0);
-    dataAggLocationSnvDateObj[_location][row.collection_date][group] += 1;
+    !(group in dataAggLocationSnvDateObj[row.location][row.collection_date]) &&
+      (dataAggLocationSnvDateObj[row.location][row.collection_date][group] = 0);
+    dataAggLocationSnvDateObj[row.location][row.collection_date][group] +=
+      row.counts;
   });
 
   let groupKeys = [];
@@ -174,11 +89,11 @@ function processSelectedSnvs({
           location: location,
           date: parseInt(date),
           group: group,
-          groupName: group
+          group_name: group
             .split(' + ')
             .map((group) => formatSnv(group, dnaOrAa))
             .join(' + '),
-          cases_sum: dataAggLocationSnvDateObj[location][date][group],
+          counts: dataAggLocationSnvDateObj[location][date][group],
           // For multiple SNVs, just use this nice blue color
           color:
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
@@ -193,10 +108,10 @@ function processSelectedSnvs({
   // Aggregate by SNV and date
   const dataAggSnvDate = aggregate({
     data: dataAggLocationSnvDate,
-    groupby: ['date', 'group', 'groupName'],
-    fields: ['cases_sum', 'color'],
+    groupby: ['date', 'group', 'group_name'],
+    fields: ['counts', 'color'],
     ops: ['sum', 'max'],
-    as: ['cases_sum', 'color'],
+    as: ['counts', 'color'],
   });
   // Convert dates back into ints
   dataAggSnvDate.forEach((row) => {
@@ -210,38 +125,14 @@ function processSelectedSnvs({
 }
 
 function processCooccurrenceData({
+  selectedGroupIds,
+  intToSnvMap,
   dnaOrAa,
-  coordinateMode,
-  selectedGroups,
-  filteredCaseData,
-  dateRange,
-
+  aggSequences,
   // SNV data
-  intToDnaSnvMap,
-  intToGeneAaSnvMap,
-  intToProteinAaSnvMap,
-  dnaSnvMap,
-  geneAaSnvMap,
-  proteinAaSnvMap,
   snvColorMap,
 }) {
-  const { selectedGroupIds, snvEntry, intToSnvMap } = getSnvFields({
-    dnaOrAa,
-    coordinateMode,
-    selectedGroups,
-
-    // SNV data
-    intToDnaSnvMap,
-    intToGeneAaSnvMap,
-    intToProteinAaSnvMap,
-    dnaSnvMap,
-    geneAaSnvMap,
-    proteinAaSnvMap,
-  });
   // Co-occurrence data
-
-  // Re-filter by date
-  filteredCaseData = filterByDate(filteredCaseData, dateRange);
 
   // Count SNVs for each single or combination of SNVs
   const snvCooccurrence = {};
@@ -255,17 +146,17 @@ function processCooccurrenceData({
     snvCooccurrence[combiKey] = {};
 
     // Loop thru all data, count SNVs
-    filteredCaseData.forEach((row) => {
-      if (!combi.every((snvId) => row[snvEntry].includes(snvId))) {
+    aggSequences.forEach((row) => {
+      if (!combi.every((snvId) => row['group_id'].includes(snvId))) {
         return;
       }
 
-      row[snvEntry].forEach((snvId) => {
+      row['group_id'].forEach((snvId) => {
         // Only check for SNVs that aren't in this combination
         if (!combi.includes(snvId)) {
           !(intToSnvMap[snvId].snp_str in snvCooccurrence[combiKey]) &&
             (snvCooccurrence[combiKey][intToSnvMap[snvId].snp_str] = 0);
-          snvCooccurrence[combiKey][intToSnvMap[snvId].snp_str] += 1;
+          snvCooccurrence[combiKey][intToSnvMap[snvId].snp_str] += row.counts;
         }
         // } else {
         //   !('None' in snvCooccurrence[combiKey]) &&

@@ -21,9 +21,6 @@ chunk_size: 100000
 #       ANALYSIS
 # --------------------
 
-# Hash/anonymize Accession IDs?
-hash_accession_ids: true
-
 # SNPs with less than this number of global occurrences will be ignored
 snp_count_threshold: 3
 # Percentage of sequences within a group (e.g., clade, lineage) that need
@@ -71,14 +68,22 @@ group_cols:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
 
+# ---------------
+#     SERVER
+# ---------------
+
+# Require a login for accessing the website
+# Users are provided to the app via. the "LOGINS" environment variable,
+# which is structured as "user1:pass1,user2:pass2,..."
+login_required: false
+
+dev_hostname: "http://localhost:5000"
+prod_hostname: "https://covidcg.org"
+# prod_hostname: "http://localhost:8080"
+
 # ----------------------
 #     VISUALIZATION
 # ----------------------
 
-data_package_url: "https://storage.googleapis.com/ve-public/v1.5/data_package.json.gz"
-# Force a reload of the data package every X milliseconds
-# 1000 ms/s * 60 s/min * 60 min/hr = 3600000
-data_package_refresh_freq: 3600000
-
 # Allow downloads of sequence metadata (before aggregation)
-allow_metadata_download: false
+allow_metadata_download: true

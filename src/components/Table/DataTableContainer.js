@@ -18,18 +18,17 @@ import {
   transmembraneAAColors,
 } from '../../constants/colors';
 import {
+  DNA_OR_AA,
   COLOR_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
-} from '../../constants/plotSettings';
+  ASYNC_STATES,
+  GROUPS,
+} from '../../constants/defs.json';
+import { config } from '../../config';
+
 import TableOptions from './TableOptions';
 import {
-  geneColumn,
-  proteinColumn,
-  positionColumn,
-  indexColumn,
-  refColumn,
-  altColumn,
   groupColumn,
   getDefaultColumns,
   getSinglePosColumn,
@@ -38,15 +37,6 @@ import {
 import SkeletonElement from '../Common/SkeletonElement';
 import DataTable from './DataTable';
 import RowRenderer from './RowRenderer';
-
-import {
-  appConfig,
-  GROUP_SNV,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-} from '../../constants/config';
-import { REFERENCE_GROUP } from '../../constants/groups';
-import { ASYNC_STATES } from '../../constants/UI';
 
 const DataTableContainer = styled.div`
   display: flex;
@@ -70,89 +60,51 @@ const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
 
 const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list
-  let refRow = _.findWhere(rows, { group: REFERENCE_GROUP });
-  rows = _.reject(rows, (row) => row.group == REFERENCE_GROUP);
+  let refRow = _.findWhere(rows, { group: GROUPS.REFERENCE_GROUP });
+  rows = _.reject(rows, (row) => row.group == GROUPS.REFERENCE_GROUP);
   rows = rows.sort(sortFn);
-  rows.unshift(refRow);
+  if (refRow !== undefined) {
+    rows.unshift(refRow);
+  }
   return rows;
 };
 
 const NewLineageDataTable = observer(() => {
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
-  const calculatePosOffsets = (groupKey, dnaOrAa) => {
-    let posTitleOffset = 0;
-    let posColOffset = 0;
-    if (Object.keys(appConfig.group_cols).includes(groupKey)) {
-      posTitleOffset = 220;
-      posColOffset = 4;
-    } else if (groupKey === GROUP_SNV) {
-      if (dnaOrAa === DNA_OR_AA.DNA) {
-        posTitleOffset = 335;
-        posColOffset = 6;
-      } else {
-        posTitleOffset = 380;
-        posColOffset = 7;
-      }
-    }
-    return [posColOffset, posTitleOffset];
-  };
-
   const buildColumns = () => {
     let _columns = [];
     // For lineage grouping, add lineage column
-    if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
-      _columns.push(groupColumn({ title: appConfig.group_cols[configStore.groupKey].title }));
-    }
-    // For SNP grouping, add each SNP chunk as its own column
-    else if (configStore.groupKey === GROUP_SNV) {
-      // Add the gene column, if we're in AA mode
-      if (configStore.dnaOrAa === DNA_OR_AA.AA) {
-        if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-          _columns.push(geneColumn());
-        } else if (
-          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-        ) {
-          _columns.push(proteinColumn());
-        }
-      }
-      // Add the position column
-      // We don't need as much space for this, for AA mode
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
-        _columns.push(positionColumn());
-      } else {
-        _columns.push(indexColumn());
-      }
-      _columns.push(refColumn());
-      _columns.push(altColumn());
-    }
+    _columns.push(
+      groupColumn({ title: config.group_cols[configStore.groupKey].title })
+    );
 
-    // Get the maximum and minimum cases_sum and cases_percent for the colormaps
+    // Get the maximum and minimum counts and percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
     let maxCasesSum = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_sum),
+      (memo, group) => nanmax(memo, group.counts),
       0
     );
     let minCasesSum = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_sum),
+      (memo, group) => nanmin(memo, group.counts),
       0
     );
     let maxCasesPercent = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmax(memo, group.cases_percent),
+      (memo, group) => nanmax(memo, group.percent),
       0
     );
     let minCasesPercent = _.reduce(
       dataStore.dataAggGroup,
-      (memo, group) => nanmin(memo, group.cases_percent),
+      (memo, group) => nanmin(memo, group.percent),
       0
     );
 
     // example row
-    // cases_percent: 0.6880290205562273
-    // cases_sum: 569
+    // percent: 0.6880290205562273
+    // counts: 569
     // group: "B.1"
     // pos_23402: "G"
     // pos_23730: "C"
@@ -169,9 +121,9 @@ const NewLineageDataTable = observer(() => {
 
     // Build a column for each changing position
     let refRow = _.findWhere(dataStore.dataAggGroup, {
-      group: REFERENCE_GROUP,
+      group: GROUPS.REFERENCE_GROUP,
     });
-    if (!refRow) {
+    if (refRow === undefined) {
       return null;
     }
 
@@ -234,12 +186,6 @@ const NewLineageDataTable = observer(() => {
       if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
         pos += 1;
       }
-      if (
-        configStore.groupKey === GROUP_SNV &&
-        configStore.dnaOrAa === DNA_OR_AA.AA
-      ) {
-        pos += 1;
-      }
 
       _columns.push(
         getSinglePosColumn({
@@ -260,31 +206,19 @@ const NewLineageDataTable = observer(() => {
     return _columns;
   };
 
-  const [initialPosColOffset, initialPosTitleOffset] = calculatePosOffsets(
-    configStore.groupKey,
-    configStore.dnaOrAa
-  );
   const [state, setState] = useState({
     columns: buildColumns() || [],
     rows: dataStore.dataAggGroup,
-    posColOffset: initialPosColOffset,
-    posTitleOffset: initialPosTitleOffset,
   });
 
   useEffect(() => {
-    if (UIStore.aggCaseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
-    const [posColOffset, posTitleOffset] = calculatePosOffsets(
-      configStore.groupKey,
-      configStore.dnaOrAa
-    );
     setState({
       ...state,
       columns: buildColumns() || [],
-      posTitleOffset: posTitleOffset,
-      posColOffset: posColOffset,
       rows: sortRows(
         dataStore.dataAggGroup,
         comparer({
@@ -294,7 +228,7 @@ const NewLineageDataTable = observer(() => {
       ),
     });
   }, [
-    UIStore.aggCaseDataState,
+    UIStore.caseDataState,
     plotSettingsStore.tableColorMode,
     plotSettingsStore.tableCompareMode,
     plotSettingsStore.tableCompareColor,
@@ -351,7 +285,8 @@ const NewLineageDataTable = observer(() => {
     // If we selected the reference group, and we're in lineage/clade mode,
     // then ignore
     if (
-      selectedGroup === REFERENCE_GROUP && Object.keys(appConfig.group_cols).includes(configStore.groupKey)
+      selectedGroup === GROUPS.REFERENCE_GROUP &&
+      Object.keys(config.group_cols).includes(configStore.groupKey)
     ) {
       return;
     }
@@ -402,10 +337,7 @@ const NewLineageDataTable = observer(() => {
     });
   }, [plotSettingsStore.tableSortColumn, plotSettingsStore.tableSortDirection]);
 
-  if (
-    UIStore.caseDataState === ASYNC_STATES.STARTED ||
-    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-  ) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
@@ -439,17 +371,14 @@ const NewLineageDataTable = observer(() => {
   return (
     <DataTableContainer>
       <TableOptions />
-      <span
-        className="position-title"
-        style={{ marginLeft: state.posTitleOffset }}
-      >
+      <span className="position-title" style={{ marginLeft: 220 }}>
         {configStore.dnaOrAa === DNA_OR_AA.DNA
           ? 'Genomic Coordinate'
           : 'Residue Index'}
       </span>
       <div style={{ paddingLeft: '10px' }} onMouseMove={onTableHover}>
         <DataTable
-          posColOffset={state.posColOffset}
+          posColOffset={4}
           columns={state.columns}
           rows={state.rows}
           rowGetter={(i) => state.rows[i]}

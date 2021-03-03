@@ -1,7 +1,7 @@
 [
-  { "gene": "5'UTR", "segments": "1..265", "protein_coding": 0, "domains": [] },
+  { "name": "5'UTR", "segments": "1..265", "protein_coding": 0, "domains": [] },
   {
-    "gene": "ORF1a",
+    "name": "ORF1a",
     "segments": "266..13468",
     "protein_coding": 1,
     "domains": [
@@ -58,7 +58,7 @@
     ]
   },
   {
-    "gene": "ORF1ab",
+    "name": "ORF1ab",
     "segments": "266..13468;13468..21555",
     "protein_coding": 1,
     "domains": [
@@ -140,7 +140,7 @@
     ]
   },
   {
-    "gene": "S",
+    "name": "S",
     "segments": "21563..25384",
     "protein_coding": 1,
     "domains": [
@@ -197,13 +197,13 @@
     ]
   },
   {
-    "gene": "ORF3a",
+    "name": "ORF3a",
     "segments": "25393..26220",
     "protein_coding": 1,
     "domains": []
   },
   {
-    "gene": "E",
+    "name": "E",
     "segments": "26245..26472",
     "protein_coding": 1,
     "domains": [
@@ -230,7 +230,7 @@
     ]
   },
   {
-    "gene": "M",
+    "name": "M",
     "segments": "26523..27191",
     "protein_coding": 1,
     "domains": [
@@ -297,13 +297,13 @@
     ]
   },
   {
-    "gene": "ORF6",
+    "name": "ORF6",
     "segments": "27202..27387",
     "protein_coding": 1,
     "domains": []
   },
   {
-    "gene": "ORF7a",
+    "name": "ORF7a",
     "segments": "27394..27759",
     "protein_coding": 1,
     "domains": [
@@ -320,7 +320,7 @@
     ]
   },
   {
-    "gene": "ORF7b",
+    "name": "ORF7b",
     "segments": "27756..27887",
     "protein_coding": 1,
     "domains": [
@@ -332,7 +332,7 @@
     ]
   },
   {
-    "gene": "ORF8",
+    "name": "ORF8",
     "segments": "27894..28259",
     "protein_coding": 1,
     "domains": [
@@ -349,7 +349,7 @@
     ]
   },
   {
-    "gene": "N",
+    "name": "N",
     "segments": "28274..29533",
     "protein_coding": 1,
     "domains": [
@@ -366,13 +366,13 @@
     ]
   },
   {
-    "gene": "ORF10",
+    "name": "ORF10",
     "segments": "29558..29674",
     "protein_coding": 1,
     "domains": []
   },
   {
-    "gene": "3'UTR",
+    "name": "3'UTR",
     "segments": "29675..29903",
     "protein_coding": 0,
     "domains": []

@@ -36,7 +36,7 @@ const DropdownMenu = styled.div`
 
   position: absolute;
   top: 28px;
-  right: 0;
+  ${({ direction }) => (direction === 'left' ? 'left: 0' : 'right: 0')};
   z-index: 10;
 
   min-width: 10rem;
@@ -49,9 +49,9 @@ const DropdownMenu = styled.div`
   overflow: hidden;
 `;
 
-// DropdownMenu.defaultProps = {
-//   direction: 'left',
-// };
+DropdownMenu.defaultProps = {
+  direction: 'right',
+};
 
 const DropdownItem = styled.a`
   display: block;
@@ -81,6 +81,7 @@ const DropdownButton = ({
   options,
   values,
   onSelect,
+  direction,
   ...other
 }) => {
   const [state, setState] = useState({
@@ -151,6 +152,7 @@ const DropdownButton = ({
         <span className="caret"></span>
       </ButtonElement>
       <DropdownMenu
+        direction={direction}
         aria-labelledby={state.id}
         style={{
           display: state.expanded ? 'flex' : 'none',
@@ -168,12 +170,14 @@ DropdownButton.propTypes = {
   options: PropTypes.arrayOf(PropTypes.string).isRequired,
   values: PropTypes.arrayOf(PropTypes.string),
   onSelect: PropTypes.func,
+  direction: PropTypes.string,
 };
 
 DropdownButton.defaultProps = {
   button: Button,
   values: null,
   onSelect: () => {},
+  direction: 'right',
 };
 
 export default DropdownButton;

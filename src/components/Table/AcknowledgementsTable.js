@@ -5,7 +5,7 @@ import { useStores } from '../../stores/connect';
 // import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
 import _ from 'underscore';
 
-import { ASYNC_STATES } from '../../constants/UI';
+import { ASYNC_STATES } from '../../constants/defs.json';
 
 import DataGrid from 'react-data-grid';
 import AckCell from '../Cells/AckCell';
@@ -45,11 +45,12 @@ const sortRows = (rows, sortFn) => {
 };
 
 const AcknowledgementsTable = observer(() => {
-  const { dataStore, UIStore } = useStores();
+  const { UIStore } = useStores();
 
   const processRows = (sortColumn, sortDirection) => {
     // Get unique acknowledgement IDs
-    let ackIds = Array.from(new Set(dataStore.selectedAckIds));
+    // let ackIds = Array.from(new Set(dataStore.selectedAckIds));
+    let ackIds = [];
     // Remove null IDs
     ackIds = _.reject(ackIds, (ackId) => ackId == -1);
 

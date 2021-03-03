@@ -31,10 +31,10 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
         gene_or_protein_df = (
             gene_or_protein_df.loc[gene_or_protein_df["protein_coding"] == 1, :]
             # set the gene as the index
-            .set_index("gene")
+            .set_index("name")
         )
     else:
-        gene_or_protein_df = gene_or_protein_df.set_index("protein")
+        gene_or_protein_df = gene_or_protein_df.set_index("name")
 
     dna_snp_df = pd.read_csv(dna_snp_file).fillna("")
     # Filter out any big SNPs in the 5' or 3' UTR
@@ -79,62 +79,104 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
             )
 
             # Get all NT SNPs in this segment
-            segment_snp_df = dna_snp_df.loc[
-                (dna_snp_df["pos"] >= segment_start)
-                & (dna_snp_df["pos"] <= segment_end),
-                :,
-            ].copy()
+            segment_snp_df = (
+                dna_snp_df.loc[
+                    (dna_snp_df["pos"] >= segment_start)
+                    & (dna_snp_df["pos"] <= segment_end),
+                    :,
+                ]
+                .copy()
+                .sort_values(["Accession ID", "pos"])
+            )
+
+            segment_snp_df["codon_ind_start"] = (
+                segment_snp_df["pos"] - segment_start
+            ) // 3
+            segment_snp_df["codon_ind_end"] = (
+                segment_snp_df["pos"]
+                + segment_snp_df["ref"].apply(
+                    lambda x: 0 if len(x) == 0 else len(x) - 1
+                )
+                - segment_start
+            ) // 3
 
             # For each NT SNP in this segment:
-            for i, snp in segment_snp_df.iterrows():
+            i = 0
+            while i < len(segment_snp_df):
+                cur_snp = segment_snp_df.iloc[i, :]
 
-                # Get the affected region, in codon-indexes
-                # (Relative to the segment start)
-                codon_ind_start = (snp["pos"] - segment_start) // 3
-                codon_ind_end = (
-                    snp["pos"]
-                    + (0 if len(snp["ref"]) == 0 else len(snp["ref"]) - 1)
-                    - segment_start
-                ) // 3
-                # print(codon_ind_start, codon_ind_end)
+                # Look ahead in the SNV list (ordered by position)
+                # for any other SNVs within this codon
+                j = i + 1
+                snps = [cur_snp]
+                codon_ind_start = cur_snp["codon_ind_start"]
+                codon_ind_end = cur_snp["codon_ind_end"]
+
+                if j < len(segment_snp_df):
+                    new_snp = segment_snp_df.iloc[j]
+                    while (
+                        new_snp["codon_ind_start"] <= codon_ind_end
+                        and new_snp["Accession ID"] == cur_snp["Accession ID"]
+                    ):
+                        snps.append(new_snp)
+                        # Update end position
+                        codon_ind_end = new_snp["codon_ind_end"]
+                        j += 1
+                        if j < len(segment_snp_df):
+                            new_snp = segment_snp_df.iloc[j]
+                        else:
+                            break
+
+                # Increment our counter so we don't reprocess any grouped SNVs
+                i = j
 
                 # Get region start/end, 0-indexed
                 region_start = segment_start + (codon_ind_start * 3) - 1
                 region_end = segment_start + (codon_ind_end * 3) + 2
+
                 # Position of the SNP inside the region (0-indexed)
-                pos_inside_region = snp["pos"] - region_start - 1
+                pos_inside_region = []
+                for snp in snps:
+                    pos_inside_region.append(snp["pos"] - region_start - 1)
 
                 # Get the reference sequence of the region
                 region_seq = list(ref_seq[region_start:region_end])
+                initial_region_seq = [s for s in region_seq]
                 # Translate the reference region sequence
                 ref_aa = list(translate("".join(region_seq)))
                 # print(region_seq, ref_aa)
 
-                # Make sure the reference matches
-                # print(region_seq[pos_inside_region:(pos_inside_region + len(snp['ref']))])
-                if len(snp["ref"]) > 0:
-                    ref_snp_seq = "".join(
-                        region_seq[
-                            pos_inside_region : (pos_inside_region + len(snp["ref"]))
-                        ]
-                    )
-                    if not ref_snp_seq == snp["ref"]:
-                        raise Exception(
-                            "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
-                                ref_snp_seq, snp["ref"],
-                            )
-                        )
+                # print([snp['pos'] for snp in snps])
+                # print(region_seq, ref_aa)
 
-                # Remove the reference base(s)
-                if len(snp["ref"]) > 0:
-                    region_seq = (
-                        region_seq[:pos_inside_region]
-                        + region_seq[(pos_inside_region + len(snp["ref"])) :]
-                    )
-                # Add the alt base(s)
-                if len(snp["alt"]) > 0:
-                    for base in list(snp["alt"])[::-1]:
-                        region_seq.insert(pos_inside_region, base)
+                for k, snp in enumerate(snps):
+
+                    # Make sure the reference matches
+                    if len(snp["ref"]) > 0:
+                        ref_snp_seq = "".join(
+                            initial_region_seq[
+                                pos_inside_region[k] : (
+                                    pos_inside_region[k] + len(snp["ref"])
+                                )
+                            ]
+                        )
+                        if not ref_snp_seq == snp["ref"]:
+                            raise Exception(
+                                "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
+                                    ref_snp_seq, snp["ref"],
+                                )
+                            )
+
+                    # Remove the reference base(s)
+                    if len(snp["ref"]) > 0:
+                        region_seq = (
+                            region_seq[: pos_inside_region[k]]
+                            + region_seq[(pos_inside_region[k] + len(snp["ref"])) :]
+                        )
+                    # Add the alt base(s)
+                    if len(snp["alt"]) > 0:
+                        for base in list(snp["alt"])[::-1]:
+                            region_seq.insert(pos_inside_region[k], base)
 
                 # Translate the new region
                 alt_aa = list(translate("".join(region_seq)))
@@ -183,7 +225,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
 
                 aa_snps.append(
                     (
-                        snp["Accession ID"],
+                        cur_snp["Accession ID"],
                         ref_name,
                         pos,
                         "".join(ref_aa),

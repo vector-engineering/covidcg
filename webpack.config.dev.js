@@ -4,13 +4,15 @@ import path from 'path';
 import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
 import { configfile } from './tools/loadConfigFile';
 
+const GLOBALS = {
+  'process.env.NODE_ENV': JSON.stringify('development'),
+  __DEV__: true,
+  CG_CONFIG: JSON.stringify(configfile),
+};
+
 export default {
   resolve: {
     extensions: ['*', '.js', '.jsx', '.json'],
-    // To support react-hot-loader
-    alias: {
-      'react-dom': '@hot-loader/react-dom',
-    },
   },
   // more info:https://webpack.js.org/guides/development/#using-source-maps
   // and https://webpack.js.org/configuration/devtool/
@@ -18,7 +20,6 @@ export default {
   entry: [
     // must be first entry to properly set public path
     './src/webpack-public-path',
-    'react-hot-loader/patch',
     'webpack-hot-middleware/client?reload=true',
     // Defining path seems necessary for this to work consistently on Windows machines.
     path.resolve(__dirname, 'src/index.js'),
@@ -32,9 +33,7 @@ export default {
     filename: 'bundle.js',
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'CG_CONFIG': JSON.stringify(configfile)
-    }),
+    new webpack.DefinePlugin(GLOBALS),
     new HardSourceWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
@@ -46,7 +45,7 @@ export default {
         collapseWhitespace: true,
       },
       inject: true,
-    })
+    }),
   ],
   module: {
     rules: [
@@ -141,7 +140,7 @@ export default {
       {
         test: /\.ya?ml$/,
         use: 'js-yaml-loader',
-      }
+      },
     ],
   },
 };

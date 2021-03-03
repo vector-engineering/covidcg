@@ -40,17 +40,24 @@ rule all:
         os.path.join(config["static_data_folder"], "reference.json"), 
         os.path.join(config["static_data_folder"], "primers.json"),
         # Packaged data
-        data_package = os.path.join(config["data_folder"], "data_package.json.gz"),
+        os.path.join(config["data_folder"], "data_package.json.gz"),
         # Standalone map spec
-        standalone_map_spec = os.path.join(config["data_folder"], "map_combined_standalone.vg.json")
+        os.path.join(config["data_folder"], "map_combined_standalone.vg.json"),
+        # Global sequencing data
+        os.path.join(config["data_folder"], "new_global_data", "case_count.json"),
+        os.path.join(config["data_folder"], "new_global_data", "sequences_per_month.json"),
+        os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
+        os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json"),
+        # Surveillance data
+        os.path.join(config['data_folder'], 'surveillance', 'group_counts.json'),
+        os.path.join(config['data_folder'], 'surveillance', 'group_regression.json')
 
 
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
-    2. Remove animal/environmental isolates (bat, pangolin, mink, tiger, cat, canine, env)
-    3. Can't be less than 29700NT
-	4. Can't have more than 5% ambiguous NT
+    2. Can't be less than 29700NT
+	3. Can't have more than 5% ambiguous NT
     """
     input:
         fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz"),
@@ -123,6 +130,23 @@ rule extract_dna_snps:
         dna_snp_df.to_csv(output.dna_snp, index=False)
 
 
+rule process_genes_and_proteins:
+    """Calculate some additional columns on top of the human-generated
+    genes.json and proteins.json annotations file
+    """
+    input:
+        genes = gene_defs_path,
+        proteins = protein_defs_path
+    output:
+        genes = os.path.join(config["static_data_folder"], "genes_processed.json"),
+        proteins = os.path.join(config["static_data_folder"], "proteins_processed.json")
+    shell:
+        """
+        python3 scripts/gene_protein_defs.py -i {input.genes} -o {output.genes}
+        python3 scripts/gene_protein_defs.py -i {input.proteins} -o {output.proteins}
+        """
+
+
 rule extract_aa_snps:
     """Using the NT SNVs, translate genes/proteins and find SNVs 
     on the AA level, for genes
@@ -130,8 +154,8 @@ rule extract_aa_snps:
     input:
         dna_snp = rules.extract_dna_snps.output.dna_snp,
         reference = reference_sequence_path,
-        genes_file = gene_defs_path,
-        proteins_file = protein_defs_path
+        genes_file = rules.process_genes_and_proteins.output.genes,
+        proteins_file = rules.process_genes_and_proteins.output.proteins
     output:
         gene_aa_snp = os.path.join(
             config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
@@ -174,7 +198,6 @@ rule combine_all_data:
             chunk=CHUNKS
         )
     output:
-        accession_hashmap = os.path.join(config["data_folder"], "accession_hashmap.csv"),
         metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
         # Only used to build the location tree
         location_map = os.path.join(config["data_folder"], "location_map.json"),
@@ -183,7 +206,6 @@ rule combine_all_data:
     run:
         combine_all_data(
             **input, **output, 
-            hash_accession_ids=config['hash_accession_ids'],
             count_threshold=config["snp_count_threshold"],
             group_cols=list(config["group_cols"].keys()),
             metadata_cols=list(config["metadata_cols"].keys())
@@ -306,3 +328,33 @@ rule create_standalone_map_spec:
     run:
         standalone_map_spec(input.spec, input.data, output.standalone_spec)
 
+
+rule global_seq_data:
+    input:
+        case_data = rules.combine_all_data.output.case_data_csv,
+        location_map = rules.combine_all_data.output.location_map
+    params:
+        out_folder = os.path.join(config['data_folder'], 'new_global_data')
+    output:
+        case_count = os.path.join(config["data_folder"], "new_global_data", "case_count.json"),
+        sequences_per_month = os.path.join(config["data_folder"], "new_global_data", "sequences_per_month.json"),
+        turnaround_per_month = os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
+        iso_lookup = os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json")
+    shell:
+        """
+        python3 scripts/global_seq_data.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
+        """
+
+rule surveillance_data:
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        location_map = rules.combine_all_data.output.location_map
+    params:
+        out_folder = os.path.join(config['data_folder'], 'surveillance')
+    output:
+        group_counts = os.path.join(config['data_folder'], 'surveillance', 'group_counts.json'),
+        group_regression = os.path.join(config['data_folder'], 'surveillance', 'group_regression.json')
+    shell:
+        """
+        python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
+        """

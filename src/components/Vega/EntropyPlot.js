@@ -14,10 +14,13 @@ import DropdownButton from '../Buttons/DropdownButton';
 import { PlotOptions } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
-import { ASYNC_STATES } from '../../constants/UI';
-import { COORDINATE_MODES, DNA_OR_AA } from '../../constants/config';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
+import {
+  ASYNC_STATES,
+  COORDINATE_MODES,
+  DNA_OR_AA,
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+} from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
 const PlotContainer = styled.div``;
@@ -145,7 +148,7 @@ const EntropyPlot = observer(({ width }) => {
     showWarning: true,
     xRange: getXRange(),
     data: {
-      table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
+      table: processData(toJS(dataStore.groupCounts)),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
@@ -157,7 +160,7 @@ const EntropyPlot = observer(({ width }) => {
   });
 
   useEffect(() => {
-    if (UIStore.aggCaseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
 
@@ -166,10 +169,10 @@ const EntropyPlot = observer(({ width }) => {
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(toJS(dataStore.countsPerGroupDateFiltered)),
+        table: processData(toJS(dataStore.groupCounts)),
       },
     });
-  }, [UIStore.aggCaseDataState, plotSettingsStore.entropyMinCount]);
+  }, [UIStore.caseDataState, plotSettingsStore.entropyMinCount]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -191,16 +194,13 @@ const EntropyPlot = observer(({ width }) => {
   }
   xLabel += ' (WIV04';
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-    xLabel += ', ' + configStore.selectedGene.gene + ' Gene';
+    xLabel += ', ' + configStore.selectedGene.name + ' Gene';
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-    xLabel += ', ' + configStore.selectedProtein.protein + ' Protein';
+    xLabel += ', ' + configStore.selectedProtein.name + ' Protein';
   }
   xLabel += ')';
 
-  if (
-    UIStore.caseDataState === ASYNC_STATES.STARTED ||
-    UIStore.aggCaseDataState === ASYNC_STATES.STARTED
-  ) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
@@ -217,7 +217,7 @@ const EntropyPlot = observer(({ width }) => {
 
   // If we have no rows, then return an empty element
   // We'll always have the "reference" row, so no rows = 1 row
-  if (dataStore.selectedAccessionIds.length === 0) {
+  if (dataStore.numSequencesAfterAllFiltering === 0) {
     return (
       <EmptyPlot height={150}>
         <p>No sequences selected</p>
@@ -227,11 +227,18 @@ const EntropyPlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Systematic errors are sometimes observed specific to particular labs or methods (<ExternalLink href='https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14'>https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14</ExternalLink>, <ExternalLink href='https://doi.org/10.1371/journal.pgen.1009175'>https://doi.org/10.1371/journal.pgen.1009175</ExternalLink>), users are advised to consider these errors in their high resolution analyses.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Systematic errors are sometimes observed specific to particular labs or
+        methods (
+        <ExternalLink href="https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14">
+          https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14
+        </ExternalLink>
+        ,{' '}
+        <ExternalLink href="https://doi.org/10.1371/journal.pgen.1009175">
+          https://doi.org/10.1371/journal.pgen.1009175
+        </ExternalLink>
+        ), users are advised to consider these errors in their high resolution
+        analyses.
       </WarningBox>
       <PlotOptions>
         <div className="spacer"></div>
@@ -253,7 +260,7 @@ const EntropyPlot = observer(({ width }) => {
         data={state.data}
         width={width}
         signals={{
-          totalSequences: dataStore.selectedAccessionIds.length,
+          totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
           hoverGroup: { group: configStore.hoverGroup },

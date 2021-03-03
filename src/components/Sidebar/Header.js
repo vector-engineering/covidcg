@@ -44,8 +44,8 @@ const GISAIDContainer = styled.div`
   align-items: center;
   justify-content: center;
 
-  font-weight: bold;
-  font-size: 1.1em;
+  font-size: 0.8rem;
+  line-height: normal;
 
   margin: 5px 12px;
 
@@ -56,7 +56,7 @@ const GISAIDContainer = styled.div`
 
     margin-left: 5px;
     img {
-      height: 36px;
+      height: 30px;
     }
   }
 `;

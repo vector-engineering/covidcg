@@ -5,25 +5,21 @@ import { useStores } from '../../stores/connect';
 import _ from 'underscore';
 import useDimensions from 'react-use-dimensions';
 
-import { ASYNC_STATES, TABS } from '../../constants/UI';
-
 import { getGene } from '../../utils/gene_protein';
 import { getLocationByNameAndLevel } from '../../utils/location';
 import { queryPrimers } from '../../utils/primer';
-import { ISOToInt } from '../../utils/date';
 
 import {
-  appConfig,
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-} from '../../constants/config';
-
-import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../constants/plotSettings';
+  ASYNC_STATES,
+  TABS,
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import ExternalLink from '../Common/ExternalLink';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -181,7 +177,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: appConfig.group_cols.lineage.name,
+          groupKey: config.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.DNA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -204,7 +200,7 @@ const ExampleTab = observer(() => {
     //       activeTab: TABS.TAB_GROUP,
     //     },
     //     config: {
-    //       groupKey: appConfig.group_cols.lineage.name,
+    //       groupKey: config.group_cols.lineage.name,
     //       dnaOrAa: DNA_OR_AA.AA,
     //       selectedGene: getGene('S'),
     //       coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -227,7 +223,7 @@ const ExampleTab = observer(() => {
           activeTab: TABS.TAB_GROUP,
         },
         config: {
-          groupKey: appConfig.group_cols.lineage.name,
+          groupKey: config.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -261,7 +257,8 @@ const ExampleTab = observer(() => {
             getLocationByNameAndLevel(selectTree, 'Oregon', 'division')[0],
             getLocationByNameAndLevel(selectTree, 'California', 'division')[0],
           ],
-          dateRange: [ISOToInt('2020-03-01'), ISOToInt('2020-06-01')],
+          startDate: '2020-03-01',
+          endDate: '2020-06-01',
           selectedGroups: [{ group: 'S|614|D|G' }],
         },
       },

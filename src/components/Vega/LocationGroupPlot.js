@@ -11,9 +11,13 @@ import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
 import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
 
-import { appConfig, GROUP_SNV, DNA_OR_AA } from '../../constants/config';
-import { GROUPS } from '../../constants/groups';
-import { ASYNC_STATES } from '../../constants/UI';
+import { config } from '../../config';
+import {
+  GROUP_SNV,
+  DNA_OR_AA,
+  GROUPS,
+  ASYNC_STATES,
+} from '../../constants/defs.json';
 import initialSpec from '../../vega_specs/location_group.vg.json';
 
 const PlotContainer = styled.div``;
@@ -85,23 +89,23 @@ const LocationGroupPlot = observer(({ width }) => {
     }
 
     // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-      locationData = locationData.filter((row) => {
-        return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
-        );
-      });
-    }
+    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (configStore.dateRange[0] == -1 ||
+    //         row.date > configStore.dateRange[0]) &&
+    //       (configStore.dateRange[1] == -1 ||
+    //         row.date < configStore.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group', 'groupName'],
-      fields: ['cases_sum', 'color', 'location_counts'],
+      groupby: ['location', 'date', 'group', 'group_name'],
+      fields: ['counts', 'color', 'location_counts'],
       ops: ['sum', 'first', 'max'],
-      as: ['cases_sum', 'color', 'location_counts'],
+      as: ['counts', 'color', 'location_counts'],
     });
 
     return locationData;
@@ -158,7 +162,6 @@ const LocationGroupPlot = observer(({ width }) => {
   }, [
     UIStore.caseDataState,
     configStore.selectedGroups,
-    configStore.dateRange,
     plotSettingsStore.locationGroupHideReference,
   ]);
 
@@ -190,8 +193,8 @@ const LocationGroupPlot = observer(({ width }) => {
   }
 
   let xLabel, xLabelFormat, stackOffset;
-  if (Object.keys(appConfig.group_cols).includes(configStore.groupKey)) {
-    xLabel += `${appConfig.group_cols[configStore.groupKey].title} `;
+  if (Object.keys(config.group_cols).includes(configStore.groupKey)) {
+    xLabel += `${config.group_cols[configStore.groupKey].title} `;
   } else if (configStore.groupKey === GROUP_SNV) {
     if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       xLabel += 'NT';

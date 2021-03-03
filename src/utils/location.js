@@ -23,6 +23,18 @@ export function getLocationIds(selectedNodes) {
   return locationIds;
 }
 
+// Create map of node to location IDs
+// i.e., "USA": [1, 3, 4, 5, 6]
+export function getLocationIdsByNode(selectedNodes) {
+  const locationNodeToIdMap = {};
+  selectedNodes.forEach((node) => {
+    locationNodeToIdMap[node.value] = Array.from(
+      new Set(getLocationIdsFromNode(node))
+    );
+  });
+  return locationNodeToIdMap;
+}
+
 export function getLocationByNameAndLevel(
   selectTree,
   name,

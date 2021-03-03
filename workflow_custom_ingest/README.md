@@ -13,8 +13,8 @@ To make use of this data please do the following:
 1. Copy test data to the `data_custom/` directory in the covidcg root:
 
    ```bash
-   cd workflow_custom_ingest
-   cp -r test-data/data_custom ../
+   > cd workflow_custom_ingest
+   > cp -r test-data/data_custom ../
    ```
 
 2. Review the configuration settings in [config/config_custom.yaml](../config/config_custom.yaml). In particular, for this test you may want to change `snp_count_threshold` to `0` (so that covidcg does not remove any low-frequency SNVs since the test dataset is very small).
@@ -22,32 +22,22 @@ To make use of this data please do the following:
 3. Run the workflow in `workflow_custom_ingest` to assign lineages with pangolin and clean up the metadata.
 
    ```bash
-   snakemake --cores 1 --use-conda
+   > snakemake --cores 1 --use-conda
    ```
 
 4. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
 
    ```bash
-   cd ../workflow_main
-   snakemake --cores 1 --use-conda
-   ```
-5. Copy the produced `data_custom/data_package.json.gz` file to a web-accessible location. An easy location is in the `src/assets` folder of covidcg:
-
-   ```bash
-   cd .. # cd to covidcg root
-   cp data_custom/data_package.json.gz src/assets/
+   > cd ../workflow_main
+   > CONFIGFILE=config/config_custom.yaml snakemake --cores 1 --use-conda
    ```
 
-   If you copy the data package to a different location you will need to modify the `data_package_url` setting in the [config/config_custom.yaml](../config/config_custom.yaml) file.
-
-6. Start up covidcg (see [Main covidcg instructions](../README.md#javascript)).
+5. Modify `docker-compose.yaml` to mount the produced data folder (as defined in `config_custom.yaml`) to the server container. You'll then be able to start COVID-19 CG and seed your database (see [Main covidcg instructions](../README.md#installation)):
 
    ```bash
-   # The CONFIGFILE environment variable needs to be set first 
-   # So that covidcg knows which type of data to load
-   export CONFIGFILE=config/config_custom.yaml
-
-   npm start
+   > docker-compose build
+   > docker-compose up -d
+   > curl http://localhost:5000/seed
    ```
 
 ### Your own data

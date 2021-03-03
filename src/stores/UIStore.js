@@ -1,5 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-import { ASYNC_STATES, TABS } from '../constants/UI';
+import { ASYNC_STATES, TABS } from '../constants/defs.json';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -18,7 +18,6 @@ export const initialUIValues = {
   sidebarSelectedGroupKeys: [],
 
   caseDataState: ASYNC_STATES.STARTED,
-  aggCaseDataState: ASYNC_STATES.STARTED,
   snvDataState: ASYNC_STATES.STARTED,
   cooccurrenceDataState: ASYNC_STATES.STARTED,
 
@@ -32,7 +31,6 @@ export class UIStore {
     initialUIValues.sidebarSelectedGroupKeys;
 
   @observable caseDataState = initialUIValues.caseDataState;
-  @observable aggCaseDataState = initialUIValues.aggCaseDataState;
   @observable snvDataState = initialUIValues.snvDataState;
   @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
 
@@ -63,19 +61,6 @@ export class UIStore {
   @action
   onCaseDataStateErr = () => {
     this.caseDataState = ASYNC_STATES.FAILED;
-  };
-
-  @action
-  onAggCaseDataStarted = () => {
-    this.aggCaseDataState = ASYNC_STATES.STARTED;
-  };
-  @action
-  onAggCaseDataFinished = () => {
-    this.aggCaseDataState = ASYNC_STATES.SUCCEEDED;
-  };
-  @action
-  onAggCaseDataErr = () => {
-    this.aggCaseDataState = ASYNC_STATES.FAILED;
   };
 
   @action

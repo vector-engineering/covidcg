@@ -4,7 +4,7 @@ import { Transition } from 'react-transition-group';
 import { useStores } from '../stores/connect';
 import { asyncDataStoreInstance } from './App';
 
-import { ASYNC_STATES } from '../constants/UI';
+import { ASYNC_STATES } from '../constants/defs.json';
 
 import LoadingSpinner from './Common/LoadingSpinner';
 import {
