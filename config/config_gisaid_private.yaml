@@ -68,6 +68,19 @@ group_cols:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
 
+# ---------------
+#     SERVER
+# ---------------
+
+# Require a login for accessing the website
+# Users are provided to the app via. the "LOGINS" environment variable,
+# which is structured as "user1:pass1,user2:pass2,..."
+login_required: True
+
+dev_hostname: "http://localhost:5000"
+prod_hostname: "https://az.covidcg.org"
+# prod_hostname: "http://localhost:8080"
+
 # ----------------------
 #     VISUALIZATION
 # ----------------------

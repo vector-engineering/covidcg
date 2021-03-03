@@ -8,6 +8,7 @@ services:
       args:
         CONFIGFILE: ./config/config_genbank.yaml # TODO: allow this to be configured via. an environmental variable prior to running the docker-compose command?
     environment:
+      - LOGINS=user1:pass1,user2:pass2
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
       - DATA_PATH=/data
