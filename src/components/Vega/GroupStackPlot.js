@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/UI';
 import {
+  ASYNC_STATES,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../constants/plotSettings';
-import { GROUP_SNV } from '../../constants/config';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
+  GROUP_SNV,
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+} from '../../constants/defs.json';
 import _ from 'underscore';
 
 import EmptyPlot from '../Common/EmptyPlot';
@@ -27,24 +27,25 @@ const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
   const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
-  const handleBrush = (...args) => {
-    let dateRange = args[1];
+  // disable this for now
+  // const handleBrush = (...args) => {
+  //   let dateRange = args[1];
 
-    if (dateRange === null) {
-      // Reset time range
-      configStore.selectDateRange([-1, -1]);
-    } else if (
-      dateRange[0] === configStore.dateRange[0] &&
-      dateRange[1] === configStore.dateRange[1]
-    ) {
-      // No change, return
-    } else if (dateRange !== null) {
-      configStore.selectDateRange([
-        dateRange[0].getTime(),
-        dateRange[1].getTime(),
-      ]);
-    }
-  };
+  //   if (dateRange === null) {
+  //     // Reset time range
+  //     configStore.updateDateRange([-1, -1]);
+  //   } else if (
+  //     dateRange[0] === configStore.dateRange[0] &&
+  //     dateRange[1] === configStore.dateRange[1]
+  //   ) {
+  //     // No change, return
+  //   } else if (dateRange !== null) {
+  //     configStore.updateDateRange([
+  //       dateRange[0].getTime(),
+  //       dateRange[1].getTime(),
+  //     ]);
+  //   }
+  // };
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
@@ -108,7 +109,7 @@ const GroupStackPlot = observer(({ width }) => {
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
     },
     signalListeners: {
-      detailDomain: _.debounce(handleBrush, 500),
+      // detailDomain: _.debounce(handleBrush, 500),
       hoverBar: _.throttle(handleHoverGroup, 100),
     },
     dataListeners: {
@@ -266,7 +267,7 @@ const GroupStackPlot = observer(({ width }) => {
   }
   // If running in cumulative mode, add the vega transformation
   // By default the cumulative transformation is dumped into a column
-  // "cases_sum_cumulative", so if active, just overwrite the "cases_sum"
+  // "counts_cumulative", so if active, just overwrite the "counts"
   // column with this cumulative count
   const cumulativeWindow =
     plotSettingsStore.groupStackCountMode === COUNT_MODES.COUNT_CUMULATIVE
@@ -293,13 +294,10 @@ const GroupStackPlot = observer(({ width }) => {
 
   return (
     <div>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Inconsistent sampling in the underlying data can result in missing
-        data and artefacts in this visualization. Please interpret this data
-        with care.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Inconsistent sampling in the underlying data can result in missing data
+        and artefacts in this visualization. Please interpret this data with
+        care.
       </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>
@@ -375,8 +373,7 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            disableSelectionColoring:
-              configStore.groupKey === GROUP_SNV,
+            disableSelectionColoring: configStore.groupKey === GROUP_SNV,
             detailHeight,
             hoverBar: { group: configStore.hoverGroup },
             stackOffset,
@@ -387,10 +384,10 @@ const GroupStackPlot = observer(({ width }) => {
               plotSettingsStore.groupStackNormMode === NORM_MODES.NORM_COUNTS
                 ? 's'
                 : '%',
-            detailDomain:
-              configStore.dateRange[0] == -1 && configStore.dateRange[1] == -1
-                ? null
-                : configStore.dateRange,
+            // detailDomain:
+            //   configStore.dateRange[0] == -1 && configStore.dateRange[1] == -1
+            //     ? null
+            //     : configStore.dateRange,
           }}
           cheapSignals={['hoverBar']}
           width={width}

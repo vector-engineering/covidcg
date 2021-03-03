@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { toJS } from 'mobx';
 import AccordionWrapper from '../Common/AccordionWrapper';
-import { ASYNC_STATES } from '../../constants/UI';
+import { ASYNC_STATES } from '../../constants/defs.json';
 import SkeletonElement from '../Common/SkeletonElement';
 import { useStores } from '../../stores/connect';
 

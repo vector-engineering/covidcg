@@ -1,13 +1,16 @@
-import { appConfig } from './config';
+import { config } from '../config';
 
 const _metadataFields = [];
 const _metadataFieldNiceNameMap = {};
 
-Object.keys(appConfig.metadata_cols).forEach(col => {
-  const colObj = appConfig.metadata_cols[col];
+Object.keys(config.metadata_cols).forEach((col) => {
+  const colObj = config.metadata_cols[col];
 
   // Skip disabled metadata cols
-  if (Object.prototype.hasOwnProperty.call(colObj, 'disabled') && colObj['disabled']) {
+  if (
+    Object.prototype.hasOwnProperty.call(colObj, 'disabled') &&
+    colObj['disabled']
+  ) {
     return;
   }
 

@@ -1,5 +1,4 @@
-import { DNA_OR_AA } from '../constants/config';
-import { GROUPS } from '../constants/groups';
+import { DNA_OR_AA, GROUPS } from '../constants/defs.json';
 
 export const formatSnv = (snvStr, dnaOrAa) => {
   // Don't do this if it's a special group
@@ -13,6 +12,6 @@ export const formatSnv = (snvStr, dnaOrAa) => {
   if (dnaOrAa === DNA_OR_AA.DNA) {
     return `${chunks[1]}${chunks[0]}${chunks[2]}`;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
-    return `${chunks[0]} · ${chunks[2]}${chunks[1]}${chunks[3]}`;
+    return `${chunks[0]}:${chunks[2]}${chunks[1]}${chunks[3]}`;
   }
 };

@@ -163,7 +163,7 @@
         "parse": {
           "location": "string",
           "group": "string",
-          "cases_sum": "number",
+          "counts": "number",
           "location_counts": "number",
           "date": "date:'%Q'"
         }
@@ -171,21 +171,21 @@
       "transform": [
         {
           "type": "aggregate",
-          "groupby": ["location", "group", "groupName"],
-          "fields": ["cases_sum", "color", "location_counts"],
+          "groupby": ["location", "group", "group_name"],
+          "fields": ["counts", "color", "location_counts"],
           "ops": ["sum", "max", "max"],
-          "as": ["cases_sum", "color", "location_counts"]
+          "as": ["counts", "color", "location_counts"]
         },
         {
           "type": "stack",
           "groupby": ["location"],
           "sort": { "field": "group" },
-          "field": "cases_sum",
+          "field": "counts",
           "offset": { "signal": "stackOffset" }
         },
         {
           "type": "formula",
-          "expr": "datum.cases_sum / datum.location_counts",
+          "expr": "datum.counts / datum.location_counts",
           "as": "percent"
         }
       ]
@@ -301,7 +301,7 @@
             },
             "update": {
               "tooltip": {
-                "signal": "{title: datum.groupName, 'Location': datum.location, 'Sequences': datum.cases_sum, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.group_name, 'Location': datum.location, 'Sequences': datum.counts, 'Total location sequences': datum.location_counts, '% in location': format(datum.percent, '.1%')}"
               },
               "y": { "scale": "yscale", "field": "location" },
               "height": { "scale": "yscale", "band": 1 },
@@ -313,7 +313,7 @@
                   "value": 0.7
                 },
                 {
-                  "test": "(!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.location)) && (datum.cases_sum > 0)",
+                  "test": "(!length(data('selectedLocations')) || indata('selectedLocations', 'location', datum.location)) && (datum.counts > 0)",
                   "value": 1.0
                 },
                 {

@@ -5,11 +5,12 @@ import { capitalize } from '../../utils/string';
 import { useStores } from '../../stores/connect';
 
 import {
+  DNA_OR_AA,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../constants/plotSettings';
-import { appConfig, DNA_OR_AA } from '../../constants/config';
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import { observer } from 'mobx-react';
@@ -101,8 +102,8 @@ const CompareModeSelect = observer(() => {
   // Add the color-code option
   colorOptionElements.push(
     <option
-      key={COMPARE_COLORS.COLOR_MODE_CODE}
-      value={COMPARE_COLORS.COLOR_MODE_CODE}
+      key={`color-option-${COLOR_MODES.COLOR_MODE_CODE}`}
+      value={COLOR_MODES.COLOR_MODE_CODE}
     >
       {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-color code
     </option>
@@ -111,20 +112,20 @@ const CompareModeSelect = observer(() => {
   if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
-        key={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
-        value={COMPARE_COLORS.COLOR_MODE_CLUSTAL}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_CLUSTAL}`}
+        value={COLOR_MODES.COLOR_MODE_CLUSTAL}
       >
         ClustalX (Properties)
       </option>,
       <option
-        key={COMPARE_COLORS.COLOR_MODE_ZAPPO}
-        value={COMPARE_COLORS.COLOR_MODE_ZAPPO}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_ZAPPO}`}
+        value={COLOR_MODES.COLOR_MODE_ZAPPO}
       >
         Zappo (Physiochemical Properties)
       </option>,
       <option
-        key={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
-        value={COMPARE_COLORS.COLOR_MODE_ZHAO_LONDON}
+        key={`color-option-${COLOR_MODES.COLOR_MODE_ZHAO_LONDON}`}
+        value={COLOR_MODES.COLOR_MODE_ZHAO_LONDON}
       >
         Zhao and London (Transmembrane Tendency)
       </option>
@@ -133,7 +134,7 @@ const CompareModeSelect = observer(() => {
 
   colorOptions.forEach((color) => {
     colorOptionElements.push(
-      <option key={color} value={color}>
+      <option key={`color-option-${color}`} value={color}>
         {capitalize(color)}
       </option>
     );
@@ -143,7 +144,7 @@ const CompareModeSelect = observer(() => {
   if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     colorOptionElements.push(
       <option
-        key={COMPARE_COLORS.COMPARE_COLOR_DOTS}
+        key={`color-option-${COMPARE_COLORS.COMPARE_COLOR_DOTS}`}
         value={COMPARE_COLORS.COMPARE_COLOR_DOTS}
       >
         Dots
@@ -162,8 +163,16 @@ const CompareModeSelect = observer(() => {
         value={plotSettingsStore.tableCompareMode}
         onChange={handleCompareModeChange}
       >
-        <option value={COMPARE_MODES.COMPARE_MODE_MATCH}>Match</option>
-        <option value={COMPARE_MODES.COMPARE_MODE_MISMATCH}>
+        <option
+          key={COMPARE_MODES.COMPARE_MODE_MATCH}
+          value={COMPARE_MODES.COMPARE_MODE_MATCH}
+        >
+          Match
+        </option>
+        <option
+          key={COMPARE_MODES.COMPARE_MODE_MISMATCH}
+          value={COMPARE_MODES.COMPARE_MODE_MISMATCH}
+        >
           Don&apos;t Match
         </option>
       </select>
@@ -201,7 +210,7 @@ const Spacer = styled.div`
 
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
-  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata'
+  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
 };
 
 const TableOptions = observer(() => {
@@ -212,17 +221,15 @@ const TableOptions = observer(() => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
-      dataStore.downloadAggCaseData();
+      dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       dataStore.downloadSelectedSequenceMetadata();
     }
   };
 
-  const downloadOptions = [
-    DOWNLOAD_OPTIONS.AGGREGATE_DATA
-  ];
+  const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
 
-  if (appConfig.allow_metadata_download) {
+  if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
   }
 

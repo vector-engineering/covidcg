@@ -31,10 +31,10 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
         gene_or_protein_df = (
             gene_or_protein_df.loc[gene_or_protein_df["protein_coding"] == 1, :]
             # set the gene as the index
-            .set_index("gene")
+            .set_index("name")
         )
     else:
-        gene_or_protein_df = gene_or_protein_df.set_index("protein")
+        gene_or_protein_df = gene_or_protein_df.set_index("name")
 
     dna_snp_df = pd.read_csv(dna_snp_file).fillna("")
     # Filter out any big SNPs in the 5' or 3' UTR

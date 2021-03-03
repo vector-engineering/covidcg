@@ -22,7 +22,7 @@
       "aggregate": [{
         "op": "sum",
         "field": "cases",
-        "as": "cases_sum"
+        "as": "counts"
       }],
       "groupby": [
         "date",
@@ -49,7 +49,7 @@
         },
         "y": {
           "aggregate": "sum",
-          "field": "cases_sum", 
+          "field": "counts", 
           "type": "quantitative",
           "axis": {
             "title": "Cases by Haplotype"
@@ -95,7 +95,7 @@
         },
         "y": {
           "aggregate": "sum",
-          "field": "cases_sum",
+          "field": "counts",
           "type": "quantitative",
           "axis": {
             "title": "All Cases"

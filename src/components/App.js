@@ -1,7 +1,6 @@
 /* eslint-disable import/no-named-as-default */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { hot } from 'react-hot-loader';
 import { createGlobalStyle } from 'styled-components';
 
 import { MobxRouter } from 'mobx-router';
@@ -40,4 +39,4 @@ App.propTypes = {
   children: PropTypes.element,
 };
 
-export default hot(module)(App);
+export default App;

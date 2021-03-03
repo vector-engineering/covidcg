@@ -1,14 +1,16 @@
 [
   {
-    "protein": "nsp1",
+    "name": "nsp1",
     "segments": "266..805",
+    "protein_coding": 1,
     "notes": "Suppress host antiviral response. produced by both pp1a and pp1ab",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp2",
+    "name": "nsp2",
     "segments": "806..2719",
+    "protein_coding": 1,
     "notes": "produced by both pp1a and pp1ab. Interacts with host PHB and PHB2. 181..818 relative to ORF1a start.",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -24,8 +26,9 @@
     ]
   },
   {
-    "protein": "nsp3 - PL2-PRO",
+    "name": "nsp3 - PL2-PRO",
     "segments": "2720..8554",
+    "protein_coding": 1,
     "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. former nsp1; conserved domains are: N-terminal acidic (Ac), predicted phosphoesterase, papain-like proteinase (PL-pro), Y-domain, transmembrane domain 1 (TM1), adenosine diphosphate-ribose 1''-phosphatase (ADRP); produced by both pp1a and pp1ab. 819..2763 relative to ORF1a start",
     "domains": [
       {
@@ -92,8 +95,9 @@
     ]
   },
   {
-    "protein": "nsp4",
+    "name": "nsp4",
     "segments": "8555..10054",
+    "protein_coding": 1,
     "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp4B_TM; contains transmembrane domain 2 (TM2); produced by both pp1a and pp1ab. Interacts with PL-Pro and nsp6. 2764..3263 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -177,8 +181,9 @@
     ]
   },
   {
-    "protein": "nsp5 - 3CLp",
+    "name": "nsp5 - 3CLp",
     "segments": "10055..10972",
+    "protein_coding": 1,
     "notes": "3C-like protease. nsp5A_3CLpro and nsp5B_3CLpro; main proteinase (Mpro); mediates cleavages downstream of nsp4. 3D structure of the SARSr-CoV homolog has been determined (Yang et al., 2003); produced by both pp1a and pp1ab. 3CL-pro exists as a monomer and homodimer. Only the homodimer shows catalytic activity. 3264..3569 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -195,8 +200,9 @@
     ]
   },
   {
-    "protein": "nsp6",
+    "name": "nsp6",
     "segments": "10973..11842",
+    "protein_coding": 1,
     "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. nsp6_TM; putative transmembrane domain; produced by both pp1a and pp1ab. 3570..3859 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -268,8 +274,9 @@
     ]
   },
   {
-    "protein": "nsp7",
+    "name": "nsp7",
     "segments": "11843..12091",
+    "protein_coding": 1,
     "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab. Eight copies of nsp7 and eight copies of nsp8 assemble to form a heterohexadecamer dsRNA-encircling ring structure (by similarity). 3860..3942 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -281,8 +288,9 @@
     ]
   },
   {
-    "protein": "nsp8",
+    "name": "nsp8",
     "segments": "12092..12685",
+    "protein_coding": 1,
     "notes": "nsp7-nsp8 complex is part of RNA polymerase. produced by both pp1a and pp1ab. Eight copies of nsp7 and eight copies of nsp8 assemble to form a heterohexadecamer dsRNA-encircling ring structure (by similarity). 3943..4140 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -299,29 +307,33 @@
     ]
   },
   {
-    "protein": "nsp9",
+    "name": "nsp9",
     "segments": "12686..13024",
+    "protein_coding": 1,
     "notes": "ssRNA-binding protein; produced by both pp1a and pp1ab. Is a dimer. 4141..4253 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp10 - CysHis",
+    "name": "nsp10 - CysHis",
     "segments": "13025..13441",
+    "protein_coding": 1,
     "notes": "Essential for nsp16 methyltransferase activity. nsp10_CysHis; formerly known as growth-factor-like protein (GFL); produced by both pp1a and pp1ab. Forms a dodecamer and interacts with nsp14 and nsp16. These interactions enhance nsp14 and nsp16 enzymatic activities. 4254..4392 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp11",
+    "name": "nsp11",
     "segments": "13442..13483",
+    "protein_coding": 1,
     "notes": "produced by pp1a only. 4393..4406 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp12 - RdRp",
+    "name": "nsp12 - RdRp",
     "segments": "13442..13468;13468..16236",
+    "protein_coding": 1,
     "notes": "RNA polymerase. nsp12; NiRAN (nidovirus RdRp-associated nucleotidyltransferase) and RdRp (RNA-dependent RNA polymerase); produced by pp1ab only. Interacts with nsp7 and nsp8. 4393..5324 relative to ORF1a start.",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -343,8 +355,9 @@
     ]
   },
   {
-    "protein": "nsp13 - Helicase",
+    "name": "nsp13 - Helicase",
     "segments": "16237..18039",
+    "protein_coding": 1,
     "notes": "Helicase/triphosphatase. nsp13_ZBD, nsp13_TB, and nsp_HEL1core; zinc-binding domain (ZD), NTPase/helicase domain (HEL), RNA 5'-triphosphatase; produced by pp1ab only. 5325..5925 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -376,22 +389,25 @@
     ]
   },
   {
-    "protein": "nsp14 - ExoN",
+    "name": "nsp14 - ExoN",
     "segments": "18040..19620",
+    "protein_coding": 1,
     "notes": "3'-5' proofreading exonuclease. nsp14A2_ExoN and nsp14B_NMT; produced by pp1ab only. Interacts (via. N-terminus) with DDX1. Interacts with nsp10. 5926..6452 relative to ORF1a start.",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp15 - NendoU",
+    "name": "nsp15 - NendoU",
     "segments": "19621..20658",
+    "protein_coding": 1,
     "notes": "Uridine-specific endoribonuclease. nsp15-A1 and nsp15B-NendoU; produced by pp1ab only. 6453..6798 relative to ORF1a start.",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": []
   },
   {
-    "protein": "nsp16 - 2'-O-MT",
+    "name": "nsp16 - 2'-O-MT",
     "segments": "20659..21552",
+    "protein_coding": 1,
     "notes": "RNA-cap methyltransferase. nsp16_OMT; 2'-o-MT; produced by pp1ab only. Interacts with nsp10. 6799..7096 relative to ORF1a start",
     "source": "https://www.uniprot.org/uniprot/P0DTD1",
     "domains": [
@@ -403,8 +419,9 @@
     ]
   },
   {
-    "protein": "S",
+    "name": "S",
     "segments": "21563..25384",
+    "protein_coding": 1,
     "notes": "structural protein; spike protein",
     "domains": [
       {
@@ -460,20 +477,23 @@
     ]
   },
   {
-    "protein": "orf3a",
+    "name": "orf3a",
     "segments": "25393..26220",
+    "protein_coding": 1,
     "notes": "Activates the NLRP3 inflammasome. Coronavirus accessory protein 3a; Region: APA3_viroporin; pfam11289",
     "domains": []
   },
   {
-    "protein": "orf3b",
+    "name": "orf3b",
     "segments": "25524..25697",
+    "protein_coding": 1,
     "notes": "Novel short protein",
     "domains": []
   },
   {
-    "protein": "E",
+    "name": "E",
     "segments": "26245..26472",
+    "protein_coding": 1,
     "notes": "ORF4; structural protein; E protein. Envelope protein, involved in virus morphogenesis and assembly",
     "domains": [
       {
@@ -499,8 +519,9 @@
     ]
   },
   {
-    "protein": "M",
+    "name": "M",
     "segments": "26523..27191",
+    "protein_coding": 1,
     "notes": "ORF5; structural protein; membrane glycoprotein. Predominant component of the envelope",
     "domains": [
       {
@@ -566,14 +587,16 @@
     ]
   },
   {
-    "protein": "orf6",
+    "name": "orf6",
     "segments": "27202..27387",
+    "protein_coding": 1,
     "notes": "ORF6 protein. Type I IFN antagonist",
     "domains": []
   },
   {
-    "protein": "orf7a",
+    "name": "orf7a",
     "segments": "27394..27759",
+    "protein_coding": 1,
     "notes": "ORF7a protein",
     "domains": [
       {
@@ -589,8 +612,9 @@
     ]
   },
   {
-    "protein": "orf7b",
+    "name": "orf7b",
     "segments": "27756..27887",
+    "protein_coding": 1,
     "notes": "ORF7b protein",
     "domains": [
       {
@@ -601,8 +625,9 @@
     ]
   },
   {
-    "protein": "orf8",
+    "name": "orf8",
     "segments": "27894..28259",
+    "protein_coding": 1,
     "notes": "ORF8 protein",
     "domains": [
       {
@@ -618,8 +643,9 @@
     ]
   },
   {
-    "protein": "N",
+    "name": "N",
     "segments": "28274..29533",
+    "protein_coding": 1,
     "notes": "ORF9; structural protein; nucleocapsid phosphoprotein, binds to RNA genome",
     "domains": [
       {
@@ -635,8 +661,9 @@
     ]
   },
   {
-    "protein": "orf9b",
+    "name": "orf9b",
     "segments": "28284..28577",
+    "protein_coding": 1,
     "notes": "virion-associated protein. Suppress host antiviral response",
     "domains": [
       {
@@ -647,14 +674,16 @@
     ]
   },
   {
-    "protein": "orf9c",
+    "name": "orf9c",
     "segments": "28734..28955",
+    "protein_coding": 1,
     "notes": "Gordon et al., Nature, 2020 (doi: 10.1038/s41586-020-2286-9) Extended Data Fig. 1",
     "domains": []
   },
   {
-    "protein": "orf10",
+    "name": "orf10",
     "segments": "29558..29674",
+    "protein_coding": 1,
     "notes": "ORF10 protein",
     "domains": []
   }

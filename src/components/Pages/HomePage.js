@@ -4,26 +4,24 @@ import styled from 'styled-components';
 import { connect } from '../../stores/connect';
 import { onMobileDevice } from '../../utils/device';
 
-import TabBar from '../TabBar';
 import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import ExampleTab from './ExampleTab';
-import GroupTab from './GroupTab';
-import LocationTab from './LocationTab';
-import AboutTab from './AboutTab';
-import MethodologyTab from './MethodologyTab';
-import RelatedProjectsTab from './RelatedProjectsTab';
-import SequencingEffortsTab from './SequencingEffortsTab';
-import Footer from '../Footer';
+import { TABS } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
 
-import { TABS } from '../../constants/UI';
+const GroupTab = React.lazy(() => import('./GroupTab'));
+const ExampleTab = React.lazy(() => import('./ExampleTab'));
+const LocationTab = React.lazy(() => import('./LocationTab'));
+const AboutTab = React.lazy(() => import('./AboutTab'));
+const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
+const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
+const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
 const HomePageDiv = styled.div`
   display: grid;
-  grid-template-columns: [col1] 300px [col2] 150px [col3] auto [col4];
+  grid-template-columns: [col1] 250px [col2] 180px [col3] auto [col4];
   grid-template-rows: [row1] auto [row2];
   width: 100vw;
   position: relative;
@@ -45,10 +43,6 @@ const PlotContainer = styled.div`
 `;
 
 const HomePage = observer(({ UIStore }) => {
-  const onTabChange = (tab) => {
-    UIStore.setActiveTab(tab);
-  };
-
   const renderTab = () => {
     if (UIStore.activeTab === TABS.TAB_GROUP) {
       return <GroupTab />;
@@ -111,9 +105,7 @@ const HomePage = observer(({ UIStore }) => {
       <HomePageDiv>
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
-          {renderTab()}
-          <Footer />
+          <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>
         </PlotContainer>
       </HomePageDiv>
     </>

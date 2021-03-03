@@ -10,11 +10,11 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-} from '../../constants/plotSettings';
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/download';
-import { GROUPS } from '../../constants/groups';
-import { GROUP_SNV } from '../../constants/config';
-import { ASYNC_STATES } from '../../constants/UI';
+  PLOT_DOWNLOAD_OPTIONS,
+  GROUPS,
+  GROUP_SNV,
+  ASYNC_STATES,
+} from '../../constants/defs.json';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -71,42 +71,6 @@ const LocationDatePlot = observer(({ width }) => {
       );
     }
 
-    // Calculate cumulative counts per location, by date
-    // This is necessary because the way Vega will calculate cumulative counts
-    // can miscount the location_date_count field.
-    // i.e., consider:
-    // Group    Day    Location_Date_Count
-    // A        1      100
-    // B        1      100
-    // A        2      200
-    // A        3      50
-    // B        3      50
-    // Total: 100 + 200 + 50 = 350
-    //
-    // If Group A gets filtered out, then an entire date can get filtered out
-    // This then this becomes:
-    // Group    Day    Location_Date_Count
-    // B        1      100
-    // B        3      50
-    // Total: 100 + 50 = 150. 150 =/= 350
-    //
-    // Anyways, that's why we need to this in JS now
-    const cumulativeCountsPerLocationDate = {};
-    Object.keys(dataStore.countsPerLocationDate).forEach((location) => {
-      let datesAndCounts = Object.entries(
-        dataStore.countsPerLocationDate[location]
-      );
-      // Sort dates
-      datesAndCounts.sort((a, b) => a - b);
-      // Write cumulative counts to dict
-      let curCount = 0;
-      cumulativeCountsPerLocationDate[location] = {};
-      datesAndCounts.forEach((dateAndCount) => {
-        curCount += dateAndCount[1];
-        cumulativeCountsPerLocationDate[location][dateAndCount[0]] = curCount;
-      });
-    });
-
     if (configStore.groupKey === GROUP_SNV) {
       // Filter out 'All Other Sequences' group
       locationData = locationData.filter((row) => {
@@ -114,32 +78,52 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
-    // Filter by date
-    if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-      locationData = locationData.filter((row) => {
-        return (
-          (configStore.dateRange[0] == -1 ||
-            row.date > configStore.dateRange[0]) &&
-          (configStore.dateRange[1] == -1 ||
-            row.date < configStore.dateRange[1])
-        );
-      });
-    }
+    // // Filter by date
+    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
+    //   locationData = locationData.filter((row) => {
+    //     return (
+    //       (configStore.dateRange[0] == -1 ||
+    //         row.date > configStore.dateRange[0]) &&
+    //       (configStore.dateRange[1] == -1 ||
+    //         row.date < configStore.dateRange[1])
+    //     );
+    //   });
+    // }
 
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group', 'groupName'],
-      fields: ['cases_sum', 'location_counts'],
+      groupby: ['location', 'date', 'group', 'group_name'],
+      fields: ['counts', 'location_counts'],
       ops: ['sum', 'max'],
-      as: ['cases_sum', 'location_counts'],
+      as: ['counts', 'location_counts'],
+    });
+
+    const countsPerLocationDateMap = {};
+    dataStore.countsPerLocationDate.forEach((row) => {
+      !(row.location in countsPerLocationDateMap) &&
+        (countsPerLocationDateMap[row.location] = {});
+      !(row.date.toString() in countsPerLocationDateMap[row.location]) &&
+        (countsPerLocationDateMap[row.location][row.date.toString()] = {});
+
+      countsPerLocationDateMap[row.location][row.date.toString()]['count'] =
+        row.counts;
+      countsPerLocationDateMap[row.location][row.date.toString()][
+        'cumulative_count'
+      ] = row.cumulative_count;
     });
 
     // Manually join the countsPerLocationDate to locationData
     locationData.forEach((row) => {
+      // row.location_date_count =
+      //   dataStore.countsPerLocationDate[row.location][row.date.toString()];
+      // row.cumulative_location_date_count =
+      //   cumulativeCountsPerLocationDate[row.location][row.date.toString()];
       row.location_date_count =
-        dataStore.countsPerLocationDate[row.location][row.date.toString()];
+        countsPerLocationDateMap[row.location][row.date.toString()]['count'];
       row.cumulative_location_date_count =
-        cumulativeCountsPerLocationDate[row.location][row.date.toString()];
+        countsPerLocationDateMap[row.location][row.date.toString()][
+          'cumulative_count'
+        ];
     });
     // console.log(JSON.stringify(locationData));
 
@@ -263,7 +247,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.snvDataState, configStore.selectedGroups, configStore.dateRange]);
+  }, [UIStore.snvDataState, configStore.selectedGroups]);
 
   useEffect(() => {
     if (
@@ -281,11 +265,7 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [
-    UIStore.caseDataState,
-    configStore.selectedGroups,
-    configStore.dateRange,
-  ]);
+  }, [UIStore.caseDataState, configStore.selectedGroups]);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
@@ -400,13 +380,10 @@ const LocationDatePlot = observer(({ width }) => {
 
   return (
     <PlotContainer>
-      <WarningBox
-        show={state.showWarning}
-        onDismiss={onDismissWarning}
-      >
-        Inconsistent sampling in the underlying data can result in missing
-        data and artefacts in this visualization. Please interpret this data
-        with care.
+      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+        Inconsistent sampling in the underlying data can result in missing data
+        and artefacts in this visualization. Please interpret this data with
+        care.
       </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>

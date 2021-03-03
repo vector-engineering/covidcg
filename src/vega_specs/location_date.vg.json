@@ -31,7 +31,7 @@
     },
     {
       "name": "yField",
-      "update": "percentages ? 'cases_norm' : 'cases_sum_agg'"
+      "update": "percentages ? 'cases_norm' : 'counts_agg'"
     },
     { "name": "yLabel", "value": "% Sequences" },
     { "name": "yFormat", "update": "percentages ? '%' : 's'" },
@@ -158,7 +158,7 @@
       "format": {
         "parse": {
           "location": "string",
-          "cases_sum": "number",
+          "counts": "number",
           "location_counts": "number",
           "location_date_count": "number",
           "date": "date:'%Q'"
@@ -173,14 +173,14 @@
           "type": "aggregate",
           "groupby": ["location", "date"],
           "fields": [
-            "cases_sum",
+            "counts",
             "location_date_count",
             "cumulative_location_date_count",
             "location_counts"
           ],
           "ops": ["sum", "max", "max", "max"],
           "as": [
-            "cases_sum",
+            "counts",
             "location_date_count",
             "cumulative_location_date_count",
             "location_counts"
@@ -203,12 +203,12 @@
           "groupby": ["location"],
           "ops": ["sum", "sum", "max"],
           "fields": [
-            "cases_sum",
+            "counts",
             "location_date_count",
             "cumulative_location_date_count"
           ],
           "as": [
-            "cases_sum_agg",
+            "counts_agg",
             "location_date_count_agg",
             "cumulative_location_date_count_agg"
           ],
@@ -223,7 +223,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cases_sum_agg / datum[locationDateCountField]",
+          "expr": "datum.counts_agg / datum[locationDateCountField]",
           "as": "cases_norm"
         },
         {
@@ -404,7 +404,7 @@
               "y": { "scale": "yscale", "field": { "signal": "yField" } },
               "stroke": [
                 {
-                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
@@ -442,7 +442,7 @@
               "y": { "scale": "yscale", "field": { "signal": "yField" } },
               "stroke": [
                 {
-                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
@@ -485,7 +485,7 @@
               "text": { "field": "location" },
               "fill": [
                 {
-                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
+                  "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },

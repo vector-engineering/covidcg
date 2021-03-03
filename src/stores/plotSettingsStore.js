@@ -7,7 +7,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
-} from '../constants/plotSettings';
+} from '../constants/defs.json';
 
 export const initialPlotSettingsValues = {
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
@@ -23,7 +23,7 @@ export const initialPlotSettingsValues = {
   tableColorMode: COLOR_MODES.COLOR_MODE_COMPARE,
   tableCompareMode: COMPARE_MODES.COMPARE_MODE_MISMATCH,
   tableCompareColor: COMPARE_COLORS.COLOR_MODE_ZAPPO,
-  tableSortColumn: 'cases_sum',
+  tableSortColumn: 'counts',
   tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
 
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,

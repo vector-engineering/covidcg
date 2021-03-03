@@ -5,13 +5,15 @@ import { useStores } from '../../stores/connect';
 
 import Header from './Header';
 import TabIndicator from '../Common/TabIndicator';
+import TabBar from './TabBar';
+import Footer from './Footer';
 
-import { TABS } from '../../constants/UI';
+import { TABS } from '../../constants/defs.json';
 
 const SidebarContainer = styled.div`
   position: fixed;
   top: 0;
-  width: 299px;
+  width: 249px;
 
   background-color: #f8f8f8;
   //padding-right: 10px;
@@ -39,11 +41,16 @@ const SidebarChunk = styled.div`
 `;
 
 const DefaultSidebar = observer(() => {
-  const { configStore } = useStores();
+  const { configStore, UIStore } = useStores();
+
+  const onTabChange = (tab) => {
+    UIStore.setActiveTab(tab);
+  };
 
   return (
     <SidebarContainer>
       <Header />
+      <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
       <SidebarChunk>
         To begin analyzing and visualizing data, select the{' '}
         <TabIndicator tab={TABS.TAB_GROUP}>
@@ -57,6 +64,7 @@ const DefaultSidebar = observer(() => {
         </TabIndicator>{' '}
         tab
       </SidebarChunk>
+      <Footer />
     </SidebarContainer>
   );
 });

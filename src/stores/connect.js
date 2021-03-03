@@ -18,7 +18,6 @@ export const connect = (Component) => {
             configStore={value.configStore}
             plotSettingsStore={value.plotSettingsStore}
             locationDataStore={value.locationDataStore}
-            groupDataStore={value.groupDataStore}
             snpDataStore={value.snpDataStore}
             metadataStore={value.metadataStore}
             globalSequencingDataStore={value.globalSequencingDataStore}

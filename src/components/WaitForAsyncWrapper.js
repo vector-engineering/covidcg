@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react';
-import { ASYNC_STATES } from '../constants/UI';
+import { ASYNC_STATES } from '../constants/defs.json';
 import { rootStoreInstance } from '../stores/rootStore';
 import { asyncDataStoreInstance } from './App';
 

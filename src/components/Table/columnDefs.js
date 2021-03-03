@@ -7,73 +7,11 @@ import PosHeaderCell from '../Cells/PosHeaderCell';
 // import AddToSidepanelCheckbox from '../AddToSidepanelCheckbox';
 import { snapGeneHighlightColors } from '../../constants/colors';
 import {
+  GROUPS,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
-} from '../../constants/plotSettings';
-import { REFERENCE_GROUP } from '../../constants/groups';
-
-export const positionColumn = () => ({
-  name: 'Position',
-  key: 'pos',
-  sortable: true,
-  width: 70,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['pos']} color={val.row['color']} />
-  ),
-});
-
-export const indexColumn = () => ({
-  name: 'Index',
-  key: 'pos',
-  sortable: true,
-  width: 50,
-  frozen: true,
-});
-export const refColumn = () => ({
-  name: 'Ref',
-  key: 'ref',
-  sortable: true,
-  width: 36,
-  frozen: true,
-  cellClass: 'no-padding',
-  formatter: (val) => <LetterCell value={val.row['ref']} />,
-});
-export const altColumn = () => ({
-  name: 'Alt',
-  key: 'alt',
-  sortable: true,
-  width: 36,
-  frozen: true,
-  cellClass: 'no-padding',
-  formatter: (val) => <LetterCell value={val.row['alt']} />,
-});
-
-export const geneColumn = () => ({
-  name: 'Gene',
-  key: 'gene',
-  sortable: true,
-  width: 120,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['gene']} color={val.row['color']} />
-  ),
-});
-
-export const proteinColumn = () => ({
-  name: 'Protein',
-  key: 'protein',
-  sortable: true,
-  width: 120,
-  cellClass: 'no-overflow',
-  frozen: true,
-  formatter: (val) => (
-    <GroupCell text={val.row['protein']} color={val.row['color']} />
-  ),
-});
+} from '../../constants/defs.json';
 
 export const groupColumn = ({ title }) => ({
   key: 'group',
@@ -122,13 +60,13 @@ export const getSinglePosColumn = ({
       // OR, if we're coloring by code, then always color the reference row
       if (
         (conditionCompare(row[col], refRow[col], compareMode) ||
-          (row['group'] === REFERENCE_GROUP && colors !== null)) &&
+          (row['group'] === GROUPS.REFERENCE_GROUP && colors !== null)) &&
         row[col] !== null
       ) {
         // If in dots mode, change letters, not colors
         if (compareColor === COMPARE_COLORS.COMPARE_COLOR_DOTS) {
           // Don't ever mask the reference with dots
-          if (row['group'] !== REFERENCE_GROUP) {
+          if (row['group'] !== GROUPS.REFERENCE_GROUP) {
             letter = '.';
           }
         } else if (colors === null) {
@@ -161,7 +99,7 @@ export const getDefaultColumns = ({
 }) => [
   {
     name: 'Seqs',
-    key: 'cases_sum',
+    key: 'counts',
     sortable: true,
     width: 55,
     frozen: true,
@@ -170,7 +108,7 @@ export const getDefaultColumns = ({
       const row = val.row;
       return (
         <HeatmapCell
-          value={row.cases_sum}
+          value={row.counts}
           min={minCasesSum}
           max={maxCasesSum}
           percent={false}
@@ -180,7 +118,7 @@ export const getDefaultColumns = ({
   },
   {
     name: '% Seqs',
-    key: 'cases_percent',
+    key: 'percent',
     sortable: true,
     width: 70,
     frozen: true,
@@ -189,7 +127,7 @@ export const getDefaultColumns = ({
       const row = val.row;
       return (
         <HeatmapCell
-          value={row.cases_percent}
+          value={row.percent}
           min={minCasesPercent}
           max={maxCasesPercent}
           percent={true}

@@ -88,6 +88,7 @@ example_data/**
 workflow*/.snakemake/**
 
 workflow*/**/__pycache__/**
+**/__pycache__/**
 
 # Ignore data folder/links
 data/**
@@ -104,3 +105,5 @@ daily_update.sh
 update_gisaid.sh
 
 /src/assets/data_package.json.gz
+
+__pycache__
