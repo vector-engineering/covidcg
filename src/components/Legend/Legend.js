@@ -10,7 +10,9 @@ import {
   COORDINATE_MODES,
   GROUP_SNV,
   DNA_OR_AA,
+  SORT_DIRECTIONS,
 } from '../../constants/defs.json';
+import { COLUMN_NAMES } from './legendUtils';
 import TableLegend from './TableLegend';
 
 const TableLegendContainer = styled.div`
@@ -38,24 +40,26 @@ const comparer = ({
       (coordinateMode === COORDINATE_MODES.COORD_GENE ||
         COORDINATE_MODES.COORD_PROTEIN);
     if (
-      sortColumn === 'group' &&
-      (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) &&
-      sortDirection === 'ASC'
+      sortColumn === COLUMN_NAMES.GROUP &&
+      (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein)
     ) {
-      return a.pos - b.pos;
-    }
-    if (
-      sortColumn === 'group' &&
-      (dnaOrAa === DNA_OR_AA.DNA || sameGeneOrProtein) &&
-      sortDirection === 'DESC'
-    ) {
-      return b.pos - a.pos;
+      if (
+        sortDirection === SORT_DIRECTIONS.SORT_ASC ||
+        sortDirection === SORT_DIRECTIONS.SORT_NONE
+      ) {
+        return a.pos - b.pos;
+      } else {
+        return b.pos - a.pos;
+      }
     }
   }
-  if (sortDirection === 'ASC' || sortDirection === 'None') {
+  if (
+    sortDirection === SORT_DIRECTIONS.SORT_ASC ||
+    sortDirection === SORT_DIRECTIONS.SORT_NONE
+  ) {
     return a[sortColumn] > b[sortColumn] ? 1 : -1;
   }
-  if (sortDirection === 'DESC') {
+  if (sortDirection === SORT_DIRECTIONS.SORT_DESC) {
     return a[sortColumn] < b[sortColumn] ? 1 : -1;
   }
 };
@@ -65,8 +69,8 @@ const Legend = observer(() => {
 
   const [state, setState] = useState({
     legendItems: [],
-    sortColumn: 'percent',
-    sortDir: 'DESC',
+    sortColumn: COLUMN_NAMES.COUNTS,
+    sortDir: SORT_DIRECTIONS.SORT_DESC,
   });
 
   const updateHoverGroup = _.debounce((group) => {
@@ -74,10 +78,18 @@ const Legend = observer(() => {
   }, 10);
 
   const onClickColumnHeader = ({ columnName }) => {
-    if (state.sortColumn === columnName && state.sortDir === 'DESC') {
-      setState({ ...state, sortDir: 'ASC' });
+    if (state.sortColumn === columnName) {
+      if (state.sortDir === SORT_DIRECTIONS.SORT_ASC) {
+        setState({ ...state, sortDir: SORT_DIRECTIONS.SORT_DESC });
+      } else {
+        setState({ ...state, sortDir: SORT_DIRECTIONS.SORT_ASC });
+      }
     } else {
-      setState({ ...state, sortColumn: columnName, sortDir: 'DESC' });
+      setState({
+        ...state,
+        sortColumn: columnName,
+        sortDir: SORT_DIRECTIONS.SORT_DESC,
+      });
     }
   };
 
