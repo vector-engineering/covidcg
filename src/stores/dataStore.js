@@ -8,9 +8,15 @@ import { downloadBlobURL } from '../utils/download';
 import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
+import { formatSnv } from '../utils/snpUtils';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
-import { GROUP_SNV } from '../constants/defs.json';
+import {
+  GROUP_SNV,
+  GROUPS,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+} from '../constants/defs.json';
 
 export const initialDataValues = {
   aggSequences: [],
@@ -337,10 +343,44 @@ export class DataStore {
   }
 
   downloadSnvFrequencies() {
-    let csvString = 'snv,count\n';
-    // this.groupCountArr.forEach((item) => {
-    //   csvString += `${item[0]},${item[1]}\n`;
-    // });
+    let csvString = 'snv,';
+    let fields = [];
+    if (this.configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
+      if (
+        this.configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
+      ) {
+        csvString += 'gene,';
+        fields.push('gene');
+      } else if (
+        this.configStoreInstance.coordinateMode ===
+        COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        csvString += 'protein,';
+        fields.push('protein');
+      }
+    }
+    csvString += 'pos,ref,alt,counts\n';
+    fields.push('pos', 'ref', 'alt');
+
+    // Have to convert SNV string into integer, then into SNV object
+    const snvToIntMap = this.configStoreInstance.getSnvToIntMap();
+    const intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    let snv;
+
+    this.groupCounts
+      .sort((a, b) => b[1] - a[1]) // Sort by counts, descending order
+      .forEach((item) => {
+        if (item[0] === GROUPS.OTHER_GROUP) {
+          return;
+        }
+        // Add SNV name
+        csvString += formatSnv(item[0], this.configStoreInstance.dnaOrAa) + ',';
+        snv = intToSnvMap[snvToIntMap[item[0]]];
+        // Add SNV fields
+        csvString += fields.map((field) => snv[field]).join(',');
+        // Add counts
+        csvString += `,${item[1]}\n`;
+      });
 
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);

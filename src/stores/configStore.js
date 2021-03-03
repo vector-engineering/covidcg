@@ -380,6 +380,24 @@ export class ConfigStore {
     }
   }
 
+  getSnvToIntMap() {
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
+
+    if (this.dnaOrAa === DNA_OR_AA.DNA) {
+      return dnaSnvMap;
+    } else if (this.dnaOrAa === DNA_OR_AA.AA) {
+      if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return geneAaSnvMap;
+      } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        return proteinAaSnvMap;
+      }
+    }
+  }
+
   @action
   updateHoverLocation(location) {
     this.hoverLocation = location;
