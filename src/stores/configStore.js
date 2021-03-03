@@ -323,7 +323,9 @@ export class ConfigStore {
   @action
   updateSelectedGroups(groups) {
     this.selectedGroups = groups;
-    this.dataStoreInstance.processSelectedSnvs();
+    if (this.groupKey === GROUP_SNV) {
+      this.dataStoreInstance.processSelectedSnvs();
+    }
   }
 
   getSelectedGroupIds() {
