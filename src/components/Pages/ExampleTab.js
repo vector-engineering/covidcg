@@ -272,7 +272,7 @@ const ExampleTab = observer(() => {
         plotSettings: {
           locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
           locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-          locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+          locationDateDateBin: DATE_BINS.DATE_BIN_MONTH,
         },
         UI: {
           activeTab: TABS.TAB_LOCATION,
@@ -352,7 +352,7 @@ const ExampleTab = observer(() => {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
           groupStackCountMode: COUNT_MODES.COUNT_NEW,
-          groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+          groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
         },
         UI: {
           activeTab: TABS.TAB_GROUP,
