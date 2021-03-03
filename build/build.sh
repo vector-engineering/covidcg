@@ -13,6 +13,4 @@ gcloud builds submit \
 gcloud builds submit \
     --config build/cloudbuild.yaml \
     --substitutions=_TARGET="cg",_CONFIGFILE="config/config_gisaid.yaml",_TAG_NAME="${CG_VERSION}" . && \
-gcloud builds submit \
-    --config build/cloudbuild.yaml \
-    --substitutions=_TARGET="cg-private",_CONFIGFILE="config/config_private.yaml",_TAG_NAME="${CG_VERSION}" .
+gcloud builds submit --config build/cloudbuild.yaml --substitutions=_TARGET="cg-private",_CONFIGFILE="config/config_gisaid_private.yaml",_TAG_NAME="${CG_VERSION}" .
