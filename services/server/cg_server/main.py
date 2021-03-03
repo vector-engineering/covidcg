@@ -309,8 +309,8 @@ def get_sequences():
             counts_per_group.loc[row["group"], "pos_" + str(row["pos"])] = row["alt"]
         counts_per_group = counts_per_group.reset_index()
 
-        # print("Counts per group (changing positions)")
-        # print(counts_per_group)
+    # print("Counts per group (changing positions)")
+    # print(counts_per_group)
 
     # COLLAPSE DATA
     # -------------

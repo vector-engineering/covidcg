@@ -63,7 +63,9 @@ const sortRows = (rows, sortFn) => {
   let refRow = _.findWhere(rows, { group: GROUPS.REFERENCE_GROUP });
   rows = _.reject(rows, (row) => row.group == GROUPS.REFERENCE_GROUP);
   rows = rows.sort(sortFn);
-  rows.unshift(refRow);
+  if (refRow !== undefined) {
+    rows.unshift(refRow);
+  }
   return rows;
 };
 
@@ -121,7 +123,7 @@ const NewLineageDataTable = observer(() => {
     let refRow = _.findWhere(dataStore.dataAggGroup, {
       group: GROUPS.REFERENCE_GROUP,
     });
-    if (!refRow) {
+    if (refRow === undefined) {
       return null;
     }
 

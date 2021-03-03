@@ -13,85 +13,87 @@ import {
 
 import { ASYNC_STATES } from '../../constants/defs.json';
 
-const LocationSelect = observer(() => {
-  const { UIStore, configStore, locationDataStore } = useStores();
+const LocationSelect = observer(
+  ({ selectedLocationNodes, updateSelectedLocationNodes }) => {
+    const { UIStore, locationDataStore } = useStores();
 
-  const [state, setState] = useState({
-    data: locationDataStore.selectTree,
-  });
-
-  useEffect(() => {
-    setState({ ...state, data: locationDataStore.selectTree });
-  }, [locationDataStore.selectTree]);
-
-  const onUnselectAll = (e) => {
-    e.preventDefault();
-    configStore.selectLocations([]);
-  };
-
-  const treeSelectOnChange = (currentNode, selectedNodes) => {
-    // Since the tree is rendered in a flat state, we need to get all node
-    // children from the original data, via. the node paths
-    let selectedNodeObjs = selectedNodes.map((node) => {
-      // If the path doesn't exist, then we're at the root node
-      if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
-        return state.data;
-      }
-
-      return getNodeFromPath(state.data, node['path']);
+    const [state, setState] = useState({
+      data: locationDataStore.selectTree,
     });
 
-    if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-      return;
-    }
+    useEffect(() => {
+      setState({ ...state, data: locationDataStore.selectTree });
+    }, [locationDataStore.selectTree]);
 
-    configStore.selectLocations(selectedNodeObjs);
-  };
-  // const treeSelectOnAction = (node, action) => {
-  //   console.log('onAction::', action, node);
-  // };
-  // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-  //   console.log('onNodeToggle::', currentNode);
-  // };
+    const onUnselectAll = (e) => {
+      e.preventDefault();
+      updateSelectedLocationNodes([]);
+    };
 
-  const dropdownContainer = useMemo(
-    () => (
-      <StyledDropdownTreeSelect
-        data={state.data}
-        className="geo-dropdown-tree-select"
-        clearSearchOnChange={false}
-        keepTreeOnSearch={true}
-        keepChildrenOnSearch={true}
-        showPartiallySelected={true}
-        showDropdown="always"
-        inlineSearchInput={true}
-        texts={{
-          placeholder: 'Search...',
-          noMatches: 'No matches found',
-        }}
-        onChange={treeSelectOnChange}
-        // onAction={treeSelectOnAction}
-        // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
-      />
-    ),
-    [state.data]
-  );
+    const treeSelectOnChange = (currentNode, selectedNodes) => {
+      // Since the tree is rendered in a flat state, we need to get all node
+      // children from the original data, via. the node paths
+      let selectedNodeObjs = selectedNodes.map((node) => {
+        // If the path doesn't exist, then we're at the root node
+        if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
+          return state.data;
+        }
 
-  return (
-    <ContainerDiv>
-      <DropdownHeader>
-        <span className="location-tree-title">Selected Locations</span>
-        <UnselectButton
-          show={configStore.selectedLocationNodes.length > 0}
-          onClick={onUnselectAll}
-        >
-          Unselect All
-        </UnselectButton>
-      </DropdownHeader>
-      {dropdownContainer}
-    </ContainerDiv>
-  );
-});
+        return getNodeFromPath(state.data, node['path']);
+      });
+
+      if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
+        return;
+      }
+
+      updateSelectedLocationNodes(selectedNodeObjs);
+    };
+    // const treeSelectOnAction = (node, action) => {
+    //   console.log('onAction::', action, node);
+    // };
+    // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+    //   console.log('onNodeToggle::', currentNode);
+    // };
+
+    const dropdownContainer = useMemo(
+      () => (
+        <StyledDropdownTreeSelect
+          data={state.data}
+          className="geo-dropdown-tree-select"
+          clearSearchOnChange={false}
+          keepTreeOnSearch={true}
+          keepChildrenOnSearch={true}
+          showPartiallySelected={true}
+          showDropdown="always"
+          inlineSearchInput={true}
+          texts={{
+            placeholder: 'Search...',
+            noMatches: 'No matches found',
+          }}
+          onChange={treeSelectOnChange}
+          // onAction={treeSelectOnAction}
+          // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+        />
+      ),
+      [state.data]
+    );
+
+    return (
+      <ContainerDiv>
+        <DropdownHeader>
+          <span className="location-tree-title">Selected Locations</span>
+          <UnselectButton
+            show={selectedLocationNodes.length > 0}
+            onClick={onUnselectAll}
+          >
+            Unselect All
+          </UnselectButton>
+        </DropdownHeader>
+        {dropdownContainer}
+      </ContainerDiv>
+    );
+  }
+);
 
 LocationSelect.defaultProps = {
   data: {},

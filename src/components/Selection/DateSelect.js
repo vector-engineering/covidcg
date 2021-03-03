@@ -1,6 +1,5 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
 import { intToISO } from '../../utils/date';
 import { MIN_DATE } from '../../constants/defs.json';
 
@@ -64,18 +63,16 @@ Object.keys(lastPresetMap).forEach((presetName) => {
   );
 });
 
-const DateSelect = observer(() => {
-  const { configStore } = useStores();
-
+const DateSelect = observer(({ startDate, endDate, updateDateRange }) => {
   const maxDate = new Date().getTime();
   const maxDateISO = intToISO(maxDate);
 
   const handleStartChange = (event) => {
-    configStore.updateStartDate(event.target.value);
+    updateDateRange(event.target.value, endDate);
   };
 
   const handleEndChange = (event) => {
-    configStore.updateEndDate(event.target.value);
+    updateDateRange(startDate, event.target.value);
   };
 
   const handlePresetChange = (event) => {
@@ -109,8 +106,7 @@ const DateSelect = observer(() => {
       startDate = MIN_DATE;
     }
 
-    configStore.updateStartDate(startDate);
-    configStore.updateEndDate(intToISO(endDate));
+    updateDateRange(startDate, intToISO(endDate));
   };
 
   return (
@@ -148,7 +144,7 @@ const DateSelect = observer(() => {
             type="date"
             id="start"
             name="date-range-start"
-            value={configStore.startDate}
+            value={startDate}
             min={MIN_DATE}
             max={maxDateISO}
             onChange={handleStartChange}
@@ -161,7 +157,7 @@ const DateSelect = observer(() => {
             type="date"
             id="end"
             name="date-range-end"
-            value={configStore.endDate}
+            value={endDate}
             min={MIN_DATE}
             max={maxDateISO}
             onChange={handleEndChange}

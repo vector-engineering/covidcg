@@ -88,19 +88,12 @@ export class ConfigStore {
   @observable selectedPrimers = initialConfigValues.selectedPrimers;
 
   @observable customCoordinates = initialConfigValues.customCoordinates;
-  @observable validCustomCoordinates = true;
-
   @observable customSequences = initialConfigValues.customSequences;
-  @observable validCustomSequences = true;
-
   @observable residueCoordinates = initialConfigValues.residueCoordinates;
-  @observable validResidueCoordinates = true;
-
   @observable coordinateMode = initialConfigValues.coordinateMode;
 
   @observable startDate = initialConfigValues.startDate;
   @observable endDate = initialConfigValues.endDate;
-  @observable validDateRange = true;
 
   @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
 
@@ -193,18 +186,9 @@ export class ConfigStore {
   }
 
   @action
-  changeGrouping(groupKey, dnaOrAa) {
-    if (this.groupKey !== groupKey) {
-      // If groupings were changed, then clear selected groups
-      this.selectedGroups = [];
-    } else if (groupKey === GROUP_SNV && this.dnaOrAa !== dnaOrAa) {
-      // While in SNV mode, if we switched from DNA to AA, or vice-versa,
-      // then clear selected groups
-      this.selectedGroups = [];
-    }
-
+  applyPendingChanges(pending) {
     // Change table coloring settings when switching from DNA <-> AA
-    if (this.dnaOrAa !== dnaOrAa && dnaOrAa === DNA_OR_AA.AA) {
+    if (this.dnaOrAa !== pending.dnaOrAa && pending.dnaOrAa === DNA_OR_AA.AA) {
       this.plotSettingsStoreInstance.tableColorMode =
         COLOR_MODES.COLOR_MODE_COMPARE;
       this.plotSettingsStoreInstance.tableCompareMode =
@@ -221,23 +205,11 @@ export class ConfigStore {
         COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
-    this.groupKey = groupKey;
-    this.dnaOrAa = dnaOrAa;
+    Object.keys(pending).forEach((field) => {
+      this[field] = pending[field];
+    });
 
-    // If we switched to non-SNP grouping in AA-mode,
-    // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (this.groupKey !== GROUP_SNV && this.dnaOrAa === DNA_OR_AA.AA) {
-      if (this.selectedGene.name === 'All Genes') {
-        // Switch back to S gene
-        this.selectedGene = getGene('S');
-      }
-      if (this.selectedProtein.name === 'All Proteins') {
-        // Switch back to nsp12 protein
-        this.selectedProtein = getProtein('nsp12 - RdRp');
-      }
-    }
-
-    // this.dataStoreInstance.updateCaseData();
+    this.dataStoreInstance.fetchData();
   }
 
   // Get a pretty name for the group
@@ -251,103 +223,6 @@ export class ConfigStore {
         return 'AA SNV';
       }
     }
-  }
-
-  @action
-  setDefaultGeneResidueCoordinates() {
-    if (this.selectedGene.name === 'All Genes') {
-      this.residueCoordinates = [];
-    } else {
-      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
-    }
-    // Clear valid residue coordinates flag
-    this.validResidueCoordinates = true;
-  }
-
-  @action
-  setDefaultProteinResidueCoordinates() {
-    if (this.selectedProtein.name === 'All Proteins') {
-      this.residueCoordinates = [];
-    } else {
-      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
-    }
-    // Clear valid residue coordinates flag
-    this.validResidueCoordinates = true;
-  }
-
-  @action
-  updateCoordinateMode(coordinateMode) {
-    this.coordinateMode = coordinateMode;
-
-    // If we switched to a coordinate mode that doesn't support AA SNPs,
-    // then switch off of it now
-    if (
-      this.dnaOrAa === DNA_OR_AA.AA &&
-      this.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
-      this.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN
-    ) {
-      this.dnaOrAa = DNA_OR_AA.DNA;
-    }
-
-    if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      this.setDefaultGeneResidueCoordinates();
-    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      this.setDefaultProteinResidueCoordinates();
-    }
-  }
-
-  @action
-  updateSelectedGene(selectedGene) {
-    const initialSelectedGene = this.selectedGene;
-    this.selectedGene = getGene(selectedGene);
-
-    // If we selected a new gene, then update the residue coordinates
-    if (this.selectedGene.name !== initialSelectedGene.name) {
-      this.setDefaultGeneResidueCoordinates();
-    }
-  }
-
-  @action
-  updateSelectedProtein(selectedProtein) {
-    const initialSelectedProtein = this.selectedProtein;
-    this.selectedProtein = getProtein(selectedProtein);
-
-    // If we selected a new protein, then update the residue coordinates
-    if (this.selectedProtein.name !== initialSelectedProtein.name) {
-      this.setDefaultProteinResidueCoordinates();
-    }
-  }
-
-  @action
-  updateResidueCoordinates(residueCoordinates) {
-    this.residueCoordinates = residueCoordinates;
-  }
-  @action
-  updateValidResidueCoordinates(valid) {
-    this.validResidueCoordinates = valid;
-  }
-
-  @action
-  updateSelectedPrimers(selectedPrimers) {
-    this.selectedPrimers = selectedPrimers;
-  }
-
-  @action
-  updateCustomCoordinates(customCoordinates) {
-    this.customCoordinates = customCoordinates;
-  }
-  @action
-  updateValidCustomCoordinates(valid) {
-    this.validCustomCoordinates = valid;
-  }
-
-  @action
-  updateCustomSequences(customSequences) {
-    this.customSequences = customSequences;
-  }
-  @action
-  updateValidCustomSequences(valid) {
-    this.validCustomSequences = valid;
   }
 
   getCoordinateRanges() {
@@ -423,27 +298,6 @@ export class ConfigStore {
     }
   }
 
-  @action
-  selectLocations(selectedLocationNodes) {
-    this.selectedLocationNodes = selectedLocationNodes;
-
-    // Clear metadata fields
-    this.selectedMetadataFields = {};
-
-    // if (!selectedLocationNodes || !selectedLocationNodes[0]) {
-    //   this.locationDataStoreInstance.deselectAll();
-    //   this.dataStoreInstance.emptyCaseData();
-    // } else {
-    //   this.dataStoreInstance.updateCaseData();
-    // }
-  }
-
-  @action
-  updateSelectedMetadataFields(field, options) {
-    this.selectedMetadataFields[field] = options;
-    // this.dataStoreInstance.updateCaseData();
-  }
-
   getSelectedMetadataFields() {
     const selectedMetadataFields = toJS(this.selectedMetadataFields);
     Object.keys(selectedMetadataFields).forEach((metadataField) => {
@@ -454,30 +308,6 @@ export class ConfigStore {
       });
     });
     return selectedMetadataFields;
-  }
-
-  @action
-  updateAgeRange(ageRange) {
-    this.ageRange = ageRange;
-  }
-
-  @action
-  updateStartDate(startDate) {
-    this.startDate = startDate;
-    this.checkValidDateRanges();
-  }
-  @action
-  updateEndDate(endDate) {
-    this.endDate = endDate;
-    this.checkValidDateRanges();
-  }
-  @action
-  updateValidDateRange(validDateRange) {
-    this.validDateRange = validDateRange;
-  }
-  checkValidDateRanges() {
-    const validDateRange = ISOToInt(this.startDate) < ISOToInt(this.endDate);
-    this.updateValidDateRange(validDateRange);
   }
 
   @action
@@ -551,25 +381,5 @@ export class ConfigStore {
   @action
   updateFocusedLocations(locations) {
     this.focusedLocations = locations;
-  }
-
-  @action
-  setLowFreqFilterType(lowFreqFilterType) {
-    this.lowFreqFilterType = lowFreqFilterType;
-  }
-
-  @action
-  setMinLocalCounts(minLocalCounts) {
-    this.minLocalCounts = minLocalCounts;
-  }
-
-  @action
-  setMinGlobalCounts(minGlobalCounts) {
-    this.minGlobalCounts = minGlobalCounts;
-  }
-
-  @action
-  setMaxGroupCounts(maxGroupCounts) {
-    this.maxGroupCounts = maxGroupCounts;
   }
 }

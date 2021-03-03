@@ -12,6 +12,8 @@ import Footer from './Footer';
 import Button from '../Buttons/Button';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
 
+import { ASYNC_STATES } from '../../constants/defs.json';
+
 const Container = styled.div`
   width: 430px;
   display: flex;
@@ -59,6 +61,11 @@ const FilterSidebar = observer(() => {
   const [modalActive, setModalActive] = useState(false);
 
   const hideModal = () => {
+    // Don't close the modal if we're in the middle of a request
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     setModalActive(false);
   };
   const showModal = () => {

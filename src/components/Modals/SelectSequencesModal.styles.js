@@ -6,35 +6,51 @@ import Button from '../Buttons/Button';
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-start;
 
   width: calc(100vw - 100px);
   height: calc(100vh - 100px);
 `;
 
-export const Footer = styled.div`
+export const HeaderContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  flex-shrink: 0;
+  background-color: #fff;
+
   height: 40px;
 
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 
-  border-top: 1px solid #ccc;
-
-  padding: 5px 10px;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0px 0px 5px 1px #ddd;
 `;
 
-export const Header = styled.div`
+export const HeaderRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 3px 5px;
+`;
+
+export const HeaderButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+export const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-
-  padding: 10px;
-  margin-right: 15px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+  margin-left: 20px;
 
   .title {
     h2 {
@@ -58,12 +74,11 @@ export const Content = styled.div`
   flex-direction: row;
   align-items: flex-start;
   flex-wrap: wrap;
-
-  padding: 20px 20px 0px 20px;
 `;
 
 export const Column = styled.div`
-  width: ${({ width }) => width}px;
+  min-width: ${({ minWidth }) => minWidth}px;
+  ${({ maxWidth }) => (maxWidth > 0 ? 'max-width: ' + maxWidth + 'px;' : '')}
   height: 100%;
 
   display: flex;
@@ -73,8 +88,9 @@ export const Column = styled.div`
   ${({ grow }) => (grow ? 'flex-grow: 1;' : '')}
 `;
 Column.defaultProps = {
-  width: 300,
+  minWidth: 300,
   grow: false,
+  maxWidth: 0,
 };
 
 export const CancelButton = styled(Button)`
