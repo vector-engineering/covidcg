@@ -8,7 +8,7 @@ import {
 import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
-import { intToISO, ISOToInt } from '../utils/date';
+import { intToISO } from '../utils/date';
 
 import {
   GROUP_SNV,
@@ -205,10 +205,15 @@ export class ConfigStore {
         COMPARE_COLORS.COMPARE_COLOR_YELLOW;
     }
 
+    // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
     });
 
+    // Update the location node tree with our new selection
+    this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
+
+    // Get the new data from the server
     this.dataStoreInstance.fetchData();
   }
 

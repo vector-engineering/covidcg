@@ -43,7 +43,7 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, dataStore, UIStore } = useStores();
+  const { configStore, UIStore } = useStores();
   const sentRequest = useRef(false);
 
   const [pending, setPending] = useState({
