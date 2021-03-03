@@ -389,10 +389,51 @@ export class DataStore {
   }
 
   downloadSnvCooccurrence() {
-    let csvString = 'combination,snv,count\n';
-    this.snvCooccurrence.forEach((row) => {
-      csvString += `${row.combi},${row.snv},${row.count}\n`;
-    });
+    let csvString = 'selected_snvs,cooccurs_with,';
+    let fields = [];
+    if (this.configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
+      if (
+        this.configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
+      ) {
+        csvString += 'gene,';
+        fields.push('gene');
+      } else if (
+        this.configStoreInstance.coordinateMode ===
+        COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        csvString += 'protein,';
+        fields.push('protein');
+      }
+    }
+    csvString += 'pos,ref,alt,count,selected_count,fraction\n';
+    fields.push('pos', 'ref', 'alt');
+
+    // Have to convert SNV string into integer, then into SNV object
+    const snvToIntMap = this.configStoreInstance.getSnvToIntMap();
+    const intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    let snv;
+
+    this.snvCooccurrence
+      .sort((a, b) => {
+        // Group by the SNV combination, then sort by counts, descending order
+        if (a.combi < b.combi) {
+          return -1;
+        } else if (a.combi > b.combi) {
+          return 1;
+        } else {
+          return b.count - a.count;
+        }
+      })
+      .forEach((row) => {
+        // Add combination and co-occuring SNV name
+        csvString += `${row.combiName},${row.snvName},`;
+        // Add SNV fields
+        snv = intToSnvMap[snvToIntMap[row.snv]];
+        csvString += fields.map((field) => snv[field]).join(',');
+
+        // Add counts and fraction
+        csvString += `,${row.count},${row.combiCount},${row.fraction}\n`;
+      });
 
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
