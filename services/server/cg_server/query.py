@@ -25,12 +25,20 @@ def build_coordinate_filters(
             snv_cols.append("protein")
             snv_filter.append("snp_data.\"protein\" = '{}'".format(selected_protein))
 
+    snv_filter = " AND ".join(snv_filter)
+
+    pos_filter = []
     for start, end in coordinate_ranges:
         pos_column = "pos" if dna_or_aa == constants["DNA_OR_AA"]["DNA"] else "nt_pos"
-        snv_filter.append('snp_data."{}" >= {}'.format(pos_column, start))
-        snv_filter.append('snp_data."{}" <= {}'.format(pos_column, end))
-
-    snv_filter = " AND ".join(snv_filter)
+        pos_filter.append(
+            """
+            (snp_data."{pos_column}" >= {start} AND snp_data."{pos_column}" <= {end})
+            """.format(
+                pos_column=pos_column, start=start, end=end
+            )
+        )
+    pos_filter = " OR ".join(pos_filter)
+    snv_filter += (" AND " if snv_filter else "") + pos_filter
 
     return snv_cols, snv_filter, snv_table
 
