@@ -24,6 +24,7 @@ from cg_server.color import (
 from cg_server.config import config
 from cg_server.constants import constants
 from cg_server.database import seed_database
+from cg_server.download_metadata import download_metadata
 from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
@@ -453,63 +454,9 @@ def get_sequences():
 
 
 @app.route("/download_metadata", methods=["POST"])
-def download_metadata():
+def _download_metadata():
     req = request.json
-
-    with conn.cursor() as cur:
-        temp_table_name = select_sequences(cur, req)
-
-        sequence_cols = [
-            "Accession ID",
-            "collection_date",
-            "submission_date",
-        ]
-        sequence_cols_expr = ['q."{}"'.format(col) for col in sequence_cols]
-        metadata_joins = []
-
-        # Location columns
-        location_cols = ["region", "country", "division", "location"]
-        sequence_cols.extend(location_cols)
-        sequence_cols_expr.extend(['loc."{}"'.format(col) for col in location_cols])
-
-        for grouping in config["group_cols"].keys():
-            sequence_cols.append(grouping)
-            sequence_cols_expr.append('q."{}"'.format(grouping))
-
-        for field in config["metadata_cols"].keys():
-            sequence_cols.append(field)
-            sequence_cols_expr.append(
-                """
-                metadata_{field}."value" as "{field}"
-                """.format(
-                    field=field
-                )
-            )
-            metadata_joins.append(
-                """
-                JOIN "metadata_{field}" metadata_{field} 
-                    ON q."database" = metadata_{field}."id"
-                """.format(
-                    field=field
-                )
-            )
-
-        cur.execute(
-            """
-            SELECT {sequence_cols_expr}
-            FROM "{temp_table_name}" q
-            JOIN "location" loc ON q."location_id" = loc."id"
-            {metadata_joins}
-            """.format(
-                temp_table_name=temp_table_name,
-                sequence_cols_expr=",".join(sequence_cols_expr),
-                metadata_joins="\n".join(metadata_joins),
-            )
-        )
-
-        res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols)
-
-    return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})
+    return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
