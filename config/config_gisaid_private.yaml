@@ -75,7 +75,7 @@ group_cols:
 # Require a login for accessing the website
 # Users are provided to the app via. the "LOGINS" environment variable,
 # which is structured as "user1:pass1,user2:pass2,..."
-login_required: True
+login_required: true
 
 dev_hostname: "http://localhost:5000"
 prod_hostname: "https://az.covidcg.org"
