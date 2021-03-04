@@ -24,6 +24,7 @@ from cg_server.color import (
 from cg_server.config import config
 from cg_server.constants import constants
 from cg_server.database import seed_database
+from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
 
@@ -60,22 +61,36 @@ if port := os.getenv("POSTGRES_PORT", None):
 
 conn = psycopg2.connect(**connection_options)
 
+# Quickly check if our database has been initialized yet
+# If not, then let's seed it
+# Only allow in development mode
+if os.getenv("FLASK_ENV", "development") == "development":
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT FROM pg_tables
+                WHERE  schemaname = 'public'
+                AND    tablename  = 'metadata'
+            );
+            """
+        )
+
+        if not cur.fetchone()[0]:
+            print("Seeding DB")
+            seed_database(conn)
+            insert_sequences(
+                conn,
+                os.getenv("DATA_PATH", config["data_folder"]),
+                filenames_as_dates=True,
+            )
+            conn.commit()
+
 
 @app.route("/")
 @auth.login_required(optional=(not config["login_required"]))
 def index():
     return app.send_static_file("index.html")
-
-
-@app.route("/seed")
-def seed_db():
-    # Only allow in development mode
-    if os.getenv("FLASK_ENV", "development") == "development":
-        print("Seeding DB")
-        seed_database(conn)
-        return "success"
-    else:
-        return make_response(("Forbidden in production", 400))
 
 
 @app.route("/init")
