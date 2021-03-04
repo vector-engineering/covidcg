@@ -75,6 +75,9 @@ PARAMS_TO_TRACK.forEach((param) => {
 });
 
 export class ConfigStore {
+  // Maintain a reference to the initial values
+  initialConfigValues = initialConfigValues;
+
   // References to store instances
   plotSettingsStoreInstance;
   locationDataStoreInstance;
@@ -143,6 +146,9 @@ export class ConfigStore {
       )[0],
     ].filter((node) => node !== undefined);
     initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
+    this.initialConfigValues[
+      'selectedLocationNodes'
+    ] = this.selectedLocationNodes;
   }
 
   // modifyQueryParams = autorun(() => {
@@ -182,7 +188,7 @@ export class ConfigStore {
     }
 
     // Trigger data re-run
-    this.dataStoreInstance.updateCaseData(() => {});
+    this.dataStoreInstance.fetchData();
   }
 
   @action
@@ -376,6 +382,24 @@ export class ConfigStore {
         return intToGeneAaSnvMap;
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         return intToProteinAaSnvMap;
+      }
+    }
+  }
+
+  getSnvToIntMap() {
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
+
+    if (this.dnaOrAa === DNA_OR_AA.DNA) {
+      return dnaSnvMap;
+    } else if (this.dnaOrAa === DNA_OR_AA.AA) {
+      if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return geneAaSnvMap;
+      } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        return proteinAaSnvMap;
       }
     }
   }

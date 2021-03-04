@@ -6,11 +6,11 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  overflow-y: scroll;
 
-  margin: 0px 10px;
   padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   background-color: #fff;
 `;
 

@@ -189,20 +189,22 @@ def get_sequences():
     # print("Counts per location date")
     # print(counts_per_location_date)
 
-    snv_aggs = {}
+    snv_aggs = {
+        "group": ("snp_str", "first"),
+        "group_name": ("snv_name", "first"),
+        "counts": ("sequence_id", "count"),
+        "color": ("color", "first"),
+    }
+    group_aggs = {"counts": ("Accession ID", "count"), "color": ("color", "first")}
     if group_key == constants["GROUP_SNV"]:
-        snv_aggs["counts"] = ("sequence_id", "count")
-        snv_aggs["group"] = ("snp_str", "first")
-        snv_aggs["group_name"] = ("snv_name", "first")
-        snv_aggs["color"] = ("color", "first")
+        aggs = snv_aggs
     else:
-        snv_aggs["counts"] = ("Accession ID", "count")
-        snv_aggs["color"] = ("color", "first")
+        aggs = group_aggs
 
     counts_per_location_date_group = (
         (res_snv if group_key == constants["GROUP_SNV"] else res_df)
         .groupby(["location", "collection_date", group_col])
-        .agg(**snv_aggs)
+        .agg(**aggs)
         .reset_index()
         .rename(columns={"collection_date": "date", group_col: "group_id"})
     )
@@ -248,8 +250,8 @@ def get_sequences():
         counts_per_location_date_group.groupby(["group", "date"])
         .agg(
             group_id=("group_id", "first"),
-            counts=("counts", "sum"),
             group_name=("group_name", "first"),
+            counts=("counts", "sum"),
             color=("color", "first"),
         )
         .reset_index()
@@ -259,7 +261,7 @@ def get_sequences():
 
     # COUNT GROUPS
     # ------------
-    group_counts_after_date_filter = (
+    group_counts_after_low_freq = (
         counts_per_date_group.groupby("group")
         .agg(
             counts=("counts", "sum"),
@@ -268,8 +270,8 @@ def get_sequences():
         )
         .reset_index()
     )
-    # print('Group counts after date filter')
-    # print(group_counts_after_date_filter)
+    # print("Group counts after low freq collapse")
+    # print(group_counts_after_low_freq)
 
     # AGGREGATE BY GROUP (COLLAPSE LOCATION + DATE)
     # ---------------------------------------------
@@ -292,7 +294,51 @@ def get_sequences():
     # CHANGING POSITIONS
     # ------------------
 
-    if group_key != constants["GROUP_SNV"]:
+    if group_key == constants["GROUP_SNV"]:
+
+        def parse_snv_str(snv_str):
+            chunks = snv_str.split("|")
+            if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
+                if len(chunks) < 3:
+                    return (-1, None, None)
+                return (int(chunks[0]), chunks[1], chunks[2])
+            elif dna_or_aa == constants["DNA_OR_AA"]["AA"]:
+                if len(chunks) < 4:
+                    return (None, -1, None, None)
+                return (chunks[0], int(chunks[1]), chunks[2], chunks[3])
+
+        # Join SNV details (gene/protein, pos, ref, alt)
+        if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
+            snv_details = pd.DataFrame(
+                [
+                    [pos, ref, alt]
+                    for pos, ref, alt in counts_per_group["group"]
+                    .apply(parse_snv_str)
+                    .values
+                ],
+                columns=["pos", "ref", "alt"],
+                index=counts_per_group.index,
+            )
+        elif dna_or_aa == constants["DNA_OR_AA"]["AA"]:
+            snv_details = pd.DataFrame(
+                [
+                    [gene_protein, pos, ref, alt]
+                    for gene_protein, pos, ref, alt in counts_per_group["group"]
+                    .apply(parse_snv_str)
+                    .values
+                ],
+                columns=[
+                    "gene"
+                    if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]
+                    else "protein"
+                ]
+                + ["pos", "ref", "alt"],
+                index=counts_per_group.index,
+            )
+
+        counts_per_group = pd.concat([counts_per_group, snv_details], axis=1)
+
+    else:
 
         # Add the reference row
         counts_per_group = pd.concat(
@@ -369,7 +415,7 @@ def get_sequences():
         "countsPerLocationDate": {counts_per_location_date},
         "validGroups": {valid_groups},
         "dataAggGroup": {counts_per_group},
-        "groupCounts": {group_counts_after_date_filter}
+        "groupCounts": {group_counts_after_low_freq}
     }}
     """.format(
         agg_sequences=agg_sequences.to_json(orient="records"),
@@ -383,7 +429,7 @@ def get_sequences():
         counts_per_location_date=counts_per_location_date.to_json(orient="records"),
         valid_groups=json.dumps(valid_groups),
         counts_per_group=counts_per_group.to_json(orient="records"),
-        group_counts_after_date_filter=group_counts_after_date_filter.to_json(
+        group_counts_after_low_freq=group_counts_after_low_freq.to_json(
             orient="values"
         ),
     )

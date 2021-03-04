@@ -136,6 +136,8 @@ function processCooccurrenceData({
 
   // Count SNVs for each single or combination of SNVs
   const snvCooccurrence = {};
+  // Counts for each SNV combination - used to calculate fractions
+  const snvCombinationCounts = {};
   const selectedSnvCombinations = getCombinations(Array.from(selectedGroupIds));
 
   selectedSnvCombinations.forEach((combi) => {
@@ -144,12 +146,16 @@ function processCooccurrenceData({
       .map((snvId) => intToSnvMap[snvId].snp_str)
       .join(' + ');
     snvCooccurrence[combiKey] = {};
+    snvCombinationCounts[combiKey] = 0;
 
     // Loop thru all data, count SNVs
     aggSequences.forEach((row) => {
       if (!combi.every((snvId) => row['group_id'].includes(snvId))) {
         return;
       }
+
+      // Tally counts for this combination
+      snvCombinationCounts[combiKey] += row.counts;
 
       row['group_id'].forEach((snvId) => {
         // Only check for SNVs that aren't in this combination
@@ -182,6 +188,8 @@ function processCooccurrenceData({
         snvName: formatSnv(snv, dnaOrAa),
         color: snvColorMap[snv],
         count: snvCooccurrence[combi][snv],
+        fraction: snvCooccurrence[combi][snv] / snvCombinationCounts[combi],
+        combiCount: snvCombinationCounts[combi],
       });
     });
   });

@@ -43,7 +43,7 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, UIStore } = useStores();
+  const { configStore, UIStore, locationDataStore } = useStores();
   const sentRequest = useRef(false);
 
   const [pending, setPending] = useState({
@@ -334,6 +334,17 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     configStore.applyPendingChanges(pending);
   };
 
+  const applyDefault = () => {
+    setPending({
+      ...pending,
+      ...configStore.initialConfigValues,
+    });
+    // Have to manually trigger this to update the tree
+    locationDataStore.setSelectedNodes(
+      configStore.initialConfigValues.selectedLocationNodes
+    );
+  };
+
   // Make sure everything is in order, before allowing the button to be clicked
   let invalid = false;
   if (
@@ -388,6 +399,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           <HeaderButtons>
             {invalid && <InvalidText>Please fix errors</InvalidText>}
             <CancelButton onClick={onRequestClose}>Cancel</CancelButton>
+            <CancelButton onClick={applyDefault}>Reset to Default</CancelButton>
             <ApplyButton
               disabled={invalid}
               invalid={invalid}

@@ -1,47 +1,32 @@
 import React from 'react';
-import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
-import QuestionButton from '../Buttons/QuestionButton';
 import ReactTooltip from 'react-tooltip';
+
+import QuestionButton from '../Buttons/QuestionButton';
 import TableLegendItem from './TableLegendItem';
 
-const StyledContainer = styled.div`
-  width: 100%;
-  height: 100%;
-`;
+import { SORT_DIRECTIONS } from '../../constants/defs.json';
+import { COLUMN_NAMES } from './legendUtils';
 
-const Header = styled.div`
-  height: 48px;
-  border-bottom: 1px solid #ccc;
-`;
-
-const HeaderRow = styled.div`
-  width: 100%;
-  height: 50%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
+import {
+  StyledContainer,
+  Header,
+  HeaderRow,
+  StyledColumnHeader,
+} from './TableLegend.styles';
 
 const SortArrow = ({ dir }) => {
-  if (dir === 'DESC') {
+  if (dir === SORT_DIRECTIONS.SORT_DESC) {
     return <>&#9660;</>;
-  } else if (dir === 'ASC') {
+  } else if (dir === SORT_DIRECTIONS.SORT_ASC) {
     return <>&#9650;</>;
   }
 };
-
-const StyledColumnHeader = styled.div`
-  cursor: pointer;
-  width: ${({ width }) => width};
-  font-size: 12px;
-  padding: 0px 3px;
-`;
 
 const TableLegend = observer(
   ({
@@ -101,7 +86,7 @@ const TableLegend = observer(
       <StyledContainer>
         <Header>
           <HeaderRow>
-            <ColumnHeader columnName="group" width="100%">
+            <ColumnHeader columnName={COLUMN_NAMES.GROUP} width="100%">
               <ReactTooltip
                 className="legend-sidebar-tooltip"
                 id="legend-sidebar-tooltip"
@@ -133,10 +118,10 @@ const TableLegend = observer(
           </HeaderRow>
           <HeaderRow>
             <ColumnHeader columnName="spacer" width="40%"></ColumnHeader>
-            <ColumnHeader columnName="counts" width="30%">
+            <ColumnHeader columnName={COLUMN_NAMES.COUNTS} width="30%">
               #
             </ColumnHeader>
-            <ColumnHeader columnName="percent" width="30%">
+            <ColumnHeader columnName={COLUMN_NAMES.PERCENT} width="30%">
               %
             </ColumnHeader>
           </HeaderRow>
