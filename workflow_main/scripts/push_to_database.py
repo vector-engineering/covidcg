@@ -13,7 +13,9 @@ cg_server_path = str(
 # print(cg_server_path)
 sys.path.append(cg_server_path)
 
+from cg_server.config import config
 from cg_server.database import seed_database
+from cg_server.insert_sequences import insert_sequences
 
 
 def main():
@@ -30,7 +32,15 @@ def main():
 
     conn = psycopg2.connect(**connection_options)
 
-    seed_database(conn)
+    try:
+        seed_database(conn)
+        # insert_sequences(conn, config["data_folder"], filenames_as_dates=True)
+
+        print("Committing changes...", end="", flush=True)
+        conn.commit()
+        print("done")
+    except psycopg2.Error as e:
+        raise e
 
     conn.close()
 
