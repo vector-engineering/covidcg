@@ -473,7 +473,7 @@ def download_metadata():
             metadata_joins.append(
                 """
                 JOIN "metadata_{field}" metadata_{field} 
-                    ON q."database" = metadata_{field}."id"
+                    ON q."{field}" = metadata_{field}."id"
                 """.format(
                     field=field
                 )
