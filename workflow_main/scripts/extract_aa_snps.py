@@ -22,9 +22,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
         ref_seq = list(ref.values())[0]
 
     # JSON to dataframe
-    with open(gene_or_protein_file) as fp:
-        gene_or_protein_df = json.loads(fp.read())
-        gene_or_protein_df = pd.DataFrame(gene_or_protein_df)
+    gene_or_protein_df = pd.read_json(gene_or_protein_file)
 
     if mode == "gene":
         # Only take protein-coding genes
@@ -62,15 +60,13 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
     for ref_name, ref_row in gene_or_protein_df.iterrows():
         # print(ref_name)
 
-        segments = ref_row["segments"].split(";")
-
         resi_counter = 0
         aa_seqs[ref_name] = []
 
-        for segment in segments:
+        for segment in ref_row["segments"]:
             # Get the region in coordinates to translate/look for SNPs in
-            segment_start = int(segment.split("..")[0])
-            segment_end = int(segment.split("..")[1])
+            segment_start = segment[0]
+            segment_end = segment[1]
             segment_len = ((segment_end - segment_start) // 3) + 1
 
             # Translate the sequence and store it for later
