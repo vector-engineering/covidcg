@@ -2,15 +2,16 @@
 
 import itertools
 import json
+import numpy as np
 import os
 import pandas as pd
 import psycopg2
-import numpy as np
+import re
 
 from collections import OrderedDict
 from functools import partial
 from flask import Flask, jsonify, request, make_response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_gzip import Gzip
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -43,6 +44,16 @@ load_users = [
 ]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
+
+
+# Load allowed CORS domains
+cors_domains = []
+if os.getenv("FLASK_ENV", "development") == "development":
+    # Allow any connections from localhost in development
+    cors_domains.append(re.compile(r"http://localhost"))
+
+# Whitelist the production hostname
+cors_domains.append(config["prod_hostname"])
 
 
 @auth.verify_password
@@ -95,11 +106,13 @@ def index():
 
 
 @app.route("/init")
+@cross_origin(origins=cors_domains)
 def init():
     return query_init(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
+@cross_origin(origins=cors_domains)
 def get_sequences():
     req = request.json
     if not req:
@@ -454,13 +467,25 @@ def get_sequences():
 
 
 @app.route("/download_metadata", methods=["POST"])
+@cross_origin(origins=cors_domains)
 def _download_metadata():
+    if not config["allow_metadata_download"]:
+        return make_response(
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
+        )
+
     req = request.json
     return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
+@cross_origin(origins=cors_domains)
 def download_snvs():
+    if not config["allow_metadata_download"]:
+        return make_response(
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
+        )
+
     req = request.json
     res_df, res_snv = query_sequences(conn, req)
     return make_response(
