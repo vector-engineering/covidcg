@@ -34,7 +34,7 @@ def main():
 
     try:
         seed_database(conn)
-        # insert_sequences(conn, config["data_folder"], filenames_as_dates=True)
+        insert_sequences(conn, config["data_folder"], filenames_as_dates=True)
 
         print("Committing changes...", end="", flush=True)
         conn.commit()
