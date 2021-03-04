@@ -10,6 +10,7 @@ services:
       args:
         CONFIGFILE: ${CONFIGFILE}
     environment:
+      - LOGINS=user1:pass1,user2:pass2
       - STATIC_DATA_PATH=/static_data
       - CLOUDSQL_CONNECTION_NAME
       - POSTGRES_USER
