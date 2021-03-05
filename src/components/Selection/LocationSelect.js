@@ -4,18 +4,19 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { getNodeFromPath } from '../../utils/location';
 
+import QuestionButton from '../Buttons/QuestionButton';
+
 import {
   ContainerDiv,
   DropdownHeader,
+  Title,
   UnselectButton,
   StyledDropdownTreeSelect,
 } from './LocationSelect.styles';
 
-import { ASYNC_STATES } from '../../constants/defs.json';
-
 const LocationSelect = observer(
   ({ selectedLocationNodes, updateSelectedLocationNodes }) => {
-    const { UIStore, locationDataStore } = useStores();
+    const { locationDataStore } = useStores();
 
     const [state, setState] = useState({
       data: locationDataStore.selectTree,
@@ -28,9 +29,12 @@ const LocationSelect = observer(
     const onUnselectAll = (e) => {
       e.preventDefault();
       updateSelectedLocationNodes([]);
+      locationDataStore.setSelectedNodes([]);
     };
 
     const treeSelectOnChange = (currentNode, selectedNodes) => {
+      //console.log('onChange::', currentNode, selectedNodes);
+
       // Since the tree is rendered in a flat state, we need to get all node
       // children from the original data, via. the node paths
       let selectedNodeObjs = selectedNodes.map((node) => {
@@ -41,16 +45,32 @@ const LocationSelect = observer(
 
         return getNodeFromPath(state.data, node['path']);
       });
-
-      if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-        return;
-      }
-
       updateSelectedLocationNodes(selectedNodeObjs);
     };
-    // const treeSelectOnAction = (node, action) => {
-    //   console.log('onAction::', action, node);
-    // };
+    const treeSelectOnAction = (node, action) => {
+      // console.log('onAction::', action, node);
+
+      if (
+        Object.prototype.hasOwnProperty.call(action, 'action') &&
+        action.action === 'select-all-children'
+      ) {
+        const selectedNodeObjs = selectedLocationNodes;
+
+        // If this was called on the "All" node, then it won't have a path
+        const parentNode = Object.prototype.hasOwnProperty.call(node, 'path')
+          ? getNodeFromPath(state.data, node['path'])
+          : state.data;
+
+        // Add each child to the selected nodes
+        parentNode.children.forEach((child) => {
+          selectedNodeObjs.push(child);
+        });
+        updateSelectedLocationNodes(selectedNodeObjs);
+        // Have to update the store's version as well, since
+        // we didn't directly click on these new nodes
+        locationDataStore.setSelectedNodes(selectedNodeObjs);
+      }
+    };
     // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
     //   console.log('onNodeToggle::', currentNode);
     // };
@@ -58,12 +78,13 @@ const LocationSelect = observer(
     const dropdownContainer = useMemo(
       () => (
         <StyledDropdownTreeSelect
+          mode={'hierarchical'}
           data={state.data}
           className="geo-dropdown-tree-select"
           clearSearchOnChange={false}
           keepTreeOnSearch={true}
           keepChildrenOnSearch={true}
-          showPartiallySelected={true}
+          showPartiallySelected={false}
           showDropdown="always"
           inlineSearchInput={true}
           texts={{
@@ -71,7 +92,7 @@ const LocationSelect = observer(
             noMatches: 'No matches found',
           }}
           onChange={treeSelectOnChange}
-          // onAction={treeSelectOnAction}
+          onAction={treeSelectOnAction}
           // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
         />
       ),
@@ -81,7 +102,13 @@ const LocationSelect = observer(
     return (
       <ContainerDiv>
         <DropdownHeader>
-          <span className="location-tree-title">Selected Locations</span>
+          <Title>Selected Locations</Title>
+          <QuestionButton
+            data-tip={`<p>Click on a checkbox to select all sequences from that location.</p><p>You may select multiple levels of locations, i.e., both "USA" and "California".</p><p>Click on the "↳" button to select all of a location's children, without selecting the location itself. i.e., clicking the "↳" next to "All" will select all 6 continents separately.</p><p>Selected countries will appear as boxes underneath the title. Click on the "x" on the right side of each box to de-select that location.</p><p>You can clear all selected locations by clicking "Unselect All"</p>`}
+            data-html="true"
+            data-place="right"
+            data-for="main-tooltip"
+          />
           <UnselectButton
             show={selectedLocationNodes.length > 0}
             onClick={onUnselectAll}

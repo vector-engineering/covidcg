@@ -13,6 +13,7 @@ import {
 } from '../../constants/defs.json';
 
 import Modal from 'react-modal';
+import ReactTooltip from 'react-tooltip';
 
 import LocationSelect from '../Selection/LocationSelect';
 import GroupBySelect from '../Selection/GroupBySelect';
@@ -331,6 +332,14 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     });
   };
 
+  // When the component first mounts (i.e., when the modal is first clicked on)
+  // then reset the location date tree state to what's currently selected
+  // in the config store
+  useEffect(() => {
+    locationDataStore.setSelectedNodes(configStore.selectedLocationNodes);
+    ReactTooltip.rebuild();
+  }, []);
+
   const applyChanges = () => {
     sentRequest.current = true;
     configStore.applyPendingChanges(pending);
@@ -349,24 +358,32 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   // Make sure everything is in order, before allowing the button to be clicked
   let invalid = false;
+  let invalidReason = 'Please fix errors'; // Default message
   if (
     pending.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
     !pending.validCustomCoordinates
   ) {
     invalid = true;
+    invalidReason = 'Error in custom coordinates';
   } else if (
     pending.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE &&
     !pending.validCustomSequences
   ) {
     invalid = true;
+    invalidReason = 'Error in custom sequences';
   } else if (
     (pending.coordinateMode === COORDINATE_MODES.COORD_GENE ||
       pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) &&
     !pending.validResidueCoordinates
   ) {
     invalid = true;
+    invalidReason = 'Error in residue coordinates';
   } else if (!pending.validDateRange) {
     invalid = true;
+    invalidReason = 'Error in date range';
+  } else if (pending.selectedLocationNodes.length === 0) {
+    invalid = true;
+    invalidReason = 'No locations selected';
   }
 
   // When our request goes through, close the modal
@@ -399,7 +416,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
           <HeaderButtons>
-            {invalid && <InvalidText>Please fix errors</InvalidText>}
+            {invalid && <InvalidText>Error: {invalidReason}</InvalidText>}
             <CancelButton onClick={onRequestClose}>Cancel</CancelButton>
             <CancelButton onClick={applyDefault}>Reset to Default</CancelButton>
             <ApplyButton

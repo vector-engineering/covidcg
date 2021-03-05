@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react';
 import _ from 'underscore';
 
-import ReactTooltip from 'react-tooltip';
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
 import {
@@ -420,20 +419,12 @@ const CoordinateSelect = observer(
 
     return (
       <SelectContainer>
-        <ReactTooltip
-          className="filter-sidebar-tooltip"
-          id="coordinate-title-tooltip"
-          type="light"
-          effect="solid"
-          border={true}
-          borderColor="#888"
-        />
         <span className="title">
           Genomic Coordinates
           <QuestionButton
             data-tip="<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p>"
             data-html="true"
-            data-for="coordinate-title-tooltip"
+            data-for="main-tooltip"
           />
         </span>
         <ModeSelectForm>
@@ -471,18 +462,10 @@ const CoordinateSelect = observer(
                       value={state.residueCoordsText}
                       onChange={handleResidueCoordsChange}
                     />
-                    <ReactTooltip
-                      className="filter-sidebar-tooltip"
-                      id="gene-residue-index-tooltip"
-                      type="light"
-                      effect="solid"
-                      border={true}
-                      borderColor="#888"
-                    />
                     <QuestionButton
                       data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
                       data-html="true"
-                      data-for="gene-residue-index-tooltip"
+                      data-for="main-tooltip"
                     />
                   </CoordForm>
                   {!validResidueCoordinates && (
@@ -543,18 +526,10 @@ const CoordinateSelect = observer(
                       value={state.residueCoordsText}
                       onChange={handleResidueCoordsChange}
                     />
-                    <ReactTooltip
-                      className="filter-sidebar-tooltip"
-                      id="protein-residue-index-tooltip"
-                      type="light"
-                      effect="solid"
-                      border={true}
-                      borderColor="#888"
-                    />
                     <QuestionButton
                       data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
                       data-html="true"
-                      data-for="protein-residue-index-tooltip"
+                      data-for="main-tooltip"
                     />
                   </CoordForm>
                   {!validResidueCoordinates && (
@@ -637,18 +612,10 @@ const CoordinateSelect = observer(
                   value={state.customCoordText}
                   onChange={handleCustomCoordChange}
                 />
-                <ReactTooltip
-                  className="filter-sidebar-tooltip"
-                  id="custom-coord-tooltip"
-                  type="light"
-                  effect="solid"
-                  border={true}
-                  borderColor="#888"
-                />
                 <QuestionButton
                   data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
                   data-html="true"
-                  data-for="custom-coord-tooltip"
+                  data-for="main-tooltip"
                 />
               </CoordForm>
             )}
@@ -681,18 +648,10 @@ const CoordinateSelect = observer(
                     onChange={handleCustomSequencesChange}
                     invalid={!validCustomSequences}
                   />
-                  <ReactTooltip
-                    className="filter-sidebar-tooltip"
-                    id="custom-sequence-tooltip"
-                    type="light"
-                    effect="solid"
-                    border={true}
-                    borderColor="#888"
-                  />
                   <QuestionButton
                     data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
                     data-html="true"
-                    data-for="custom-sequence-tooltip"
+                    data-for="main-tooltip"
                   />
                 </CoordForm>
                 {!validCustomSequences && (

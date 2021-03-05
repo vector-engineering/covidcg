@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 
-import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
 
 import { SelectContainer, RadioForm, Link } from './GroupBySelect.styles';
@@ -80,21 +79,14 @@ const GroupBySelect = observer(
 
     return (
       <SelectContainer>
-        <ReactTooltip
-          className="filter-sidebar-tooltip"
-          id="groupby-tooltip"
-          type="light"
-          effect="solid"
-          border={true}
-          borderColor="#888"
-        />
         <RadioForm>
           <span className="form-title">
             Group sequences by
             <QuestionButton
               data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment`}
               data-html="true"
-              data-for="groupby-tooltip"
+              data-place="right"
+              data-for="main-tooltip"
             />
           </span>
           <div className="radio-row">

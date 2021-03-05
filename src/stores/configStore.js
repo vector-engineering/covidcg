@@ -148,7 +148,7 @@ export class ConfigStore {
     initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
     this.initialConfigValues[
       'selectedLocationNodes'
-    ] = this.selectedLocationNodes;
+    ] = this.selectedLocationNodes.slice();
   }
 
   // modifyQueryParams = autorun(() => {

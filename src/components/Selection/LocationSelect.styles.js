@@ -23,6 +23,11 @@ export const DropdownHeader = styled.div`
   margin-left: 15px;
 `;
 
+export const Title = styled.span`
+  font-size: 1rem;
+  font-weight: 500;
+`;
+
 export const UnselectButton = styled.button`
   display: ${({ show }) => (show ? 'block' : 'none')};
   margin-left: 10px;
@@ -232,5 +237,34 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     margin-left: 0.5em;
     font-weight: normal;
     font-style: normal;
+  }
+
+  .select-all-children {
+    font-style: normal;
+    font-weight: normal;
+
+    border: 1px solid #ccc;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background-color: #fff;
+
+    margin-left: 5px;
+
+    cursor: pointer;
+
+    &:after {
+      content: '↳';
+    }
+
+    &:hover,
+    &:focus {
+      border-color: #888;
+      background-color: #f8f8f8;
+    }
+
+    &:active {
+      border-color: #000;
+      background-color: #eee;
+    }
   }
 `;
