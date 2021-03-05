@@ -119,23 +119,28 @@ def query_sequences(conn, req):
         )
         sequence_snv_table = "sequence_" + snv_table
 
-        snv_cols_selection = ",\n".join(
-            ['snp_data."{}"'.format(col) for col in snv_cols]
-        )
+        snv_cols_selection = ",\n".join(['snp."{}"'.format(col) for col in snv_cols])
 
         cur.execute(
             """
             SELECT
-                snp."sequence_id", 
-                snp."snp_id",
+                seq."id" as "sequence_id", 
+                COALESCE(snp."snp_id", -1),
                 seq."Accession ID",
                 seq."location_id",
                 seq."collection_date",
                 {snv_cols_selection}
-            FROM "{sequence_snv_table}" snp
-            RIGHT JOIN "{temp_table_name}" seq ON seq.id = snp.sequence_id 
-            INNER JOIN "{snv_table}" snp_data ON snp.snp_id = snp_data.id
-            WHERE {snv_filter};
+            FROM "{temp_table_name}" seq
+            FULL JOIN (
+                SELECT
+                    seq."id" as "sequence_id",
+                    snp."snp_id",
+                    snp_data.*
+                FROM "{temp_table_name}" seq
+                INNER JOIN "{sequence_snv_table}" snp ON seq."id" = snp."sequence_id"
+                INNER JOIN "{snv_table}" snp_data ON snp."snp_id" = snp_data."id"
+                WHERE {snv_filter}
+            ) snp ON seq."id" = snp."sequence_id";
             """.format(
                 snv_cols_selection=snv_cols_selection,
                 sequence_snv_table=sequence_snv_table,
