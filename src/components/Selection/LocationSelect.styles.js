@@ -233,4 +233,33 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     font-weight: normal;
     font-style: normal;
   }
+
+  .select-all-children {
+    font-style: normal;
+    font-weight: normal;
+
+    border: 1px solid #ccc;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background-color: #fff;
+
+    margin-left: 5px;
+
+    cursor: pointer;
+
+    &:after {
+      content: '↳';
+    }
+
+    &:hover,
+    &:focus {
+      border-color: #888;
+      background-color: #f8f8f8;
+    }
+
+    &:active {
+      border-color: #000;
+      background-color: #eee;
+    }
+  }
 `;

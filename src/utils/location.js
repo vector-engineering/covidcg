@@ -85,6 +85,28 @@ export function getNodeFromPath(rootNode, pathStr) {
   return nodeObj;
 }
 
+export function getParentNodeFromPath(rootNode, pathStr) {
+  // Get the path for the parent
+  const parentPath = pathStr.split('.').slice(0, -2);
+
+  // If the new path is empty, that means the parent
+  // is the root node
+  if (parentPath.length === 0) {
+    return rootNode;
+  }
+
+  return getNodeFromPath(rootNode, parentPath.join('.'));
+}
+
+export function setPartiallySelectedOnAllParents(rootNode, pathStr) {
+  const parentNode = getParentNodeFromPath(rootNode, pathStr);
+  parentNode.partial = true;
+  // Keep going until we're at the root node
+  if (Object.prototype.hasOwnProperty.call(parentNode, 'path')) {
+    setPartiallySelectedOnAllParents(rootNode, parentNode.path);
+  }
+}
+
 export function deselectAll(selectTree) {
   const traverseAndDeselect = (node) => {
     node.checked = false;

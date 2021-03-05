@@ -30,7 +30,8 @@ const LocationSelect = observer(
     };
 
     const treeSelectOnChange = (currentNode, selectedNodes) => {
-      // console.log('onChange::', currentNode, selectedNodes);
+      //console.log('onChange::', currentNode, selectedNodes);
+
       // Since the tree is rendered in a flat state, we need to get all node
       // children from the original data, via. the node paths
       let selectedNodeObjs = selectedNodes.map((node) => {
@@ -43,9 +44,30 @@ const LocationSelect = observer(
       });
       updateSelectedLocationNodes(selectedNodeObjs);
     };
-    // const treeSelectOnAction = (node, action) => {
-    //   console.log('onAction::', action, node);
-    // };
+    const treeSelectOnAction = (node, action) => {
+      // console.log('onAction::', action, node);
+
+      if (
+        Object.prototype.hasOwnProperty.call(action, 'action') &&
+        action.action === 'select-all-children'
+      ) {
+        const selectedNodeObjs = selectedLocationNodes;
+
+        // If this was called on the "All" node, then it won't have a path
+        const parentNode = Object.prototype.hasOwnProperty.call(node, 'path')
+          ? getNodeFromPath(state.data, node['path'])
+          : state.data;
+
+        // Add each child to the selected nodes
+        parentNode.children.forEach((child) => {
+          selectedNodeObjs.push(child);
+        });
+        updateSelectedLocationNodes(selectedNodeObjs);
+        // Have to update the store's version as well, since
+        // we didn't directly click on these new nodes
+        locationDataStore.setSelectedNodes(selectedNodeObjs);
+      }
+    };
     // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
     //   console.log('onNodeToggle::', currentNode);
     // };
@@ -59,7 +81,7 @@ const LocationSelect = observer(
           clearSearchOnChange={false}
           keepTreeOnSearch={true}
           keepChildrenOnSearch={true}
-          showPartiallySelected={true}
+          showPartiallySelected={false}
           showDropdown="always"
           inlineSearchInput={true}
           texts={{
@@ -67,7 +89,7 @@ const LocationSelect = observer(
             noMatches: 'No matches found',
           }}
           onChange={treeSelectOnChange}
-          // onAction={treeSelectOnAction}
+          onAction={treeSelectOnAction}
           // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
         />
       ),
