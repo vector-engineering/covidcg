@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Download metadata and SNVs from selected sequences
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 import psycopg2
 

@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Download selected SNVs in long form
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 
 from flask import make_response

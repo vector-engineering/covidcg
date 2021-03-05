@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Insert raw genomes into database
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import datetime
 import io
 import gzip

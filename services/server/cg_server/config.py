@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Configuration settings import
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import os
 
 from yaml import load, dump

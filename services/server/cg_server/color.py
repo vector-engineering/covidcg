@@ -1,3 +1,10 @@
+# coding: utf-8
+
+"""Color definitions
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 warmColors = [
     # autumn palette, [0, 1, 0.15]
     # '#ff0000',

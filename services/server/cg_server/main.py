@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Main flask app
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import itertools
 import json
 import numpy as np

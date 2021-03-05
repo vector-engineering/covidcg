@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Database seeding
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import datetime
 import io
 import json

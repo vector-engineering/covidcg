@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Get sequences/SNVs from database based on user selections
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 import uuid
 

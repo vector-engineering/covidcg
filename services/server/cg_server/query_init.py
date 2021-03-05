@@ -1,5 +1,11 @@
 # coding: utf-8
 
+"""Send initial data package to front-end
+Consists of SNV definitions, metadata definitions, etc
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 
 from cg_server.config import config
