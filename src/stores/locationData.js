@@ -23,18 +23,23 @@ function assignObjectPaths(obj, stack) {
 function recursiveMapIdToStr(map, node) {
   // Add self
   if (Object.prototype.hasOwnProperty.call(node, 'location_id')) {
-    if(node.level === 'region') {
+    if (node.level === 'region') {
       map[node.location_id] = [node.value, '', '', ''];
     } else if (node.level === 'country') {
       map[node.location_id] = [node.region, node.value, '', ''];
     } else if (node.level === 'division') {
       map[node.location_id] = [node.region, node.country, node.value, ''];
     } else if (node.level === 'location') {
-      map[node.location_id] = [node.region, node.country, node.division, node.value];
+      map[node.location_id] = [
+        node.region,
+        node.country,
+        node.division,
+        node.value,
+      ];
     }
   }
   // Add children
-  node.children.forEach(child => {
+  node.children.forEach((child) => {
     recursiveMapIdToStr(map, child);
   });
 }
@@ -65,8 +70,9 @@ export class LocationDataStore {
     selectedNodes.forEach((node) => {
       const nodeObj =
         'path' in node ? getNodeFromPath(selectTree, node['path']) : selectTree;
+      nodeObj.checked = true;
       // Select all of the nodes children
-      selectAll(nodeObj);
+      // selectAll(nodeObj);
     });
 
     this.selectTree = selectTree;

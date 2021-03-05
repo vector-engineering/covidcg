@@ -30,6 +30,7 @@ const LocationSelect = observer(
     };
 
     const treeSelectOnChange = (currentNode, selectedNodes) => {
+      // console.log('onChange::', currentNode, selectedNodes);
       // Since the tree is rendered in a flat state, we need to get all node
       // children from the original data, via. the node paths
       let selectedNodeObjs = selectedNodes.map((node) => {
@@ -52,6 +53,7 @@ const LocationSelect = observer(
     const dropdownContainer = useMemo(
       () => (
         <StyledDropdownTreeSelect
+          mode={'hierarchical'}
           data={state.data}
           className="geo-dropdown-tree-select"
           clearSearchOnChange={false}
