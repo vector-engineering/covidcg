@@ -103,9 +103,9 @@ const SurveillancePlot = ({ width }) => {
         />
       </PlotOptions>
       <HelpText>
-        Only data from the last 90 days is shown. Please note that the most
-        recent data is sparser due to lags in time between sample collection and
-        submission.
+        Only data from the last 90 days is shown, and sequence counts are
+        grouped by week to reduce noise. Please note that the most recent data
+        is sparser due to lags in time between sample collection and submission.
       </HelpText>
       <HelpText>
         Lineages with increased prevalence in at least one region are colored

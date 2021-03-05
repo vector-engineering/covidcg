@@ -108,8 +108,8 @@ const GlobalSeqPlot = ({ width }) => {
         />
       </PlotOptions>
       <HelpText>
-        The number of genomic sequence and associate data shared via the GISAID
-        Initiative (
+        The number of genomic sequence and associate data are shared via the
+        GISAID Initiative (
         <ExternalLink href="https://doi.org/10.1002/gch2.1018">
           Elbe et al, 2017, <i>Wiley Global Challenges</i>
         </ExternalLink>
@@ -121,8 +121,9 @@ const GlobalSeqPlot = ({ width }) => {
         <ExternalLink href="https://doi.org/10.1016/S1473-3099(20)30120-1">
           Dong et al, 2020, <i>Lancet Inf Dis.</i>
         </ExternalLink>
-        ). Regions with &gt;20 sequences per 1000 cases are colored the same in
-        the left map.
+        ). Data from cases and sequences are grouped by month to reduce noise.
+        Regions with &gt;20 sequences per 1000 cases are colored the same in the
+        left map.
       </HelpText>
       <HelpText>
         Hover over points in the top-left plot, or over countries on the map, to
