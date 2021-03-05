@@ -52,7 +52,11 @@ If the dependencies for the JS change (i.e., a change in `package.json`), then y
 > docker-compose up
 ```
 
-Same for dependency changes for the server (i.e., changes in `requirements.txt`)
+A rebuild will also need to be run if the toolchains change (`webpack*.js` or anything in `tools/`)
+
+For files outside of `src`, i.e., in `config/` or in `static_data/`, the container will need to be restarted but not rebuilt.
+
+For dependency changes for the server (i.e., changes in `requirements.txt`)
 
 ```bash
 > docker-compose down

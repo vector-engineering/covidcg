@@ -46,11 +46,13 @@ services:
     build:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
-      args:
-        CONFIGFILE: ./config/config_genbank.yaml
+    environment:
+      CONFIGFILE: /app/config/config_genbank.yaml
     working_dir: /app
     volumes:
       - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes
+      - ./config:/app/config:cached
+      - ./static_data:/app/static_data:cached
     command: "npm start -s"
     ports:
       - 3000:3000
