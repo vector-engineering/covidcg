@@ -20,23 +20,25 @@ import CoordinateSelect from '../Selection/CoordinateSelect';
 import DateSelect from '../Selection/DateSelect';
 import MetaFieldSelect from '../Selection/MetaFieldSelect';
 import FilterDataIntoOther from '../Selection/FilterDataIntoOther';
-
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
-  Wrapper,
-  Content,
-  Column,
+  Overlay,
+  ProgressContainer,
+  ProgressText,
   TitleContainer,
   HeaderContainer,
   HeaderRow,
   HeaderButtons,
   CancelButton,
+} from './Modal.styles';
+
+import {
+  Wrapper,
+  Content,
+  Column,
   ApplyButton,
   InvalidText,
-  Overlay,
-  ProgressContainer,
-  ProgressText,
 } from './SelectSequencesModal.styles';
 
 Modal.setAppElement('#app');

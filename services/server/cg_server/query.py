@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Get sequences/SNVs from database based on user selections
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import pandas as pd
 import uuid
 
@@ -71,8 +76,8 @@ def select_sequences(cur, req):
         CREATE TEMP TABLE "{temp_table_name}"
         ON COMMIT DROP
         AS (
-            SELECT seq.*
-            FROM "sequence" seq
+            SELECT m.*
+            FROM "metadata" m
             WHERE
                 "collection_date" >= %(start_date)s AND
                 "collection_date" <= %(end_date)s AND

@@ -83,5 +83,15 @@
     "TAB_METHODOLOGY": "methodology",
     "TAB_RELATED": "related_projects",
     "TAB_GLOBAL_SEQUENCES": "global_sequencing"
+  },
+  "SNV_FORMAT": {
+    "POS_REF_ALT": "pos_ref_alt",
+    "REF_POS_ALT": "ref_pos_alt"
+  },
+  "GEO_LEVELS": {
+    "REGION": "region",
+    "COUNTRY": "country",
+    "DIVISION": "division",
+    "LOCATION": "location"
   }
 }

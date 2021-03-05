@@ -20,6 +20,7 @@ export const initialUIValues = {
   caseDataState: ASYNC_STATES.STARTED,
   snvDataState: ASYNC_STATES.STARTED,
   cooccurrenceDataState: ASYNC_STATES.STARTED,
+  downloadState: ASYNC_STATES.SUCCEEDED,
 
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
@@ -33,6 +34,7 @@ export class UIStore {
   @observable caseDataState = initialUIValues.caseDataState;
   @observable snvDataState = initialUIValues.snvDataState;
   @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
+  @observable downloadState = initialUIValues.downloadState;
 
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
@@ -87,6 +89,19 @@ export class UIStore {
   @action
   onCooccurrenceDataErr = () => {
     this.cooccurrenceDataState = ASYNC_STATES.FAILED;
+  };
+
+  @action
+  onDownloadStarted = () => {
+    this.downloadState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onDownloadFinished = () => {
+    this.downloadState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onDownloadErr = () => {
+    this.downloadState = ASYNC_STATES.FAILED;
   };
 
   @action

@@ -8,10 +8,6 @@ ARG CONFIGFILE
 
 WORKDIR /app
 
-# Add the configfile as specified by docker-compose.yml
-ADD $CONFIGFILE ./config.yaml
-ENV CONFIGFILE /app/config.yaml
-
 # We need to manually add all the files on the root,
 # since we're only mounting the src/ folder as a bind
 # volume.
@@ -37,8 +33,6 @@ ADD tsconfig.json ./tsconfig.json
 ADD jsconfig.json ./jsconfig.json
 ADD webpack.config.dev.js ./webpack.config.dev.js
 ADD webpack.config.prod.js ./webpack.config.prod.js
-
 ADD tools ./tools
-ADD static_data ./static_data
 
 RUN npm install

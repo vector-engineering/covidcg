@@ -11,13 +11,15 @@ services:
         CONFIGFILE: ${CONFIGFILE}
     environment:
       - LOGINS=user1:pass1,user2:pass2
-      - STATIC_DATA_PATH=/static_data
+      # - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=production
       - CLOUDSQL_CONNECTION_NAME
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
       - POSTGRES_HOST
     command: "gunicorn --bind :8080 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    # command: "flask run --host 0.0.0.0 --port=8080"
     ports:
       - 8080:8080
     working_dir: /app

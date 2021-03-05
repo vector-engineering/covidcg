@@ -1,0 +1,95 @@
+# ------------------
+#       GLOBAL
+# ------------------
+
+# Path to folder with downloaded and processed data
+# This path is relative to the workflow folders
+data_folder: "../data"
+
+# Path to folder with genome information (reference.fasta, genes.json, proteins.json)
+# This path is relative to the workflow folders
+static_data_folder: "../static_data"
+
+# ------------------
+#       INGEST
+# ------------------
+
+# Number of genomes to load into memory before flushing to disk
+chunk_size: 100000
+
+# --------------------
+#       ANALYSIS
+# --------------------
+
+# SNPs with less than this number of global occurrences will be ignored
+snp_count_threshold: 3
+# Percentage of sequences within a group (e.g., clade, lineage) that need
+# to have a SNV, in order for the SNV to be called as a "consensus" SNV
+consensus_fraction: 0.9
+
+metadata_cols:
+  host:
+    title: "Host"
+  gender:
+    title: "Gender"
+  patient_status:
+    title: "Patient Status"
+  passage:
+    title: "Passage"
+    disabled: true
+  specimen:
+    title: "Specimen"
+  sequencing_tech:
+    title: "Sequencing"
+  assembly_method:
+    title: "Assembly"
+  comment_type:
+    title: "Flag"
+  authors:
+    title: "Authors"
+  originating_lab:
+    title: "Originating lab"
+  submitting_lab:
+    title: "Submitting lab"
+
+group_cols:
+  lineage:
+    name: "lineage"
+    title: "Lineage"
+    description: ""
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
+  clade:
+    name: "clade"
+    title: "Clade"
+    description: "For more information about clade and lineage nomenclature, visit this:"
+    link:
+      title: "[GISAID note]"
+      href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
+
+# ---------------
+#     SERVER
+# ---------------
+
+# Require a login for accessing the website
+# Users are provided to the app via. the "LOGINS" environment variable,
+# which is structured as "user1:pass1,user2:pass2,..."
+login_required: true
+
+dev_hostname: "http://localhost:5000"
+prod_hostname: "https://alpha.covidcg.org"
+# prod_hostname: "http://localhost:8080"
+
+# ----------------------
+#     VISUALIZATION
+# ----------------------
+
+show_logos:
+  GISAID: true
+  GenBank: false
+
+# Allow downloads of sequence metadata (before aggregation)
+allow_metadata_download: true
+# Allow downloads of raw genomes
+allow_genome_download: true

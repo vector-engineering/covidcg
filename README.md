@@ -6,6 +6,8 @@ Table of Contents
 
 - [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
 - [Installation](#installation)
+  - [Dependency changes](#dependency-changes)
+  - [Database refresh](#database-refresh)
 - [Per-service installation](#per-service-installation)
   - [Javascript](#javascript)
   - [PostgreSQL](#postgresql)
@@ -35,10 +37,40 @@ The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate instal
                        # (Re-builds only necessary if packages or 
                        # dependencies have changed)
 > docker-compose up -d # Run all services
-> curl localhost:5000/seed # Seed PostgreSQL database with example data 
-                           # (this only needs to be run once, the 
-                           # Docker volume will persist the database)
 > docker-compose down # Shut down all services when finished
+```
+
+**NOTE**: When starting from a fresh database, the server will automatically seed the database with data from the `example_data_genbank` folder. This process may take a few minutes as ~50K genomes are loaded into the database.
+
+### Dependency changes
+
+If the dependencies for the JS change (i.e., a change in `package.json`), then you can rebuild the frontend container with:
+
+```bash
+> docker-compose down
+> docker-compose build --no-cache frontend
+> docker-compose up
+```
+
+A rebuild will also need to be run if the toolchains change (`webpack*.js` or anything in `tools/`)
+
+For files outside of `src`, i.e., in `config/` or in `static_data/`, the container will need to be restarted but not rebuilt.
+
+For dependency changes for the server (i.e., changes in `requirements.txt`)
+
+```bash
+> docker-compose down
+> docker-compose build --no-cache server
+> docker-compose up
+```
+
+### Database refresh
+
+To erase the local development database, delete the postgres docker volume with:
+
+```bash
+> docker-compose down -v # -v will delete the volume
+> docker-compose up
 ```
 
 ## Per-service installation
@@ -99,8 +131,6 @@ Please provide DB connection information to the Flask server with the following 
 - POSTGRES_DB
 - POSTGRES_HOST
 - POSTGRES_PORT
-
-Seed the database with the example data by running: `curl localhost:5000/seed`, once the Flask server is up and running.
 
 ### Flask Server
 

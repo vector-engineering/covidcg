@@ -6,24 +6,16 @@
 # https://hub.docker.com/_/python
 FROM python:3.8-slim
 
-ARG CONFIGFILE
-
 ENV PYTHONDONTWRITEBYTECODE 1
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
-
-# Copy local code to the container image.
-WORKDIR /opt
-
-ADD $CONFIGFILE ./config.yaml
-ADD ./static_data /static_data
-ADD ./src/constants/defs.json ./defs.json
 
 # Install dependencies
 # We need to move the requirements.txt folder over manually.
 # Although the services/server folder will be mounted at /app,
 # this only happens at run-time, and we need the requirements
 # file *now* during build-time.
+WORKDIR /opt
 ADD ./services/server/requirements.txt ./requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt

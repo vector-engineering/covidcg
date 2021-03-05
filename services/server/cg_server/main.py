@@ -1,5 +1,10 @@
 # coding: utf-8
 
+"""Main flask app
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
 import itertools
 import json
 import numpy as np
@@ -25,6 +30,10 @@ from cg_server.color import (
 from cg_server.config import config
 from cg_server.constants import constants
 from cg_server.database import seed_database
+from cg_server.download_metadata import download_metadata
+from cg_server.download_genomes import download_genomes
+from cg_server.download_snvs import download_snvs
+from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
 
@@ -37,9 +46,8 @@ auth = HTTPBasicAuth()
 # as a comma-delimited string, "user1:pass1,user2:pass2"
 users = {}
 load_users = os.getenv("LOGINS", "")
-load_users = [
-    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users.split(",")
-]
+load_users = [chunk for chunk in load_users.split(",") if chunk]
+load_users = [(chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
 
@@ -71,22 +79,36 @@ if port := os.getenv("POSTGRES_PORT", None):
 
 conn = psycopg2.connect(**connection_options)
 
+# Quickly check if our database has been initialized yet
+# If not, then let's seed it
+# Only allow in development mode
+if os.getenv("FLASK_ENV", "development") == "development":
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT FROM pg_tables
+                WHERE  schemaname = 'public'
+                AND    tablename  = 'metadata'
+            );
+            """
+        )
+
+        if not cur.fetchone()[0]:
+            print("Seeding DB")
+            seed_database(conn)
+            insert_sequences(
+                conn,
+                os.getenv("DATA_PATH", config["data_folder"]),
+                filenames_as_dates=True,
+            )
+            conn.commit()
+
 
 @app.route("/")
 @auth.login_required(optional=(not config["login_required"]))
 def index():
     return app.send_static_file("index.html")
-
-
-@app.route("/seed")
-def seed_db():
-    # Only allow in development mode
-    if os.getenv("FLASK_ENV", "development") == "development":
-        print("Seeding DB")
-        seed_database(conn)
-        return "success"
-    else:
-        return make_response(("Forbidden in production", 400))
 
 
 @app.route("/init")
@@ -452,92 +474,36 @@ def get_sequences():
 
 @app.route("/download_metadata", methods=["POST"])
 @cross_origin(origins=cors_domains)
-def download_metadata():
+def _download_metadata():
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
-
-    with conn.cursor() as cur:
-        temp_table_name = select_sequences(cur, req)
-
-        sequence_cols = [
-            "Accession ID",
-            "collection_date",
-            "submission_date",
-        ]
-        sequence_cols_expr = ['q."{}"'.format(col) for col in sequence_cols]
-        metadata_joins = []
-
-        # Location columns
-        location_cols = ["region", "country", "division", "location"]
-        sequence_cols.extend(location_cols)
-        sequence_cols_expr.extend(['loc."{}"'.format(col) for col in location_cols])
-
-        for grouping in config["group_cols"].keys():
-            sequence_cols.append(grouping)
-            sequence_cols_expr.append('q."{}"'.format(grouping))
-
-        for field in config["metadata_cols"].keys():
-            sequence_cols.append(field)
-            sequence_cols_expr.append(
-                """
-                metadata_{field}."value" as "{field}"
-                """.format(
-                    field=field
-                )
-            )
-            metadata_joins.append(
-                """
-                JOIN "metadata_{field}" metadata_{field} 
-                    ON q."{field}" = metadata_{field}."id"
-                """.format(
-                    field=field
-                )
-            )
-
-        cur.execute(
-            """
-            SELECT {sequence_cols_expr}
-            FROM "{temp_table_name}" q
-            JOIN "location" loc ON q."location_id" = loc."id"
-            {metadata_joins}
-            """.format(
-                temp_table_name=temp_table_name,
-                sequence_cols_expr=",".join(sequence_cols_expr),
-                metadata_joins="\n".join(metadata_joins),
-            )
-        )
-
-        res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols)
-
-    return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})
+    return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
-def download_snvs():
+def _download_snvs():
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
-    res_df, res_snv = query_sequences(conn, req)
-    return make_response(
-        res_snv.drop(
-            columns=[
-                "sequence_id",
-                "snp_id",
-                "location_id",
-                "collection_date",
-                "snp_str",
-                "color",
-            ]
-        ).to_csv(index=False),
-        200,
-        {"Content-Type": "text/csv"},
-    )
+    return download_snvs(conn, req)
+
+
+@app.route("/download_genomes", methods=["POST"])
+@cross_origin(origins=cors_domains)
+def _download_genomes():
+    if not config["allow_genome_download"]:
+        return make_response(
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
+        )
+
+    req = request.json
+    return download_genomes(conn, req)
 

@@ -1,6 +1,9 @@
 # coding: utf-8
 
-"""Load SNVs to insert into database
+"""Add additional fields to SNVs
+Used only by database seeder
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
