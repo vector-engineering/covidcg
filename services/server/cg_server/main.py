@@ -47,8 +47,9 @@ auth = HTTPBasicAuth()
 # as a comma-delimited string, "user1:pass1,user2:pass2"
 users = {}
 load_users = os.getenv("LOGINS", "")
+load_users = [chunk for chunk in load_users.split(",") if chunk]
 load_users = [
-    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users.split(",")
+    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users
 ]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
