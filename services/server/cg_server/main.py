@@ -127,9 +127,6 @@ def get_sequences():
     res_df, res_snv = query_sequences(conn, req)
     num_sequences = len(res_df)
 
-    # print(res_df)
-    # print(res_snv)
-
     group_key = req.get("group_key", None)
     dna_or_aa = req.get("dna_or_aa", None)
     coordinate_mode = req.get("coordinate_mode", None)
@@ -163,6 +160,9 @@ def get_sequences():
     )
     group_counts = OrderedDict(sorted(group_counts.items(), key=lambda kv: -1 * kv[1]))
 
+    # print('Group counts')
+    # print(group_counts)
+
     # FILTER OUT LOW COUNT GROUPS
     # ---------------------------
     low_count_filter = req.get(
@@ -195,25 +195,74 @@ def get_sequences():
         valid_groups.add(-1)
         valid_groups = list(valid_groups)
 
+    # Build a map of location_id -> location_group
+    location_ids = req.get("location_ids", None)
+    location_id_to_labels = defaultdict(list)
+    for label, ids in location_ids.items():
+        for i in ids:
+            location_id_to_labels[i].append(label)
+
+    res_df["location"] = res_df["location_id"].map(location_id_to_labels)
+    res_snv["location"] = res_snv["location_id"].map(location_id_to_labels)
+
+    # Versions for when we count each location separately
+    res_df_explode_loc = res_df.explode("location")
+    res_snv_explode_loc = res_snv.explode("location")
+
+    res_df["location"] = res_df["location"].apply(lambda x: x[0])
+    res_snv["location"] = res_snv["location"].apply(lambda x: x[0])
+
+    # COLLAPSED DATA
+    # -------------
+
+    if group_key == constants["GROUP_SNV"]:
+        agg_sequences_location_group_date = (
+            res_snv_explode_loc.groupby(["Accession ID", "location"])
+            .agg(
+                group_id=("snp_id", tuple),
+                collection_date=("collection_date", "first"),
+            )
+            .groupby(["collection_date", "location", "group_id"])
+            .size()
+            .rename("counts")
+            .reset_index()
+        )
+        agg_sequences_group_date = (
+            res_snv.groupby("Accession ID")
+            .agg(
+                group_id=("snp_id", tuple),
+                collection_date=("collection_date", "first"),
+            )
+            .groupby(["collection_date", "group_id"])
+            .size()
+            .rename("counts")
+            .reset_index()
+        )
+
+    else:
+        agg_sequences_location_group_date = (
+            res_df_explode_loc.groupby(["collection_date", "location", group_col])
+            .size()
+            .rename("counts")
+            .reset_index()
+            .rename(columns={group_col: "group_id"})
+        )
+        agg_sequences_group_date = (
+            res_df_explode_loc.groupby(["collection_date", group_col])
+            .size()
+            .rename("counts")
+            .reset_index()
+            .rename(columns={group_col: "group_id"})
+        )
+
     # COUNTS PER LOCATION
     # -------------------
 
-    # Build a map of location_id -> location_group
-    location_ids = req.get("location_ids", None)
-    location_id_to_label = defaultdict(list)
-    for label, ids in location_ids.items():
-        for i in ids:
-            location_id_to_label[i].append(label)
-
-    res_df["location"] = res_df["location_id"].map(location_id_to_label)
-    res_snv["location"] = res_snv["location_id"].map(location_id_to_label)
-
-    res_df = res_df.explode("location")
-    res_snv = res_snv.explode("location")
-
-    counts_per_location = res_df.groupby("location").size().rename("counts").to_dict()
+    counts_per_location = (
+        res_df_explode_loc.groupby("location").size().rename("counts").to_dict()
+    )
     counts_per_location_date = (
-        res_df.groupby(["location", "collection_date"])
+        res_df_explode_loc.groupby(["location", "collection_date"])
         .size()
         .rename("counts")
         .reset_index()
@@ -234,18 +283,42 @@ def get_sequences():
         "counts": ("sequence_id", "count"),
         "color": ("color", "first"),
     }
-    group_aggs = {"counts": ("Accession ID", "count"), "color": ("color", "first")}
+    group_aggs = {
+        "group": ("group_id", "first"),
+        "group_name": ("group_id", "first"),
+        "counts": ("Accession ID", "count"),
+        "color": ("color", "first"),
+    }
     if group_key == constants["GROUP_SNV"]:
         aggs = snv_aggs
     else:
         aggs = group_aggs
 
     counts_per_location_date_group = (
-        (res_snv if group_key == constants["GROUP_SNV"] else res_df)
-        .groupby(["location", "collection_date", group_col])
+        res_snv_explode_loc
+        if group_key == constants["GROUP_SNV"]
+        else res_df_explode_loc
+    ).rename(columns={"collection_date": "date", group_col: "group_id"})
+
+    # Label invalid groups "Other"
+    other_inds = (
+        counts_per_location_date_group["group_id"]
+        .map(dict(zip(valid_groups, np.repeat(False, len(valid_groups)))))
+        .fillna(True)
+    )
+    counts_per_location_date_group.loc[other_inds, "group_id"] = constants["GROUPS"][
+        "OTHER_GROUP"
+    ]
+    counts_per_location_date_group.loc[other_inds, ["color"]] = "#AAA"
+    if group_key == constants["GROUP_SNV"]:
+        counts_per_location_date_group.loc[
+            other_inds, ["snp_str", "snv_name"]
+        ] = constants["GROUPS"]["OTHER_GROUP"]
+
+    counts_per_location_date_group = (
+        counts_per_location_date_group.groupby(["location", "date", "group_id"])
         .agg(**aggs)
         .reset_index()
-        .rename(columns={"collection_date": "date", group_col: "group_id"})
     )
 
     if group_key == constants["GROUP_SNV"]:
@@ -255,24 +328,6 @@ def get_sequences():
             ref_inds, ["group", "group_name"]
         ] = constants["GROUPS"]["REFERENCE_GROUP"]
         counts_per_location_date_group.loc[ref_inds, "color"] = snv_colors[0]
-    else:
-        counts_per_location_date_group["group"] = counts_per_location_date_group[
-            "group_id"
-        ]
-        counts_per_location_date_group["group_name"] = counts_per_location_date_group[
-            "group_id"
-        ]
-
-    # Label invalid groups "Other"
-    other_inds = (
-        counts_per_location_date_group["group_id"]
-        .map(dict(zip(valid_groups, np.repeat(False, len(valid_groups)))))
-        .fillna(True)
-    )
-    counts_per_location_date_group.loc[other_inds, ["group", "group_name"]] = constants[
-        "GROUPS"
-    ]["OTHER_GROUP"]
-    counts_per_location_date_group.loc[other_inds, ["color"]] = "#AAA"
 
     # Add location counts?
     counts_per_location_date_group["location_counts"] = counts_per_location_date_group[
@@ -285,16 +340,41 @@ def get_sequences():
     # AGGREGATE BY GROUP AND DATE (COLLAPSE LOCATION)
     # -----------------------------------------------
 
+    # Run the same operations for location_date_group, except this time
+    # with the collapsed locations (one per sequence) instead of the
+    # exploded ones (multiple locations per sequence possible)
+
     counts_per_date_group = (
-        counts_per_location_date_group.groupby(["group", "date"])
-        .agg(
-            group_id=("group_id", "first"),
-            group_name=("group_name", "first"),
-            counts=("counts", "sum"),
-            color=("color", "first"),
-        )
-        .reset_index()
+        res_snv if group_key == constants["GROUP_SNV"] else res_df
+    ).rename(columns={"collection_date": "date", group_col: "group_id"})
+
+    # Label invalid groups "Other"
+    other_inds = (
+        counts_per_date_group["group_id"]
+        .map(dict(zip(valid_groups, np.repeat(False, len(valid_groups)))))
+        .fillna(True)
     )
+    counts_per_date_group.loc[other_inds, "group_id"] = constants["GROUPS"][
+        "OTHER_GROUP"
+    ]
+    counts_per_date_group.loc[other_inds, ["color"]] = "#AAA"
+    if group_key == constants["GROUP_SNV"]:
+        counts_per_date_group.loc[other_inds, ["snp_str", "snv_name"]] = constants[
+            "GROUPS"
+        ]["OTHER_GROUP"]
+
+    counts_per_date_group = (
+        counts_per_date_group.groupby(["date", "group_id"]).agg(**aggs).reset_index()
+    )
+
+    if group_key == constants["GROUP_SNV"]:
+        # Label reference group
+        ref_inds = counts_per_date_group["group_id"] == -1
+        counts_per_date_group.loc[ref_inds, ["group", "group_name"]] = constants[
+            "GROUPS"
+        ]["REFERENCE_GROUP"]
+        counts_per_date_group.loc[ref_inds, "color"] = snv_colors[0]
+
     # print("Counts per date & group")
     # print(counts_per_date_group)
 
@@ -418,34 +498,10 @@ def get_sequences():
     # print("Counts per group (changing positions)")
     # print(counts_per_group)
 
-    # COLLAPSE DATA
-    # -------------
-
-    if group_key == constants["GROUP_SNV"]:
-        agg_sequences = (
-            res_snv.groupby(["Accession ID", "location"])
-            .agg(
-                group_id=("snp_id", tuple),
-                collection_date=("collection_date", "first"),
-            )
-            .groupby(["collection_date", "location", "group_id"])
-            .size()
-            .rename("counts")
-            .reset_index()
-        )
-
-    else:
-        agg_sequences = (
-            res_df.groupby(["collection_date", "location", group_col])
-            .size()
-            .rename("counts")
-            .reset_index()
-            .rename(columns={group_col: "group_id"})
-        )
-
     res = """
     {{
-        "aggSequences": {agg_sequences},
+        "aggSequencesLocationGroupDate": {agg_sequences_location_group_date},
+        "aggSequencesGroupDate": {agg_sequences_group_date},
         "numSequences": {num_sequences},
         "dataAggLocationGroupDate": {counts_per_location_date_group},
         "dataAggGroupDate": {counts_per_date_group},
@@ -457,7 +513,10 @@ def get_sequences():
         "groupCounts": {group_counts_after_low_freq}
     }}
     """.format(
-        agg_sequences=agg_sequences.to_json(orient="records"),
+        agg_sequences_location_group_date=agg_sequences_location_group_date.to_json(
+            orient="records"
+        ),
+        agg_sequences_group_date=agg_sequences_group_date.to_json(orient="records"),
         num_sequences=num_sequences,
         counts_per_location_date_group=counts_per_location_date_group.to_json(
             orient="records"

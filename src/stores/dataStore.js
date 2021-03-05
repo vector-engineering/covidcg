@@ -17,9 +17,11 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../constants/defs.json';
+import { initialUIValues } from './UIStore';
 
 export const initialDataValues = {
-  aggSequences: [],
+  aggSequencesLocationGroupDate: [],
+  aggSequencesGroupDate: [],
   dataAggLocationGroupDate: [],
   dataAggGroupDate: [],
   dataAggGroup: [],
@@ -46,7 +48,9 @@ export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
-  aggSequences = initialDataValues.aggSequences;
+  aggSequencesLocationGroupDate =
+    initialDataValues.aggSequencesLocationGroupDate;
+  aggSequencesGroupDate = initialDataValues.aggSequencesGroupDate;
   dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
   dataAggGroupDate = initialDataValues.dataAggGroupDate;
   dataAggGroup = initialDataValues.dataAggGroup;
@@ -74,25 +78,6 @@ export class DataStore {
     this.locationStoreInstance = rootStoreInstance.locationDataStore;
 
     this.fetchData();
-  }
-
-  @action
-  emptyCaseData() {
-    this.UIStoreInstance.onCaseDataStateStarted();
-
-    this.aggSequences = initialDataValues.aggSequences;
-    this.dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
-    this.dataAggGroupDate = initialDataValues.dataAggGroupDate;
-    this.dataAggGroup = initialDataValues.dataAggGroup;
-
-    this.dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
-    this.dataAggSnvDate = initialDataValues.dataAggSnvDate;
-    this.snvCooccurrence = initialDataValues.snvCooccurrence;
-
-    this.countsPerLocation = initialDataValues.countsPerLocation;
-    this.countsPerLocationDate = initialDataValues.countsPerLocationDate;
-
-    this.UIStoreInstance.onCaseDataStateFinished();
   }
 
   @action
@@ -134,7 +119,8 @@ export class DataStore {
     const pkg = await res.json();
     // console.log(pkg);
 
-    this.aggSequences = pkg.aggSequences;
+    this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
+    this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
     this.numSequencesAfterAllFiltering = pkg.numSequences;
     this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
     this.dataAggGroupDate = pkg.dataAggGroupDate;
@@ -165,7 +151,8 @@ export class DataStore {
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
         countsPerLocation: this.countsPerLocation,
         validGroups: this.validGroups,
-        aggSequences: this.aggSequences,
+        aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
+        aggSequencesGroupDate: this.aggSequencesGroupDate,
         // SNV data
         snvColorMap,
       },
@@ -188,7 +175,7 @@ export class DataStore {
         selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
         intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
-        aggSequences: this.aggSequences,
+        aggSequencesGroupDate: this.aggSequencesGroupDate,
         // SNV data
         snvColorMap,
       },
@@ -296,7 +283,7 @@ export class DataStore {
     let csvString = `location,collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
 
     let intToSnvMap = this.configStoreInstance.getIntToSnvMap();
-    this.aggSequences.forEach((row) => {
+    this.aggSequencesLocationGroupDate.forEach((row) => {
       // Location data, date
       csvString += `"${row.location}","${intToISO(row.collection_date)}",`;
 
