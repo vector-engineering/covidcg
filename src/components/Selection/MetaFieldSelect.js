@@ -5,7 +5,6 @@ import { useStores } from '../../stores/connect';
 
 import MultiSelect from 'react-multi-select-component';
 import QuestionButton from '../Buttons/QuestionButton';
-import ReactTooltip from 'react-tooltip';
 
 import {
   MetaFieldSelectContainer,
@@ -120,19 +119,13 @@ const MetaFieldSelect = observer(
 
     return (
       <MetaFieldSelectContainer>
-        <ReactTooltip
-          id="metadata-filter-tooltip"
-          type="light"
-          effect="solid"
-          border={true}
-          borderColor="#888"
-        />
         <span className="title">
           Metadata Filters
           <QuestionButton
             data-tip='<p>By default, no filtering is applied on sequence metadata (Default is select all)</p><p>Metadata is dependent on the data submitter, so many fields may be missing and marked as "Unknown".</p>'
             data-html={true}
-            data-for="metadata-filter-tooltip"
+            data-place="left"
+            data-for="main-tooltip"
           />
         </span>
         <SelectList>

@@ -5,8 +5,8 @@ import { useStores } from '../../stores/connect';
 
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
-import ReactTooltip from 'react-tooltip';
 
+import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
 import TableLegendItem from './TableLegendItem';
 

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { connect } from '../../stores/connect';
 import { onMobileDevice } from '../../utils/device';
 
+import ReactTooltip from 'react-tooltip';
 import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
@@ -26,6 +27,17 @@ const HomePageDiv = styled.div`
   width: 100vw;
   position: relative;
   overflow-y: hidden;
+
+  .main-tooltip {
+    max-width: 300px;
+
+    background-color: #fff;
+    font-weight: normal;
+    p {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+  }
 `;
 
 const PlotContainer = styled.div`
@@ -103,6 +115,14 @@ const HomePage = observer(({ UIStore }) => {
     <>
       <KeyListener />
       <HomePageDiv>
+        <ReactTooltip
+          className="main-tooltip"
+          id="main-tooltip"
+          type="light"
+          effect="solid"
+          border={true}
+          borderColor="#888"
+        />
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
           <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>

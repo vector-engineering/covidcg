@@ -10,7 +10,6 @@ import {
   PresetForm,
 } from './DateSelect.styles';
 
-import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
 
 const DEFAULT_PRESET_OPTION = 'date-preset-default';
@@ -111,19 +110,13 @@ const DateSelect = observer(({ startDate, endDate, updateDateRange }) => {
 
   return (
     <Container>
-      <ReactTooltip
-        id="date-select-tooltip"
-        type="light"
-        effect="solid"
-        border={true}
-        borderColor="#888"
-      />
       <span className="title">
         Date Range
         <QuestionButton
           data-tip={`<p>Filter for sequences that were collected between the two dates.<br/>Dates are start- and end-inclusive, i.e., [start, end]</p>`}
           data-html={true}
-          data-for="date-select-tooltip"
+          data-place="bottom"
+          data-for="main-tooltip"
         />
       </span>
       <PresetForm>

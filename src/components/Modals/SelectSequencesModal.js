@@ -13,6 +13,7 @@ import {
 } from '../../constants/defs.json';
 
 import Modal from 'react-modal';
+import ReactTooltip from 'react-tooltip';
 
 import LocationSelect from '../Selection/LocationSelect';
 import GroupBySelect from '../Selection/GroupBySelect';
@@ -336,6 +337,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   // in the config store
   useEffect(() => {
     locationDataStore.setSelectedNodes(configStore.selectedLocationNodes);
+    ReactTooltip.rebuild();
   }, []);
 
   const applyChanges = () => {
