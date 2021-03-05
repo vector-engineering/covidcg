@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
@@ -14,6 +14,7 @@ import { formatSnv } from '../../utils/snpUtils';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
+import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
 
 import {
   Container,
@@ -37,11 +38,27 @@ const DOWNLOAD_OPTIONS = {
 const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
 
+  const [
+    downloadMetadataModalActive,
+    setDownloadMetadataModalActive,
+  ] = useState(false);
+
+  const showDownloadMetadataModal = () => {
+    setDownloadMetadataModalActive(true);
+  };
+  const hideDownloadMetadataModal = () => {
+    // Don't hide the modal until the download has finished
+    if (UIStore.downloadState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+    setDownloadMetadataModalActive(false);
+  };
+
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
       dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
-      dataStore.downloadSelectedSequenceMetadata();
+      showDownloadMetadataModal();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SNVS) {
       dataStore.downloadSelectedSNVs();
     }
@@ -149,6 +166,19 @@ const StatusBox = observer(() => {
 
   return (
     <Container>
+      <ButtonContainer>
+        <DropdownButton
+          button={DownloadButton}
+          text={'Download'}
+          options={downloadOptions}
+          onSelect={handleDownloadSelect}
+          direction={'left'}
+        />
+      </ButtonContainer>
+      <DownloadMetadataModal
+        isOpen={downloadMetadataModalActive}
+        onRequestClose={hideDownloadMetadataModal}
+      />
       <StatusText>
         <Line>
           <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected.
@@ -177,15 +207,6 @@ const StatusBox = observer(() => {
           Selected {configStore.getGroupLabel()}s: {selectedGroups}
         </Line>
       </StatusText>
-      <ButtonContainer>
-        <DropdownButton
-          button={DownloadButton}
-          text={'Download'}
-          options={downloadOptions}
-          onSelect={handleDownloadSelect}
-          direction={'left'}
-        />
-      </ButtonContainer>
     </Container>
   );
 });

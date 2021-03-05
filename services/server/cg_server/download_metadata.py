@@ -15,6 +15,10 @@ def download_metadata(conn, req):
     with conn.cursor() as cur:
         temp_table_name = select_sequences(cur, req)
 
+        # Fields that the user wants
+        selected_fields = req.get("selected_fields", [])
+        snv_format = req.get("snv_format", constants["SNV_FORMAT"]["POS_REF_ALT"])
+
         sequence_cols = [
             "Accession ID",
             "collection_date",
@@ -24,15 +28,24 @@ def download_metadata(conn, req):
         metadata_joins = []
 
         # Location columns
-        location_cols = ["region", "country", "division", "location"]
-        sequence_cols.extend(location_cols)
-        sequence_cols_expr.extend(['loc."{}"'.format(col) for col in location_cols])
+        for col in list(constants["GEO_LEVELS"].values()):
+            if col not in selected_fields:
+                continue
+
+            sequence_cols.append(col)
+            sequence_cols_expr.append('loc."{}"'.format(col))
 
         for grouping in config["group_cols"].keys():
+            if grouping not in selected_fields:
+                continue
+
             sequence_cols.append(grouping)
             sequence_cols_expr.append('q."{}"'.format(grouping))
 
         for field in config["metadata_cols"].keys():
+            if field not in selected_fields:
+                continue
+
             sequence_cols.append(field)
             sequence_cols_expr.append(
                 """
@@ -50,13 +63,28 @@ def download_metadata(conn, req):
                 )
             )
 
+        for snp_field in ["dna", "gene_aa", "protein_aa"]:
+            if snp_field not in selected_fields:
+                continue
+
+            sequence_cols.append(snp_field + "_snp")
+            sequence_cols_expr.append(
+                'qq."{snp_field}_snp"'.format(snp_field=snp_field)
+            )
+
         # CTEs and evaluating the metadata joins separately
         # from the SNV joins speeds this up by a lot
+        snv_agg_field = "snp_str"
+        if snv_format == constants["SNV_FORMAT"]["POS_REF_ALT"]:
+            snv_agg_field = "snp_str"
+        elif snv_format == constants["SNV_FORMAT"]["REF_POS_ALT"]:
+            snv_agg_field = "snv_name"
+
         query = """
             WITH dss AS (
                 SELECT 
                     q."id" as "sequence_id", 
-                    array_to_string(array_agg(ds."snp_str"), ';') as "snp"
+                    array_to_string(array_agg(ds."{snv_agg_field}"), ';') as "snp"
                 FROM "{temp_table_name}" q
                 INNER JOIN "sequence_dna_snp" sds ON q."id" = sds."sequence_id"
                 INNER JOIN "dna_snp" ds ON sds."snp_id" = ds."id"
@@ -65,7 +93,7 @@ def download_metadata(conn, req):
             gass AS (
                 SELECT 
                     q."id" as "sequence_id", 
-                    array_to_string(array_agg(gas."snp_str"), ';') as "snp"
+                    array_to_string(array_agg(gas."{snv_agg_field}"), ';') as "snp"
                 FROM "{temp_table_name}" q
                 INNER JOIN "sequence_gene_aa_snp" sgas ON q."id" = sgas."sequence_id"
                 INNER JOIN "gene_aa_snp" gas ON sgas."snp_id" = gas."id"
@@ -74,7 +102,7 @@ def download_metadata(conn, req):
             pass AS (
                 SELECT 
                     q."id" as "sequence_id", 
-                    array_to_string(array_agg(pas."snp_str"), ';') as "snp"
+                    array_to_string(array_agg(pas."{snv_agg_field}"), ';') as "snp"
                 FROM "{temp_table_name}" q
                 INNER JOIN "sequence_protein_aa_snp" spas ON q."id" = spas."sequence_id"
                 INNER JOIN "protein_aa_snp" pas ON spas."snp_id" = pas."id"
@@ -92,15 +120,13 @@ def download_metadata(conn, req):
                 INNER JOIN pass ON q."id" = pass."sequence_id"
             )
             SELECT 
-                {sequence_cols_expr}, 
-                qq."dna_snp",
-                qq."gene_aa_snp",
-                qq."protein_aa_snp"
+                {sequence_cols_expr}
             FROM "{temp_table_name}" q
             INNER JOIN "location" loc ON q."location_id" = loc."id"
             {metadata_joins}
             JOIN qq ON qq."id" = q."id"
             """.format(
+            snv_agg_field=snv_agg_field,
             temp_table_name=temp_table_name,
             sequence_cols_expr=",".join(sequence_cols_expr),
             metadata_joins="\n".join(metadata_joins),
@@ -108,9 +134,6 @@ def download_metadata(conn, req):
         # print(query)
         cur.execute(query)
 
-        res_df = pd.DataFrame.from_records(
-            cur.fetchall(),
-            columns=sequence_cols + ["dna_snp", "gene_aa_snp", "protein_aa_snp"],
-        )
+        res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols,)
 
     return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})

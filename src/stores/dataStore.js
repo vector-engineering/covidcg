@@ -199,7 +199,9 @@ export class DataStore {
     );
   }
 
-  async downloadSelectedSequenceMetadata() {
+  async downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
+    this.UIStoreInstance.onDownloadStarted();
+
     const res = await fetch(hostname + '/download_metadata', {
       method: 'POST',
       headers: {
@@ -214,11 +216,18 @@ export class DataStore {
         ageRange: toJS(this.configStoreInstance.ageRange),
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
+        // Pass an array of only the fields that were selected
+        selected_fields: Object.keys(selectedFields).filter(
+          (field) => selectedFields[field]
+        ),
+        snv_format: snvFormat,
       }),
     });
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     downloadBlobURL(url, 'selected_sequence_metadata.csv');
+
+    this.UIStoreInstance.onDownloadFinished();
   }
 
   async downloadSelectedSNVs() {
