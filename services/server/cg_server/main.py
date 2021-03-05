@@ -38,7 +38,6 @@ from cg_server.query import query_sequences, query_consensus_snvs, select_sequen
 from cg_server.query_init import query_init, query_metadata_map
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
-app.config["USE_X_SENDFILE"] = True
 Gzip(app)
 CORS(app)
 auth = HTTPBasicAuth()
@@ -48,9 +47,7 @@ auth = HTTPBasicAuth()
 users = {}
 load_users = os.getenv("LOGINS", "")
 load_users = [chunk for chunk in load_users.split(",") if chunk]
-load_users = [
-    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users
-]
+load_users = [(chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
 
