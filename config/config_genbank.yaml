@@ -67,6 +67,7 @@ prod_hostname: "https://genbank.covidcg.org"
 
 show_logos:
   GISAID: false
+  GenBank: true
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: true

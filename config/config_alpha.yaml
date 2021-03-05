@@ -87,6 +87,7 @@ prod_hostname: "https://alpha.covidcg.org"
 
 show_logos:
   GISAID: true
+  GenBank: false
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: true

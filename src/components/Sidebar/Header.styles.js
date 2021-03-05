@@ -55,3 +55,28 @@ export const GISAIDContainer = styled.div`
     }
   }
 `;
+
+export const NCBIContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  padding: 5px 10px;
+
+  span {
+    margin-right: 0.5em;
+  }
+
+  a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    margin-right: 10px;
+
+    img {
+      height: 30px;
+    }
+  }
+`;
