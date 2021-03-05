@@ -331,6 +331,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     });
   };
 
+  // When the component first mounts (i.e., when the modal is first clicked on)
+  // then reset the location date tree state to what's currently selected
+  // in the config store
+  useEffect(() => {
+    locationDataStore.setSelectedNodes(configStore.selectedLocationNodes);
+  }, []);
+
   const applyChanges = () => {
     sentRequest.current = true;
     configStore.applyPendingChanges(pending);
