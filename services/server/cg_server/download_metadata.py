@@ -62,7 +62,7 @@ def download_metadata(conn, req):
             metadata_joins.append(
                 """
                 INNER JOIN "metadata_{field}" metadata_{field} 
-                    ON q."database" = metadata_{field}."id"
+                    ON q."{field}" = metadata_{field}."id"
                 """.format(
                     field=field
                 )
