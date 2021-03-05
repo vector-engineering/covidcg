@@ -11,11 +11,9 @@ import {
   StyledDropdownTreeSelect,
 } from './LocationSelect.styles';
 
-import { ASYNC_STATES } from '../../constants/defs.json';
-
 const LocationSelect = observer(
   ({ selectedLocationNodes, updateSelectedLocationNodes }) => {
-    const { UIStore, locationDataStore } = useStores();
+    const { locationDataStore } = useStores();
 
     const [state, setState] = useState({
       data: locationDataStore.selectTree,
@@ -28,6 +26,7 @@ const LocationSelect = observer(
     const onUnselectAll = (e) => {
       e.preventDefault();
       updateSelectedLocationNodes([]);
+      locationDataStore.setSelectedNodes([]);
     };
 
     const treeSelectOnChange = (currentNode, selectedNodes) => {
@@ -41,11 +40,6 @@ const LocationSelect = observer(
 
         return getNodeFromPath(state.data, node['path']);
       });
-
-      if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-        return;
-      }
-
       updateSelectedLocationNodes(selectedNodeObjs);
     };
     // const treeSelectOnAction = (node, action) => {
