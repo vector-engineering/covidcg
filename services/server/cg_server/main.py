@@ -31,12 +31,14 @@ from cg_server.config import config
 from cg_server.constants import constants
 from cg_server.database import seed_database
 from cg_server.download_metadata import download_metadata
+from cg_server.download_genomes import download_genomes
 from cg_server.download_snvs import download_snvs
 from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
+app.config["USE_X_SENDFILE"] = True
 Gzip(app)
 CORS(app)
 auth = HTTPBasicAuth()
@@ -486,7 +488,7 @@ def _download_metadata():
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
-def download_snvs():
+def _download_snvs():
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
@@ -494,4 +496,16 @@ def download_snvs():
 
     req = request.json
     return download_snvs(conn, req)
+
+
+@app.route("/download_genomes", methods=["POST"])
+@cross_origin(origins=cors_domains)
+def _download_genomes():
+    if not config["allow_genome_download"]:
+        return make_response(
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
+        )
+
+    req = request.json
+    return download_genomes(conn, req)
 

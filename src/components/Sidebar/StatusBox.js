@@ -15,6 +15,7 @@ import { formatSnv } from '../../utils/snpUtils';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
+import DownloadGenomesModal from '../Modals/DownloadGenomesModal';
 
 import {
   Container,
@@ -33,34 +34,37 @@ const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
   SELECTED_SNVS: 'Selected SNVs',
+  SELECTED_GENOMES: 'Selected Genomes',
 };
 
 const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
 
-  const [
-    downloadMetadataModalActive,
-    setDownloadMetadataModalActive,
-  ] = useState(false);
+  const [activeModals, setActiveModals] = useState({
+    downloadMetadata: false,
+    downloadGenomes: false,
+  });
 
-  const showDownloadMetadataModal = () => {
-    setDownloadMetadataModalActive(true);
+  const showModal = (modal) => {
+    setActiveModals({ ...activeModals, [modal]: true });
   };
-  const hideDownloadMetadataModal = () => {
+  const hideModal = (modal) => {
     // Don't hide the modal until the download has finished
     if (UIStore.downloadState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
-    setDownloadMetadataModalActive(false);
+    setActiveModals({ ...activeModals, [modal]: false });
   };
 
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
       dataStore.downloadAggSequences();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
-      showDownloadMetadataModal();
+      showModal('downloadMetadata');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SNVS) {
       dataStore.downloadSelectedSNVs();
+    } else if (option === DOWNLOAD_OPTIONS.SELECTED_GENOMES) {
+      showModal('downloadGenomes');
     }
   };
 
@@ -148,6 +152,9 @@ const StatusBox = observer(() => {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SNVS);
   }
+  if (config.allow_genome_download) {
+    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_GENOMES);
+  }
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
@@ -176,8 +183,12 @@ const StatusBox = observer(() => {
         />
       </ButtonContainer>
       <DownloadMetadataModal
-        isOpen={downloadMetadataModalActive}
-        onRequestClose={hideDownloadMetadataModal}
+        isOpen={activeModals.downloadMetadata}
+        onRequestClose={hideModal.bind(this, 'downloadMetadata')}
+      />
+      <DownloadGenomesModal
+        isOpen={activeModals.downloadGenomes}
+        onRequestClose={hideModal.bind(this, 'downloadGenomes')}
       />
       <StatusText>
         <Line>

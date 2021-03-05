@@ -86,4 +86,6 @@ prod_hostname: "https://covidcg.org"
 # ----------------------
 
 # Allow downloads of sequence metadata (before aggregation)
-allow_metadata_download: true
+allow_metadata_download: false
+# Allow downloads of raw genomes
+allow_genome_download: false

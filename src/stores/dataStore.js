@@ -199,6 +199,7 @@ export class DataStore {
     );
   }
 
+  @action
   async downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
     this.UIStoreInstance.onDownloadStarted();
 
@@ -256,6 +257,39 @@ export class DataStore {
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     downloadBlobURL(url, 'selected_snvs.csv');
+  }
+
+  // TODO:
+  // We should probably change this request to use form data
+  // or query params, so that we can open the request in a new
+  // window. Right now the gzipped file has to be loaded as a
+  // blob on the front-end, and this will get unsustainable
+  // if the user tries to download 100,000+ genomes
+  @action
+  async downloadGenomes() {
+    this.UIStoreInstance.onDownloadStarted();
+
+    const res = await fetch(hostname + '/download_genomes', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/gzip',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        location_ids: getLocationIdsByNode(
+          toJS(this.configStoreInstance.selectedLocationNodes)
+        ),
+        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(this.configStoreInstance.ageRange),
+        start_date: toJS(this.configStoreInstance.startDate),
+        end_date: toJS(this.configStoreInstance.endDate),
+      }),
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(url, 'genomes.fa.gz');
+
+    this.UIStoreInstance.onDownloadFinished();
   }
 
   downloadAggSequences() {
