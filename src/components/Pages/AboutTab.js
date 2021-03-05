@@ -2,15 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import ExternalLink from '../Common/ExternalLink';
-
-// import ReactSlingshotImage from '../../assets/images/react_slingshot.png';
-// import ReactLogo from '../../assets/images/React-icon.svg';
-// import MobXLogo from '../../assets/images/mobx.png';
-// import IDLLogo from '../../assets/images/idl-logo.png';
-// import UBCLogo from '../../assets/images/ubc_logo.png';
 import VELogo from '../../assets/images/VE_logo_new.png';
-// import BroadLogo from '../../assets/images/BroadLogo_RGB_forDigital.png';
-// import GISAIDLogo from '../../assets/images/gisaid_logo.png';
+
+import { config } from '../../config';
 
 import {
   TabContainer,
@@ -136,28 +130,29 @@ const AboutTab = () => {
           </div>
         </ContentSection>
 
-        <ContentSection>
-          <a id="sequence-data"></a>
-          <span className="section-title">Data enabling COVID-CG</span>
+        {config['show_logos']['GISAID'] && (
+          <ContentSection>
+            <a id="sequence-data"></a>
+            <span className="section-title">Data enabling COVID-CG</span>
 
-          <div className="content-text">
-            <p>
-              We are extremely grateful to the{' '}
-              <ExternalLink href="https://www.gisaid.org/">
-                GISAID Initiative
-              </ExternalLink>{' '}
-              and all its data contributors, i.e. the Authors from the
-              Originating laboratories responsible for obtaining the specimens
-              and the Submitting laboratories where genetic sequence data were
-              generated and shared via the GISAID Initiative, on which this
-              research is based.
-            </p>
-            {/* <ImageRow>
+            <div className="content-text">
+              <p>
+                We are extremely grateful to the{' '}
+                <ExternalLink href="https://www.gisaid.org/">
+                  GISAID Initiative
+                </ExternalLink>{' '}
+                and all its data contributors, i.e. the Authors from the
+                Originating laboratories responsible for obtaining the specimens
+                and the Submitting laboratories where genetic sequence data were
+                generated and shared via the GISAID Initiative, on which this
+                research is based.
+              </p>
+              {/* <ImageRow>
               <ExternalLink href="https://gisaid.org">
                 <img src={GISAIDLogo} height="60" />
               </ExternalLink>
             </ImageRow> */}
-            {/* <iframe
+              {/* <iframe
               id="gisaid-pub-pdf"
               style={{ height: '30em' }}
               width="100%"
@@ -165,26 +160,27 @@ const AboutTab = () => {
                 'https://ve-public.storage.googleapis.com/eurosurv-22-30494-1.pdf#page=1&zoom=100'
               }
             /> */}
-            <p>
-              Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
-              diplomacy: GISAID’s innovative contribution to global health.{' '}
-              <i>Global Challenges</i>, 1:33-46. DOI:
-              <ExternalLink
-                href="https://doi.org/10.1002/gch2.1018"
-                showIcon={false}
-              >
-                10.1002/gch2.1018
-              </ExternalLink>{' '}
-              PMCID:{' '}
-              <ExternalLink
-                href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/"
-                showIcon={false}
-              >
-                31565258
-              </ExternalLink>
-            </p>
-          </div>
-        </ContentSection>
+              <p>
+                Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
+                diplomacy: GISAID’s innovative contribution to global health.{' '}
+                <i>Global Challenges</i>, 1:33-46. DOI:
+                <ExternalLink
+                  href="https://doi.org/10.1002/gch2.1018"
+                  showIcon={false}
+                >
+                  10.1002/gch2.1018
+                </ExternalLink>{' '}
+                PMCID:{' '}
+                <ExternalLink
+                  href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/"
+                  showIcon={false}
+                >
+                  31565258
+                </ExternalLink>
+              </p>
+            </div>
+          </ContentSection>
+        )}
 
         <ContentSection>
           <a id="citing-covid-cg"></a>

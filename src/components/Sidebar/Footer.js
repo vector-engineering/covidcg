@@ -4,6 +4,8 @@ import { version } from '../../utils/version';
 
 import ExternalLink from '../Common/ExternalLink';
 
+import { config } from '../../config';
+
 import { FooterContainer, DAA, Version, SequenceMeta } from './Footer.styles';
 
 const Footer = () => {
@@ -11,12 +13,14 @@ const Footer = () => {
 
   return (
     <FooterContainer>
-      <DAA>
-        GISAID data provided on this website are subject to GISAID’s{' '}
-        <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
-          Terms and Conditions
-        </ExternalLink>
-      </DAA>
+      {config['show_logos']['GISAID'] && (
+        <DAA>
+          GISAID data provided on this website are subject to GISAID’s{' '}
+          <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
+            Terms and Conditions
+          </ExternalLink>
+        </DAA>
+      )}
       <Version>
         Version: <span className="version-num">{version}</span>{' '}
         <ExternalLink href="https://github.com/vector-engineering/covidcg/releases">

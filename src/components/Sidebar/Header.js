@@ -4,6 +4,8 @@ import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 
+import { config } from '../../config';
+
 import {
   HeaderDiv,
   TitleContainer,
@@ -20,12 +22,14 @@ const Header = () => {
         </ImageContainer>
         <h1>COVID-19 CoV Genetics</h1>
       </TitleContainer>
-      <GISAIDContainer>
-        Enabled by data from&nbsp;
-        <ExternalLink href="https://www.gisaid.org/" showIcon={false}>
-          <img src={GISAIDLogo}></img>
-        </ExternalLink>
-      </GISAIDContainer>
+      {config['show_logos']['GISAID'] && (
+        <GISAIDContainer>
+          Enabled by data from&nbsp;
+          <ExternalLink href="https://www.gisaid.org/" showIcon={false}>
+            <img src={GISAIDLogo}></img>
+          </ExternalLink>
+        </GISAIDContainer>
+      )}
     </HeaderDiv>
   );
 };
