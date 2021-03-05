@@ -5,6 +5,6 @@ import json
 constants = {}
 
 # Load constant defs
-with open("/opt/defs.json", "r") as fp:
+with open("/opt/constants/defs.json", "r") as fp:
     constants = json.loads(fp.read())
 
