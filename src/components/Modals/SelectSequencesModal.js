@@ -356,24 +356,32 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   // Make sure everything is in order, before allowing the button to be clicked
   let invalid = false;
+  let invalidReason = 'Please fix errors'; // Default message
   if (
     pending.coordinateMode === COORDINATE_MODES.COORD_CUSTOM &&
     !pending.validCustomCoordinates
   ) {
     invalid = true;
+    invalidReason = 'Error in custom coordinates';
   } else if (
     pending.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE &&
     !pending.validCustomSequences
   ) {
     invalid = true;
+    invalidReason = 'Error in custom sequences';
   } else if (
     (pending.coordinateMode === COORDINATE_MODES.COORD_GENE ||
       pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) &&
     !pending.validResidueCoordinates
   ) {
     invalid = true;
+    invalidReason = 'Error in residue coordinates';
   } else if (!pending.validDateRange) {
     invalid = true;
+    invalidReason = 'Error in date range';
+  } else if (pending.selectedLocationNodes.length === 0) {
+    invalid = true;
+    invalidReason = 'No locations selected';
   }
 
   // When our request goes through, close the modal
@@ -406,7 +414,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
           <HeaderButtons>
-            {invalid && <InvalidText>Please fix errors</InvalidText>}
+            {invalid && <InvalidText>Error: {invalidReason}</InvalidText>}
             <CancelButton onClick={onRequestClose}>Cancel</CancelButton>
             <CancelButton onClick={applyDefault}>Reset to Default</CancelButton>
             <ApplyButton
