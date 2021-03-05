@@ -4,9 +4,12 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { getNodeFromPath } from '../../utils/location';
 
+import QuestionButton from '../Buttons/QuestionButton';
+
 import {
   ContainerDiv,
   DropdownHeader,
+  Title,
   UnselectButton,
   StyledDropdownTreeSelect,
 } from './LocationSelect.styles';
@@ -99,7 +102,13 @@ const LocationSelect = observer(
     return (
       <ContainerDiv>
         <DropdownHeader>
-          <span className="location-tree-title">Selected Locations</span>
+          <Title>Selected Locations</Title>
+          <QuestionButton
+            data-tip={`<p>Click on a checkbox to select all sequences from that location.</p><p>You may select multiple levels of locations, i.e., both "USA" and "California".</p><p>Click on the "↳" button to select all of a location's children, without selecting the location itself. i.e., clicking the "↳" next to "All" will select all 6 continents separately.</p><p>Selected countries will appear as boxes underneath the title. Click on the "x" on the right side of each box to de-select that location.</p><p>You can clear all selected locations by clicking "Unselect All"</p>`}
+            data-html="true"
+            data-place="right"
+            data-for="main-tooltip"
+          />
           <UnselectButton
             show={selectedLocationNodes.length > 0}
             onClick={onUnselectAll}

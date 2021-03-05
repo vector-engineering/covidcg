@@ -23,6 +23,11 @@ export const DropdownHeader = styled.div`
   margin-left: 15px;
 `;
 
+export const Title = styled.span`
+  font-size: 1rem;
+  font-weight: 500;
+`;
+
 export const UnselectButton = styled.button`
   display: ${({ show }) => (show ? 'block' : 'none')};
   margin-left: 10px;
