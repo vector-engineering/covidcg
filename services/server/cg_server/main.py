@@ -26,6 +26,7 @@ from cg_server.config import config
 from cg_server.constants import constants
 from cg_server.database import seed_database
 from cg_server.download_metadata import download_metadata
+from cg_server.download_snvs import download_snvs
 from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
@@ -487,19 +488,5 @@ def download_snvs():
         )
 
     req = request.json
-    res_df, res_snv = query_sequences(conn, req)
-    return make_response(
-        res_snv.drop(
-            columns=[
-                "sequence_id",
-                "snp_id",
-                "location_id",
-                "collection_date",
-                "snp_str",
-                "color",
-            ]
-        ).to_csv(index=False),
-        200,
-        {"Content-Type": "text/csv"},
-    )
+    return download_snvs(conn, req)
 
