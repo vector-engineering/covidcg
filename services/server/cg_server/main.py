@@ -13,7 +13,7 @@ import pandas as pd
 import psycopg2
 import re
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import partial
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS, cross_origin
@@ -125,6 +125,7 @@ def get_sequences():
         return make_response(("No filter parameters given", 400))
 
     res_df, res_snv = query_sequences(conn, req)
+    num_sequences = len(res_df)
 
     # print(res_df)
     # print(res_snv)
@@ -199,13 +200,16 @@ def get_sequences():
 
     # Build a map of location_id -> location_group
     location_ids = req.get("location_ids", None)
-    location_id_to_label = {}
+    location_id_to_label = defaultdict(list)
     for label, ids in location_ids.items():
         for i in ids:
-            location_id_to_label[i] = label
+            location_id_to_label[i].append(label)
 
     res_df["location"] = res_df["location_id"].map(location_id_to_label)
     res_snv["location"] = res_snv["location_id"].map(location_id_to_label)
+
+    res_df = res_df.explode("location")
+    res_snv = res_snv.explode("location")
 
     counts_per_location = res_df.groupby("location").size().rename("counts").to_dict()
     counts_per_location_date = (
@@ -419,17 +423,17 @@ def get_sequences():
 
     if group_key == constants["GROUP_SNV"]:
         agg_sequences = (
-            res_snv.groupby("Accession ID")
+            res_snv.groupby(["Accession ID", "location"])
             .agg(
                 group_id=("snp_id", tuple),
                 collection_date=("collection_date", "first"),
-                location=("location", "first"),
             )
             .groupby(["collection_date", "location", "group_id"])
             .size()
             .rename("counts")
             .reset_index()
         )
+
     else:
         agg_sequences = (
             res_df.groupby(["collection_date", "location", group_col])
@@ -454,7 +458,7 @@ def get_sequences():
     }}
     """.format(
         agg_sequences=agg_sequences.to_json(orient="records"),
-        num_sequences=agg_sequences["counts"].sum(),
+        num_sequences=num_sequences,
         counts_per_location_date_group=counts_per_location_date_group.to_json(
             orient="records"
         ),
