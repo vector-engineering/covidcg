@@ -63,6 +63,10 @@ export const initialConfigValues = {
   maxGroupCounts: 100,
   minLocalCounts: 50,
   minGlobalCounts: 100,
+  locationArray: ['region', 'country', 'division', 'location'],
+
+  // Query String
+  urlParams: new URLSearchParams(window.location.search),
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -115,6 +119,9 @@ export class ConfigStore {
   @observable minLocalCounts = initialConfigValues.minLocalCounts;
   @observable minGlobalCounts = initialConfigValues.minGlobalCounts;
 
+  @observable urlParams = initialConfigValues.urlParams;
+  @observable locationArray = initialConfigValues.locationArray;
+
   constructor() {}
 
   init() {
@@ -149,6 +156,11 @@ export class ConfigStore {
     this.initialConfigValues[
       'selectedLocationNodes'
     ] = this.selectedLocationNodes;
+
+    // Set url params for default locations
+    this.urlParams.set('country', 'USA');
+    this.urlParams.append('country', 'Canada')
+    window.history.replaceState({}, '', `${location.pathname}?${this.urlParams}`)
   }
 
   // modifyQueryParams = autorun(() => {
@@ -214,10 +226,26 @@ export class ConfigStore {
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
+      this.urlParams.set(field, pending[field]);
     });
 
     // Update the location node tree with our new selection
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
+
+    // Update the URL params
+    this.locationArray.forEach(name => {
+      this.urlParams.delete(name);
+    })
+
+    this.selectedLocationNodes.forEach(node => {
+      if (this.urlParams.has(node.level)) {
+        this.urlParams.append(node.level, node.value)
+      } else {
+        this.urlParams.set(node.level, node.value)
+      }
+    })
+
+    window.history.replaceState({}, '', `${location.pathname}?${this.urlParams}`)
 
     // Get the new data from the server
     this.dataStoreInstance.fetchData();
