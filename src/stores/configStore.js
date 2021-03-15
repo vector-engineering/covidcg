@@ -9,6 +9,7 @@ import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO } from '../utils/date';
+import { parseQueryParams, updateURLFromParams } from '../utils/parseQueryParams';
 
 import {
   GROUP_SNV,
@@ -63,6 +64,10 @@ export const initialConfigValues = {
   maxGroupCounts: 100,
   minLocalCounts: 50,
   minGlobalCounts: 100,
+  locationArray: ['region', 'country', 'division', 'location'],
+
+  // Query String
+  urlParams: {},
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -115,6 +120,9 @@ export class ConfigStore {
   @observable minLocalCounts = initialConfigValues.minLocalCounts;
   @observable minGlobalCounts = initialConfigValues.minGlobalCounts;
 
+  @observable urlParams = initialConfigValues.urlParams;
+  @observable locationArray = initialConfigValues.locationArray;
+
   constructor() {}
 
   init() {
@@ -130,25 +138,59 @@ export class ConfigStore {
       }
     });
 
-    // Set default selected locations
-    this.selectedLocationNodes = [
-      getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
-        'USA',
-        'country',
-        true
-      )[0],
-      getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
-        'Canada',
-        'country',
-        true
-      )[0],
-    ].filter((node) => node !== undefined);
-    initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
-    this.initialConfigValues[
-      'selectedLocationNodes'
-    ] = this.selectedLocationNodes.slice();
+    this.urlParams = parseQueryParams();
+
+    if (Object.keys(this.urlParams).length > 0) {
+      Object.keys(this.urlParams).forEach((key) => {
+        if (this.locationArray.includes(key)) {
+          this.urlParams[key].forEach((item) => {
+            const node = getLocationByNameAndLevel(
+              this.locationDataStoreInstance.selectTree,
+              item,
+              key,
+              true
+            )[0];
+
+            if (typeof node !== 'undefined') {
+              this.selectedLocationNodes.push(node);
+            }
+          });
+        } else if (key === 'selectedGene') {
+          this[key] = getGene(this.urlParams[key]);
+        } else if (key === 'selectedProtein') {
+          this[key] = getProtein(this.urlParams[key]);
+        } else if (key === 'ageRange') {
+          return;
+        } else {
+          this[key] = this.urlParams[key];
+        }
+      });
+
+      // Update URL
+      updateURLFromParams(this.urlParams);
+    }
+
+    if (this.selectedLocationNodes.length == 0) {
+      // If no locations in url, set default selected locations
+      this.selectedLocationNodes = [
+        getLocationByNameAndLevel(
+          this.locationDataStoreInstance.selectTree,
+          'USA',
+          'country',
+          true
+        )[0],
+        getLocationByNameAndLevel(
+          this.locationDataStoreInstance.selectTree,
+          'Canada',
+          'country',
+          true
+        )[0],
+      ].filter((node) => node !== undefined);
+      initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
+      this.initialConfigValues[
+        'selectedLocationNodes'
+      ] = this.selectedLocationNodes;
+    }
   }
 
   // modifyQueryParams = autorun(() => {
@@ -214,10 +256,44 @@ export class ConfigStore {
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
+
+      // Update urlParams
+      this.urlParams[field] = [];
+
+      if (field === 'selectedGene' || field === 'selectedProtein') {
+        // Handle fields that return objects
+        this.urlParams[field].push(pending[field].name);
+      } else if (field === 'selectedMetadataFields') {
+        // Ignore Metadata fields
+        return;
+      } else {
+        this.urlParams[field].push(pending[field]);
+      }
     });
+
+    // selectedLocationNodes is displayed as node.level=node.value in the URL
+    delete this.urlParams['selectedLocationNodes'];
+    // selectedMetadataFields is displayed as key=value in the URL
+    delete this.urlParams['selectedMetadataFields'];
+    // ageRange is not currently being used
+    delete this.urlParams['ageRange'];
 
     // Update the location node tree with our new selection
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
+
+    // Update the URL params
+    this.locationArray.forEach(name => {
+      delete this.urlParams[name];
+    })
+
+    this.selectedLocationNodes.forEach(node => {
+      if (typeof this.urlParams[node.level] === 'undefined') {
+        this.urlParams[node.level] = [];
+      }
+      this.urlParams[node.level].push(node.value);
+    })
+
+    updateURLFromParams(this.urlParams);
 
     // Get the new data from the server
     this.dataStoreInstance.fetchData();
