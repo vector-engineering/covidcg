@@ -22,30 +22,28 @@ const LiteMolPlugin = ({ plugin, setPlugin }) => {
   }, []);
 
   return (
-    <>
-      <div
-        ref={pluginRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          left: 0,
-          bottom: 0,
-        }}
-      />
-    </>
+    <div
+      ref={pluginRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        left: 0,
+        bottom: 0,
+      }}
+    />
   );
 };
 
 const LiteMolTab = () => {
   const [plugin, setPlugin] = useState(null);
-  const [pdbId, setPdbId] = useState('6zgg');
 
   useEffect(() => {
     if (!plugin) {
       return;
     }
     let action = plugin.createTransform();
+    const pdbId = '6zgg';
 
     action
       .add(plugin.root, Transformer.Data.Download, {
@@ -63,13 +61,9 @@ const LiteMolTab = () => {
       });
 
     plugin.applyTransform(action);
-  }, [pdbId, plugin]);
+  }, [plugin]);
 
-  return (
-    <div>
-      <LiteMolPlugin plugin={plugin} setPlugin={setPlugin} />
-    </div>
-  );
+  return <LiteMolPlugin plugin={plugin} setPlugin={setPlugin} />;
 };
 
 export default LiteMolTab;
