@@ -20,6 +20,7 @@ import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
+  TABS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
@@ -67,7 +68,9 @@ export const initialConfigValues = {
   locationArray: ['region', 'country', 'division', 'location'],
 
   // Query String
-  urlParams: {},
+  urlParams: {
+    tab: 'home',
+  },
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -160,7 +163,17 @@ export class ConfigStore {
         } else if (key === 'selectedProtein') {
           this[key] = getProtein(this.urlParams[key]);
         } else if (key === 'ageRange') {
+          // AgeRange is not being used currently, so ignore
           return;
+        } else if (key === 'tab') {
+          // Check if the provided tab value is valid (included in TABS)
+          if (Object.values(TABS).includes(this.urlParams[key][0][0])) {
+            this[key] = this.urlParams[key][0][0];
+          } else {
+            // If not valid, set to home
+            this.urlParams[key] = TABS.TAB_EXAMPLE;
+            this[key] = this.urlParams[key];
+          }
         } else {
           this[key] = this.urlParams[key];
         }

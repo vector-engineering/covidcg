@@ -7,8 +7,6 @@ export function parseQueryParams() {
   queryString = queryString.replace(/%20/g, " ");
   queryString = queryString.replace(/%2C/g, ",")
 
-  console.log(queryString);
-
   if (queryString.length) {
     keyValPairs = queryString.split('&');
     for (var pairNum in keyValPairs) {

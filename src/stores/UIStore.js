@@ -129,7 +129,11 @@ export class UIStore {
 
   @action
   setActiveTab(tab) {
-    this.activeTab = tab;
+    if (Object.values(TABS).includes(tab)) {
+      this.activeTab = tab;
+    } else {
+      this.activeTab = TABS.TAB_EXAMPLE;
+    }
   }
 
   @action
