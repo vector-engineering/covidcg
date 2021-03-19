@@ -217,6 +217,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
   const updateValidResidueCoordinates = (valid) => {
     setPending({
+      ...pending,
       validResidueCoordinates: valid,
     });
   };
