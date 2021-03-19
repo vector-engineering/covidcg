@@ -1,5 +1,6 @@
 import { observable, action, toJS } from 'mobx';
 import { ASYNC_STATES, TABS } from '../constants/defs.json';
+import { rootStoreInstance } from './rootStore';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -27,6 +28,8 @@ export const initialUIValues = {
 };
 
 export class UIStore {
+  dataStoreInstance;
+
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
     initialUIValues.sidebarSelectedGroupKeys;
@@ -39,7 +42,9 @@ export class UIStore {
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
 
-  init() {}
+  init() {
+    this.dataStoreInstance = rootStoreInstance.dataStore;
+  }
 
   @action
   resetValues(values) {
@@ -130,6 +135,14 @@ export class UIStore {
   @action
   setActiveTab(tab) {
     this.activeTab = tab;
+
+    if (
+      (this.activeTab === TABS.TAB_GROUP ||
+        this.activeTab === TABS.TAB_LOCATION) &&
+      this.caseDataState === ASYNC_STATES.STARTED
+    ) {
+      this.dataStoreInstance.fetchData();
+    }
   }
 
   @action
