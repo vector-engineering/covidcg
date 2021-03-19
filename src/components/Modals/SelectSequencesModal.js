@@ -46,7 +46,12 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, UIStore, locationDataStore } = useStores();
+  const {
+    configStore,
+    UIStore,
+    locationDataStore,
+    metadataStore,
+  } = useStores();
   const sentRequest = useRef(false);
 
   const [pending, setPending] = useState({
@@ -333,10 +338,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
 
   // When the component first mounts (i.e., when the modal is first clicked on)
-  // then reset the location date tree state to what's currently selected
-  // in the config store
+  // Then:
+  //   * Reset the location date tree state to what's currently selected
+  //     in the config store
+  //   * Fetch metadata fields
   useEffect(() => {
     locationDataStore.setSelectedNodes(configStore.selectedLocationNodes);
+    metadataStore.fetchMetadataFields();
     ReactTooltip.rebuild();
   }, []);
 

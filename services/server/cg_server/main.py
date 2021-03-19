@@ -33,6 +33,7 @@ from cg_server.database import seed_database
 from cg_server.download_metadata import download_metadata
 from cg_server.download_genomes import download_genomes
 from cg_server.download_snvs import download_snvs
+from cg_server.get_metadata_fields import get_metadata_fields
 from cg_server.insert_sequences import insert_sequences
 from cg_server.query import query_sequences, query_consensus_snvs, select_sequences
 from cg_server.query_init import query_init, query_metadata_map
@@ -533,6 +534,13 @@ def get_sequences():
     )
 
     return res
+
+
+@app.route("/metadata_fields", methods=["GET", "POST"])
+@cross_origin(origins=cors_domains)
+def _get_metadata_fields():
+    req = request.json
+    return get_metadata_fields(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])

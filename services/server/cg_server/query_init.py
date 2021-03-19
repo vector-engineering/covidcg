@@ -7,6 +7,9 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
+import psycopg2
+
+from psycopg2 import sql
 
 from cg_server.config import config
 
@@ -14,36 +17,31 @@ from cg_server.config import config
 def query_metadata_map(cur):
 
     table_queries = []
-    for field in config["metadata_cols"].keys():
-        table_queries.append(
-            """
-            SELECT '{field}' as "field", "id"::text, "value"
-	        FROM "metadata_{field}"
-            """.format(
-                field=field
-            )
-        )
     for snp_type in ["dna", "gene_aa", "protein_aa"]:
         table_queries.append(
-            """
-            SELECT '{snp_type}_snp' as "field", "snp_str" as "id", "id"::text as "value"
-	        FROM "{snp_type}_snp"
-            """.format(
-                snp_type=snp_type
+            sql.SQL(
+                """
+                SELECT {snp_type_name} as "field", "snp_str" as "id", "id"::text as "value"
+                FROM {snp_type}
+                """
+            ).format(
+                snp_type_name=sql.Literal(snp_type + "_snp"),
+                snp_type=sql.Identifier(snp_type + "_snp"),
             )
         )
-    table_queries = " UNION ALL ".join(table_queries)
+
+    table_queries = sql.SQL(" UNION ALL ").join(table_queries)
 
     cur.execute(
-        """
-        SELECT "field", json_object_agg("id", "value") as "map"
-        FROM (
-            {table_queries}
-        ) a
-        GROUP BY "field"
-        """.format(
-            table_queries=table_queries
-        )
+        sql.SQL(
+            """
+            SELECT "field", json_object_agg("id", "value") as "map"
+            FROM (
+                {table_queries}
+            ) a
+            GROUP BY "field"
+            """
+        ).format(table_queries=table_queries)
     )
 
     metadata_map = dict(cur.fetchall())

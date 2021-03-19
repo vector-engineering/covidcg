@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { ASYNC_STATES } from '../../constants/defs.json';
 
 import MultiSelect from 'react-multi-select-component';
 import QuestionButton from '../Buttons/QuestionButton';
+import SkeletonElement from '../Common/SkeletonElement';
 
 import {
   MetaFieldSelectContainer,
@@ -27,7 +29,7 @@ metadataFields.forEach((field) => {
 
 const MetaFieldSelect = observer(
   ({ selectedMetadataFields, updateSelectedMetadataFields }) => {
-    const { dataStore, metadataStore } = useStores();
+    const { dataStore, metadataStore, UIStore } = useStores();
 
     const [state, setState] = useState({
       fieldOptions: initialFieldOptions,
@@ -35,8 +37,7 @@ const MetaFieldSelect = observer(
       ageRange: ['', ''],
     });
 
-    // Update options when new data comes in
-    useEffect(() => {
+    const updateOptions = () => {
       const fieldOptions = {};
       metadataFields.forEach((field) => {
         fieldOptions[field] = [];
@@ -61,6 +62,11 @@ const MetaFieldSelect = observer(
       });
 
       setState({ ...state, fieldOptions });
+    };
+
+    // Update options when new data comes in
+    useEffect(() => {
+      updateOptions();
     }, [dataStore.metadataCounts]);
 
     const setSelected = (field, options) => {
@@ -71,6 +77,13 @@ const MetaFieldSelect = observer(
 
       updateSelectedMetadataFields(field, options);
     };
+
+    // When the metadata fields finish loading, trigger and update
+    useEffect(() => {
+      if (UIStore.metadataFieldState === ASYNC_STATES.SUCCEEDED) {
+        updateOptions();
+      }
+    }, [UIStore.metadataFieldState]);
 
     // const onChangeAgeRange = (ind, e) => {
     //   // console.log(ind, e.target.value);
@@ -91,6 +104,21 @@ const MetaFieldSelect = observer(
 
     //   updateAgeRange(ageRange);
     // };
+
+    if (UIStore.metadataFieldState !== ASYNC_STATES.SUCCEEDED) {
+      return (
+        <div
+          style={{
+            paddingTop: '12px',
+            paddingRight: '24px',
+            paddingLeft: '12px',
+            paddingBottom: '24px',
+          }}
+        >
+          <SkeletonElement delay={2} height={100}></SkeletonElement>
+        </div>
+      );
+    }
 
     // Build all of the select components
     const fieldSelects = [];

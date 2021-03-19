@@ -23,6 +23,8 @@ export const initialUIValues = {
   cooccurrenceDataState: ASYNC_STATES.STARTED,
   downloadState: ASYNC_STATES.SUCCEEDED,
 
+  metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
+
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
 };
@@ -38,6 +40,10 @@ export class UIStore {
   @observable snvDataState = initialUIValues.snvDataState;
   @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
   @observable downloadState = initialUIValues.downloadState;
+
+  // Flag for whether or not we have the latest set of metadata mappings
+  // i.e., metadata key (integer) => metadata value (string)
+  @observable metadataFieldState = initialUIValues.metadataFieldState;
 
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
@@ -107,6 +113,19 @@ export class UIStore {
   @action
   onDownloadErr = () => {
     this.downloadState = ASYNC_STATES.FAILED;
+  };
+
+  @action
+  onMetadataFieldStarted = () => {
+    this.metadataFieldState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onMetadataFieldFinished = () => {
+    this.metadataFieldState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onMetadataFieldErr = () => {
+    this.metadataFieldState = ASYNC_STATES.FAILED;
   };
 
   @action
