@@ -16,8 +16,8 @@ import {
   GROUPS,
   DNA_OR_AA,
   COORDINATE_MODES,
+  TABS,
 } from '../constants/defs.json';
-import { initialUIValues } from './UIStore';
 
 export const initialDataValues = {
   aggSequencesLocationGroupDate: [],
@@ -77,7 +77,12 @@ export class DataStore {
     this.metadataStoreInstance = rootStoreInstance.metadataStore;
     this.locationStoreInstance = rootStoreInstance.locationDataStore;
 
-    this.fetchData();
+    if (
+      this.UIStoreInstance.activeTab === TABS.TAB_GROUP ||
+      this.UIStoreInstance.activeTab === TABS.TAB_LOCATION
+    ) {
+      this.fetchData();
+    }
   }
 
   @action

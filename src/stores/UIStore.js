@@ -1,5 +1,6 @@
 import { observable, action, toJS } from 'mobx';
 import { ASYNC_STATES, TABS } from '../constants/defs.json';
+import { rootStoreInstance } from './rootStore';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -22,11 +23,15 @@ export const initialUIValues = {
   cooccurrenceDataState: ASYNC_STATES.STARTED,
   downloadState: ASYNC_STATES.SUCCEEDED,
 
+  metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
+
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
 };
 
 export class UIStore {
+  dataStoreInstance;
+
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
     initialUIValues.sidebarSelectedGroupKeys;
@@ -36,10 +41,16 @@ export class UIStore {
   @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
   @observable downloadState = initialUIValues.downloadState;
 
+  // Flag for whether or not we have the latest set of metadata mappings
+  // i.e., metadata key (integer) => metadata value (string)
+  @observable metadataFieldState = initialUIValues.metadataFieldState;
+
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
 
-  init() {}
+  init() {
+    this.dataStoreInstance = rootStoreInstance.dataStore;
+  }
 
   @action
   resetValues(values) {
@@ -105,6 +116,19 @@ export class UIStore {
   };
 
   @action
+  onMetadataFieldStarted = () => {
+    this.metadataFieldState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onMetadataFieldFinished = () => {
+    this.metadataFieldState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onMetadataFieldErr = () => {
+    this.metadataFieldState = ASYNC_STATES.FAILED;
+  };
+
+  @action
   setSidebarOpen = () => {
     this.sidebarOpen = true;
   };
@@ -130,6 +154,14 @@ export class UIStore {
   @action
   setActiveTab(tab) {
     this.activeTab = tab;
+
+    if (
+      (this.activeTab === TABS.TAB_GROUP ||
+        this.activeTab === TABS.TAB_LOCATION) &&
+      this.caseDataState === ASYNC_STATES.STARTED
+    ) {
+      this.dataStoreInstance.fetchData();
+    }
   }
 
   @action
