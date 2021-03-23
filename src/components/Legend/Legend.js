@@ -13,6 +13,8 @@ import {
   SORT_DIRECTIONS,
 } from '../../constants/defs.json';
 import { COLUMN_NAMES } from './legendUtils';
+
+import SkeletonElement from '../Common/SkeletonElement';
 import TableLegend from './TableLegend';
 
 const TableLegendContainer = styled.div`
@@ -194,7 +196,21 @@ const Legend = observer(() => {
   }, [UIStore.caseDataState]);
 
   if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
-    return <div />;
+    return (
+      <div
+        style={{
+          height: '100%',
+        }}
+      >
+        {_.times(50, (i) => (
+          <SkeletonElement
+            key={`legend-loading-bar-${i}`}
+            delay={5 + i + (i % 2) * 12.5}
+            height={25}
+          />
+        ))}
+      </div>
+    );
   }
 
   return (
