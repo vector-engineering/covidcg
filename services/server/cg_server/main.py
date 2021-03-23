@@ -132,6 +132,7 @@ def get_sequences():
 @cross_origin(origins=cors_domains)
 def _get_metadata_fields():
     req = request.json
+
     try:
         metadata_fields = get_metadata_fields(conn, req)
     except psycopg2.Error as e:
