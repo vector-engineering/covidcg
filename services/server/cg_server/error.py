@@ -23,6 +23,9 @@ def handle_db_errors(conn):
             except Exception as e:
                 conn.rollback()
                 return make_response((str(e), 500))
+            
+            conn.commit()
+            
             return res
 
         return wrapper_db_error
