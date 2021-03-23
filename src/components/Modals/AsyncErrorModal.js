@@ -3,8 +3,6 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
 
-import { ASYNC_STATES } from '../../constants/defs.json';
-
 import Modal from 'react-modal';
 import ExternalLink from '../Common/ExternalLink';
 
@@ -27,7 +25,7 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const AsyncErrorContent = observer(({ onRequestClose }) => {
-  const { UIStore, dataStore } = useStores();
+  // const { UIStore, dataStore } = useStores();
   let invalid = false;
 
   const refreshPage = () => {
