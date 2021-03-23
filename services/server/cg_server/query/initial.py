@@ -80,7 +80,7 @@ def query_country_score(cur):
     return cur.fetchone()[0]
 
 
-def query_init(conn):
+def query_initial(conn):
 
     with conn.cursor() as cur:
         metadata_map = query_metadata_map(cur)

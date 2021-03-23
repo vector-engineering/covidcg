@@ -17,7 +17,7 @@ from psycopg2.extras import Json
 
 from cg_server.color import get_categorical_colormap
 from cg_server.config import config
-from cg_server.load_snvs import process_dna_snvs, process_aa_snvs
+from .load_snvs import process_dna_snvs, process_aa_snvs
 
 data_path = Path(os.getenv("DATA_PATH", config["data_folder"]))
 static_data_path = Path(os.getenv("STATIC_DATA_PATH", config["static_data_folder"]))

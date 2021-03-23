@@ -13,7 +13,7 @@ from psycopg2 import sql
 
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.query import select_sequences
+from cg_server.query.selection import select_sequences
 
 
 def download_metadata(conn, req):

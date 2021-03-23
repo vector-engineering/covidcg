@@ -16,15 +16,10 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cg_server.config import config
-from cg_server.database import seed_database
-from cg_server.download_metadata import download_metadata
-from cg_server.download_genomes import download_genomes
-from cg_server.download_snvs import download_snvs
+from cg_server.db_seed import seed_database, insert_sequences
+from cg_server.download import download_genomes, download_metadata, download_snvs
 from cg_server.error import handle_db_errors
-from cg_server.get_metadata_fields import get_metadata_fields
-from cg_server.insert_sequences import insert_sequences
-from cg_server.query_init import query_init
-from cg_server.query_data import query_data
+from cg_server.query import query_aggregate_data, query_initial, query_metadata_fields
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
@@ -105,7 +100,7 @@ def index():
 @cross_origin(origins=cors_domains)
 @handle_db_errors(conn=conn)
 def init():
-    return query_init(conn)
+    return query_initial(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
@@ -116,7 +111,7 @@ def get_sequences():
     if not req:
         return make_response(("No filter parameters given", 400))
 
-    return query_data(conn, req)
+    return query_aggregate_data(conn, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
@@ -124,7 +119,7 @@ def get_sequences():
 @handle_db_errors(conn=conn)
 def _get_metadata_fields():
     req = request.json
-    return get_metadata_fields(conn, req)
+    return query_metadata_fields(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])
