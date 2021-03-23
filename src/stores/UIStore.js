@@ -21,7 +21,7 @@ export const initialUIValues = {
   caseDataState: ASYNC_STATES.STARTED,
   snvDataState: ASYNC_STATES.STARTED,
   cooccurrenceDataState: ASYNC_STATES.STARTED,
-  downloadState: ASYNC_STATES.SUCCEEDED,
+  downloadState: ASYNC_STATES.UNINITIALIZED,
 
   metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
 

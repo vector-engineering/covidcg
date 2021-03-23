@@ -31,24 +31,42 @@ export class MetadataStore {
       );
     });
 
-    const res = await fetch(hostname + '/metadata_fields', {
+    fetch(hostname + '/metadata_fields', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestedKeys),
-    });
-    this.metadataMap = await res.json();
-
-    this.UIStoreInstance.onMetadataFieldFinished();
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.json();
+      })
+      .then((metadataMap) => {
+        this.metadataMap = metadataMap;
+        this.UIStoreInstance.onMetadataFieldFinished();
+      })
+      .catch((err) => {
+        err.text().then((errMsg) => {
+          console.error(errMsg);
+          this.UIStoreInstance.onMetadataFieldErr();
+        });
+      });
   }
 
   getMetadataValueFromId(field, id) {
-    if (this.UIStoreInstance.metadataFieldState !== ASYNC_STATES.SUCCEEDED) {
+    if (this.UIStoreInstance.metadataFieldState === ASYNC_STATES.SUCCEEDED) {
+      return this.metadataMap[field][id];
+    } else if (
+      this.UIStoreInstance.metadataFieldState === ASYNC_STATES.STARTED ||
+      this.UIStoreInstance.metadataFieldState === ASYNC_STATES.UNINITIALIZED
+    ) {
       return 'Waiting...';
+    } else {
+      return 'Error fetching fields';
     }
-
-    return this.metadataMap[field][id];
   }
 }

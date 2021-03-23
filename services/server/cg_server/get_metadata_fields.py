@@ -17,8 +17,11 @@ def get_metadata_fields(conn, req):
     for field in req.keys():
         if field not in config["metadata_cols"].keys():
             continue
-            
+
         vals = req[field]
+        if not vals:
+            continue
+
         table_queries.append(
             sql.SQL(
                 """
@@ -38,7 +41,7 @@ def get_metadata_fields(conn, req):
             )
         )
 
-    table_queries = sql.SQL("UNION ALL").join(table_queries)
+    table_queries = sql.SQL(" UNION ALL ").join(table_queries)
     query = sql.SQL(
         """
         SELECT "field", json_object_agg("id", "value") as "map"
@@ -47,9 +50,7 @@ def get_metadata_fields(conn, req):
         ) a
         GROUP BY "field"
         """
-    ).format(
-            table_queries=table_queries
-        )
+    ).format(table_queries=table_queries)
     # print(query.as_string(conn))
     # print(dict(zip(req.keys(), [tuple(vals) for vals in req.values()])))
 

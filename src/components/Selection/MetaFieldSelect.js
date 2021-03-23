@@ -7,11 +7,13 @@ import { ASYNC_STATES } from '../../constants/defs.json';
 import MultiSelect from 'react-multi-select-component';
 import QuestionButton from '../Buttons/QuestionButton';
 import SkeletonElement from '../Common/SkeletonElement';
+import ExternalLink from '../Common/ExternalLink';
 
 import {
   MetaFieldSelectContainer,
   SelectList,
   SelectContainer,
+  ErrorBox,
 } from './MetaFieldSelect.styles';
 
 import {
@@ -80,7 +82,10 @@ const MetaFieldSelect = observer(
 
     // When the metadata fields finish loading, trigger and update
     useEffect(() => {
-      if (UIStore.metadataFieldState === ASYNC_STATES.SUCCEEDED) {
+      if (
+        UIStore.metadataFieldState === ASYNC_STATES.SUCCEEDED ||
+        UIStore.metadataFieldState === ASYNC_STATES.FAILED
+      ) {
         updateOptions();
       }
     }, [UIStore.metadataFieldState]);
@@ -105,7 +110,19 @@ const MetaFieldSelect = observer(
     //   updateAgeRange(ageRange);
     // };
 
-    if (UIStore.metadataFieldState !== ASYNC_STATES.SUCCEEDED) {
+    if (UIStore.metadataFieldState === ASYNC_STATES.FAILED) {
+      return (
+        <ErrorBox>
+          <p>
+            Failed to fetch metadata fields. Please close the selection screen
+            and open it again. If this error persists, contact us at{' '}
+            <ExternalLink href="mailto:covidcg@broadinstitute.org">
+              covidcg@broadinstitute.org
+            </ExternalLink>
+          </p>
+        </ErrorBox>
+      );
+    } else if (UIStore.metadataFieldState !== ASYNC_STATES.SUCCEEDED) {
       return (
         <div
           style={{

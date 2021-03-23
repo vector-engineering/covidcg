@@ -89,3 +89,18 @@ export const SelectContainer = styled.form`
 //     margin-left: 5px;
 //   }
 // `;
+
+export const ErrorBox = styled.div`
+  max-width: 200px;
+
+  // colors from Bootstrap
+  background-color: #fff3cd;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 10px 10px;
+
+  p {
+    margin: 0px;
+  }
+`;

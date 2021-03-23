@@ -9,8 +9,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import pandas as pd
 import psycopg2
 
+from flask import make_response
 from psycopg2 import sql
-
 from cg_server.config import config
 
 
@@ -39,7 +39,7 @@ def query_metadata_map(cur):
             FROM (
                 {table_queries}
             ) a
-            GROUP BY "field"
+            GROUP BY "field";
             """
         ).format(table_queries=table_queries)
     )

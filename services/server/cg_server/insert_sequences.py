@@ -11,16 +11,19 @@ import gzip
 import pandas as pd
 
 from cg_server.config import config
+from psycopg2 import sql
 
 from pathlib import Path
 
 
-def insert_sequences(conn, data_path, filenames_as_dates=False):
+def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False):
 
     # Get all fasta files
     fasta_path = Path(data_path) / "fasta_processed"
 
     with conn.cursor() as cur:
+
+        cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
 
         # The SARS-CoV-2 genomes are ~30kb, which seems like it
         # would slow down postgres, but as of PostgreSQL 12, large

@@ -50,7 +50,10 @@ const StatusBox = observer(() => {
   };
   const hideModal = (modal) => {
     // Don't hide the modal until the download has finished
-    if (UIStore.downloadState !== ASYNC_STATES.SUCCEEDED) {
+    if (
+      UIStore.downloadState !== ASYNC_STATES.SUCCEEDED &&
+      UIStore.downloadState !== ASYNC_STATES.FAILED
+    ) {
       return;
     }
     setActiveModals({ ...activeModals, [modal]: false });

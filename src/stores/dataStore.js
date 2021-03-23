@@ -86,10 +86,10 @@ export class DataStore {
   }
 
   @action
-  async fetchData() {
+  fetchData() {
     this.UIStoreInstance.onCaseDataStateStarted();
 
-    const res = await fetch(hostname + '/data', {
+    fetch(hostname + '/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -120,27 +120,38 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const pkg = await res.json();
-    // console.log(pkg);
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.json();
+      })
+      .then((pkg) => {
+        this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
+        this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
+        this.numSequencesAfterAllFiltering = pkg.numSequences;
+        this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
+        this.dataAggGroupDate = pkg.dataAggGroupDate;
+        this.metadataCounts = pkg.metadataCounts;
+        this.countsPerLocation = pkg.countsPerLocation;
+        this.countsPerLocationDate = pkg.countsPerLocationDate;
+        this.validGroups = pkg.validGroups;
+        this.dataAggGroup = pkg.dataAggGroup;
+        this.groupCounts = pkg.groupCounts;
 
-    this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
-    this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
-    this.numSequencesAfterAllFiltering = pkg.numSequences;
-    this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
-    this.dataAggGroupDate = pkg.dataAggGroupDate;
-    this.metadataCounts = pkg.metadataCounts;
-    this.countsPerLocation = pkg.countsPerLocation;
-    this.countsPerLocationDate = pkg.countsPerLocationDate;
-    this.validGroups = pkg.validGroups;
-    this.dataAggGroup = pkg.dataAggGroup;
-    this.groupCounts = pkg.groupCounts;
+        this.UIStoreInstance.onCaseDataStateFinished();
 
-    this.UIStoreInstance.onCaseDataStateFinished();
-
-    if (this.configStoreInstance.groupKey === GROUP_SNV) {
-      this.processSelectedSnvs();
-    }
+        if (this.configStoreInstance.groupKey === GROUP_SNV) {
+          this.processSelectedSnvs();
+        }
+      })
+      .catch((err) => {
+        err.text().then((errMsg) => {
+          console.error(errMsg);
+        });
+        this.UIStoreInstance.onCaseDataStateErr();
+      });
   }
 
   @action
@@ -192,10 +203,10 @@ export class DataStore {
   }
 
   @action
-  async downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
+  downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
     this.UIStoreInstance.onDownloadStarted();
 
-    const res = await fetch(hostname + '/download_metadata', {
+    fetch(hostname + '/download_metadata', {
       method: 'POST',
       headers: {
         Accept: 'text/csv',
@@ -215,16 +226,33 @@ export class DataStore {
         ),
         snv_format: snvFormat,
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'selected_sequence_metadata.csv');
-
-    this.UIStoreInstance.onDownloadFinished();
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'selected_sequence_metadata.csv');
+        this.UIStoreInstance.onDownloadFinished();
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
+            console.error('Download metadata failed');
+          });
+      });
   }
 
-  async downloadSelectedSNVs() {
-    const res = await fetch(hostname + '/download_snvs', {
+  downloadSelectedSNVs() {
+    fetch(hostname + '/download_snvs', {
       method: 'POST',
       headers: {
         Accept: 'text/csv',
@@ -245,10 +273,28 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'selected_snvs.csv');
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'selected_snvs.csv');
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
+            console.error('Download selected SNVs failed');
+          });
+      });
   }
 
   // TODO:
@@ -258,10 +304,10 @@ export class DataStore {
   // blob on the front-end, and this will get unsustainable
   // if the user tries to download 100,000+ genomes
   @action
-  async downloadGenomes() {
+  downloadGenomes() {
     this.UIStoreInstance.onDownloadStarted();
 
-    const res = await fetch(hostname + '/download_genomes', {
+    fetch(hostname + '/download_genomes', {
       method: 'POST',
       headers: {
         Accept: 'application/gzip',
@@ -276,12 +322,29 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'genomes.fa.gz');
-
-    this.UIStoreInstance.onDownloadFinished();
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'genomes.fa.gz');
+        this.UIStoreInstance.onDownloadFinished();
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
+            console.error('Error downloading genomes');
+          });
+      });
   }
 
   downloadAggSequences() {

@@ -28,6 +28,7 @@ import {
   HeaderRow,
   HeaderButtons,
   CancelButton,
+  InvalidText,
 } from './Modal.styles';
 import {
   Wrapper,
@@ -115,8 +116,6 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     }
   }, [UIStore.downloadState]);
 
-  let invalid = false;
-
   // Build all of the checkboxes
   const fieldCheckboxes = [];
   metadataFields.forEach((field) => {
@@ -166,9 +165,17 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     );
   });
 
+  let invalid = false;
+  let invalidReason = '';
+
+  if (UIStore.downloadState === ASYNC_STATES.FAILED) {
+    invalid = true;
+    invalidReason = 'Download Failed';
+  }
+
   return (
     <Wrapper>
-      <Overlay visible={UIStore.downloadState !== ASYNC_STATES.SUCCEEDED}>
+      <Overlay visible={UIStore.downloadState === ASYNC_STATES.STARTED}>
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
           <ProgressText>Fetching data...</ProgressText>
@@ -183,10 +190,11 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
           <HeaderButtons>
+            {invalid && <InvalidText>Error: {invalidReason}</InvalidText>}
             <CancelButton onClick={onRequestClose}>Cancel</CancelButton>
             <ApplyButton
-              disabled={invalid}
-              invalid={invalid}
+              disabled={UIStore.downloadState === ASYNC_STATES.STARTED}
+              invalid={UIStore.downloadState === ASYNC_STATES.STARTED}
               onClick={confirmDownload}
             >
               Download
@@ -276,11 +284,21 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
 });
 
 const DownloadMetadataModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
+  const { UIStore } = useStores();
+
+  const closeDownloadModal = () => {
+    onRequestClose();
+    // Before we close the modal, clear the download state
+    if (UIStore.downloadState !== ASYNC_STATES.STARTED) {
+      UIStore.onDownloadFinished();
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onAfterOpen={onAfterOpen}
-      onRequestClose={onRequestClose}
+      onRequestClose={closeDownloadModal}
       style={{
         overlay: {
           zIndex: 2,
@@ -301,7 +319,7 @@ const DownloadMetadataModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
       }}
       contentLabel="Download Sequence Metadata"
     >
-      <DownloadMetadataContent onRequestClose={onRequestClose} />
+      <DownloadMetadataContent onRequestClose={closeDownloadModal} />
     </Modal>
   );
 };

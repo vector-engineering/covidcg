@@ -33,12 +33,27 @@ def main():
     conn = psycopg2.connect(**connection_options)
 
     try:
-        seed_database(conn)
-        insert_sequences(conn, config["data_folder"], filenames_as_dates=True)
+        with conn.cursor() as cur:
+            cur.execute('DROP SCHEMA IF EXISTS "new" CASCADE;')
+            cur.execute('CREATE SCHEMA "new";')
+
+        seed_database(conn, schema="new")
+        insert_sequences(
+            conn, config["data_folder"], schema="new", filenames_as_dates=True
+        )
 
         print("Committing changes...", end="", flush=True)
         conn.commit()
         print("done")
+
+        print("Switching schemas...", end="", flush=True)
+        with conn.cursor() as cur:
+            cur.execute('DROP SCHEMA IF EXISTS "old" CASCADE;')
+            cur.execute('ALTER SCHEMA "public" RENAME TO "old";')
+            cur.execute('ALTER SCHEMA "new" RENAME TO "public";')
+        conn.commit()
+        print("done")
+
     except psycopg2.Error as e:
         raise e
 

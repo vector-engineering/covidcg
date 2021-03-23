@@ -12,6 +12,7 @@ import os
 import pandas as pd
 
 from pathlib import Path
+from psycopg2 import sql
 from psycopg2.extras import Json
 
 from cg_server.color import get_categorical_colormap
@@ -42,8 +43,10 @@ def df_to_sql(cur, df, table, index_label="id"):
     )
 
 
-def seed_database(conn):
+def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
+
+        cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
 
         print("Writing metadata maps...", end="", flush=True)
 
