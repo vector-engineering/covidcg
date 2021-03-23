@@ -195,7 +195,7 @@ const Legend = observer(() => {
     });
   }, [UIStore.caseDataState]);
 
-  if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+  if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
         style={{
