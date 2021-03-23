@@ -112,6 +112,8 @@ def init():
         conn.rollback()
         return make_response((str(e), 500))
 
+    conn.commit()
+
     return init
 
 
@@ -131,6 +133,8 @@ def get_sequences():
         conn.rollback()
         return make_response((str(e), 500))
 
+    conn.commit()
+
     return res
 
 
@@ -147,6 +151,8 @@ def _get_metadata_fields():
     except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
+
+    conn.commit()
 
     return metadata_fields
 
@@ -168,6 +174,8 @@ def _download_metadata():
     except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
+
+    conn.commit()
 
     return metadata
 
@@ -191,6 +199,8 @@ def _download_snvs():
         conn.rollback()
         return make_response((str(e), 500))
 
+    conn.commit()
+
     return snvs
 
 
@@ -212,6 +222,8 @@ def _download_genomes():
     except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
+
+    conn.commit()
 
     return genomes
 
