@@ -73,6 +73,10 @@ const AboutTab = () => {
               )
             </p>
             <p>
+              <b>David Favela</b> is an associate software engineer in the
+              Deverman group.
+            </p>
+            <p>
               <b>Dr. Alina Chan</b> is a postdoc in the Deverman group who asked
               too many questions about SARS-CoV-2 and realized that we needed a
               browser like COVID-19 CG.
