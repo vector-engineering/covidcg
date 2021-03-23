@@ -39,7 +39,7 @@ def query_metadata_map(cur):
             FROM (
                 {table_queries}
             ) a
-            GROUP BY "field"
+            GROUP BY "field";
             """
         ).format(table_queries=table_queries)
     )

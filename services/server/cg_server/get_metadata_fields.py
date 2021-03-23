@@ -41,7 +41,7 @@ def get_metadata_fields(conn, req):
             )
         )
 
-    table_queries = sql.SQL("UNION ALL").join(table_queries)
+    table_queries = sql.SQL(" UNION ALL ").join(table_queries)
     query = sql.SQL(
         """
         SELECT "field", json_object_agg("id", "value") as "map"
