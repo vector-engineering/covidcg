@@ -89,7 +89,7 @@ export class DataStore {
   async fetchData() {
     this.UIStoreInstance.onCaseDataStateStarted();
 
-    const res = await fetch(hostname + '/data', {
+    fetch(hostname + '/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -120,27 +120,38 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const pkg = await res.json();
-    // console.log(pkg);
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.json();
+      })
+      .then((pkg) => {
+        this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
+        this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
+        this.numSequencesAfterAllFiltering = pkg.numSequences;
+        this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
+        this.dataAggGroupDate = pkg.dataAggGroupDate;
+        this.metadataCounts = pkg.metadataCounts;
+        this.countsPerLocation = pkg.countsPerLocation;
+        this.countsPerLocationDate = pkg.countsPerLocationDate;
+        this.validGroups = pkg.validGroups;
+        this.dataAggGroup = pkg.dataAggGroup;
+        this.groupCounts = pkg.groupCounts;
 
-    this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
-    this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
-    this.numSequencesAfterAllFiltering = pkg.numSequences;
-    this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
-    this.dataAggGroupDate = pkg.dataAggGroupDate;
-    this.metadataCounts = pkg.metadataCounts;
-    this.countsPerLocation = pkg.countsPerLocation;
-    this.countsPerLocationDate = pkg.countsPerLocationDate;
-    this.validGroups = pkg.validGroups;
-    this.dataAggGroup = pkg.dataAggGroup;
-    this.groupCounts = pkg.groupCounts;
+        this.UIStoreInstance.onCaseDataStateFinished();
 
-    this.UIStoreInstance.onCaseDataStateFinished();
-
-    if (this.configStoreInstance.groupKey === GROUP_SNV) {
-      this.processSelectedSnvs();
-    }
+        if (this.configStoreInstance.groupKey === GROUP_SNV) {
+          this.processSelectedSnvs();
+        }
+      })
+      .catch((err) => {
+        err.text().then((errMsg) => {
+          console.error(errMsg);
+        });
+        this.UIStoreInstance.onCaseDataStateErr();
+      });
   }
 
   @action

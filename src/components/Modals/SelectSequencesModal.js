@@ -399,7 +399,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   useEffect(() => {
     if (
       sentRequest.current &&
-      UIStore.caseDataState === ASYNC_STATES.SUCCEEDED
+      (UIStore.caseDataState === ASYNC_STATES.SUCCEEDED ||
+        UIStore.caseDataState === ASYNC_STATES.FAILED)
     ) {
       // This ref should be unset as when the modal closes it gets wiped from
       // the DOM along with the ref. But just do this in case...
@@ -410,7 +411,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   return (
     <Wrapper>
-      <Overlay visible={UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED}>
+      <Overlay
+        visible={
+          UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED &&
+          UIStore.caseDataState !== ASYNC_STATES.FAILED
+        }
+      >
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
           <ProgressText>Fetching data...</ProgressText>

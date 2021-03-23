@@ -9,8 +9,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import pandas as pd
 import psycopg2
 
+from flask import make_response
 from psycopg2 import sql
-
 from cg_server.config import config
 
 
@@ -82,11 +82,16 @@ def query_country_score(cur):
 
 def query_init(conn):
 
-    with conn.cursor() as cur:
-        metadata_map = query_metadata_map(cur)
-        stats = query_stats(cur)
-        geo_select_tree = query_geo_select_tree(cur)
-        country_score = query_country_score(cur)
+    try:
+        with conn.cursor() as cur:
+            metadata_map = query_metadata_map(cur)
+            stats = query_stats(cur)
+            geo_select_tree = query_geo_select_tree(cur)
+            country_score = query_country_score(cur)
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
 
     return {
         "metadata_map": metadata_map,
