@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """Send initial data package to front-end
-Consists of SNV definitions, metadata definitions, etc
+Consists of SNV definitions, etc
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
@@ -70,28 +70,16 @@ def query_geo_select_tree(cur):
     return cur.fetchone()[0]
 
 
-def query_country_score(cur):
-    cur.execute(
-        """
-        SELECT "value"
-        FROM "country_score"
-        """
-    )
-    return cur.fetchone()[0]
-
-
 def query_initial(conn):
 
     with conn.cursor() as cur:
         metadata_map = query_metadata_map(cur)
         stats = query_stats(cur)
         geo_select_tree = query_geo_select_tree(cur)
-        country_score = query_country_score(cur)
 
     return {
         "metadata_map": metadata_map,
         **stats,
         "geo_select_tree": geo_select_tree,
-        "country_score": country_score,
     }
 

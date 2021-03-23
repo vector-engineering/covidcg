@@ -19,7 +19,12 @@ from cg_server.config import config
 from cg_server.db_seed import seed_database, insert_sequences
 from cg_server.download import download_genomes, download_metadata, download_snvs
 from cg_server.error import handle_db_errors
-from cg_server.query import query_aggregate_data, query_initial, query_metadata_fields
+from cg_server.query import (
+    query_aggregate_data,
+    query_initial,
+    query_metadata_fields,
+    query_country_score,
+)
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
@@ -101,6 +106,13 @@ def index():
 @handle_db_errors(conn=conn)
 def init():
     return query_initial(conn)
+
+
+@app.route("/country_score", methods=["GET"])
+@cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
+def _country_score():
+    return query_country_score(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
