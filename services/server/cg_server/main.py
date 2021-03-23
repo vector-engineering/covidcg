@@ -91,7 +91,8 @@ if os.getenv("FLASK_ENV", "development") == "development":
                 os.getenv("DATA_PATH", config["data_folder"]),
                 filenames_as_dates=True,
             )
-            conn.commit()
+
+        conn.commit()
 
 
 @app.route("/")
