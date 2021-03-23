@@ -32,6 +32,7 @@ import {
   HeaderRow,
   HeaderButtons,
   CancelButton,
+  InvalidText,
 } from './Modal.styles';
 
 import {
@@ -39,7 +40,6 @@ import {
   Content,
   Column,
   ApplyButton,
-  InvalidText,
 } from './SelectSequencesModal.styles';
 
 Modal.setAppElement('#app');
@@ -411,12 +411,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   return (
     <Wrapper>
-      <Overlay
-        visible={
-          UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED &&
-          UIStore.caseDataState !== ASYNC_STATES.FAILED
-        }
-      >
+      <Overlay visible={UIStore.caseDataState === ASYNC_STATES.STARTED}>
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
           <ProgressText>Fetching data...</ProgressText>

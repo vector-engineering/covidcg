@@ -108,7 +108,7 @@ def init():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
-    
+
     return init
 
 
@@ -124,7 +124,7 @@ def get_sequences():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
-    
+
     return res
 
 
@@ -149,9 +149,15 @@ def _download_metadata():
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
-
     req = request.json
-    return download_metadata(conn, req)
+
+    try:
+        metadata = download_metadata(conn, req)
+    except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+
+    return metadata
 
 
 @app.route("/download_snvs", methods=["POST"])
@@ -163,7 +169,14 @@ def _download_snvs():
         )
 
     req = request.json
-    return download_snvs(conn, req)
+
+    try:
+        snvs = download_snvs(conn, req)
+    except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+
+    return snvs
 
 
 @app.route("/download_genomes", methods=["POST"])
@@ -175,5 +188,12 @@ def _download_genomes():
         )
 
     req = request.json
-    return download_genomes(conn, req)
+
+    try:
+        genomes = download_genomes(conn, req)
+    except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+
+    return genomes
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
+// import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
 
 import Modal from 'react-modal';

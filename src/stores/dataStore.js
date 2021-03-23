@@ -206,7 +206,7 @@ export class DataStore {
   async downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
     this.UIStoreInstance.onDownloadStarted();
 
-    const res = await fetch(hostname + '/download_metadata', {
+    fetch(hostname + '/download_metadata', {
       method: 'POST',
       headers: {
         Accept: 'text/csv',
@@ -226,16 +226,32 @@ export class DataStore {
         ),
         snv_format: snvFormat,
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'selected_sequence_metadata.csv');
-
-    this.UIStoreInstance.onDownloadFinished();
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'selected_sequence_metadata.csv');
+        this.UIStoreInstance.onDownloadFinished();
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
+          });
+      });
   }
 
   async downloadSelectedSNVs() {
-    const res = await fetch(hostname + '/download_snvs', {
+    fetch(hostname + '/download_snvs', {
       method: 'POST',
       headers: {
         Accept: 'text/csv',
@@ -256,10 +272,27 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'selected_snvs.csv');
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'selected_snvs.csv');
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            console.error('Download selected SNVs failed');
+          });
+      });
   }
 
   // TODO:
@@ -272,7 +305,7 @@ export class DataStore {
   async downloadGenomes() {
     this.UIStoreInstance.onDownloadStarted();
 
-    const res = await fetch(hostname + '/download_genomes', {
+    fetch(hostname + '/download_genomes', {
       method: 'POST',
       headers: {
         Accept: 'application/gzip',
@@ -287,12 +320,28 @@ export class DataStore {
         start_date: toJS(this.configStoreInstance.startDate),
         end_date: toJS(this.configStoreInstance.endDate),
       }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, 'genomes.fa.gz');
-
-    this.UIStoreInstance.onDownloadFinished();
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'genomes.fa.gz');
+        this.UIStoreInstance.onDownloadFinished();
+      })
+      .catch((err) => {
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            console.error('Error downloading genomes');
+          });
+      });
   }
 
   downloadAggSequences() {
