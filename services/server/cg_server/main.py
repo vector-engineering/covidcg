@@ -108,6 +108,9 @@ def init():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
+    except Exception as e:
+        conn.rollback()
+        return make_response((str(e), 500))
 
     return init
 
@@ -124,6 +127,9 @@ def get_sequences():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
+    except Exception as e:
+        conn.rollback()
+        return make_response((str(e), 500))
 
     return res
 
@@ -136,6 +142,9 @@ def _get_metadata_fields():
     try:
         metadata_fields = get_metadata_fields(conn, req)
     except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+    except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
 
@@ -154,6 +163,9 @@ def _download_metadata():
     try:
         metadata = download_metadata(conn, req)
     except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+    except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
 
@@ -175,6 +187,9 @@ def _download_snvs():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
+    except Exception as e:
+        conn.rollback()
+        return make_response((str(e), 500))
 
     return snvs
 
@@ -192,6 +207,9 @@ def _download_genomes():
     try:
         genomes = download_genomes(conn, req)
     except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+    except Exception as e:
         conn.rollback()
         return make_response((str(e), 500))
 
