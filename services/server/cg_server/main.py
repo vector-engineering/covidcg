@@ -5,7 +5,6 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import json
 import os
 import psycopg2
 import re
@@ -17,14 +16,15 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cg_server.config import config
-from cg_server.database import seed_database
-from cg_server.download_metadata import download_metadata
-from cg_server.download_genomes import download_genomes
-from cg_server.download_snvs import download_snvs
-from cg_server.get_metadata_fields import get_metadata_fields
-from cg_server.insert_sequences import insert_sequences
-from cg_server.query_init import query_init
-from cg_server.query_data import query_data
+from cg_server.db_seed import seed_database, insert_sequences
+from cg_server.download import download_genomes, download_metadata, download_snvs
+from cg_server.error import handle_db_errors
+from cg_server.query import (
+    query_aggregate_data,
+    query_initial,
+    query_metadata_fields,
+    query_country_score,
+)
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
@@ -91,7 +91,8 @@ if os.getenv("FLASK_ENV", "development") == "development":
                 os.getenv("DATA_PATH", config["data_folder"]),
                 filenames_as_dates=True,
             )
-            conn.commit()
+
+        conn.commit()
 
 
 @app.route("/")
@@ -102,66 +103,52 @@ def index():
 
 @app.route("/init")
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def init():
-    try:
-        init = query_init(conn)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
+    return query_initial(conn)
 
-    return init
+
+@app.route("/country_score", methods=["GET"])
+@cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
+def _country_score():
+    return query_country_score(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def get_sequences():
     req = request.json
     if not req:
         return make_response(("No filter parameters given", 400))
 
-    try:
-        res = query_data(conn, req)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
-
-    return res
+    return query_aggregate_data(conn, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def _get_metadata_fields():
     req = request.json
-
-    try:
-        metadata_fields = get_metadata_fields(conn, req)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
-
-    return metadata_fields
+    return query_metadata_fields(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def _download_metadata():
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
     req = request.json
-
-    try:
-        metadata = download_metadata(conn, req)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
-
-    return metadata
+    return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def _download_snvs():
     if not config["allow_metadata_download"]:
         return make_response(
@@ -169,18 +156,12 @@ def _download_snvs():
         )
 
     req = request.json
-
-    try:
-        snvs = download_snvs(conn, req)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
-
-    return snvs
+    return download_snvs(conn, req)
 
 
 @app.route("/download_genomes", methods=["POST"])
 @cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
 def _download_genomes():
     if not config["allow_genome_download"]:
         return make_response(
@@ -188,12 +169,5 @@ def _download_genomes():
         )
 
     req = request.json
-
-    try:
-        genomes = download_genomes(conn, req)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
-
-    return genomes
+    return download_genomes(conn, req)
 

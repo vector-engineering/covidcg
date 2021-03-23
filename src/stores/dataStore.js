@@ -147,10 +147,15 @@ export class DataStore {
         }
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-        });
-        this.UIStoreInstance.onCaseDataStateErr();
+        err
+          .text()
+          .then((errMsg) => {
+            console.error(errMsg);
+          })
+          .finally(() => {
+            this.UIStoreInstance.onCaseDataStateErr();
+            console.error('Error fetching data');
+          });
       });
   }
 

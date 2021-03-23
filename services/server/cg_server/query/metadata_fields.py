@@ -11,7 +11,7 @@ from psycopg2 import sql
 from cg_server.config import config
 
 
-def get_metadata_fields(conn, req):
+def query_metadata_fields(conn, req):
 
     table_queries = []
     for field in req.keys():

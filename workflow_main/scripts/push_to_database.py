@@ -14,8 +14,7 @@ cg_server_path = str(
 sys.path.append(cg_server_path)
 
 from cg_server.config import config
-from cg_server.database import seed_database
-from cg_server.insert_sequences import insert_sequences
+from cg_server.db_seed import insert_sequences, seed_database
 
 
 def main():

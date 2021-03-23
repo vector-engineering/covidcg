@@ -9,7 +9,7 @@ import pandas as pd
 
 from flask import make_response
 
-from cg_server.query import query_sequences
+from cg_server.query.selection import query_sequences
 
 
 def download_snvs(conn, req):

@@ -19,10 +19,11 @@ from cg_server.color import (
 )
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.query import query_sequences, query_consensus_snvs
+from cg_server.query.selection import query_sequences
+from cg_server.query.consensus_snvs import query_consensus_snvs
 
 
-def query_data(conn, req):
+def query_aggregate_data(conn, req):
 
     res_df, res_snv = query_sequences(conn, req)
     num_sequences = len(res_df)

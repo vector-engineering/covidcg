@@ -13,7 +13,7 @@ import tempfile
 from flask import make_response, send_file
 from psycopg2 import sql
 
-from cg_server.query import select_sequences
+from cg_server.query.selection import select_sequences
 
 
 def download_genomes(conn, req):

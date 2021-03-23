@@ -23,6 +23,7 @@ export const initialUIValues = {
   cooccurrenceDataState: ASYNC_STATES.STARTED,
   downloadState: ASYNC_STATES.UNINITIALIZED,
 
+  globalSequencingDataState: ASYNC_STATES.UNINITIALIZED,
   metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
 
   activeTab: TABS.TAB_EXAMPLE,
@@ -50,6 +51,8 @@ export class UIStore {
 
   init() {
     this.dataStoreInstance = rootStoreInstance.dataStore;
+    this.globalSequencingDataStoreInstance =
+      rootStoreInstance.globalSequencingDataStore;
   }
 
   @action
@@ -116,6 +119,19 @@ export class UIStore {
   };
 
   @action
+  onGlobalSequencingDataStarted = () => {
+    this.globalSequencingDataState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onGlobalSequencingDataFinished = () => {
+    this.globalSequencingDataState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onGlobalSequencingDataErr = () => {
+    this.globalSequencingDataState = ASYNC_STATES.FAILED;
+  };
+
+  @action
   onMetadataFieldStarted = () => {
     this.metadataFieldState = ASYNC_STATES.STARTED;
   };
@@ -161,6 +177,12 @@ export class UIStore {
       this.caseDataState === ASYNC_STATES.STARTED
     ) {
       this.dataStoreInstance.fetchData();
+    } else if (
+      this.activeTab === TABS.TAB_GLOBAL_SEQUENCES &&
+      (this.globalSequencingDataState !== ASYNC_STATES.SUCCEEDED ||
+        this.globalSequencingDataState === ASYNC_STATES.STARTED)
+    ) {
+      this.globalSequencingDataStoreInstance.fetchGlobalSequencingData();
     }
   }
 

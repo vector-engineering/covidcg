@@ -39,6 +39,7 @@ class RootStore {
   init() {
     // Initialize all stores
     this.UIStore.init();
+    startRouter(routes, this);
 
     this.plotSettingsStore.init();
     this.metadataStore.init();
@@ -49,8 +50,6 @@ class RootStore {
     this.dataStore.init();
 
     this.globalSequencingDataStore.init();
-
-    startRouter(routes, this);
   }
 }
 
