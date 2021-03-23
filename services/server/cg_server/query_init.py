@@ -82,16 +82,11 @@ def query_country_score(cur):
 
 def query_init(conn):
 
-    try:
-        with conn.cursor() as cur:
-            metadata_map = query_metadata_map(cur)
-            stats = query_stats(cur)
-            geo_select_tree = query_geo_select_tree(cur)
-            country_score = query_country_score(cur)
-
-    except psycopg2.Error as e:
-        conn.rollback()
-        return make_response((str(e), 500))
+    with conn.cursor() as cur:
+        metadata_map = query_metadata_map(cur)
+        stats = query_stats(cur)
+        geo_select_tree = query_geo_select_tree(cur)
+        country_score = query_country_score(cur)
 
     return {
         "metadata_map": metadata_map,

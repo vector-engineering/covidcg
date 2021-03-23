@@ -103,7 +103,13 @@ def index():
 @app.route("/init")
 @cross_origin(origins=cors_domains)
 def init():
-    return query_init(conn)
+    try:
+        init = query_init(conn)
+    except psycopg2.Error as e:
+        conn.rollback()
+        return make_response((str(e), 500))
+    
+    return init
 
 
 @app.route("/data", methods=["GET", "POST"])
@@ -118,6 +124,7 @@ def get_sequences():
     except psycopg2.Error as e:
         conn.rollback()
         return make_response((str(e), 500))
+    
     return res
 
 
