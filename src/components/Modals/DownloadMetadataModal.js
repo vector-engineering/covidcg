@@ -287,9 +287,11 @@ const DownloadMetadataModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
   const { UIStore } = useStores();
 
   const closeDownloadModal = () => {
-    // Before we close the modal, clear the download state
-    UIStore.onDownloadFinished();
     onRequestClose();
+    // Before we close the modal, clear the download state
+    if (UIStore.downloadState !== ASYNC_STATES.STARTED) {
+      UIStore.onDownloadFinished();
+    }
   };
 
   return (

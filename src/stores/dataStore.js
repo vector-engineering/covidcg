@@ -86,7 +86,7 @@ export class DataStore {
   }
 
   @action
-  async fetchData() {
+  fetchData() {
     this.UIStoreInstance.onCaseDataStateStarted();
 
     fetch(hostname + '/data', {
@@ -203,7 +203,7 @@ export class DataStore {
   }
 
   @action
-  async downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
+  downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
     this.UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
@@ -246,11 +246,12 @@ export class DataStore {
           })
           .finally(() => {
             this.UIStoreInstance.onDownloadErr();
+            console.error('Download metadata failed');
           });
       });
   }
 
-  async downloadSelectedSNVs() {
+  downloadSelectedSNVs() {
     fetch(hostname + '/download_snvs', {
       method: 'POST',
       headers: {
@@ -290,6 +291,7 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
             console.error('Download selected SNVs failed');
           });
       });
@@ -302,7 +304,7 @@ export class DataStore {
   // blob on the front-end, and this will get unsustainable
   // if the user tries to download 100,000+ genomes
   @action
-  async downloadGenomes() {
+  downloadGenomes() {
     this.UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_genomes', {
@@ -339,6 +341,7 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
+            this.UIStoreInstance.onDownloadErr();
             console.error('Error downloading genomes');
           });
       });
