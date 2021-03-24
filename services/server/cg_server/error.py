@@ -8,6 +8,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import functools
 import psycopg2
 import sys
+import traceback
 
 from flask import make_response
 
@@ -26,7 +27,7 @@ def handle_db_errors(conn):
             # Catch any database/SQL errors
             except psycopg2.Error as e:
                 conn.rollback()
-                eprint(str(e))
+                traceback.print_exc(file=sys.stderr)
                 return make_response((str(e), 500))
             # Catch any other error
             # Could just do this instead of the specific DB one,
@@ -34,7 +35,7 @@ def handle_db_errors(conn):
             # something special with DB error handling
             except Exception as e:
                 conn.rollback()
-                eprint(str(e))
+                traceback.print_exc(file=sys.stderr)
                 return make_response((str(e), 500))
 
             conn.commit()
