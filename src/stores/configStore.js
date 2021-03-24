@@ -227,11 +227,20 @@ export class ConfigStore {
   }
 
   // Get a pretty name for the group
-  getGroupLabel() {
-    if (Object.keys(config.group_cols).includes(this.groupKey)) {
-      return config.group_cols[this.groupKey].title;
-    } else if (this.groupKey === GROUP_SNV) {
-      if (this.dnaOrAa === DNA_OR_AA.DNA) {
+  getGroupLabel(groupKey = null, dnaOrAa = null) {
+    // Default to using store attribute, if no explicit groupKey
+    // is provided
+    if (groupKey === null) {
+      groupKey = this.groupKey;
+    }
+    if (dnaOrAa === null) {
+      dnaOrAa = this.dnaOrAa;
+    }
+
+    if (Object.keys(config.group_cols).includes(groupKey)) {
+      return config.group_cols[groupKey].title;
+    } else if (groupKey === GROUP_SNV) {
+      if (dnaOrAa === DNA_OR_AA.DNA) {
         return 'NT SNV';
       } else {
         return 'AA SNV';
