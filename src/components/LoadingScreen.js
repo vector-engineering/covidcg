@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { Transition } from 'react-transition-group';
-import { useStores } from '../stores/connect';
 import { asyncDataStoreInstance } from './App';
 
 import { ASYNC_STATES } from '../constants/defs.json';
 
+import ExternalLink from './Common/ExternalLink';
 import LoadingSpinner from './Common/LoadingSpinner';
 import {
   LoadingScreenContainer,
@@ -45,17 +45,42 @@ const loadingTransitionStyles = {
 };
 
 const LoadingScreen = observer(() => {
-  const { UIStore } = useStores();
+  const [progressText, setProgressText] = useState('');
 
-  let progressText;
-  if (asyncDataStoreInstance.status === ASYNC_STATES.FAILED) {
-    progressText =
-      'Error fetching data. Please refresh this page. If this error persists, please contact us at covidcg@broadinstitute.org';
-  } else if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
-    progressText = 'Downloading data...';
-  } else if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
-    progressText = 'Processing data...';
-  }
+  useEffect(() => {
+    if (asyncDataStoreInstance.status === ASYNC_STATES.FAILED) {
+      setProgressText(
+        <span>
+          Error fetching data. Please refresh this page. If this error persists,
+          please contact us at{' '}
+          <ExternalLink href="mailto:covidcg@broadinstitute.org">
+            covidcg@broadinstitute.org
+          </ExternalLink>
+        </span>
+      );
+    } else if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
+      setProgressText(<span>Initializing...</span>);
+    }
+  }, [asyncDataStoreInstance.status]);
+
+  useEffect(() => {
+    // Display message to try a refresh if this is taking too long
+    // Timer set at 5 seconds
+    setTimeout(() => {
+      setProgressText(
+        <span>
+          Initializing...
+          <br />
+          If this is taking too long, try refreshing the page.
+          <br />
+          If the error persists, please contact us at{' '}
+          <ExternalLink href="mailto:covidcg@broadinstitute.org">
+            covidcg@broadinstitute.org
+          </ExternalLink>
+        </span>
+      );
+    }, 10000);
+  }, []);
 
   return (
     <LoadingScreenContainer>
