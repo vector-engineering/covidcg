@@ -16,6 +16,9 @@ import { LOW_FREQ_FILTER_TYPES } from '../../constants/defs.json';
 
 const FilterDataIntoOther = observer(
   ({
+    groupKey,
+    dnaOrAa,
+
     lowFreqFilterType,
     minLocalCounts,
     minGlobalCounts,
@@ -47,9 +50,12 @@ const FilterDataIntoOther = observer(
     return (
       <SelectContainer>
         <span className="title">
-          Filter Low Frequency {configStore.getGroupLabel()}s
+          Filter Low Frequency {configStore.getGroupLabel(groupKey, dnaOrAa)}s
           <QuestionButton
-            data-tip={`<p>${configStore.getGroupLabel()}s that do not meet the following criteria will be grouped into the "Other" group. This is done to increase performance in the app</p><p>Including more groups gives more detail into the data, but may come at the cost of app performance.</p>`}
+            data-tip={`<p>${configStore.getGroupLabel(
+              groupKey,
+              dnaOrAa
+            )}s that do not meet the following criteria will be grouped into the "Other" group. This is done to increase performance in the app</p><p>Including more groups gives more detail into the data, but may come at the cost of app performance.</p>`}
             data-html={true}
             data-for="main-tooltip"
           />
@@ -83,7 +89,10 @@ const FilterDataIntoOther = observer(
             />
           </NumberInput>
           <QuestionButton
-            data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${minLocalCounts}</b> counts in the selected locations will be grouped into "Other"</p>`}
+            data-tip={`<p><b>${configStore.getGroupLabel(
+              groupKey,
+              dnaOrAa
+            )}s</b> with less than <b>${minLocalCounts}</b> counts in the selected locations will be grouped into "Other"</p>`}
             data-html="true"
             data-for="main-tooltip"
           />
@@ -119,7 +128,10 @@ const FilterDataIntoOther = observer(
             />
           </NumberInput>
           <QuestionButton
-            data-tip={`<p><b>${configStore.getGroupLabel()}s</b> with less than <b>${minGlobalCounts}</b> counts globally will be grouped into "Other"</p>`}
+            data-tip={`<p><b>${configStore.getGroupLabel(
+              groupKey,
+              dnaOrAa
+            )}s</b> with less than <b>${minGlobalCounts}</b> counts globally will be grouped into "Other"</p>`}
             data-html="true"
             data-for="main-tooltip"
           />
@@ -137,7 +149,7 @@ const FilterDataIntoOther = observer(
                 lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS
               }
             >
-              Show Top N {configStore.getGroupLabel()}s
+              Show Top N {configStore.getGroupLabel(groupKey, dnaOrAa)}s
             </RadioLabel>
           </Radio>
           <NumberInput>
@@ -153,7 +165,10 @@ const FilterDataIntoOther = observer(
             />
           </NumberInput>
           <QuestionButton
-            data-tip={`<p>Only show the top <b>${maxGroupCounts}</b> <b>${configStore.getGroupLabel()}s</b> by counts in the selected locations</p>`}
+            data-tip={`<p>Only show the top <b>${maxGroupCounts}</b> <b>${configStore.getGroupLabel(
+              groupKey,
+              dnaOrAa
+            )}s</b> by counts in the selected locations</p>`}
             data-html="true"
             data-for="main-tooltip"
           />

@@ -73,6 +73,10 @@ const AboutTab = () => {
               )
             </p>
             <p>
+              <b>David Favela</b> is an associate software engineer in the
+              Deverman group.
+            </p>
+            <p>
               <b>Dr. Alina Chan</b> is a postdoc in the Deverman group who asked
               too many questions about SARS-CoV-2 and realized that we needed a
               browser like COVID-19 CG.
@@ -85,11 +89,14 @@ const AboutTab = () => {
               diagnostic assays for infectious diseases, including COVID-19.
             </p>
             <p>
-              <b>Dr. Benjamin Deverman</b> is the director of the vector
-              engineering research group at the Stanley Center for Psychiatric
-              Research at the Broad Institute of MIT and Harvard. The Deverman
-              Lab develops innovative gene delivery solutions to expand the
-              impact of gene therapy and for studying the central nervous
+              <ExternalLink href="https://www.broadinstitute.org/bios/ben-deverman">
+                Dr. Benjamin Deverman
+              </ExternalLink>{' '}
+              is the director of the vector engineering research group at the
+              Stanley Center for Psychiatric Research at the Broad Institute of
+              MIT and Harvard, where he is also an Institute Scientist. The
+              Deverman Lab develops innovative gene delivery solutions to expand
+              the impact of gene therapy and for studying the central nervous
               system, with the aim of uncovering new avenues for treating
               psychiatric disorders.
             </p>
