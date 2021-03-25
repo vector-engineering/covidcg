@@ -48,7 +48,10 @@ const LoadingScreen = observer(() => {
   const { UIStore } = useStores();
 
   let progressText;
-  if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
+  if (asyncDataStoreInstance.status === ASYNC_STATES.FAILED) {
+    progressText =
+      'Error fetching data. Please refresh this page. If this error persists, please contact us at covidcg@broadinstitute.org';
+  } else if (asyncDataStoreInstance.status !== ASYNC_STATES.SUCCEEDED) {
     progressText = 'Downloading data...';
   } else if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
     progressText = 'Processing data...';
@@ -76,7 +79,9 @@ const LoadingScreen = observer(() => {
               ...loadingTransitionStyles[state],
             }}
           >
-            <LoadingSpinner />
+            <LoadingSpinner
+              visible={asyncDataStoreInstance.status !== ASYNC_STATES.FAILED}
+            />
             <ProgressText>{progressText}</ProgressText>
           </ProgressContainer>
         )}

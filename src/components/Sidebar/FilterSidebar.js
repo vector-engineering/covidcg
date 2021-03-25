@@ -25,7 +25,10 @@ const FilterSidebar = observer(() => {
 
   const hideModal = () => {
     // Don't close the modal if we're in the middle of a request
-    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (
+      UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED &&
+      UIStore.caseDataState !== ASYNC_STATES.FAILED
+    ) {
       return;
     }
 

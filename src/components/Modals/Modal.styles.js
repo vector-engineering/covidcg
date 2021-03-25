@@ -99,3 +99,16 @@ export const CancelButton = styled(Button)`
     background-color: #eee;
   }
 `;
+
+export const InvalidText = styled.span`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 20px;
+
+  font-size: 1rem;
+  font-weight: normal;
+  line-height: normal;
+  color: #dc3545;
+}
+`;

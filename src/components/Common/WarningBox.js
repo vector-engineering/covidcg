@@ -1,45 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 
-const WarningContainer = styled.div`
-  display: ${({ show }) => (show ? 'flex' : 'none')};
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
+import {
+  WarningContainer,
+  WarningHeader,
+  WarningText,
+} from './WarningBox.styles';
 
-  // colors from Bootstrap
-  background-color: #fff3cd;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-
-  margin: 0px 10px;
-  margin-bottom: 15px;
-  padding: 10px 20px;
-
-  .warning-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 5px;
-    .warning-title {
-      font-size: 1.25em;
-    }
-    .spacer {
-      flex-grow: 1;
-    }
-  }
-
-  .warning-text {
-    margin: 0px;
-    font-weight: normal;
-  }
-`;
-WarningContainer.defaultProps = {
-  show: true,
-};
-
-const WarningBox = ({ children, title, show, onDismiss }) => {
+const WarningBox = ({
+  children,
+  title,
+  show,
+  onDismiss,
+  showDismissButton,
+}) => {
   const onDismissWarning = (event) => {
     event.preventDefault();
     onDismiss();
@@ -47,14 +21,16 @@ const WarningBox = ({ children, title, show, onDismiss }) => {
 
   return (
     <WarningContainer show={show}>
-      <div className="warning-header">
+      <WarningHeader>
         <span className="warning-title">{title}</span>
         <div className="spacer" />
-        <button className="close-button" onClick={onDismissWarning}>
-          Dismiss
-        </button>
-      </div>
-      <p className="warning-text">{children}</p>
+        {showDismissButton && (
+          <button className="close-button" onClick={onDismissWarning}>
+            Dismiss
+          </button>
+        )}
+      </WarningHeader>
+      <WarningText>{children}</WarningText>
     </WarningContainer>
   );
 };
@@ -65,11 +41,14 @@ WarningBox.propTypes = {
   ]),
   title: PropTypes.string,
   show: PropTypes.bool.isRequired,
-  onDismiss: PropTypes.func.isRequired,
+  onDismiss: PropTypes.func,
+  showDismissButton: PropTypes.bool,
 };
 WarningBox.defaultProps = {
   title: 'WARNING:',
   children: 'Default warning text',
+  onDismiss: () => {},
+  showDismissButton: true,
 };
 
 export default WarningBox;

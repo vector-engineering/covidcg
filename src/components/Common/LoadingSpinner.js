@@ -17,6 +17,7 @@ const HollowLoader = styled.div`
   height: ${({ size }) => size};
   animation: ${loaderAnim} ${({ timing }) => timing} infinite ease-in-out;
   outline: 1px solid transparent;
+  visibility: ${({ visible }) => (visible ? 'unset' : 'hidden')};
 `;
 
 const LargeBox = styled.div`
@@ -37,9 +38,9 @@ const LargeBox = styled.div`
 //   animation: ${smallBoxAnim} ${hollowTiming} alternate infinite ease-in-out;
 // `;
 
-const LoadingSpinner = ({ size, color, timing }) => {
+const LoadingSpinner = ({ size, color, timing, visible }) => {
   return (
-    <HollowLoader size={size} timing={timing}>
+    <HollowLoader size={size} timing={timing} visible={visible}>
       <LargeBox size={size} color={color} />
     </HollowLoader>
   );
@@ -48,11 +49,13 @@ LoadingSpinner.propTypes = {
   size: PropTypes.string,
   color: PropTypes.string,
   timing: PropTypes.string,
+  visible: PropTypes.bool,
 };
 LoadingSpinner.defaultProps = {
   size: '2em',
   color: '#ccc', // dark: #34495e
   timing: '1125ms',
+  visible: true,
 };
 
 export default LoadingSpinner;

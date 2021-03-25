@@ -16,13 +16,11 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-  ASYNC_STATES,
   TABS,
 } from '../../constants/defs.json';
 import { config } from '../../config';
 
 import ExternalLink from '../Common/ExternalLink';
-import SkeletonElement from '../Common/SkeletonElement';
 // import LoadingSpinner from '../Common/LoadingSpinner';
 
 import SurveillancePlot from '../Vega/SurveillancePlot';
@@ -440,25 +438,6 @@ const ExampleTab = observer(() => {
   });
 
   const renderExamples = () => {
-    // Hide the examples while the app is still initializing
-    if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
-      const skeletonList = [];
-      for (let i = 0; i < exampleElements.length; i++) {
-        skeletonList.push(
-          <SkeletonElement
-            key={`example-loading-${i}`}
-            delay={2}
-            width="300px"
-            height={250}
-            style={{
-              margin: '10px',
-            }}
-          />
-        );
-      }
-      return skeletonList;
-    }
-
     return exampleElements;
   };
 

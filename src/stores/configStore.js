@@ -5,11 +5,15 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import { geneMap, proteinMap,
-         getGene, getProtein } from '../utils/gene_protein';
+import {
+  geneMap,
+  proteinMap,
+  getGene,
+  getProtein,
+} from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
-import { intToISO } from '../utils/date';
+import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/parseQueryParams';
 
 import {
@@ -17,7 +21,6 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
   LOW_FREQ_FILTER_TYPES,
-  MIN_DATE,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
@@ -31,6 +34,9 @@ import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
 
 // Define initial values
+
+const today = intToISO(new Date().getTime());
+const lastNDays = 90; // By default, show only the last 3 months
 
 export const initialConfigValues = {
   groupKey: 'snv',
@@ -47,8 +53,9 @@ export const initialConfigValues = {
   // Selecting the gene as the coordinate range by default
   coordinateMode: COORDINATE_MODES.COORD_GENE,
 
-  startDate: MIN_DATE,
-  endDate: intToISO(new Date().getTime()),
+  // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
+  startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
+  endDate: today,
 
   selectedLocationNodes: [],
 
@@ -193,7 +200,7 @@ export class ConfigStore {
           value[i] = parseInt(item);
 
           if (i % 2 === 1) {
-            arr.push([value[i-1], value[i]]);
+            arr.push([value[i - 1], value[i]]);
           }
         });
 
@@ -330,13 +337,13 @@ export class ConfigStore {
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
 
     // Update the URL params
-    this.locationArray.forEach(name => {
-      this.urlParams.delete(name);
-    })
+    Object.values(GEO_LEVELS).forEach((level) => {
+      this.urlParams.delete(level);
+    });
 
-    this.selectedLocationNodes.forEach(node => {
+    this.selectedLocationNodes.forEach((node) => {
       this.urlParams.append(String(node.level), String(node.value));
-    })
+    });
 
     updateURLFromParams(this.urlParams);
 

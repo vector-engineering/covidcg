@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
-import styled from 'styled-components';
-import { connect } from '../../stores/connect';
+import { useStores } from '../../stores/connect';
 import { onMobileDevice } from '../../utils/device';
 
 import ReactTooltip from 'react-tooltip';
@@ -9,8 +8,9 @@ import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import { TABS } from '../../constants/defs.json';
+import { TABS, ASYNC_STATES } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
+import AsyncErrorModal from '../Modals/AsyncErrorModal';
 
 const GroupTab = React.lazy(() => import('./GroupTab'));
 const ExampleTab = React.lazy(() => import('./ExampleTab'));
@@ -20,41 +20,25 @@ const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
-const HomePageDiv = styled.div`
-  display: grid;
-  grid-template-columns: [col1] 250px [col2] 180px [col3] auto [col4];
-  grid-template-rows: [row1] auto [row2];
-  width: 100vw;
-  position: relative;
-  overflow-y: hidden;
+import { HomePageDiv, PlotContainer } from './HomePage.styles';
 
-  .main-tooltip {
-    max-width: 300px;
+const HomePage = observer(() => {
+  const { UIStore } = useStores();
+  const [showAsyncError, setShowAsyncError] = useState(false);
 
-    background-color: #fff;
-    font-weight: normal;
-    p {
-      margin-top: 2px;
-      margin-bottom: 2px;
+  const showFetchErrorModal = () => {
+    setShowAsyncError(true);
+  };
+  const hideFetchErrorModal = () => {
+    setShowAsyncError(false);
+  };
+
+  useEffect(() => {
+    if (UIStore.caseDataState === ASYNC_STATES.FAILED) {
+      showFetchErrorModal();
     }
-  }
-`;
+  }, [UIStore.caseDataState]);
 
-const PlotContainer = styled.div`
-  grid-column: ${({ showDefaultSidebar }) =>
-    showDefaultSidebar ? 'col2 / col4' : 'col3 / col4'};
-  grid-row: row1 / row2;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  box-sizing: border-box;
-  position: relative;
-  overflow-y: scroll;
-  border-left: 1px #eaeaea solid;
-`;
-
-const HomePage = observer(({ UIStore }) => {
   const renderTab = () => {
     if (UIStore.activeTab === TABS.TAB_GROUP) {
       return <GroupTab />;
@@ -114,6 +98,11 @@ const HomePage = observer(({ UIStore }) => {
   return (
     <>
       <KeyListener />
+      <AsyncErrorModal
+        isOpen={showAsyncError}
+        onAfterOpen={() => {}}
+        onRequestClose={hideFetchErrorModal}
+      />
       <HomePageDiv>
         <ReactTooltip
           className="main-tooltip"
@@ -133,4 +122,4 @@ const HomePage = observer(({ UIStore }) => {
 });
 
 // eslint-disable-next-line react/display-name
-export default connect(HomePage);
+export default HomePage;

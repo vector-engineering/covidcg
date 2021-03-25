@@ -32,6 +32,7 @@ import {
   HeaderRow,
   HeaderButtons,
   CancelButton,
+  InvalidText,
 } from './Modal.styles';
 
 import {
@@ -39,14 +40,18 @@ import {
   Content,
   Column,
   ApplyButton,
-  InvalidText,
 } from './SelectSequencesModal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, UIStore, locationDataStore } = useStores();
+  const {
+    configStore,
+    UIStore,
+    locationDataStore,
+    metadataStore,
+  } = useStores();
   const sentRequest = useRef(false);
 
   const [pending, setPending] = useState({
@@ -212,6 +217,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
   const updateValidResidueCoordinates = (valid) => {
     setPending({
+      ...pending,
       validResidueCoordinates: valid,
     });
   };
@@ -333,10 +339,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
 
   // When the component first mounts (i.e., when the modal is first clicked on)
-  // then reset the location date tree state to what's currently selected
-  // in the config store
+  // Then:
+  //   * Reset the location date tree state to what's currently selected
+  //     in the config store
+  //   * Fetch metadata fields
   useEffect(() => {
     locationDataStore.setSelectedNodes(configStore.selectedLocationNodes);
+    metadataStore.fetchMetadataFields();
     ReactTooltip.rebuild();
   }, []);
 
@@ -390,7 +399,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   useEffect(() => {
     if (
       sentRequest.current &&
-      UIStore.caseDataState === ASYNC_STATES.SUCCEEDED
+      (UIStore.caseDataState === ASYNC_STATES.SUCCEEDED ||
+        UIStore.caseDataState === ASYNC_STATES.FAILED)
     ) {
       // This ref should be unset as when the modal closes it gets wiped from
       // the DOM along with the ref. But just do this in case...
@@ -401,7 +411,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   return (
     <Wrapper>
-      <Overlay visible={UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED}>
+      <Overlay visible={UIStore.caseDataState === ASYNC_STATES.STARTED}>
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
           <ProgressText>Fetching data...</ProgressText>

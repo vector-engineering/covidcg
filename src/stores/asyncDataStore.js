@@ -9,19 +9,28 @@ class ObservableAsyncDataStore {
   @action
   async fetchData() {
     this.status = ASYNC_STATES.STARTED;
-    try {
-      const res = await fetch(hostname + '/init');
-      const data = await res.json();
-      runInAction(() => {
-        this.data = data;
-        this.status = ASYNC_STATES.SUCCEEDED;
+    fetch(hostname + '/init')
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        runInAction(() => {
+          this.data = data;
+          this.status = ASYNC_STATES.SUCCEEDED;
+        });
+      })
+      .catch((err) => {
+        runInAction(() => {
+          this.status = ASYNC_STATES.FAILED;
+        });
+        err.text().then((errMsg) => {
+          console.error('Error getting initial data');
+          console.error(errMsg);
+        });
       });
-    } catch (e) {
-      console.error(e);
-      runInAction(() => {
-        this.status = ASYNC_STATES.FAILED;
-      });
-    }
   }
 }
 

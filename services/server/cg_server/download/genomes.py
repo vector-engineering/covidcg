@@ -11,8 +11,9 @@ import psycopg2
 import tempfile
 
 from flask import make_response, send_file
+from psycopg2 import sql
 
-from cg_server.query import select_sequences
+from cg_server.query.selection import select_sequences
 
 
 def download_genomes(conn, req):
@@ -21,16 +22,16 @@ def download_genomes(conn, req):
 
     try:
         with conn.cursor() as cur:
-            temp_table_name = select_sequences(cur, req)
+            temp_table_name = select_sequences(conn, cur, req)
 
             cur.execute(
-                """
-                SELECT q."Accession ID", s."sequence"
-                FROM "{temp_table_name}" q
-                JOIN "sequence" s on q."id" = s."sequence_id";
-                """.format(
-                    temp_table_name=temp_table_name
-                )
+                sql.SQL(
+                    """
+                    SELECT q."Accession ID", s."sequence"
+                    FROM {temp_table_name} q
+                    JOIN "sequence" s on q."id" = s."sequence_id";
+                    """
+                ).format(temp_table_name=sql.Identifier(temp_table_name))
             )
 
             fasta_file = gzip.open(fp, mode="wt")

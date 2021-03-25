@@ -1,5 +1,3 @@
-import { aggregate } from './transform';
-
 import { GROUPS } from '../constants/defs.json';
 import { formatSnv } from './snpUtils';
 

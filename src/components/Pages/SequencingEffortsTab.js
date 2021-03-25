@@ -1,41 +1,72 @@
 import React from 'react';
-import styled from 'styled-components';
+import { useStores } from '../../stores/connect';
+import { observer } from 'mobx-react';
 import useDimensions from 'react-use-dimensions';
+
+import { ASYNC_STATES } from '../../constants/defs.json';
 
 import ExternalLink from '../Common/ExternalLink';
 import SequencingMapPlot from '../Vega/SequencingMapPlot';
+import SkeletonElement from '../Common/SkeletonElement';
+import WarningBox from '../Common/WarningBox';
 
-const Container = styled.div`
-  padding-top: 20px;
-  overflow-x: hidden;
-`;
+import { Container, Header, Title } from './SequencingEffortsTab.styles';
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  width: 100%;
-
-  padding: 0px 20px;
-
-  p {
-    font-weight: normal;
-    line-height: normal;
-    max-width: 800px;
-    margin: 5px 0px;
-  }
-`;
-const Title = styled.h2`
-  font-size: 1.5em;
-  font-weight: bold;
-
-  margin: 0px;
-  margin-bottom: 10px;
-`;
-
-const SequencingEffortsTab = () => {
+const SequencingEffortsTab = observer(() => {
+  const { UIStore } = useStores();
   const [ref, { width }] = useDimensions();
+
+  if (UIStore.globalSequencingDataState === ASYNC_STATES.FAILED) {
+    return (
+      <>
+        <div style={{ height: '20px' }} />
+        <WarningBox title={'Failed to load data'} showDismissButton={false}>
+          Failed to load sequencing data. Please try again by refreshing the
+          page. If this error persists, please contact us at{' '}
+          <ExternalLink href="mailto:covidcg@broadinstitute.org">
+            covidcg@broadinstitute.org
+          </ExternalLink>
+        </WarningBox>
+      </>
+    );
+  } else if (
+    UIStore.globalSequencingDataState === ASYNC_STATES.UNINITIALIZED ||
+    UIStore.globalSequencingDataState === ASYNC_STATES.STARTED
+  ) {
+    return (
+      <div
+        style={{
+          padding: '24px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: '300px',
+          }}
+        >
+          <SkeletonElement delay={2} width={'50%'} height={300} />
+          <div style={{ width: '24px' }} />
+          <SkeletonElement delay={2} width={'50%'} height={300} />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: '500px',
+            marginTop: '24px',
+          }}
+        >
+          <SkeletonElement delay={2} width={'50%'} height={500} />
+          <div style={{ width: '24px' }} />
+          <SkeletonElement delay={2} width={'50%'} height={500} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Container ref={ref}>
@@ -70,5 +101,5 @@ const SequencingEffortsTab = () => {
       <SequencingMapPlot width={width - 250} />
     </Container>
   );
-};
+});
 export default SequencingEffortsTab;

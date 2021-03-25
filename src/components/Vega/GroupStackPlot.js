@@ -18,7 +18,6 @@ import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
-import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/group_stack.vg.json';
@@ -199,9 +198,7 @@ const GroupStackPlot = observer(({ width }) => {
           paddingBottom: '24px',
         }}
       >
-        <SkeletonElement delay={2} height={400}>
-          <LoadingSpinner />
-        </SkeletonElement>
+        <SkeletonElement delay={2} height={400} />
       </div>
     );
   }
