@@ -5,11 +5,12 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import { getGene, getProtein } from '../utils/gene_protein';
+import { geneMap, proteinMap,
+         getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO } from '../utils/date';
-import { parseQueryParams, updateURLFromParams } from '../utils/parseQueryParams';
+import { updateURLFromParams } from '../utils/parseQueryParams';
 
 import {
   GROUP_SNV,
@@ -21,6 +22,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
   TABS,
+  GEO_LEVELS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
@@ -65,7 +67,6 @@ export const initialConfigValues = {
   maxGroupCounts: 100,
   minLocalCounts: 50,
   minGlobalCounts: 100,
-  locationArray: ['region', 'country', 'division', 'location'],
 
   // Query String
   urlParams: {
@@ -123,8 +124,7 @@ export class ConfigStore {
   @observable minLocalCounts = initialConfigValues.minLocalCounts;
   @observable minGlobalCounts = initialConfigValues.minGlobalCounts;
 
-  @observable urlParams = initialConfigValues.urlParams;
-  @observable locationArray = initialConfigValues.locationArray;
+  urlParams = initialConfigValues.urlParams;
 
   constructor() {}
 
@@ -141,47 +141,82 @@ export class ConfigStore {
       }
     });
 
-    this.urlParams = parseQueryParams();
+    this.urlParams = new URLSearchParams(window.location.search);
 
-    if (Object.keys(this.urlParams).length > 0) {
-      Object.keys(this.urlParams).forEach((key) => {
-        if (this.locationArray.includes(key)) {
-          this.urlParams[key].forEach((item) => {
-            const node = getLocationByNameAndLevel(
-              this.locationDataStoreInstance.selectTree,
-              item,
-              key,
-              true
-            )[0];
+    // Check to see what's in the URL
+    this.urlParams.forEach((value, key) => {
+      if (key.toUpperCase() in GEO_LEVELS) {
+        // If a location is specified, update selectedLocationNodes
+        value = encodeURIComponent(value);
+        value = value.split('%2C');
 
-            if (typeof node !== 'undefined') {
-              this.selectedLocationNodes.push(node);
-            }
-          });
-        } else if (key === 'selectedGene') {
-          this[key] = getGene(this.urlParams[key]);
-        } else if (key === 'selectedProtein') {
-          this[key] = getProtein(this.urlParams[key]);
-        } else if (key === 'ageRange') {
-          // AgeRange is not being used currently, so ignore
-          return;
-        } else if (key === 'tab') {
-          // Check if the provided tab value is valid (included in TABS)
-          if (Object.values(TABS).includes(this.urlParams[key][0][0])) {
-            this[key] = this.urlParams[key][0][0];
-          } else {
-            // If not valid, set to home
-            this.urlParams[key] = TABS.TAB_EXAMPLE;
-            this[key] = this.urlParams[key];
+        value.forEach((item) => {
+          const node = getLocationByNameAndLevel(
+            this.locationDataStoreInstance.selectTree,
+            item,
+            key,
+            true
+          )[0];
+
+          if (typeof node !== 'undefined') {
+            this.selectedLocationNodes.push(node);
           }
+        });
+      } else if (key === 'selectedGene') {
+        // If the specified gene is in the geneMap get the gene
+        if (value in geneMap) {
+          this[key] = getGene(value);
         } else {
-          this[key] = this.urlParams[key];
+          // Else display default gene
+          this[key] = getGene('S');
+          this.urlParams.set(key, 'S');
         }
-      });
+      } else if (key === 'selectedProtein') {
+        // If the specified protein is in the proteinMap get the protein
+        if (value in proteinMap) {
+          this[key] = getProtein(value);
+        } else {
+          // Else display default protein
+          this[key] = getProtein('nsp12 - RdRp');
+          this.urlParams.set(key, 'nsp12 - RdRp');
+        }
+      } else if (key === 'ageRange') {
+        // AgeRange is not being used currently so ignore
+        return;
+      } else if (key === 'customCoordinates' || key === 'residueCoordinates') {
+        // If coordinates are specified, save them as an array of numbers
+        // Coordinates can stay as a string in the URL
+        let arr = [];
+        value = encodeURIComponent(value);
+        value = value.split('%2C');
+        value.forEach((item, i) => {
+          value[i] = parseInt(item);
 
-      // Update URL
-      updateURLFromParams(this.urlParams);
-    }
+          if (i % 2 === 1) {
+            arr.push([value[i-1], value[i]]);
+          }
+        });
+
+        this[key] = arr;
+      } else if (key === 'tab') {
+        // Check if the specified tab value is valid (included in TABS)
+        if (Object.values(TABS).includes(value)) {
+          this[key] = value;
+        } else {
+          // If not valid, set to home
+          this.urlParams.set(key, TABS.TAB_EXAMPLE);
+          this[key] = TABS.TAB_EXAMPLE;
+        }
+      } else if (key.includes('valid')) {
+        // Convert the boolean config values to booleans
+        this[key] = Boolean(value);
+      } else {
+        this[key] = value;
+      }
+    });
+
+    // Update URL
+    updateURLFromParams(this.urlParams);
 
     if (this.selectedLocationNodes.length == 0) {
       // If no locations in url, set default selected locations
@@ -271,39 +306,36 @@ export class ConfigStore {
       this[field] = pending[field];
 
       // Update urlParams
-      this.urlParams[field] = [];
+      this.urlParams.delete(field);
 
       if (field === 'selectedGene' || field === 'selectedProtein') {
         // Handle fields that return objects
-        this.urlParams[field].push(pending[field].name);
+        this.urlParams.set(field, pending[field].name);
       } else if (field === 'selectedMetadataFields') {
         // Ignore Metadata fields
         return;
       } else {
-        this.urlParams[field].push(pending[field]);
+        this.urlParams.append(field, String(pending[field]));
       }
     });
 
     // selectedLocationNodes is displayed as node.level=node.value in the URL
-    delete this.urlParams['selectedLocationNodes'];
+    this.urlParams.delete('selectedLocationNodes');
     // selectedMetadataFields is displayed as key=value in the URL
-    delete this.urlParams['selectedMetadataFields'];
+    this.urlParams.delete('selectedMetadataFields');
     // ageRange is not currently being used
-    delete this.urlParams['ageRange'];
+    this.urlParams.delete('ageRange');
 
     // Update the location node tree with our new selection
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
 
     // Update the URL params
     this.locationArray.forEach(name => {
-      delete this.urlParams[name];
+      this.urlParams.delete(name);
     })
 
     this.selectedLocationNodes.forEach(node => {
-      if (typeof this.urlParams[node.level] === 'undefined') {
-        this.urlParams[node.level] = [];
-      }
-      this.urlParams[node.level].push(node.value);
+      this.urlParams.append(String(node.level), String(node.value));
     })
 
     updateURLFromParams(this.urlParams);
