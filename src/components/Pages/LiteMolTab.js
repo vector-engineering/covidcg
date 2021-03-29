@@ -3,9 +3,35 @@ import './../../styles/litemol.min.css';
 
 import LiteMol from 'litemol';
 
+const Core = LiteMol.Core;
+const Visualization = LiteMol.Visualization;
 const Rx = LiteMol.Core.Rx;
 const Bootstrap = LiteMol.Bootstrap;
 const Transformer = Bootstrap.Entity.Transformer;
+
+class ColorMapper {
+  uniqueColors = [];
+  map = Core.Utils.FastMap.create();
+
+  get colorMap() {
+    const map = Core.Utils.FastMap.create();
+    this.uniqueColors.forEach((c, i) => map.set(i, c));
+    return map;
+  }
+
+  addColor(color) {
+    const id = `${color.r}-${color.g}-${color.b}`;
+    if (this.map.has(id)) {
+      return this.map.get(id);
+    }
+    const index = this.uniqueColors.length;
+    this.uniqueColors.push(
+      Visualization.Color.fromRgb(color.r, color.g, color.b)
+    );
+    this.map.set(id, index);
+    return index;
+  }
+}
 
 const LiteMolPlugin = React.forwardRef(({ plugin, setPlugin }, ref) => {
   useEffect(() => {
@@ -40,10 +66,11 @@ const LiteMolTab = () => {
   const pluginRef = useRef(null);
 
   function createTheme(colorDef) {
-    const model = Bootstrap.Tree.Selection.byRef(pluginRef)
-      .subtree()
-      .ofType(Bootstrap.Entity.Molecule.Visual);
+    let model = plugin.selectEntities('model');
+    //   .subtree()
+    //   .ofType(Bootstrap.Entity.Molecule.Visual);
     console.log(model);
+    console.log(model.data);
     const mapper = new ColorMapper();
     mapper.addColor(colorDef.base);
     const map = new Uint8Array(model.data.atoms.count);
@@ -122,6 +149,70 @@ const LiteMolTab = () => {
     const theme = createTheme(coloring);
     // instead of "polymer-visual", "model" or any valid ref can be used: all "child" visuals will be colored.
     applyTheme(theme);
+  };
+
+  // todo: try this method
+  const show_pdb = (id, regions, chain, entity) => {
+    //this wont work cause its jquery
+    $('#pdb_link').attr('href', 'https://www.ebi.ac.uk/pdbe/entry/pdb/' + id);
+    var Bootstrap = LiteMol.Bootstrap;
+    var Transformer = Bootstrap.Entity.Transformer;
+    var Tree = Bootstrap.Tree;
+    var Transform = Tree.Transform;
+    LiteMol.Bootstrap.Command.Tree.RemoveNode.dispatch(
+      plugin.context,
+      plugin.context.tree.root
+    );
+    var action = Transform.build()
+      .add(plugin.context.tree.root, Transformer.Data.Download, {
+        url: 'https://www.ebi.ac.uk/pdbe/static/entry/' + id + '_updated.cif',
+        type: 'String',
+        id: id,
+      })
+      .then(Transformer.Data.ParseCif, { id: id }, { isBinding: true })
+      .then(
+        Transformer.Molecule.CreateFromMmCif,
+        { blockIndex: 0 },
+        { isBinding: true }
+      )
+      .then(
+        Transformer.Molecule.CreateModel,
+        { modelIndex: 0 },
+        { isBinding: false, ref: 'model' }
+      )
+      .then(Transformer.Molecule.CreateMacromoleculeVisual, {
+        polymer: true,
+        polymerRef: 'polymer-visual',
+        het: true,
+        water: false,
+      });
+    applyTransforms(action).then(function (result) {
+      var model = plugin.selectEntities('model')[0];
+      if (!model) return;
+      var coloring = {
+        base: { r: 210, g: 180, b: 140 },
+        entries: [],
+      };
+      $.each(regions.split(','), function (n, elem) {
+        coloring['entries'].push({
+          entity_id: entity.toString(),
+          struct_asym_id: chain,
+          start_residue_number: Number(elem.split('-')[0]),
+          end_residue_number: Number(elem.split('-')[1]),
+          color: { r: 23, g: 162, b: 184 },
+        });
+      });
+      console.log(coloring);
+      var theme = LiteMolPluginInstance.CustomTheme.createTheme(
+        model.props.model,
+        coloring
+      );
+      LiteMolPluginInstance.CustomTheme.applyTheme(
+        plugin,
+        'polymer-visual',
+        theme
+      );
+    });
   };
 
   useEffect(() => {
