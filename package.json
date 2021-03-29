@@ -50,6 +50,8 @@
     "react-virtualized-auto-sizer": "1.0.3",
     "react-window": "1.8.6",
     "styled-components": "5.1.1",
+    "@sentry/react": "^6.2.3",
+    "@sentry/tracing": "^6.2.3",
     "underscore": "1.10.2",
     "vega": "5.17.3",
     "vega-embed": "6.10.0",
