@@ -99,7 +99,6 @@ data_custom/**
 server/htpasswd
 
 # Ignore site deployment scripts
-build/deploy.sh
 push_data.sh
 daily_update.sh
 update_gisaid.sh
