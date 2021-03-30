@@ -33,7 +33,7 @@ export function getAllGenes() {
   return processedGenes;
 }
 
-export const geneMap = {
+const geneMap = {
   'All Genes': {
     name: 'All Genes',
     ranges: [[1, 30000]],
@@ -55,7 +55,7 @@ export function getAllProteins() {
   return processedProteins;
 }
 
-export const proteinMap = {
+const proteinMap = {
   'All Proteins': {
     name: 'All Proteins',
     ranges: [[1, 30000]],
