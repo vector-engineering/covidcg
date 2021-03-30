@@ -9,7 +9,7 @@ import App from './components/App';
 
 require('./favicon.ico'); // Tell webpack to load favicon.ico
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || true) {
   Sentry.init({
     dsn:
       'https://ad5d766ba9fb46d784ee1418d837605b@o561173.ingest.sentry.io/5697727',
