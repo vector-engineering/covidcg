@@ -187,8 +187,9 @@ export class ConfigStore {
           this[key] = getProtein('nsp12 - RdRp');
           this.urlParams.set(key, 'nsp12 - RdRp');
         }
-      } else if (key === 'ageRange') {
+      } else if (key === 'ageRange' || key === 'selectedPrimers') {
         // AgeRange is not being used currently so ignore
+        // selectedPrimers should not be set from the url
         return;
       } else if (key === 'customCoordinates' || key === 'residueCoordinates') {
         // If coordinates are specified, save them as an array of numbers
@@ -217,6 +218,11 @@ export class ConfigStore {
       } else if (key.includes('valid')) {
         // Convert the boolean config values to booleans
         this[key] = Boolean(value);
+      } else if (key === 'customSequences'){
+        // Store customSequences as an array of strings
+        value = encodeURIComponent(value);
+        value = value.split('%2C');
+        this[key] = value;
       } else {
         this[key] = value;
       }
@@ -321,8 +327,11 @@ export class ConfigStore {
       } else if (field === 'selectedMetadataFields') {
         // Ignore Metadata fields
         return;
+      } else if (field.includes('valid')) {
+        // Ignore boolean flags
+        return;
       } else {
-        this.urlParams.append(field, String(pending[field]));
+        this.urlParams.set(field, String(pending[field]));
       }
     });
 
@@ -332,6 +341,8 @@ export class ConfigStore {
     this.urlParams.delete('selectedMetadataFields');
     // ageRange is not currently being used
     this.urlParams.delete('ageRange');
+    // selectedPrimers should not be set from url
+    this.urlParams.delete('selectedPrimers');
 
     // Update the location node tree with our new selection
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
@@ -342,7 +353,11 @@ export class ConfigStore {
     });
 
     this.selectedLocationNodes.forEach((node) => {
-      this.urlParams.append(String(node.level), String(node.value));
+      if (this.urlParams.has(String(node.level))) {
+        this.urlParams.append(String(node.level), String(node.value));
+      } else {
+        this.urlParams.set(String(node.level), String(node.value));
+      }
     });
 
     updateURLFromParams(this.urlParams);
