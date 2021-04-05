@@ -152,7 +152,59 @@ export class ConfigStore {
 
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
-      if (key.toUpperCase() in GEO_LEVELS) {
+      if (key in initialConfigValues) {
+        if (key === 'selectedGene') {
+          // If the specified gene is in the geneMap get the gene
+          if (value in geneMap) {
+            this[key] = getGene(value);
+          } else {
+            // Else display default gene
+            this[key] = initialConfigValues.selectedGene;
+            this.urlParams.set(key, initialConfigValues.selectedGene.name);
+          }
+        } else if (key === 'selectedProtein') {
+          // If the specified protein is in the proteinMap get the protein
+          if (value in proteinMap) {
+            this[key] = getProtein(value);
+          } else {
+            // Else display default protein
+            this[key] = initialConfigValues.selectedProtein;
+            this.urlParams.set(key, initialConfigValues.selectedProtein.name);
+          }
+        } else if (key === 'ageRange' || key === 'selectedPrimers') {
+          // AgeRange is not being used currently so ignore
+          // selectedPrimers should not be set from the url
+          return;
+        } else if (
+          key === 'customCoordinates' ||
+          key === 'residueCoordinates'
+        ) {
+          // If coordinates are specified, save them as an array of numbers
+          // Coordinates can stay as a string in the URL
+          let arr = [];
+          value = encodeURIComponent(value);
+          value = value.split('%2C');
+          value.forEach((item, i) => {
+            value[i] = parseInt(item);
+
+            if (i % 2 === 1) {
+              arr.push([value[i - 1], value[i]]);
+            }
+          });
+
+          this[key] = arr;
+        } else if (key.includes('valid')) {
+          // Convert the boolean config values to booleans
+          this[key] = Boolean(value);
+        } else if (key === 'customSequences') {
+          // Store customSequences as an array of strings
+          value = encodeURIComponent(value);
+          value = value.split('%2C');
+          this[key] = value;
+        } else {
+          this[key] = value;
+        }
+      } else if (key.toUpperCase() in GEO_LEVELS) {
         // If a location is specified, update selectedLocationNodes
         value = encodeURIComponent(value);
         value = value.split('%2C');
@@ -169,43 +221,6 @@ export class ConfigStore {
             this.selectedLocationNodes.push(node);
           }
         });
-      } else if (key === 'selectedGene') {
-        // If the specified gene is in the geneMap get the gene
-        if (value in geneMap) {
-          this[key] = getGene(value);
-        } else {
-          // Else display default gene
-          this[key] = getGene('S');
-          this.urlParams.set(key, 'S');
-        }
-      } else if (key === 'selectedProtein') {
-        // If the specified protein is in the proteinMap get the protein
-        if (value in proteinMap) {
-          this[key] = getProtein(value);
-        } else {
-          // Else display default protein
-          this[key] = getProtein('nsp12 - RdRp');
-          this.urlParams.set(key, 'nsp12 - RdRp');
-        }
-      } else if (key === 'ageRange' || key === 'selectedPrimers') {
-        // AgeRange is not being used currently so ignore
-        // selectedPrimers should not be set from the url
-        return;
-      } else if (key === 'customCoordinates' || key === 'residueCoordinates') {
-        // If coordinates are specified, save them as an array of numbers
-        // Coordinates can stay as a string in the URL
-        let arr = [];
-        value = encodeURIComponent(value);
-        value = value.split('%2C');
-        value.forEach((item, i) => {
-          value[i] = parseInt(item);
-
-          if (i % 2 === 1) {
-            arr.push([value[i - 1], value[i]]);
-          }
-        });
-
-        this[key] = arr;
       } else if (key === 'tab') {
         // Check if the specified tab value is valid (included in TABS)
         if (Object.values(TABS).includes(value)) {
@@ -215,16 +230,9 @@ export class ConfigStore {
           this.urlParams.set(key, TABS.TAB_EXAMPLE);
           this[key] = TABS.TAB_EXAMPLE;
         }
-      } else if (key.includes('valid')) {
-        // Convert the boolean config values to booleans
-        this[key] = Boolean(value);
-      } else if (key === 'customSequences'){
-        // Store customSequences as an array of strings
-        value = encodeURIComponent(value);
-        value = value.split('%2C');
-        this[key] = value;
       } else {
-        this[key] = value;
+        // Invalid field, ignore it
+        return;
       }
     });
 
@@ -333,7 +341,41 @@ export class ConfigStore {
       } else {
         this.urlParams.set(field, String(pending[field]));
       }
+
+      if (pending[field] === initialConfigValues[field]) {
+        // Only display non-default fields in the url
+        this.urlParams.delete(field);
+      }
     });
+
+    // Show only relevant coordinate info
+    const mode = this.urlParams.get('coordinateMode');
+    if (mode === 'protein') {
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('customCoordinates');
+      this.urlParams.delete('customSequences');
+    } else if (mode === 'gene' || !mode) {
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('customCoordinates');
+      this.urlParams.delete('customSequences');
+    } else if (mode === 'primer') {
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('customCoordinates');
+      this.urlParams.delete('customSequences');
+    } else if (mode === 'custom') {
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('customSequences');
+    } else if (mode === 'sequence') {
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('customCoordinates');
+    }
 
     // selectedLocationNodes is displayed as node.level=node.value in the URL
     this.urlParams.delete('selectedLocationNodes');
@@ -341,8 +383,6 @@ export class ConfigStore {
     this.urlParams.delete('selectedMetadataFields');
     // ageRange is not currently being used
     this.urlParams.delete('ageRange');
-    // selectedPrimers should not be set from url
-    this.urlParams.delete('selectedPrimers');
 
     // Update the location node tree with our new selection
     this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
