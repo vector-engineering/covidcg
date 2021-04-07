@@ -5,10 +5,16 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import { getGene, getProtein } from '../utils/gene_protein';
+import {
+  geneMap,
+  proteinMap,
+  getGene,
+  getProtein,
+} from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO, ISOToInt } from '../utils/date';
+import { updateURLFromParams } from '../utils/updateQueryParam'
 
 import {
   GROUP_SNV,
@@ -18,6 +24,8 @@ import {
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
+  GEO_LEVELS,
+  TABS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
@@ -133,27 +141,6 @@ export class ConfigStore {
       }
     });
 
-<<<<<<< HEAD
-    // Set default selected locations
-    this.selectedLocationNodes = [
-      getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
-        'USA',
-        'country',
-        true
-      )[0],
-      getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
-        'Canada',
-        'country',
-        true
-      )[0],
-    ].filter((node) => node !== undefined);
-    initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
-    this.initialConfigValues[
-      'selectedLocationNodes'
-    ] = this.selectedLocationNodes.slice();
-=======
     this.urlParams = new URLSearchParams(window.location.search);
 
     // Check to see what's in the URL
@@ -266,7 +253,6 @@ export class ConfigStore {
         'selectedLocationNodes'
       ] = this.selectedLocationNodes;
     }
->>>>>>> degenNTs
   }
 
   // modifyQueryParams = autorun(() => {
@@ -332,13 +318,6 @@ export class ConfigStore {
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
-<<<<<<< HEAD
-    });
-
-    // Update the location node tree with our new selection
-    this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
-
-=======
 
       // Update urlParams
       this.urlParams.delete(field);
@@ -416,7 +395,6 @@ export class ConfigStore {
 
     updateURLFromParams(this.urlParams);
 
->>>>>>> degenNTs
     // Get the new data from the server
     this.dataStoreInstance.fetchData();
   }
