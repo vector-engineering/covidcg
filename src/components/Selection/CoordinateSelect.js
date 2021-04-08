@@ -226,20 +226,15 @@ const CoordinateSelect = observer(
     // Use the selected domain to fill in the residue coordinates input
     const handleGeneDomainChange = (event) => {
       const domainName = event.target.value;
-      const newResidueCoords = [];
       let newResidueCoordsText;
 
       if (event.target.value === selectedGene.name + '-all') {
         newResidueCoordsText = `1..${selectedGene.len_aa}`;
-        newResidueCoords.push([1, selectedGene.len_aa]);
       } else {
         const domainObj = _.findWhere(selectedGene.domains, {
           name: domainName,
         });
 
-        domainObj.ranges.forEach((range) =>
-          newResidueCoords.push(range.slice())
-        );
         newResidueCoordsText = domainObj.ranges
           .map((range) => range.join('..'))
           .join(';');
@@ -249,27 +244,19 @@ const CoordinateSelect = observer(
         ...state,
         residueCoordsText: newResidueCoordsText,
       });
-
-      updateResidueCoordinates(newResidueCoords);
     };
 
     const handleProteinDomainChange = (event) => {
       const domainName = event.target.value;
-      const newResidueCoords = [];
       let newResidueCoordsText;
 
       if (event.target.value === selectedProtein.name + '-all') {
         newResidueCoordsText = `1..${selectedProtein.len_aa}`;
-        newResidueCoords.push([1, selectedProtein.len_aa]);
       } else {
         const domainObj = _.findWhere(selectedProtein.domains, {
           name: domainName,
         });
 
-        domainObj.ranges.forEach((range) =>
-          newResidueCoords.push(range.slice())
-        );
-
         newResidueCoordsText = domainObj.ranges
           .map((range) => range.join('..'))
           .join(';');
@@ -279,8 +266,6 @@ const CoordinateSelect = observer(
         ...state,
         residueCoordsText: newResidueCoordsText,
       });
-
-      updateResidueCoordinates(newResidueCoords);
     };
 
     // Update residue coordinates from store
@@ -330,7 +315,9 @@ const CoordinateSelect = observer(
       // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
         // Fails if any conditions are met
-        return seq.length === 0 || queryReferenceSequence(seq) === 0;
+        return (
+          seq.length === 0 || queryReferenceSequence(seq) === 0
+        );
       });
 
       setState({
