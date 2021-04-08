@@ -46,6 +46,10 @@ def query_metadata_fields(conn, req):
         )
 
     table_queries = sql.SQL(" UNION ALL ").join(table_queries)
+
+    if not table_queries.as_string(conn):
+        return {}
+
     query = sql.SQL(
         """
         SELECT "field", json_object_agg("id", "value") as "map"

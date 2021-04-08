@@ -31,6 +31,11 @@ export class MetadataStore {
       );
     });
 
+    if (Object.keys(requestedKeys).length === 0) {
+      this.UIStoreInstance.onMetadataFieldFinished();
+      return;
+    }
+
     fetch(hostname + '/metadata_fields', {
       method: 'POST',
       headers: {
