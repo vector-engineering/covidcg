@@ -1,6 +1,5 @@
 import { action, toJS } from 'mobx';
-import { hostname } from '../config';
-import { asyncDataStoreInstance } from '../components/App';
+import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { ASYNC_STATES } from '../constants/defs.json';
 
@@ -16,7 +15,10 @@ export class MetadataStore {
     this.UIStoreInstance = rootStoreInstance.UIStore;
     this.dataStoreInstance = rootStoreInstance.dataStore;
 
-    this.metadataMap = asyncDataStoreInstance.data.metadata_map;
+    this.metadataMap = {};
+    Object.keys(config.metadata_cols).forEach((field) => {
+      this.metadataMap[field] = {};
+    });
   }
 
   @action
@@ -64,6 +66,10 @@ export class MetadataStore {
 
   getMetadataValueFromId(field, id) {
     if (this.UIStoreInstance.metadataFieldState === ASYNC_STATES.SUCCEEDED) {
+      if (!Object.prototype.hasOwnProperty.call(this.metadataMap, field)) {
+        return undefined;
+      }
+
       return this.metadataMap[field][id];
     } else if (
       this.UIStoreInstance.metadataFieldState === ASYNC_STATES.STARTED ||
