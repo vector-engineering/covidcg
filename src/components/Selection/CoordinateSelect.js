@@ -26,7 +26,7 @@ import {
   getPrimerByName,
   getPrimersByGroup,
 } from '../../utils/primer';
-import { referenceSequenceIncludes } from '../../utils/reference';
+import { queryReferenceSequence } from '../../utils/reference';
 
 import { DNA_OR_AA, COORDINATE_MODES } from '../../constants/defs.json';
 
@@ -312,16 +312,11 @@ const CoordinateSelect = observer(
     const handleCustomSequencesChange = (event) => {
       const curText = event.target.value.toUpperCase();
       const sequences = curText.split(';');
-      // Check that all bases are valid and that
-      // the reference sequence includes the sequence
-      // TODO: support for denegerate bases
-      const validBases = ['A', 'T', 'C', 'G'];
+      // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
         // Fails if any conditions are met
         return (
-          seq.length === 0 ||
-          Array.from(seq).some((base) => !validBases.includes(base)) ||
-          !referenceSequenceIncludes(seq)
+          seq.length === 0 || queryReferenceSequence(seq) === 0
         );
       });
 
