@@ -201,7 +201,7 @@ export class ConfigStore {
           let arr = [];
           value.forEach((primerStr) => {
             // Decode primerStr to allow searching for primer
-            primerStr = decodeURIComponent(primer);
+            primerStr = decodeURIComponent(primerStr);
             let queryObj = {
               'Institution': primerStr.split('_')[0],
               'Name': primerStr.split('_')[1]
@@ -233,6 +233,7 @@ export class ConfigStore {
         });
       } else if (key === 'tab') {
         // Check if the specified tab value is valid (included in TABS)
+        // tab is read and activeTab is set from routes.js
         if (Object.values(TABS).includes(value)) {
           this[key] = value;
         } else {

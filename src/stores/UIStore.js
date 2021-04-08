@@ -1,6 +1,7 @@
 import { observable, action, toJS } from 'mobx';
 import { ASYNC_STATES, TABS } from '../constants/defs.json';
 import { rootStoreInstance } from './rootStore';
+import { updateURLFromParams } from '../utils/updateQueryParam'
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -169,7 +170,11 @@ export class UIStore {
 
   @action
   setActiveTab(tab) {
-    this.activeTab = tab;
+    if (Object.values(TABS).includes(tab)) {
+      this.activeTab = tab;
+    } else {
+      this.activeTab = TABS.TAB_EXAMPLE;
+    }
 
     if (
       (this.activeTab === TABS.TAB_GROUP ||
@@ -184,6 +189,9 @@ export class UIStore {
     ) {
       this.globalSequencingDataStoreInstance.fetchGlobalSequencingData();
     }
+
+    rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
+    updateURLFromParams(rootStoreInstance.configStore.urlParams);
   }
 
   @action
