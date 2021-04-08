@@ -37,7 +37,7 @@ import { rootStoreInstance } from './rootStore';
 // Define initial values
 
 const today = intToISO(new Date().getTime());
-const lastNDays = 90; // By default, show only the last 3 months
+const lastNDays = 30; // By default, show only the last month
 
 export const initialConfigValues = {
   groupKey: 'snv',
