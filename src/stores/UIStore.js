@@ -1,7 +1,7 @@
 import { observable, action, toJS } from 'mobx';
 import { ASYNC_STATES, TABS } from '../constants/defs.json';
 import { rootStoreInstance } from './rootStore';
-import { updateURLFromParams } from '../utils/updateQueryParam'
+import { updateURLFromParams } from '../utils/updateQueryParam';
 
 function removeItemAll(arr, value) {
   var i = 0;
@@ -33,6 +33,8 @@ export const initialUIValues = {
 
 export class UIStore {
   dataStoreInstance;
+  globalSequencingDataStoreInstance;
+  configStoreInstance;
 
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
@@ -54,6 +56,7 @@ export class UIStore {
     this.dataStoreInstance = rootStoreInstance.dataStore;
     this.globalSequencingDataStoreInstance =
       rootStoreInstance.globalSequencingDataStore;
+    this.configStoreInstance = rootStoreInstance.configStore;
   }
 
   @action
@@ -190,8 +193,8 @@ export class UIStore {
       this.globalSequencingDataStoreInstance.fetchGlobalSequencingData();
     }
 
-    rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
-    updateURLFromParams(rootStoreInstance.configStore.urlParams);
+    this.configStoreInstance.urlParams.set('tab', this.activeTab);
+    updateURLFromParams(this.configStoreInstance.urlParams);
   }
 
   @action
