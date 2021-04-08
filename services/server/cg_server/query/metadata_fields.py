@@ -14,17 +14,13 @@ from cg_server.config import config
 def query_metadata_fields(conn, req):
 
     table_queries = []
-    placeholder_map = {}
-
     for field in req.keys():
         if field not in config["metadata_cols"].keys():
             continue
 
         vals = req[field]
-        if not vals or type(vals) is not list:
+        if not vals:
             continue
-
-        placeholder_map[field] = tuple(vals)
 
         table_queries.append(
             sql.SQL(
@@ -55,13 +51,13 @@ def query_metadata_fields(conn, req):
         GROUP BY "field"
         """
     ).format(table_queries=table_queries)
+    # print(query.as_string(conn))
+    # print(dict(zip(req.keys(), [tuple(vals) for vals in req.values()])))
 
     with conn.cursor() as cur:
         cur.execute(
             query,
             # Fill in placeholders
-            placeholder_map,
+            dict(zip(req.keys(), [tuple(vals) for vals in req.values()])),
         )
-        res = dict(cur.fetchall())
-
-        return res
+        return dict(cur.fetchall())

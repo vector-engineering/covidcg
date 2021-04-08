@@ -43,7 +43,6 @@ export function getPrimersByGroup(groupName) {
   return _.where(processedPrimers, { Institution: groupName });
 }
 
-// Example usage: queryPrimers({ Institution: "CDC", Name: "N1" })
 export function queryPrimers(queryObj) {
   return _.where(processedPrimers, queryObj);
 }
