@@ -7,6 +7,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
+import datetime
 import pandas as pd
 import numpy as np
 
@@ -51,8 +52,10 @@ def main():
         .reset_index()
     )
 
+    start_date_iso = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
+    end_date_iso = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
     lineage_counts = (
-        df.loc[df["collection_date"] >= pd.to_datetime("2020-11-01")]
+        df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
         .groupby(["region", "lineage", "collection_week"])
         .size()
         .rename("counts")
@@ -74,9 +77,14 @@ def main():
     lineage_counts.to_json(str(out_path / "group_counts.json"), orient="records")
 
     def group_regression(_df):
+        min_date = _df["collection_week"].dt.date.min().isoformat()
         _df = _df.set_index("collection_week").reindex(
-            pd.date_range("2020-10-26", "2021-02-15", freq="7D"), fill_value=0
+            pd.date_range(min_date, end_date_iso, freq="7D", closed="left"),
+            fill_value=0,
         )
+
+        if len(_df) == 0:
+            return (0, 0, 1, 0, 0)
 
         slope, intercept, r, pval, err = linregress(
             np.arange(0, len(_df)), _df["percent"]
@@ -85,7 +93,7 @@ def main():
         # if r > 0.5:
         #    print(lineage, slope, r, pval, _df['counts'].sum())
 
-        return (slope, r, pval, _df["counts"].sum())
+        return (slope, r, pval, _df["counts"].sum(), _df["percent"].max())
 
     lineage_regression = (
         lineage_counts.groupby(["region", "group"])[
@@ -100,6 +108,7 @@ def main():
         lineage_regression["r"],
         lineage_regression["pval"],
         lineage_regression["counts"],
+        lineage_regression["max_percent"],
     ) = zip(*lineage_regression["res"])
     lineage_regression.drop(columns=["res"], inplace=True)
 
