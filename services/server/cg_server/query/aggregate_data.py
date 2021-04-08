@@ -115,8 +115,16 @@ def query_aggregate_data(conn, req):
 
     # COLLAPSED DATA
     # -------------
-
-    if group_key == constants["GROUP_SNV"]:
+    if (group_key == constants["GROUP_SNV"] and len(res_snv_explode_loc) == 0) or (
+        group_key != constants["GROUP_SNV"] and len(res_df_explode_loc) == 0
+    ):
+        agg_sequences_location_group_date = pd.DataFrame(
+            columns=["collection_date", "location", "group_id", "counts"]
+        )
+        agg_sequences_group_date = pd.DataFrame(
+            columns=["collection_date", "group_id", "counts"]
+        )
+    elif group_key == constants["GROUP_SNV"]:
         agg_sequences_location_group_date = (
             res_snv_explode_loc.groupby(["Accession ID", "location"])
             .agg(
@@ -169,9 +177,11 @@ def query_aggregate_data(conn, req):
         .reset_index()
         .rename(columns={"collection_date": "date"})
     )
-    counts_per_location_date["cumulative_count"] = counts_per_location_date.groupby(
-        ["location"]
-    ).cumsum()
+    counts_per_location_date.insert(
+        len(counts_per_location_date.columns),
+        "cumulative_count",
+        counts_per_location_date.groupby(["location"]).cumsum()["counts"],
+    )
 
     # print("Counts per location")
     # print(counts_per_location)
