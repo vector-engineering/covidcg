@@ -13,7 +13,9 @@ from itertools import chain
 from collections import Counter
 
 
-def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
+def get_consensus_snps(
+    case_df, group_key, consensus_fraction=0.9, min_reporting_fraction=0.05
+):
     """Generalized for lineages/clades
 
     Parameters
@@ -24,6 +26,8 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
     consensus_fraction: float
         - Fraction of taxons that need to have a SNP for it to be considered 
           a consensus SNP for a lineage/clade
+    min_reporting_fraction: float
+        - ...
 
     Returns
     -------
@@ -55,31 +59,74 @@ def get_consensus_snps(case_df, group_key, consensus_fraction=0.9):
         # Count unique occurrences
         counts = dict(Counter(snvs))
         # Base the minimum frequency off of the required consensus fraction
-        # and the number of isolates for this group
-        min_freq = int(consensus_fraction * n_isolates)
+        # and the number of genomes for this group
+        min_freq = int(min_reporting_fraction * n_isolates)
 
         # Return all SNVs which pass the min_freq threshold, sorted
-        # in ascending order?
-        return sorted([int(k) for k, v in counts.items() if v >= min_freq])
+        # in ascending order by SNV ID
+        # Also include the counts and the fraction of counts relative to
+        # the number of genomes for this group
+        return sorted(
+            [(int(k), v, v / n_isolates) for k, v in counts.items() if v >= min_freq]
+        )
 
     # Do this column-by-column because for some reason pandas applymap()
     # misses the first column. I have no idea why...
     for col in ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]:
         collapsed_snvs[col] = collapsed_snvs[col].apply(count_consensus)
 
-    collapsed_snvs = collapsed_snvs.rename(
-        columns={
-            "dna_snp_str": "dna_snp_ids",
-            "gene_aa_snp_str": "gene_aa_snp_ids",
-            "protein_aa_snp_str": "protein_aa_snp_ids",
-        }
-    )
+    def snvs_to_df(field):
+        _df = collapsed_snvs[field].explode()
+        _df = pd.DataFrame.from_records(
+            _df, columns=["snv_id", "count", "fraction"], index=_df.index
+        )
+        return _df
 
-    return collapsed_snvs
+    collapsed_dna_snvs = snvs_to_df("dna_snp_str")
+    collapsed_gene_aa_snvs = snvs_to_df("gene_aa_snp_str")
+    collapsed_protein_aa_snvs = snvs_to_df("protein_aa_snp_str")
+
+    return (
+        # CONSENSUS SNVS
+        (
+            collapsed_snvs.applymap(
+                lambda x: [snv[0] for snv in x if snv[2] > consensus_fraction]
+            ).rename(
+                columns={
+                    "dna_snp_str": "dna_snp_ids",
+                    "gene_aa_snp_str": "gene_aa_snp_ids",
+                    "protein_aa_snp_str": "protein_aa_snp_ids",
+                }
+            )
+        ).to_dict(orient="index"),
+        # SNV FREQUENCIES PER GROUP
+        {
+            "dna": (
+                collapsed_dna_snvs.reset_index()
+                .rename(columns={group_key: "group"})
+                .to_dict(orient="records")
+            ),
+            "gene_aa": (
+                collapsed_gene_aa_snvs.reset_index()
+                .rename(columns={group_key: "group"})
+                .to_dict(orient="records")
+            ),
+            "protein_aa": (
+                collapsed_protein_aa_snvs.reset_index()
+                .rename(columns={group_key: "group"})
+                .to_dict(orient="records")
+            ),
+        },
+    )
 
 
 def get_all_consensus_snps(
-    case_data, consensus_out, group_cols=[], consensus_fraction=0.9
+    case_data,
+    consensus_out,
+    frequencies_out,
+    group_cols=[],
+    consensus_fraction=0.9,
+    min_reporting_fraction=0.05,
 ):
     """For each lineage and clade, get the lineage/clade-defining SNVs,
     on both the NT and AA level
@@ -96,13 +143,21 @@ def get_all_consensus_snps(
     case_df = pd.read_json(case_data).set_index("Accession ID")
 
     consensus_dict = {}
+    frequencies_dict = {}
     # group_cols is defined under the "group_cols" field
     # in the config.yaml file
     for group in group_cols:
-        group_snp_df = get_consensus_snps(
-            case_df, group, consensus_fraction=consensus_fraction
+        group_consensus, group_frequencies = get_consensus_snps(
+            case_df,
+            group,
+            consensus_fraction=consensus_fraction,
+            min_reporting_fraction=min_reporting_fraction,
         )
-        consensus_dict[group] = group_snp_df.to_dict(orient="index")
+        consensus_dict[group] = group_consensus
+        frequencies_dict[group] = group_frequencies
 
     with open(consensus_out, "w") as fp:
         fp.write(json.dumps(consensus_dict))
+
+    with open(frequencies_out, "w") as fp:
+        fp.write(json.dumps(frequencies_dict))

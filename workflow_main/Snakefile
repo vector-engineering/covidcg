@@ -257,12 +257,14 @@ rule consensus_snps:
     input:
         case_data = rules.combine_all_data.output.case_data
     output:
-        group_consensus_snps = os.path.join(config["data_folder"], "group_consensus_snps.json")
+        group_consensus_snvs = os.path.join(config["data_folder"], "group_consensus_snps.json"),
+        group_snv_frequencies = os.path.join(config["data_folder"], "group_snv_frequencies.json")
     run:
         get_all_consensus_snps(
-            input.case_data, output.group_consensus_snps,
+            input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
             group_cols=list(config["group_cols"].keys()),
-            consensus_fraction=config["consensus_fraction"]
+            consensus_fraction=config["consensus_fraction"],
+            min_reporting_fraction=config['min_reporting_fraction']
         )
 
 
@@ -308,7 +310,7 @@ rule assemble_data_package:
         country_score = rules.global_sequencing_efforts.output.country_score,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.global_group_counts.output.global_group_counts,
-        group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
+        group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
         metadata_map = rules.combine_all_data.output.metadata_map,
         location_map = rules.combine_all_data.output.location_map
     output:
