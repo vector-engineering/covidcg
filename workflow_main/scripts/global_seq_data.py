@@ -154,7 +154,7 @@ def main():
     case_count_df["month"] = case_count_df["month"].dt.start_time
     case_count_df.to_json(str(out_path / "case_count.json"), orient="records")
 
-    case_df = pd.read_csv(args.case_data, index_col="Accession ID")
+    case_df = pd.read_json(args.case_data).set_index("Accession ID")
     case_df = case_df[["collection_date", "submission_date", "location_id"]]
     location_map = pd.read_json(args.location_map)
     case_df = case_df.join(location_map, on="location_id", how="left")

@@ -215,7 +215,7 @@ rule combine_all_data:
 
 rule build_location_tree:
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map,
         emoji_map_file = os.path.join(
             config["static_data_folder"], "country_to_emoji.xls"
@@ -255,7 +255,7 @@ rule consensus_snps:
     [consensus_fraction] is a parameter which can be adjusted here
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv
+        case_data = rules.combine_all_data.output.case_data
     output:
         group_consensus_snps = os.path.join(config["data_folder"], "group_consensus_snps.json")
     run:
@@ -271,7 +271,7 @@ rule global_group_counts:
     Doing this in the pipeline just saves some work for the browser later
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv
+        case_data = rules.combine_all_data.output.case_data
     output:
         global_group_counts = os.path.join(
             config["data_folder"], "global_group_counts.json"
@@ -288,7 +288,7 @@ rule global_sequencing_efforts:
     to produce the "Global Sequencing Effort" plot in the web app
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     output:
         country_score = os.path.join(config["data_folder"], "country_score.json")
@@ -331,7 +331,7 @@ rule create_standalone_map_spec:
 
 rule global_seq_data:
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     params:
         out_folder = os.path.join(config['data_folder'], 'new_global_data')

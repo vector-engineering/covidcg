@@ -93,17 +93,7 @@ def get_all_consensus_snps(
         with open(consensus_out, "w") as fp:
             fp.write(json.dumps({}))
 
-    case_df = pd.read_csv(case_data, index_col="Accession ID")
-
-    # Serialized list back to list
-    cols = ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
-    for col in cols:
-        case_df[col] = (
-            case_df[col]
-            .str.strip("[]")
-            .str.split(",")
-            .apply(lambda x: [int(_x) for _x in x])
-        )
+    case_df = pd.read_json(case_data).set_index("Accession ID")
 
     consensus_dict = {}
     # group_cols is defined under the "group_cols" field

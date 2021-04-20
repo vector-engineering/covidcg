@@ -28,17 +28,7 @@ def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
     None
     """
 
-    case_df = pd.read_csv(case_data, index_col="Accession ID")
-
-    # Serialized list back to list
-    cols = ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
-    for col in cols:
-        case_df[col] = (
-            case_df[col]
-            .str.strip("[]")
-            .str.split(",")
-            .apply(lambda x: [int(_x) for _x in x])
-        )
+    case_df = pd.read_json(case_data).set_index("Accession ID")
 
     global_group_counts = {}
     # Count sequence groupings (e.g., lineages and clades)
