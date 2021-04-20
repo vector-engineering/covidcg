@@ -184,6 +184,7 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
+        processed_fasta_files = os.path.join(config["data_folder"], "fasta_processed"),
         metadata = os.path.join(config["data_folder"], "metadata.csv"),
         dna_snp_files = expand(
             os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"), 
