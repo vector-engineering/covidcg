@@ -209,13 +209,13 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
 
                 # If the positiion is outside of the segment, then skip
                 # (This happens sometimes for long deletions)
-                if pos > segment_len:
+                if pos > (resi_counter + segment_len):
                     continue
 
                 # If the ref AA sequence overruns the segment
                 # (this happens for long deletions near the end of a gene)
                 # then truncate the ref AAs
-                overrun = (pos + len(ref_aa) - 1) - segment_len
+                overrun = (pos + len(ref_aa) - 1) - (resi_counter + segment_len)
                 if overrun > 0:
                     ref_aa = ref_aa[:-overrun]
 
@@ -230,7 +230,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                 )
             # END FOR ACCESSION ID
 
-            resi_counter += (segment_end - segment_start + 1) // 3
+            resi_counter += segment_len
         # END FOR SEGMENT
     # END FOR GENE/PROTEIN
 
