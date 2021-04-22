@@ -226,6 +226,8 @@ def seed_database(conn, schema="public"):
                     )
                 )
 
+        print("done")
+
         # SNV frequencies
         print("Writing group SNV frequencies", end="", flush=True)
         with (data_path / "group_snv_frequencies.json").open("r") as fp:
@@ -393,9 +395,11 @@ def seed_database(conn, schema="public"):
                     table_name=table_name
                 )
             )
+            snv_df = case_data[[snp_col]].explode(snp_col)
+            snv_df = snv_df.loc[~snv_df[snp_col].isna()]
             df_to_sql(
                 cur,
-                case_data[[snp_col]].explode(snp_col),
+                snv_df,
                 table_name,
                 index_label="sequence_id",
             )
