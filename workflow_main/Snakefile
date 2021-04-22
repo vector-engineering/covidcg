@@ -184,6 +184,7 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
+        processed_fasta_files = os.path.join(config["data_folder"], "fasta_processed"),
         metadata = os.path.join(config["data_folder"], "metadata.csv"),
         dna_snp_files = expand(
             os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"), 
@@ -214,7 +215,7 @@ rule combine_all_data:
 
 rule build_location_tree:
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map,
         emoji_map_file = os.path.join(
             config["static_data_folder"], "country_to_emoji.xls"
@@ -254,14 +255,16 @@ rule consensus_snps:
     [consensus_fraction] is a parameter which can be adjusted here
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv
+        case_data = rules.combine_all_data.output.case_data
     output:
-        group_consensus_snps = os.path.join(config["data_folder"], "group_consensus_snps.json")
+        group_consensus_snvs = os.path.join(config["data_folder"], "group_consensus_snps.json"),
+        group_snv_frequencies = os.path.join(config["data_folder"], "group_snv_frequencies.json")
     run:
         get_all_consensus_snps(
-            input.case_data, output.group_consensus_snps,
+            input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
             group_cols=list(config["group_cols"].keys()),
-            consensus_fraction=config["consensus_fraction"]
+            consensus_fraction=config["consensus_fraction"],
+            min_reporting_fraction=config['min_reporting_fraction']
         )
 
 
@@ -270,7 +273,7 @@ rule global_group_counts:
     Doing this in the pipeline just saves some work for the browser later
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv
+        case_data = rules.combine_all_data.output.case_data
     output:
         global_group_counts = os.path.join(
             config["data_folder"], "global_group_counts.json"
@@ -287,7 +290,7 @@ rule global_sequencing_efforts:
     to produce the "Global Sequencing Effort" plot in the web app
     """
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     output:
         country_score = os.path.join(config["data_folder"], "country_score.json")
@@ -307,7 +310,7 @@ rule assemble_data_package:
         country_score = rules.global_sequencing_efforts.output.country_score,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.global_group_counts.output.global_group_counts,
-        group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
+        group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
         metadata_map = rules.combine_all_data.output.metadata_map,
         location_map = rules.combine_all_data.output.location_map
     output:
@@ -330,7 +333,7 @@ rule create_standalone_map_spec:
 
 rule global_seq_data:
     input:
-        case_data = rules.combine_all_data.output.case_data_csv,
+        case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     params:
         out_folder = os.path.join(config['data_folder'], 'new_global_data')
