@@ -437,6 +437,8 @@ export class DataStore {
     const intToSnvMap = this.configStoreInstance.getIntToSnvMap();
     let snv;
 
+    // groupCounts is a list of lists
+    // [group: str, count: int, color: str, group_name: str]
     this.groupCounts
       .sort((a, b) => b[1] - a[1]) // Sort by counts, descending order
       .forEach((item) => {
@@ -447,7 +449,11 @@ export class DataStore {
         csvString += formatSnv(item[0], this.configStoreInstance.dnaOrAa) + ',';
         snv = intToSnvMap[snvToIntMap[item[0]]];
         // Add SNV fields
-        csvString += fields.map((field) => snv[field]).join(',');
+        if (item[0] === GROUPS.REFERENCE_GROUP) {
+          csvString += fields.fill('').join(',');
+        } else {
+          csvString += fields.map((field) => snv[field]).join(',');
+        }
         // Add counts
         csvString += `,${item[1]}\n`;
       });
