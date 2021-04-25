@@ -15,7 +15,7 @@ import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
-import { queryPrimers } from '../utils/primer';
+import { queryPrimers } from '../utils/primer'
 
 import {
   GROUP_SNV,
@@ -37,7 +37,7 @@ import { rootStoreInstance } from './rootStore';
 // Define initial values
 
 const today = intToISO(new Date().getTime());
-const lastNDays = 30; // By default, show only the last month
+const lastNDays = 90; // By default, show only the last 3 months
 
 export const initialConfigValues = {
   groupKey: 'snv',
@@ -203,9 +203,9 @@ export class ConfigStore {
             // Decode primerStr to allow searching for primer
             primerStr = decodeURIComponent(primerStr);
             let queryObj = {
-              Institution: primerStr.split('_')[0],
-              Name: primerStr.split('_')[1],
-            };
+              'Institution': primerStr.split('_')[0],
+              'Name': primerStr.split('_')[1]
+            }
             const primer = queryPrimers(queryObj);
             if (primer.length) arr.push(primer);
           });
@@ -358,14 +358,12 @@ export class ConfigStore {
       } else if (field === 'selectedPrimers') {
         pending[field].forEach((primer) => {
           if (this.urlParams.has(field)) {
-            this.urlParams.append(
-              field,
-              primer.Institution + '_' + primer.Name
-            );
+            this.urlParams.append(field, primer.Institution + '_' + primer.Name);
           } else {
             this.urlParams.set(field, primer.Institution + '_' + primer.Name);
           }
         });
+
       } else {
         this.urlParams.set(field, String(pending[field]));
       }

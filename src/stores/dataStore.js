@@ -386,48 +386,16 @@ export class DataStore {
   }
 
   downloadDataAggLocationGroupDate() {
-    // console.log(this.dataAggLocationGroupDate);
-
     let locationData = JSON.parse(
       JSON.stringify(this.dataAggLocationGroupDate)
     );
 
-    // Filter by date
-    // if (
-    //   configStoreInstance.dateRange[0] != -1 ||
-    //   configStoreInstance.dateRange[1] != -1
-    // ) {
-    //   locationData = locationData.filter((row) => {
-    //     return (
-    //       (configStoreInstance.dateRange[0] == -1 ||
-    //         row.date > configStoreInstance.dateRange[0]) &&
-    //       (configStoreInstance.dateRange[1] == -1 ||
-    //         row.date < configStoreInstance.dateRange[1])
-    //     );
-    //   });
-    // }
-
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group', 'group_name'],
-      fields: ['counts', 'location_counts'],
-      ops: ['sum', 'max'],
-      as: ['counts', 'location_counts'],
-    });
-
-    // Manually join the countsPerLocationDate to locationData
-    locationData.forEach((row) => {
-      row.location_date_count = this.countsPerLocationDate[row.location][
-        row.date.toString()
-      ];
-    });
-
-    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count,location_date_count\n`;
+    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},${configStoreInstance.getGroupLabel()} Name,count\n`;
 
     locationData.forEach((row) => {
       csvString += `${row.location},${intToISO(parseInt(row.date))},${
         row.group
-      },${row.counts},${row.location_date_count}\n`;
+      },${row.group_name},${row.counts}\n`;
     });
 
     const blob = new Blob([csvString]);
@@ -530,7 +498,9 @@ export class DataStore {
   }
 
   downloadCountryScoreData() {
-    let jsonString = JSON.stringify(asyncDataStoreInstance.data.country_score);
+    let jsonString = JSON.stringify(
+      rootStoreInstance.globalSequencingDataStore.countryScoreData
+    );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
 
