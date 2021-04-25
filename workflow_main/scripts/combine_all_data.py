@@ -16,6 +16,7 @@ from scripts.process_snps import process_snps
 
 def combine_all_data(
     # Input
+    processed_fasta_files,
     metadata,
     dna_snp_files,
     gene_aa_snp_files,
@@ -33,13 +34,22 @@ def combine_all_data(
 
     # Count SNPs
     dna_snp_group_df, dna_snp_map = process_snps(
-        dna_snp_files, mode="dna", count_threshold=count_threshold
+        processed_fasta_files,
+        dna_snp_files,
+        mode="dna",
+        count_threshold=count_threshold,
     )
     gene_aa_snp_group_df, gene_aa_snp_map = process_snps(
-        gene_aa_snp_files, mode="gene_aa", count_threshold=count_threshold
+        processed_fasta_files,
+        gene_aa_snp_files,
+        mode="gene_aa",
+        count_threshold=count_threshold,
     )
     protein_aa_snp_group_df, protein_aa_snp_map = process_snps(
-        protein_aa_snp_files, mode="protein_aa", count_threshold=count_threshold
+        processed_fasta_files,
+        protein_aa_snp_files,
+        mode="protein_aa",
+        count_threshold=count_threshold,
     )
 
     # Load metadata
@@ -49,30 +59,20 @@ def combine_all_data(
     # (i.e., lineage or clade assignment)
     # "group_cols" is defined in the "group_cols" field in the
     # config.yaml file
-    for col in group_cols:
-        df = df.loc[~pd.isnull(df[col]), :]
+    # for col in group_cols:
+    #     df = df.loc[~pd.isnull(df[col]), :]
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences
     df = df.join(
-        dna_snp_group_df[["snp_str"]], on="Accession ID", how="inner", sort=False,
-    ).rename(columns={"snp_str": "dna_snp_str"})
+        dna_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
+    ).rename(columns={"snp_id": "dna_snp_str"})
     df = df.join(
-        gene_aa_snp_group_df[["snp_str"]], on="Accession ID", how="inner", sort=False,
-    ).rename(columns={"snp_str": "gene_aa_snp_str"})
+        gene_aa_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
+    ).rename(columns={"snp_id": "gene_aa_snp_str"})
     df = df.join(
-        protein_aa_snp_group_df[["snp_str"]],
-        on="Accession ID",
-        how="inner",
-        sort=False,
-    ).rename(columns={"snp_str": "protein_aa_snp_str"})
-
-    # Semicolon-delimited string to array of SNPs
-    df[["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]] = (
-        df[["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]]
-        .astype(str)
-        .applymap(lambda x: [int(_x) for _x in x.split(";")])
-    )
+        protein_aa_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
+    ).rename(columns={"snp_id": "protein_aa_snp_str"})
 
     # Process location metadata
     # Create complete location column from the separate parts

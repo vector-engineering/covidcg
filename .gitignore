@@ -99,7 +99,6 @@ data_custom/**
 server/htpasswd
 
 # Ignore site deployment scripts
-build/deploy.sh
 push_data.sh
 daily_update.sh
 update_gisaid.sh
@@ -107,3 +106,8 @@ update_gisaid.sh
 /src/assets/data_package.json.gz
 
 __pycache__
+
+# BAM files are too large to track for example data
+example_data_genbank/bam/**
+# Don't need to track redundant fasta_raw files
+example_data_genbank/fasta_raw/**

@@ -75,7 +75,7 @@ def global_sequencing_efforts(case_data, location_map, country_score_out):
     case_count_df["date"] = pd.to_datetime(case_count_df["date"])
     case_count_df["month"] = case_count_df["date"].dt.to_period("M")
 
-    case_df = pd.read_csv(case_data, index_col="Accession ID")
+    case_df = pd.read_json(case_data).set_index("Accession ID")
     location_map = pd.read_json(location_map)
     case_df = case_df.join(location_map, on="location_id", how="left")
 

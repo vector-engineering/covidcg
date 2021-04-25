@@ -50,6 +50,12 @@ class RootStore {
     this.dataStore.init();
 
     this.globalSequencingDataStore.init();
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('tab')) {
+      this.UIStore.setActiveTab(urlParams.get('tab'));
+    }
   }
 }
 

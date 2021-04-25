@@ -226,6 +226,52 @@ def seed_database(conn, schema="public"):
                     )
                 )
 
+        print("done")
+
+        # SNV frequencies
+        print("Writing group SNV frequencies", end="", flush=True)
+        with (data_path / "group_snv_frequencies.json").open("r") as fp:
+            group_snv_frequencies = json.loads(fp.read())
+
+        snp_fields = ["dna", "gene_aa", "protein_aa"]
+        for grouping in group_snv_frequencies.keys():
+            for snp_field in snp_fields:
+                table_name = "{grouping}_frequency_{snp_field}_snp".format(
+                    grouping=grouping, snp_field=snp_field
+                )
+                # Create tables
+                cur.execute(
+                    'DROP TABLE IF EXISTS "{table_name}";'.format(table_name=table_name)
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE "{table_name}" (
+                        name      TEXT     NOT NULL,
+                        snv_id    INTEGER  NOT NULL,
+                        count     INTEGER  NOT NULL,
+                        fraction  REAL     NOT NULL
+                    );
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                group_snv_frequency_df = (
+                    pd.DataFrame.from_records(
+                        group_snv_frequencies[grouping][snp_field]
+                    )
+                    .rename(columns={"group": "name"})
+                    .set_index("name")
+                )
+                df_to_sql(cur, group_snv_frequency_df, table_name, index_label="name")
+
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_name" ON "{table_name}"("name");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+
         # Grouping tables
 
         # Build colormaps
@@ -349,9 +395,11 @@ def seed_database(conn, schema="public"):
                     table_name=table_name
                 )
             )
+            snv_df = case_data[[snp_col]].explode(snp_col)
+            snv_df = snv_df.loc[~snv_df[snp_col].isna()]
             df_to_sql(
                 cur,
-                case_data[[snp_col]].explode(snp_col),
+                snv_df,
                 table_name,
                 index_label="sequence_id",
             )

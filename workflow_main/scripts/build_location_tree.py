@@ -63,7 +63,7 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
     }
     """
 
-    df = pd.read_csv(case_data).set_index("Accession ID")
+    df = pd.read_json(case_data).set_index("Accession ID")
     with open(location_map, "r") as fp:
         location_map_df = pd.DataFrame(json.loads(fp.read()))
 

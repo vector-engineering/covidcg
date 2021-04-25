@@ -66,11 +66,6 @@ const MetaFieldSelect = observer(
       setState({ ...state, fieldOptions });
     };
 
-    // Update options when new data comes in
-    useEffect(() => {
-      updateOptions();
-    }, [dataStore.metadataCounts]);
-
     const setSelected = (field, options) => {
       // console.log(field, options);
 

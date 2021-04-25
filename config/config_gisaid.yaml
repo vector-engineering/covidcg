@@ -23,9 +23,14 @@ chunk_size: 100000
 
 # SNPs with less than this number of global occurrences will be ignored
 snp_count_threshold: 3
-# Percentage of sequences within a group (e.g., clade, lineage) that need
-# to have a SNV, in order for the SNV to be called as a "consensus" SNV
+
+# Threshold of prevalence to report a mutation as being a consensus
+# mutation for a group (e.g., clade, lineage)
 consensus_fraction: 0.9
+
+# Threshold of prevalence to report a mutation as being associated
+# with a group (e.g., clade, lineage)
+min_reporting_fraction: 0.05
 
 metadata_cols:
   host:

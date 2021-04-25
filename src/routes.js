@@ -11,11 +11,6 @@ const routes = {
   home: new Route({
     path: publicPath,
     component: <HomePage />,
-    onEnter: (route, params, store, queryParams) => {
-      if (queryParams.tab) {
-        rootStoreInstance.UIStore.setActiveTab(queryParams.tab);
-      }
-    },
   }),
   home_index: new Route({
     path: publicPath + 'index.html',

@@ -39,12 +39,11 @@ export const initialDataValues = {
   groupCounts: [],
 };
 
-export class DataStore {
-  // References to store instances
-  UIStoreInstance;
-  configStoreInstance;
-  snpDataStoreInstance;
+let UIStoreInstance;
+let configStoreInstance;
+let snpDataStoreInstance;
 
+export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
@@ -71,15 +70,13 @@ export class DataStore {
     this.dataDate = asyncDataStoreInstance.data.data_date;
     this.numSequences = asyncDataStoreInstance.data.num_sequences;
 
-    this.UIStoreInstance = rootStoreInstance.UIStore;
-    this.configStoreInstance = rootStoreInstance.configStore;
-    this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-    this.metadataStoreInstance = rootStoreInstance.metadataStore;
-    this.locationStoreInstance = rootStoreInstance.locationDataStore;
+    UIStoreInstance = rootStoreInstance.UIStore;
+    configStoreInstance = rootStoreInstance.configStore;
+    snpDataStoreInstance = rootStoreInstance.snpDataStore;
 
     if (
-      this.UIStoreInstance.activeTab === TABS.TAB_GROUP ||
-      this.UIStoreInstance.activeTab === TABS.TAB_LOCATION
+      UIStoreInstance.activeTab === TABS.TAB_GROUP ||
+      UIStoreInstance.activeTab === TABS.TAB_LOCATION
     ) {
       this.fetchData();
     }
@@ -87,7 +84,7 @@ export class DataStore {
 
   @action
   fetchData() {
-    this.UIStoreInstance.onCaseDataStateStarted();
+    UIStoreInstance.onCaseDataStateStarted();
 
     fetch(hostname + '/data', {
       method: 'POST',
@@ -96,29 +93,23 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        group_key: toJS(this.configStoreInstance.groupKey),
-        dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
-        coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
-        coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
-        selected_gene: toJS(this.configStoreInstance.selectedGene).name,
-        selected_protein: toJS(this.configStoreInstance.selectedProtein).name,
+        group_key: toJS(configStoreInstance.groupKey),
+        dna_or_aa: toJS(configStoreInstance.dnaOrAa),
+        coordinate_mode: toJS(configStoreInstance.coordinateMode),
+        coordinate_ranges: configStoreInstance.getCoordinateRanges(),
+        selected_gene: toJS(configStoreInstance.selectedGene).name,
+        selected_protein: toJS(configStoreInstance.selectedProtein).name,
         location_ids: getLocationIdsByNode(
-          toJS(this.configStoreInstance.selectedLocationNodes)
+          toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
-        ageRange: toJS(this.configStoreInstance.ageRange),
-        low_count_filter: toJS(this.configStoreInstance.lowFreqFilterType),
-        max_group_counts: parseInt(
-          toJS(this.configStoreInstance.maxGroupCounts)
-        ),
-        min_local_counts: parseInt(
-          toJS(this.configStoreInstance.minLocalCounts)
-        ),
-        min_global_counts: parseInt(
-          toJS(this.configStoreInstance.minGlobalCounts)
-        ),
-        start_date: toJS(this.configStoreInstance.startDate),
-        end_date: toJS(this.configStoreInstance.endDate),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(configStoreInstance.ageRange),
+        low_count_filter: toJS(configStoreInstance.lowFreqFilterType),
+        max_group_counts: parseInt(toJS(configStoreInstance.maxGroupCounts)),
+        min_local_counts: parseInt(toJS(configStoreInstance.minLocalCounts)),
+        min_global_counts: parseInt(toJS(configStoreInstance.minGlobalCounts)),
+        start_date: toJS(configStoreInstance.startDate),
+        end_date: toJS(configStoreInstance.endDate),
       }),
     })
       .then((res) => {
@@ -140,9 +131,9 @@ export class DataStore {
         this.dataAggGroup = pkg.dataAggGroup;
         this.groupCounts = pkg.groupCounts;
 
-        this.UIStoreInstance.onCaseDataStateFinished();
+        UIStoreInstance.onCaseDataStateFinished();
 
-        if (this.configStoreInstance.groupKey === GROUP_SNV) {
+        if (configStoreInstance.groupKey === GROUP_SNV) {
           this.processSelectedSnvs();
         }
       })
@@ -153,7 +144,7 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
-            this.UIStoreInstance.onCaseDataStateErr();
+            UIStoreInstance.onCaseDataStateErr();
             console.error('Error fetching data');
           });
       });
@@ -161,15 +152,15 @@ export class DataStore {
 
   @action
   processSelectedSnvs() {
-    this.UIStoreInstance.onSnvDataStarted();
-    const { snvColorMap } = this.snpDataStoreInstance;
+    UIStoreInstance.onSnvDataStarted();
+    const { snvColorMap } = snpDataStoreInstance;
 
     this.processCooccurrenceData();
     processSelectedSnvs(
       {
-        selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
-        intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
-        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        selectedGroupIds: configStoreInstance.getSelectedGroupIds(),
+        intToSnvMap: configStoreInstance.getIntToSnvMap(),
+        dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         countsPerLocation: this.countsPerLocation,
         validGroups: this.validGroups,
         aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
@@ -180,36 +171,36 @@ export class DataStore {
       ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
         this.dataAggLocationSnvDate = dataAggLocationSnvDate;
         this.dataAggSnvDate = dataAggSnvDate;
-        this.UIStoreInstance.onSnvDataFinished();
+        UIStoreInstance.onSnvDataFinished();
       }
     );
   }
 
   @action
   processCooccurrenceData() {
-    this.UIStoreInstance.onCooccurrenceDataStarted();
+    UIStoreInstance.onCooccurrenceDataStarted();
 
-    const { snvColorMap } = this.snpDataStoreInstance;
+    const { snvColorMap } = snpDataStoreInstance;
 
     processCooccurrenceData(
       {
-        selectedGroupIds: this.configStoreInstance.getSelectedGroupIds(),
-        intToSnvMap: this.configStoreInstance.getIntToSnvMap(),
-        dnaOrAa: toJS(this.configStoreInstance.dnaOrAa),
+        selectedGroupIds: configStoreInstance.getSelectedGroupIds(),
+        intToSnvMap: configStoreInstance.getIntToSnvMap(),
+        dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         aggSequencesGroupDate: this.aggSequencesGroupDate,
         // SNV data
         snvColorMap,
       },
       ({ snvCooccurrence }) => {
         this.snvCooccurrence = snvCooccurrence;
-        this.UIStoreInstance.onCooccurrenceDataFinished();
+        UIStoreInstance.onCooccurrenceDataFinished();
       }
     );
   }
 
   @action
   downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
-    this.UIStoreInstance.onDownloadStarted();
+    UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
       method: 'POST',
@@ -219,12 +210,12 @@ export class DataStore {
       },
       body: JSON.stringify({
         location_ids: getLocationIdsByNode(
-          toJS(this.configStoreInstance.selectedLocationNodes)
+          toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
-        ageRange: toJS(this.configStoreInstance.ageRange),
-        start_date: toJS(this.configStoreInstance.startDate),
-        end_date: toJS(this.configStoreInstance.endDate),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(configStoreInstance.ageRange),
+        start_date: toJS(configStoreInstance.startDate),
+        end_date: toJS(configStoreInstance.endDate),
         // Pass an array of only the fields that were selected
         selected_fields: Object.keys(selectedFields).filter(
           (field) => selectedFields[field]
@@ -241,7 +232,7 @@ export class DataStore {
       .then((blob) => {
         const url = URL.createObjectURL(blob);
         downloadBlobURL(url, 'selected_sequence_metadata.csv');
-        this.UIStoreInstance.onDownloadFinished();
+        UIStoreInstance.onDownloadFinished();
       })
       .catch((err) => {
         err
@@ -250,7 +241,7 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
-            this.UIStoreInstance.onDownloadErr();
+            UIStoreInstance.onDownloadErr();
             console.error('Download metadata failed');
           });
       });
@@ -264,19 +255,19 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        group_key: toJS(this.configStoreInstance.groupKey),
-        dna_or_aa: toJS(this.configStoreInstance.dnaOrAa),
-        coordinate_mode: toJS(this.configStoreInstance.coordinateMode),
-        coordinate_ranges: this.configStoreInstance.getCoordinateRanges(),
-        selected_gene: toJS(this.configStoreInstance.selectedGene).name,
-        selected_protein: toJS(this.configStoreInstance.selectedProtein).name,
+        group_key: toJS(configStoreInstance.groupKey),
+        dna_or_aa: toJS(configStoreInstance.dnaOrAa),
+        coordinate_mode: toJS(configStoreInstance.coordinateMode),
+        coordinate_ranges: configStoreInstance.getCoordinateRanges(),
+        selected_gene: toJS(configStoreInstance.selectedGene).name,
+        selected_protein: toJS(configStoreInstance.selectedProtein).name,
         location_ids: getLocationIdsByNode(
-          toJS(this.configStoreInstance.selectedLocationNodes)
+          toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
-        ageRange: toJS(this.configStoreInstance.ageRange),
-        start_date: toJS(this.configStoreInstance.startDate),
-        end_date: toJS(this.configStoreInstance.endDate),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(configStoreInstance.ageRange),
+        start_date: toJS(configStoreInstance.startDate),
+        end_date: toJS(configStoreInstance.endDate),
       }),
     })
       .then((res) => {
@@ -296,7 +287,7 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
-            this.UIStoreInstance.onDownloadErr();
+            UIStoreInstance.onDownloadErr();
             console.error('Download selected SNVs failed');
           });
       });
@@ -310,7 +301,7 @@ export class DataStore {
   // if the user tries to download 100,000+ genomes
   @action
   downloadGenomes() {
-    this.UIStoreInstance.onDownloadStarted();
+    UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_genomes', {
       method: 'POST',
@@ -320,12 +311,12 @@ export class DataStore {
       },
       body: JSON.stringify({
         location_ids: getLocationIdsByNode(
-          toJS(this.configStoreInstance.selectedLocationNodes)
+          toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: this.configStoreInstance.getSelectedMetadataFields(),
-        ageRange: toJS(this.configStoreInstance.ageRange),
-        start_date: toJS(this.configStoreInstance.startDate),
-        end_date: toJS(this.configStoreInstance.endDate),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        ageRange: toJS(configStoreInstance.ageRange),
+        start_date: toJS(configStoreInstance.startDate),
+        end_date: toJS(configStoreInstance.endDate),
       }),
     })
       .then((res) => {
@@ -337,7 +328,7 @@ export class DataStore {
       .then((blob) => {
         const url = URL.createObjectURL(blob);
         downloadBlobURL(url, 'genomes.fa.gz');
-        this.UIStoreInstance.onDownloadFinished();
+        UIStoreInstance.onDownloadFinished();
       })
       .catch((err) => {
         err
@@ -346,22 +337,22 @@ export class DataStore {
             console.error(errMsg);
           })
           .finally(() => {
-            this.UIStoreInstance.onDownloadErr();
+            UIStoreInstance.onDownloadErr();
             console.error('Error downloading genomes');
           });
       });
   }
 
   downloadAggSequences() {
-    let csvString = `location,collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
+    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count\n`;
 
-    let intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    let intToSnvMap = configStoreInstance.getIntToSnvMap();
     this.aggSequencesLocationGroupDate.forEach((row) => {
       // Location data, date
       csvString += `"${row.location}","${intToISO(row.collection_date)}",`;
 
       // Group
-      if (this.configStoreInstance.groupKey === GROUP_SNV) {
+      if (configStoreInstance.groupKey === GROUP_SNV) {
         csvString += `"${row.group_id
           .map((snvId) => intToSnvMap[snvId].snp_str)
           .join(';')}",`;
@@ -381,7 +372,7 @@ export class DataStore {
 
   downloadDataAggGroupDate() {
     // Write to a CSV string
-    let csvString = `collection_date,${this.configStoreInstance.getGroupLabel()},count\n`;
+    let csvString = `collection_date,${configStoreInstance.getGroupLabel()},count\n`;
     this.dataAggGroupDate.forEach((row) => {
       csvString += `${intToISO(parseInt(row.date))},${row.group},${
         row.counts
@@ -395,48 +386,16 @@ export class DataStore {
   }
 
   downloadDataAggLocationGroupDate() {
-    // console.log(this.dataAggLocationGroupDate);
-
     let locationData = JSON.parse(
       JSON.stringify(this.dataAggLocationGroupDate)
     );
 
-    // Filter by date
-    // if (
-    //   this.configStoreInstance.dateRange[0] != -1 ||
-    //   this.configStoreInstance.dateRange[1] != -1
-    // ) {
-    //   locationData = locationData.filter((row) => {
-    //     return (
-    //       (this.configStoreInstance.dateRange[0] == -1 ||
-    //         row.date > this.configStoreInstance.dateRange[0]) &&
-    //       (this.configStoreInstance.dateRange[1] == -1 ||
-    //         row.date < this.configStoreInstance.dateRange[1])
-    //     );
-    //   });
-    // }
-
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group', 'group_name'],
-      fields: ['counts', 'location_counts'],
-      ops: ['sum', 'max'],
-      as: ['counts', 'location_counts'],
-    });
-
-    // Manually join the countsPerLocationDate to locationData
-    locationData.forEach((row) => {
-      row.location_date_count = this.countsPerLocationDate[row.location][
-        row.date.toString()
-      ];
-    });
-
-    let csvString = `location,collection_date,${this.configStoreInstance.getGroupLabel()},count,location_date_count\n`;
+    let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},${configStoreInstance.getGroupLabel()} Name,count\n`;
 
     locationData.forEach((row) => {
       csvString += `${row.location},${intToISO(parseInt(row.date))},${
         row.group
-      },${row.counts},${row.location_date_count}\n`;
+      },${row.group_name},${row.counts}\n`;
     });
 
     const blob = new Blob([csvString]);
@@ -448,15 +407,12 @@ export class DataStore {
   downloadSnvFrequencies() {
     let csvString = 'snv,';
     let fields = [];
-    if (this.configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
-      if (
-        this.configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
-      ) {
+    if (configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
+      if (configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         csvString += 'gene,';
         fields.push('gene');
       } else if (
-        this.configStoreInstance.coordinateMode ===
-        COORDINATE_MODES.COORD_PROTEIN
+        configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
       ) {
         csvString += 'protein,';
         fields.push('protein');
@@ -466,8 +422,8 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert SNV string into integer, then into SNV object
-    const snvToIntMap = this.configStoreInstance.getSnvToIntMap();
-    const intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    const snvToIntMap = configStoreInstance.getSnvToIntMap();
+    const intToSnvMap = configStoreInstance.getIntToSnvMap();
     let snv;
 
     this.groupCounts
@@ -477,7 +433,7 @@ export class DataStore {
           return;
         }
         // Add SNV name
-        csvString += formatSnv(item[0], this.configStoreInstance.dnaOrAa) + ',';
+        csvString += formatSnv(item[0], configStoreInstance.dnaOrAa) + ',';
         snv = intToSnvMap[snvToIntMap[item[0]]];
         // Add SNV fields
         csvString += fields.map((field) => snv[field]).join(',');
@@ -494,15 +450,12 @@ export class DataStore {
   downloadSnvCooccurrence() {
     let csvString = 'selected_snvs,cooccurs_with,';
     let fields = [];
-    if (this.configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
-      if (
-        this.configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE
-      ) {
+    if (configStoreInstance.dnaOrAa === DNA_OR_AA.AA) {
+      if (configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         csvString += 'gene,';
         fields.push('gene');
       } else if (
-        this.configStoreInstance.coordinateMode ===
-        COORDINATE_MODES.COORD_PROTEIN
+        configStoreInstance.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
       ) {
         csvString += 'protein,';
         fields.push('protein');
@@ -512,8 +465,8 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert SNV string into integer, then into SNV object
-    const snvToIntMap = this.configStoreInstance.getSnvToIntMap();
-    const intToSnvMap = this.configStoreInstance.getIntToSnvMap();
+    const snvToIntMap = configStoreInstance.getSnvToIntMap();
+    const intToSnvMap = configStoreInstance.getIntToSnvMap();
     let snv;
 
     this.snvCooccurrence
@@ -545,7 +498,9 @@ export class DataStore {
   }
 
   downloadCountryScoreData() {
-    let jsonString = JSON.stringify(asyncDataStoreInstance.data.country_score);
+    let jsonString = JSON.stringify(
+      rootStoreInstance.globalSequencingDataStore.countryScoreData
+    );
     const blob = new Blob([jsonString]);
     const url = URL.createObjectURL(blob);
 
