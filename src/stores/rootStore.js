@@ -31,6 +31,7 @@ class RootStore {
     this.snpDataStore = new SnpDataStore();
 
     this.configStore = new ConfigStore();
+    console.log(this.UIStore);
     this.dataStore = new DataStore();
 
     this.globalSequencingDataStore = new GlobalSequencingDataStore();
@@ -50,6 +51,12 @@ class RootStore {
     this.dataStore.init();
 
     this.globalSequencingDataStore.init();
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('tab')) {
+      this.UIStore.setActiveTab(urlParams.get('tab'));
+    }
   }
 }
 
