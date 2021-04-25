@@ -5,7 +5,6 @@ import {
   processCooccurrenceData,
 } from '../utils/snpDataWorkerWrapper';
 import { downloadBlobURL } from '../utils/download';
-import { aggregate } from '../utils/transform';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
 import { formatSnv } from '../utils/snpUtils';
