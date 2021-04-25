@@ -31,7 +31,6 @@ class RootStore {
     this.snpDataStore = new SnpDataStore();
 
     this.configStore = new ConfigStore();
-    console.log(this.UIStore);
     this.dataStore = new DataStore();
 
     this.globalSequencingDataStore = new GlobalSequencingDataStore();

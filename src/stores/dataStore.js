@@ -78,7 +78,7 @@ export class DataStore {
       UIStoreInstance.activeTab === TABS.TAB_GROUP ||
       UIStoreInstance.activeTab === TABS.TAB_LOCATION
     ) {
-      //this.fetchData();
+      this.fetchData();
     }
   }
 
