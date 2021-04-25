@@ -19,6 +19,7 @@ const AboutTab = React.lazy(() => import('./AboutTab'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
+const LiteMolTab = React.lazy(() => import('./LiteMolTab'));
 
 import { HomePageDiv, PlotContainer } from './HomePage.styles';
 
@@ -54,6 +55,8 @@ const HomePage = observer(() => {
       return <RelatedProjectsTab />;
     } else if (UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
       return <SequencingEffortsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_LITEMOL) {
+      return <LiteMolTab />;
     }
   };
 
