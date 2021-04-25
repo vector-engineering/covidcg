@@ -9,17 +9,16 @@ export class GlobalSequencingDataStore {
   constructor() {}
 
   init() {
-    this.UIStoreInstance = rootStoreInstance.UIStore;
     this.countryScoreData = [];
 
-    if (this.UIStoreInstance.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
+    if (rootStoreInstance.UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
       this.fetchGlobalSequencingData();
     }
   }
 
   @action
   async fetchGlobalSequencingData() {
-    this.UIStoreInstance.onGlobalSequencingDataStarted();
+    rootStoreInstance.UIStore.onGlobalSequencingDataStarted();
     fetch(hostname + '/country_score', {
       method: 'GET',
       headers: {
@@ -34,12 +33,12 @@ export class GlobalSequencingDataStore {
       })
       .then((pkg) => {
         this.countryScoreData = pkg.country_score;
-        this.UIStoreInstance.onGlobalSequencingDataFinished();
+        rootStoreInstance.UIStore.onGlobalSequencingDataFinished();
       })
       .catch((err) => {
         err.text().then((errMsg) => {
           console.error(errMsg);
-          this.UIStoreInstance.onGlobalSequencingDataErr();
+          rootStoreInstance.UIStore.onGlobalSequencingDataErr();
         });
       });
   }
