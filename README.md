@@ -32,12 +32,12 @@ The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate instal
 - Clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
 
 ```bash
-> cd covidcg
-> docker-compose build # Build containers 
+$ cd covidcg
+$ docker-compose build # Build containers 
                        # (Re-builds only necessary if packages or 
                        # dependencies have changed)
-> docker-compose up -d # Run all services
-> docker-compose down # Shut down all services when finished
+$ docker-compose up -d # Run all services
+$ docker-compose down # Shut down all services when finished
 ```
 
 **NOTE**: When starting from a fresh database, the server will automatically seed the database with data from the `example_data_genbank` folder. This process may take a few minutes as ~50K genomes are loaded into the database.
@@ -47,9 +47,9 @@ The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate instal
 If the dependencies for the JS change (i.e., a change in `package.json`), then you can rebuild the frontend container with:
 
 ```bash
-> docker-compose down
-> docker-compose build --no-cache frontend
-> docker-compose up
+$ docker-compose down
+$ docker-compose build --no-cache frontend
+$ docker-compose up
 ```
 
 A rebuild will also need to be run if the toolchains change (`webpack*.js` or anything in `tools/`)
@@ -59,9 +59,9 @@ For files outside of `src`, i.e., in `config/` or in `static_data/`, the contain
 For dependency changes for the server (i.e., changes in `requirements.txt`)
 
 ```bash
-> docker-compose down
-> docker-compose build --no-cache server
-> docker-compose up
+$ docker-compose down
+$ docker-compose build --no-cache server
+$ docker-compose up
 ```
 
 ### Database refresh
@@ -69,8 +69,8 @@ For dependency changes for the server (i.e., changes in `requirements.txt`)
 To erase the local development database, delete the postgres docker volume with:
 
 ```bash
-> docker-compose down -v # -v will delete the volume
-> docker-compose up
+$ docker-compose down -v # -v will delete the volume
+$ docker-compose up
 ```
 
 ## Per-service installation
@@ -141,26 +141,49 @@ Requirements:
 Install dependencies:
 
 ```bash
-> cd services/server
-> pip install -r requirements.txt
+$ cd services/server
+$ pip install -r requirements.txt
 ```
 
 Run server:
 
 ```bash
-> cd services/server
-> ./serve.sh # Run Flask server in development mode
+$ cd services/server
+$ ./serve.sh # Run Flask server in development mode
 ```
 
 ---
 
 ## Analysis Pipeline
 
-Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Installation](#Installation)).
+Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Pipeline Installation](#Pipeline-Installation)).
 
 Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts SNVs, and compiles data for display in the web application.
 
 Configuration of the pipeline is defined in the `config/config_[workflow].yaml` files.
+
+### Pipeline Installation
+
+
+1. Clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
+2. Install [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
+3. Create conda environment:
+
+```bash
+$ conda config --add channels bioconda # Add package download locations
+$ conda config --add channels conda-forge
+$ conda env create -f environment.yml
+```
+
+If the conda environment is taking forever to resolve, it's probably because of `snakemake`. If so, you'll have to install packages manually (sorry for this! please let us know if this happens so we can update our environment file):
+
+```bash
+# Install python and snakemake first, let conda choose the specific snakemake version
+$ conda create -n covid-cg python=3.9 snakemake-minimal
+# Install dependencies manually
+$ conda install numpy scipy pandas bowtie2 samtools
+$ pip install pysam
+```
 
 ### Ingestion
 
@@ -173,8 +196,8 @@ Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to auto
 For example, you can run the GenBank ingestion pipeline with:
 
 ```bash
-> cd workflow_genbank_ingest
-> snakemake --use-conda
+$ cd workflow_genbank_ingest
+$ snakemake --use-conda
 ```
 
 Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step. The `workflow_custom_ingest` pipeline does not attempt to chunk data to minimize expensive reprocessing but this can be accomplished outside of covidcg by dividing up your sequence data into separate FASTA files.
