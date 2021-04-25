@@ -8,18 +8,11 @@ dependencies:
   - numpy=1.18.5
   - scipy=1.6.0
   - pandas=1.0.5
-  - xlrd=1.2.0
   - bowtie2=2.4.1
   - pip=20.1.1
-  - snakemake=5.20.1
+  - snakemake-minimal=5.20.1
   - samtools=1.10
   - pip:
       - pysam==0.15.4
-      # For cloud function development
-      - functions-framework==2.0.0
-      - google-cloud-storage==1.29.0
-  # If you want to run the notebooks:
-  - jupyter=1.0.0
-  - jupyter_contrib_nbextensions=0.5.1
   # For pushing to database
   - psycopg2==2.8.4

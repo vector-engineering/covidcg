@@ -102,6 +102,7 @@ server/htpasswd
 push_data.sh
 daily_update.sh
 update_gisaid.sh
+update_genbank.sh
 
 /src/assets/data_package.json.gz
 
