@@ -42,6 +42,18 @@ def main():
     df = case_data[["Accession ID", "collection_date", "lineage", "location_id"]].join(
         location_map, on="location_id"
     )
+
+    # Filter for valid regions
+    valid_regions = [
+        "Africa",
+        "Asia",
+        "Europe",
+        "North America",
+        "Oceania",
+        "South America",
+    ]
+    df = df.loc[df["region"].isin(valid_regions)]
+
     df["collection_date"] = pd.to_datetime(df["collection_date"])
     df["collection_week"] = df["collection_date"].dt.to_period("W")
 
@@ -53,6 +65,7 @@ def main():
     )
 
     start_date_iso = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
+    # End date only used for the regression
     end_date_iso = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
     lineage_counts = (
         df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
