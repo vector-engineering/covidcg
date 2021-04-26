@@ -28,9 +28,12 @@ proteins = pd.read_json(str(static_data_path / "proteins_processed.json"))
 proteins = proteins.set_index("name")
 
 
-def df_to_sql(cur, df, table, index_label="id"):
+def df_to_sql(cur, df, table, index_label=None):
     buffer = io.StringIO()
-    df.to_csv(buffer, index_label=index_label, header=False)
+    if index_label:
+        df.to_csv(buffer, index_label=index_label, header=False)
+    else:
+        df.to_csv(buffer, index=False, header=False)
     buffer.seek(0)
     # cur.copy_from(buffer, table, sep=",")
     cur.copy_expert(
@@ -398,10 +401,7 @@ def seed_database(conn, schema="public"):
             snv_df = case_data[[snp_col]].explode(snp_col)
             snv_df = snv_df.loc[~snv_df[snp_col].isna()]
             df_to_sql(
-                cur,
-                snv_df,
-                table_name,
-                index_label="sequence_id",
+                cur, snv_df, table_name, index_label="sequence_id",
             )
             cur.execute(
                 'CREATE INDEX "ix_{table_name}_sequence_id" ON "{table_name}"("sequence_id");'.format(
@@ -479,6 +479,56 @@ def seed_database(conn, schema="public"):
             """,
             [Json(geo_select_tree)],
         )
+
+        print("done")
+
+        print("Writing surveillance files...", end="", flush=True)
+
+        ## SURVEILLANCE DATA
+        surv_types = ["lineage", "spike_combo", "spike_single"]
+        for surv_type in surv_types:
+            counts_df = pd.read_csv(
+                data_path / "surveillance" / "{}_counts.csv".format(surv_type)
+            )
+            table_name = "surv_" + surv_type + "_counts"
+            cur.execute('DROP TABLE IF EXISTS "{}";'.format(table_name))
+            cur.execute(
+                """
+                CREATE TABLE "{table_name}" (
+                    region            TEXT       NOT NULL,
+                    collection_week   TIMESTAMP  NOT NULL,
+                    "group"             TEXT       NOT NULL,
+                    counts            INTEGER    NOT NULL,
+                    location_counts   INTEGER    NOT NULL,
+                    percent           REAL       NOT NULL
+                );
+                """.format(
+                    table_name=table_name,
+                )
+            )
+            df_to_sql(cur, counts_df, table_name)
+
+            regression_df = pd.read_csv(
+                data_path / "surveillance" / "{}_regression.csv".format(surv_type)
+            )
+            table_name = "surv_" + surv_type + "_regression"
+            cur.execute('DROP TABLE IF EXISTS "{}";'.format(table_name))
+            cur.execute(
+                """
+                CREATE TABLE "{table_name}" (
+                    region       TEXT     NOT NULL,
+                    "group"        TEXT     NOT NULL,
+                    slope        REAL,
+                    r            REAL,
+                    pval         REAL,
+                    counts       INTEGER  NOT NULL,
+                    max_percent  REAL     NOT NULL
+                );
+                """.format(
+                    table_name=table_name,
+                )
+            )
+            df_to_sql(cur, regression_df, table_name)
 
         print("done")
 

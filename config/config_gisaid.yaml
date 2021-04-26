@@ -73,6 +73,14 @@ group_cols:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
 
+
+# Surveillance plot options
+# see: workflow_main/scripts/surveillance.py
+surv_min_combo_count: 50
+surv_min_single_count: 50
+surv_start_date_days_ago: 90
+surv_end_date_days_ago: 30
+
 # ---------------
 #     SERVER
 # ---------------
