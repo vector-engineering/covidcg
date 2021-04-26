@@ -9,6 +9,7 @@ import os
 
 # Import scripts
 from scripts.assemble_data_package import assemble_data_package
+from scripts.build_full_dataframe import build_full_dataframe
 from scripts.build_location_tree import build_location_tree
 from scripts.combine_all_data import combine_all_data
 from scripts.consensus_snps import get_all_consensus_snps
@@ -41,6 +42,7 @@ rule all:
         os.path.join(config["static_data_folder"], "primers.json"),
         # Packaged data
         os.path.join(config["data_folder"], "data_package.json.gz"),
+        os.path.join(config['data_folder'], 'data_complete.csv'),
         # Standalone map spec
         os.path.join(config["data_folder"], "map_combined_standalone.vg.json"),
         # Global sequencing data
@@ -319,6 +321,19 @@ rule assemble_data_package:
         assemble_data_package(
             **input,
             data_package_out = output.data_package
+        )
+
+rule build_full_dataframe:
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        location_map = rules.combine_all_data.output.location_map
+    output:
+        full_df = os.path.join(config['data_folder'], 'data_complete.csv')
+    run:
+        build_full_dataframe(
+            input.case_data, input.metadata_map, input.location_map,
+            output.full_df
         )
 
 rule create_standalone_map_spec:
