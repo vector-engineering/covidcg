@@ -2,23 +2,21 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
   "width": 700,
-  "height": 150,
+  "height": 220,
   "padding": 5,
   "signals": [
     {"name": "entropyPlotHeight", "value": 120},
-    {"name": "domainPlotHeight", "value": 20},
+    {"name": "domainPlotHeight", "value": 60},
     {"name": "domainPlotYRange", "update": "[domainPlotHeight, 0]"},
-    {
-      "name": "entropyPlotY",
-      "update": "domainPlotHeight + ((height - entropyPlotHeight) - domainPlotHeight)"
-    },
+    {"name": "domainPlotY", "update": "height - domainPlotHeight"},
     {"name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]"},
     {"name": "totalSequences", "value": 1000},
     {"name": "posField", "value": 1},
-    {"name": "rectWidth", "update": "invert('xscale', 3)"},
+    {"name": "rectWidth", "update": "invert('xDetail', 3)"},
     {"name": "xRange", "value": [0, 1200]},
     {"name": "xLabel", "value": "S Gene (AA)"},
     {"name": "yLabel", "value": "# SNVs"},
+    {"name": "detailDomain"},
     {
       "name": "hoverGroup",
       "value": null,
@@ -28,14 +26,14 @@
       ]
     },
     {
-      "name": "clear",
+      "name": "clearSnv",
       "value": true,
       "on": [
         {"events": "mouseup[!event.item]", "update": "true", "force": true}
       ]
     },
     {
-      "name": "shift",
+      "name": "shiftSnv",
       "value": false,
       "on": [
         {
@@ -46,7 +44,7 @@
       ]
     },
     {
-      "name": "clicked",
+      "name": "clickedSnv",
       "value": null,
       "on": [
         {
@@ -55,11 +53,40 @@
           "force": true
         }
       ]
+    },
+    {
+      "name": "clearDomain",
+      "value": true,
+      "on": [
+        {"events": "window:mousedown", "update": "true", "force": true}
+      ]
+    },
+    {
+      "name": "shiftDomain",
+      "value": false,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedDomain",
+      "value": null,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "{name: datum.name}",
+          "force": true
+        }
+      ]
     }
   ],
   "data": [
     {
-      "name": "table",
+      "name": "mutations",
       "values": [
         ["S|614|D|G", 982, "#88ccee", "S · D614G"],
         ["Reference", 77, "#0077bb", "Reference"],
@@ -144,13 +171,23 @@
       ]
     },
     {
+      "name": "mutationsFiltered",
+      "source": "mutations",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(detailDomain) ? datum.pos >= detailDomain[0] && datum.pos <= detailDomain[1] : datum"
+        }
+      ]
+    },
+    {
       "name": "selected",
       "values": [{"group": "S|614|D|G"}],
       "on": [
-        {"trigger": "clear", "remove": true},
-        {"trigger": "!shift", "remove": true},
-        {"trigger": "!shift && clicked", "insert": "clicked"},
-        {"trigger": "shift && clicked", "toggle": "clicked"}
+        {"trigger": "clearSnv", "remove": true},
+        {"trigger": "!shiftSnv", "remove": true},
+        {"trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv"},
+        {"trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv"}
       ],
       "transform": [
         {
@@ -160,7 +197,7 @@
         },
         {
           "type": "lookup",
-          "from": "table",
+          "from": "mutations",
           "key": "snv",
           "values": ["color"],
           "fields": ["group"],
@@ -169,56 +206,116 @@
       ]
     },
     {
+      "name": "selectedDomains",
+      "values": [],
+      "on": [
+        {"trigger": "clearDomain", "remove": true},
+        {"trigger": "!shiftDomain", "remove": true},
+        {"trigger": "!shiftDomain && clickedDomain", "insert": "clickedDomain"},
+        {"trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain"}
+      ]
+    },
+    {
       "name": "domains",
       "values": [
-        {"name": "S1 Subunit", "start": 14, "end": 685},
-        {"name": "RBD", "start": 319, "end": 541},
-        {"name": "S2 Subunit", "start": 686, "end": 1273},
-        {"name": "Signal Peptide", "start": 1, "end": 13},
-        {"name": "NTD", "start": 14, "end": 305},
-        {"name": "FP", "start": 788, "end": 806},
-        {"name": "HR1", "start": 912, "end": 984},
-        {"name": "HR2", "start": 1163, "end": 1213},
-        {"name": "TM", "start": 1213, "end": 1237},
-        {"name": "CT", "start": 1237, "end":1273}
-      ]
-    },
-    {
-      "name": "small_domains",
-      "source": "domains",
+        {
+          "abbr": "S1 Subunit",
+          "name": "S1 Subunit",
+          "start": 14,
+          "end": 685,
+          "row": 0
+        },
+        {
+          "abbr": "RBD",
+          "name": "Receptor Binding Domain",
+          "start": 319,
+          "end": 541,
+          "row": 1
+        },
+        {
+          "abbr": "S2 Subunit",
+          "name": "S2 Subunit",
+          "start": 686,
+          "end": 1273,
+          "row": 0
+        },
+        {
+          "abbr": "SP",
+          "name": "Signal Peptide",
+          "start": 1,
+          "end": 13,
+          "row": 2
+        },
+        {
+          "abbr": "NTD",
+          "name": "N-Terminal Domain",
+          "start": 14,
+          "end": 305,
+          "row": 1
+        },
+        {
+          "abbr": "FP",
+          "name": "Fusion Peptide",
+          "start": 788,
+          "end": 806,
+          "row": 2
+        },
+        {
+          "abbr": "HR1",
+          "name": "Heptapeptide Repeat Sequence 1",
+          "start": 912,
+          "end": 984,
+          "row": 1
+        },
+        {
+          "abbr": "HR2",
+          "name": "Heptapeptide Repeat Sequence 2",
+          "start": 1163,
+          "end": 1213,
+          "row": 1
+        },
+        {
+          "abbr": "TM",
+          "name": "Transmembrane Domain",
+          "start": 1213,
+          "end": 1237,
+          "row": 1
+        },
+        {
+          "abbr": "CT",
+          "name": "Cytoplasm Domain",
+          "start": 1237,
+          "end": 1273,
+          "row": 1
+        }
+      ],
       "transform": [
         {
-          "type": "filter",
-          "expr": "(datum.end - datum.start) <= 20 && datum.start < xRange[1]"
-        }
-      ]
-    },
-    {
-      "name": "subunits",
-      "source": "domains",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "indexof(datum.name, 'Subunit') > -1"
-        }
-      ]
-    },
-    {
-      "name": "large_domains",
-      "source": "domains",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "(datum.end - datum.start) > 20 && indexof(datum.name, 'Subunit') == -1 && datum.start < xRange[1]"
-        }
+          "type": "formula",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "as": "rowTop"
+        },
+        {"type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom"},
+        {"type": "filter", "expr": "datum.start < xRange[1]"}
       ]
     }
   ],
   "scales": [
     {
-      "name": "xscale",
+      "name": "xOverview",
       "type": "linear",
       "domain": {"signal": "xRange"},
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": false,
+      "clamp": true
+    },
+    {
+      "name": "xDetail",
+      "type": "linear",
+      "domain": {"signal": "xRange"},
+      "domainRaw": {"signal": "detailDomain"},
       "range": "width",
       "padding": 0.05,
       "round": true,
@@ -229,127 +326,12 @@
   "axes": [],
   "marks": [
     {
-      "name": "domainPlot",
-      "type": "group",
-      "encode": {
-        "update": {
-          "x": {"value": 0},
-          "y": {"value": 0},
-          "width": {"signal": "width"},
-          "height": {"signal": "domainPlotHeight"}
-        }
-      },
-      "scales": [
-        {
-          "name": "domainYScale",
-          "type": "linear",
-          "domain": [0, 2],
-          "range": {"signal": "domainPlotYRange"}
-        }
-      ],
-      "marks": [
-        {
-          "name": "subunit_rects",
-          "type": "rect",
-          "from": {"data": "subunits"},
-          "encode": {
-            "enter": {
-              "x": {"scale": "xscale", "field": "start"},
-              "x2": {"scale": "xscale", "field": "end"},
-              "y": {"scale": "domainYScale", "value": 1},
-              "y2": {"scale": "domainYScale", "value": 0},
-              "fill": {"value": "#34d5eb"},
-              "stroke": {"value": "black"}
-            }
-          }
-        },
-        {
-          "name": "large_domain_rects",
-           "type": "rect",
-          "from": {"data": "large_domains"},
-          "encode": {
-            "enter": {
-              "x": {"scale": "xscale", "field": "start"},
-              "x2": {"scale": "xscale", "field": "end"},
-              "y": {"scale": "domainYScale", "value": -0.5},
-              "y2": {"scale": "domainYScale", "value": -1.5},
-              "fill": {"value": "#34d5eb"},
-              "stroke": {"value": "black"}
-            }
-          }
-        },
-        {
-          "name": "small_domain_rects",
-          "type": "rect",
-          "from": {"data": "small_domains"},
-          "encode": {
-            "enter": {
-              "x": {"scale": "xscale", "field": "start"},
-              "x2": {"scale": "xscale", "field": "end"},
-              "y": {"scale": "domainYScale", "value": -2.5},
-              "y2": {"scale": "domainYScale", "value": -3.5},
-              "fill": {"value": "#34d5eb"},
-              "stroke": {"value": "black"}
-            }
-          }
-        },
-        {
-          "name": "subunit_labels",
-          "type": "text",
-          "from": {"data": "subunit_rects"},
-          "encode": {
-            "enter": {
-              "x": {"field": "x"},
-              "dx": {"field": "width", "mult": 0.5},
-              "y": {"field": "y2"},
-              "dy": {"field": "height", "offset": -11},
-              "text": {"field": "datum.name"},
-              "align": {"value": "center"},
-              "fill": {"value": "black"}
-            }
-          }
-        },
-        {
-          "name": "large_domain_labels",
-          "type": "text",
-          "from": {"data": "large_domain_rects"},
-          "encode": {
-            "enter": {
-              "x": {"field": "x"},
-              "dx": {"field": "width", "mult": 0.5},
-              "y": {"field": "y2"},
-              "dy": {"field": "height", "offset": -11},
-              "text": {"field": "datum.name"},
-              "align": {"value": "center"},
-              "fill": {"value": "black"}
-            }
-          }
-        },
-        {
-          "name": "small_domain_labels",
-          "type": "text",
-          "from": {"data": "small_domain_rects"},
-          "encode": {
-            "enter": {
-              "x": {"field": "x"},
-              "dx": {"field": "width", "mult": 1.2},
-              "y": {"field": "y2"},
-              "dy": {"field": "height", "offset": -12},
-              "text": {"field": "datum.name"},
-              "align": {"value": "left"},
-              "fill": {"value": "black"}
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "entropybarplot",
       "type": "group",
       "encode": {
         "update": {
           "x": {"value": 0},
-          "y": {"signal": "entropyPlotY"},
+          "y": {"value": 0},
           "width": {"signal": "width"},
           "height": {"signal": "entropyPlotHeight"}
         }
@@ -359,20 +341,22 @@
           "name": "entropyYScale",
           "type": "pow",
           "exponent": 0.5,
-          "domain": {"data": "table", "field": "count"},
+          "domain": {"data": "mutationsFiltered", "field": "count"},
           "range": {"signal": "entropyPlotYRange"}
         }
       ],
       "axes": [
         {
           "orient": "bottom",
-          "scale": "xscale",
+          "scale": "xDetail",
           "format": "d",
           "title": {"signal": "xLabel"}
         },
         {
           "orient": "left",
           "scale": "entropyYScale",
+          "labelOverlap": "greedy",
+          "tickCount": 5,
           "title": {"signal": "yLabel"}
         }
       ],
@@ -384,8 +368,8 @@
           "encode": {
             "enter": {"zindex": {"value": 1}},
             "update": {
-              "x": {"scale": "xscale", "field": "pos"},
-              "x2": {"scale": "xscale", "field": "pos"},
+              "x": {"scale": "xDetail", "field": "pos"},
+              "x2": {"scale": "xDetail", "field": "pos"},
               "y": {"value": 0},
               "y2": {"signal": "entropyPlotHeight"},
               "stroke": {"field": "color"}
@@ -395,12 +379,12 @@
         {
           "name": "entropybars",
           "type": "rect",
-          "from": {"data": "table"},
+          "from": {"data": "mutationsFiltered"},
           "encode": {
             "enter": {"stroke": {"value": "#000"}},
             "update": {
-              "xc": {"scale": "xscale", "field": "pos"},
-              "width": {"scale": "xscale", "signal": "rectWidth"},
+              "xc": {"scale": "xDetail", "field": "pos"},
+              "width": {"scale": "xDetail", "signal": "rectWidth"},
               "y": {"scale": "entropyYScale", "field": "count"},
               "y2": {"scale": "entropyYScale", "value": 0},
               "tooltip": {
@@ -422,6 +406,170 @@
                 {"value": 2}
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "domainPlot",
+      "type": "group",
+      "encode": {
+        "enter": {"fill": {"value": "transparent"}},
+        "update": {
+          "x": {"value": 0},
+          "y": {"signal": "domainPlotY"},
+          "width": {"signal": "width"},
+          "height": {"signal": "domainPlotHeight"}
+        }
+      },
+      "signals": [
+        {
+          "name": "brush",
+          "value": 0,
+          "on": [
+            {"events": "@domainPlot:mousedown", "update": "[x(), x()]"},
+            {
+              "events": "[@domainPlot:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, width)]"
+            },
+            {
+              "events": {"signal": "delta"},
+              "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+            },
+            {
+              "events": "@domain_rects:mousedown",
+              "update": "[scale('xOverview', datum.start), scale('xOverview', datum.end)]"
+            }
+          ]
+        },
+        {
+          "name": "anchor",
+          "value": null,
+          "on": [{"events": "@brush:mousedown", "update": "slice(brush)"}]
+        },
+        {
+          "name": "xdown",
+          "value": 0,
+          "on": [{"events": "@brush:mousedown", "update": "x()"}]
+        },
+        {
+          "name": "delta",
+          "value": 0,
+          "on": [
+            {
+              "events": "[@brush:mousedown, window:mouseup] > window:mousemove!",
+              "update": "x() - xdown"
+            }
+          ]
+        },
+        {
+          "name": "detailDomain",
+          "push": "outer",
+          "on": [
+            {
+              "events": {"signal": "brush"},
+              "update": "span(brush) ? invert('xOverview', brush) : null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "domainYScale",
+          "type": "linear",
+          "domain": [0, 5],
+          "range": {"signal": "domainPlotYRange"}
+        }
+      ],
+      "axes": [{"orient": "bottom", "scale": "xOverview"}],
+      "marks": [
+        {
+          "name": "domain_rects",
+          "type": "rect",
+          "from": {"data": "domains"},
+          "encode": {
+            "enter": {
+              "x": {"scale": "xOverview", "field": "start"},
+              "x2": {"scale": "xOverview", "field": "end"},
+              "y": {"scale": "domainYScale", "field": "rowTop"},
+              "y2": {"scale": "domainYScale", "field": "rowBottom"},
+              "stroke": {"value": "black"},
+              "tooltip": {
+                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
+              }
+            },
+            "update": {
+              "fill": [
+                {
+                  "test": "indata('selectedDomains', 'name', datum.name)",
+                  "value": "#00ff00"
+                },
+                {"value": "#34d5eb"}
+              ]
+            },
+            "hover": {"fill": {"value": "#ff0000"}}
+          }
+        },
+        {
+          "name": "domain_labels",
+          "type": "text",
+          "from": {"data": "domain_rects"},
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "x": {"field": "x"},
+              "dx": {"field": "width", "mult": 0.5},
+              "y": {"field": "y"},
+              "dy": {"field": "height", "mult": 0.5},
+              "text": {"field": "datum.abbr"},
+              "align": {"value": "center"},
+              "baseline": {"value": "middle"},
+              "fill": {"value": "black"},
+              "tooltip": {"signal": "datum.tooltip"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "name": "brush",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.2}
+            },
+            "update": {
+              "x": {"signal": "brush[0]"},
+              "x2": {"signal": "brush[1]"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {"x": {"signal": "brush[0]"}}
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {"x": {"signal": "brush[1]"}}
           }
         }
       ]
