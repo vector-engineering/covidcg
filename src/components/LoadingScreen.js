@@ -67,18 +67,20 @@ const LoadingScreen = observer(() => {
     // Display message to try a refresh if this is taking too long
     // Timer set at 5 seconds
     setTimeout(() => {
-      setProgressText(
-        <span>
-          Initializing...
-          <br />
-          If this is taking too long, try refreshing the page.
-          <br />
-          If the error persists, please contact us at{' '}
-          <ExternalLink href="mailto:covidcg@broadinstitute.org">
-            covidcg@broadinstitute.org
-          </ExternalLink>
-        </span>
-      );
+      if (asyncDataStoreInstance.status === ASYNC_STATES.STARTED) {
+        setProgressText(
+          <span>
+            Initializing...
+            <br />
+            If this is taking too long, try refreshing the page.
+            <br />
+            If the error persists, please contact us at{' '}
+            <ExternalLink href="mailto:covidcg@broadinstitute.org">
+              covidcg@broadinstitute.org
+            </ExternalLink>
+          </span>
+        );
+      }
     }, 10000);
   }, []);
 
