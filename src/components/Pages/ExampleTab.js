@@ -442,7 +442,7 @@ const ExampleTab = observer(() => {
   };
 
   return (
-    <ExampleTabContainer ref={ref} r>
+    <ExampleTabContainer ref={ref}>
       <ExampleTabContent>
         {/* <TOC>
           <h3>Table of Contents</h3>
