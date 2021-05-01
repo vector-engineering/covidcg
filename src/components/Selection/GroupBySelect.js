@@ -83,7 +83,7 @@ const GroupBySelect = observer(
           <span className="form-title">
             Group sequences by
             <QuestionButton
-              data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment`}
+              data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment</p>`}
               data-html="true"
               data-place="right"
               data-for="main-tooltip"
