@@ -27,15 +27,13 @@ export const initialUIValues = {
   globalSequencingDataState: ASYNC_STATES.UNINITIALIZED,
   metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
 
+  groupSnvFrequencyState: ASYNC_STATES.UNINITIALIZED,
+
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
 };
 
 export class UIStore {
-  dataStoreInstance;
-  globalSequencingDataStoreInstance;
-  configStoreInstance;
-
   @observable sidebarOpen = initialUIValues.sidebarOpen;
   @observable sidebarSelectedGroupKeys =
     initialUIValues.sidebarSelectedGroupKeys;
@@ -49,15 +47,12 @@ export class UIStore {
   // i.e., metadata key (integer) => metadata value (string)
   @observable metadataFieldState = initialUIValues.metadataFieldState;
 
+  @observable groupSnvFrequencyState = initialUIValues.groupSnvFrequencyState;
+
   @observable activeTab = initialUIValues.activeTab;
   @observable keysPressed = initialUIValues.keysPressed;
 
-  init() {
-    this.dataStoreInstance = rootStoreInstance.dataStore;
-    this.globalSequencingDataStoreInstance =
-      rootStoreInstance.globalSequencingDataStore;
-    this.configStoreInstance = rootStoreInstance.configStore;
-  }
+  init() {}
 
   @action
   resetValues(values) {
@@ -149,6 +144,19 @@ export class UIStore {
   };
 
   @action
+  onGroupSnvFrequencyStarted = () => {
+    this.groupSnvFrequencyState = ASYNC_STATES.STARTED;
+  };
+  @action
+  onGroupSnvFrequencyFinished = () => {
+    this.groupSnvFrequencyState = ASYNC_STATES.SUCCEEDED;
+  };
+  @action
+  onGroupSnvFrequencyErr = () => {
+    this.groupSnvFrequencyState = ASYNC_STATES.FAILED;
+  };
+
+  @action
   setSidebarOpen = () => {
     this.sidebarOpen = true;
   };
@@ -184,17 +192,17 @@ export class UIStore {
         this.activeTab === TABS.TAB_LOCATION) &&
       this.caseDataState === ASYNC_STATES.STARTED
     ) {
-      this.dataStoreInstance.fetchData();
+      rootStoreInstance.dataStore.fetchData();
     } else if (
       this.activeTab === TABS.TAB_GLOBAL_SEQUENCES &&
       (this.globalSequencingDataState !== ASYNC_STATES.SUCCEEDED ||
         this.globalSequencingDataState === ASYNC_STATES.STARTED)
     ) {
-      this.globalSequencingDataStoreInstance.fetchGlobalSequencingData();
+      rootStoreInstance.globalSequencingDataStore.fetchGlobalSequencingData();
     }
 
-    this.configStoreInstance.urlParams.set('tab', this.activeTab);
-    updateURLFromParams(this.configStoreInstance.urlParams);
+    rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
+    updateURLFromParams(rootStoreInstance.configStore.urlParams);
   }
 
   @action

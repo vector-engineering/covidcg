@@ -9,6 +9,7 @@ import { SnpDataStore } from './snpData';
 import { LocationDataStore } from './locationDataStore';
 import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
+import { GroupDataStore } from './groupDataStore';
 
 class RootStore {
   UIStore;
@@ -23,6 +24,7 @@ class RootStore {
   dataStore;
 
   globalSequencingDataStore;
+  GroupDataStore;
 
   constructor() {
     this.UIStore = new UIStore();
@@ -37,6 +39,7 @@ class RootStore {
     this.dataStore = new DataStore();
 
     this.globalSequencingDataStore = new GlobalSequencingDataStore();
+    this.groupDataStore = new GroupDataStore();
   }
 
   init() {
@@ -53,6 +56,7 @@ class RootStore {
     this.dataStore.init();
 
     this.globalSequencingDataStore.init();
+    this.groupDataStore.init();
 
     const urlParams = new URLSearchParams(window.location.search);
 

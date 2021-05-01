@@ -14,6 +14,7 @@ import { formatSnv } from '../../utils/snpUtils';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
+import DownloadConsensusMutationsModal from '../Modals/DownloadConsensusMutationsModal';
 import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
 import DownloadGenomesModal from '../Modals/DownloadGenomesModal';
 
@@ -32,6 +33,7 @@ const serializeCoordinates = (coordinateRanges) => {
 
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
+  CONSENSUS_MUTATIONS: 'Consensus Mutations',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
   SELECTED_SNVS: 'Selected SNVs',
   SELECTED_GENOMES: 'Selected Genomes',
@@ -41,6 +43,7 @@ const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
 
   const [activeModals, setActiveModals] = useState({
+    downloadConsensusMutations: true,
     downloadMetadata: false,
     downloadGenomes: false,
   });
@@ -62,6 +65,8 @@ const StatusBox = observer(() => {
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
       dataStore.downloadAggSequences();
+    } else if (option === DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS) {
+      showModal('downloadConsensusMutations');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       showModal('downloadMetadata');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SNVS) {
@@ -150,7 +155,10 @@ const StatusBox = observer(() => {
     }
   }
 
-  const downloadOptions = [DOWNLOAD_OPTIONS.AGGREGATE_DATA];
+  const downloadOptions = [
+    DOWNLOAD_OPTIONS.AGGREGATE_DATA,
+    DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS,
+  ];
   if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SNVS);
@@ -185,6 +193,10 @@ const StatusBox = observer(() => {
           direction={'left'}
         />
       </ButtonContainer>
+      <DownloadConsensusMutationsModal
+        isOpen={activeModals.downloadConsensusMutations}
+        onRequestClose={hideModal.bind(this, 'downloadConsensusMutations')}
+      />
       <DownloadMetadataModal
         isOpen={activeModals.downloadMetadata}
         onRequestClose={hideModal.bind(this, 'downloadMetadata')}
