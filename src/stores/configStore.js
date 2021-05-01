@@ -428,6 +428,19 @@ export class ConfigStore {
     this.dataStoreInstance.fetchData();
   }
 
+  getSnvType() {
+    if (this.dnaOrAa === DNA_OR_AA.DNA) {
+      return 'dna';
+    } else if (this.dnaOrAa === DNA_OR_AA.AA) {
+      if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return 'gene_aa';
+      } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+        return 'protein_aa';
+      }
+    }
+    return undefined;
+  }
+
   // Get a pretty name for the group
   getGroupLabel(groupKey = null, dnaOrAa = null) {
     // Default to using store attribute, if no explicit groupKey

@@ -24,6 +24,7 @@ from cg_server.query import (
     query_initial,
     query_metadata_fields,
     query_country_score,
+    query_group_snv_frequencies,
 )
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
@@ -132,6 +133,14 @@ def get_sequences():
 def _get_metadata_fields():
     req = request.json
     return query_metadata_fields(conn, req)
+
+
+@app.route("/group_snv_frequencies", methods=["POST"])
+@cross_origin(origins=cors_domains)
+@handle_db_errors(conn=conn)
+def get_group_snv_frequencies():
+    req = request.json
+    return query_group_snv_frequencies(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])

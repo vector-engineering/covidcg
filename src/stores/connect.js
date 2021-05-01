@@ -21,6 +21,7 @@ export const connect = (Component) => {
             snpDataStore={value.snpDataStore}
             metadataStore={value.metadataStore}
             globalSequencingDataStore={value.globalSequencingDataStore}
+            groupDataStore={value.groupDataStore}
             {...props}
           />
         )}
