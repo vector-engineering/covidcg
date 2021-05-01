@@ -31,10 +31,16 @@ export const OptionInputContainer = styled.div`
     margin-left: 0.65em;
     padding: 1px 4px;
     border-radius: 3px;
+
+    border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+    &:focus {
+      border: 1px solid ${({ invalid }) => (invalid ? '#dc3545' : '#aaa')};
+    }
   }
 `;
 OptionInputContainer.defaultProps = {
   maxWidth: '4em',
+  invalid: false,
 };
 
 export const OptionCheckboxContainer = styled.div`

@@ -16,7 +16,7 @@ const WaitForAsyncWrapper = observer(({ children }) => {
       asyncDataStoreInstance.fetchData();
       renderedOnce.current = true;
     }
-  });
+  }, []);
 
   if (
     asyncDataStoreInstance.status === ASYNC_STATES.SUCCEEDED &&

@@ -53,6 +53,15 @@ group_cols:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
 
+
+# Surveillance plot options
+# see: workflow_main/scripts/surveillance.py
+surv_min_combo_count: 50
+surv_min_single_count: 50
+surv_start_date_days_ago: 240
+surv_end_date_days_ago: 30
+
+
 # ---------------
 #     SERVER
 # ---------------

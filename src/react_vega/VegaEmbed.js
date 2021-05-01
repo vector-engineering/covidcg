@@ -30,6 +30,7 @@ const VegaEmbed = forwardRef(
       width,
       height,
       onError,
+      onComplete,
       onNewView,
       ...options
     },
@@ -139,6 +140,11 @@ const VegaEmbed = forwardRef(
           .then((view) => {
             addSignalListenersToView(view, signalListeners);
             addDataListenersToView(view, dataListeners);
+
+            if (onComplete) {
+              view.runAfter(onComplete);
+            }
+
             if (width !== undefined) {
               view.width(width);
             }
@@ -393,6 +399,16 @@ const VegaEmbed = forwardRef(
 
     // Download handlers via. refs
     useImperativeHandle(ref, () => ({
+      runWhenComplete: (callback) => {
+        modifyView((view) => {
+          view.runAfter(callback);
+        });
+      },
+      getData: (name, callback) => {
+        modifyView((view) => {
+          callback(view.data(name));
+        });
+      },
       downloadImage: (type, filename, scaleFactor = 1) => {
         // type = 'png' or 'svg'
         // scaleFactor = 1 (default)
@@ -427,7 +443,8 @@ VegaEmbed.propTypes = {
   signalListeners: PropTypes.object, // key -> value (function)
   dataListeners: PropTypes.object, // key -> value (function)
   style: PropTypes.object,
-  onNewView: PropTypes.oneOf([PropTypes.func, null]),
+  onNewView: PropTypes.oneOfType([PropTypes.func, PropTypes.oneOf([null])]),
+  onComplete: PropTypes.oneOfType([PropTypes.func, PropTypes.oneOf([null])]),
   onError: PropTypes.func,
 };
 VegaEmbed.defaultProps = {
@@ -442,6 +459,7 @@ VegaEmbed.defaultProps = {
   dataListeners: {},
   style: {},
   onNewView: null,
+  onComplete: null,
   onError: (error) => {
     console.error(error);
     return null;

@@ -295,6 +295,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     setPending({
       ...pending,
       startDate,
+      endDate,
       validDateRange: valid,
     });
   };

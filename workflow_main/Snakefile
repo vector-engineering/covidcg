@@ -9,6 +9,7 @@ import os
 
 # Import scripts
 from scripts.assemble_data_package import assemble_data_package
+from scripts.build_full_dataframe import build_full_dataframe
 from scripts.build_location_tree import build_location_tree
 from scripts.combine_all_data import combine_all_data
 from scripts.consensus_snps import get_all_consensus_snps
@@ -41,6 +42,7 @@ rule all:
         os.path.join(config["static_data_folder"], "primers.json"),
         # Packaged data
         os.path.join(config["data_folder"], "data_package.json.gz"),
+        os.path.join(config['data_folder'], 'data_complete.csv'),
         # Standalone map spec
         os.path.join(config["data_folder"], "map_combined_standalone.vg.json"),
         # Global sequencing data
@@ -49,8 +51,8 @@ rule all:
         os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
         os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json"),
         # Surveillance data
-        os.path.join(config['data_folder'], 'surveillance', 'group_counts.json'),
-        os.path.join(config['data_folder'], 'surveillance', 'group_regression.json'),
+        os.path.join(config['data_folder'], 'surveillance', 'lineage_counts.csv'),
+        os.path.join(config['data_folder'], 'surveillance', 'lineage_regression.csv'),
 
 
 rule preprocess_sequences:
@@ -321,6 +323,19 @@ rule assemble_data_package:
             data_package_out = output.data_package
         )
 
+rule build_full_dataframe:
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        location_map = rules.combine_all_data.output.location_map
+    output:
+        full_df = os.path.join(config['data_folder'], 'data_complete.csv')
+    run:
+        build_full_dataframe(
+            input.case_data, input.metadata_map, input.location_map,
+            output.full_df
+        )
+
 rule create_standalone_map_spec:
     input:
         spec = os.path.join("../src", "vega_specs", "map_combined.vg.json"),
@@ -350,13 +365,26 @@ rule global_seq_data:
 rule surveillance_data:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map
+        location_map = rules.combine_all_data.output.location_map,
+        metadata_map = rules.combine_all_data.output.metadata_map
     params:
-        out_folder = os.path.join(config['data_folder'], 'surveillance')
+        out_folder = os.path.join(config['data_folder'], 'surveillance'),
+        start_date = (
+            ('--start-date ' + config['surv_start_date']) 
+            if 'surv_start_date' in config else ''
+        ),
+        start_date_days_ago = config['surv_start_date_days_ago'],
+        end_date_days_ago = config['surv_end_date_days_ago'],
+        min_combo_count = config['surv_min_combo_count'],
+        min_single_count = config['surv_min_single_count']
     output:
-        group_counts = os.path.join(config['data_folder'], 'surveillance', 'group_counts.json'),
-        group_regression = os.path.join(config['data_folder'], 'surveillance', 'group_regression.json')
+        lineage_counts = os.path.join(config['data_folder'], 'surveillance', 'lineage_counts.csv'),
+        lineage_regression = os.path.join(config['data_folder'], 'surveillance', 'lineage_regression.csv'),
+        spike_combo_counts = os.path.join(config['data_folder'], 'surveillance', 'spike_combo_counts.csv'),
+        spike_combo_regression = os.path.join(config['data_folder'], 'surveillance', 'spike_combo_regression.csv'),
+        spike_single_counts = os.path.join(config['data_folder'], 'surveillance', 'spike_single_counts.csv'),
+        spike_single_regression = os.path.join(config['data_folder'], 'surveillance', 'spike_single_regression.csv')
     shell:
         """
-        python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
+        python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} --metadata-map {input.metadata_map} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
         """

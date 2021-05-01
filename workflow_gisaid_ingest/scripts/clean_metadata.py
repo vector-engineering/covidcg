@@ -775,6 +775,10 @@ def clean_date_metadata(df):
     #     "Unknown"
     # )
 
+    # Fix weird year formats
+    df.loc[:, "collection_date"] = df["collection_date"].str.replace(r"^0020", "2020")
+    df.loc[:, "collection_date"] = df["collection_date"].str.replace(r"^0021", "2021")
+
     # Convert dates to datetime
     df.loc[:, "collection_date"] = pd.to_datetime(df["collection_date"], yearfirst=True)
     df.loc[:, "submission_date"] = pd.to_datetime(df["submission_date"], yearfirst=True)
@@ -1042,7 +1046,7 @@ def main():
     args = parser.parse_args()
 
     # Load metadata
-    df = pd.read_csv(args.metadata_in)
+    df = pd.read_csv(args.metadata_in, low_memory=False)
     df = df.rename(columns={"covv_accession_id": "Accession ID"}).set_index(
         "Accession ID"
     )

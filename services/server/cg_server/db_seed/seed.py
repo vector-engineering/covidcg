@@ -28,9 +28,12 @@ proteins = pd.read_json(str(static_data_path / "proteins_processed.json"))
 proteins = proteins.set_index("name")
 
 
-def df_to_sql(cur, df, table, index_label="id"):
+def df_to_sql(cur, df, table, index_label=None):
     buffer = io.StringIO()
-    df.to_csv(buffer, index_label=index_label, header=False)
+    if index_label:
+        df.to_csv(buffer, index_label=index_label, header=False)
+    else:
+        df.to_csv(buffer, index=False, header=False)
     buffer.seek(0)
     # cur.copy_from(buffer, table, sep=",")
     cur.copy_expert(
@@ -229,7 +232,7 @@ def seed_database(conn, schema="public"):
         print("done")
 
         # SNV frequencies
-        print("Writing group SNV frequencies", end="", flush=True)
+        print("Writing group SNV frequencies...", end="", flush=True)
         with (data_path / "group_snv_frequencies.json").open("r") as fp:
             group_snv_frequencies = json.loads(fp.read())
 
@@ -398,10 +401,7 @@ def seed_database(conn, schema="public"):
             snv_df = case_data[[snp_col]].explode(snp_col)
             snv_df = snv_df.loc[~snv_df[snp_col].isna()]
             df_to_sql(
-                cur,
-                snv_df,
-                table_name,
-                index_label="sequence_id",
+                cur, snv_df, table_name, index_label="sequence_id",
             )
             cur.execute(
                 'CREATE INDEX "ix_{table_name}_sequence_id" ON "{table_name}"("sequence_id");'.format(

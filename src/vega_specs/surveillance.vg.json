@@ -6,13 +6,17 @@
   "padding": 5,
 
   "signals": [
-    {"name": "group_title", "value": "Lineages"},
-    {"name": "days_ago", "value": 90},
-    {"name": "min_date", "update": "now() - (days_ago * 24 * 60 * 60 * 1000)"},
+    {"name": "mode", "value": "lineage"},
+    {"name": "sortField", "value": "group"},
+    {"name": "sortDirection", "value": "ascending"},
+    {"name": "display_min_counts", "value": 5},
+    {"name": "display_min_percent", "value": 0.01},
+    {"name": "sig_min_counts", "value": 10},
+    {"name": "sig_min_percent", "value": 0.05},
+    {"name": "sig_min_r", "value": 0.5},
 
-    {"name": "legend_width", "value": 60},
-    {"name": "facet_width", "update": "width - legend_width"},
-    {"name": "facet_x", "update": "legend_width"},
+    {"name": "facet_width", "update": "width"},
+    {"name": "facet_x", "update": "0"},
 
     {"name": "subplot_hpadding", "value": 90},
     {"name": "subplot_width", "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"},
@@ -88,42 +92,51 @@
     {
       "name": "percent_sensitivity",
       "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
-    },
-    {
-      "name": "legend_hover",
-      "on": [
-        {
-          "events": "@legend_symbol:mouseover",
-          "update": "datum.value"
-        },
-        {
-          "events": "@legend_label:mouseover",
-          "update": "datum.value"
-        }
-      ]
-    },
-    {
-      "name": "legend_clear",
-      "value": true,
-      "on": [
-        {
-          "events": "@legend_symbol:mouseout",
-          "update": "true",
-          "force": true
-        },
-        {
-          "events": "@legend_label:mouseout",
-          "update": "true",
-          "force": true
-        }
-      ]
     }
   ],
 
   "data": [
     {
       "name": "group_reg",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression.json"
+      "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
+      "format": {
+        "type": "csv",
+        "parse": {
+          "slope": "number",
+          "r": "number",
+          "pval": "number",
+          "counts": "number",
+          "max_percent": "number"
+        }
+      },
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.type === mode"
+        }
+      ]
+    },
+    {
+      "name": "hide_groups",
+      "source": "group_reg",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["group"],
+          "fields": ["counts", "max_percent"],
+          "ops": ["sum", "max"],
+          "as": ["counts", "max_percent"]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.counts < display_min_counts || datum.max_percent < display_min_percent"
+        },
+        {
+          "type": "formula",
+          "as": "hide",
+          "expr": "true"
+        }
+      ]
     },
     {
       "name": "valid_groups",
@@ -131,35 +144,68 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "datum.r > 0.5 && datum.counts > 10 && datum.max_percent > 0.05"
+          "expr": "datum.r > sig_min_r && datum.counts > sig_min_counts && datum.max_percent > sig_min_percent"
         },
         {
-          "type": "formula",
-          "expr": "datum.region + ':' + datum.group",
-          "as": "region_group"
-        },
+          "type": "aggregate",
+          "groupby": ["group"],
+          "fields": ["counts", "max_percent"],
+          "ops": ["sum", "max"],
+          "as": ["counts", "max_percent"]
+        }
+      ]
+    },
+    {
+      "name": "valid_groups_color",
+      "source": "valid_groups",
+      "transform": [
         {
           "type": "collect",
           "sort": {
-            "field": ["group"],
-            "order": ["ascending"]
+            "field": {"signal": "sortField"},
+            "order": {"signal": "sortDirection"}
           }
+        },
+        {
+          "type": "formula",
+          "expr": "scale('group_color', datum.group)",
+          "as": "color"
         }
       ]
     },
     {
       "name": "group_counts",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_counts.json",
-      "format": {"parse": {"collection_week": "date"}},
+      "url": "https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv",
+      "format": {
+        "type": "csv",
+        "parse": {
+          "collection_week": "date",
+          "counts": "number",
+          "location_counts": "number",
+          "percent": "number"
+        }
+      },
       "transform": [
         {
-          "type": "formula",
-          "expr": "datum.region + ':' + datum.group",
-          "as": "region_group"
+          "type": "filter",
+          "expr": "datum.type === mode"
+        },
+        {
+          "type": "lookup",
+          "from": "hide_groups",
+          "key": "group",
+          "values": ["hide"],
+          "fields": ["group"],
+          "as": ["hide"],
+          "default": false
+        },
+        {
+          "type": "filter",
+          "expr": "!datum.hide"
         },
         {
           "type": "formula",
-          "expr": "if(indata('valid_groups', 'region_group', datum.region_group), true, false)",
+          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)",
           "as": "valid"
         },
         {
@@ -215,22 +261,29 @@
     },
     {
       "name": "hover_legend",
-      "values": [],
-      "on": [
-        {"trigger": "legend_hover", "insert": "legend_hover" },
-        {"trigger": "legend_clear", "remove": true}
-      ],
-      "transform": [
-        {
-          "type": "project",
-          "fields": ["data"],
-          "as": ["group"]
-        }
-      ]
+      "values": []
     },
     {
       "name": "all_hover",
       "source": ["tooltip_group", "hover_legend"]
+    },
+    {
+      "name": "annotation",
+      "values": [
+        {"start": -30, "end": 0}
+      ],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "now() + (1000 * 60 * 60 * 24 * datum.start)",
+          "as": "start"
+        },
+        {
+          "type": "formula",
+          "expr": "now() + (1000 * 60 * 60 * 24 * datum.end)",
+          "as": "end"
+        }
+      ]
     }
   ],
 
@@ -250,63 +303,6 @@
   ],
 
   "marks": [
-    {
-      "type": "group",
-      "from": {"data": "valid_groups"},
-      "encode": {
-        "update": {
-          "x": {"value": 0},
-          "y": {"value": 0},
-          "width": {"signal": "legend_width"},
-          "height": {"signal": "height"}
-        }
-      },
-      "legends": [
-        {
-          "orient": "left",
-          "offset": 5,
-          "stroke": "group_color",
-          "fillColor": "#fff",
-          "padding": 5,
-          "labelFontSize": 12,
-          "titleFontSize": 14,
-          "title": {"signal": "group_title"},
-          "symbolType": "stroke",
-          "columns": 1,
-          "symbolLimit": 30,
-          "encode": {
-            "symbols": {
-              "name": "legend_symbol",
-              "interactive": true,
-              "update": {
-                "size": {"value": 200},
-                "strokeWidth": {"value": 3},
-                "opacity": [
-                  {
-                    "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.value)",
-                    "value": 1.0
-                  },
-                  {"value": 0.3}
-                ]
-              }
-            },
-            "labels": {
-              "name": "legend_label",
-              "interactive": true,
-              "update": {
-                "opacity": [
-                  {
-                    "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.value)",
-                    "value": 1.0
-                  },
-                  {"value": 0.3}
-                ]
-              }
-            }
-          }
-        }
-      ]
-    },
     {
       "name": "facets",
       "type": "group",
@@ -519,6 +515,23 @@
                   }
                 }
               ]
+            },
+            {
+              "type": "rect",
+              "from": {"data": "annotation"},
+              "encode": {
+                "update": {
+                  "x": {
+                    "scale": "dateX",
+                    "field": "start"
+                  },
+                  "x2": { "signal": "width" },
+                  "y": { "value": 0 },
+                  "y2": { "signal": "height" },
+                  "fill": { "value": "#CCC" },
+                  "opacity": {"value": 0.3}
+                }
+              }
             }
           ]
         }

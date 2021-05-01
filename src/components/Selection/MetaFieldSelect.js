@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { ASYNC_STATES } from '../../constants/defs.json';
 
+import ReactTooltip from 'react-tooltip';
 import MultiSelect from 'react-multi-select-component';
 import QuestionButton from '../Buttons/QuestionButton';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -64,6 +65,8 @@ const MetaFieldSelect = observer(
       });
 
       setState({ ...state, fieldOptions });
+
+      ReactTooltip.rebuild();
     };
 
     const setSelected = (field, options) => {
