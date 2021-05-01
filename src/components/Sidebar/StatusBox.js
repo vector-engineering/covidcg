@@ -43,7 +43,7 @@ const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
 
   const [activeModals, setActiveModals] = useState({
-    downloadConsensusMutations: true,
+    downloadConsensusMutations: false,
     downloadMetadata: false,
     downloadGenomes: false,
   });
