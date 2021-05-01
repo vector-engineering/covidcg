@@ -232,7 +232,7 @@ def seed_database(conn, schema="public"):
         print("done")
 
         # SNV frequencies
-        print("Writing group SNV frequencies", end="", flush=True)
+        print("Writing group SNV frequencies...", end="", flush=True)
         with (data_path / "group_snv_frequencies.json").open("r") as fp:
             group_snv_frequencies = json.loads(fp.read())
 
@@ -479,56 +479,6 @@ def seed_database(conn, schema="public"):
             """,
             [Json(geo_select_tree)],
         )
-
-        print("done")
-
-        print("Writing surveillance files...", end="", flush=True)
-
-        ## SURVEILLANCE DATA
-        surv_types = ["lineage", "spike_combo", "spike_single"]
-        for surv_type in surv_types:
-            counts_df = pd.read_csv(
-                data_path / "surveillance" / "{}_counts.csv".format(surv_type)
-            )
-            table_name = "surv_" + surv_type + "_counts"
-            cur.execute('DROP TABLE IF EXISTS "{}";'.format(table_name))
-            cur.execute(
-                """
-                CREATE TABLE "{table_name}" (
-                    region            TEXT       NOT NULL,
-                    collection_week   TIMESTAMP  NOT NULL,
-                    "group"             TEXT       NOT NULL,
-                    counts            INTEGER    NOT NULL,
-                    location_counts   INTEGER    NOT NULL,
-                    percent           REAL       NOT NULL
-                );
-                """.format(
-                    table_name=table_name,
-                )
-            )
-            df_to_sql(cur, counts_df, table_name)
-
-            regression_df = pd.read_csv(
-                data_path / "surveillance" / "{}_regression.csv".format(surv_type)
-            )
-            table_name = "surv_" + surv_type + "_regression"
-            cur.execute('DROP TABLE IF EXISTS "{}";'.format(table_name))
-            cur.execute(
-                """
-                CREATE TABLE "{table_name}" (
-                    region       TEXT     NOT NULL,
-                    "group"        TEXT     NOT NULL,
-                    slope        REAL,
-                    r            REAL,
-                    pval         REAL,
-                    counts       INTEGER  NOT NULL,
-                    max_percent  REAL     NOT NULL
-                );
-                """.format(
-                    table_name=table_name,
-                )
-            )
-            df_to_sql(cur, regression_df, table_name)
 
         print("done")
 

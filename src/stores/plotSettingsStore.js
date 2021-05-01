@@ -27,6 +27,16 @@ export const initialPlotSettingsValues = {
   tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
 
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
+
+  surveillanceMode: 'lineage',
+  surveillanceSortField: 'group',
+  surveillanceSortDirection: SORT_DIRECTIONS.SORT_ASC,
+  surveillanceDisplayMinCounts: 5,
+  surveillanceDisplayMinPercent: 0.01,
+  surveillanceSigMinCounts: 10,
+  surveillanceSigMinPercent: 0.05,
+  surveillanceSigMinR: 0.5,
+  surveillanceLegendHover: [],
 };
 
 export class PlotSettingsStore {
@@ -108,6 +118,65 @@ export class PlotSettingsStore {
   @action
   setCooccurrenceNormMode(mode) {
     this.cooccurrenceNormMode = mode;
+  }
+
+  // -----------------
+  // SURVEILLANCE PLOT
+  // -----------------
+
+  @observable surveillanceMode = initialPlotSettingsValues.surveillanceMode;
+  @observable surveillanceSortField =
+    initialPlotSettingsValues.surveillanceSortField;
+  @observable surveillanceSortDirection =
+    initialPlotSettingsValues.surveillanceSortDirection;
+  @observable surveillanceDisplayMinCounts =
+    initialPlotSettingsValues.surveillanceDisplayMinCounts;
+  @observable surveillanceDisplayMinPercent =
+    initialPlotSettingsValues.surveillanceDisplayMinPercent;
+  @observable surveillanceSigMinCounts =
+    initialPlotSettingsValues.surveillanceSigMinCounts;
+  @observable surveillanceSigMinPercent =
+    initialPlotSettingsValues.surveillanceSigMinPercent;
+  @observable surveillanceSigMinR =
+    initialPlotSettingsValues.surveillanceSigMinR;
+  @observable surveillanceLegendHover =
+    initialPlotSettingsValues.surveillanceLegendHover;
+
+  @action
+  setSurveillanceMode(mode) {
+    this.surveillanceMode = mode;
+  }
+  @action
+  setSurveillanceSortField(field) {
+    this.surveillanceSortField = field;
+  }
+  @action
+  setSurveillanceSortDirection(direction) {
+    this.surveillanceSortDirection = direction;
+  }
+  @action
+  setSurveillanceDisplayMinCounts(counts) {
+    this.surveillanceDisplayMinCounts = counts;
+  }
+  @action
+  setSurveillanceDisplayMinPercent(percent) {
+    this.surveillanceDisplayMinPercent = percent;
+  }
+  @action
+  setSurveillanceSigMinCounts(counts) {
+    this.surveillanceSigMinCounts = counts;
+  }
+  @action
+  setSurveillanceSigMinPercent(percent) {
+    this.surveillanceSigMinPercent = percent;
+  }
+  @action
+  setSurveillanceSigMinR(r) {
+    this.surveillanceSigMinR = r;
+  }
+  @action
+  setSurveillanceLegendHover(hover) {
+    this.surveillanceLegendHover = hover;
   }
 
   @action

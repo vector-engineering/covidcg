@@ -29,6 +29,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "d3-format": "3.0.0",
     "litemol": "2.4.2",
     "mobx": "5.15.4",
     "mobx-react": "6.2.2",

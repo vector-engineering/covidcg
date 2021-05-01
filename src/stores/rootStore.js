@@ -11,15 +11,18 @@ import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 
 class RootStore {
-  router;
   UIStore;
-  plotSettingsStore;
+  router;
 
+  plotSettingsStore;
+  metadataStore;
   locationDataStore;
   snpDataStore;
 
   configStore;
   dataStore;
+
+  globalSequencingDataStore;
 
   constructor() {
     this.UIStore = new UIStore();
@@ -60,7 +63,5 @@ class RootStore {
 }
 
 export const rootStoreInstance = new RootStore();
-
 export const storesContext = React.createContext(rootStoreInstance);
-
 export const StoreProvider = storesContext.Provider;
