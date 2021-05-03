@@ -237,11 +237,15 @@ def main():
         snv_id_to_name
     )
 
-    lineage_counts.to_csv(str(out_path / "lineage_counts.csv"), index=False)
-    spike_combo_snv_counts.to_csv(str(out_path / "spike_combo_counts.csv"), index=False)
-    spike_single_snv_counts.to_csv(
-        str(out_path / "spike_single_counts.csv"), index=False
+    lineage_counts.insert(0, "type", "lineage")
+    spike_combo_snv_counts.insert(0, "type", "spike_combo")
+    spike_single_snv_counts.insert(0, "type", "spike_single")
+    all_counts = pd.concat(
+        [lineage_counts, spike_combo_snv_counts, spike_single_snv_counts],
+        axis=0,
+        ignore_index=True,
     )
+    all_counts.to_csv(out_path / "group_counts2.csv", index=False)
 
     # DO REGRESSIONS
 
@@ -287,13 +291,15 @@ def main():
     spike_combo_snv_regression = calculate_trends(spike_combo_snv_counts)
     spike_single_snv_regression = calculate_trends(spike_single_snv_counts)
 
-    lineage_regression.to_csv(str(out_path / "lineage_regression.csv"), index=False)
-    spike_combo_snv_regression.to_csv(
-        str(out_path / "spike_combo_regression.csv"), index=False
+    lineage_regression.insert(0, "type", "lineage")
+    spike_combo_snv_regression.insert(0, "type", "spike_combo")
+    spike_single_snv_regression.insert(0, "type", "spike_single")
+    all_regression = pd.concat(
+        [lineage_regression, spike_combo_snv_regression, spike_single_snv_regression],
+        axis=0,
+        ignore_index=True,
     )
-    spike_single_snv_regression.to_csv(
-        str(out_path / "spike_single_regression.csv"), index=False
-    )
+    all_regression.to_csv(out_path / "group_regression2.csv", index=False)
 
 
 if __name__ == "__main__":

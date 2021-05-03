@@ -112,3 +112,6 @@ __pycache__
 example_data_genbank/bam/**
 # Don't need to track redundant fasta_raw files
 example_data_genbank/fasta_raw/**
+
+data
+data_genbank

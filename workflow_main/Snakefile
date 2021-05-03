@@ -51,8 +51,8 @@ rule all:
         os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
         os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json"),
         # Surveillance data
-        os.path.join(config['data_folder'], 'surveillance', 'lineage_counts.csv'),
-        os.path.join(config['data_folder'], 'surveillance', 'lineage_regression.csv'),
+        os.path.join(config['data_folder'], 'surveillance', 'group_counts2.csv'),
+        os.path.join(config['data_folder'], 'surveillance', 'group_regression2.csv'),
 
 
 rule preprocess_sequences:
@@ -378,12 +378,8 @@ rule surveillance_data:
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
     output:
-        lineage_counts = os.path.join(config['data_folder'], 'surveillance', 'lineage_counts.csv'),
-        lineage_regression = os.path.join(config['data_folder'], 'surveillance', 'lineage_regression.csv'),
-        spike_combo_counts = os.path.join(config['data_folder'], 'surveillance', 'spike_combo_counts.csv'),
-        spike_combo_regression = os.path.join(config['data_folder'], 'surveillance', 'spike_combo_regression.csv'),
-        spike_single_counts = os.path.join(config['data_folder'], 'surveillance', 'spike_single_counts.csv'),
-        spike_single_regression = os.path.join(config['data_folder'], 'surveillance', 'spike_single_regression.csv')
+        group_counts = os.path.join(config['data_folder'], 'surveillance', 'group_counts2.csv'),
+        group_regression = os.path.join(config['data_folder'], 'surveillance', 'group_regression2.csv'),
     shell:
         """
         python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} --metadata-map {input.metadata_map} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
