@@ -1,8 +1,13 @@
 [
-  { "name": "5'UTR", "segments": "1..265", "protein_coding": 0, "domains": [] },
+  {
+    "name": "5'UTR",
+    "segments": [[1, 265]],
+    "protein_coding": 0,
+    "domains": []
+  },
   {
     "name": "ORF1a",
-    "segments": "266..13468",
+    "segments": [[266, 13468]],
     "protein_coding": 1,
     "domains": [
       {
@@ -59,7 +64,10 @@
   },
   {
     "name": "ORF1ab",
-    "segments": "266..13468;13468..21555",
+    "segments": [
+      [266, 13468],
+      [13468, 21555]
+    ],
     "protein_coding": 1,
     "domains": [
       {
@@ -141,7 +149,7 @@
   },
   {
     "name": "S",
-    "segments": "21563..25384",
+    "segments": [[21563, 25384]],
     "protein_coding": 1,
     "domains": [
       {
@@ -198,13 +206,13 @@
   },
   {
     "name": "ORF3a",
-    "segments": "25393..26220",
+    "segments": [[25393, 26220]],
     "protein_coding": 1,
     "domains": []
   },
   {
     "name": "E",
-    "segments": "26245..26472",
+    "segments": [[26245, 26472]],
     "protein_coding": 1,
     "domains": [
       {
@@ -231,7 +239,7 @@
   },
   {
     "name": "M",
-    "segments": "26523..27191",
+    "segments": [[26523, 27191]],
     "protein_coding": 1,
     "domains": [
       {
@@ -298,13 +306,13 @@
   },
   {
     "name": "ORF6",
-    "segments": "27202..27387",
+    "segments": [[27202, 27387]],
     "protein_coding": 1,
     "domains": []
   },
   {
     "name": "ORF7a",
-    "segments": "27394..27759",
+    "segments": [[27394, 27759]],
     "protein_coding": 1,
     "domains": [
       {
@@ -321,7 +329,7 @@
   },
   {
     "name": "ORF7b",
-    "segments": "27756..27887",
+    "segments": [[27756, 27887]],
     "protein_coding": 1,
     "domains": [
       {
@@ -333,7 +341,7 @@
   },
   {
     "name": "ORF8",
-    "segments": "27894..28259",
+    "segments": [[27894, 28259]],
     "protein_coding": 1,
     "domains": [
       {
@@ -350,7 +358,7 @@
   },
   {
     "name": "N",
-    "segments": "28274..29533",
+    "segments": [[28274, 29533]],
     "protein_coding": 1,
     "domains": [
       {
@@ -367,13 +375,13 @@
   },
   {
     "name": "ORF10",
-    "segments": "29558..29674",
+    "segments": [[29558, 29674]],
     "protein_coding": 1,
     "domains": []
   },
   {
     "name": "3'UTR",
-    "segments": "29675..29903",
+    "segments": [[29675, 29903]],
     "protein_coding": 0,
     "domains": []
   }

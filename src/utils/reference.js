@@ -28,16 +28,17 @@ export const queryReferenceSequence = _.memoize((seq) => {
   let ind = [];
   [...seq].forEach((char, i) => {
     // Check if char represents a nucleotide (NT)
-    if (char in DEGENERATES) {
+    if (char.toUpperCase() in DEGENERATES) {
       // If char is a degenerate NT, save an array where:
       // The first element is the index of the degenerate NT in seq
       // The second element will be used to set a valid NT
       ind.push([i, 0]);
-    } else if (['A', 'C', 'T', 'G'].includes(char)) {
+    } else if (['A', 'C', 'T', 'G'].includes(char.toUpperCase())) {
       // Char won't need to be processed, continue to next char
       return;
     } else {
-      // INVALID CHAR throw an error
+      // Invalid sequence
+      return 0;
     }
   });
 
@@ -89,18 +90,10 @@ export const queryReferenceSequence = _.memoize((seq) => {
       // Check the new seq
       res = lookForSeq(newseq);
     }
-    // If the sequence is found, return its coordinates as an array
-    if (res !== 0) return res;
+    return res;
   } else {
     // No degenerate nucleotides, keep original logic
-    if (forRefSeqIncludes(seq)) {
-      return [forRefSeqIndexOf(seq) + 1, forRefSeqIndexOf(seq) + seq.length];
-    } else if (revRefSeqIncludes(seq)) {
-      return [
-        refSeq.ref_seq.length - revRefSeqIndexOf(seq) - seq.length + 1,
-        refSeq.ref_seq.length - revRefSeqIndexOf(seq),
-      ];
-    }
+    return lookForSeq(seq);
   }
 });
 

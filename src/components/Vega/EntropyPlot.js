@@ -200,6 +200,16 @@ const EntropyPlot = observer(({ width }) => {
   }
   xLabel += ')';
 
+  // Dynamically import domains
+  let domains;
+  async () => {
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      domains = await import('../../../static_data/genes.json');
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      domains = await import('../../../static_data/proteins.json');
+    }
+  };
+
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div

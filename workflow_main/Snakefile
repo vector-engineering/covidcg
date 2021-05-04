@@ -40,7 +40,7 @@ rule all:
         os.path.join(config["static_data_folder"], "reference.json"), 
         os.path.join(config["static_data_folder"], "primers.json"),
         # Packaged data
-        # os.path.join(config["data_folder"], "data_package.json.gz"),
+        os.path.join(config["data_folder"], "data_package.json.gz"),
         # Standalone map spec
         os.path.join(config["data_folder"], "map_combined_standalone.vg.json"),
         # Global sequencing data
@@ -50,7 +50,7 @@ rule all:
         os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json"),
         # Surveillance data
         os.path.join(config['data_folder'], 'surveillance', 'group_counts.json'),
-        os.path.join(config['data_folder'], 'surveillance', 'group_regression.json')
+        os.path.join(config['data_folder'], 'surveillance', 'group_regression.json'),
 
 
 rule preprocess_sequences:
@@ -298,25 +298,25 @@ rule global_sequencing_efforts:
         )
 
 
-# rule assemble_data_package:
-#     """Assemble the complete data package, that will be downloaded
-#     by the app upon initial load
-#     """
-#     input:
-#         case_data = rules.combine_all_data.output.case_data,
-#         country_score = rules.global_sequencing_efforts.output.country_score,
-#         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-#         global_group_counts = rules.global_group_counts.output.global_group_counts,
-#         group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
-#         metadata_map = rules.combine_all_data.output.metadata_map,
-#         location_map = rules.combine_all_data.output.location_map
-#     output:
-#         data_package = os.path.join(config["data_folder"], "data_package.json.gz")
-#     run:
-#         assemble_data_package(
-#             **input,
-#             data_package_out = output.data_package
-#         )
+rule assemble_data_package:
+    """Assemble the complete data package, that will be downloaded
+    by the app upon initial load
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        country_score = rules.global_sequencing_efforts.output.country_score,
+        geo_select_tree = rules.build_location_tree.output.geo_select_tree,
+        global_group_counts = rules.global_group_counts.output.global_group_counts,
+        group_consensus_snps = rules.consensus_snps.output.group_consensus_snps,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        location_map = rules.combine_all_data.output.location_map
+    output:
+        data_package = os.path.join(config["data_folder"], "data_package.json.gz")
+    run:
+        assemble_data_package(
+            **input,
+            data_package_out = output.data_package
+        )
 
 rule create_standalone_map_spec:
     input:

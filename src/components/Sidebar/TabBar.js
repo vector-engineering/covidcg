@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import { updateQueryStringParam } from '../../utils/updateQueryParam';
 import { TABS } from '../../constants/defs.json';
 
 import DropdownButton from '../Buttons/DropdownButton';
@@ -23,7 +22,6 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       e.preventDefault();
     }
     onTabChange(tab);
-    updateQueryStringParam('tab', tab);
   };
 
   const onMiscTabSelect = (tab) => {

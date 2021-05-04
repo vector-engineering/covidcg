@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useStores } from '../../stores/connect';
 
-import { updateQueryStringParam } from '../../utils/updateQueryParam';
-
 import { TabIndicatorBG, TabIndicatorFG } from './TabIndicator.styles';
 
 const TabIndicatorWrapper = ({ tab, children }) => {
@@ -14,7 +12,6 @@ const TabIndicatorWrapper = ({ tab, children }) => {
 
     if (tab !== null) {
       UIStore.setActiveTab(tab);
-      updateQueryStringParam('tab', tab);
     }
   };
 

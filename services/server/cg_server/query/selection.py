@@ -88,12 +88,16 @@ def select_sequences(conn, cur, req):
     # Build dictionary of metadata value tuples to inject
     metadata_vals = {}
     for md_key, md_vals in selected_metadata_fields.items():
+        # Don't process if the list of metadata values is empty
+        if not md_vals:
+            continue
+
         metadata_filters.append(
             sql.SQL("{field} IN {vals}").format(
                 field=sql.Identifier(md_key), vals=sql.Placeholder(md_key)
             )
         )
-        metadata_vals[md_key] = tuple(",".join([str(val) for val in md_vals]))
+        metadata_vals[md_key] = tuple([str(val) for val in md_vals])
 
     metadata_filters = sql.SQL(" AND ").join(metadata_filters)
     if metadata_filters.as_string(conn):

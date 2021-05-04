@@ -1,3 +1,7 @@
+import processedGenes from '../../static_data/genes_processed.json';
+import processedProteins from '../../static_data/proteins_processed.json';
+
+/* Processed genes and proteins now exist as json files
 import genes from '../../static_data/genes.json';
 import proteins from '../../static_data/proteins.json';
 
@@ -27,7 +31,8 @@ function processFeatures(features) {
   });
 }
 
-let processedGenes = processFeatures(genes);
+let processedGenes = genes;
+*/
 
 export function getAllGenes() {
   return processedGenes;
@@ -49,7 +54,7 @@ export function getGene(gene) {
   return geneMap[gene];
 }
 
-let processedProteins = processFeatures(proteins);
+// let processedProteins = proteins;
 
 export function getAllProteins() {
   return processedProteins;
