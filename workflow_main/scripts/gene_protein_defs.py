@@ -23,7 +23,8 @@ def load_genes_or_proteins(file):
     df.loc[~df["protein_coding"], "len_aa"] = -1
     df.loc[:, "len_aa"] = df["len_aa"].astype(int)
 
-    df["aa_segments"] = None
+    df["aa_ranges"] = None
+    df["nt_ranges"] = None
     for name, row in df.iterrows():
         cur_residue_index = 1
 
@@ -39,7 +40,8 @@ def load_genes_or_proteins(file):
             cur_residue_index = aa_range[1] + 1
             aa_segments.append(aa_range)
 
-        df.at[name, "aa_segments"] = aa_segments
+        df.at[name, "aa_ranges"] = aa_segments
+        df.at[name, "nt_ranges"] = nt_segments
 
     return df
 

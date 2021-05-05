@@ -7,53 +7,43 @@
     "domains": [
       {
         "name": "nsp1",
-        "ranges": [[1, 180]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[1, 180]]
       },
       {
         "name": "nsp2",
-        "ranges": [[181, 818]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[181, 818]]
       },
       {
         "name": "nsp3",
-        "ranges": [[819, 2763]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[819, 2763]]
       },
       {
         "name": "nsp4",
-        "ranges": [[2764, 3263]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[2764, 3263]]
       },
       {
         "name": "nsp5 - 3C-like proteinase",
-        "ranges": [[3264, 3569]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3264, 3569]]
       },
       {
         "name": "nsp6",
-        "ranges": [[3570, 3859]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3570, 3859]]
       },
       {
         "name": "nsp7",
-        "ranges": [[3860, 3942]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3860, 3942]]
       },
       {
         "name": "nsp8",
-        "ranges": [[3943, 4140]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3943, 4140]]
       },
       {
         "name": "nsp9",
-        "ranges": [[4141, 4253]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[4141, 4253]]
       },
       {
         "name": "nsp10",
-        "ranges": [[4254, 4392]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[4254, 4392]]
       }
     ]
   },
@@ -64,78 +54,63 @@
     "domains": [
       {
         "name": "nsp1",
-        "ranges": [[1, 180]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[1, 180]]
       },
       {
         "name": "nsp2",
-        "ranges": [[181, 818]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[181, 818]]
       },
       {
         "name": "nsp3 - PL2-PRO",
-        "ranges": [[819, 2763]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[819, 2763]]
       },
       {
         "name": "nsp4",
-        "ranges": [[2764, 3263]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[2764, 3263]]
       },
       {
         "name": "nsp5 - 3CLp",
-        "ranges": [[3264, 3569]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3264, 3569]]
       },
       {
         "name": "nsp6",
-        "ranges": [[3570, 3859]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3570, 3859]]
       },
       {
         "name": "nsp7",
-        "ranges": [[3860, 3942]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3860, 3942]]
       },
       {
         "name": "nsp8",
-        "ranges": [[3943, 4140]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[3943, 4140]]
       },
       {
         "name": "nsp9",
-        "ranges": [[4141, 4253]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[4141, 4253]]
       },
       {
         "name": "nsp10 - CysHis",
-        "ranges": [[4254, 4392]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[4254, 4392]]
       },
       {
         "name": "nsp12 - RdRp",
-        "ranges": [[4393, 5324]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[4393, 5324]]
       },
       {
         "name": "nsp13 - Helicase",
-        "ranges": [[5325, 5925]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[5325, 5925]]
       },
       {
         "name": "nsp14 - ExoN",
-        "ranges": [[5926, 6452]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[5926, 6452]]
       },
       {
         "name": "nsp15 - NendoU",
-        "ranges": [[6453, 6798]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[6453, 6798]]
       },
       {
         "name": "nsp16 - 2'-O-MT",
-        "ranges": [[6799, 7096]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD1"
+        "ranges": [[6799, 7096]]
       }
     ]
   },
@@ -146,53 +121,43 @@
     "domains": [
       {
         "name": "Receptor binding domain (RBD)",
-        "ranges": [[319, 541]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[319, 541]]
       },
       {
         "name": "S1 subunit",
-        "ranges": [[14, 685]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[14, 685]]
       },
       {
         "name": "S2 subunit",
-        "ranges": [[686, 1273]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[686, 1273]]
       },
       {
         "name": "Signal peptide",
-        "ranges": [[1, 13]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[1, 13]]
       },
       {
         "name": "N-terminal domain (NTD)",
-        "ranges": [[14, 305]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[14, 305]]
       },
       {
         "name": "Fusion peptide (FP)",
-        "ranges": [[788, 806]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[788, 806]]
       },
       {
         "name": "Heptapeptide repeat sequence 1 (HR1)",
-        "ranges": [[912, 984]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[912, 984]]
       },
       {
         "name": "Heptapeptide repeat sequence 2 (HR2)",
-        "ranges": [[1163, 1213]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[1163, 1213]]
       },
       {
         "name": "Transmembrane (TM) domain",
-        "ranges": [[1213, 1237]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[1213, 1237]]
       },
       {
         "name": "Cytoplasm (CT) domain",
-        "ranges": [[1237, 1273]],
-        "source": "https://doi.org/10.1038/s41401-020-0485-4"
+        "ranges": [[1237, 1273]]
       }
     ]
   },
@@ -209,23 +174,19 @@
     "domains": [
       {
         "name": "Virion Surface",
-        "ranges": [[1, 16]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+        "ranges": [[1, 16]]
       },
       {
         "name": "Transmembrane, Helical",
-        "ranges": [[17, 37]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+        "ranges": [[17, 37]]
       },
       {
         "name": "Intravirion",
-        "ranges": [[38, 75]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+        "ranges": [[38, 75]]
       },
       {
         "name": "PDZ-binding motif",
-        "ranges": [[72, 75]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC4"
+        "ranges": [[72, 75]]
       }
     ]
   },
@@ -240,59 +201,49 @@
           [20, 40],
           [51, 71],
           [80, 100]
-        ],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        ]
       },
       {
         "name": "Virion Surface, all",
         "ranges": [
           [2, 19],
           [72, 79]
-        ],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        ]
       },
       {
         "name": "Intravirion, all",
         "ranges": [
           [41, 50],
           [101, 222]
-        ],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        ]
       },
       {
         "name": "Virion Surface 1",
-        "ranges": [[2, 19]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[2, 19]]
       },
       {
         "name": "Transmembrane 1, helical",
-        "ranges": [[20, 40]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[20, 40]]
       },
       {
         "name": "Intravirion 1",
-        "ranges": [[41, 50]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[41, 50]]
       },
       {
         "name": "Transmembrane 2, helical",
-        "ranges": [[51, 71]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[51, 71]]
       },
       {
         "name": "Virion Surface 2",
-        "ranges": [[72, 79]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[72, 79]]
       },
       {
         "name": "Transmembrane 3, helical",
-        "ranges": [[80, 100]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[80, 100]]
       },
       {
         "name": "Intravirion 2",
-        "ranges": [[101, 222]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC5"
+        "ranges": [[101, 222]]
       }
     ]
   },
@@ -309,13 +260,11 @@
     "domains": [
       {
         "name": "Transmembrane, helical",
-        "ranges": [[96, 116]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+        "ranges": [[96, 116]]
       },
       {
         "name": "Signal peptide",
-        "ranges": [[1, 15]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC7"
+        "ranges": [[1, 15]]
       }
     ]
   },
@@ -326,8 +275,7 @@
     "domains": [
       {
         "name": "Transmembrane, helical",
-        "ranges": [[9, 29]],
-        "source": "https://www.uniprot.org/uniprot/P0DTD8"
+        "ranges": [[9, 29]]
       }
     ]
   },
@@ -338,13 +286,11 @@
     "domains": [
       {
         "name": "Signal peptide",
-        "ranges": [[1, 15]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+        "ranges": [[1, 15]]
       },
       {
         "name": "ORF8 protein",
-        "ranges": [[16, 121]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC8"
+        "ranges": [[16, 121]]
       }
     ]
   },
@@ -355,13 +301,11 @@
     "domains": [
       {
         "name": "RNA-binding",
-        "ranges": [[41, 186]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+        "ranges": [[41, 186]]
       },
       {
         "name": "Dimerization",
-        "ranges": [[258, 361]],
-        "source": "https://www.uniprot.org/uniprot/P0DTC9"
+        "ranges": [[258, 361]]
       }
     ]
   },

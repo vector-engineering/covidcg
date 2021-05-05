@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 import genes from '../../static_data/genes.json';
 import proteins from '../../static_data/proteins.json';
 
 function processFeatures(features) {
+=======
+import genes from '../../static_data/genes_processed.json';
+import proteins from '../../static_data/proteins_processed.json';
+
+/* function processFeatures(features) {
+>>>>>>> Updated genes and proteins json to work with new entropyplot
   return features.map((feature) => {
-    feature.ranges = feature.segments.split(';').map((segment) => {
-      return segment.split('..').map((pos) => parseInt(pos));
-    });
+    feature.ranges = feature.segments;
     let curResidueIndex = 1;
     feature.aa_ranges = feature.protein_coding
       ? feature.ranges.map((range) => {
@@ -25,9 +30,13 @@ function processFeatures(features) {
       : null;
     return feature;
   });
-}
+} */
 
+<<<<<<< HEAD
 let processedGenes = processFeatures(genes);
+=======
+let processedGenes = genes;
+>>>>>>> Updated genes and proteins json to work with new entropyplot
 
 export function getAllGenes() {
   return processedGenes;
@@ -49,7 +58,11 @@ export function getGene(gene) {
   return geneMap[gene];
 }
 
+<<<<<<< HEAD
 let processedProteins = processFeatures(proteins);
+=======
+let processedProteins = proteins;
+>>>>>>> Updated genes and proteins json to work with new entropyplot
 
 export function getAllProteins() {
   return processedProteins;

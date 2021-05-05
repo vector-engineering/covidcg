@@ -23,6 +23,8 @@ import {
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
+// import { geneMap, proteinMap } from '../../utils/gene_protein';
+
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
@@ -144,12 +146,29 @@ const EntropyPlot = observer(({ width }) => {
     return xRange;
   };
 
+  const getDomains = () => {
+    // Apply domains
+    if (configStore.residueCoordinates.length === 0) {
+      // All Genes or All Proteins selected, show all genes or all proteins
+      return [];
+    } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return configStore.selectedGene.domains;
+      } else if (
+        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        return configStore.selectedProtein.domains;
+      }
+    }
+  };
+
   const [state, setState] = useState({
     showWarning: true,
     xRange: getXRange(),
     data: {
       table: processData(toJS(dataStore.groupCounts)),
       selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+      domains: getDomains(),
     },
     signalListeners: {
       hoverGroup: _.throttle(handleHoverGroup, 100),
@@ -170,6 +189,7 @@ const EntropyPlot = observer(({ width }) => {
       data: {
         ...state.data,
         table: processData(toJS(dataStore.groupCounts)),
+        domains: getDomains(),
       },
     });
   }, [UIStore.caseDataState, plotSettingsStore.entropyMinCount]);
@@ -224,6 +244,8 @@ const EntropyPlot = observer(({ width }) => {
       </EmptyPlot>
     );
   }
+
+  console.log(state.domains);
 
   return (
     <PlotContainer>

@@ -111,7 +111,7 @@ export class SnpDataStore {
         0
       );
       this.intToGeneAaSnvMap[snvId]['nt_pos'] =
-        getGene(split[0]).ranges[aaRangeInd][0] +
+        getGene(split[0]).segments[aaRangeInd][0] +
         (this.intToGeneAaSnvMap[snvId]['pos'] -
           getGene(split[0]).aa_ranges[aaRangeInd][0]) *
           3;
@@ -142,7 +142,7 @@ export class SnpDataStore {
         0
       );
       this.intToProteinAaSnvMap[snvId]['nt_pos'] =
-        getProtein(split[0]).ranges[aaRangeInd][0] +
+        getProtein(split[0]).segments[aaRangeInd][0] +
         (this.intToProteinAaSnvMap[snvId]['pos'] -
           getProtein(split[0]).aa_ranges[aaRangeInd][0]) *
           3;
