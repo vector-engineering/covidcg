@@ -2,10 +2,15 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
   "width": 700,
-  "height": 150,
+  "height": 220,
   "padding": 5,
 
   "signals": [
+    { "name": "entropyPlotHeight", "value": 120 },
+    { "name": "domainPlotHeight", "value": 60 },
+    { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
+    { "name": "domainPlotY", "update": "height - domainPlotHeight" },
+    { "name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]" },
     { "name": "totalSequences", "value": 1000 },
     { "name": "posField", "value": 1 },
     {
@@ -15,6 +20,7 @@
     { "name": "xRange", "value": [0, 1200] },
     { "name": "xLabel", "value": "S Gene (AA)" },
     { "name": "yLabel", "value": "# SNVs" },
+    { "name": "detailDomain" },
     {
       "name": "hoverGroup",
       "value": null,
@@ -30,7 +36,7 @@
       ]
     },
     {
-      "name": "clear",
+      "name": "clearSnv",
       "value": true,
       "on": [
         {
@@ -41,7 +47,7 @@
       ]
     },
     {
-      "name": "shift",
+      "name": "shiftSnv",
       "value": false,
       "on": [
         {
@@ -52,7 +58,7 @@
       ]
     },
     {
-      "name": "clicked",
+      "name": "clickedSnv",
       "value": null,
       "on": [
         {
@@ -61,9 +67,35 @@
           "force": true
         }
       ]
+    },
+    {
+      "name": "clearDomain",
+      "value": true,
+      "on": [{ "events": "window:mousedown", "update": "true", "force": true }]
+    },
+    {
+      "name": "shiftDomain",
+      "value": false,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedDomain",
+      "value": null,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "{name: datum.name}",
+          "force": true
+        }
+      ]
     }
   ],
-
   "data": [
     {
       "name": "table",
@@ -99,13 +131,23 @@
       ]
     },
     {
+      "name": "tableFiltered",
+      "source": "table",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(detailDomain) ? datum.pos >= detailDomain[0] && datum.pos <= detailDomain[1] : datum"
+        }
+      ]
+    },
+    {
       "name": "selected",
       "values": [{ "group": "S|614|D|G" }],
       "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
+        { "trigger": "clearSnv", "remove": true },
+        { "trigger": "!shiftSnv", "remove": true },
+        { "trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv" },
+        { "trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv" }
       ],
       "transform": [
         {
@@ -121,6 +163,34 @@
           "fields": ["group"],
           "as": ["color"]
         }
+      ]
+    },
+    {
+      "name": "domains",
+      "format": {
+        "type": "json"
+      },
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "as": "rowTop"
+        },
+        { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
+        { "type": "filter", "expr": "datum.start < xRange[1]" }
+      ]
+    },
+    {
+      "name": "selectedDomains",
+      "values": [],
+      "on": [
+        { "trigger": "clearDomain", "remove": true },
+        { "trigger": "!shiftDomain", "remove": true },
+        {
+          "trigger": "!shiftDomain && clickedDomain",
+          "insert": "clickedDomain"
+        },
+        { "trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain" }
       ]
     }
   ],
