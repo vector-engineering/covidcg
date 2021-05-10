@@ -148,10 +148,7 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
-    if (configStore.residueCoordinates.length === 0) {
-      // All Genes or All Proteins selected, show all genes or all proteins
-      return [];
-    } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+    if (configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         return configStore.selectedGene.domains;
       } else if (
@@ -159,6 +156,8 @@ const EntropyPlot = observer(({ width }) => {
       ) {
         return configStore.selectedProtein.domains;
       }
+    } else {
+      return [];
     }
   };
 
