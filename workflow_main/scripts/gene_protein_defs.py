@@ -3,7 +3,7 @@
 
 import argparse
 import pandas as pd
-import numpy as np
+# import numpy as np
 
 
 def load_genes_or_proteins(file):

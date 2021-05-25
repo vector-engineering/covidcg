@@ -4,7 +4,6 @@
     "segments": [[266, 805]],
     "protein_coding": 1,
     "notes": "Suppress host antiviral response. produced by both pp1a and pp1ab",
-
     "domains": []
   },
   {
@@ -12,15 +11,18 @@
     "segments": [[806, 2719]],
     "protein_coding": 1,
     "notes": "produced by both pp1a and pp1ab. Interacts with host PHB and PHB2. 181..818 relative to ORF1a start.",
-
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 1",
-        "ranges": [[365, 389]]
+        "abbr": "LR1",
+        "name": "Leucine-rich repeat 1",
+        "ranges": [[365, 389]],
+        "row": 0
       },
       {
-        "name": "Leucine-rich repeat (LRR) 2",
-        "ranges": [[517, 539]]
+        "abbr": "LR2",
+        "name": "Leucine-rich repeat 2",
+        "ranges": [[517, 539]],
+        "row": 0
       }
     ]
   },
@@ -31,20 +33,28 @@
     "notes": "nsp3-nsp4-nsp6 complex involved in viral replication. former nsp1; conserved domains are: N-terminal acidic (Ac), predicted phosphoesterase, papain-like proteinase (PL-pro), Y-domain, transmembrane domain 1 (TM1), adenosine diphosphate-ribose 1''-phosphatase (ADRP); produced by both pp1a and pp1ab. 819..2763 relative to ORF1a start",
     "domains": [
       {
+        "abbr": "Macro",
         "name": "Macro",
-        "ranges": [[207, 376]]
+        "ranges": [[207, 376]],
+        "row": 1
       },
       {
+        "abbr": "Peptidase C16",
         "name": "Peptidase C16",
-        "ranges": [[816, 1080]]
+        "ranges": [[816, 1080]],
+        "row": 1
       },
       {
-        "name": "Leucine-rich repeat (LRR) 3",
-        "ranges": [[862, 884]]
+        "abbr": "3",
+        "name": "Leucine-rich repeat 3",
+        "ranges": [[862, 884]],
+        "row": 2
       },
       {
+        "abbr": "Z",
         "name": "Zinc finger (C4 type)",
-        "ranges": [[934, 971]]
+        "ranges": [[934, 971]],
+        "row": 2
       },
       {
         "name": "All Transmembrane",
@@ -61,24 +71,34 @@
         ]
       },
       {
+        "abbr": "Cytoplasmic 1",
         "name": "Cytoplasmic 1",
-        "ranges": [[1, 1407]]
+        "ranges": [[1, 1407]],
+        "row": 0
       },
       {
+        "abbr": "1",
         "name": "Transmembrane 1, helical",
-        "ranges": [[1408, 1428]]
+        "ranges": [[1408, 1428]],
+        "row": 1
       },
       {
+        "abbr": "L",
         "name": "Lumenal",
-        "ranges": [[1429, 1499]]
+        "ranges": [[1429, 1499]],
+        "row": 0
       },
       {
+        "abbr": "2",
         "name": "Transmembrane 2, helical",
-        "ranges": [[1500, 1520]]
+        "ranges": [[1500, 1520]],
+        "row": 1
       },
       {
+        "abbr": "Cytoplasmic 2",
         "name": "Cytoplasmic 2",
-        "ranges": [[1520, 1945]]
+        "ranges": [[1520, 1945]],
+        "row": 0
       }
     ]
   },
@@ -90,8 +110,10 @@
 
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 4",
-        "ranges": [[422, 444]]
+        "abbr": "LRR4",
+        "name": "Leucine-rich repeat 4",
+        "ranges": [[422, 444]],
+        "row": 1
       },
       {
         "name": "All Cytoplasmic",
@@ -118,40 +140,58 @@
         ]
       },
       {
+        "abbr": "C1",
         "name": "Cytoplasmic 1",
-        "ranges": [[1, 12]]
+        "ranges": [[1, 12]],
+        "row": 0
       },
       {
+        "abbr": "TM1",
         "name": "Transmembrane 1, helical",
-        "ranges": [[13, 33]]
+        "ranges": [[13, 33]],
+        "row": 1
       },
       {
+        "abbr": "Lumenal 1",
         "name": "Lumenal 1",
-        "ranges": [[34, 281]]
+        "ranges": [[34, 281]],
+        "row": 0
       },
       {
+        "abbr": "TM2",
         "name": "Transmembrane 2, helical",
-        "ranges": [[282, 302]]
+        "ranges": [[282, 302]],
+        "row": 1
       },
       {
+        "abbr": "CP2",
         "name": "Cytoplasmic 2",
-        "ranges": [[303, 336]]
+        "ranges": [[303, 336]],
+        "row": 0
       },
       {
+        "abbr": "TM3",
         "name": "Transmembrane 3, helical",
-        "ranges": [[337, 357]]
+        "ranges": [[337, 357]],
+        "row": 1
       },
       {
+        "abbr": "L2",
         "name": "Lumenal 2",
-        "ranges": [[358, 364]]
+        "ranges": [[358, 364]],
+        "row": 0
       },
       {
+        "abbr": "TM4",
         "name": "Transmembrane 4, helical",
-        "ranges": [[365, 385]]
+        "ranges": [[365, 385]],
+        "row": 1
       },
       {
+        "abbr": "CP3",
         "name": "Cytoplasmic 3",
-        "ranges": [[386, 500]]
+        "ranges": [[386, 500]],
+        "row": 0
       }
     ]
   },
@@ -163,12 +203,16 @@
 
     "domains": [
       {
+        "abbr": "Peptidase C30",
         "name": "Peptidase C30",
-        "ranges": [[1, 306]]
+        "ranges": [[1, 306]],
+        "row": 0
       },
       {
+        "abbr": "Cytoplasmic",
         "name": "Cytoplasmic",
-        "ranges": [[1, 306]]
+        "ranges": [[1, 306]],
+        "row": 1
       }
     ]
   },
@@ -180,56 +224,82 @@
 
     "domains": [
       {
+        "abbr": "CP1",
         "name": "Cytoplasmic 1",
-        "ranges": [[1, 17]]
+        "ranges": [[1, 17]],
+        "row": 0
       },
       {
+        "abbr": "TM1",
         "name": "Transmembrane 1, helical",
-        "ranges": [[18, 38]]
+        "ranges": [[18, 38]],
+        "row": 1
       },
       {
+        "abbr": "",
         "name": "Lumenal 1",
-        "ranges": [[39, 39]]
+        "ranges": [[39, 39]],
+        "row": 0
       },
       {
+        "abbr": "TM2",
         "name": "Transmembrane 2, helical",
-        "ranges": [[40, 60]]
+        "ranges": [[40, 60]],
+        "row": 1
       },
       {
+        "abbr": "C2",
         "name": "Cytoplasmic 2",
-        "ranges": [[61, 65]]
+        "ranges": [[61, 65]],
+        "row": 0
       },
       {
+        "abbr": "TM3",
         "name": "Transmembrane 3, helical",
-        "ranges": [[66, 86]]
+        "ranges": [[66, 86]],
+        "row": 1
       },
       {
+        "abbr": "L2",
         "name": "Lumenal 2",
-        "ranges": [[87, 104]]
+        "ranges": [[87, 104]],
+        "row": 0
       },
       {
+        "abbr": "TM4",
         "name": "Transmembrane 4, helical",
-        "ranges": [[105, 125]]
+        "ranges": [[105, 125]],
+        "row": 1
       },
       {
+        "abbr": "CP3",
         "name": "Cytoplasmic 3",
-        "ranges": [[126, 160]]
+        "ranges": [[126, 160]],
+        "row": 0
       },
       {
+        "abbr": "TM5",
         "name": "Transmembrane 5, helical",
-        "ranges": [[161, 181]]
+        "ranges": [[161, 181]],
+        "row": 1
       },
       {
+        "abbr": "L3",
         "name": "Lumenal 3",
-        "ranges": [[182, 209]]
+        "ranges": [[182, 209]],
+        "row": 0
       },
       {
+        "abbr": "TM6",
         "name": "Transmembrane 6, helical",
-        "ranges": [[210, 230]]
+        "ranges": [[210, 230]],
+        "row": 1
       },
       {
+        "abbr": "CP4",
         "name": "Cytoplasmic 4",
-        "ranges": [[231, 290]]
+        "ranges": [[231, 290]],
+        "row": 0
       }
     ]
   },
@@ -241,8 +311,10 @@
 
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 5 (partial)",
-        "ranges": [[76, 83]]
+        "abbr": "LRR5",
+        "name": "Leucine-rich repeat 5 (partial)",
+        "ranges": [[76, 83]],
+        "row": 0
       }
     ]
   },
@@ -254,12 +326,16 @@
 
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 5 (partial)",
-        "ranges": [[1, 17]]
+        "abbr": "LRR5",
+        "name": "Leucine-rich repeat 5 (partial)",
+        "ranges": [[1, 17]],
+        "row": 0
       },
       {
-        "name": "Leucine-rich repeat (LRR) 6",
-        "ranges": [[35, 62]]
+        "abbr": "LRR6",
+        "name": "Leucine-rich repeat 6",
+        "ranges": [[35, 62]],
+        "row": 0
       }
     ]
   },
@@ -298,16 +374,22 @@
 
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 7",
-        "ranges": [[199, 224]]
+        "abbr": "LR7",
+        "name": "Leucine-rich repeat 7",
+        "ranges": [[199, 224]],
+        "row": 0
       },
       {
+        "abbr": "R",
         "name": "Interaction with RMP Remdesivir",
-        "ranges": [[545, 555]]
+        "ranges": [[545, 555]],
+        "row": 0
       },
       {
+        "abbr": "RdRp",
         "name": "RdRp catalytic site",
-        "ranges": [[612, 774]]
+        "ranges": [[612, 774]],
+        "row": 0
       }
     ]
   },
@@ -319,24 +401,34 @@
 
     "domains": [
       {
-        "name": "CoronaVirus Zinc-binding domain (ZBD)",
-        "ranges": [[1, 84]]
+        "abbr": "ZBD",
+        "name": "CoronaVirus Zinc-binding domain",
+        "ranges": [[1, 84]],
+        "row": 0
       },
       {
-        "name": "Leucine-rich repeat (LRR) 8",
-        "ranges": [[228, 248]]
+        "abbr": "LR8",
+        "name": "Leucine-rich repeat 8",
+        "ranges": [[228, 248]],
+        "row": 0
       },
       {
+        "abbr": "ATP",
         "name": "(+)RNA virus helicase ATP-binding",
-        "ranges": [[257, 438]]
+        "ranges": [[257, 438]],
+        "row": 0
       },
       {
-        "name": "Nucleotide binding (NTP)",
-        "ranges": [[282, 289]]
+        "abbr": "N",
+        "name": "Nucleotide binding",
+        "ranges": [[282, 289]],
+        "row": 1
       },
       {
+        "abbr": "C-Terminal",
         "name": "(+)RNA virus helicase C-terminal",
-        "ranges": [[439, 608]]
+        "ranges": [[439, 608]],
+        "row": 1
       }
     ]
   },
@@ -364,8 +456,10 @@
 
     "domains": [
       {
-        "name": "Leucine-rich repeat (LRR) 9",
-        "ranges": [[19, 43]]
+        "abbr": "LRR9",
+        "name": "Leucine-rich repeat 9",
+        "ranges": [[19, 43]],
+        "row": 0
       }
     ]
   },
@@ -376,44 +470,64 @@
     "notes": "structural protein; spike protein",
     "domains": [
       {
-        "name": "Receptor binding domain (RBD)",
-        "ranges": [[319, 541]]
+        "abbr": "RBD",
+        "name": "Receptor binding domain",
+        "ranges": [[319, 541]],
+        "row": 1
       },
       {
+        "abbr": "S1 Subunit",
         "name": "S1 subunit",
-        "ranges": [[14, 685]]
+        "ranges": [[14, 685]],
+        "row": 0
       },
       {
+        "abbr": "S2 Subunit",
         "name": "S2 subunit",
-        "ranges": [[686, 1273]]
+        "ranges": [[686, 1273]],
+        "row": 0
       },
       {
+        "abbr": "S",
         "name": "Signal peptide",
-        "ranges": [[1, 13]]
+        "ranges": [[1, 13]],
+        "row": 2
       },
       {
-        "name": "N-terminal domain (NTD)",
-        "ranges": [[14, 305]]
+        "abbr": "NTD",
+        "name": "N-terminal domain",
+        "ranges": [[14, 305]],
+        "row": 1
       },
       {
-        "name": "Fusion peptide (FP)",
-        "ranges": [[788, 806]]
+        "abbr": "F",
+        "name": "Fusion peptide",
+        "ranges": [[788, 806]],
+        "row": 1
       },
       {
-        "name": "Heptapeptide repeat sequence 1 (HR1)",
-        "ranges": [[912, 984]]
+        "abbr": "HR1",
+        "name": "Heptapeptide repeat sequence 1",
+        "ranges": [[912, 984]],
+        "row": 1
       },
       {
-        "name": "Heptapeptide repeat sequence 2 (HR2)",
-        "ranges": [[1163, 1213]]
+        "abbr": "HR2",
+        "name": "Heptapeptide repeat sequence 2",
+        "ranges": [[1163, 1213]],
+        "row": 1
       },
       {
-        "name": "Transmembrane (TM) domain",
-        "ranges": [[1213, 1237]]
+        "abbr": "TM",
+        "name": "Transmembrane domain",
+        "ranges": [[1213, 1237]],
+        "row": 2
       },
       {
-        "name": "Cytoplasm (CT) domain",
-        "ranges": [[1237, 1273]]
+        "abbr": "CT",
+        "name": "Cytoplasm domain",
+        "ranges": [[1237, 1273]],
+        "row": 1
       }
     ]
   },
@@ -438,20 +552,28 @@
     "notes": "ORF4; structural protein; E protein. Envelope protein, involved in virus morphogenesis and assembly",
     "domains": [
       {
+        "abbr": "Virion Surface",
         "name": "Virion Surface",
-        "ranges": [[1, 16]]
+        "ranges": [[1, 16]],
+        "row": 0
       },
       {
+        "abbr": "Transmembrane",
         "name": "Transmembrane, Helical",
-        "ranges": [[17, 37]]
+        "ranges": [[17, 37]],
+        "row": 0
       },
       {
+        "abbr": "Intravirion",
         "name": "Intravirion",
-        "ranges": [[38, 75]]
+        "ranges": [[38, 75]],
+        "row": 0
       },
       {
+        "abbr": "PDZ",
         "name": "PDZ-binding motif",
-        "ranges": [[72, 75]]
+        "ranges": [[72, 75]],
+        "row": 1
       }
     ]
   },
@@ -484,32 +606,46 @@
         ]
       },
       {
+        "abbr": "VS1",
         "name": "Virion Surface 1",
-        "ranges": [[2, 19]]
+        "ranges": [[2, 19]],
+        "row": 0
       },
       {
+        "abbr": "TM1",
         "name": "Transmembrane 1, helical",
-        "ranges": [[20, 40]]
+        "ranges": [[20, 40]],
+        "row": 1
       },
       {
+        "abbr": "IV1",
         "name": "Intravirion 1",
-        "ranges": [[41, 50]]
+        "ranges": [[41, 50]],
+        "row": 0
       },
       {
+        "abbr": "TM2",
         "name": "Transmembrane 2, helical",
-        "ranges": [[51, 71]]
+        "ranges": [[51, 71]],
+        "row": 1
       },
       {
+        "abbr": "VS2",
         "name": "Virion Surface 2",
-        "ranges": [[72, 79]]
+        "ranges": [[72, 79]],
+        "row": 0
       },
       {
+        "abbr": "TM3",
         "name": "Transmembrane 3, helical",
-        "ranges": [[80, 100]]
+        "ranges": [[80, 100]],
+        "row": 1
       },
       {
+        "abbr": "Intravirion 2",
         "name": "Intravirion 2",
-        "ranges": [[101, 222]]
+        "ranges": [[101, 222]],
+        "row": 0
       }
     ]
   },
@@ -527,12 +663,16 @@
     "notes": "ORF7a protein",
     "domains": [
       {
+        "abbr": "Transmembrane",
         "name": "Transmembrane, helical",
-        "ranges": [[96, 116]]
+        "ranges": [[96, 116]],
+        "row": 0
       },
       {
+        "abbr": "Signal",
         "name": "Signal peptide",
-        "ranges": [[1, 15]]
+        "ranges": [[1, 15]],
+        "row": 0
       }
     ]
   },
@@ -543,8 +683,10 @@
     "notes": "ORF7b protein",
     "domains": [
       {
+        "abbr": "Transmembrane",
         "name": "Transmembrane, helical",
-        "ranges": [[9, 29]]
+        "ranges": [[9, 29]],
+        "row": 0
       }
     ]
   },
@@ -555,12 +697,16 @@
     "notes": "ORF8 protein",
     "domains": [
       {
+        "abbr": "Signal",
         "name": "Signal peptide",
-        "ranges": [[1, 15]]
+        "ranges": [[1, 15]],
+        "row": 0
       },
       {
+        "abbr": "Protein",
         "name": "ORF8 protein",
-        "ranges": [[16, 121]]
+        "ranges": [[16, 121]],
+        "row": 0
       }
     ]
   },
@@ -571,12 +717,16 @@
     "notes": "ORF9; structural protein; nucleocapsid phosphoprotein, binds to RNA genome",
     "domains": [
       {
+        "abbr": "RNA-Binding",
         "name": "RNA-binding",
-        "ranges": [[41, 186]]
+        "ranges": [[41, 186]],
+        "row": 0
       },
       {
+        "abbr": "Dimerization",
         "name": "Dimerization",
-        "ranges": [[258, 361]]
+        "ranges": [[258, 361]],
+        "row": 0
       }
     ]
   },
@@ -587,8 +737,10 @@
     "notes": "virion-associated protein. Suppress host antiviral response",
     "domains": [
       {
+        "abbr": "NE Signal",
         "name": "Nuclear export signal",
-        "ranges": [[45, 53]]
+        "ranges": [[45, 53]],
+        "row": 0
       }
     ]
   },

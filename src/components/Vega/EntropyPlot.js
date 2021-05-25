@@ -23,7 +23,7 @@ import {
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
-// import { geneMap, proteinMap } from '../../utils/gene_protein';
+import { geneMap, proteinMap } from '../../utils/gene_protein';
 
 const PlotContainer = styled.div``;
 
@@ -148,16 +148,18 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
-    if (configStore.dnaOrAa === DNA_OR_AA.AA) {
+    if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        return configStore.selectedGene.domains;
+        return geneMap;
       } else if (
         configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
       ) {
-        return configStore.selectedProtein.domains;
+        return proteinMap;
       }
-    } else {
-      return [];
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      return configStore.selectedGene.domains;
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      return configStore.selectedProtein.domains;
     }
   };
 
@@ -243,8 +245,6 @@ const EntropyPlot = observer(({ width }) => {
       </EmptyPlot>
     );
   }
-
-  console.log(state.domains);
 
   return (
     <PlotContainer>

@@ -15,7 +15,7 @@
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
-      "update": "invert('xOverview', 3)"
+      "update": "invert('xDetail', 3)"
     },
     { "name": "xRange", "value": [0, 1200] },
     { "name": "xLabel", "value": "S Gene (AA)" },
@@ -177,9 +177,18 @@
           "as": "rowTop"
         },
         { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
-        { "type": "formula", "expr": "datum.ranges[0][0]", "as": "start" },
-        { "type": "formula", "expr": "datum.ranges[0][1]", "as": "end" },
-        { "type": "filter", "expr": "datum.start < xRange[1]" }
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
+          "as": "start"
+        },
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
+          "as": "end"
+        },
+        { "type": "filter", "expr": "datum.start < xRange[1]" },
+        { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
       ]
     },
     {
@@ -240,7 +249,7 @@
           "name": "entropyYScale",
           "type": "pow",
           "exponent": 0.5,
-          "domain": { "data": "mutationsFiltered", "field": "count" },
+          "domain": { "data": "tableFiltered", "field": "count" },
           "range": { "signal": "entropyPlotYRange" }
         }
       ],
@@ -278,7 +287,7 @@
         {
           "name": "entropybars",
           "type": "rect",
-          "from": { "data": "mutationsFiltered" },
+          "from": { "data": "tableFiltered" },
           "encode": {
             "enter": { "stroke": { "value": "#000" } },
             "update": {
@@ -388,25 +397,30 @@
           "from": { "data": "domains" },
           "encode": {
             "enter": {
-              "x": { "scale": "xOverview", "field": "start" },
-              "x2": { "scale": "xOverview", "field": "end" },
               "y": { "scale": "domainYScale", "field": "rowTop" },
-              "y2": { "scale": "domainYScale", "field": "rowBottom" },
-              "stroke": { "value": "black" },
-              "tooltip": {
-                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
-              }
+              "y2": { "scale": "domainYScale", "field": "rowBottom" }
             },
             "update": {
+              "x": { "scale": "xOverview", "field": "start" },
+              "x2": { "scale": "xOverview", "field": "end" },
+              "tooltip": {
+                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
+              },
+              "strokeWidth": { "value": 0 },
               "fill": [
                 {
                   "test": "indata('selectedDomains', 'name', datum.name)",
-                  "value": "#00ff00"
+                  "value": "#34d5aa"
                 },
                 { "value": "#34d5eb" }
               ]
             },
-            "hover": { "fill": { "value": "#ff0000" } }
+            "hover": {
+              "fill": { "value": "#34eeaa" },
+              "strokeWidth": { "value": 1 },
+              "stroke": { "value": "black" },
+              "cursor": { "value": "pointer" }
+            }
           }
         },
         {
@@ -416,15 +430,17 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "x": { "field": "x" },
-              "dx": { "field": "width", "mult": 0.5 },
               "y": { "field": "y" },
               "dy": { "field": "height", "mult": 0.5 },
-              "text": { "field": "datum.abbr" },
               "align": { "value": "center" },
               "baseline": { "value": "middle" },
-              "fill": { "value": "black" },
-              "tooltip": { "signal": "datum.tooltip" }
+              "fill": { "value": "black" }
+            },
+            "update": {
+              "x": { "field": "x" },
+              "dx": { "field": "width", "mult": 0.5 },
+              "tooltip": { "signal": "datum.tooltip" },
+              "text": { "field": "datum.abbr" }
             }
           }
         },
@@ -452,7 +468,7 @@
             "enter": {
               "y": { "value": 0 },
               "height": { "signal": "domainPlotHeight" },
-              "width": { "value": 1 },
+              "width": { "value": 0 },
               "fill": { "value": "firebrick" }
             },
             "update": { "x": { "signal": "brush[0]" } }
@@ -465,7 +481,7 @@
             "enter": {
               "y": { "value": 0 },
               "height": { "signal": "domainPlotHeight" },
-              "width": { "value": 1 },
+              "width": { "value": 0 },
               "fill": { "value": "firebrick" }
             },
             "update": { "x": { "signal": "brush[1]" } }
