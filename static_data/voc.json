@@ -1,0 +1,18 @@
+{
+    "comment": "VOI and VOC taken from CDC website: https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-info.html",
+    "list": [
+        {"name": "B.1.525", "level": "VOI", "alias": ""},
+        {"name": "B.1.526", "level": "VOI", "alias": ""},
+        {"name": "B.1.526.1", "level": "VOI", "alias": ""},
+        {"name": "B.1.617", "level": "VOI", "alias": "Indian Variant"},
+        {"name": "B.1.617.1", "level": "VOI", "alias": "Indian Variant"},
+        {"name": "B.1.617.2", "level": "VOI", "alias": "Indian Variant"},
+        {"name": "B.1.617.3", "level": "VOI", "alias": "Indian Variant"},
+        {"name": "P.2", "level": "VOI", "alias": "Brazil Variant"},
+        {"name": "B.1.1.7", "level": "VOC", "alias": "UK variant"},
+        {"name": "B.1.351", "level": "VOC", "alias": "South African Variant"},
+        {"name": "B.1.427", "level": "VOC", "alias": "California Variant"},
+        {"name": "B.1.429", "level": "VOC", "alias": "California Variant"},
+        {"name": "P.1", "level": "VOC", "alias": "Brazil Variant"}
+    ]
+}

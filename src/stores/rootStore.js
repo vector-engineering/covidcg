@@ -24,7 +24,7 @@ class RootStore {
   dataStore;
 
   globalSequencingDataStore;
-  GroupDataStore;
+  groupDataStore;
 
   constructor() {
     this.UIStore = new UIStore();

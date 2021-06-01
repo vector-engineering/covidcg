@@ -2,20 +2,65 @@
  * Data for groups (i.e., lineages/clades)
  */
 
-import { action } from 'mobx';
-import { hostname } from '../config';
+import { action, observable } from 'mobx';
+import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
+import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
 
 export class GroupDataStore {
+  // Actively selected group type in the report tab
+  @observable activeGroupType;
+  @observable selectedGroups;
+
+  groups;
+  @observable groupSelectTree;
   groupSnvFrequency;
 
   constructor() {
+    this.activeGroupType = Object.keys(config['group_cols'])[0];
+    this.selectedGroups = [];
+
     this.groupSnvFrequency = {};
+
+    this.groups = {};
+    this.groupSelectTree = {};
+
+    Object.keys(config['group_cols']).forEach((group) => {
+      this.groups[group] = [];
+      this.groupSelectTree[group] = [];
+    });
   }
 
-  init() {}
+  init() {
+    // Load all groups from the server
+    asyncDataStoreInstance.data.groups.forEach((record) => {
+      let groupName = record['group'];
+      delete record['group'];
+      this.groups[groupName].push(record);
+    });
+
+    // Construct selection trees
+    Object.keys(this.groups).forEach((groupName) => {
+      this.groups[groupName].forEach((group) => {
+        this.groupSelectTree[groupName].push({
+          label: group.name,
+          value: group.name,
+          checked: false,
+        });
+      });
+    });
+  }
+
+  @action
+  updateSelectedGroups(selectedGroups) {
+    this.selectedGroups = selectedGroups;
+  }
+
+  getActiveGroupTypePrettyName() {
+    return config.group_cols[this.activeGroupType].title;
+  }
 
   @action
   async fetchGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {

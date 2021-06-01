@@ -6,7 +6,6 @@ Consists of SNV definitions, etc
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import pandas as pd
 import psycopg2
 
 from flask import make_response
@@ -70,16 +69,40 @@ def query_geo_select_tree(cur):
     return cur.fetchone()[0]
 
 
+def query_groups(cur):
+
+    group_queries = []
+    for group in config["group_cols"].keys():
+        group_queries.append(
+            sql.SQL(
+                """
+            SELECT 
+                "name", 
+                "color",
+                {group_name} as "group"
+            FROM {group_table}
+            """
+            ).format(group_name=sql.Literal(group), group_table=sql.Identifier(group))
+        )
+
+    cur.execute(sql.SQL(" UNION ALL ").join(group_queries))
+    return [
+        {"name": rec[0], "color": rec[1], "group": rec[2]} for rec in cur.fetchall()
+    ]
+
+
 def query_initial(conn):
 
     with conn.cursor() as cur:
         metadata_map = query_metadata_map(cur)
         stats = query_stats(cur)
         geo_select_tree = query_geo_select_tree(cur)
+        groups = query_groups(cur)
 
     return {
         "metadata_map": metadata_map,
         **stats,
         "geo_select_tree": geo_select_tree,
+        "groups": groups,
     }
 

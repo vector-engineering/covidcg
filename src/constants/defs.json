@@ -78,6 +78,7 @@
   "TABS": {
     "TAB_COMPARE_GROUPS": "group",
     "TAB_COMPARE_LOCATIONS": "location",
+    "TAB_GROUP_REPORT": "report",
     "TAB_EXAMPLE": "home",
     "TAB_ABOUT": "acknowledgements",
     "TAB_METHODOLOGY": "methodology",

@@ -15,6 +15,7 @@ import AsyncErrorModal from '../Modals/AsyncErrorModal';
 const CompareGroupsTab = React.lazy(() => import('./CompareGroupsTab'));
 const ExampleTab = React.lazy(() => import('./ExampleTab'));
 const CompareLocationsTab = React.lazy(() => import('./CompareLocationsTab'));
+const GroupReportTab = React.lazy(() => import('./GroupReportTab'));
 const AboutTab = React.lazy(() => import('./AboutTab'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
@@ -45,6 +46,8 @@ const HomePage = observer(() => {
       return <CompareGroupsTab />;
     } else if (UIStore.activeTab === TABS.TAB_COMPARE_LOCATIONS) {
       return <CompareLocationsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_GROUP_REPORT) {
+      return <GroupReportTab />;
     } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
       return <ExampleTab />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
