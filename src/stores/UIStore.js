@@ -188,8 +188,8 @@ export class UIStore {
     }
 
     if (
-      (this.activeTab === TABS.TAB_GROUP ||
-        this.activeTab === TABS.TAB_LOCATION) &&
+      (this.activeTab === TABS.TAB_COMPARE_GROUPS ||
+        this.activeTab === TABS.TAB_COMPARE_LOCATIONS) &&
       this.caseDataState === ASYNC_STATES.STARTED
     ) {
       rootStoreInstance.dataStore.fetchData();

@@ -150,12 +150,8 @@ const ExampleItemFooter = styled.div`
 // };
 
 const ExampleTab = observer(() => {
-  const {
-    configStore,
-    plotSettingsStore,
-    UIStore,
-    locationDataStore,
-  } = useStores();
+  const { configStore, plotSettingsStore, UIStore, locationDataStore } =
+    useStores();
 
   const [ref, { width }] = useDimensions();
 
@@ -172,7 +168,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: config.group_cols.lineage.name,
@@ -195,7 +191,7 @@ const ExampleTab = observer(() => {
     //       groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
     //     },
     //     UI: {
-    //       activeTab: TABS.TAB_GROUP,
+    //       activeTab: TABS.TAB_COMPARE_GROUPS,
     //     },
     //     config: {
     //       groupKey: config.group_cols.lineage.name,
@@ -218,7 +214,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: config.group_cols.lineage.name,
@@ -243,7 +239,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: GROUP_SNV,
@@ -273,7 +269,7 @@ const ExampleTab = observer(() => {
           locationDateDateBin: DATE_BINS.DATE_BIN_MONTH,
         },
         UI: {
-          activeTab: TABS.TAB_LOCATION,
+          activeTab: TABS.TAB_COMPARE_LOCATIONS,
         },
         config: {
           groupKey: GROUP_SNV,
@@ -310,7 +306,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: GROUP_SNV,
@@ -353,7 +349,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: GROUP_SNV,
@@ -378,7 +374,7 @@ const ExampleTab = observer(() => {
           groupStackDateBin: DATE_BINS.DATE_BIN_WEEK,
         },
         UI: {
-          activeTab: TABS.TAB_GROUP,
+          activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
           groupKey: GROUP_SNV,

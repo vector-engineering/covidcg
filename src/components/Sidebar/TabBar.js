@@ -38,20 +38,26 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Home</span>
       </a>
     </TabItem>,
-    <TabItem key={TABS.TAB_GROUP} active={activeTab === TABS.TAB_GROUP}>
+    <TabItem
+      key={TABS.TAB_COMPARE_GROUPS}
+      active={activeTab === TABS.TAB_COMPARE_GROUPS}
+    >
       <a
         href="#"
         className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP)}
+        onClick={changeTab.bind(this, TABS.TAB_COMPARE_GROUPS)}
       >
         <span>Compare {configStore.getGroupLabel()}s</span>
       </a>
     </TabItem>,
-    <TabItem key={TABS.TAB_LOCATION} active={activeTab === TABS.TAB_LOCATION}>
+    <TabItem
+      key={TABS.TAB_COMPARE_LOCATIONS}
+      active={activeTab === TABS.TAB_COMPARE_LOCATIONS}
+    >
       <a
         href="#"
         className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_LOCATION)}
+        onClick={changeTab.bind(this, TABS.TAB_COMPARE_LOCATIONS)}
       >
         <span>Compare Locations</span>
       </a>

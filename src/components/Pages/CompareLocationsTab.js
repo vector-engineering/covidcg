@@ -13,11 +13,11 @@ import LocationDatePlot from '../Vega/LocationDatePlot';
 
 import { GROUP_SNV } from '../../constants/defs.json';
 
-const LocationTabContainer = styled.div`
+const CompareLocationsTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const LocationTab = observer(() => {
+const CompareLocationsTab = observer(() => {
   const { configStore } = useStores();
   const [ref, { width }] = useDimensions();
 
@@ -108,11 +108,11 @@ const LocationTab = observer(() => {
   };
 
   return (
-    <LocationTabContainer ref={ref}>
+    <CompareLocationsTabContainer ref={ref}>
       {renderLocationDatePlot()}
       {renderLocationGroupPlot()}
-    </LocationTabContainer>
+    </CompareLocationsTabContainer>
   );
 });
 
-export default LocationTab;
+export default CompareLocationsTab;

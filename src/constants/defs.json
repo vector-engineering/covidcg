@@ -76,8 +76,8 @@
     "UNINITIALIZED": "UNINITIALIZED"
   },
   "TABS": {
-    "TAB_GROUP": "group",
-    "TAB_LOCATION": "location",
+    "TAB_COMPARE_GROUPS": "group",
+    "TAB_COMPARE_LOCATIONS": "location",
     "TAB_EXAMPLE": "home",
     "TAB_ABOUT": "acknowledgements",
     "TAB_METHODOLOGY": "methodology",

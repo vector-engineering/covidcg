@@ -25,13 +25,13 @@ const DefaultSidebar = observer(() => {
       <TabBar activeTab={UIStore.activeTab} onTabChange={onTabChange} />
       <SidebarChunk>
         To begin analyzing and visualizing data, select the{' '}
-        <TabIndicator tab={TABS.TAB_GROUP}>
+        <TabIndicator tab={TABS.TAB_COMPARE_GROUPS}>
           Compare {configStore.getGroupLabel()}s
         </TabIndicator>{' '}
         tab,
         <br />
         or the{' '}
-        <TabIndicator tab={TABS.TAB_LOCATION}>
+        <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
           Compare Locations
         </TabIndicator>{' '}
         tab

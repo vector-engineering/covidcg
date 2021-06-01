@@ -12,9 +12,9 @@ import { TABS, ASYNC_STATES } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
 import AsyncErrorModal from '../Modals/AsyncErrorModal';
 
-const GroupTab = React.lazy(() => import('./GroupTab'));
+const CompareGroupsTab = React.lazy(() => import('./CompareGroupsTab'));
 const ExampleTab = React.lazy(() => import('./ExampleTab'));
-const LocationTab = React.lazy(() => import('./LocationTab'));
+const CompareLocationsTab = React.lazy(() => import('./CompareLocationsTab'));
 const AboutTab = React.lazy(() => import('./AboutTab'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
@@ -41,10 +41,10 @@ const HomePage = observer(() => {
   }, [UIStore.caseDataState]);
 
   const renderTab = () => {
-    if (UIStore.activeTab === TABS.TAB_GROUP) {
-      return <GroupTab />;
-    } else if (UIStore.activeTab === TABS.TAB_LOCATION) {
-      return <LocationTab />;
+    if (UIStore.activeTab === TABS.TAB_COMPARE_GROUPS) {
+      return <CompareGroupsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_COMPARE_LOCATIONS) {
+      return <CompareLocationsTab />;
     } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
       return <ExampleTab />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
@@ -95,8 +95,8 @@ const HomePage = observer(() => {
   }
 
   const showDefaultSidebar =
-    UIStore.activeTab !== TABS.TAB_GROUP &&
-    UIStore.activeTab !== TABS.TAB_LOCATION;
+    UIStore.activeTab !== TABS.TAB_COMPARE_GROUPS &&
+    UIStore.activeTab !== TABS.TAB_COMPARE_LOCATIONS;
 
   return (
     <>
