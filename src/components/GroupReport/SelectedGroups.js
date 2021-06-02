@@ -6,6 +6,7 @@ import { useStores } from '../../stores/connect';
 import Button from '../Buttons/Button';
 
 import {
+  SelectedGroupTitle,
   SelectedGroupsContainer,
   SelectedGroupsList,
   SelectedGroupItemContainer,
@@ -60,6 +61,7 @@ const SelectedGroups = observer(() => {
 
   return (
     <SelectedGroupsContainer>
+      <SelectedGroupTitle>Selected Lineages</SelectedGroupTitle>
       {/* Display separate element if no groups are selected */}
       {groupDataStore.selectedGroups.length == 0 && noGroupsSelected}
       {groupDataStore.selectedGroups.length > 0 && selectedGroupsList}

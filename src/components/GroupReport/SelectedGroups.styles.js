@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 
-export const SelectedGroupsContainer = styled.div``;
+export const SelectedGroupTitle = styled.div`
+  font-size: 18px;
+`;
+
+export const SelectedGroupsContainer = styled.div`
+  padding: 10px;
+`;
 
 export const SelectedGroupsList = styled.div``;
 

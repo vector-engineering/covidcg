@@ -4,6 +4,7 @@ import DropdownTreeSelect from 'react-dropdown-tree-select';
 export const GroupSearchContainer = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 10px;
 `;
 
 export const GroupSearchHeader = styled.div``;

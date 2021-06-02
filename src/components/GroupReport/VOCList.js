@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
+import { useStores } from '../../stores/connect';
 
 import vocList from '../../../static_data/voc.json';
 
@@ -15,14 +16,51 @@ import {
   VOCItemAlias,
 } from './VOCList.styles';
 
-const VOCItem = ({ name, alias }) => {
-  return (
-    <VOCItemContainer>
-      <VOCItemName>{name}</VOCItemName>
-      <VOCItemAlias>{alias}</VOCItemAlias>
-    </VOCItemContainer>
-  );
-};
+const VOCItem = observer(({ name, alias }) => {
+  const { groupDataStore } = useStores();
+  const vocItemOnClick = () => {
+    let selectedNodes = groupDataStore.selectedGroups;
+
+    let inSelectedNodes = false;
+
+    // Check if the clicked node is selected
+    for (let i = 0; i < selectedNodes.length; i++) {
+      const node = selectedNodes[i];
+      if (node.localeCompare(name) === 0) {
+        // If the clicked variant is already selected, unselect it
+        selectedNodes.splice(i, 1);
+        inSelectedNodes = true;
+        break;
+      }
+    }
+
+    // If the clicked variant is not selected, select it
+    if (!inSelectedNodes) {
+      selectedNodes.push(name);
+    }
+
+    groupDataStore.updateSelectedGroups(
+      selectedNodes.map((node) => {
+        return node;
+      })
+    );
+  };
+
+  if (alias) {
+    return (
+      <VOCItemContainer onClick={vocItemOnClick}>
+        <VOCItemName>{name} - </VOCItemName>
+        <VOCItemAlias>{alias}</VOCItemAlias>
+      </VOCItemContainer>
+    );
+  } else {
+    return (
+      <VOCItemContainer onClick={vocItemOnClick}>
+        <VOCItemName>{name}</VOCItemName>
+      </VOCItemContainer>
+    );
+  }
+});
 VOCItem.propTypes = {
   name: PropTypes.string,
   alias: PropTypes.string,
