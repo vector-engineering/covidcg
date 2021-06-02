@@ -16,6 +16,10 @@ const TreePlotContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
+
+  position: sticky;
+  left: 0px;
+  top: 0px;
 `;
 TreePlotContainer.defaultProps = {
   width: 300,

@@ -199,6 +199,16 @@ export class UIStore {
         this.globalSequencingDataState === ASYNC_STATES.STARTED)
     ) {
       rootStoreInstance.globalSequencingDataStore.fetchGlobalSequencingData();
+    } else if (
+      this.activeTab === TABS.TAB_GROUP_REPORT &&
+      (this.groupSnvFrequencyState !== ASYNC_STATES.SUCCEEDED ||
+        this.groupSnvFrequencyState === ASYNC_STATES.STARTED)
+    ) {
+      rootStoreInstance.groupDataStore.fetchGroupSnvFrequencyData({
+        group: rootStoreInstance.groupDataStore.activeGroupType,
+        snvType: rootStoreInstance.groupDataStore.groupSnvType,
+        consensusThreshold: rootStoreInstance.groupDataStore.consensusThreshold,
+      });
     }
 
     rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
