@@ -8,7 +8,9 @@ export const GroupSearchContainer = styled.div`
 `;
 
 export const GroupSearchHeader = styled.div``;
-export const GroupSearchTitle = styled.span``;
+export const GroupSearchTitle = styled.span`
+  font-size: 18px;
+`;
 
 export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;

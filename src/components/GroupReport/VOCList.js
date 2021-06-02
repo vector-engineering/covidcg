@@ -12,8 +12,10 @@ import {
   VOCItemListTitle,
   VOCItemList,
   VOCItemContainer,
+  VOCItemTable,
   VOCItemName,
   VOCItemAlias,
+  Td,
 } from './VOCList.styles';
 
 const VOCItem = observer(({ name, alias }) => {
@@ -104,10 +106,28 @@ const VOCList = observer(() => {
       <VOCListHeader>
         <VOCListTitle>Select Notable Variants</VOCListTitle>
       </VOCListHeader>
-      <VOCItemListTitle>Variants of Concern</VOCItemListTitle>
-      <VOCItemList>{vocItems}</VOCItemList>
-      <VOCItemListTitle>Variants of Interest</VOCItemListTitle>
-      <VOCItemList>{voiItems}</VOCItemList>
+      <VOCItemTable>
+        <thead>
+          <tr>
+            <th>
+              <VOCItemListTitle>Variants of Concern</VOCItemListTitle>
+            </th>
+            <th>
+              <VOCItemListTitle>Variants of Interest</VOCItemListTitle>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <Td>
+              <VOCItemList>{vocItems}</VOCItemList>
+            </Td>
+            <Td>
+              <VOCItemList>{voiItems}</VOCItemList>
+            </Td>
+          </tr>
+        </tbody>
+      </VOCItemTable>
     </VOCListContainer>
   );
 });
