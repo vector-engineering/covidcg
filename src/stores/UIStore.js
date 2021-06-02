@@ -207,7 +207,7 @@ export class UIStore {
       rootStoreInstance.groupDataStore.fetchGroupSnvFrequencyData({
         group: rootStoreInstance.groupDataStore.activeGroupType,
         snvType: rootStoreInstance.groupDataStore.groupSnvType,
-        consensusThreshold: rootStoreInstance.groupDataStore.consensusThreshold,
+        consensusThreshold: 0,
       });
     }
 

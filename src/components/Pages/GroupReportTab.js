@@ -9,6 +9,7 @@ import ExternalLink from '../Common/ExternalLink';
 import GroupTreePlot from '../Vega/GroupTreePlot';
 import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
+import StructuralViewer from '../LiteMol/StructuralViewer';
 
 const GroupReportTabContainer = styled.div`
   display: flex;
@@ -68,6 +69,19 @@ const GroupReportTab = observer(() => {
     );
   };
 
+  const renderStructuralViewer = () => {
+    return (
+      <AccordionWrapper
+        title={`Structural Viewer`}
+        defaultCollapsed={false}
+        maxHeight={'1000px'}
+        helpText={<ul></ul>}
+      >
+        <StructuralViewer />
+      </AccordionWrapper>
+    );
+  };
+
   return (
     <GroupReportTabContainer ref={ref}>
       <GroupTreePlotContainer>
@@ -76,6 +90,7 @@ const GroupReportTab = observer(() => {
       <MainContainer>
         {renderHeader()}
         {renderMutationList()}
+        {renderStructuralViewer()}
       </MainContainer>
     </GroupReportTabContainer>
   );

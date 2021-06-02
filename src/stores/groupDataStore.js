@@ -16,6 +16,9 @@ export class GroupDataStore {
   @observable groupSnvType;
   @observable consensusThreshold;
 
+  // Actively selected group for the structural viewer
+  @observable structureActiveGroup;
+
   groups;
   @observable groupSelectTree;
   groupSnvFrequency;
@@ -25,6 +28,8 @@ export class GroupDataStore {
     this.selectedGroups = ['B.1.1.7', 'B.1.351', 'P.2'];
     this.groupSnvType = 'gene_aa';
     this.consensusThreshold = 0.7;
+
+    this.structureActiveGroup = 'B.1.1.7';
 
     this.groupSnvFrequency = {};
 
@@ -75,6 +80,11 @@ export class GroupDataStore {
   @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
+  }
+
+  @action
+  updateStructureActiveGroup(structureActiveGroup) {
+    this.structureActiveGroup = structureActiveGroup;
   }
 
   getActiveGroupTypePrettyName() {

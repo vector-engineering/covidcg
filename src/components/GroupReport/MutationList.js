@@ -89,7 +89,7 @@ const MutationListRow = ({
       );
     });
   } else {
-    console.log(frequency.length);
+    // console.log(frequency.length);
     heatmapCells.push(
       <MutationRowHeatmapEmptyCell
         key={`${segmentName}-empty-cell`}
@@ -183,7 +183,11 @@ const MutationListContent = observer(() => {
   genes.forEach((gene, gene_i) => {
     // Get all SNVs for this gene, then sort by position/alt
     const groupGeneSnvs = groupSnvFrequency
-      .filter((groupSnv) => groupSnv.gene === gene.name)
+      .filter(
+        (groupSnv) =>
+          groupSnv.gene === gene.name &&
+          groupSnv.fraction > groupDataStore.consensusThreshold
+      )
       .sort(sortByPosThenAlt);
     // console.log(gene.name, groupGeneSnvs);
 
