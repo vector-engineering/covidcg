@@ -13,6 +13,8 @@ export class GroupDataStore {
   // Actively selected group type in the report tab
   @observable activeGroupType;
   @observable selectedGroups;
+  @observable groupSnvType;
+  @observable consensusThreshold;
 
   groups;
   @observable groupSelectTree;
@@ -20,7 +22,9 @@ export class GroupDataStore {
 
   constructor() {
     this.activeGroupType = Object.keys(config['group_cols'])[0];
-    this.selectedGroups = [];
+    this.selectedGroups = ['B.1.1.7', 'B.1.351', 'P.2'];
+    this.groupSnvType = 'gene_aa';
+    this.consensusThreshold = 0.7;
 
     this.groupSnvFrequency = {};
 
@@ -54,12 +58,37 @@ export class GroupDataStore {
   }
 
   @action
+  updateActiveGroupType(activeGroupType) {
+    this.activeGroupType = activeGroupType;
+  }
+
+  @action
+  updateGroupSnvType(groupSnvType) {
+    this.groupSnvType = groupSnvType;
+  }
+
+  @action
+  updateConsensusThreshold(consensusThreshold) {
+    this.consensusThreshold = consensusThreshold;
+  }
+
+  @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
   }
 
   getActiveGroupTypePrettyName() {
     return config.group_cols[this.activeGroupType].title;
+  }
+
+  getGroupSnvTypePrettyName() {
+    if (this.groupSnvType === 'dna') {
+      return 'NT';
+    } else if (this.groupSnvType === 'gene_aa') {
+      return 'Gene AA';
+    } else if (this.groupSnvType === 'protein_aa') {
+      return 'Protein AA';
+    }
   }
 
   @action
