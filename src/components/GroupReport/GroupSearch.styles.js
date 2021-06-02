@@ -168,13 +168,19 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     }
 
     .dropdown-content {
-      position: relative;
+      position: absolute;
       max-height: 50vh;
       overflow-y: scroll;
 
       border: 1px solid #aaa;
       padding: 0px 5px;
-      margin-top: 5px;
+      margin-top: 19px;
+
+      width: 160px;
+
+      background-color: #ffffff;
+
+      z-index: 1;
 
       input.search {
         font-size: 1em;
