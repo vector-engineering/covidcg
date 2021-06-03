@@ -24,8 +24,6 @@ const Transformer = Bootstrap.Entity.Transformer;
 const Visualization = LiteMol.Visualization;
 
 const numColors = reds.length;
-const heatmapMin = 0.0;
-const heatmapMax = 1.0;
 
 const StructuralViewer = observer(() => {
   const { groupDataStore } = useStores();

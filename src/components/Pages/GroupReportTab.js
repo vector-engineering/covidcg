@@ -22,7 +22,7 @@ const MainContainer = styled.div`
 `;
 
 const GroupReportTab = observer(() => {
-  const { configStore, groupDataStore } = useStores();
+  const { groupDataStore } = useStores();
   const [ref, { width }] = useDimensions();
 
   const renderHeader = () => {
