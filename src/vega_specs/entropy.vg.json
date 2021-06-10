@@ -2,19 +2,25 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
   "width": 700,
-  "height": 150,
+  "height": 220,
   "padding": 5,
 
   "signals": [
+    { "name": "entropyPlotHeight", "value": 120 },
+    { "name": "domainPlotHeight", "value": 60 },
+    { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
+    { "name": "domainPlotY", "update": "height - domainPlotHeight" },
+    { "name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]" },
     { "name": "totalSequences", "value": 1000 },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
-      "update": "invert('xscale', 3)"
+      "update": "invert('xDetail', 3)"
     },
     { "name": "xRange", "value": [0, 1200] },
     { "name": "xLabel", "value": "S Gene (AA)" },
     { "name": "yLabel", "value": "# SNVs" },
+    { "name": "detailDomain" },
     {
       "name": "hoverGroup",
       "value": null,
@@ -30,7 +36,7 @@
       ]
     },
     {
-      "name": "clear",
+      "name": "clearSnv",
       "value": true,
       "on": [
         {
@@ -41,7 +47,7 @@
       ]
     },
     {
-      "name": "shift",
+      "name": "shiftSnv",
       "value": false,
       "on": [
         {
@@ -52,7 +58,7 @@
       ]
     },
     {
-      "name": "clicked",
+      "name": "clickedSnv",
       "value": null,
       "on": [
         {
@@ -61,9 +67,35 @@
           "force": true
         }
       ]
+    },
+    {
+      "name": "clearDomain",
+      "value": true,
+      "on": [{ "events": "window:mousedown", "update": "true", "force": true }]
+    },
+    {
+      "name": "shiftDomain",
+      "value": false,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedDomain",
+      "value": null,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "{name: datum.name}",
+          "force": true
+        }
+      ]
     }
   ],
-
   "data": [
     {
       "name": "table",
@@ -99,13 +131,23 @@
       ]
     },
     {
+      "name": "tableFiltered",
+      "source": "table",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(detailDomain) ? datum.pos >= detailDomain[0] && datum.pos <= detailDomain[1] : datum"
+        }
+      ]
+    },
+    {
       "name": "selected",
       "values": [{ "group": "S|614|D|G" }],
       "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
+        { "trigger": "clearSnv", "remove": true },
+        { "trigger": "!shiftSnv", "remove": true },
+        { "trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv" },
+        { "trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv" }
       ],
       "transform": [
         {
@@ -122,12 +164,51 @@
           "as": ["color"]
         }
       ]
+    },
+    {
+      "name": "domains",
+      "format": {
+        "type": "json"
+      },
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "as": "rowTop"
+        },
+        { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
+          "as": "start"
+        },
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
+          "as": "end"
+        },
+        { "type": "filter", "expr": "datum.start < xRange[1]" },
+        { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
+      ]
+    },
+    {
+      "name": "selectedDomains",
+      "values": [],
+      "on": [
+        { "trigger": "clearDomain", "remove": true },
+        { "trigger": "!shiftDomain", "remove": true },
+        {
+          "trigger": "!shiftDomain && clickedDomain",
+          "insert": "clickedDomain"
+        },
+        { "trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain" }
+      ]
     }
   ],
 
   "scales": [
     {
-      "name": "xscale",
+      "name": "xOverview",
       "type": "linear",
       "domain": { "signal": "xRange" },
       "range": "width",
@@ -137,51 +218,68 @@
       "clamp": true
     },
     {
-      "name": "yscale",
-      "type": "pow",
-      "exponent": 0.5,
-      "domain": { "data": "table", "field": "count" },
-      "range": "height"
+      "name": "xDetail",
+      "type": "linear",
+      "domain": { "signal": "xRange" },
+      "domainRaw": { "signal": "detailDomain" },
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": false,
+      "clamp": true
     }
   ],
 
-  "axes": [
-    {
-      "orient": "bottom",
-      "scale": "xscale",
-      "format": "d",
-      "title": { "signal": "xLabel" }
-    },
-    {
-      "orient": "left",
-      "scale": "yscale",
-      "title": { "signal": "yLabel" }
-    }
-  ],
+  "axes": [],
 
   "marks": [
     {
+      "name": "entropybarplot",
       "type": "group",
       "encode": {
         "update": {
+          "x": { "value": 0 },
+          "y": { "value": 0 },
           "width": { "signal": "width" },
-          "height": { "signal": "height" }
+          "height": { "signal": "entropyPlotHeight" }
         }
       },
+      "scales": [
+        {
+          "name": "entropyYScale",
+          "type": "pow",
+          "exponent": 0.5,
+          "domain": { "data": "tableFiltered", "field": "count" },
+          "range": { "signal": "entropyPlotYRange" }
+        }
+      ],
+      "axes": [
+        {
+          "orient": "bottom",
+          "scale": "xDetail",
+          "format": "d",
+          "title": { "signal": "xLabel" }
+        },
+        {
+          "orient": "left",
+          "scale": "entropyYScale",
+          "labelOverlap": "greedy",
+          "tickCount": 5,
+          "title": { "signal": "yLabel" }
+        }
+      ],
       "marks": [
         {
           "name": "entropymark",
           "type": "rule",
           "from": { "data": "selected" },
           "encode": {
-            "enter": {
-              "zindex": { "value": 1 }
-            },
+            "enter": { "zindex": { "value": 1 } },
             "update": {
-              "x": { "scale": "xscale", "field": "pos" },
-              "x2": { "scale": "xscale", "field": "pos" },
+              "x": { "scale": "xDetail", "field": "pos" },
+              "x2": { "scale": "xDetail", "field": "pos" },
               "y": { "value": 0 },
-              "y2": { "signal": "height" },
+              "y2": { "signal": "entropyPlotHeight" },
               "stroke": { "field": "color" }
             }
           }
@@ -189,16 +287,14 @@
         {
           "name": "entropybars",
           "type": "rect",
-          "from": { "data": "table" },
+          "from": { "data": "tableFiltered" },
           "encode": {
-            "enter": {
-              "stroke": { "value": "#000" }
-            },
+            "enter": { "stroke": { "value": "#000" } },
             "update": {
-              "xc": { "scale": "xscale", "field": "pos" },
-              "width": { "scale": "xscale", "signal": "rectWidth" },
-              "y": { "scale": "yscale", "field": "count" },
-              "y2": { "scale": "yscale", "value": 0 },
+              "xc": { "scale": "xDetail", "field": "pos" },
+              "width": { "scale": "xDetail", "signal": "rectWidth" },
+              "y": { "scale": "entropyYScale", "field": "count" },
+              "y2": { "scale": "entropyYScale", "value": 0 },
               "tooltip": {
                 "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
               },
@@ -218,6 +314,177 @@
                 { "value": 2 }
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "domainPlot",
+      "type": "group",
+      "encode": {
+        "enter": { "fill": { "value": "transparent" } },
+        "update": {
+          "x": { "value": 0 },
+          "y": { "signal": "domainPlotY" },
+          "width": { "signal": "width" },
+          "height": { "signal": "domainPlotHeight" }
+        }
+      },
+      "signals": [
+        {
+          "name": "brush",
+          "value": 0,
+          "on": [
+            { "events": "@domainPlot:mousedown", "update": "[x(), x()]" },
+            {
+              "events": "[@domainPlot:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, width)]"
+            },
+            {
+              "events": { "signal": "delta" },
+              "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+            },
+            {
+              "events": "@domain_rects:mousedown",
+              "update": "[scale('xOverview', datum.start), scale('xOverview', datum.end)]"
+            }
+          ]
+        },
+        {
+          "name": "anchor",
+          "value": null,
+          "on": [{ "events": "@brush:mousedown", "update": "slice(brush)" }]
+        },
+        {
+          "name": "xdown",
+          "value": 0,
+          "on": [{ "events": "@brush:mousedown", "update": "x()" }]
+        },
+        {
+          "name": "delta",
+          "value": 0,
+          "on": [
+            {
+              "events": "[@brush:mousedown, window:mouseup] > window:mousemove!",
+              "update": "x() - xdown"
+            }
+          ]
+        },
+        {
+          "name": "detailDomain",
+          "push": "outer",
+          "on": [
+            {
+              "events": { "signal": "brush" },
+              "update": "span(brush) ? invert('xOverview', brush) : null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "domainYScale",
+          "type": "linear",
+          "domain": [0, 5],
+          "range": { "signal": "domainPlotYRange" }
+        }
+      ],
+      "axes": [{ "orient": "bottom", "scale": "xOverview" }],
+      "marks": [
+        {
+          "name": "domain_rects",
+          "type": "rect",
+          "from": { "data": "domains" },
+          "encode": {
+            "enter": {
+              "y": { "scale": "domainYScale", "field": "rowTop" },
+              "y2": { "scale": "domainYScale", "field": "rowBottom" }
+            },
+            "update": {
+              "x": { "scale": "xOverview", "field": "start" },
+              "x2": { "scale": "xOverview", "field": "end" },
+              "tooltip": {
+                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
+              },
+              "strokeWidth": { "value": 0 },
+              "fill": [
+                {
+                  "test": "indata('selectedDomains', 'name', datum.name)",
+                  "value": "#34d5aa"
+                },
+                { "value": "#34d5eb" }
+              ]
+            },
+            "hover": {
+              "fill": { "value": "#34eeaa" },
+              "strokeWidth": { "value": 1 },
+              "stroke": { "value": "black" },
+              "cursor": { "value": "pointer" }
+            }
+          }
+        },
+        {
+          "name": "domain_labels",
+          "type": "text",
+          "from": { "data": "domain_rects" },
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "field": "y" },
+              "dy": { "field": "height", "mult": 0.5 },
+              "align": { "value": "center" },
+              "baseline": { "value": "middle" },
+              "fill": { "value": "black" }
+            },
+            "update": {
+              "x": { "field": "x" },
+              "dx": { "field": "width", "mult": 0.5 },
+              "tooltip": { "signal": "datum.tooltip" },
+              "text": { "field": "datum.abbr" }
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "name": "brush",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "fill": { "value": "#333" },
+              "fillOpacity": { "value": 0.2 }
+            },
+            "update": {
+              "x": { "signal": "brush[0]" },
+              "x2": { "signal": "brush[1]" }
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
+            },
+            "update": { "x": { "signal": "brush[0]" } }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
+            },
+            "update": { "x": { "signal": "brush[1]" } }
           }
         }
       ]

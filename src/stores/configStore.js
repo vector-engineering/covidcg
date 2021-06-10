@@ -468,7 +468,7 @@ export class ConfigStore {
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       // Disable residue indices for non-protein-coding genes
       if (this.selectedGene.protein_coding === 0) {
-        return this.selectedGene.ranges;
+        return this.selectedGene.segments;
       }
       const coordinateRanges = [];
       this.residueCoordinates.forEach((range) => {
@@ -476,7 +476,7 @@ export class ConfigStore {
         const curRange = range.slice();
         for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
           const curAARange = this.selectedGene.aa_ranges[i];
-          const curNTRange = this.selectedGene.ranges[i];
+          const curNTRange = this.selectedGene.segments[i];
           if (
             (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
             (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
@@ -503,7 +503,7 @@ export class ConfigStore {
         const curRange = range.slice();
         for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
           const curAARange = this.selectedProtein.aa_ranges[i];
-          const curNTRange = this.selectedProtein.ranges[i];
+          const curNTRange = this.selectedProtein.segments[i];
           if (
             (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
             (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])

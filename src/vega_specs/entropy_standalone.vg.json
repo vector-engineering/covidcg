@@ -2,46 +2,38 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
   "width": 700,
-  "height": 150,
+  "height": 220,
   "padding": 5,
-
   "signals": [
-    { "name": "totalSequences", "value": 1000 },
-    { "name": "posField", "value": 1 },
-    {
-      "name": "rectWidth",
-      "update": "invert('xscale', 3)"
-    },
-    { "name": "xRange", "value": [0, 1200] },
-    { "name": "xLabel", "value": "S Gene (AA)" },
-    { "name": "yLabel", "value": "# SNVs" },
+    {"name": "entropyPlotHeight", "value": 120},
+    {"name": "domainPlotHeight", "value": 60},
+    {"name": "domainPlotYRange", "update": "[domainPlotHeight, 0]"},
+    {"name": "domainPlotY", "update": "height - domainPlotHeight"},
+    {"name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]"},
+    {"name": "totalSequences", "value": 1000},
+    {"name": "posField", "value": 1},
+    {"name": "rectWidth", "update": "invert('xDetail', 3)"},
+    {"name": "xRange", "value": [0, 1200]},
+    {"name": "xLabel", "value": "S Gene (AA)"},
+    {"name": "yLabel", "value": "# SNVs"},
+    {"name": "detailDomain"},
     {
       "name": "hoverGroup",
       "value": null,
       "on": [
-        {
-          "events": "@entropybars:mouseover!",
-          "update": "{group: datum.snv}"
-        },
-        {
-          "events": "@entropybars:mouseout!",
-          "update": "null"
-        }
+        {"events": "@entropybars:mouseover!", "update": "{group: datum.snv}"},
+        {"events": "@entropybars:mouseout!", "update": "null"}
       ]
     },
     {
-      "name": "clear",
+      "name": "clearSnv",
       "value": true,
       "on": [
-        {
-          "events": "mouseup[!event.item]",
-          "update": "true",
-          "force": true
-        }
+        {"events": "mouseup[!event.item]", "update": "true", "force": true}
       ]
     },
     {
-      "name": "shift",
+      "name": "shiftSnv",
       "value": false,
       "on": [
         {
@@ -52,7 +44,7 @@
       ]
     },
     {
-      "name": "clicked",
+      "name": "clickedSnv",
       "value": null,
       "on": [
         {
@@ -61,21 +53,103 @@
           "force": true
         }
       ]
+    },
+    {
+      "name": "clearDomain",
+      "value": true,
+      "on": [
+        {"events": "window:mousedown", "update": "true", "force": true}
+      ]
+    },
+    {
+      "name": "shiftDomain",
+      "value": false,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "clickedDomain",
+      "value": null,
+      "on": [
+        {
+          "events": "@domain_rects:click",
+          "update": "{name: datum.name}",
+          "force": true
+        }
+      ]
     }
   ],
-
   "data": [
     {
-      "name": "table",
-      "values": [["S|614|D|G",982,"#88ccee","S · D614G"],["Reference",77,"#0077bb","Reference"],["S|5|L|F",8,"#cc3311","S · L5F"],["S|145|Y|H",6,"#ee3377","S · Y145H"],["S|98|S|F",3,"#ddcc77","S · S98F"],["S|812|P|L",3,"#999933","S · P812L"],["S|655|H|Y",2,"#44aa99","S · H655Y"],["S|583|E|D",2,"#0077bb","S · E583D"],["S|243|A|S",2,"#117733","S · A243S"],["S|631|P|S",2,"#999933","S · P631S"],["S|323|T|I",2,"#332288","S · T323I"],["S|384|P|S",2,"#009988","S · P384S"],["S|647|A|S",2,"#33bbee","S · A647S"],["S|215|D|Y",2,"#009988","S · D215Y"],["S|1101|H|Y",2,"#33bbee","S · H1101Y"],["S|1104|V|L",1,"#ee7733","S · V1104L"],["S|618|T|I",1,"#cc6677","S · T618I"],["S|153|M|V",1,"#cc3311","S · M153V"],["S|483|V|F",1,"#cc3311","S · V483F"],["S|845|A|S",1,"#009988","S · A845S"],["S|27|A|V",1,"#009988","S · A27V"],["S|1020|A|S",1,"#cc3311","S · A1020S"],["S|1176|V|F",1,"#aa4499","S · V1176F"],["S|90|V|F",1,"#332288","S · V90F"],["S|679|N|K",1,"#117733","S · N679K"],["S|83|V|F",1,"#33bbee","S · V83F"],["S|1162|P|L",1,"#cc3311","S · P1162L"],["S|778|T|I",1,"#882255","S · T778I"],["S|67|A|V",1,"#ddcc77","S · A67V"],["S|80|D|N",1,"#44aa99","S · D80N"],["S|522|A|S",1,"#117733","S · A522S"],["S|1248|C|F",1,"#882255","S · C1248F"],["S|1203|L|F",1,"#cc6677","S · L1203F"],["S|1252|S|F",1,"#cc3311","S · S1252F"],["S|214|R|L",1,"#aa4499","S · R214L"],["S|1237|M|I",1,"#33bbee","S · M1237I"],["S|520|A|S",1,"#332288","S · A520S"],["S|950|D|H",1,"#0077bb","S · D950H"],["S|127|V|F",1,"#ee3377","S · V127F"],["S|677|Q|H",1,"#332288","S · Q677H"],["S|680|S|F",1,"#cc6677","S · S680F"],["S|309|E|Q",1,"#009988","S · E309Q"],["S|554|E|D",1,"#ee7733","S · E554D"],["S|1133|V|F",1,"#ee7733","S · V1133F"],["S|359|S|N",1,"#88ccee","S · S359N"],["S|181|G|V",1,"#117733","S · G181V"],["S|94|S|F",1,"#aa4499","S · S94F"],["S|54|L|F",1,"#33bbee","S · L54F"],["S|1191|K|N",1,"#88ccee","S · K1191N"],["S|809|P|S",1,"#332288","S · P809S"],["S|501|N|Y",1,"#0077bb","S · N501Y"],["S|253|D|G",1,"#332288","S · D253G"],["S|659|S|L",1,"#ddcc77","S · S659L"],["S|769|G|V",1,"#88ccee","S · G769V"],["S|95|T|I",1,"#ee3377","S · T95I"],["S|1163|D|Y",1,"#332288","S · D1163Y"],["S|830|D|G",1,"#332288","S · D830G"],["S|941|T|I",1,"#44aa99","S · T941I"]],
+      "name": "mutations",
+      "values": [
+        ["S|614|D|G", 982, "#88ccee", "S · D614G"],
+        ["Reference", 77, "#0077bb", "Reference"],
+        ["S|5|L|F", 8, "#cc3311", "S · L5F"],
+        ["S|145|Y|H", 6, "#ee3377", "S · Y145H"],
+        ["S|98|S|F", 3, "#ddcc77", "S · S98F"],
+        ["S|812|P|L", 3, "#999933", "S · P812L"],
+        ["S|655|H|Y", 2, "#44aa99", "S · H655Y"],
+        ["S|583|E|D", 2, "#0077bb", "S · E583D"],
+        ["S|243|A|S", 2, "#117733", "S · A243S"],
+        ["S|631|P|S", 2, "#999933", "S · P631S"],
+        ["S|323|T|I", 2, "#332288", "S · T323I"],
+        ["S|384|P|S", 2, "#009988", "S · P384S"],
+        ["S|647|A|S", 2, "#33bbee", "S · A647S"],
+        ["S|215|D|Y", 2, "#009988", "S · D215Y"],
+        ["S|1101|H|Y", 2, "#33bbee", "S · H1101Y"],
+        ["S|1104|V|L", 1, "#ee7733", "S · V1104L"],
+        ["S|618|T|I", 1, "#cc6677", "S · T618I"],
+        ["S|153|M|V", 1, "#cc3311", "S · M153V"],
+        ["S|483|V|F", 1, "#cc3311", "S · V483F"],
+        ["S|845|A|S", 1, "#009988", "S · A845S"],
+        ["S|27|A|V", 1, "#009988", "S · A27V"],
+        ["S|1020|A|S", 1, "#cc3311", "S · A1020S"],
+        ["S|1176|V|F", 1, "#aa4499", "S · V1176F"],
+        ["S|90|V|F", 1, "#332288", "S · V90F"],
+        ["S|679|N|K", 1, "#117733", "S · N679K"],
+        ["S|83|V|F", 1, "#33bbee", "S · V83F"],
+        ["S|1162|P|L", 1, "#cc3311", "S · P1162L"],
+        ["S|778|T|I", 1, "#882255", "S · T778I"],
+        ["S|67|A|V", 1, "#ddcc77", "S · A67V"],
+        ["S|80|D|N", 1, "#44aa99", "S · D80N"],
+        ["S|522|A|S", 1, "#117733", "S · A522S"],
+        ["S|1248|C|F", 1, "#882255", "S · C1248F"],
+        ["S|1203|L|F", 1, "#cc6677", "S · L1203F"],
+        ["S|1252|S|F", 1, "#cc3311", "S · S1252F"],
+        ["S|214|R|L", 1, "#aa4499", "S · R214L"],
+        ["S|1237|M|I", 1, "#33bbee", "S · M1237I"],
+        ["S|520|A|S", 1, "#332288", "S · A520S"],
+        ["S|950|D|H", 1, "#0077bb", "S · D950H"],
+        ["S|127|V|F", 1, "#ee3377", "S · V127F"],
+        ["S|677|Q|H", 1, "#332288", "S · Q677H"],
+        ["S|680|S|F", 1, "#cc6677", "S · S680F"],
+        ["S|309|E|Q", 1, "#009988", "S · E309Q"],
+        ["S|554|E|D", 1, "#ee7733", "S · E554D"],
+        ["S|1133|V|F", 1, "#ee7733", "S · V1133F"],
+        ["S|359|S|N", 1, "#88ccee", "S · S359N"],
+        ["S|181|G|V", 1, "#117733", "S · G181V"],
+        ["S|94|S|F", 1, "#aa4499", "S · S94F"],
+        ["S|54|L|F", 1, "#33bbee", "S · L54F"],
+        ["S|1191|K|N", 1, "#88ccee", "S · K1191N"],
+        ["S|809|P|S", 1, "#332288", "S · P809S"],
+        ["S|501|N|Y", 1, "#0077bb", "S · N501Y"],
+        ["S|253|D|G", 1, "#332288", "S · D253G"],
+        ["S|659|S|L", 1, "#ddcc77", "S · S659L"],
+        ["S|769|G|V", 1, "#88ccee", "S · G769V"],
+        ["S|95|T|I", 1, "#ee3377", "S · T95I"],
+        ["S|1163|D|Y", 1, "#332288", "S · D1163Y"],
+        ["S|830|D|G", 1, "#332288", "S · D830G"],
+        ["S|941|T|I", 1, "#44aa99", "S · T941I"]
+      ],
       "format": {
         "type": "json",
-        "parse": {
-          "0": "string",
-          "1": "number",
-          "2": "string",
-          "3": "string"
-        }
+        "parse": {"0": "string", "1": "number", "2": "string", "3": "string"}
       },
       "transform": [
         {
@@ -83,10 +157,7 @@
           "fields": ["0", "1", "2", "3"],
           "as": ["snv", "count", "color", "snvName"]
         },
-        {
-          "type": "filter",
-          "expr": "datum.snv !== 'Reference'"
-        },
+        {"type": "filter", "expr": "datum.snv !== 'Reference'"},
         {
           "type": "formula",
           "expr": "parseInt(split(datum.snv, '|')[posField])",
@@ -100,13 +171,23 @@
       ]
     },
     {
+      "name": "mutationsFiltered",
+      "source": "mutations",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(detailDomain) ? datum.pos >= detailDomain[0] && datum.pos <= detailDomain[1] : datum"
+        }
+      ]
+    },
+    {
       "name": "selected",
-      "values": [{ "group": "S|614|D|G" }],
+      "values": [{"group": "S|614|D|G"}],
       "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
+        {"trigger": "clearSnv", "remove": true},
+        {"trigger": "!shiftSnv", "remove": true},
+        {"trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv"},
+        {"trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv"}
       ],
       "transform": [
         {
@@ -116,19 +197,112 @@
         },
         {
           "type": "lookup",
-          "from": "table",
+          "from": "mutations",
           "key": "snv",
           "values": ["color"],
           "fields": ["group"],
           "as": ["color"]
         }
       ]
+    },
+    {
+      "name": "selectedDomains",
+      "values": [],
+      "on": [
+        {"trigger": "clearDomain", "remove": true},
+        {"trigger": "!shiftDomain", "remove": true},
+        {"trigger": "!shiftDomain && clickedDomain", "insert": "clickedDomain"},
+        {"trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain"}
+      ]
+    },
+    {
+      "name": "domains",
+      "values": [
+        {
+          "abbr": "S1 Subunit",
+          "name": "S1 Subunit",
+          "start": 14,
+          "end": 685,
+          "row": 0
+        },
+        {
+          "abbr": "RBD",
+          "name": "Receptor Binding Domain",
+          "start": 319,
+          "end": 541,
+          "row": 1
+        },
+        {
+          "abbr": "S2 Subunit",
+          "name": "S2 Subunit",
+          "start": 686,
+          "end": 1273,
+          "row": 0
+        },
+        {
+          "abbr": "SP",
+          "name": "Signal Peptide",
+          "start": 1,
+          "end": 13,
+          "row": 2
+        },
+        {
+          "abbr": "NTD",
+          "name": "N-Terminal Domain",
+          "start": 14,
+          "end": 305,
+          "row": 1
+        },
+        {
+          "abbr": "FP",
+          "name": "Fusion Peptide",
+          "start": 788,
+          "end": 806,
+          "row": 2
+        },
+        {
+          "abbr": "HR1",
+          "name": "Heptapeptide Repeat Sequence 1",
+          "start": 912,
+          "end": 984,
+          "row": 1
+        },
+        {
+          "abbr": "HR2",
+          "name": "Heptapeptide Repeat Sequence 2",
+          "start": 1163,
+          "end": 1213,
+          "row": 1
+        },
+        {
+          "abbr": "TM",
+          "name": "Transmembrane Domain",
+          "start": 1213,
+          "end": 1237,
+          "row": 1
+        },
+        {
+          "abbr": "CT",
+          "name": "Cytoplasm Domain",
+          "start": 1237,
+          "end": 1273,
+          "row": 1
+        }
+      ],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "as": "rowTop"
+        },
+        {"type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom"},
+        {"type": "filter", "expr": "datum.start < xRange[1]"}
+      ]
     }
   ],
-
   "scales": [
     {
-      "name": "xscale",
+      "name": "xOverview",
       "type": "linear",
       "domain": {"signal": "xRange"},
       "range": "width",
@@ -138,87 +312,264 @@
       "clamp": true
     },
     {
-      "name": "yscale",
-      "type": "pow",
-      "exponent": 0.5,
-      "domain": { "data": "table", "field": "count" },
-      "range": "height"
+      "name": "xDetail",
+      "type": "linear",
+      "domain": {"signal": "xRange"},
+      "domainRaw": {"signal": "detailDomain"},
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": false,
+      "clamp": true
     }
   ],
-
-  "axes": [
-    {
-      "orient": "bottom",
-      "scale": "xscale",
-      "format": "d",
-      "title": { "signal": "xLabel" }
-    },
-    {
-      "orient": "left",
-      "scale": "yscale",
-      "title": { "signal": "yLabel" }
-    }
-  ],
-
+  "axes": [],
   "marks": [
     {
+      "name": "entropybarplot",
       "type": "group",
       "encode": {
         "update": {
-          "width": { "signal": "width" },
-          "height": { "signal": "height" }
+          "x": {"value": 0},
+          "y": {"value": 0},
+          "width": {"signal": "width"},
+          "height": {"signal": "entropyPlotHeight"}
         }
       },
+      "scales": [
+        {
+          "name": "entropyYScale",
+          "type": "pow",
+          "exponent": 0.5,
+          "domain": {"data": "mutationsFiltered", "field": "count"},
+          "range": {"signal": "entropyPlotYRange"}
+        }
+      ],
+      "axes": [
+        {
+          "orient": "bottom",
+          "scale": "xDetail",
+          "format": "d",
+          "title": {"signal": "xLabel"}
+        },
+        {
+          "orient": "left",
+          "scale": "entropyYScale",
+          "labelOverlap": "greedy",
+          "tickCount": 5,
+          "title": {"signal": "yLabel"}
+        }
+      ],
       "marks": [
         {
           "name": "entropymark",
           "type": "rule",
-          "from": { "data": "selected" },
+          "from": {"data": "selected"},
           "encode": {
-            "enter": {
-              "zindex": { "value": 1 }
-            },
+            "enter": {"zindex": {"value": 1}},
             "update": {
-              "x": { "scale": "xscale", "field": "pos" },
-              "x2": { "scale": "xscale", "field": "pos" },
-              "y": { "value": 0 },
-              "y2": { "signal": "height" },
-              "stroke": { "field": "color" }
+              "x": {"scale": "xDetail", "field": "pos"},
+              "x2": {"scale": "xDetail", "field": "pos"},
+              "y": {"value": 0},
+              "y2": {"signal": "entropyPlotHeight"},
+              "stroke": {"field": "color"}
             }
           }
         },
         {
           "name": "entropybars",
           "type": "rect",
-          "from": { "data": "table" },
+          "from": {"data": "mutationsFiltered"},
           "encode": {
-            "enter": {
-              "stroke": { "value": "#000" }
-            },
+            "enter": {"stroke": {"value": "#000"}},
             "update": {
-              "xc": { "scale": "xscale", "field": "pos" },
-              "width": { "scale": "xscale", "signal": "rectWidth" },
-              "y": { "scale": "yscale", "field": "count" },
-              "y2": { "scale": "yscale", "value": 0 },
+              "xc": {"scale": "xDetail", "field": "pos"},
+              "width": {"scale": "xDetail", "signal": "rectWidth"},
+              "y": {"scale": "entropyYScale", "field": "count"},
+              "y2": {"scale": "entropyYScale", "value": 0},
               "tooltip": {
                 "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
               },
-              "fill": { "field": "color" },
+              "fill": {"field": "color"},
               "strokeWidth": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.snv",
                   "value": 1
                 },
-                { "value": 0 }
+                {"value": 0}
               ],
               "zindex": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.snv",
                   "value": 3
                 },
-                { "value": 2 }
+                {"value": 2}
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "domainPlot",
+      "type": "group",
+      "encode": {
+        "enter": {"fill": {"value": "transparent"}},
+        "update": {
+          "x": {"value": 0},
+          "y": {"signal": "domainPlotY"},
+          "width": {"signal": "width"},
+          "height": {"signal": "domainPlotHeight"}
+        }
+      },
+      "signals": [
+        {
+          "name": "brush",
+          "value": 0,
+          "on": [
+            {"events": "@domainPlot:mousedown", "update": "[x(), x()]"},
+            {
+              "events": "[@domainPlot:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, width)]"
+            },
+            {
+              "events": {"signal": "delta"},
+              "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+            },
+            {
+              "events": "@domain_rects:mousedown",
+              "update": "[scale('xOverview', datum.start), scale('xOverview', datum.end)]"
+            }
+          ]
+        },
+        {
+          "name": "anchor",
+          "value": null,
+          "on": [{"events": "@brush:mousedown", "update": "slice(brush)"}]
+        },
+        {
+          "name": "xdown",
+          "value": 0,
+          "on": [{"events": "@brush:mousedown", "update": "x()"}]
+        },
+        {
+          "name": "delta",
+          "value": 0,
+          "on": [
+            {
+              "events": "[@brush:mousedown, window:mouseup] > window:mousemove!",
+              "update": "x() - xdown"
+            }
+          ]
+        },
+        {
+          "name": "detailDomain",
+          "push": "outer",
+          "on": [
+            {
+              "events": {"signal": "brush"},
+              "update": "span(brush) ? invert('xOverview', brush) : null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "domainYScale",
+          "type": "linear",
+          "domain": [0, 5],
+          "range": {"signal": "domainPlotYRange"}
+        }
+      ],
+      "axes": [{"orient": "bottom", "scale": "xOverview"}],
+      "marks": [
+        {
+          "name": "domain_rects",
+          "type": "rect",
+          "from": {"data": "domains"},
+          "encode": {
+            "enter": {
+              "x": {"scale": "xOverview", "field": "start"},
+              "x2": {"scale": "xOverview", "field": "end"},
+              "y": {"scale": "domainYScale", "field": "rowTop"},
+              "y2": {"scale": "domainYScale", "field": "rowBottom"},
+              "stroke": {"value": "black"},
+              "tooltip": {
+                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
+              }
+            },
+            "update": {
+              "fill": [
+                {
+                  "test": "indata('selectedDomains', 'name', datum.name)",
+                  "value": "#00ff00"
+                },
+                {"value": "#34d5eb"}
+              ]
+            },
+            "hover": {"fill": {"value": "#ff0000"}}
+          }
+        },
+        {
+          "name": "domain_labels",
+          "type": "text",
+          "from": {"data": "domain_rects"},
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "x": {"field": "x"},
+              "dx": {"field": "width", "mult": 0.5},
+              "y": {"field": "y"},
+              "dy": {"field": "height", "mult": 0.5},
+              "text": {"field": "datum.abbr"},
+              "align": {"value": "center"},
+              "baseline": {"value": "middle"},
+              "fill": {"value": "black"},
+              "tooltip": {"signal": "datum.tooltip"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "name": "brush",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.2}
+            },
+            "update": {
+              "x": {"signal": "brush[0]"},
+              "x2": {"signal": "brush[1]"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {"x": {"signal": "brush[0]"}}
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "domainPlotHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {"x": {"signal": "brush[1]"}}
           }
         }
       ]
