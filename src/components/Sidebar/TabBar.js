@@ -95,17 +95,6 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Acknowledgements</span>
       </a>
     </TabItem>,
-    localStorage.getItem('liteMolBeta') ? (
-      <TabItem active={activeTab === TABS.TAB_LITEMOL}>
-        <a
-          href="#"
-          className="tab-link"
-          onClick={changeTab.bind(this, TABS.TAB_LITEMOL)}
-        >
-          <span>Litemol</span>
-        </a>
-      </TabItem>
-    ) : null,
     <DropdownButton
       key="tab-dropdown"
       button={DropdownTab}

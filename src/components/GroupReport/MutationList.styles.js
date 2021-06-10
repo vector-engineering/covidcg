@@ -52,6 +52,7 @@ export const MutationListHeaderTable = styled.table`
     display: contents;
   }
   min-width: 100%;
+  border-bottom: 1px solid #ccc;
 `;
 MutationListHeaderTable.defaultProps = {
   ncols: 1,

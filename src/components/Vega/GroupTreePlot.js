@@ -36,7 +36,7 @@ const TreeScrollContainer = styled.div`
 
 const GroupTreePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
+  // const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
 
   return (
     <TreePlotContainer width={width}>
