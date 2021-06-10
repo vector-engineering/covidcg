@@ -38,6 +38,7 @@ def query_group_snv_frequencies(conn, req):
                 f."name",
                 f."count",
                 f."fraction",
+                f."snv_id",
                 {snv_cols_expr}
             FROM {table_name} f
             JOIN {snv_table_name} snv ON f."snv_id" = snv."id"
@@ -52,7 +53,7 @@ def query_group_snv_frequencies(conn, req):
         )
 
         res = pd.DataFrame.from_records(
-            cur.fetchall(), columns=["name", "count", "fraction",] + snv_cols
+            cur.fetchall(), columns=["name", "count", "fraction", "snv_id",] + snv_cols
         )
 
     # print(res)

@@ -74,8 +74,8 @@ export class DataStore {
     snpDataStoreInstance = rootStoreInstance.snpDataStore;
 
     if (
-      UIStoreInstance.activeTab === TABS.TAB_GROUP ||
-      UIStoreInstance.activeTab === TABS.TAB_LOCATION
+      UIStoreInstance.activeTab === TABS.TAB_COMPARE_GROUPS ||
+      UIStoreInstance.activeTab === TABS.TAB_COMPARE_LOCATIONS
     ) {
       this.fetchData();
     }
@@ -101,7 +101,8 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         low_count_filter: toJS(configStoreInstance.lowFreqFilterType),
         max_group_counts: parseInt(toJS(configStoreInstance.maxGroupCounts)),
@@ -211,7 +212,8 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),
@@ -263,7 +265,8 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),
@@ -312,7 +315,8 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),

@@ -22,7 +22,7 @@ WORKDIR /app
 
 # Add root files
 ADD package.json ./package.json
-ADD package-lock.json ./package-lock.json
+# ADD package-lock.json ./package-lock.json
 
 ADD .browserslistrc ./.browserslistrc
 ADD .eslintignore ./.eslintignore

@@ -12,14 +12,14 @@ import { TABS, ASYNC_STATES } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
 import AsyncErrorModal from '../Modals/AsyncErrorModal';
 
-const GroupTab = React.lazy(() => import('./GroupTab'));
+const CompareGroupsTab = React.lazy(() => import('./CompareGroupsTab'));
 const ExampleTab = React.lazy(() => import('./ExampleTab'));
-const LocationTab = React.lazy(() => import('./LocationTab'));
+const CompareLocationsTab = React.lazy(() => import('./CompareLocationsTab'));
+const GroupReportTab = React.lazy(() => import('./GroupReportTab'));
 const AboutTab = React.lazy(() => import('./AboutTab'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
-const LiteMolTab = React.lazy(() => import('./LiteMolTab'));
 
 import { HomePageDiv, PlotContainer } from './HomePage.styles';
 
@@ -41,10 +41,12 @@ const HomePage = observer(() => {
   }, [UIStore.caseDataState]);
 
   const renderTab = () => {
-    if (UIStore.activeTab === TABS.TAB_GROUP) {
-      return <GroupTab />;
-    } else if (UIStore.activeTab === TABS.TAB_LOCATION) {
-      return <LocationTab />;
+    if (UIStore.activeTab === TABS.TAB_COMPARE_GROUPS) {
+      return <CompareGroupsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_COMPARE_LOCATIONS) {
+      return <CompareLocationsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_GROUP_REPORT) {
+      return <GroupReportTab />;
     } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
       return <ExampleTab />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
@@ -55,8 +57,6 @@ const HomePage = observer(() => {
       return <RelatedProjectsTab />;
     } else if (UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
       return <SequencingEffortsTab />;
-    } else if (UIStore.activeTab === TABS.TAB_LITEMOL) {
-      return <LiteMolTab />;
     }
   };
 
@@ -95,8 +95,8 @@ const HomePage = observer(() => {
   }
 
   const showDefaultSidebar =
-    UIStore.activeTab !== TABS.TAB_GROUP &&
-    UIStore.activeTab !== TABS.TAB_LOCATION;
+    UIStore.activeTab !== TABS.TAB_COMPARE_GROUPS &&
+    UIStore.activeTab !== TABS.TAB_COMPARE_LOCATIONS;
 
   return (
     <>

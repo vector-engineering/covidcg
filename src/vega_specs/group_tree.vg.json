@@ -1,0 +1,232 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An example of Cartesian layouts for a node-link diagram of hierarchical data.",
+  "width": 600,
+  "height": 1600,
+  "padding": 5,
+
+  "signals": [
+    {
+      "name": "hoverEdge",
+      "value": null,
+      "on": [
+        {
+          "events": "@treePath:mouseover!",
+          "update": "{source: datum.source, target: datum.target}"
+        },
+        {
+          "events": "@treePath:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "value": true,
+      "on": [
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "value": false,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "event.shiftKey",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "edgeHover",
+      "value": null,
+      "on": [
+        {
+          "events": "@treePath:mousedown!",
+          "update": "datum.target.name",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "nodeHover",
+      "value": "null",
+      "on": [
+        {
+          "events": "@treeNode:mouseclick!",
+          "update": "datum.name"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "tree",
+      "url": "https://storage.googleapis.com/ve-public/treetest3.json",
+      "transform": [
+        {
+          "type": "stratify",
+          "key": "name",
+          "parentKey": "parent"
+        },
+        {
+          "type": "tree",
+          "method": "cluster",
+          "size": [15000, {"signal": "width - 100"}],
+          "separation": true,
+          "as": [
+            "y",
+            "x",
+            "depth",
+            "children"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "clamp(datum.cumulative_length - 7, 0, 4) * (width / 2)",
+          "as": "x"
+        }
+      ]
+    },
+    {
+      "name": "links",
+      "source": "tree",
+      "transform": [
+        { "type": "treelinks" },
+        {
+          "type": "linkpath",
+          "orient": "horizontal",
+          "shape": "orthogonal"
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "values": [],
+      "on": [
+        { "trigger": "clear", "remove": true },
+        { "trigger": "!shift", "remove": true },
+        { "trigger": "edgeHover", "remove": true, "toggle": "edgeHover" },
+        { "trigger": "nodeHover", "remove": true, "toggle": "nodeHover" }
+      ],
+      "transform": [
+      ]
+    },
+    {
+      "name": "hoverCluster",
+      "source": "tree",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "length(data('selected')) == 0 ? false : indexof(pluck(treeAncestors('tree', datum.name), 'name'), data('selected')[0]['data']) >= 0"
+        },
+        {
+          "type": "project",
+          "fields": ["name"],
+          "as": ["name"]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "linear",
+      "range": {"scheme": "magma"},
+      "domain": {"data": "tree", "field": "depth"},
+      "zero": true
+    },
+    {
+      "name": "num_seqs_stroke_width",
+      "type": "log",
+      "base": 2,
+      "range": [3, 8],
+      "domain": [100, 100000]
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "treePath",
+      "type": "path",
+      "from": {"data": "links"},
+      "encode": {
+        "update": {
+          "path": {"field": "path"},
+          "stroke": [
+            {
+              "test": "indata('hoverCluster', 'name', datum.target.name)",
+              "value": "#f00"
+            },
+            {"value": "#ccc"}
+          ],
+          "strokeWidth": {
+            "scale": "num_seqs_stroke_width",
+            "field": "target.num_seqs"
+          },
+          "tooltip": {
+            "signal": "{'Source': datum.source.num_seqs, 'Target': datum.target.num_seqs}"
+          }
+        }
+      }
+    },
+    {
+      "name": "treeNode",
+      "type": "symbol",
+      "from": {"data": "tree"},
+      "encode": {
+        "enter": {
+          "size": {"value": 100},
+          "stroke": {"value": "#fff"}
+        },
+        "update": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "fill": {"scale": "color", "field": "depth"},
+          "opacity": [
+            {
+              "test": "datum.leaf",
+              "value": 1.0
+            },
+            {
+              "value": 0.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "tree"},
+      "encode": {
+        "enter": {
+          "text": {"field": "lineage"},
+          "fontSize": {"value": 9},
+          "baseline": {"value": "middle"}
+        },
+        "update": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "dx": {"signal": "datum.children ? -7 : 7"},
+          "align": {"signal": "datum.children ? 'right' : 'left'"},
+          "opacity": [
+            {
+              "test": "datum.leaf",
+              "value": 1.0
+            },
+            {
+              "value": 0.0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

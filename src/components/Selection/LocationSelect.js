@@ -32,7 +32,7 @@ const LocationSelect = observer(
       locationDataStore.setSelectedNodes([]);
     };
 
-    const treeSelectOnChange = (currentNode, selectedNodes) => {
+    const treeSelectOnChange = (_currentNode, selectedNodes) => {
       //console.log('onChange::', currentNode, selectedNodes);
 
       // Since the tree is rendered in a flat state, we need to get all node

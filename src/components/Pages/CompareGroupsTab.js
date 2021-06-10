@@ -18,11 +18,11 @@ import CooccurrencePlot from '../Vega/CooccurrencePlot';
 
 import { GROUP_SNV, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
-const GroupTabContainer = styled.div`
+const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
 `;
 
-const GroupTab = observer(() => {
+const CompareGroupsTab = observer(() => {
   const { configStore } = useStores();
   const [ref, { width }] = useDimensions();
 
@@ -54,7 +54,7 @@ const GroupTab = observer(() => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               plots and table below, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_LOCATION}>
+              <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
                 Compare Locations
               </TabIndicator>{' '}
               tab.
@@ -137,7 +137,7 @@ const GroupTab = observer(() => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               legend and table below, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_LOCATION}>
+              <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
                 Compare Locations
               </TabIndicator>{' '}
               tab.
@@ -203,7 +203,7 @@ const GroupTab = observer(() => {
             <li>
               Selected {configStore.getGroupLabel()}s will be highlighted in the
               legend and plot, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_LOCATION}>
+              <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
                 Compare Locations
               </TabIndicator>{' '}
               tab.
@@ -250,14 +250,14 @@ const GroupTab = observer(() => {
   // };
 
   return (
-    <GroupTabContainer ref={ref}>
+    <CompareGroupsTabContainer ref={ref}>
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
       {renderDataTable()}
       {/* renderAckTable() */}
-    </GroupTabContainer>
+    </CompareGroupsTabContainer>
   );
 });
 
-export default GroupTab;
+export default CompareGroupsTab;
