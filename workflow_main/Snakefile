@@ -393,5 +393,5 @@ rule update_vocs:
         voc_list = os.path.join(config["static_data_folder"], "vocs.json")
     shell:
         """
-        python3 scripts/update_vocs -o {output.voc_list}
+        python3 scripts/update_vocs.py -o {output.voc_list}
         """
