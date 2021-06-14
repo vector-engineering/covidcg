@@ -296,8 +296,15 @@
               "orient": "bottom",
               "scale": "x",
               "zindex": 0,
-              "format": "%m-%d",
-              "tickCount": "week",
+              "format": {
+                "year": "%Y",
+                "quarter": "%m-%d",
+                "month": "%m-%d",
+                "week": "%m-%d",
+                "date": "%m-%d",
+                "hours": " "
+              },
+              "tickCount": 15,
               "grid": true,
               "gridScale": "y",
               "gridColor": "#DDD",
@@ -530,7 +537,14 @@
           "title": "Collection date",
           "titleFontSize": 18,
           "titlePadding": 10,
-          "format": "%m-%d",
+          "format": {
+            "year": "%Y",
+            "quarter": "%m-%d",
+            "month": "%m-%d",
+            "week": "%m-%d",
+            "date": "%m-%d",
+            "hours": " "
+          },
 
           "grid": true,
           "gridColor": "#DDD",
@@ -543,7 +557,7 @@
 
           "labelFontSize": 12,
 
-          "tickCount": "week"
+          "tickCount": 15
         },
         {
           "orient": "left",
@@ -585,6 +599,7 @@
           "type": "rect",
           "name": "brushrect",
           "comment": "Draw the date selection range",
+          "interactive": false,
           "encode": {
             "enter": {
               "y": { "value": 0 },

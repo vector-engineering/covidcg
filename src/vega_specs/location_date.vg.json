@@ -297,7 +297,8 @@
 
       "title": "Collection Date",
       "titleFontSize": 14,
-      "titlePadding": 8
+      "titlePadding": 8,
+      "tickCount": 15
     },
     {
       "orient": "left",
