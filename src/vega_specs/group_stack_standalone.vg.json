@@ -243,7 +243,8 @@
               {"data": "cases_by_date", "field": "day_end"}
             ]
           },
-          "domainRaw": {"signal": "detailDomain"}
+          "domainRaw": {"signal": "detailDomain"},
+          "nice": {"interval": "day", "step": 14}
         },
         {
           "name": "y",
@@ -261,16 +262,22 @@
           "encode": {
             "update": {
               "height": {"field": {"group": "height"}},
-              "width": {"field": {"group": "width"}} 
+              "width": {"field": {"group": "width"}}
             }
           },
           "axes": [
             {
-              "orient": "bottom", 
-              "scale": "x", 
-              "zindex": 0, 
-              "format": "%m-%d", 
-              "tickCount": "week",
+              "orient": "bottom",
+              "scale": "x",
+              "zindex": 0,
+              "format": {
+                "year": "%Y",
+                "quarter": "%m-%d",
+                "month": "%m-%d",
+                "week": "%m-%d",
+                "date": "%m-%d",
+                "hours": " "
+              },
               "grid": true,
               "gridScale": "y",
               "gridColor": "#DDD",
@@ -280,11 +287,12 @@
               "labelBaseline": "middle",
               "labelPadding": 5,
 
-              "labelFontSize": 12
+              "labelFontSize": 12,
+              "tickCount": 10
             },
             {
-              "orient": "left", 
-              "scale": "y", 
+              "orient": "left",
+              "scale": "y",
               "format": { "signal": "yFormat" },
               "zindex": 0,
               "grid": true,
@@ -293,7 +301,7 @@
               "title": {"signal": "detailYLabel"},
               "titleFontSize": 14,
               "titlePadding": 10,
-              
+
               "labelFontSize": 14,
               "labelPadding": 5,
               "tickCount": 5
@@ -334,7 +342,7 @@
                       "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum_new > 0",
                       "value": "#000",
                       "comment": "If this group is being hovered over, then set outline it black. Since we're imputing empty groups, only highlight groups with more than zero cases."
-                    }, 
+                    },
                     {"value": "transparent"}
                   ],
                   "zindex": [
@@ -342,7 +350,7 @@
                       "test": "hoverBar && hoverBar.group == datum.group && datum.cases_sum > 0",
                       "value": 3,
                       "comment": "Same as the 'stroke' test, but we also need to set the z-index here since it's possible the outline stroke will get hidden under other bars"
-                    }, 
+                    },
                     {"value": 1}
                   ]
                 }
@@ -386,7 +394,7 @@
               "events": {
                 "merge": [
                   {"markname": "overview", "type": "dblclick"},
-                  {"markname": "brushrect", "type": "dblclick"}                    
+                  {"markname": "brushrect", "type": "dblclick"}
                 ]
               },
               "update": "0"
@@ -422,7 +430,7 @@
               "events": {
                 "merge": [
                   {"markname": "overview", "type": "mouseup"},
-                  {"markname": "brushrect", "type": "mouseup"}              
+                  {"markname": "brushrect", "type": "mouseup"}
                 ]
               },
               "update": "abs(span(brush)) <= 2 ? 0 : [brush[0], brush[1]]"
@@ -492,13 +500,19 @@
       ],
       "axes": [
         {
-          "orient": "bottom", 
-          "scale": "xOverview",  
-          "title": "Collection date", 
+          "orient": "bottom",
+          "scale": "xOverview",
+          "title": "Collection date",
           "titleFontSize": 18,
           "titlePadding": 10,
-          "format": "%m-%d", 
-
+          "format": {
+            "year": "%Y",
+            "quarter": "%m-%d",
+            "month": "%m-%d",
+            "week": "%m-%d",
+            "date": "%m-%d",
+            "hours": " "
+          },
           "grid": true,
           "gridColor": "#DDD",
           "gridScale": "yOverview",
@@ -509,12 +523,11 @@
           "labelPadding": 5,
 
           "labelFontSize": 12,
+          "tickCount": 15
 
-          "tickCount": "week"
-          
         },
         {
-          "orient": "left", 
+          "orient": "left",
           "scale": "yOverview",
 
           "title": {"signal": "overviewYLabel"},
@@ -553,6 +566,7 @@
           "type": "rect",
           "name": "brushrect",
           "comment": "Draw the date selection range",
+          "interactive": false,
           "encode": {
             "enter": {
               "y": {"value": 0},

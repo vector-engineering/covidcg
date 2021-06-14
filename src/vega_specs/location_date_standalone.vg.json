@@ -237,7 +237,7 @@
 
   "axes": [
     {
-      "orient": "bottom", 
+      "orient": "bottom",
       "scale": "xscale",
       "format": "%m-%d",
       "zindex": 0,
@@ -253,10 +253,11 @@
 
       "title": "Collection Date",
       "titleFontSize": 14,
-      "titlePadding": 8
+      "titlePadding": 8,
+      "tickCount": 15
     },
     {
-      "orient": "left", 
+      "orient": "left",
       "scale": "yscale",
       "format": { "signal": "yFormat" },
 
@@ -289,7 +290,7 @@
             "strokeWidth": {"value": 2},
             "opacity": [
               {
-                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)", 
+                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
                 "value": 0.8
               },
               {"value": 0.15}
@@ -303,7 +304,7 @@
           "update": {
             "opacity": [
               {
-                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)", 
+                "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
                 "value": 1
               },
               {"value": 0.25}
@@ -330,8 +331,8 @@
           "name": "label",
           "source": "series",
           "transform": [
-            { 
-              "type": "joinaggregate", 
+            {
+              "type": "joinaggregate",
               "fields": ["day_middle"],
               "ops": ["max"],
               "as": ["max_day"]
@@ -361,7 +362,7 @@
               "stroke": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
-                  "scale": "color", 
+                  "scale": "color",
                   "field": "location"
                 },
                 {"value": "#CCC"}
@@ -399,7 +400,7 @@
               "stroke": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
-                  "scale": "color", 
+                  "scale": "color",
                   "field": "location"
                 },
                 {"value": "#CCC"}
@@ -442,7 +443,7 @@
               "fill": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.cases_sum_agg > 0)",
-                  "scale": "color", 
+                  "scale": "color",
                   "field": "location"
                 },
                 { "value": "#ccc" }
