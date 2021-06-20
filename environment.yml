@@ -12,6 +12,7 @@ dependencies:
   - pip=20.1.1
   - snakemake-minimal=5.20.1
   - samtools=1.10
+  - bs4=4.9.3
   - pip:
       - pysam==0.15.4
   # For pushing to database
