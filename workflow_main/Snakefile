@@ -20,7 +20,7 @@ from scripts.global_sequencing_efforts import global_sequencing_efforts
 from scripts.preprocess_sequences import preprocess_sequences
 from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
-from script.update_vocs import update_vocs
+from scripts.update_vocs import update_vocs
 
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"

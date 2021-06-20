@@ -35,7 +35,7 @@ rule download:
     newline-delimited JSON records (the file itself is not strict JSON)
     """
     output:
-        feed = temp(os.path.join(config["data_folder"], "feed.json")),
+        feed = temp(os.path.join(config["data_folder"], "feed.csv")),
         status = touch(os.path.join(
             config["data_folder"], "status", "download_" + today_str + ".done"
         ))
