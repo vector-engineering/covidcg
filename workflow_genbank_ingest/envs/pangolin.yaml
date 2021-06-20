@@ -12,7 +12,11 @@ dependencies:
   - python=3.7
   - snakemake-minimal=5.13
   - gofasta
+  - usher
   - pip:
     - pandas==1.0.1
-    - git+https://github.com/cov-lineages/pangolin.git@v2.3.8
+    - git+https://github.com/cov-lineages/pangolin.git@v3.1.4
     - git+https://github.com/cov-lineages/pangoLEARN.git
+    - git+https://github.com/cov-lineages/scorpio.git
+    - git+https://github.com/cov-lineages/constellations.git
+    - git+https://github.com/cov-lineages/pango-designation.git
