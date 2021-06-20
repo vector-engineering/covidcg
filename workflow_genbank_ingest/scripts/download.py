@@ -23,10 +23,7 @@ by comparing different download requests and guessing, which allows us to
 download the metadata + sequence in the same request instead of two.
 """
 
-import csv
-import json
 import requests
-from sys import stdout
 
 endpoint = "https://www.ncbi.nlm.nih.gov/genomes/VirusVariation/vvsearch2/"
 params = {
@@ -82,8 +79,7 @@ headers = {
 response = requests.get(endpoint, params=params, headers=headers, stream=True)
 response.raise_for_status()
 
-response_content = response.iter_lines(decode_unicode=True)
+response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
 
-for row in csv.DictReader(response_content):
-    json.dump(row, stdout, allow_nan=False, indent=None, separators=",:")
-    print()
+for chunk in response_content:
+    print(chunk, end="")
