@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import vocList from '../../../static_data/voc.json';
+import vocList from '../../../static_data/vocs.json';
 
 import {
   VOCListContainer,
@@ -71,7 +71,7 @@ VOCItem.propTypes = {
 const VOCList = observer(() => {
   // Variants of Concern (VOC)
   const vocItems = [];
-  vocList.list
+  vocList
     .filter((record) => {
       return record.level === 'VOC';
     })
@@ -87,7 +87,7 @@ const VOCList = observer(() => {
 
   // Variants of Interest (VOI)
   const voiItems = [];
-  vocList.list
+  vocList
     .filter((record) => {
       return record.level === 'VOI';
     })
