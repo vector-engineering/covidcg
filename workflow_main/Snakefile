@@ -25,37 +25,45 @@ from scripts.update_vocs import update_vocs
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"
 
-reference_sequence_path = os.path.join(config["static_data_folder"], "reference.fasta")
-gene_defs_path = os.path.join(config["static_data_folder"], "genes.json")
-protein_defs_path = os.path.join(config["static_data_folder"], "proteins.json")
+data_folder = config["data_folder"]
+static_data_folder = config["static_data_folder"]
 
-bt2_index_name = os.path.join(config["data_folder"], "reference_index", "reference")
+reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
+gene_defs_path = os.path.join(static_data_folder, "genes.json")
+protein_defs_path = os.path.join(static_data_folder, "proteins.json")
+
+bt2_index_name = os.path.join(data_folder, "reference_index", "reference")
 
 # Find chunks
 CHUNKS, = glob_wildcards(os.path.join(
-    config["data_folder"], "fasta_raw", "{chunk}.fa.gz"
+    data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
+
+# Phylotree module
+include: "phylotree/Snakefile"
 
 rule all:
     input:
         # Generate reference-related data
-        os.path.join(config["static_data_folder"], "reference.json"),
-        os.path.join(config["static_data_folder"], "primers.json"),
+        os.path.join(static_data_folder, "reference.json"),
+        os.path.join(static_data_folder, "primers.json"),
         # Packaged data
-        os.path.join(config["data_folder"], "data_package.json.gz"),
-        os.path.join(config['data_folder'], 'data_complete.csv'),
+        os.path.join(data_folder, "data_package.json.gz"),
+        os.path.join(data_folder, 'data_complete.csv'),
         # Standalone map spec
-        os.path.join(config["data_folder"], "map_combined_standalone.vg.json"),
+        os.path.join(data_folder, "map_combined_standalone.vg.json"),
         # Global sequencing data
-        os.path.join(config["data_folder"], "new_global_data", "case_count.json"),
-        os.path.join(config["data_folder"], "new_global_data", "sequences_per_month.json"),
-        os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
-        os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json"),
+        os.path.join(data_folder, "new_global_data", "case_count.json"),
+        os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
+        os.path.join(data_folder, "new_global_data", "turnaround_per_month.json"),
+        os.path.join(data_folder, "new_global_data", "iso_lookup.json"),
         # Surveillance data
-        os.path.join(config['data_folder'], 'surveillance', 'group_counts2.csv'),
-        os.path.join(config['data_folder'], 'surveillance', 'group_regression2.csv'),
+        os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
+        os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
         # Webscraper data
-        os.path.join(config["static_data_folder"], "vocs.json")
+        os.path.join(static_data_folder, "vocs.json"),
+        # Phylotree
+        os.path.join(data_folder, 'lineage_tree_graph.csv')
 
 
 rule preprocess_sequences:
@@ -65,12 +73,12 @@ rule preprocess_sequences:
 	3. Can't have more than 5% ambiguous NT
     """
     input:
-        fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz"),
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
         nextstrain_exclude = os.path.join(
-            config["static_data_folder"], "nextstrain_exclude_20200520.txt"
+            static_data_folder, "nextstrain_exclude_20200520.txt"
         )
     output:
-        fasta = os.path.join(config["data_folder"], "fasta_processed", "{chunk}.fa.gz")
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     run:
         preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
 
@@ -84,12 +92,12 @@ rule bt2build:
     params:
         bt2_index_name = bt2_index_name
     output:
-        output1 = os.path.join(config["data_folder"], "reference_index", "reference.1.bt2"),
-        output2 = os.path.join(config["data_folder"], "reference_index", "reference.2.bt2"),
-        output3 = os.path.join(config["data_folder"], "reference_index", "reference.3.bt2"),
-        output4 = os.path.join(config["data_folder"], "reference_index", "reference.4.bt2"),
-        outputrev1 = os.path.join(config["data_folder"], "reference_index", "reference.rev.1.bt2"),
-        outputrev2 = os.path.join(config["data_folder"], "reference_index", "reference.rev.2.bt2")
+        output1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
+        output2 = os.path.join(data_folder, "reference_index", "reference.2.bt2"),
+        output3 = os.path.join(data_folder, "reference_index", "reference.3.bt2"),
+        output4 = os.path.join(data_folder, "reference_index", "reference.4.bt2"),
+        outputrev1 = os.path.join(data_folder, "reference_index", "reference.rev.1.bt2"),
+        outputrev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
     shell:
         """
         bowtie2-build {input.reference} {params.bt2_index_name}
@@ -113,7 +121,7 @@ rule align_sequences:
         bt2_index_name = bt2_index_name
     threads: workflow.cores
     output:
-        bam = os.path.join(config["data_folder"], "bam", "{chunk}.bam")
+        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
     # bowtie2 is really memory intensive (10GB per thread), so make sure it
     # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
     shell:
@@ -129,7 +137,7 @@ rule extract_dna_snps:
         reference = reference_sequence_path,
         bam = rules.align_sequences.output.bam
     output:
-        dna_snp = os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv")
+        dna_snp = os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv")
     run:
         dna_snp_df = extract_dna_snps(input.bam, input.reference)
         dna_snp_df.to_csv(output.dna_snp, index=False)
@@ -143,8 +151,8 @@ rule process_genes_and_proteins:
         genes = gene_defs_path,
         proteins = protein_defs_path
     output:
-        genes = os.path.join(config["static_data_folder"], "genes_processed.json"),
-        proteins = os.path.join(config["static_data_folder"], "proteins_processed.json")
+        genes = os.path.join(static_data_folder, "genes_processed.json"),
+        proteins = os.path.join(static_data_folder, "proteins_processed.json")
     shell:
         """
         python3 scripts/gene_protein_defs.py -i {input.genes} -o {output.genes}
@@ -163,10 +171,10 @@ rule extract_aa_snps:
         proteins_file = rules.process_genes_and_proteins.output.proteins
     output:
         gene_aa_snp = os.path.join(
-            config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
+            data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
         ),
         protein_aa_snp = os.path.join(
-            config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
+            data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
         )
     run:
         extract_aa_snps(
@@ -189,26 +197,26 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
-        processed_fasta_files = os.path.join(config["data_folder"], "fasta_processed"),
-        metadata = os.path.join(config["data_folder"], "metadata.csv"),
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        metadata = os.path.join(data_folder, "metadata.csv"),
         dna_snp_files = expand(
-            os.path.join(config["data_folder"], "dna_snp", "{chunk}_dna_snp.csv"),
+            os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv"),
             chunk=CHUNKS
         ),
         gene_aa_snp_files = expand(
-            os.path.join(config["data_folder"], "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
+            os.path.join(data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
             chunk=CHUNKS
         ),
         protein_aa_snp_files = expand(
-            os.path.join(config["data_folder"], "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
+            os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
             chunk=CHUNKS
         )
     output:
-        metadata_map = os.path.join(config["data_folder"], "metadata_map.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        location_map = os.path.join(config["data_folder"], "location_map.json"),
-        case_data = os.path.join(config["data_folder"], "case_data.json"),
-        case_data_csv = os.path.join(config["data_folder"], "case_data.csv")
+        location_map = os.path.join(data_folder, "location_map.json"),
+        case_data = os.path.join(data_folder, "case_data.json"),
+        case_data_csv = os.path.join(data_folder, "case_data.csv")
     run:
         combine_all_data(
             **input, **output,
@@ -223,10 +231,10 @@ rule build_location_tree:
         case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map,
         emoji_map_file = os.path.join(
-            config["static_data_folder"], "country_to_emoji.xls"
+            static_data_folder, "country_to_emoji.xls"
         )
     output:
-        geo_select_tree = os.path.join(config["data_folder"], "geo_select_tree.json")
+        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
     run:
         geo_select_tree = build_location_tree(
             input.case_data, input.location_map, input.emoji_map_file,
@@ -240,11 +248,11 @@ rule write_reference_files:
     """
     input:
         reference = reference_sequence_path,
-        primers = os.path.join(config["static_data_folder"], "primers.csv")
+        primers = os.path.join(static_data_folder, "primers.csv")
     output:
         # Write data to JSON for the JS/UI to handle
-        reference = os.path.join(config["static_data_folder"], "reference.json"),
-        primers = os.path.join(config["static_data_folder"], "primers.json")
+        reference = os.path.join(static_data_folder, "reference.json"),
+        primers = os.path.join(static_data_folder, "primers.json")
     run:
         write_reference_files(
             input.reference, input.primers,
@@ -262,8 +270,8 @@ rule consensus_snps:
     input:
         case_data = rules.combine_all_data.output.case_data
     output:
-        group_consensus_snvs = os.path.join(config["data_folder"], "group_consensus_snps.json"),
-        group_snv_frequencies = os.path.join(config["data_folder"], "group_snv_frequencies.json")
+        group_consensus_snvs = os.path.join(data_folder, "group_consensus_snps.json"),
+        group_snv_frequencies = os.path.join(data_folder, "group_snv_frequencies.json")
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
@@ -281,7 +289,7 @@ rule global_group_counts:
         case_data = rules.combine_all_data.output.case_data
     output:
         global_group_counts = os.path.join(
-            config["data_folder"], "global_group_counts.json"
+            data_folder, "global_group_counts.json"
         )
     run:
         global_group_counts(
@@ -298,7 +306,7 @@ rule global_sequencing_efforts:
         case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     output:
-        country_score = os.path.join(config["data_folder"], "country_score.json")
+        country_score = os.path.join(data_folder, "country_score.json")
     run:
         global_sequencing_efforts(
             input.case_data, input.location_map,
@@ -319,7 +327,7 @@ rule assemble_data_package:
         metadata_map = rules.combine_all_data.output.metadata_map,
         location_map = rules.combine_all_data.output.location_map
     output:
-        data_package = os.path.join(config["data_folder"], "data_package.json.gz")
+        data_package = os.path.join(data_folder, "data_package.json.gz")
     run:
         assemble_data_package(
             **input,
@@ -332,7 +340,7 @@ rule build_full_dataframe:
         metadata_map = rules.combine_all_data.output.metadata_map,
         location_map = rules.combine_all_data.output.location_map
     output:
-        full_df = os.path.join(config['data_folder'], 'data_complete.csv')
+        full_df = os.path.join(data_folder, 'data_complete.csv')
     run:
         build_full_dataframe(
             input.case_data, input.metadata_map, input.location_map,
@@ -344,7 +352,7 @@ rule create_standalone_map_spec:
         spec = os.path.join("../src", "vega_specs", "map_combined.vg.json"),
         data = rules.global_sequencing_efforts.output.country_score
     output:
-        standalone_spec = os.path.join(config["data_folder"], "map_combined_standalone.vg.json")
+        standalone_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
     run:
         standalone_map_spec(input.spec, input.data, output.standalone_spec)
 
@@ -354,12 +362,12 @@ rule global_seq_data:
         case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map
     params:
-        out_folder = os.path.join(config['data_folder'], 'new_global_data')
+        out_folder = os.path.join(data_folder, 'new_global_data')
     output:
-        case_count = os.path.join(config["data_folder"], "new_global_data", "case_count.json"),
-        sequences_per_month = os.path.join(config["data_folder"], "new_global_data", "sequences_per_month.json"),
-        turnaround_per_month = os.path.join(config["data_folder"], "new_global_data", "turnaround_per_month.json"),
-        iso_lookup = os.path.join(config["data_folder"], "new_global_data", "iso_lookup.json")
+        case_count = os.path.join(data_folder, "new_global_data", "case_count.json"),
+        sequences_per_month = os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
+        turnaround_per_month = os.path.join(data_folder, "new_global_data", "turnaround_per_month.json"),
+        iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
     shell:
         """
         python3 scripts/global_seq_data.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
@@ -371,7 +379,7 @@ rule surveillance_data:
         location_map = rules.combine_all_data.output.location_map,
         metadata_map = rules.combine_all_data.output.metadata_map
     params:
-        out_folder = os.path.join(config['data_folder'], 'surveillance'),
+        out_folder = os.path.join(data_folder, 'surveillance'),
         start_date = (
             ('--start-date ' + config['surv_start_date'])
             if 'surv_start_date' in config else ''
@@ -381,8 +389,8 @@ rule surveillance_data:
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
     output:
-        group_counts = os.path.join(config['data_folder'], 'surveillance', 'group_counts2.csv'),
-        group_regression = os.path.join(config['data_folder'], 'surveillance', 'group_regression2.csv'),
+        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
+        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
     shell:
         """
         python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} --metadata-map {input.metadata_map} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
@@ -390,7 +398,7 @@ rule surveillance_data:
 
 rule update_vocs:
     output:
-        voc_list = os.path.join(config["static_data_folder"], "vocs.json")
+        voc_list = os.path.join(static_data_folder, "vocs.json")
     shell:
         """
         python3 scripts/update_vocs.py -o {output.voc_list}
