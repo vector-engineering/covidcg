@@ -14,6 +14,8 @@ dependencies:
   - samtools=1.10
   - bs4=4.9.3
   - biopython=1.78
+  - fasttree=2.1.10
+  - treetime=0.7.5
   - pip:
       - pysam==0.15.4
   # For pushing to database
