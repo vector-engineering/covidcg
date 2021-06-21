@@ -62,14 +62,52 @@ export class GroupDataStore {
     });
   }
 
+  hasGroupFrequencyData() {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency,
+        this.activeGroupType
+      )
+    ) {
+      return false;
+    } else if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency[this.activeGroupType],
+        this.groupSnvType
+      )
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   @action
   updateActiveGroupType(activeGroupType) {
     this.activeGroupType = activeGroupType;
+
+    // If we don't have the data for this combo yet, then fetch it now
+    if (!this.hasGroupFrequencyData()) {
+      this.fetchGroupSnvFrequencyData({
+        group: this.activeGroupType,
+        snvType: this.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
   }
 
   @action
   updateGroupSnvType(groupSnvType) {
     this.groupSnvType = groupSnvType;
+
+    // If we don't have the data for this combo yet, then fetch it now
+    if (!this.hasGroupFrequencyData()) {
+      this.fetchGroupSnvFrequencyData({
+        group: this.activeGroupType,
+        snvType: this.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
   }
 
   @action

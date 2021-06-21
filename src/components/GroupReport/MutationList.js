@@ -27,6 +27,7 @@ import {
 } from './MutationList.styles';
 
 const genes = getAllGenes();
+const proteins = getAllProteins();
 const heatmapMin = 0.0;
 const heatmapMax = 1.0;
 const numColors = reds.length;
@@ -180,67 +181,90 @@ const MutationListContent = observer(() => {
       return a.pos - b.pos;
     }
   };
-  genes.forEach((gene, gene_i) => {
+
+  // Use genes to group NT and gene_aa SNVs, and proteins for protein_aa SNVs
+  const features =
+    groupDataStore.groupSnvType === 'protein_aa' ? proteins : genes;
+
+  features.forEach((feature, feature_i) => {
     // Get all SNVs for this gene, then sort by position/alt
-    const groupGeneSnvs = groupSnvFrequency
-      .filter(
-        (groupSnv) =>
-          groupSnv.gene === gene.name &&
-          groupSnv.fraction > groupDataStore.consensusThreshold
-      )
+    const groupFeatureSnvs = groupSnvFrequency
+      .filter((groupSnv) => {
+        if (groupSnv.fraction < groupDataStore.consensusThreshold) {
+          return false;
+        }
+        if (groupDataStore.groupSnvType === 'dna') {
+          // Include NT SNVs in this gene if it is contained in
+          // any of the gene's NT segments
+          // (Most genes will have one segment)
+          return feature.segments.some(
+            (featureNTRange) =>
+              groupSnv.pos >= featureNTRange[0] &&
+              groupSnv.pos <= featureNTRange[1]
+          );
+        } else if (groupDataStore.groupSnvType === 'gene_aa') {
+          return groupSnv.gene === feature.name;
+        } else if (groupDataStore.groupSnvType === 'protein_aa') {
+          return groupSnv.protein === feature.name;
+        }
+      })
       .sort(sortByPosThenAlt);
-    // console.log(gene.name, groupGeneSnvs);
+    // console.log(feature.name, groupFeatureSnvs);
 
     // Make list of records to insert into master "matrix"
-    const geneSnvRecords = groupGeneSnvs
+    const featureSnvRecords = groupFeatureSnvs
       .slice()
       // Unique SNVs
       .filter(
         (v, i, a) =>
           a.findIndex((element) => element.snv_name === v.snv_name) === i
       )
-      .map((geneSnv) => {
+      .map((featureSnv) => {
         // Find fractional frequencies for each group
         const freqs = [];
         groupDataStore.selectedGroups.forEach((group) => {
-          const matchingSnv = groupGeneSnvs.find(
-            (snv) => snv.snv_name === geneSnv.snv_name && snv.name === group
+          const matchingSnv = groupFeatureSnvs.find(
+            (snv) => snv.snv_name === featureSnv.snv_name && snv.name === group
           );
           // 0 if the SNV record isn't found
           freqs.push(matchingSnv === undefined ? 0 : matchingSnv.fraction);
         });
 
         return {
-          snv_name: geneSnv.snv_name,
-          pos: geneSnv.pos,
-          ref: geneSnv.ref,
-          alt: geneSnv.alt,
+          snv_name: featureSnv.snv_name,
+          pos: featureSnv.pos,
+          ref: featureSnv.ref,
+          alt: featureSnv.alt,
           frequency: freqs,
         };
       });
-    // console.log(gene.name, geneSnvRecords);
+    // console.log(feature.name, featureSnvRecords);
 
-    geneSnvRecords.forEach((snv, i) => {
+    featureSnvRecords.forEach((snv, i) => {
+      const snvName =
+        groupDataStore.groupSnvType === 'dna'
+          ? snv.snv_name
+          : snv.snv_name.split(':')[1];
       rowItems.push(
         <MutationListRow
-          key={`group-snv-${snv.snv_name}`}
-          segmentName={gene.name}
-          segmentColor={snpColorArray[gene_i % snpColorArray.length]}
-          name={snv.snv_name.split(':')[1]}
+          key={`group-snv-${feature.name}-${snv.snv_name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          name={snvName}
           frequency={snv.frequency}
           firstRow={i === 0}
-          numSnvsPerSegment={geneSnvRecords.length}
+          numSnvsPerSegment={featureSnvRecords.length}
         />
       );
     });
 
     // Push empty row for segments without SNVs
-    if (geneSnvRecords.length === 0) {
+    if (featureSnvRecords.length === 0) {
       rowItems.push(
         <MutationListRow
-          key={`group-snv-empty-${gene.name}`}
-          segmentName={gene.name}
-          segmentColor={snpColorArray[gene_i % snpColorArray.length]}
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
