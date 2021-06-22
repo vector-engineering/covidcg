@@ -98,7 +98,33 @@ const GroupReportTab = observer(() => {
         title={`Structural Viewer`}
         defaultCollapsed={false}
         maxHeight={'1000px'}
-        helpText={<ul></ul>}
+        helpText={
+          <ul>
+            <li>
+              Molecule visualizations are provided by{' '}
+              <ExternalLink href="https://www.litemol.org/">
+                LiteMol
+              </ExternalLink>
+              . Click the &quot;?&quot; button for control help.
+            </li>
+            <li>
+              Structures are downloaded from the{' '}
+              <ExternalLink href="https://www.rcsb.org/">RCSB PDB</ExternalLink>
+            </li>
+            <li>
+              Residues are colored by the mutation frequencies in the selected
+              Protein, for the selected{' '}
+              {groupDataStore.getGroupSnvTypePrettyName()}, projected onto the
+              given PDB ID
+            </li>
+            <li>
+              It is up to the user to ensure that the given Protein and its SNVs
+              match up with the provided PDB ID. We do not check for
+              compatibility, so it is possible to, for example, erroneously map
+              nsp12 SNVs onto a Spike structure.
+            </li>
+          </ul>
+        }
       >
         <StructuralViewer />
       </AccordionWrapper>
