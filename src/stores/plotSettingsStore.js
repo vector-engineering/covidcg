@@ -28,6 +28,7 @@ export const initialPlotSettingsValues = {
 
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
 
+  // SURVEILLANCE PLOT
   surveillanceMode: 'lineage',
   surveillanceSortField: 'group',
   surveillanceSortDirection: SORT_DIRECTIONS.SORT_ASC,
@@ -37,6 +38,10 @@ export const initialPlotSettingsValues = {
   surveillanceSigMinPercent: 0.05,
   surveillanceSigMinR: 0.5,
   surveillanceLegendHover: [],
+
+  // GROUP REPORT TAB
+  reportConsensusThreshold: 0.7,
+  reportMutationListHidden: ['ORF1a'], // By default, hide Orf1a
 };
 
 export class PlotSettingsStore {
@@ -177,6 +182,38 @@ export class PlotSettingsStore {
   @action
   setSurveillanceLegendHover(hover) {
     this.surveillanceLegendHover = hover;
+  }
+
+  // ----------------
+  // GROUP REPORT TAB
+  // ----------------
+
+  @observable reportConsensusThreshold =
+    initialPlotSettingsValues.reportConsensusThreshold;
+  @observable reportMutationListHidden =
+    initialPlotSettingsValues.reportMutationListHidden;
+
+  @action
+  setReportConsensusThreshold(thresh) {
+    this.reportConsensusThreshold = thresh;
+  }
+  @action
+  setReportMutationListHidden(hidden) {
+    this.reportMutationListHidden = hidden;
+  }
+  @action
+  toggleReportMutationListHiddenItem(itemName) {
+    let hidden = this.reportMutationListHidden;
+
+    // If the item is not in the list yet, then add it
+    if (hidden.indexOf(itemName) === -1) {
+      hidden.push(itemName);
+    } else {
+      // If it does exist, then make a new array without this item
+      hidden = hidden.filter((name) => name != itemName);
+    }
+
+    this.reportMutationListHidden = hidden;
   }
 
   @action

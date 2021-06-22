@@ -23,7 +23,6 @@ import {
   MutationRowBar,
   MutationRowName,
   MutationRowHeatmapCellContainer,
-  MutationRowHeatmapEmptyCell,
 } from './MutationList.styles';
 
 const genes = getAllGenes();
@@ -73,44 +72,54 @@ MutationRowHeatmapCell.defaultProps = {
   percent: true,
 };
 
-const MutationListRow = ({
-  segmentName,
-  segmentColor,
-  name,
-  frequency,
-  firstRow,
-  numSnvsPerSegment,
-  emptyRow,
-}) => {
-  const heatmapCells = [];
-  if (!emptyRow) {
-    frequency.forEach((freq, i) => {
-      heatmapCells.push(
-        <MutationRowHeatmapCell key={`${name}-heatmap-cell-${i}`} freq={freq} />
-      );
-    });
-  } else {
-    // console.log(frequency.length);
-    heatmapCells.push(
-      <MutationRowHeatmapEmptyCell
-        key={`${segmentName}-empty-cell`}
-        colSpan={frequency.length}
-      />
+const MutationListRow = observer(
+  ({
+    segmentName,
+    segmentColor,
+    name,
+    frequency,
+    firstRow,
+    numSnvsPerSegment,
+    emptyRow,
+  }) => {
+    const { plotSettingsStore } = useStores();
+
+    const toggleHiddenFeature = (featureName) => {
+      plotSettingsStore.toggleReportMutationListHiddenItem(featureName);
+    };
+
+    const heatmapCells = [];
+    if (!emptyRow) {
+      // console.log(frequency.length);
+      frequency.forEach((freq, i) => {
+        heatmapCells.push(
+          <MutationRowHeatmapCell
+            key={`${name}-heatmap-cell-${i}`}
+            freq={freq}
+          />
+        );
+      });
+    }
+
+    return (
+      <MutationRowContainer>
+        {firstRow && (
+          <MutationRowBar
+            onClick={toggleHiddenFeature.bind(this, segmentName)}
+            rowSpan={numSnvsPerSegment}
+            barColor={segmentColor}
+          >
+            {segmentName}
+          </MutationRowBar>
+        )}
+        <MutationRowName colSpan={emptyRow ? frequency.length + 1 : 1}>
+          {name}
+        </MutationRowName>
+        {heatmapCells}
+      </MutationRowContainer>
     );
   }
-
-  return (
-    <MutationRowContainer>
-      {firstRow && (
-        <MutationRowBar rowSpan={numSnvsPerSegment} barColor={segmentColor}>
-          {segmentName}
-        </MutationRowBar>
-      )}
-      <MutationRowName>{name}</MutationRowName>
-      {heatmapCells}
-    </MutationRowContainer>
-  );
-};
+);
 MutationListRow.propTypes = {
   segmentName: PropTypes.string.isRequired,
   segmentColor: PropTypes.string.isRequired,
@@ -129,7 +138,7 @@ MutationListRow.defaultProps = {
 };
 
 const MutationListContent = observer(() => {
-  const { groupDataStore, UIStore } = useStores();
+  const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
 
@@ -190,7 +199,7 @@ const MutationListContent = observer(() => {
     // Get all SNVs for this gene, then sort by position/alt
     const groupFeatureSnvs = groupSnvFrequency
       .filter((groupSnv) => {
-        if (groupSnv.fraction < groupDataStore.consensusThreshold) {
+        if (groupSnv.fraction < plotSettingsStore.reportConsensusThreshold) {
           return false;
         }
         if (groupDataStore.groupSnvType === 'dna') {
@@ -210,6 +219,38 @@ const MutationListContent = observer(() => {
       })
       .sort(sortByPosThenAlt);
     // console.log(feature.name, groupFeatureSnvs);
+
+    // Push empty row for segments without SNVs
+    if (groupFeatureSnvs.length === 0) {
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          firstRow={true}
+          frequency={new Array(groupDataStore.selectedGroups.length)}
+          emptyRow={true}
+        />
+      );
+      return;
+    }
+    // Push empty row for hidden features
+    else if (
+      plotSettingsStore.reportMutationListHidden.indexOf(feature.name) > -1
+    ) {
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          firstRow={true}
+          frequency={new Array(groupDataStore.selectedGroups.length)}
+          emptyRow={true}
+          name={`${groupFeatureSnvs.length} SNVs hidden...`}
+        />
+      );
+      return;
+    }
 
     // Make list of records to insert into master "matrix"
     const featureSnvRecords = groupFeatureSnvs
@@ -257,20 +298,6 @@ const MutationListContent = observer(() => {
         />
       );
     });
-
-    // Push empty row for segments without SNVs
-    if (featureSnvRecords.length === 0) {
-      rowItems.push(
-        <MutationListRow
-          key={`group-snv-empty-${feature.name}`}
-          segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
-          firstRow={true}
-          frequency={new Array(groupDataStore.selectedGroups.length)}
-          emptyRow={true}
-        />
-      );
-    }
   });
 
   const headerItems = [];
@@ -302,7 +329,7 @@ const MutationListContent = observer(() => {
 });
 
 const MutationList = observer(() => {
-  const { groupDataStore } = useStores();
+  const { groupDataStore, plotSettingsStore } = useStores();
 
   const onChangeActiveGroupType = (event) => {
     groupDataStore.updateActiveGroupType(event.target.value);
@@ -311,7 +338,7 @@ const MutationList = observer(() => {
     groupDataStore.updateGroupSnvType(event.target.value);
   };
   const onChangeConsensusThreshold = (event) => {
-    groupDataStore.updateConsensusThreshold(event.target.value);
+    plotSettingsStore.setReportConsensusThreshold(event.target.value);
   };
 
   const activeGroupTypeItems = [];
@@ -353,7 +380,7 @@ const MutationList = observer(() => {
             Consensus Threshold
             <input
               type="number"
-              value={groupDataStore.consensusThreshold}
+              value={plotSettingsStore.reportConsensusThreshold}
               onChange={onChangeConsensusThreshold}
               min={0}
               max={1}

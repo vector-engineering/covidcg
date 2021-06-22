@@ -62,7 +62,16 @@ const GroupReportTab = observer(() => {
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
         maxHeight={'600px'}
-        helpText={<ul></ul>}
+        helpText={
+          <ul>
+            <li>
+              Note: We define ORF1a and ORF1ab as separate genes. In
+              &quot;NT&quot; or &quot;Gene AA&quot; mode, an SNV in ORF1a will
+              also be listed in ORF1ab. Switch to &quot;Protein AA&quot; mode to
+              see SNVs in the context of proteins (i.e., NSPs)
+            </li>
+          </ul>
+        }
       >
         <MutationList />
       </AccordionWrapper>

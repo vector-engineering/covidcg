@@ -9,30 +9,29 @@ import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
 
+export const initialGroupDataValues = {
+  activeGroupType: Object.keys(config['group_cols'])[0],
+  selectedGroups: ['B.1.1.7', 'B.1.351', 'P.2'],
+  groupSnvType: 'gene_aa',
+  structureActiveGroup: 'B.1.1.7',
+};
+
 export class GroupDataStore {
   // Actively selected group type in the report tab
-  @observable activeGroupType;
-  @observable selectedGroups;
-  @observable groupSnvType;
-  @observable consensusThreshold;
+  @observable activeGroupType = initialGroupDataValues.activeGroupType;
+  @observable selectedGroups = initialGroupDataValues.selectedGroups;
+  @observable groupSnvType = initialGroupDataValues.groupSnvType;
 
   // Actively selected group for the structural viewer
-  @observable structureActiveGroup;
+  @observable structureActiveGroup =
+    initialGroupDataValues.structureActiveGroup;
 
   groups;
   @observable groupSelectTree;
   groupSnvFrequency;
 
   constructor() {
-    this.activeGroupType = Object.keys(config['group_cols'])[0];
-    this.selectedGroups = ['B.1.1.7', 'B.1.351', 'P.2'];
-    this.groupSnvType = 'gene_aa';
-    this.consensusThreshold = 0.7;
-
-    this.structureActiveGroup = 'B.1.1.7';
-
     this.groupSnvFrequency = {};
-
     this.groups = {};
     this.groupSelectTree = {};
 
@@ -108,11 +107,17 @@ export class GroupDataStore {
         consensusThreshold: 0,
       });
     }
-  }
 
-  @action
-  updateConsensusThreshold(consensusThreshold) {
-    this.consensusThreshold = consensusThreshold;
+    // Hide ORF1a in NT/gene_aa mode by default
+    if (groupSnvType === 'dna' || groupSnvType === 'gene_aa') {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
+        'ORF1a',
+      ]);
+    }
+    // Otherwise clear the hidden list
+    else {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
+    }
   }
 
   @action

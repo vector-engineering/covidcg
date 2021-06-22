@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { transparentize } from 'polished';
 
 export const MutationListContainer = styled.div`
   display: flex;
@@ -109,6 +110,14 @@ export const MutationRowBar = styled.td`
   border-right: 10px solid ${({ barColor }) => barColor};
 
   grid-row: span ${({ rowSpan }) => rowSpan};
+
+  cursor: pointer;
+  transition: 0.1s all ease-in-out;
+
+  &:hover,
+  &:active {
+    border-right-color: ${({ barColor }) => transparentize(0.4, barColor)};
+  }
 `;
 MutationRowBar.defaultProps = {
   rowSpan: 1,
@@ -122,8 +131,12 @@ export const MutationRowName = styled.td`
   justify-content: flex-end;
   padding-right: 5px;
   font-family: monospace;
-  grid-col: 2;
+  grid-column: 2 / span ${({ colSpan }) => colSpan};
 `;
+MutationRowName.defaultProps = {
+  colSpan: 1,
+};
+
 export const MutationRowHeatmapCellContainer = styled.td`
   padding: 2px 10px;
   text-align: center;
@@ -132,11 +145,4 @@ export const MutationRowHeatmapCellContainer = styled.td`
 `;
 MutationRowHeatmapCellContainer.defaultProps = {
   bgColor: '#FFF',
-};
-
-export const MutationRowHeatmapEmptyCell = styled.td`
-  grid-column: span ${({ colSpan }) => colSpan};
-`;
-MutationRowHeatmapEmptyCell.defaultProps = {
-  colSpan: 1,
 };
