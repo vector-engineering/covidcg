@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Button from '../Buttons/Button';
 
 export const StructuralViewerContainer = styled.div`
   min-width: 100%;
@@ -38,6 +39,17 @@ OptionInputContainer.defaultProps = {
   maxWidth: '4em',
   invalid: false,
 };
+
+export const InvalidText = styled.span`
+  margin: 0px 5px;
+  font-size: 0.9em;
+  font-weight: normal;
+  line-height: normal;
+  color: #dc3545;
+`;
+export const ConfirmButton = styled(Button)`
+  margin-left: 5px;
+`;
 
 export const LiteMolContainer = styled.div`
   min-width: 100%;

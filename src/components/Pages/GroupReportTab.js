@@ -9,7 +9,7 @@ import ExternalLink from '../Common/ExternalLink';
 import GroupTreePlot from '../Vega/GroupTreePlot';
 import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
-import StructuralViewer from '../LiteMol/StructuralViewer';
+import StructuralViewer from '../GroupReport/GroupStructuralViewer';
 
 const GroupReportTabContainer = styled.div`
   display: flex;

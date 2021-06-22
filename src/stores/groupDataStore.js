@@ -12,8 +12,7 @@ import { downloadBlobURL } from '../utils/download';
 export const initialGroupDataValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
   selectedGroups: ['B.1.1.7', 'B.1.351', 'P.2'],
-  groupSnvType: 'gene_aa',
-  structureActiveGroup: 'B.1.1.7',
+  groupSnvType: 'protein_aa',
 };
 
 export class GroupDataStore {
@@ -21,10 +20,6 @@ export class GroupDataStore {
   @observable activeGroupType = initialGroupDataValues.activeGroupType;
   @observable selectedGroups = initialGroupDataValues.selectedGroups;
   @observable groupSnvType = initialGroupDataValues.groupSnvType;
-
-  // Actively selected group for the structural viewer
-  @observable structureActiveGroup =
-    initialGroupDataValues.structureActiveGroup;
 
   groups;
   @observable groupSelectTree;
@@ -123,11 +118,6 @@ export class GroupDataStore {
   @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
-  }
-
-  @action
-  updateStructureActiveGroup(structureActiveGroup) {
-    this.structureActiveGroup = structureActiveGroup;
   }
 
   getActiveGroupTypePrettyName() {

@@ -41,7 +41,10 @@ export const initialPlotSettingsValues = {
 
   // GROUP REPORT TAB
   reportConsensusThreshold: 0.7,
-  reportMutationListHidden: ['ORF1a'], // By default, hide Orf1a
+  reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
+  reportStructureActiveProtein: 'S',
+  reportStructurePdbId: '6ZGG',
+  reportStructureActiveGroup: 'B.1.1.7',
 };
 
 export class PlotSettingsStore {
@@ -192,6 +195,13 @@ export class PlotSettingsStore {
     initialPlotSettingsValues.reportConsensusThreshold;
   @observable reportMutationListHidden =
     initialPlotSettingsValues.reportMutationListHidden;
+  @observable reportStructureActiveProtein =
+    initialPlotSettingsValues.reportStructureActiveProtein;
+  @observable reportStructurePdbId =
+    initialPlotSettingsValues.reportStructurePdbId;
+  // Actively selected group for the structural viewer
+  @observable reportStructureActiveGroup =
+    initialPlotSettingsValues.reportStructureActiveGroup;
 
   @action
   setReportConsensusThreshold(thresh) {
@@ -214,6 +224,18 @@ export class PlotSettingsStore {
     }
 
     this.reportMutationListHidden = hidden;
+  }
+  @action
+  setReportStructureActiveProtein(proteinName) {
+    this.reportStructureActiveProtein = proteinName;
+  }
+  @action
+  setReportStructurePdbId(pdbId) {
+    this.reportStructurePdbId = pdbId;
+  }
+  @action
+  setReportStructureActiveGroup(group) {
+    this.reportStructureActiveGroup = group;
   }
 
   @action
