@@ -9,8 +9,8 @@ import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
-
 import {
   StructuralViewerContainer,
   LiteMolContainer,
@@ -29,6 +29,11 @@ const Transformer = Bootstrap.Entity.Transformer;
 const Visualization = LiteMol.Visualization;
 
 const numColors = reds.length;
+
+const DOWNLOAD_OPTIONS = {
+  DOWNLOAD_DATA: 'Mutation Frequency Data',
+  DOWNLOAD_PYMOL_SCRIPT: 'PyMOL Script',
+};
 
 const StructuralViewer = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
@@ -82,6 +87,14 @@ const StructuralViewer = observer(() => {
       pdbIdChanged: false,
       validPdbId: true,
     });
+  };
+
+  const handleDownloadSelect = (option) => {
+    if (option === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      groupDataStore.downloadStructureMutationData();
+    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL_SCRIPT) {
+      groupDataStore.downloadStructurePymolScript();
+    }
   };
 
   const applyHeatmap = ({ ref }) => {
@@ -260,6 +273,15 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[
+            DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL_SCRIPT,
+          ]}
+          onSelect={handleDownloadSelect}
+        />
       </StructuralViewerHeader>
       <StructuralViewerHeader>
         <OptionSelectContainer>

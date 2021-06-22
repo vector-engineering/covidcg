@@ -8,6 +8,10 @@ export const StructuralViewerContainer = styled.div`
 export const StructuralViewerHeader = styled.div`
   display: flex;
   flex-direction: row;
+
+  .spacer {
+    flex-grow: 1;
+  }
 `;
 
 export const OptionSelectContainer = styled.div`

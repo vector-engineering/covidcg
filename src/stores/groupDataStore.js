@@ -8,6 +8,7 @@ import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
+import { mutationHeatmapToPymolScript } from '../utils/pymol';
 
 export const initialGroupDataValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
@@ -201,5 +202,37 @@ export class GroupDataStore {
       const url = URL.createObjectURL(blob);
       downloadBlobURL(url, 'consensus_mutations.json');
     });
+  }
+
+  getStructureSnvs() {
+    return this.groupSnvFrequency[this.activeGroupType]['protein_aa'].filter(
+      (groupSnv) =>
+        groupSnv.name ===
+          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
+        groupSnv.protein ===
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein
+    );
+  }
+
+  downloadStructureMutationData() {
+    const blob = new Blob([JSON.stringify(this.getStructureSnvs())]);
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(
+      url,
+      `mutations_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.json`
+    );
+  }
+
+  downloadStructurePymolScript() {
+    const script = mutationHeatmapToPymolScript({
+      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+      snvs: this.getStructureSnvs(),
+    });
+    const blob = new Blob([script]);
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(
+      url,
+      `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`
+    );
   }
 }
