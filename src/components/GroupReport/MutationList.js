@@ -7,8 +7,9 @@ import { format } from 'd3-format';
 import { config } from '../../config';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { reds, snpColorArray } from '../../constants/colors';
-import { ASYNC_STATES } from '../../constants/defs.json';
+import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 import {
   MutationListContainer,
@@ -343,6 +344,15 @@ const MutationList = observer(() => {
   const onChangeConsensusThreshold = (event) => {
     plotSettingsStore.setReportConsensusThreshold(event.target.value);
   };
+  const handleDownloadSelect = (option) => {
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      groupDataStore.downloadGroupSnvFrequencyData({
+        group: groupDataStore.activeGroupType,
+        snvType: groupDataStore.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
+  };
 
   const activeGroupTypeItems = [];
   Object.keys(config.group_cols).forEach((groupType) => {
@@ -392,6 +402,12 @@ const MutationList = observer(() => {
             />
           </label>
         </OptionInputContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA]}
+          onSelect={handleDownloadSelect}
+        />
       </MutationListHeader>
       <MutationListContent></MutationListContent>
     </MutationListContainer>

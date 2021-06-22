@@ -10,6 +10,10 @@ export const MutationListHeader = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  .spacer {
+    flex-grow: 1;
+  }
 `;
 
 export const OptionSelectContainer = styled.div`

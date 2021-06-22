@@ -136,6 +136,20 @@ export class GroupDataStore {
 
   @action
   async fetchGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
+    // Skip the download if we already have the requested data
+    if (
+      Object.prototype.hasOwnProperty.call(this.groupSnvFrequency, group) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency[group],
+        snvType
+      )
+    ) {
+      // eslint-disable-next-line no-unused-vars
+      return new Promise((resolve, reject) => {
+        resolve(this.groupSnvFrequency[group][snvType]);
+      });
+    }
+
     rootStoreInstance.UIStore.onGroupSnvFrequencyStarted();
     return fetch(hostname + '/group_snv_frequencies', {
       method: 'POST',
