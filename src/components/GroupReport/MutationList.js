@@ -199,9 +199,6 @@ const MutationListContent = observer(() => {
     // Get all SNVs for this gene, then sort by position/alt
     const groupFeatureSnvs = groupSnvFrequency
       .filter((groupSnv) => {
-        if (groupSnv.fraction < plotSettingsStore.reportConsensusThreshold) {
-          return false;
-        }
         if (groupDataStore.groupSnvType === 'dna') {
           // Include NT SNVs in this gene if it is contained in
           // any of the gene's NT segments
@@ -219,38 +216,6 @@ const MutationListContent = observer(() => {
       })
       .sort(sortByPosThenAlt);
     // console.log(feature.name, groupFeatureSnvs);
-
-    // Push empty row for segments without SNVs
-    if (groupFeatureSnvs.length === 0) {
-      rowItems.push(
-        <MutationListRow
-          key={`group-snv-empty-${feature.name}`}
-          segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
-          firstRow={true}
-          frequency={new Array(groupDataStore.selectedGroups.length)}
-          emptyRow={true}
-        />
-      );
-      return;
-    }
-    // Push empty row for hidden features
-    else if (
-      plotSettingsStore.reportMutationListHidden.indexOf(feature.name) > -1
-    ) {
-      rowItems.push(
-        <MutationListRow
-          key={`group-snv-empty-${feature.name}`}
-          segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
-          firstRow={true}
-          frequency={new Array(groupDataStore.selectedGroups.length)}
-          emptyRow={true}
-          name={`${groupFeatureSnvs.length} SNVs hidden...`}
-        />
-      );
-      return;
-    }
 
     // Make list of records to insert into master "matrix"
     const featureSnvRecords = groupFeatureSnvs
@@ -278,8 +243,46 @@ const MutationListContent = observer(() => {
           alt: featureSnv.alt,
           frequency: freqs,
         };
+      })
+      // Filter out SNVs that have all mutation frequencies below the threshold
+      .filter((row) => {
+        return row.frequency.some(
+          (freq) => freq > plotSettingsStore.reportConsensusThreshold
+        );
       });
     // console.log(feature.name, featureSnvRecords);
+
+    // Push empty row for segments without SNVs
+    if (featureSnvRecords.length === 0) {
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          firstRow={true}
+          frequency={new Array(groupDataStore.selectedGroups.length)}
+          emptyRow={true}
+        />
+      );
+      return;
+    }
+    // Push empty row for hidden features
+    else if (
+      plotSettingsStore.reportMutationListHidden.indexOf(feature.name) > -1
+    ) {
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          firstRow={true}
+          frequency={new Array(groupDataStore.selectedGroups.length)}
+          emptyRow={true}
+          name={`${featureSnvRecords.length} SNVs hidden...`}
+        />
+      );
+      return;
+    }
 
     featureSnvRecords.forEach((snv, i) => {
       const snvName =
@@ -331,9 +334,9 @@ const MutationListContent = observer(() => {
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
 
-  const onChangeActiveGroupType = (event) => {
-    groupDataStore.updateActiveGroupType(event.target.value);
-  };
+  // const onChangeActiveGroupType = (event) => {
+  //   groupDataStore.updateActiveGroupType(event.target.value);
+  // };
   const onChangeGroupSnvType = (event) => {
     groupDataStore.updateGroupSnvType(event.target.value);
   };
@@ -353,7 +356,7 @@ const MutationList = observer(() => {
   return (
     <MutationListContainer>
       <MutationListHeader>
-        <OptionSelectContainer>
+        {/* <OptionSelectContainer>
           <label>
             <select
               value={groupDataStore.activeGroupType}
@@ -362,9 +365,10 @@ const MutationList = observer(() => {
               {activeGroupTypeItems}
             </select>
           </label>
-        </OptionSelectContainer>
+        </OptionSelectContainer> */}
         <OptionSelectContainer>
           <label>
+            SNV Type
             <select
               value={groupDataStore.groupSnvType}
               onChange={onChangeGroupSnvType}

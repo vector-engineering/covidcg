@@ -13,7 +13,7 @@ export const MutationListHeader = styled.div`
 `;
 
 export const OptionSelectContainer = styled.div`
-  margin-right: 8px;
+  margin-right: 12px;
   font-weight: normal;
   select {
     margin-left: 0.65em;
