@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
@@ -17,6 +17,10 @@ const GroupReportTabContainer = styled.div`
 `;
 const GroupTreePlotContainer = styled.div``;
 
+const GroupTreeToggle = styled.span`
+  margin: 5px;
+`;
+
 const MainContainer = styled.div`
   flex-grow: 1;
 `;
@@ -24,6 +28,9 @@ const MainContainer = styled.div`
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
   const [ref, { width }] = useDimensions();
+  const [state, setState] = useState({
+    treeOpen: true,
+  });
 
   const renderHeader = () => {
     return (
@@ -82,11 +89,27 @@ const GroupReportTab = observer(() => {
     );
   };
 
+  const toggleTree = () => {
+    setState((state) => {
+      return {
+        treeOpen: !state.treeOpen,
+      };
+    });
+  };
+
   return (
     <GroupReportTabContainer ref={ref}>
-      <GroupTreePlotContainer>
-        <GroupTreePlot width={300} />
-      </GroupTreePlotContainer>
+      {state.treeOpen && (
+        <GroupTreePlotContainer>
+          <GroupTreePlot width={300} />
+        </GroupTreePlotContainer>
+      )}
+      {state.treeOpen && (
+        <GroupTreeToggle onClick={toggleTree}>◄</GroupTreeToggle>
+      )}
+      {!state.treeOpen && (
+        <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
+      )}
       <MainContainer>
         {renderHeader()}
         {renderMutationList()}

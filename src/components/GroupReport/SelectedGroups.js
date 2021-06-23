@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import Button from '../Buttons/Button';
-
 import {
   SelectedGroupTitle,
   SelectedGroupsContainer,
@@ -12,13 +10,14 @@ import {
   SelectedGroupItemContainer,
   SelectedGroupItemTitle,
   NoGroupsSelectedContainer,
+  SelectedGroupsButton,
 } from './SelectedGroups.styles';
 
 const SelectedGroupItem = ({ name, onClick }) => {
   return (
     <SelectedGroupItemContainer>
       <SelectedGroupItemTitle>{name}</SelectedGroupItemTitle>
-      <Button onClick={onClick}>✖</Button>
+      <SelectedGroupsButton onClick={onClick}>✖</SelectedGroupsButton>
     </SelectedGroupItemContainer>
   );
 };
