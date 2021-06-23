@@ -3,23 +3,25 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
-import vocList from '../../../static_data/voc.json';
+import VOC_LIST from '../../../static_data/vocs.json';
 
 import {
   VOCListContainer,
   VOCListHeader,
   VOCListTitle,
-  VOCItemListTitle,
-  VOCItemList,
+  VOCTitle,
+  VOITitle,
+  VOCGridItem,
+  VOIGridItem,
   VOCItemContainer,
-  VOCItemTable,
+  VOCItemGrid,
   VOCItemName,
   VOCItemAlias,
-  Td,
 } from './VOCList.styles';
 
 const VOCItem = observer(({ name, alias }) => {
   const { groupDataStore } = useStores();
+
   const vocItemOnClick = () => {
     let selectedNodes = groupDataStore.selectedGroups;
 
@@ -71,8 +73,7 @@ VOCItem.propTypes = {
 const VOCList = observer(() => {
   // Variants of Concern (VOC)
   const vocItems = [];
-  vocList.list
-    .filter((record) => {
+  VOC_LIST.filter((record) => {
       return record.level === 'VOC';
     })
     .forEach((record) => {
@@ -87,8 +88,7 @@ const VOCList = observer(() => {
 
   // Variants of Interest (VOI)
   const voiItems = [];
-  vocList.list
-    .filter((record) => {
+  VOC_LIST.filter((record) => {
       return record.level === 'VOI';
     })
     .forEach((record) => {
@@ -106,28 +106,12 @@ const VOCList = observer(() => {
       <VOCListHeader>
         <VOCListTitle>Select Notable Variants</VOCListTitle>
       </VOCListHeader>
-      <VOCItemTable>
-        <thead>
-          <tr>
-            <th>
-              <VOCItemListTitle>Variants of Concern</VOCItemListTitle>
-            </th>
-            <th>
-              <VOCItemListTitle>Variants of Interest</VOCItemListTitle>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <Td>
-              <VOCItemList>{vocItems}</VOCItemList>
-            </Td>
-            <Td>
-              <VOCItemList>{voiItems}</VOCItemList>
-            </Td>
-          </tr>
-        </tbody>
-      </VOCItemTable>
+      <VOCItemGrid>
+        <VOCTitle>Variants of Concern</VOCTitle>
+        <VOITitle>Variants of Interest</VOITitle>
+        <VOCGridItem>{vocItems}</VOCGridItem>
+        <VOIGridItem>{voiItems}</VOIGridItem>
+      </VOCItemGrid>
     </VOCListContainer>
   );
 });
