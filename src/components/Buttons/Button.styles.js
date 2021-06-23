@@ -1,18 +1,22 @@
 import styled from 'styled-components';
 
 export const StyledButton = styled.button`
-  padding: 5px 10px;
-  background-color: ${({ disabled }) => (disabled ? '#ccc' : '#28a745')};
+  background-color: ${({ disabled }) => (disabled ? '#ccc' : '#2d62fd')};
   background-image: ${({ disabled }) =>
-    disabled ? 'none' : 'linear-gradient(-180deg, #34d058, #28a745 90%)'};
+    disabled ? 'none' : 'linear-gradient(-180deg, #22c3ba, #2d62fd 90%)'};
   color: #fff;
   font-size: 12px;
   border: 1px solid rgba(27, 31, 35, 0.2);
   border-radius: 0.25em;
   outline: none;
+  margin-left: 10px;
+
+  vertical-align: baseline;
+
+  color: '#ffffff';
 
   &:active {
-    background-color: #279f43;
+    background-color: #2d62fd;
     background-image: none;
     border-color: rgba(27, 31, 35, 0.5);
   }
@@ -21,7 +25,7 @@ export const StyledButton = styled.button`
     sticky &&
     `
     &:focus {
-      background-color: #279f43;
+      background-color: #d5ded6;
       background-image: none;
       border-color: rgba(27, 31, 35, 0.5);
     }

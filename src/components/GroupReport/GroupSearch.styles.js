@@ -150,7 +150,7 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     height: 100%;
     flex-direction: column;
     display: flex;
-    // overflow: hidden;
+    overflow: hidden;
     align-items: stretch;
 
     a.dropdown-trigger {
@@ -172,7 +172,6 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     .dropdown-content {
       position: absolute;
       max-height: 50vh;
-      overflow-y: scroll;
 
       border: 1px solid #aaa;
       padding: 0px 5px;

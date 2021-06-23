@@ -18,7 +18,7 @@ const SelectedGroupItem = ({ name, onClick }) => {
   return (
     <SelectedGroupItemContainer>
       <SelectedGroupItemTitle>{name}</SelectedGroupItemTitle>
-      <Button onClick={onClick}>x</Button>
+      <Button onClick={onClick}>✖</Button>
     </SelectedGroupItemContainer>
   );
 };
