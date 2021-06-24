@@ -23,17 +23,6 @@ const AboutTab = () => {
   return (
     <TabContainer>
       <Content>
-        {/*
-        <TOC>
-          <span className="toc-title">Table of Contents</span>
-          <ul className="toc-list">
-            <li className="toc-item">
-              <a title="contributors" href="#contributors">
-                Contributors
-              </a>
-            </li>
-          </ul>
-        </TOC>*/}
         <ContentSection>
           <a id="contributors"></a>
           <span className="section-title">COVID-CG is developed by</span>
@@ -193,11 +182,15 @@ const AboutTab = () => {
           <a id="citing-covid-cg"></a>
           <span className="section-title">Citing COVID-19 CG:</span>
           <div className="content-text">
-            {/* <p>
-                Chen AT, Altschuler K, Chan AY, Zhan SH, Deverman BE (2020).
-                COVID-19 CG: Tracking SARS-CoV-2 by mutation, location, and date
-                of interest. <i>bioRxiv</i>. DOI: ...
-              </p> */}
+            <p>COVID-19 CG is published in eLife:</p>
+            <p>
+              Chen AT, Altschuler K, Chan AY, Zhan SH, Deverman BE (2021).
+              COVID-19 CG enables SARS-CoV-2 mutation and lineage tracking by
+              locations and dates of interest. <i>eLife</i>. DOI:{' '}
+              <ExternalLink href="https://doi.org/10.7554/eLife.63409">
+                10.7554/eLife.63409
+              </ExternalLink>
+            </p>
             <p>
               Users are encouraged to share, download, and further analyze data
               from this site. Plots can be downloaded as PNG or SVG files, and
@@ -237,131 +230,6 @@ const AboutTab = () => {
             </p>
           </div>
         </ContentSection>
-
-        {/* <ContentSection>
-          <a id="reference-data"></a>
-          <span className="section-title">Reference Sequence</span>
-
-          <div className="content-block">
-            <div className="content-text">
-              <p>
-                All hCoV-19 sequences are aligned to the WIV04 reference
-                sequence (GISAID: EPI_ISL_402124). Gene and protein ORFs were taken from the GenBank page.
-              </p>
-            </div>
-            <div className="content-images"></div>
-          </div>
-        </ContentSection> */}
-        {/*
-        <ContentSection>
-          <a id="primer-data"></a>
-          <span className="section-title">Primer / Probe Data</span>
-
-          <div className="content-block">
-            <div className="content-text"></div>
-            <div className="content-images"></div>
-          </div>
-        </ContentSection>
-        */}
-
-        {/* <ContentSection>
-          <a id="code"></a>
-          <span className="section-title">Open-source Code</span>
-
-          <p>
-            This project is built off of the following open-source projects and
-            its contributors
-          </p>
-
-          <div className="content-block">
-            <div className="content-text">
-              <p>
-                This app is built on the{' '}
-                <ExternalLink href="https://reactjs.org/">
-                  React.js
-                </ExternalLink>{' '}
-                framework, and was initially made from the{' '}
-                <ExternalLink href="https://github.com/coryhouse/react-slingshot">
-                  React-Slingshot starter kit
-                </ExternalLink>
-                .{' '}
-                <ExternalLink href="https://mobx.js.org/README.html">
-                  MobX
-                </ExternalLink>{' '}
-                is used for internal state management.
-              </p>
-            </div>
-            <div className="content-images">
-              <ImageRow>
-                <ExternalLink href="https://reactjs.org/">
-                  <img src={ReactLogo} height="50"></img>
-                </ExternalLink>
-                <ExternalLink href="https://github.com/coryhouse/react-slingshot">
-                  <img src={ReactSlingshotImage} height="40"></img>
-                </ExternalLink>
-                <ExternalLink href="https://mobx.js.org/README.html">
-                  <img src={MobXLogo} height="50"></img>
-                </ExternalLink>
-              </ImageRow>
-            </div>
-          </div>
-
-          <div className="content-block">
-            <div className="content-text">
-              <p>
-                This project uses{' '}
-                <ExternalLink href="https://vega.github.io/">Vega</ExternalLink>{' '}
-                from the{' '}
-                <ExternalLink href="https://idl.cs.washington.edu/">
-                  University of Washington Interactive Data Lab
-                </ExternalLink>{' '}
-                to generate deep and interactive data visualizations.{' '}
-                <ExternalLink href="https://github.com/vega/react-vega">
-                  react-vega
-                </ExternalLink>{' '}
-                is used to interface Vega with our UI.
-              </p>
-            </div>
-            <div className="content-images">
-              <ExternalLink href="https://idl.cs.washington.edu/">
-                <img src={IDLLogo} height="50"></img>
-              </ExternalLink>
-            </div>
-          </div>
-
-          <div className="content-block">
-            <div className="content-text">
-              <p>
-                Tree-selectors are built from{' '}
-                <ExternalLink href="https://github.com/dowjones/react-dropdown-tree-select">
-                  dowjones/react-dropdown-tree-select
-                </ExternalLink>
-                . Flags in the location selector are taken from{' '}
-                <ExternalLink href="https://github.com/matiassingers/emoji-flags">
-                  matiassingers/emoji-flags
-                </ExternalLink>
-              </p>
-            </div>
-            <div className="content-images"></div>
-          </div>
-
-          <div className="content-block">
-            <div className="content-text">
-              <p>
-                Tables are rendered with{' '}
-                <ExternalLink href="https://adazzle.github.io/react-data-grid/">
-                  adazzle/react-data-grid
-                </ExternalLink>
-              </p>
-            </div>
-            <div className="content-images"></div>
-          </div>
-
-          <div className="content-block">
-            <div className="content-text"></div>
-            <div className="content-images"></div>
-          </div>
-        </ContentSection> */}
       </Content>
     </TabContainer>
   );

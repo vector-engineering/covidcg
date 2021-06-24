@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
@@ -124,6 +124,25 @@ const ExampleItemFooter = styled.div`
   //
 `;
 
+export const PubBanner = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #fff3cd;
+  padding: 5px;
+  border-bottom: 1px solid #aaa;
+
+  p {
+    margin: 0px;
+    margin-left: auto;
+  }
+`;
+
+export const CloseButton = styled.button`
+  margin-left: auto;
+`;
+
+
 // const TOC = styled.div`
 //   font-weight: normal;
 // `;
@@ -158,6 +177,7 @@ const ExampleTab = observer(() => {
   } = useStores();
 
   const [ref, { width }] = useDimensions();
+  const [showBanner, setShowBanner] = useState(true);
 
   const selectTree = locationDataStore.selectTree;
   const exampleItems = [
@@ -443,6 +463,19 @@ const ExampleTab = observer(() => {
 
   return (
     <ExampleTabContainer ref={ref}>
+      {showBanner && (
+        <PubBanner>
+          <p>
+            COVID CG is{' '}
+            <ExternalLink href="https://doi.org/10.7554/eLife.63409">
+              published in eLife
+            </ExternalLink>
+          </p>
+          <CloseButton onClick={setShowBanner.bind(this, false)}>
+            Dismiss
+          </CloseButton>
+        </PubBanner>
+      )}
       <ExampleTabContent>
         {/* <TOC>
           <h3>Table of Contents</h3>
