@@ -12,16 +12,19 @@ import traceback
 
 from flask import make_response
 
+from cg_server.query.connection_pooling import get_conn_from_pool
+
 # Print to stderr (for Google Cloud Run error tracking)
 # https://stackoverflow.com/a/14981125/4343866
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def handle_db_errors(conn):
+def handle_db_errors(conn, options, conn_pool):
     def decorator_db_error(func):
         @functools.wraps(func)
         def wrapper_db_error(*args, **kwargs):
+            # conn = get_conn_from_pool(options, conn_pool)
             try:
                 res = func(*args, **kwargs)
             # Catch any database/SQL errors
@@ -39,6 +42,7 @@ def handle_db_errors(conn):
                 return make_response((str(e), 500))
 
             conn.commit()
+            conn_pool.putconn(conn)
 
             return res
 

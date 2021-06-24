@@ -71,12 +71,12 @@ if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
 conn_pool = psycopg2.pool.SimpleConnectionPool(1, 20, **connection_options)
-conn = get_conn_from_pool(connection_options, conn_pool)
 
 # Quickly check if our database has been initialized yet
 # If not, then let's seed it
 # Only allow in development mode
 if os.getenv("FLASK_ENV", "development") == "development":
+    conn = get_conn_from_pool(connection_options, conn_pool)
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -109,7 +109,9 @@ def index():
 
 @app.route("/init")
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def init():
     conn = get_conn_from_pool(connection_options, conn_pool)
     return query_initial(conn, conn_pool)
@@ -117,7 +119,9 @@ def init():
 
 @app.route("/country_score", methods=["GET"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def _country_score():
     conn = get_conn_from_pool(connection_options, conn_pool)
     return query_country_score(conn, conn_pool)
@@ -125,7 +129,9 @@ def _country_score():
 
 @app.route("/data", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def get_sequences():
     req = request.json
     if not req:
@@ -136,7 +142,9 @@ def get_sequences():
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def _get_metadata_fields():
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
@@ -145,7 +153,9 @@ def _get_metadata_fields():
 
 @app.route("/group_snv_frequencies", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def get_group_snv_frequencies():
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
@@ -154,7 +164,9 @@ def get_group_snv_frequencies():
 
 @app.route("/download_metadata", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def _download_metadata():
     if not config["allow_metadata_download"]:
         return make_response(
@@ -167,7 +179,9 @@ def _download_metadata():
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def _download_snvs():
     if not config["allow_metadata_download"]:
         return make_response(
@@ -181,7 +195,9 @@ def _download_snvs():
 
 @app.route("/download_genomes", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=conn)
+@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
+                  options=connection_options,
+                  conn_pool=conn_pool)
 def _download_genomes():
     if not config["allow_genome_download"]:
         return make_response(
