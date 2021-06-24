@@ -18,7 +18,7 @@ import {
   TABS,
 } from '../constants/defs.json';
 
-export const initialDataValues = {
+export const initialValues = {
   aggSequencesLocationGroupDate: [],
   aggSequencesGroupDate: [],
   dataAggLocationGroupDate: [],
@@ -46,22 +46,21 @@ export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
-  aggSequencesLocationGroupDate =
-    initialDataValues.aggSequencesLocationGroupDate;
-  aggSequencesGroupDate = initialDataValues.aggSequencesGroupDate;
-  dataAggLocationGroupDate = initialDataValues.dataAggLocationGroupDate;
-  dataAggGroupDate = initialDataValues.dataAggGroupDate;
-  dataAggGroup = initialDataValues.dataAggGroup;
-  @observable metadataCounts = initialDataValues.metadataCounts;
+  aggSequencesLocationGroupDate = initialValues.aggSequencesLocationGroupDate;
+  aggSequencesGroupDate = initialValues.aggSequencesGroupDate;
+  dataAggLocationGroupDate = initialValues.dataAggLocationGroupDate;
+  dataAggGroupDate = initialValues.dataAggGroupDate;
+  dataAggGroup = initialValues.dataAggGroup;
+  @observable metadataCounts = initialValues.metadataCounts;
 
-  dataAggLocationSnvDate = initialDataValues.dataAggLocationSnvDate;
-  dataAggSnvDate = initialDataValues.dataAggSnvDate;
-  snvCooccurrence = initialDataValues.snvCooccurrence;
+  dataAggLocationSnvDate = initialValues.dataAggLocationSnvDate;
+  dataAggSnvDate = initialValues.dataAggSnvDate;
+  snvCooccurrence = initialValues.snvCooccurrence;
 
-  countsPerLocation = initialDataValues.countsPerLocation;
-  countsPerLocationDate = initialDataValues.countsPerLocationDate;
-  validGroups = initialDataValues.validGroups;
-  groupCounts = initialDataValues.groupCounts;
+  countsPerLocation = initialValues.countsPerLocation;
+  countsPerLocationDate = initialValues.countsPerLocationDate;
+  validGroups = initialValues.validGroups;
+  groupCounts = initialValues.groupCounts;
 
   constructor() {}
 

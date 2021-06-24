@@ -10,7 +10,7 @@ import { asyncDataStoreInstance } from '../components/App';
 import { downloadBlobURL } from '../utils/download';
 import { mutationHeatmapToPymolScript } from '../utils/pymol';
 
-export const initialGroupDataValues = {
+export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
   selectedGroups: ['B.1.1.7', 'B.1.351', 'P.2'],
   groupSnvType: 'protein_aa',
@@ -18,9 +18,9 @@ export const initialGroupDataValues = {
 
 export class GroupDataStore {
   // Actively selected group type in the report tab
-  @observable activeGroupType = initialGroupDataValues.activeGroupType;
-  @observable selectedGroups = initialGroupDataValues.selectedGroups;
-  @observable groupSnvType = initialGroupDataValues.groupSnvType;
+  @observable activeGroupType = initialValues.activeGroupType;
+  @observable selectedGroups = initialValues.selectedGroups;
+  @observable groupSnvType = initialValues.groupSnvType;
 
   groups;
   @observable groupSelectTree;

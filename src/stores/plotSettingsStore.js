@@ -9,7 +9,7 @@ import {
   SORT_DIRECTIONS,
 } from '../constants/defs.json';
 
-export const initialPlotSettingsValues = {
+export const initialValues = {
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
   groupStackCountMode: COUNT_MODES.COUNT_NEW,
   groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
@@ -41,6 +41,7 @@ export const initialPlotSettingsValues = {
 
   // GROUP REPORT TAB
   reportConsensusThreshold: 0.7,
+  reportMutationListHideEmpty: true,
   reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
   reportStructureActiveProtein: 'S',
   reportStructurePdbId: '6ZGG',
@@ -48,10 +49,9 @@ export const initialPlotSettingsValues = {
 };
 
 export class PlotSettingsStore {
-  @observable groupStackNormMode = initialPlotSettingsValues.groupStackNormMode;
-  @observable groupStackCountMode =
-    initialPlotSettingsValues.groupStackCountMode;
-  @observable groupStackDateBin = initialPlotSettingsValues.groupStackDateBin;
+  @observable groupStackNormMode = initialValues.groupStackNormMode;
+  @observable groupStackCountMode = initialValues.groupStackCountMode;
+  @observable groupStackDateBin = initialValues.groupStackDateBin;
 
   init() {}
 
@@ -68,12 +68,9 @@ export class PlotSettingsStore {
     this.groupStackDateBin = dateBin;
   }
 
-  @observable locationDateNormMode =
-    initialPlotSettingsValues.locationDateNormMode;
-  @observable locationDateCountMode =
-    initialPlotSettingsValues.locationDateCountMode;
-  @observable locationDateDateBin =
-    initialPlotSettingsValues.locationDateDateBin;
+  @observable locationDateNormMode = initialValues.locationDateNormMode;
+  @observable locationDateCountMode = initialValues.locationDateCountMode;
+  @observable locationDateDateBin = initialValues.locationDateDateBin;
 
   @action
   setLocationDateNormMode(mode) {
@@ -89,18 +86,18 @@ export class PlotSettingsStore {
   }
 
   @observable locationGroupHideReference =
-    initialPlotSettingsValues.locationGroupHideReference;
+    initialValues.locationGroupHideReference;
 
   @action
   setLocationGroupHideReference(hide) {
     this.locationGroupHideReference = hide;
   }
 
-  @observable tableColorMode = initialPlotSettingsValues.tableColorMode;
-  @observable tableCompareMode = initialPlotSettingsValues.tableCompareMode;
-  @observable tableCompareColor = initialPlotSettingsValues.tableCompareColor;
-  @observable tableSortColumn = initialPlotSettingsValues.tableSortColumn;
-  @observable tableSortDirection = initialPlotSettingsValues.tableSortDirection;
+  @observable tableColorMode = initialValues.tableColorMode;
+  @observable tableCompareMode = initialValues.tableCompareMode;
+  @observable tableCompareColor = initialValues.tableCompareColor;
+  @observable tableSortColumn = initialValues.tableSortColumn;
+  @observable tableSortDirection = initialValues.tableSortDirection;
 
   @action
   setTableColorMode(mode) {
@@ -120,8 +117,7 @@ export class PlotSettingsStore {
     this.tableSortDirection = dir;
   }
 
-  @observable cooccurrenceNormMode =
-    initialPlotSettingsValues.cooccurrenceNormMode;
+  @observable cooccurrenceNormMode = initialValues.cooccurrenceNormMode;
 
   @action
   setCooccurrenceNormMode(mode) {
@@ -132,23 +128,19 @@ export class PlotSettingsStore {
   // SURVEILLANCE PLOT
   // -----------------
 
-  @observable surveillanceMode = initialPlotSettingsValues.surveillanceMode;
-  @observable surveillanceSortField =
-    initialPlotSettingsValues.surveillanceSortField;
+  @observable surveillanceMode = initialValues.surveillanceMode;
+  @observable surveillanceSortField = initialValues.surveillanceSortField;
   @observable surveillanceSortDirection =
-    initialPlotSettingsValues.surveillanceSortDirection;
+    initialValues.surveillanceSortDirection;
   @observable surveillanceDisplayMinCounts =
-    initialPlotSettingsValues.surveillanceDisplayMinCounts;
+    initialValues.surveillanceDisplayMinCounts;
   @observable surveillanceDisplayMinPercent =
-    initialPlotSettingsValues.surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts =
-    initialPlotSettingsValues.surveillanceSigMinCounts;
+    initialValues.surveillanceDisplayMinPercent;
+  @observable surveillanceSigMinCounts = initialValues.surveillanceSigMinCounts;
   @observable surveillanceSigMinPercent =
-    initialPlotSettingsValues.surveillanceSigMinPercent;
-  @observable surveillanceSigMinR =
-    initialPlotSettingsValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover =
-    initialPlotSettingsValues.surveillanceLegendHover;
+    initialValues.surveillanceSigMinPercent;
+  @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
+  @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
 
   @action
   setSurveillanceMode(mode) {
@@ -191,21 +183,24 @@ export class PlotSettingsStore {
   // GROUP REPORT TAB
   // ----------------
 
-  @observable reportConsensusThreshold =
-    initialPlotSettingsValues.reportConsensusThreshold;
-  @observable reportMutationListHidden =
-    initialPlotSettingsValues.reportMutationListHidden;
+  @observable reportConsensusThreshold = initialValues.reportConsensusThreshold;
+  @observable reportMutationListHideEmpty =
+    initialValues.reportMutationListHideEmpty;
+  @observable reportMutationListHidden = initialValues.reportMutationListHidden;
   @observable reportStructureActiveProtein =
-    initialPlotSettingsValues.reportStructureActiveProtein;
-  @observable reportStructurePdbId =
-    initialPlotSettingsValues.reportStructurePdbId;
+    initialValues.reportStructureActiveProtein;
+  @observable reportStructurePdbId = initialValues.reportStructurePdbId;
   // Actively selected group for the structural viewer
   @observable reportStructureActiveGroup =
-    initialPlotSettingsValues.reportStructureActiveGroup;
+    initialValues.reportStructureActiveGroup;
 
   @action
   setReportConsensusThreshold(thresh) {
     this.reportConsensusThreshold = thresh;
+  }
+  @action
+  setReportMutationListHideEmpty(hideEmpty) {
+    this.reportMutationListHideEmpty = hideEmpty;
   }
   @action
   setReportMutationListHidden(hidden) {
@@ -240,11 +235,11 @@ export class PlotSettingsStore {
 
   @action
   resetValues(values) {
-    Object.keys(initialPlotSettingsValues).forEach((key) => {
+    Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialPlotSettingsValues[key];
+        this[key] = initialValues[key];
       }
     });
   }
