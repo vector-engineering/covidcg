@@ -68,7 +68,7 @@ const GroupReportTab = observer(() => {
       <AccordionWrapper
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
-        maxHeight={'600px'}
+        maxHeight={'620px'}
         helpText={
           <ul>
             <li>

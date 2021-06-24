@@ -411,7 +411,15 @@ const MutationList = observer(() => {
             />
           </label>
         </OptionInputContainer>
-        {/* <OptionCheckboxContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA]}
+          onSelect={handleDownloadSelect}
+        />
+      </MutationListHeader>
+      <MutationListHeader>
+        <OptionCheckboxContainer>
           <label>
             <input
               type="checkbox"
@@ -419,15 +427,13 @@ const MutationList = observer(() => {
               checked={plotSettingsStore.reportMutationListHideEmpty}
               onChange={onChangeHideEmpty}
             />
-            Hide {groupDataStore.groupSnvType === 'protein_aa' ? 'Proteins' : 'Genes'} without SNVs
+            Hide{' '}
+            {groupDataStore.groupSnvType === 'protein_aa'
+              ? 'Proteins'
+              : 'Genes'}{' '}
+            without SNVs
           </label>
-        </OptionCheckboxContainer> */}
-        <div className="spacer"></div>
-        <DropdownButton
-          text={'Download'}
-          options={[PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA]}
-          onSelect={handleDownloadSelect}
-        />
+        </OptionCheckboxContainer>
       </MutationListHeader>
       <MutationListContent></MutationListContent>
     </MutationListContainer>
