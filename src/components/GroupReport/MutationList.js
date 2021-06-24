@@ -16,6 +16,7 @@ import {
   MutationListHeader,
   OptionSelectContainer,
   OptionInputContainer,
+  OptionCheckboxContainer,
   MutationListHeaderTable,
   MutationListHeaderEmpty,
   MutationListHeaderCell,
@@ -255,6 +256,11 @@ const MutationListContent = observer(() => {
 
     // Push empty row for segments without SNVs
     if (featureSnvRecords.length === 0) {
+      // Push nothing if we're hiding empty features
+      if (plotSettingsStore.reportMutationListHideEmpty) {
+        return;
+      }
+
       rowItems.push(
         <MutationListRow
           key={`group-snv-empty-${feature.name}`}
@@ -344,6 +350,9 @@ const MutationList = observer(() => {
   const onChangeConsensusThreshold = (event) => {
     plotSettingsStore.setReportConsensusThreshold(event.target.value);
   };
+  const onChangeHideEmpty = (event) => {
+    plotSettingsStore.setReportMutationListHideEmpty(event.target.checked);
+  };
   const handleDownloadSelect = (option) => {
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
       groupDataStore.downloadGroupSnvFrequencyData({
@@ -402,6 +411,17 @@ const MutationList = observer(() => {
             />
           </label>
         </OptionInputContainer>
+        <OptionCheckboxContainer>
+          <label>
+            <input
+              type="checkbox"
+              name="mutation-list-hide-empty"
+              checked={plotSettingsStore.reportMutationListHideEmpty}
+              onChange={onChangeHideEmpty}
+            />
+            Hide {groupDataStore.groupSnvType === 'protein_aa' ? 'Proteins' : 'Genes'} without SNVs
+          </label>
+        </OptionCheckboxContainer>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

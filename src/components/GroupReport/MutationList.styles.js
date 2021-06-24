@@ -46,6 +46,12 @@ OptionInputContainer.defaultProps = {
   invalid: false,
 };
 
+export const OptionCheckboxContainer = styled(OptionInputContainer)`
+  input {
+    margin-right: 0.4em;
+  }
+`;
+
 export const MutationListHeaderTable = styled.table`
   display: grid;
   grid-template-columns: 80px 120px repeat(${({ ncols }) => ncols}, 50px);
