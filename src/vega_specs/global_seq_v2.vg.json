@@ -538,8 +538,8 @@
             "scales": [
               {
                 "name": "x",
-                "type": "log",
-                "base": 10,
+                "type": "symlog",
+                "constant": 10,
                 "round": true,
                 "nice": true,
                 "domain": {"data": "sequences_and_cases", "field": "cases"},
