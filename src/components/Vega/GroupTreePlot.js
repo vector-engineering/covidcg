@@ -17,12 +17,14 @@ import {
   TreeScrollContainer,
 } from './GroupTreePlot.styles';
 
-import initialSpec from '../../vega_specs/group_tree_v2.vg.json';
+// import legendSpec from '../../vega_specs/group_tree_legend_v2.vg.json';
+import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
-const headerHeight = 80;
+const headerHeight = 260;
 const treePlotHeight = 12000;
 
 const GroupTreePlot = observer(({ width }) => {
+  // const vegaLegendRef = useRef();
   const vegaRef = useRef();
   const treeContainerRef = useRef();
   const [treeContainerDimensions, setTreeContainerDimensions] = useState();
@@ -153,11 +155,17 @@ const GroupTreePlot = observer(({ width }) => {
           </label>
         </SelectContainer>
       </Header>
+      {/* <VegaEmbed
+        ref={vegaLegendRef}
+        spec={legendSpec}
+        width={width - 75}
+        actions={false}
+      /> */}
       <TreeScrollContainer ref={treeContainerRef} headerHeight={headerHeight}>
         <VegaEmbed
           ref={vegaRef}
           data={state.data}
-          spec={initialSpec}
+          spec={treeSpec}
           // signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{

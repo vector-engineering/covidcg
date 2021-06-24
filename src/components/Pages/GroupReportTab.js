@@ -160,7 +160,7 @@ const GroupReportTab = observer(() => {
         <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
       )} */}
       <GroupTreePlotContainer>
-        <GroupTreePlot width={300} />
+        <GroupTreePlot width={250} />
       </GroupTreePlotContainer>
       <MainContainer>
         {renderHeader()}
