@@ -2,6 +2,8 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import SelectedGroups from './SelectedGroups';
+
 import {
   GroupSearchContainer,
   GroupSearchHeader,
@@ -59,6 +61,7 @@ const GroupSearch = observer(() => {
 
   return (
     <GroupSearchContainer>
+      <SelectedGroups />
       <GroupSearchHeader>
         <GroupSearchTitle>
           Select {groupDataStore.getActiveGroupTypePrettyName()}s

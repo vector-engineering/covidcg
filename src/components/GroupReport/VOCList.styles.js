@@ -1,30 +1,14 @@
 import styled from 'styled-components';
 
-const StyledLi = styled.li`
-  float: left;
-  height: 100%;
-  padding: 10px;
-`;
-
-const VOCGridTitle = styled.span`
-  font-size: 16px;
+export const VOCGridTitle = styled.span`
+  font-size: 1em;
   grid-row: 1;
   justify-self: center;
+  font-weight: bold;
 `;
 
-const GridItem = styled(StyledLi)`
-  grid-row: auto;
-  list-style-type: none;
-  justify-self: left;
-  position: relative;
-`;
-
-export const VOCGridItem = styled(GridItem)`
-  grid-column: 1;
-`;
-
-export const VOIGridItem = styled(GridItem)`
-  grid-column: 2;
+export const GridItem = styled.div`
+  padding-left: 10px;
 `;
 
 export const VOCListContainer = styled.div`
@@ -32,28 +16,14 @@ export const VOCListContainer = styled.div`
   flex-direction: column;
   padding: 10px;
   overflow: hidden;
-`;
-
-export const VOCListHeader = styled.div`
-  text-align: center;
-`;
-
-export const VOCListTitle = styled.div`
-  font-size: 18px;
+  font-weight: normal;
 `;
 
 export const VOCItemGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto;
-`;
-
-export const VOCTitle = styled(VOCGridTitle)`
-  grid-column: 1;
-`;
-
-export const VOITitle = styled(VOCGridTitle)`
-  grid-column: 2;
+  grid-column-gap: 10px;
 `;
 
 export const VOCItemContainer = styled.div`

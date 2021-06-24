@@ -7,34 +7,30 @@ import VOC_LIST from '../../../static_data/vocs.json';
 
 import {
   VOCListContainer,
-  VOCListHeader,
-  VOCListTitle,
-  VOCTitle,
-  VOITitle,
-  VOCGridItem,
-  VOIGridItem,
+  VOCGridTitle,
+  GridItem,
   VOCItemContainer,
   VOCItemGrid,
   VOCItemName,
-  DropdownGrid,
-  DropdownLabel,
+  // DropdownGrid,
+  // DropdownLabel,
 } from './VOCList.styles';
 
-const VOCItemDropdown = observer(({ data }) => {
-  return (
-    <DropdownGrid>
-      <DropdownLabel>WHO Label: {data.who_label}</DropdownLabel>
-      <DropdownLabel>Nextstrain: {data.nextstrain}</DropdownLabel>
-      <DropdownLabel>Detected: {data.first_detection}</DropdownLabel>
-    </DropdownGrid>
-  );
-});
+// const VOCItemDropdown = observer(({ data }) => {
+//   return (
+//     <DropdownGrid>
+//       <DropdownLabel>WHO Label: {data.who_label}</DropdownLabel>
+//       <DropdownLabel>Nextstrain: {data.nextstrain}</DropdownLabel>
+//       <DropdownLabel>Detected: {data.first_detection}</DropdownLabel>
+//     </DropdownGrid>
+//   );
+// });
 
 const VOCItem = observer(({ data }) => {
   const { groupDataStore } = useStores();
-  const [state, setState] = useState({
-    open: false,
-  });
+  // const [state, setState] = useState({
+  //   open: false,
+  // });
 
   // See if checkbox should be checked
   let checked =
@@ -62,29 +58,30 @@ const VOCItem = observer(({ data }) => {
     );
   };
 
-  const vocItemOnClick = () => {
-    setState((state) => {
-      return {
-        open: !state.open,
-      };
-    });
-  };
+  // const vocItemOnClick = () => {
+  //   setState((state) => {
+  //     return {
+  //       open: !state.open,
+  //     };
+  //   });
+  // };
 
   return (
     <VOCItemContainer>
-      {!state.open && (
+      {/* {!state.open && (
         <VOCItemName onClick={vocItemOnClick}>▼ {data.name}</VOCItemName>
       )}
       {state.open && (
         <VOCItemName onClick={vocItemOnClick}>► {data.name}</VOCItemName>
       )}
-      {state.open && <VOCItemDropdown data={data} />}
-      {checked && (
-        <input type="checkbox" onChange={checkBoxOnClick} data={data} checked />
-      )}
-      {!checked && (
-        <input type="checkbox" onChange={checkBoxOnClick} data={data} />
-      )}
+      {state.open && <VOCItemDropdown data={data} />} */}
+      <VOCItemName>{data.name}</VOCItemName>
+      <input
+        type="checkbox"
+        onChange={checkBoxOnClick}
+        data={data}
+        checked={checked}
+      />
     </VOCItemContainer>
   );
 });
@@ -111,14 +108,11 @@ const VOCList = observer(() => {
 
   return (
     <VOCListContainer>
-      <VOCListHeader>
-        <VOCListTitle>Select Notable Variants</VOCListTitle>
-      </VOCListHeader>
       <VOCItemGrid>
-        <VOCTitle>Variants of Concern</VOCTitle>
-        <VOITitle>Variants of Interest</VOITitle>
-        <VOCGridItem>{vocItems}</VOCGridItem>
-        <VOIGridItem>{voiItems}</VOIGridItem>
+        <VOCGridTitle>Variants of Concern</VOCGridTitle>
+        <VOCGridTitle>Variants of Interest</VOCGridTitle>
+        <GridItem>{vocItems}</GridItem>
+        <GridItem>{voiItems}</GridItem>
       </VOCItemGrid>
     </VOCListContainer>
   );
