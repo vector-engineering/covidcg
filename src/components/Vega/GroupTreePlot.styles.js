@@ -20,6 +20,7 @@ TreePlotContainer.defaultProps = {
 
 export const Header = styled.div`
   padding: 5px;
+  height: ${({ headerHeight }) => headerHeight}px;
 `;
 
 export const Title = styled.span`
@@ -40,4 +41,5 @@ export const SelectContainer = styled.div`
 
 export const TreeScrollContainer = styled.div`
   overflow-y: scroll;
+  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
 `;

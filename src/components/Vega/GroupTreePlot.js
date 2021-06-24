@@ -20,7 +20,7 @@ import {
 // import legendSpec from '../../vega_specs/group_tree_legend_v2.vg.json';
 import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
-const headerHeight = 260;
+const headerHeight = 60;
 const treePlotHeight = 12000;
 
 const GroupTreePlot = observer(({ width }) => {
@@ -93,6 +93,7 @@ const GroupTreePlot = observer(({ width }) => {
         // console.log(newGroup);
 
         vegaRef.current.getData('tree', (tree) => {
+          console.log(treeContainerDimensions);
           const treeContainerHeight = treeContainerDimensions.height;
           // Find the y-position of the newly selected lineage
           let scrollToY = tree.find((row) => row.lineage === newGroup).y;
