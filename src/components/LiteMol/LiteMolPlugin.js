@@ -22,7 +22,7 @@ const LiteMolPlugin = React.forwardRef(({ setPlugin, height }, ref) => {
         collapsedControlsLayout:
           Bootstrap.Components.CollapsedControlsLayout.Landscape,
       },
-      viewportBackground: '#F1F1F1',
+      viewportBackground: '#AAAAAA',
     });
     setPlugin(_plugin);
   }, []);
