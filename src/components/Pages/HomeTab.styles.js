@@ -15,3 +15,21 @@ export const HomeTabContent = styled.div`
 
   background-color: #fff;
 `;
+
+export const PubBanner = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #fff3cd;
+  padding: 5px;
+  border-bottom: 1px solid #aaa;
+
+  p {
+    margin: 0px;
+    margin-left: auto;
+  }
+`;
+
+export const CloseButton = styled.button`
+  margin-left: auto;
+`;
