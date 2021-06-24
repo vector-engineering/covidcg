@@ -34,6 +34,7 @@ rule get_representative_sequences:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        location_map = os.path.join(data_folder, "location_map.json"),
         ref_seq = os.path.join(static_data_folder, "reference.json"),
     output:
         representatives = os.path.join(data_folder, "lineage_representatives.fa"),
@@ -41,7 +42,7 @@ rule get_representative_sequences:
         table = os.path.join(data_folder, 'lineage_representative_table.csv')
     run:
         get_representative_seqs(
-            input.case_data, input.metadata_map, input.ref_seq, 
+            input.case_data, input.metadata_map, input.location_map, input.ref_seq, 
             output.representatives, output.datefile, output.table
         )
 
@@ -75,7 +76,8 @@ rule treetime:
     params:
         output_dir = os.path.join(data_folder, 'lineage_treetime')
     output:
-        nexus_file = os.path.join(data_folder, 'lineage_treetime', 'timetree.nexus')
+        nexus_file = os.path.join(data_folder, 'lineage_treetime', 'timetree.nexus'),
+        tree_dates = os.path.join(data_folder, 'lineage_treetime', 'dates.tsv'),
     shell:
         """
         treetime --tree {input.newick_tree} --aln {input.alignment} --dates {input.datefile} --outdir {params.output_dir} --verbose 1 --plot-rtt none --clock-filter 0 
@@ -86,6 +88,7 @@ rule build_graph:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         nexus_file = rules.treetime.output.nexus_file,
+        tree_dates = rules.treetime.output.tree_dates,
         representative_table = rules.get_representative_sequences.output.table
     output:
         graph_table = os.path.join(data_folder, 'lineage_tree_graph.json')
@@ -93,6 +96,7 @@ rule build_graph:
         build_graph_table(
             input.case_data,
             input.nexus_file,
+            input.tree_dates,
             input.representative_table,
             output.graph_table
         )
