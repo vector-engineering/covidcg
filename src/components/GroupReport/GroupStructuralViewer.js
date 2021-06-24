@@ -9,7 +9,7 @@ import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 
-import DropdownButton from '../Buttons/DropdownButton';
+import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
 import {
   StructuralViewerContainer,
@@ -30,15 +30,11 @@ const Visualization = LiteMol.Visualization;
 
 const numColors = reds.length;
 
-const DOWNLOAD_OPTIONS = {
-  DOWNLOAD_DATA: 'Mutation Frequency Data',
-  DOWNLOAD_PYMOL_SCRIPT: 'PyMOL Script',
-};
-
 const StructuralViewer = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
   const [plugin, setPlugin] = useState(null);
   const [state, setState] = useState({
+    downloadPymolScriptModalOpen: false,
     activeProtein: plotSettingsStore.reportStructureActiveProtein,
     activeProteinChanged: false,
     pdbId: plotSettingsStore.reportStructurePdbId,
@@ -48,6 +44,19 @@ const StructuralViewer = observer(() => {
     activeAssembly: null,
   });
   const pluginRef = useRef(null);
+
+  const showDownloadPymolScriptModal = () => {
+    setState({
+      ...state,
+      downloadPymolScriptModalOpen: true
+    });
+  }
+  const hideDownloadPymolScriptModal = () => {
+    setState({
+      ...state,
+      downloadPymolScriptModalOpen: false
+    });
+  }
 
   const onChangeStructureActiveGroup = (event) => {
     plotSettingsStore.setReportStructureActiveGroup(event.target.value);
@@ -89,12 +98,12 @@ const StructuralViewer = observer(() => {
     });
   };
 
-  const handleDownloadSelect = (option) => {
-    if (option === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      groupDataStore.downloadStructureMutationData();
-    } else if (option === DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL_SCRIPT) {
-      groupDataStore.downloadStructurePymolScript();
-    }
+  const downloadData = () => {
+    groupDataStore.downloadStructureMutationData();
+  };
+
+  const downloadPymolScript = () => {
+    groupDataStore.downloadStructurePymolScript();
   };
 
   const applyHeatmap = ({ ref }) => {
@@ -261,6 +270,10 @@ const StructuralViewer = observer(() => {
 
   return (
     <StructuralViewerContainer>
+      <DownloadPymolScriptModal 
+        isOpen={state.downloadPymolScriptModalOpen}
+        onRequestClose={hideDownloadPymolScriptModal}
+      />
       <StructuralViewerHeader>
         <OptionSelectContainer>
           <label>
@@ -274,14 +287,7 @@ const StructuralViewer = observer(() => {
           </label>
         </OptionSelectContainer>
         <div className="spacer"></div>
-        <DropdownButton
-          text={'Download'}
-          options={[
-            DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-            DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL_SCRIPT,
-          ]}
-          onSelect={handleDownloadSelect}
-        />
+        <ConfirmButton onClick={downloadData}>Download Data</ConfirmButton>
       </StructuralViewerHeader>
       <StructuralViewerHeader>
         <OptionSelectContainer>
@@ -307,6 +313,10 @@ const StructuralViewer = observer(() => {
             </ConfirmButton>
           )}
         </OptionInputContainer>
+        <div className="spacer"></div>
+        <ConfirmButton onClick={showDownloadPymolScriptModal}>
+          Download PyMOL Script
+        </ConfirmButton>
       </StructuralViewerHeader>
       <LiteMolContainer>
         <LiteMolPlugin

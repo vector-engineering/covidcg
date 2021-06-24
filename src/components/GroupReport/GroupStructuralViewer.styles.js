@@ -12,6 +12,8 @@ export const StructuralViewerHeader = styled.div`
   .spacer {
     flex-grow: 1;
   }
+
+  margin-bottom: 4px;
 `;
 
 export const OptionSelectContainer = styled.div`
@@ -58,5 +60,5 @@ export const ConfirmButton = styled(Button)`
 export const LiteMolContainer = styled.div`
   min-width: 100%;
   min-height: 600px;
-  margin-top: 5px;
+  // margin-top: 5px;
 `;

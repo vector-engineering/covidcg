@@ -223,10 +223,13 @@ export class GroupDataStore {
     );
   }
 
-  downloadStructurePymolScript() {
+  downloadStructurePymolScript(opts) {
     const script = mutationHeatmapToPymolScript({
+      activeProtein: rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+      activeGroup: rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
       pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
       snvs: this.getStructureSnvs(),
+      ...opts,
     });
     const blob = new Blob([script]);
     const url = URL.createObjectURL(blob);
