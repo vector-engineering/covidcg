@@ -16,8 +16,10 @@ import {
 const SelectedGroupItem = ({ name, onClick }) => {
   return (
     <SelectedGroupItemContainer>
+      <SelectedGroupsButton title="Deselect" onClick={onClick}>
+        x
+      </SelectedGroupsButton>
       <SelectedGroupItemTitle>{name}</SelectedGroupItemTitle>
-      <SelectedGroupsButton onClick={onClick}>✖</SelectedGroupsButton>
     </SelectedGroupItemContainer>
   );
 };

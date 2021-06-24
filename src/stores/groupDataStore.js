@@ -8,31 +8,26 @@ import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
+import { mutationHeatmapToPymolScript } from '../utils/pymol';
+
+export const initialValues = {
+  activeGroupType: Object.keys(config['group_cols'])[0],
+  selectedGroups: ['B.1.1.7', 'B.1.351', 'P.2'],
+  groupSnvType: 'protein_aa',
+};
 
 export class GroupDataStore {
   // Actively selected group type in the report tab
-  @observable activeGroupType;
-  @observable selectedGroups;
-  @observable groupSnvType;
-  @observable consensusThreshold;
-
-  // Actively selected group for the structural viewer
-  @observable structureActiveGroup;
+  @observable activeGroupType = initialValues.activeGroupType;
+  @observable selectedGroups = initialValues.selectedGroups;
+  @observable groupSnvType = initialValues.groupSnvType;
 
   groups;
   @observable groupSelectTree;
   groupSnvFrequency;
 
   constructor() {
-    this.activeGroupType = Object.keys(config['group_cols'])[0];
-    this.selectedGroups = ['B.1.1.7', 'B.1.351', 'P.2'];
-    this.groupSnvType = 'gene_aa';
-    this.consensusThreshold = 0.7;
-
-    this.structureActiveGroup = 'B.1.1.7';
-
     this.groupSnvFrequency = {};
-
     this.groups = {};
     this.groupSelectTree = {};
 
@@ -56,35 +51,74 @@ export class GroupDataStore {
         this.groupSelectTree[groupName].push({
           label: group.name,
           value: group.name,
-          checked: false,
+          checked: this.selectedGroups.includes(group.name),
         });
       });
     });
   }
 
+  hasGroupFrequencyData() {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency,
+        this.activeGroupType
+      )
+    ) {
+      return false;
+    } else if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency[this.activeGroupType],
+        this.groupSnvType
+      )
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   @action
   updateActiveGroupType(activeGroupType) {
     this.activeGroupType = activeGroupType;
+
+    // If we don't have the data for this combo yet, then fetch it now
+    if (!this.hasGroupFrequencyData()) {
+      this.fetchGroupSnvFrequencyData({
+        group: this.activeGroupType,
+        snvType: this.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
   }
 
   @action
   updateGroupSnvType(groupSnvType) {
     this.groupSnvType = groupSnvType;
-  }
 
-  @action
-  updateConsensusThreshold(consensusThreshold) {
-    this.consensusThreshold = consensusThreshold;
+    // If we don't have the data for this combo yet, then fetch it now
+    if (!this.hasGroupFrequencyData()) {
+      this.fetchGroupSnvFrequencyData({
+        group: this.activeGroupType,
+        snvType: this.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
+
+    // Hide ORF1a in NT/gene_aa mode by default
+    if (groupSnvType === 'dna' || groupSnvType === 'gene_aa') {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
+        'ORF1a',
+      ]);
+    }
+    // Otherwise clear the hidden list
+    else {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
+    }
   }
 
   @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
-  }
-
-  @action
-  updateStructureActiveGroup(structureActiveGroup) {
-    this.structureActiveGroup = structureActiveGroup;
   }
 
   getActiveGroupTypePrettyName() {
@@ -103,6 +137,20 @@ export class GroupDataStore {
 
   @action
   async fetchGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
+    // Skip the download if we already have the requested data
+    if (
+      Object.prototype.hasOwnProperty.call(this.groupSnvFrequency, group) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupSnvFrequency[group],
+        snvType
+      )
+    ) {
+      // eslint-disable-next-line no-unused-vars
+      return new Promise((resolve, reject) => {
+        resolve(this.groupSnvFrequency[group][snvType]);
+      });
+    }
+
     rootStoreInstance.UIStore.onGroupSnvFrequencyStarted();
     return fetch(hostname + '/group_snv_frequencies', {
       method: 'POST',
@@ -154,5 +202,42 @@ export class GroupDataStore {
       const url = URL.createObjectURL(blob);
       downloadBlobURL(url, 'consensus_mutations.json');
     });
+  }
+
+  getStructureSnvs() {
+    return this.groupSnvFrequency[this.activeGroupType]['protein_aa'].filter(
+      (groupSnv) =>
+        groupSnv.name ===
+          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
+        groupSnv.protein ===
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein
+    );
+  }
+
+  downloadStructureMutationData() {
+    const blob = new Blob([JSON.stringify(this.getStructureSnvs())]);
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(
+      url,
+      `mutations_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.json`
+    );
+  }
+
+  downloadStructurePymolScript(opts) {
+    const script = mutationHeatmapToPymolScript({
+      activeProtein:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+      activeGroup:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
+      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+      snvs: this.getStructureSnvs(),
+      ...opts,
+    });
+    const blob = new Blob([script]);
+    const url = URL.createObjectURL(blob);
+    downloadBlobURL(
+      url,
+      `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`
+    );
   }
 }

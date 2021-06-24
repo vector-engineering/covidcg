@@ -1,0 +1,168 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An example of Cartesian layouts for a node-link diagram of hierarchical data.",
+  "width": 200,
+  "height": 1,
+  "padding": 5,
+
+  "config": {
+    "legend": {
+      "layout": {
+        "direction": "vertical",
+        "margin": 5,
+        "offset": 10
+      }
+    }
+  },
+
+
+  "data": [
+    {
+      "name": "source",
+      "url": "https://storage.googleapis.com/ve-public/lineage_tree_graph_v2.json",
+      "format": {
+        "parse": {
+          "date": "date",
+          "date_min": "date",
+          "date_max": "date"
+        }
+      }
+    },
+    {
+      "name": "tips",
+      "source": "source",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.leaf"
+        }
+      ]
+    }
+  ],
+
+  "signals": [
+    {
+      "name": "plotHeight",
+      "value": 12000
+    },
+    {
+      "name": "colorScale",
+      "value": "colorNumSequences"
+    },
+    {
+      "name": "colorField",
+      "update": "{'colorRegion': 'region_most_common', 'colorLatest': 'date_max', 'colorNumSequences': 'num_seqs'}[colorScale]"
+    },
+    {
+      "name": "xRange",
+      "update": "[0, width - 50]"
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "num_seqs_stroke_width",
+      "type": "log",
+      "base": 2,
+      "range": [2.5, 6],
+      "domain": [100, 100000]
+    },
+    {
+      "name": "date_x",
+      "type": "time",
+      "range": {"signal": "xRange"},
+      "domain": {"data": "source", "field": "date"}
+    },
+    {
+      "name": "colorRegion",
+      "type": "ordinal",
+      "range": { "scheme": "category10" },
+      "domain": { "data": "tips", "field": "region_most_common"}
+    },
+    {
+      "name": "colorLatest",
+      "type": "linear",
+      "range": {"scheme": "viridis"},
+      "domain": {"data": "tips", "field": "date_max"}
+    },
+    {
+      "name": "colorNumSequences",
+      "type": "log",
+      "base": 10,
+      "range": {"scheme": "inferno"},
+      "domain": {"data": "tips", "field": "num_seqs"}
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "top",
+      "scale": "date_x",
+      "offset": 0,
+      "format": "%Y-%m",
+      "tickCount": {"interval": "month", "step": 4},
+      "labelAngle": 270,
+      "labelAlign": "left",
+      "labelBaseline": "middle",
+      "labelPadding": 3
+    }
+  ],
+
+  "legends": [
+    {
+      "orient": "top",
+      "fill": "colorRegion",
+      "direction": "horizontal",
+      "columns": 3,
+      "title": "Region",
+      "titleFontWeight": "normal",
+      "titlePadding": 2,
+      "labelOffset": 2,
+      "rowPadding": 1,
+      "encode": {
+        "symbols": {
+          "enter": {
+            "shape": {"value": "square"}
+          }
+        }
+      }
+    },
+    {
+      "type": "gradient",
+      "orient": "top",
+      "direction": "horizontal",
+      "fill": "colorLatest",
+      "format": "%Y-%m",
+      "formatType": "time",
+      "title": "Collection Date",
+      "titleFontWeight": "normal",
+      "titlePadding": 2,
+      "labelOffset": 2,
+      "gradientThickness": 6,
+      "encode": {
+        "legend": {
+        }
+      }
+    },
+    {
+      "type": "gradient",
+      "orient": "top",
+      "direction": "horizontal",
+      "fill": "colorNumSequences",
+      "format": ".1s",
+      "title": "# Sequences",
+      "titleFontWeight": "normal",
+      "titlePadding": 2,
+      "labelOffset": 2,
+      "gradientThickness": 6,
+      "tickCount": 6,
+      "encode": {
+        "legend": {
+        }
+      }
+    }
+  ],
+
+  "marks": [
+  ]
+}

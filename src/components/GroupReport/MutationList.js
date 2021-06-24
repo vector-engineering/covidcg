@@ -7,14 +7,16 @@ import { format } from 'd3-format';
 import { config } from '../../config';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { reds, snpColorArray } from '../../constants/colors';
-import { ASYNC_STATES } from '../../constants/defs.json';
+import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 import {
   MutationListContainer,
   MutationListHeader,
   OptionSelectContainer,
   OptionInputContainer,
+  OptionCheckboxContainer,
   MutationListHeaderTable,
   MutationListHeaderEmpty,
   MutationListHeaderCell,
@@ -23,10 +25,10 @@ import {
   MutationRowBar,
   MutationRowName,
   MutationRowHeatmapCellContainer,
-  MutationRowHeatmapEmptyCell,
 } from './MutationList.styles';
 
 const genes = getAllGenes();
+const proteins = getAllProteins();
 const heatmapMin = 0.0;
 const heatmapMax = 1.0;
 const numColors = reds.length;
@@ -72,44 +74,54 @@ MutationRowHeatmapCell.defaultProps = {
   percent: true,
 };
 
-const MutationListRow = ({
-  segmentName,
-  segmentColor,
-  name,
-  frequency,
-  firstRow,
-  numSnvsPerSegment,
-  emptyRow,
-}) => {
-  const heatmapCells = [];
-  if (!emptyRow) {
-    frequency.forEach((freq, i) => {
-      heatmapCells.push(
-        <MutationRowHeatmapCell key={`${name}-heatmap-cell-${i}`} freq={freq} />
-      );
-    });
-  } else {
-    // console.log(frequency.length);
-    heatmapCells.push(
-      <MutationRowHeatmapEmptyCell
-        key={`${segmentName}-empty-cell`}
-        colSpan={frequency.length}
-      />
+const MutationListRow = observer(
+  ({
+    segmentName,
+    segmentColor,
+    name,
+    frequency,
+    firstRow,
+    numSnvsPerSegment,
+    emptyRow,
+  }) => {
+    const { plotSettingsStore } = useStores();
+
+    const toggleHiddenFeature = (featureName) => {
+      plotSettingsStore.toggleReportMutationListHiddenItem(featureName);
+    };
+
+    const heatmapCells = [];
+    if (!emptyRow) {
+      // console.log(frequency.length);
+      frequency.forEach((freq, i) => {
+        heatmapCells.push(
+          <MutationRowHeatmapCell
+            key={`${name}-heatmap-cell-${i}`}
+            freq={freq}
+          />
+        );
+      });
+    }
+
+    return (
+      <MutationRowContainer>
+        {firstRow && (
+          <MutationRowBar
+            onClick={toggleHiddenFeature.bind(this, segmentName)}
+            rowSpan={numSnvsPerSegment}
+            barColor={segmentColor}
+          >
+            {segmentName}
+          </MutationRowBar>
+        )}
+        <MutationRowName colSpan={emptyRow ? frequency.length + 1 : 1}>
+          {name}
+        </MutationRowName>
+        {heatmapCells}
+      </MutationRowContainer>
     );
   }
-
-  return (
-    <MutationRowContainer>
-      {firstRow && (
-        <MutationRowBar rowSpan={numSnvsPerSegment} barColor={segmentColor}>
-          {segmentName}
-        </MutationRowBar>
-      )}
-      <MutationRowName>{name}</MutationRowName>
-      {heatmapCells}
-    </MutationRowContainer>
-  );
-};
+);
 MutationListRow.propTypes = {
   segmentName: PropTypes.string.isRequired,
   segmentColor: PropTypes.string.isRequired,
@@ -128,7 +140,7 @@ MutationListRow.defaultProps = {
 };
 
 const MutationListContent = observer(() => {
-  const { groupDataStore, UIStore } = useStores();
+  const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
 
@@ -180,73 +192,122 @@ const MutationListContent = observer(() => {
       return a.pos - b.pos;
     }
   };
-  genes.forEach((gene, gene_i) => {
+
+  // Use genes to group NT and gene_aa SNVs, and proteins for protein_aa SNVs
+  const features =
+    groupDataStore.groupSnvType === 'protein_aa' ? proteins : genes;
+
+  features.forEach((feature, feature_i) => {
     // Get all SNVs for this gene, then sort by position/alt
-    const groupGeneSnvs = groupSnvFrequency
-      .filter(
-        (groupSnv) =>
-          groupSnv.gene === gene.name &&
-          groupSnv.fraction > groupDataStore.consensusThreshold
-      )
+    const groupFeatureSnvs = groupSnvFrequency
+      .filter((groupSnv) => {
+        if (groupDataStore.groupSnvType === 'dna') {
+          // Include NT SNVs in this gene if it is contained in
+          // any of the gene's NT segments
+          // (Most genes will have one segment)
+          return feature.segments.some(
+            (featureNTRange) =>
+              groupSnv.pos >= featureNTRange[0] &&
+              groupSnv.pos <= featureNTRange[1]
+          );
+        } else if (groupDataStore.groupSnvType === 'gene_aa') {
+          return groupSnv.gene === feature.name;
+        } else if (groupDataStore.groupSnvType === 'protein_aa') {
+          return groupSnv.protein === feature.name;
+        }
+      })
       .sort(sortByPosThenAlt);
-    // console.log(gene.name, groupGeneSnvs);
+    // console.log(feature.name, groupFeatureSnvs);
 
     // Make list of records to insert into master "matrix"
-    const geneSnvRecords = groupGeneSnvs
+    const featureSnvRecords = groupFeatureSnvs
       .slice()
       // Unique SNVs
       .filter(
         (v, i, a) =>
           a.findIndex((element) => element.snv_name === v.snv_name) === i
       )
-      .map((geneSnv) => {
+      .map((featureSnv) => {
         // Find fractional frequencies for each group
         const freqs = [];
         groupDataStore.selectedGroups.forEach((group) => {
-          const matchingSnv = groupGeneSnvs.find(
-            (snv) => snv.snv_name === geneSnv.snv_name && snv.name === group
+          const matchingSnv = groupFeatureSnvs.find(
+            (snv) => snv.snv_name === featureSnv.snv_name && snv.name === group
           );
           // 0 if the SNV record isn't found
           freqs.push(matchingSnv === undefined ? 0 : matchingSnv.fraction);
         });
 
         return {
-          snv_name: geneSnv.snv_name,
-          pos: geneSnv.pos,
-          ref: geneSnv.ref,
-          alt: geneSnv.alt,
+          snv_name: featureSnv.snv_name,
+          pos: featureSnv.pos,
+          ref: featureSnv.ref,
+          alt: featureSnv.alt,
           frequency: freqs,
         };
+      })
+      // Filter out SNVs that have all mutation frequencies below the threshold
+      .filter((row) => {
+        return row.frequency.some(
+          (freq) => freq > plotSettingsStore.reportConsensusThreshold
+        );
       });
-    // console.log(gene.name, geneSnvRecords);
-
-    geneSnvRecords.forEach((snv, i) => {
-      rowItems.push(
-        <MutationListRow
-          key={`group-snv-${snv.snv_name}`}
-          segmentName={gene.name}
-          segmentColor={snpColorArray[gene_i % snpColorArray.length]}
-          name={snv.snv_name.split(':')[1]}
-          frequency={snv.frequency}
-          firstRow={i === 0}
-          numSnvsPerSegment={geneSnvRecords.length}
-        />
-      );
-    });
+    // console.log(feature.name, featureSnvRecords);
 
     // Push empty row for segments without SNVs
-    if (geneSnvRecords.length === 0) {
+    if (featureSnvRecords.length === 0) {
+      // Push nothing if we're hiding empty features
+      if (plotSettingsStore.reportMutationListHideEmpty) {
+        return;
+      }
+
       rowItems.push(
         <MutationListRow
-          key={`group-snv-empty-${gene.name}`}
-          segmentName={gene.name}
-          segmentColor={snpColorArray[gene_i % snpColorArray.length]}
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
         />
       );
+      return;
     }
+    // Push empty row for hidden features
+    else if (
+      plotSettingsStore.reportMutationListHidden.indexOf(feature.name) > -1
+    ) {
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-empty-${feature.name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          firstRow={true}
+          frequency={new Array(groupDataStore.selectedGroups.length)}
+          emptyRow={true}
+          name={`${featureSnvRecords.length} SNVs hidden...`}
+        />
+      );
+      return;
+    }
+
+    featureSnvRecords.forEach((snv, i) => {
+      const snvName =
+        groupDataStore.groupSnvType === 'dna'
+          ? snv.snv_name
+          : snv.snv_name.split(':')[1];
+      rowItems.push(
+        <MutationListRow
+          key={`group-snv-${feature.name}-${snv.snv_name}`}
+          segmentName={feature.name}
+          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          name={snvName}
+          frequency={snv.frequency}
+          firstRow={i === 0}
+          numSnvsPerSegment={featureSnvRecords.length}
+        />
+      );
+    });
   });
 
   const headerItems = [];
@@ -278,16 +339,28 @@ const MutationListContent = observer(() => {
 });
 
 const MutationList = observer(() => {
-  const { groupDataStore } = useStores();
+  const { groupDataStore, plotSettingsStore } = useStores();
 
-  const onChangeActiveGroupType = (event) => {
-    groupDataStore.updateActiveGroupType(event.target.value);
-  };
+  // const onChangeActiveGroupType = (event) => {
+  //   groupDataStore.updateActiveGroupType(event.target.value);
+  // };
   const onChangeGroupSnvType = (event) => {
     groupDataStore.updateGroupSnvType(event.target.value);
   };
   const onChangeConsensusThreshold = (event) => {
-    groupDataStore.updateConsensusThreshold(event.target.value);
+    plotSettingsStore.setReportConsensusThreshold(event.target.value);
+  };
+  const onChangeHideEmpty = (event) => {
+    plotSettingsStore.setReportMutationListHideEmpty(event.target.checked);
+  };
+  const handleDownloadSelect = (option) => {
+    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      groupDataStore.downloadGroupSnvFrequencyData({
+        group: groupDataStore.activeGroupType,
+        snvType: groupDataStore.groupSnvType,
+        consensusThreshold: 0,
+      });
+    }
   };
 
   const activeGroupTypeItems = [];
@@ -302,7 +375,7 @@ const MutationList = observer(() => {
   return (
     <MutationListContainer>
       <MutationListHeader>
-        <OptionSelectContainer>
+        {/* <OptionSelectContainer>
           <label>
             <select
               value={groupDataStore.activeGroupType}
@@ -311,9 +384,10 @@ const MutationList = observer(() => {
               {activeGroupTypeItems}
             </select>
           </label>
-        </OptionSelectContainer>
+        </OptionSelectContainer> */}
         <OptionSelectContainer>
           <label>
+            SNV Type
             <select
               value={groupDataStore.groupSnvType}
               onChange={onChangeGroupSnvType}
@@ -329,7 +403,7 @@ const MutationList = observer(() => {
             Consensus Threshold
             <input
               type="number"
-              value={groupDataStore.consensusThreshold}
+              value={plotSettingsStore.reportConsensusThreshold}
               onChange={onChangeConsensusThreshold}
               min={0}
               max={1}
@@ -337,6 +411,29 @@ const MutationList = observer(() => {
             />
           </label>
         </OptionInputContainer>
+        <div className="spacer"></div>
+        <DropdownButton
+          text={'Download'}
+          options={[PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA]}
+          onSelect={handleDownloadSelect}
+        />
+      </MutationListHeader>
+      <MutationListHeader>
+        <OptionCheckboxContainer>
+          <label>
+            <input
+              type="checkbox"
+              name="mutation-list-hide-empty"
+              checked={plotSettingsStore.reportMutationListHideEmpty}
+              onChange={onChangeHideEmpty}
+            />
+            Hide{' '}
+            {groupDataStore.groupSnvType === 'protein_aa'
+              ? 'Proteins'
+              : 'Genes'}{' '}
+            without SNVs
+          </label>
+        </OptionCheckboxContainer>
       </MutationListHeader>
       <MutationListContent></MutationListContent>
     </MutationListContainer>

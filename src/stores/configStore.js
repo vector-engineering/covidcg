@@ -39,7 +39,7 @@ import { rootStoreInstance } from './rootStore';
 const today = intToISO(new Date().getTime());
 const lastNDays = 30; // By default, show only the last 1 month
 
-export const initialConfigValues = {
+export const initialValues = {
   groupKey: 'snv',
   dnaOrAa: DNA_OR_AA.AA,
 
@@ -88,44 +88,43 @@ PARAMS_TO_TRACK.forEach((param) => {
 
 export class ConfigStore {
   // Maintain a reference to the initial values
-  initialConfigValues = initialConfigValues;
+  initialValues = initialValues;
 
   // References to store instances
   plotSettingsStoreInstance;
   locationDataStoreInstance;
   dataStoreInstance;
 
-  @observable groupKey = initialConfigValues.groupKey;
-  @observable dnaOrAa = initialConfigValues.dnaOrAa;
+  @observable groupKey = initialValues.groupKey;
+  @observable dnaOrAa = initialValues.dnaOrAa;
 
-  @observable selectedGene = initialConfigValues.selectedGene;
-  @observable selectedProtein = initialConfigValues.selectedProtein;
-  @observable selectedPrimers = initialConfigValues.selectedPrimers;
+  @observable selectedGene = initialValues.selectedGene;
+  @observable selectedProtein = initialValues.selectedProtein;
+  @observable selectedPrimers = initialValues.selectedPrimers;
 
-  @observable customCoordinates = initialConfigValues.customCoordinates;
-  @observable customSequences = initialConfigValues.customSequences;
-  @observable residueCoordinates = initialConfigValues.residueCoordinates;
-  @observable coordinateMode = initialConfigValues.coordinateMode;
+  @observable customCoordinates = initialValues.customCoordinates;
+  @observable customSequences = initialValues.customSequences;
+  @observable residueCoordinates = initialValues.residueCoordinates;
+  @observable coordinateMode = initialValues.coordinateMode;
 
-  @observable startDate = initialConfigValues.startDate;
-  @observable endDate = initialConfigValues.endDate;
+  @observable startDate = initialValues.startDate;
+  @observable endDate = initialValues.endDate;
 
-  @observable selectedLocationNodes = initialConfigValues.selectedLocationNodes;
+  @observable selectedLocationNodes = initialValues.selectedLocationNodes;
 
-  @observable hoverGroup = initialConfigValues.hoverGroup;
-  @observable selectedGroups = initialConfigValues.selectedGroups;
+  @observable hoverGroup = initialValues.hoverGroup;
+  @observable selectedGroups = initialValues.selectedGroups;
 
-  @observable selectedMetadataFields =
-    initialConfigValues.selectedMetadataFields;
-  @observable ageRange = initialConfigValues.ageRange;
+  @observable selectedMetadataFields = initialValues.selectedMetadataFields;
+  @observable ageRange = initialValues.ageRange;
 
-  @observable hoverLocation = initialConfigValues.hoverLocation;
-  @observable focusedLocations = initialConfigValues.focusedLocations;
+  @observable hoverLocation = initialValues.hoverLocation;
+  @observable focusedLocations = initialValues.focusedLocations;
 
-  @observable lowFreqFilterType = initialConfigValues.lowFreqFilterType;
-  @observable maxGroupCounts = initialConfigValues.maxGroupCounts;
-  @observable minLocalCounts = initialConfigValues.minLocalCounts;
-  @observable minGlobalCounts = initialConfigValues.minGlobalCounts;
+  @observable lowFreqFilterType = initialValues.lowFreqFilterType;
+  @observable maxGroupCounts = initialValues.maxGroupCounts;
+  @observable minLocalCounts = initialValues.minLocalCounts;
+  @observable minGlobalCounts = initialValues.minGlobalCounts;
 
   constructor() {}
 
@@ -146,15 +145,15 @@ export class ConfigStore {
 
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
-      if (key in initialConfigValues) {
+      if (key in initialValues) {
         if (key === 'selectedGene') {
           // If the specified gene is in the geneMap get the gene
           if (value in geneMap) {
             this[key] = getGene(value);
           } else {
             // Else display default gene
-            this[key] = initialConfigValues.selectedGene;
-            this.urlParams.set(key, initialConfigValues.selectedGene.name);
+            this[key] = initialValues.selectedGene;
+            this.urlParams.set(key, initialValues.selectedGene.name);
           }
         } else if (key === 'selectedProtein') {
           // If the specified protein is in the proteinMap get the protein
@@ -162,8 +161,8 @@ export class ConfigStore {
             this[key] = getProtein(value);
           } else {
             // Else display default protein
-            this[key] = initialConfigValues.selectedProtein;
-            this.urlParams.set(key, initialConfigValues.selectedProtein.name);
+            this[key] = initialValues.selectedProtein;
+            this.urlParams.set(key, initialValues.selectedProtein.name);
           }
         } else if (key === 'ageRange' || key.includes('valid')) {
           // AgeRange is not being used currently so ignore
@@ -266,10 +265,8 @@ export class ConfigStore {
           true
         )[0],
       ].filter((node) => node !== undefined);
-      initialConfigValues['selectedLocationNodes'] = this.selectedLocationNodes;
-      this.initialConfigValues[
-        'selectedLocationNodes'
-      ] = this.selectedLocationNodes;
+      initialValues['selectedLocationNodes'] = this.selectedLocationNodes;
+      this.initialValues['selectedLocationNodes'] = this.selectedLocationNodes;
     }
   }
 
@@ -281,11 +278,11 @@ export class ConfigStore {
 
   @action
   resetValues(values) {
-    Object.keys(initialConfigValues).forEach((key) => {
+    Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialConfigValues[key];
+        this[key] = initialValues[key];
       }
 
       // Special actions for some keys
@@ -370,7 +367,7 @@ export class ConfigStore {
         this.urlParams.set(field, String(pending[field]));
       }
 
-      if (pending[field] === initialConfigValues[field]) {
+      if (pending[field] === initialValues[field]) {
         // Only display non-default fields in the url
         this.urlParams.delete(field);
       }
@@ -567,11 +564,8 @@ export class ConfigStore {
   }
 
   getSelectedGroupIds() {
-    const {
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
+      this.snpDataStoreInstance;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -596,11 +590,8 @@ export class ConfigStore {
   }
 
   getIntToSnvMap() {
-    const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    const { intToDnaSnvMap, intToGeneAaSnvMap, intToProteinAaSnvMap } =
+      this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -614,11 +605,8 @@ export class ConfigStore {
   }
 
   getSnvToIntMap() {
-    const {
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
+      this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;

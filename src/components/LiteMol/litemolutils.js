@@ -268,8 +268,8 @@ export function applyTheme(plugin, modelRef, theme) {
   }
 }
 
-export const colorHeatmap = ({ plugin, entries }) => {
-  let model = plugin.selectEntities('model')[0];
+export const colorHeatmap = ({ plugin, entries, ref }) => {
+  const model = plugin.selectEntities(ref)[0];
   if (!model) return;
 
   // hardcoded example
@@ -285,40 +285,15 @@ export const colorHeatmap = ({ plugin, entries }) => {
   const theme = createTheme(model.props.model, coloring);
 
   // instead of "polymer-visual", "model" or any valid ref can be used: all "child" visuals will be colored.
-  applyTheme(plugin, 'model', theme);
+  applyTheme(plugin, ref, theme);
 };
 
-export const colorSequences = (plugin) => {
-  let model = plugin.selectEntities('model')[0];
-  if (!model) return;
+// This might help... https://github.com/dsehnal/LiteMol/blob/2ce0190a9b369841c1c3ee7322c2f5dda3e7800e/examples/CustomControls/src/Representation.ts
+export const getMoleculeAssemblies = ({ plugin }) => {
+  const molecule = plugin.selectEntities('molecule')[0];
+  if (!molecule) return [];
 
-  // hardcoded example
-  const coloring = {
-    base: { r: 255, g: 255, b: 255 },
-    entries: [
-      // {
-      //   entity_id: '1',
-      //   struct_asym_id: 'A',
-      //   start_residue_number: 10,
-      //   end_residue_number: 250,
-      //   color: { r: 255, g: 128, b: 64 },
-      // },
-      // {
-      //   entity_id: '1',
-      //   struct_asym_id: 'A',
-      //   start_residue_number: 300,
-      //   end_residue_number: 600,
-      //   color: { r: 64, g: 128, b: 255 },
-      // },
-      {
-        indices: [...Array(100).keys()],
-        color: { r: 64, g: 128, b: 255 },
-      },
-    ],
-  };
-
-  const theme = createTheme(model.props.model, coloring);
-
-  // instead of "polymer-visual", "model" or any valid ref can be used: all "child" visuals will be colored.
-  applyTheme(plugin, 'model', theme);
+  const assemblies =
+    molecule.props.molecule.models[0].data.assemblyInfo.assemblies;
+  return assemblies.map((asm) => asm.name);
 };

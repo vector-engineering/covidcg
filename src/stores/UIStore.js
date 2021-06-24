@@ -15,7 +15,7 @@ function removeItemAll(arr, value) {
   return arr;
 }
 
-export const initialUIValues = {
+export const initialValues = {
   sidebarOpen: false,
   sidebarSelectedGroupKeys: [],
 
@@ -34,33 +34,32 @@ export const initialUIValues = {
 };
 
 export class UIStore {
-  @observable sidebarOpen = initialUIValues.sidebarOpen;
-  @observable sidebarSelectedGroupKeys =
-    initialUIValues.sidebarSelectedGroupKeys;
+  @observable sidebarOpen = initialValues.sidebarOpen;
+  @observable sidebarSelectedGroupKeys = initialValues.sidebarSelectedGroupKeys;
 
-  @observable caseDataState = initialUIValues.caseDataState;
-  @observable snvDataState = initialUIValues.snvDataState;
-  @observable cooccurrenceDataState = initialUIValues.cooccurrenceDataState;
-  @observable downloadState = initialUIValues.downloadState;
+  @observable caseDataState = initialValues.caseDataState;
+  @observable snvDataState = initialValues.snvDataState;
+  @observable cooccurrenceDataState = initialValues.cooccurrenceDataState;
+  @observable downloadState = initialValues.downloadState;
 
   // Flag for whether or not we have the latest set of metadata mappings
   // i.e., metadata key (integer) => metadata value (string)
-  @observable metadataFieldState = initialUIValues.metadataFieldState;
+  @observable metadataFieldState = initialValues.metadataFieldState;
 
-  @observable groupSnvFrequencyState = initialUIValues.groupSnvFrequencyState;
+  @observable groupSnvFrequencyState = initialValues.groupSnvFrequencyState;
 
-  @observable activeTab = initialUIValues.activeTab;
-  @observable keysPressed = initialUIValues.keysPressed;
+  @observable activeTab = initialValues.activeTab;
+  @observable keysPressed = initialValues.keysPressed;
 
   init() {}
 
   @action
   resetValues(values) {
-    Object.keys(initialUIValues).forEach((key) => {
+    Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialUIValues[key];
+        this[key] = initialValues[key];
       }
     });
   }

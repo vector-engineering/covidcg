@@ -9,7 +9,8 @@ export const GroupSearchContainer = styled.div`
 
 export const GroupSearchHeader = styled.div``;
 export const GroupSearchTitle = styled.span`
-  font-size: 18px;
+  font-size: 1em;
+  font-weight: bold;
 `;
 
 export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
