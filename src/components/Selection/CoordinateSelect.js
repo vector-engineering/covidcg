@@ -69,7 +69,8 @@ const CoordinateSelect = observer(
           value={gene.name}
           disabled={gene.protein_coding === 0 && dnaOrAa === DNA_OR_AA.AA}
         >
-          {gene.name}&nbsp;&nbsp;({gene.segments})
+          {gene.name}&nbsp;&nbsp;(
+          {gene.segments.map((segment) => segment.join('..')).join(';')})
         </option>
       );
     });
@@ -104,7 +105,8 @@ const CoordinateSelect = observer(
     proteins.forEach((protein) => {
       proteinOptionElements.push(
         <option key={protein.name} value={protein.name}>
-          {protein.name}&nbsp;&nbsp;({protein.segments})
+          {protein.name}&nbsp;&nbsp;(
+          {protein.segments.map((segment) => segment.join('..')).join(';')})
         </option>
       );
     });
