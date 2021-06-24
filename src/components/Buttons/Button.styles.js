@@ -10,13 +10,11 @@ export const StyledButton = styled.button`
   border: 1px solid rgba(27, 31, 35, 0.2);
   border-radius: 0.25em;
   outline: none;
-
   &:active {
     background-color: #279f43;
     background-image: none;
     border-color: rgba(27, 31, 35, 0.5);
   }
-
   ${({ sticky }) =>
     sticky &&
     `

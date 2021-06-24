@@ -63,7 +63,7 @@ rule all:
         # Webscraper data
         os.path.join(static_data_folder, "vocs.json"),
         # Phylotree
-        os.path.join(data_folder, 'lineage_tree_graph.csv')
+        os.path.join(data_folder, 'lineage_tree_graph.json')
 
 
 rule preprocess_sequences:

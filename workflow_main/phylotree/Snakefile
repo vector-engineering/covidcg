@@ -28,7 +28,7 @@ today_str = datetime.date.today().isoformat()
 
 rule build_phylotree:
     input:
-        os.path.join(data_folder, 'lineage_tree_graph.csv')
+        os.path.join(data_folder, 'lineage_tree_graph.json')
 
 rule get_representative_sequences:
     input:
@@ -88,7 +88,7 @@ rule build_graph:
         nexus_file = rules.treetime.output.nexus_file,
         representative_table = rules.get_representative_sequences.output.table
     output:
-        graph_table = os.path.join(data_folder, 'lineage_tree_graph.csv')
+        graph_table = os.path.join(data_folder, 'lineage_tree_graph.json')
     run:
         build_graph_table(
             input.case_data,
