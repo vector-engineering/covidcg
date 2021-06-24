@@ -17,9 +17,9 @@ const GroupReportTabContainer = styled.div`
 `;
 const GroupTreePlotContainer = styled.div``;
 
-const GroupTreeToggle = styled.span`
-  margin: 5px;
-`;
+// const GroupTreeToggle = styled.span`
+//   margin: 5px;
+// `;
 
 const MainContainer = styled.div`
   flex-grow: 1;
@@ -28,9 +28,9 @@ const MainContainer = styled.div`
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
   const [ref, { width }] = useDimensions();
-  const [state, setState] = useState({
-    treeOpen: true,
-  });
+  // const [state, setState] = useState({
+  //   treeOpen: true,
+  // });
 
   const renderHeader = () => {
     return (
@@ -138,17 +138,17 @@ const GroupReportTab = observer(() => {
     );
   };
 
-  const toggleTree = () => {
-    setState((state) => {
-      return {
-        treeOpen: !state.treeOpen,
-      };
-    });
-  };
+  // const toggleTree = () => {
+  //   setState((state) => {
+  //     return {
+  //       treeOpen: !state.treeOpen,
+  //     };
+  //   });
+  // };
 
   return (
     <GroupReportTabContainer ref={ref}>
-      {state.treeOpen && (
+      {/* {state.treeOpen && (
         <GroupTreePlotContainer>
           <GroupTreePlot width={300} />
         </GroupTreePlotContainer>
@@ -158,7 +158,10 @@ const GroupReportTab = observer(() => {
       )}
       {!state.treeOpen && (
         <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
-      )}
+      )} */}
+      <GroupTreePlotContainer>
+        <GroupTreePlot width={300} />
+      </GroupTreePlotContainer>
       <MainContainer>
         {renderHeader()}
         {renderMutationList()}

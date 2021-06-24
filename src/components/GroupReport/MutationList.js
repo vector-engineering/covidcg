@@ -411,7 +411,7 @@ const MutationList = observer(() => {
             />
           </label>
         </OptionInputContainer>
-        <OptionCheckboxContainer>
+        {/* <OptionCheckboxContainer>
           <label>
             <input
               type="checkbox"
@@ -421,7 +421,7 @@ const MutationList = observer(() => {
             />
             Hide {groupDataStore.groupSnvType === 'protein_aa' ? 'Proteins' : 'Genes'} without SNVs
           </label>
-        </OptionCheckboxContainer>
+        </OptionCheckboxContainer> */}
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}

@@ -44,7 +44,7 @@ export const VOCListTitle = styled.div`
 
 export const VOCItemGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 180px);
+  grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto;
 `;
 
