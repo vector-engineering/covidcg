@@ -185,7 +185,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
               checked={state.useAssembly}
               onChange={toggleUseAssembly}
             />
-            Use a biological assembly (leave empty for asymmetric unit)
+            Use a biological assembly (leave unchecked for asymmetric unit)
           </CheckboxInput>
           {state.useAssembly && (
             <TextInput>

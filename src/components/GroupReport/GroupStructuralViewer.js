@@ -48,15 +48,15 @@ const StructuralViewer = observer(() => {
   const showDownloadPymolScriptModal = () => {
     setState({
       ...state,
-      downloadPymolScriptModalOpen: true
+      downloadPymolScriptModalOpen: true,
     });
-  }
+  };
   const hideDownloadPymolScriptModal = () => {
     setState({
       ...state,
-      downloadPymolScriptModalOpen: false
+      downloadPymolScriptModalOpen: false,
     });
-  }
+  };
 
   const onChangeStructureActiveGroup = (event) => {
     plotSettingsStore.setReportStructureActiveGroup(event.target.value);
@@ -100,10 +100,6 @@ const StructuralViewer = observer(() => {
 
   const downloadData = () => {
     groupDataStore.downloadStructureMutationData();
-  };
-
-  const downloadPymolScript = () => {
-    groupDataStore.downloadStructurePymolScript();
   };
 
   const applyHeatmap = ({ ref }) => {
@@ -270,7 +266,7 @@ const StructuralViewer = observer(() => {
 
   return (
     <StructuralViewerContainer>
-      <DownloadPymolScriptModal 
+      <DownloadPymolScriptModal
         isOpen={state.downloadPymolScriptModalOpen}
         onRequestClose={hideDownloadPymolScriptModal}
       />
