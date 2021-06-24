@@ -7,6 +7,7 @@ import {
   COMPARE_MODES,
   COMPARE_COLORS,
   SORT_DIRECTIONS,
+  TREE_COLOR_MODES,
 } from '../constants/defs.json';
 
 export const initialValues = {
@@ -40,6 +41,7 @@ export const initialValues = {
   surveillanceLegendHover: [],
 
   // GROUP REPORT TAB
+  reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
   reportConsensusThreshold: 0.7,
   reportMutationListHideEmpty: true,
   reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
@@ -183,6 +185,7 @@ export class PlotSettingsStore {
   // GROUP REPORT TAB
   // ----------------
 
+  @observable reportTreeColorMode = initialValues.reportTreeColorMode;
   @observable reportConsensusThreshold = initialValues.reportConsensusThreshold;
   @observable reportMutationListHideEmpty =
     initialValues.reportMutationListHideEmpty;
@@ -194,6 +197,10 @@ export class PlotSettingsStore {
   @observable reportStructureActiveGroup =
     initialValues.reportStructureActiveGroup;
 
+  @action
+  setReportTreeColorMode(mode) {
+    this.reportTreeColorMode = mode;
+  }
   @action
   setReportConsensusThreshold(thresh) {
     this.reportConsensusThreshold = thresh;

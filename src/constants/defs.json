@@ -107,5 +107,10 @@
     "H": ["A", "C", "T"],
     "V": ["A", "C", "G"],
     "N": ["A", "C", "G", "T"]
+  },
+  "TREE_COLOR_MODES": {
+    "COLOR_REGION": "colorRegion",
+    "COLOR_LATEST": "colorLatest",
+    "COLOR_NUM_SEQUENCES": "colorNumSequences"
   }
 }
