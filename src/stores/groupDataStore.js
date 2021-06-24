@@ -119,6 +119,17 @@ export class GroupDataStore {
   @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
+
+    // Update the groupSelectTree as well
+    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
+    selectTree[this.activeGroupType].forEach((group) => {
+      if (this.selectedGroups.includes(group.value)) {
+        group.checked = true;
+      } else {
+        group.checked = false;
+      }
+    });
+    this.groupSelectTree = selectTree;
   }
 
   getActiveGroupTypePrettyName() {
