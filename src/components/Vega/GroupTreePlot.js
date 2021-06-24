@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
-import initialSpec from '../../vega_specs/group_tree.vg.json';
+import initialSpec from '../../vega_specs/group_tree_v1.vg.json';
 
 const headerHeight = 40;
 
