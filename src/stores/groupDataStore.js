@@ -51,7 +51,7 @@ export class GroupDataStore {
         this.groupSelectTree[groupName].push({
           label: group.name,
           value: group.name,
-          checked: false,
+          checked: this.selectedGroups.includes(group.name),
         });
       });
     });
@@ -225,8 +225,10 @@ export class GroupDataStore {
 
   downloadStructurePymolScript(opts) {
     const script = mutationHeatmapToPymolScript({
-      activeProtein: rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-      activeGroup: rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
+      activeProtein:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+      activeGroup:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
       pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
       snvs: this.getStructureSnvs(),
       ...opts,
