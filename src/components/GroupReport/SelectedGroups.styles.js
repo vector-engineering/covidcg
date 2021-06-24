@@ -15,3 +15,10 @@ export const SelectedGroupItemContainer = styled.div``;
 export const SelectedGroupItemTitle = styled.span``;
 
 export const NoGroupsSelectedContainer = styled.div``;
+
+export const SelectedGroupsButton = styled.button`
+  background-color: #ccc;
+  margin-left: 5px;
+  height: 20px;
+  border-style: none;
+`;
