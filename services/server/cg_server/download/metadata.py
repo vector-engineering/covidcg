@@ -16,7 +16,7 @@ from cg_server.constants import constants
 from cg_server.query.selection import select_sequences
 
 
-def download_metadata(conn, req):
+def download_metadata(conn, conn_pool, req):
 
     with conn.cursor() as cur:
         temp_table_name = select_sequences(conn, cur, req)
@@ -68,7 +68,7 @@ def download_metadata(conn, req):
             metadata_joins.append(
                 sql.SQL(
                     """
-                    INNER JOIN {metadata_table_name} {metadata_table_name} 
+                    INNER JOIN {metadata_table_name} {metadata_table_name}
                         ON q.{field} = {metadata_table_name}."id"
                     """
                 ).format(
@@ -97,8 +97,8 @@ def download_metadata(conn, req):
         query = sql.SQL(
             """
             WITH dss AS (
-                SELECT 
-                    q."id" as "sequence_id", 
+                SELECT
+                    q."id" as "sequence_id",
                     array_to_string(array_agg(ds.{snv_agg_field}), ';') as "snp"
                 FROM {temp_table_name} q
                 INNER JOIN "sequence_dna_snp" sds ON q."id" = sds."sequence_id"
@@ -106,8 +106,8 @@ def download_metadata(conn, req):
                 GROUP BY q."id"
             ),
             gass AS (
-                SELECT 
-                    q."id" as "sequence_id", 
+                SELECT
+                    q."id" as "sequence_id",
                     array_to_string(array_agg(gas.{snv_agg_field}), ';') as "snp"
                 FROM {temp_table_name} q
                 INNER JOIN "sequence_gene_aa_snp" sgas ON q."id" = sgas."sequence_id"
@@ -115,8 +115,8 @@ def download_metadata(conn, req):
                 GROUP BY q."id"
             ),
             pass AS (
-                SELECT 
-                    q."id" as "sequence_id", 
+                SELECT
+                    q."id" as "sequence_id",
                     array_to_string(array_agg(pas.{snv_agg_field}), ';') as "snp"
                 FROM {temp_table_name} q
                 INNER JOIN "sequence_protein_aa_snp" spas ON q."id" = spas."sequence_id"
@@ -124,9 +124,9 @@ def download_metadata(conn, req):
                 GROUP BY q."id"
             ),
             qq AS (
-                SELECT     
+                SELECT
                     q."id",
-                    dss."snp" as "dna_snp", 
+                    dss."snp" as "dna_snp",
                     gass."snp" as "gene_aa_snp",
                     pass."snp" as "protein_aa_snp"
                 FROM {temp_table_name} q
@@ -134,7 +134,7 @@ def download_metadata(conn, req):
                 INNER JOIN gass ON q."id" = gass."sequence_id"
                 INNER JOIN pass ON q."id" = pass."sequence_id"
             )
-            SELECT 
+            SELECT
                 {sequence_cols_expr}
             FROM {temp_table_name} q
             INNER JOIN "location" loc ON q."location_id" = loc."id"
@@ -151,5 +151,7 @@ def download_metadata(conn, req):
         cur.execute(query)
 
         res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols,)
+
+    conn_pool.putconn(conn)
 
     return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})

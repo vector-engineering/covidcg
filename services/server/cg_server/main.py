@@ -27,6 +27,9 @@ from cg_server.query import (
     query_group_snv_frequencies,
 )
 
+from psycopg2 import pool
+from cg_server.query.connection_pooling import get_conn_from_pool
+
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
 CORS(app)
@@ -67,7 +70,8 @@ connection_options = {
 if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
-conn = psycopg2.connect(**connection_options)
+conn_pool = psycopg2.pool.SimpleConnectionPool(1, 20, **connection_options)
+conn = get_conn_from_pool(connection_options, conn_pool)
 
 # Quickly check if our database has been initialized yet
 # If not, then let's seed it
@@ -94,6 +98,7 @@ if os.getenv("FLASK_ENV", "development") == "development":
             )
 
         conn.commit()
+        conn_pool.putconn(conn)
 
 
 @app.route("/")
@@ -106,14 +111,16 @@ def index():
 @cross_origin(origins=cors_domains)
 @handle_db_errors(conn=conn)
 def init():
-    return query_initial(conn)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return query_initial(conn, conn_pool)
 
 
 @app.route("/country_score", methods=["GET"])
 @cross_origin(origins=cors_domains)
 @handle_db_errors(conn=conn)
 def _country_score():
-    return query_country_score(conn)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return query_country_score(conn, conn_pool)
 
 
 @app.route("/data", methods=["GET", "POST"])
@@ -123,8 +130,8 @@ def get_sequences():
     req = request.json
     if not req:
         return make_response(("No filter parameters given", 400))
-
-    return query_aggregate_data(conn, req)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return query_aggregate_data(conn, conn_pool, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
@@ -132,7 +139,8 @@ def get_sequences():
 @handle_db_errors(conn=conn)
 def _get_metadata_fields():
     req = request.json
-    return query_metadata_fields(conn, req)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return query_metadata_fields(conn, conn_pool, req)
 
 
 @app.route("/group_snv_frequencies", methods=["POST"])
@@ -140,7 +148,8 @@ def _get_metadata_fields():
 @handle_db_errors(conn=conn)
 def get_group_snv_frequencies():
     req = request.json
-    return query_group_snv_frequencies(conn, req)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return query_group_snv_frequencies(conn, conn_pool, req)
 
 
 @app.route("/download_metadata", methods=["POST"])
@@ -152,7 +161,8 @@ def _download_metadata():
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
     req = request.json
-    return download_metadata(conn, req)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return download_metadata(conn, conn_pool, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
@@ -165,7 +175,8 @@ def _download_snvs():
         )
 
     req = request.json
-    return download_snvs(conn, req)
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return download_snvs(conn, conn_pool, req)
 
 
 @app.route("/download_genomes", methods=["POST"])
@@ -178,5 +189,5 @@ def _download_genomes():
         )
 
     req = request.json
-    return download_genomes(conn, req)
-
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    return download_genomes(conn, conn_pool, req)

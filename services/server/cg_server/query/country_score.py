@@ -10,7 +10,8 @@ import json
 from flask import make_response
 
 
-def query_country_score(conn):
+def query_country_score(conn, conn_pool):
+    returnObj = {}
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -18,4 +19,6 @@ def query_country_score(conn):
             FROM "country_score"
             """
         )
-        return {"country_score": cur.fetchone()[0]}
+        returnObj = {"country_score": cur.fetchone()[0]}
+    conn_pool.putconn(conn)
+    return returnObj

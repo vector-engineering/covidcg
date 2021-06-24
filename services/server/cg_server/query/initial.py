@@ -53,7 +53,7 @@ def query_stats(cur):
     cur.execute(
         """
         SELECT "value"
-        FROM "stats"        
+        FROM "stats"
         """
     )
     return cur.fetchone()[0]
@@ -63,7 +63,7 @@ def query_geo_select_tree(cur):
     cur.execute(
         """
         SELECT "value"
-        FROM "geo_select_tree"        
+        FROM "geo_select_tree"
         """
     )
     return cur.fetchone()[0]
@@ -76,8 +76,8 @@ def query_groups(cur):
         group_queries.append(
             sql.SQL(
                 """
-            SELECT 
-                "name", 
+            SELECT
+                "name",
                 "color",
                 {group_name} as "group"
             FROM {group_table}
@@ -91,7 +91,7 @@ def query_groups(cur):
     ]
 
 
-def query_initial(conn):
+def query_initial(conn, conn_pool):
 
     with conn.cursor() as cur:
         metadata_map = query_metadata_map(cur)
@@ -99,10 +99,11 @@ def query_initial(conn):
         geo_select_tree = query_geo_select_tree(cur)
         groups = query_groups(cur)
 
+    conn_pool.putconn(conn)
+
     return {
         "metadata_map": metadata_map,
         **stats,
         "geo_select_tree": geo_select_tree,
         "groups": groups,
     }
-
