@@ -35,7 +35,7 @@ const CompareGroupsTab = observer(() => {
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Frequencies`}
         defaultCollapsed={false}
-        maxHeight={'400px'}
+        maxHeight={'500px'}
         helpText={
           <ul>
             <li>

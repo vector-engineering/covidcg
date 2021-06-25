@@ -9,6 +9,7 @@ import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { reds, snpColorArray } from '../../constants/colors';
 import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
+import EmptyPlot from '../Common/EmptyPlot';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
 import {
@@ -362,6 +363,14 @@ const MutationList = observer(() => {
       });
     }
   };
+
+  if (groupDataStore.selectedGroups.length === 0) {
+    return (
+      <EmptyPlot height={250}>
+        <p>No {groupDataStore.getActiveGroupTypePrettyName()}s selected</p>
+      </EmptyPlot>
+    );
+  }
 
   const activeGroupTypeItems = [];
   Object.keys(config.group_cols).forEach((groupType) => {

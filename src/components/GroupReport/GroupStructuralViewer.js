@@ -9,6 +9,7 @@ import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 
+import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
 import {
@@ -263,6 +264,14 @@ const StructuralViewer = observer(() => {
       </option>
     );
   });
+
+  if (groupDataStore.selectedGroups.length === 0) {
+    return (
+      <EmptyPlot height={250}>
+        <p>No {groupDataStore.getActiveGroupTypePrettyName()}s selected</p>
+      </EmptyPlot>
+    );
+  }
 
   return (
     <StructuralViewerContainer>

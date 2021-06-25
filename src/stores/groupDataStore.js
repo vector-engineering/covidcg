@@ -119,6 +119,30 @@ export class GroupDataStore {
   @action
   updateSelectedGroups(selectedGroups) {
     this.selectedGroups = selectedGroups;
+
+    // Update the groupSelectTree as well
+    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
+    selectTree[this.activeGroupType].forEach((group) => {
+      if (this.selectedGroups.includes(group.value)) {
+        group.checked = true;
+      } else {
+        group.checked = false;
+      }
+    });
+    this.groupSelectTree = selectTree;
+
+    // Update the selected active group from the structural viewer
+    // if we removed the current structural active group
+    if (
+      !this.selectedGroups.includes(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
+      )
+    ) {
+      // Set it to the first selected group
+      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
+        this.selectedGroups[0]
+      );
+    }
   }
 
   getActiveGroupTypePrettyName() {
