@@ -16,7 +16,7 @@ from cg_server.constants import constants
 from cg_server.query.selection import select_sequences
 
 
-def download_metadata(conn, conn_pool, req):
+def download_metadata(conn, req):
 
     with conn.cursor() as cur:
         temp_table_name = select_sequences(conn, cur, req)
@@ -151,7 +151,5 @@ def download_metadata(conn, conn_pool, req):
         cur.execute(query)
 
         res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols,)
-
-    conn_pool.putconn(conn)
 
     return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})

@@ -91,15 +91,13 @@ def query_groups(cur):
     ]
 
 
-def query_initial(conn, conn_pool):
+def query_initial(conn):
 
     with conn.cursor() as cur:
         metadata_map = query_metadata_map(cur)
         stats = query_stats(cur)
         geo_select_tree = query_geo_select_tree(cur)
         groups = query_groups(cur)
-
-    conn_pool.putconn(conn)
 
     return {
         "metadata_map": metadata_map,

@@ -12,7 +12,7 @@ from flask import make_response
 from cg_server.query.selection import query_sequences
 
 
-def download_snvs(conn, conn_pool, req):
+def download_snvs(conn, req):
     res_df, res_snv = query_sequences(conn, req)
     res = make_response(
         res_snv.drop(
@@ -28,5 +28,4 @@ def download_snvs(conn, conn_pool, req):
         200,
         {"Content-Type": "text/csv"},
     )
-    conn_pool.putconn(conn)
     return res

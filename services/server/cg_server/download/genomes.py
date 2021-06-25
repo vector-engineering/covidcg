@@ -16,7 +16,7 @@ from psycopg2 import sql
 from cg_server.query.selection import select_sequences
 
 
-def download_genomes(conn, conn_pool, req):
+def download_genomes(conn, req):
 
     fp = tempfile.NamedTemporaryFile(mode="w+b", delete=True, suffix=".fa.gz")
 
@@ -48,7 +48,6 @@ def download_genomes(conn, conn_pool, req):
     except psycopg2.Error:
         # If something went wrong, then first cleanup the temp file
         fp.close()
-        conn_pool.putconn(conn)
         return make_response(("Error getting sequences", 500))
 
     fp.seek(0)
@@ -61,5 +60,5 @@ def download_genomes(conn, conn_pool, req):
         as_attachment=True,
         attachment_filename="genomes.fa.gz",
     )
-    conn_pool.putconn(conn)
+
     return res

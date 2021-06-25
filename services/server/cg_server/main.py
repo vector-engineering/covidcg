@@ -70,7 +70,9 @@ connection_options = {
 if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
-conn_pool = psycopg2.pool.SimpleConnectionPool(1, 20, **connection_options)
+conn_pool = psycopg2.pool.SimpleConnectionPool(1,
+                                               os.environ["POSTGRES_MAX_CONN"],
+                                               **connection_options)
 
 # Quickly check if our database has been initialized yet
 # If not, then let's seed it
@@ -114,7 +116,7 @@ def index():
                   conn_pool=conn_pool)
 def init():
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return query_initial(conn, conn_pool)
+    return query_initial(conn)
 
 
 @app.route("/country_score", methods=["GET"])
@@ -124,7 +126,7 @@ def init():
                   conn_pool=conn_pool)
 def _country_score():
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return query_country_score(conn, conn_pool)
+    return query_country_score(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
@@ -137,7 +139,7 @@ def get_sequences():
     if not req:
         return make_response(("No filter parameters given", 400))
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return query_aggregate_data(conn, conn_pool, req)
+    return query_aggregate_data(conn, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
@@ -148,7 +150,7 @@ def get_sequences():
 def _get_metadata_fields():
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return query_metadata_fields(conn, conn_pool, req)
+    return query_metadata_fields(conn, req)
 
 
 @app.route("/group_snv_frequencies", methods=["POST"])
@@ -159,7 +161,7 @@ def _get_metadata_fields():
 def get_group_snv_frequencies():
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return query_group_snv_frequencies(conn, conn_pool, req)
+    return query_group_snv_frequencies(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])
@@ -174,7 +176,7 @@ def _download_metadata():
         )
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return download_metadata(conn, conn_pool, req)
+    return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
@@ -190,7 +192,7 @@ def _download_snvs():
 
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return download_snvs(conn, conn_pool, req)
+    return download_snvs(conn, req)
 
 
 @app.route("/download_genomes", methods=["POST"])
@@ -206,4 +208,4 @@ def _download_genomes():
 
     req = request.json
     conn = get_conn_from_pool(connection_options, conn_pool)
-    return download_genomes(conn, conn_pool, req)
+    return download_genomes(conn, req)

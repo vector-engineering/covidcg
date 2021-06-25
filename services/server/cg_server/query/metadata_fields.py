@@ -11,7 +11,7 @@ from psycopg2 import sql
 from cg_server.config import config
 
 
-def query_metadata_fields(conn, conn_pool, req):
+def query_metadata_fields(conn, req):
 
     table_queries = []
     placeholder_map = {}
@@ -48,7 +48,6 @@ def query_metadata_fields(conn, conn_pool, req):
     table_queries = sql.SQL(" UNION ALL ").join(table_queries)
 
     if not table_queries.as_string(conn):
-        conn_pool.putconn(conn)
         return {}
 
     query = sql.SQL(
@@ -70,5 +69,4 @@ def query_metadata_fields(conn, conn_pool, req):
         )
         res = dict(cur.fetchall())
 
-    conn_pool.putconn(conn)
     return res

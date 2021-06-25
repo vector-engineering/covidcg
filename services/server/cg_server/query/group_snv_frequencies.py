@@ -11,7 +11,7 @@ import psycopg2
 from psycopg2 import sql
 
 
-def query_group_snv_frequencies(conn, conn_pool, req):
+def query_group_snv_frequencies(conn, req):
     group = req["group"]
     snv_type = req["snv_type"]
     consensus_threshold = req["consensus_threshold"]
@@ -57,6 +57,5 @@ def query_group_snv_frequencies(conn, conn_pool, req):
         )
 
     # print(res)
-    conn_pool.putconn(conn)
 
     return res.to_json(orient="records")

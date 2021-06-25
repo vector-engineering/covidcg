@@ -23,7 +23,7 @@ from cg_server.query.selection import query_sequences
 from cg_server.query.consensus_snvs import query_consensus_snvs
 
 
-def query_aggregate_data(conn, conn_pool, req):
+def query_aggregate_data(conn, req):
 
     res_df, res_snv = query_sequences(conn, req)
     num_sequences = len(res_df)
@@ -443,5 +443,4 @@ def query_aggregate_data(conn, conn_pool, req):
         ),
     )
 
-    conn_pool.putconn(conn)
     return res
