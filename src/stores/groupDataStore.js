@@ -130,6 +130,19 @@ export class GroupDataStore {
       }
     });
     this.groupSelectTree = selectTree;
+
+    // Update the selected active group from the structural viewer
+    // if we removed the current structural active group
+    if (
+      !this.selectedGroups.includes(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
+      )
+    ) {
+      // Set it to the first selected group
+      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
+        this.selectedGroups[0]
+      );
+    }
   }
 
   getActiveGroupTypePrettyName() {
