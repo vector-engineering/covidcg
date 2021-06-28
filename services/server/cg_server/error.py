@@ -12,6 +12,8 @@ import traceback
 
 from flask import make_response
 
+from cg_server.query.connection_pooling import get_conn_from_pool
+
 
 # Print to stderr (for Google Cloud Run error tracking)
 # https://stackoverflow.com/a/14981125/4343866
@@ -19,13 +21,13 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def handle_db_errors(conn, options, conn_pool):
+def handle_db_errors(options, conn_pool):
     def decorator_db_error(func):
         @functools.wraps(func)
         def wrapper_db_error(*args, **kwargs):
             try:
-                conn = conn_pool.getconn()
-                res = func(*args, **kwargs)
+                conn = get_conn_from_pool(options, conn_pool)
+                res = func(conn, *args, **kwargs)
             # Catch any database/SQL errors
             except psycopg2.Error as e:
                 conn.rollback()

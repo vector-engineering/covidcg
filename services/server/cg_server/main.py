@@ -111,101 +111,85 @@ def index():
 
 @app.route("/init")
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def init():
-    conn = get_conn_from_pool(connection_options, conn_pool)
+def init(conn):
     return query_initial(conn)
 
 
 @app.route("/country_score", methods=["GET"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def _country_score():
-    conn = get_conn_from_pool(connection_options, conn_pool)
+def _country_score(conn):
     return query_country_score(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def get_sequences():
+def get_sequences(conn):
     req = request.json
     if not req:
         return make_response(("No filter parameters given", 400))
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return query_aggregate_data(conn, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def _get_metadata_fields():
+def _get_metadata_fields(conn):
     req = request.json
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return query_metadata_fields(conn, req)
 
 
 @app.route("/group_snv_frequencies", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def get_group_snv_frequencies():
+def get_group_snv_frequencies(conn):
     req = request.json
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return query_group_snv_frequencies(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def _download_metadata():
+def _download_metadata(conn):
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
     req = request.json
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return download_metadata(conn, req)
 
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def _download_snvs():
+def _download_snvs(conn):
     if not config["allow_metadata_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return download_snvs(conn, req)
 
 
 @app.route("/download_genomes", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(conn=get_conn_from_pool(connection_options, conn_pool),
-                  options=connection_options,
+@handle_db_errors(options=connection_options,
                   conn_pool=conn_pool)
-def _download_genomes():
+def _download_genomes(conn):
     if not config["allow_genome_download"]:
         return make_response(
             ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
-    conn = get_conn_from_pool(connection_options, conn_pool)
     return download_genomes(conn, req)
