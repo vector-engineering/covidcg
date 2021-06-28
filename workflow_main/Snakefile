@@ -16,9 +16,7 @@ from scripts.consensus_snps import get_all_consensus_snps
 from scripts.extract_aa_snps import extract_aa_snps
 from scripts.extract_dna_snps import extract_dna_snps
 from scripts.global_group_counts import global_group_counts
-from scripts.global_sequencing_efforts import global_sequencing_efforts
 from scripts.preprocess_sequences import preprocess_sequences
-from scripts.standalone_map_spec import standalone_map_spec
 from scripts.write_reference_files import write_reference_files
 from scripts.update_vocs import update_vocs
 
@@ -42,6 +40,9 @@ CHUNKS, = glob_wildcards(os.path.join(
 # Phylotree module
 include: "phylotree/Snakefile"
 
+# Additional analyses module
+include: "analyses/Snakefile"
+
 rule all:
     input:
         # Generate reference-related data
@@ -50,21 +51,12 @@ rule all:
         # Packaged data
         os.path.join(data_folder, "data_package.json.gz"),
         os.path.join(data_folder, 'data_complete.csv'),
-        # Standalone map spec
-        os.path.join(data_folder, "map_combined_standalone.vg.json"),
-        # Global sequencing data
-        os.path.join(data_folder, "new_global_data", "case_count.json"),
-        os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
-        os.path.join(data_folder, "new_global_data", "turnaround_per_month.json"),
-        os.path.join(data_folder, "new_global_data", "iso_lookup.json"),
-        # Surveillance data
-        os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
-        os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
         # Webscraper data
         os.path.join(static_data_folder, "vocs.json"),
         # Phylotree
-        os.path.join(data_folder, 'lineage_tree_graph.json')
-
+        rules.build_phylotree_graph.output.graph_table,
+        # Additional analyses
+        rules.additional_analyses.output.done
 
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
@@ -297,23 +289,6 @@ rule global_group_counts:
             group_cols=config["group_cols"]
         )
 
-
-rule global_sequencing_efforts:
-    """Merge sequence data with case counts and ISO geographical data,
-    to produce the "Global Sequencing Effort" plot in the web app
-    """
-    input:
-        case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map
-    output:
-        country_score = os.path.join(data_folder, "country_score.json")
-    run:
-        global_sequencing_efforts(
-            input.case_data, input.location_map,
-            output.country_score
-        )
-
-
 rule assemble_data_package:
     """Assemble the complete data package, that will be downloaded
     by the app upon initial load
@@ -346,55 +321,6 @@ rule build_full_dataframe:
             input.case_data, input.metadata_map, input.location_map,
             output.full_df
         )
-
-rule create_standalone_map_spec:
-    input:
-        spec = os.path.join("../src", "vega_specs", "map_combined.vg.json"),
-        data = rules.global_sequencing_efforts.output.country_score
-    output:
-        standalone_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
-    run:
-        standalone_map_spec(input.spec, input.data, output.standalone_spec)
-
-
-rule global_seq_data:
-    input:
-        case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map
-    params:
-        out_folder = os.path.join(data_folder, 'new_global_data')
-    output:
-        case_count = os.path.join(data_folder, "new_global_data", "case_count.json"),
-        sequences_per_month = os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
-        turnaround_per_month = os.path.join(data_folder, "new_global_data", "turnaround_per_month.json"),
-        iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
-    shell:
-        """
-        python3 scripts/global_seq_data.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
-        """
-
-rule surveillance_data:
-    input:
-        case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map,
-        metadata_map = rules.combine_all_data.output.metadata_map
-    params:
-        out_folder = os.path.join(data_folder, 'surveillance'),
-        start_date = (
-            ('--start-date ' + config['surv_start_date'])
-            if 'surv_start_date' in config else ''
-        ),
-        start_date_days_ago = config['surv_start_date_days_ago'],
-        end_date_days_ago = config['surv_end_date_days_ago'],
-        min_combo_count = config['surv_min_combo_count'],
-        min_single_count = config['surv_min_single_count']
-    output:
-        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
-        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
-    shell:
-        """
-        python3 scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} --metadata-map {input.metadata_map} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
-        """
 
 rule update_vocs:
     output:
