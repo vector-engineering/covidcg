@@ -26,10 +26,6 @@ static_data_folder = config['static_data_folder']
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-rule build_phylotree:
-    input:
-        os.path.join(data_folder, 'lineage_tree_graph.json')
-
 rule get_representative_sequences:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
@@ -84,7 +80,7 @@ rule treetime:
         """
 
 
-rule build_graph:
+rule build_phylotree_graph:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         nexus_file = rules.treetime.output.nexus_file,
