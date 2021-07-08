@@ -17,8 +17,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from cg_server.config import config
 from cg_server.db_seed import seed_database, insert_sequences
-from cg_server.download import download_genomes, download_metadata, download_snvs
+from cg_server.download import (
+    download_genomes, download_metadata, download_snvs)
 from cg_server.error import handle_db_errors
+from cg_server.dev_only import dev_only
+from cg_server.test_connpool import raiseDatabaseError
 from cg_server.query import (
     query_aggregate_data,
     query_initial,
@@ -40,7 +43,9 @@ auth = HTTPBasicAuth()
 users = {}
 load_users = os.getenv("LOGINS", "")
 load_users = [chunk for chunk in load_users.split(",") if chunk]
-load_users = [(chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users]
+load_users = [
+    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users
+    ]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
 
@@ -57,7 +62,8 @@ cors_domains.append(config["prod_hostname"])
 
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username), password):
+    if username in users and check_password_hash(users.get(username),
+                                                 password):
         return username
 
 
@@ -161,7 +167,8 @@ def get_group_snv_frequencies(conn):
 def _download_metadata(conn):
     if not config["allow_metadata_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG", 403)
+            ("Metadata downloads not permitted on this version of COVID CG",
+             403)
         )
     req = request.json
     return download_metadata(conn, req)
@@ -174,7 +181,8 @@ def _download_metadata(conn):
 def _download_snvs(conn):
     if not config["allow_metadata_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG", 403)
+            ("Metadata downloads not permitted on this version of COVID CG",
+             403)
         )
 
     req = request.json
@@ -188,7 +196,8 @@ def _download_snvs(conn):
 def _download_genomes(conn):
     if not config["allow_genome_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG", 403)
+            ("Metadata downloads not permitted on this version of COVID CG",
+             403)
         )
 
     req = request.json
