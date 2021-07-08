@@ -14,7 +14,7 @@ from cg_server.query.selection import query_sequences
 
 def download_snvs(conn, req):
     res_df, res_snv = query_sequences(conn, req)
-    return make_response(
+    res = make_response(
         res_snv.drop(
             columns=[
                 "sequence_id",
@@ -28,3 +28,4 @@ def download_snvs(conn, req):
         200,
         {"Content-Type": "text/csv"},
     )
+    return res

@@ -5,9 +5,9 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import json
+# import json
 
-from flask import make_response
+# from flask import make_response
 
 
 def query_country_score(conn):

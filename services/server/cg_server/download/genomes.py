@@ -60,5 +60,5 @@ def download_genomes(conn, req):
         as_attachment=True,
         attachment_filename="genomes.fa.gz",
     )
-    return res
 
+    return res

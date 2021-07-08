@@ -29,9 +29,9 @@ def query_metadata_fields(conn, req):
         table_queries.append(
             sql.SQL(
                 """
-            SELECT 
-                {field} as "field", 
-                "id"::text, 
+            SELECT
+                {field} as "field",
+                "id"::text,
                 "value"
 	        FROM {field_table}
             WHERE "id" IN {vals}
@@ -60,6 +60,7 @@ def query_metadata_fields(conn, req):
         """
     ).format(table_queries=table_queries)
 
+    res = {}
     with conn.cursor() as cur:
         cur.execute(
             query,
@@ -68,4 +69,4 @@ def query_metadata_fields(conn, req):
         )
         res = dict(cur.fetchall())
 
-        return res
+    return res
