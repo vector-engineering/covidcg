@@ -15,6 +15,7 @@ const GroupReportTabContainer = styled.div`
   display: flex;
   flex-direction: row;
 `;
+
 const GroupTreePlotContainer = styled.div``;
 
 // const GroupTreeToggle = styled.span`
@@ -23,6 +24,13 @@ const GroupTreePlotContainer = styled.div``;
 
 const MainContainer = styled.div`
   flex-grow: 1;
+  flex-direction: column;
+`;
+
+const PageContainer = styled.div`
+  display: grid;
+  grid-template-rows: 1;
+  grid-template-columns: 250px, repeat(2, calc((100vw - 250px) / 2));
 `;
 
 const GroupReportTab = observer(() => {
@@ -68,7 +76,7 @@ const GroupReportTab = observer(() => {
       <AccordionWrapper
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
-        maxHeight={'620px'}
+        maxHeight={'100vh'}
         helpText={
           <ul>
             <li>
@@ -147,27 +155,29 @@ const GroupReportTab = observer(() => {
   // };
 
   return (
-    <GroupReportTabContainer ref={ref}>
-      {/* {state.treeOpen && (
+    <PageContainer>
+      <GroupReportTabContainer ref={ref}>
+        {/* {state.treeOpen && (
+          <GroupTreePlotContainer>
+            <GroupTreePlot width={300} />
+          </GroupTreePlotContainer>
+        )}
+        {state.treeOpen && (
+          <GroupTreeToggle onClick={toggleTree}>◄</GroupTreeToggle>
+        )}
+        {!state.treeOpen && (
+          <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
+        )} */}
         <GroupTreePlotContainer>
-          <GroupTreePlot width={300} />
+          <GroupTreePlot width={250} />
         </GroupTreePlotContainer>
-      )}
-      {state.treeOpen && (
-        <GroupTreeToggle onClick={toggleTree}>◄</GroupTreeToggle>
-      )}
-      {!state.treeOpen && (
-        <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
-      )} */}
-      <GroupTreePlotContainer>
-        <GroupTreePlot width={250} />
-      </GroupTreePlotContainer>
-      <MainContainer>
-        {renderHeader()}
-        {renderMutationList()}
-        {renderStructuralViewer()}
-      </MainContainer>
-    </GroupReportTabContainer>
+        <MainContainer>{renderMutationList()}</MainContainer>
+        <MainContainer>
+          {renderHeader()}
+          {renderStructuralViewer()}
+        </MainContainer>
+      </GroupReportTabContainer>
+    </PageContainer>
   );
 });
 

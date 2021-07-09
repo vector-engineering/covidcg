@@ -100,8 +100,9 @@ export const MutationListTable = styled.table`
   }
   min-width: 100%;
   font-weight: normal;
-  max-height: 500px;
+  max-height: 86vh;
   overflow-y: scroll;
+  overflow-x: scroll;
 `;
 MutationListTable.defaultProps = {
   ncols: 1,
