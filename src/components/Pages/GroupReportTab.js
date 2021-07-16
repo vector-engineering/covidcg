@@ -23,7 +23,7 @@ const GroupTreePlotContainer = styled.div``;
 // `;
 
 const MainContainer = styled.div`
-  flex-grow: 1;
+  // flex-grow: 1;
   flex-direction: column;
 `;
 
