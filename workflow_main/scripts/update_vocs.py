@@ -17,12 +17,14 @@ def update_vocs(voc_dir):
             temp_dict = json.load(voc_list)
             for variant in temp_dict:
                 name = variant['name']
-                if name in variant_dict:
-                    return
-                else:
-                    return
+                if name not in variant_dict:
+                    variant_dict[name] = {}
+                variant_dict[name][org] = variant['level']
+                if org == 'who' and variant['who_label']:
+                    variant_dict[name]['who_label'] = variant['who_label']
 
-    return
+    df = pd.DataFrame.from_dict(variant_dict, orient='index')
+    return df
 
 
 def main():
@@ -36,7 +38,7 @@ def main():
     args = parser.parse_args()
 
     df = update_vocs(args.input)
-    df.to_json(args.output, orient="records")
+    df.to_json(args.output, orient='index')
 
 
 if __name__ == "__main__":

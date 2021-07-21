@@ -36,6 +36,7 @@ def get_who_vocs():
                 names = list(row.find_all('td')[0].stripped_strings)
 
             for name in names:
+                name = name.strip('*')
                 variant = {}
                 if label:
                     variant = {
