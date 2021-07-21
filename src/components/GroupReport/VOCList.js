@@ -12,19 +12,7 @@ import {
   VOCItemContainer,
   VOCItemGrid,
   VOCItemName,
-  // DropdownGrid,
-  // DropdownLabel,
 } from './VOCList.styles';
-
-// const VOCItemDropdown = observer(({ data }) => {
-//   return (
-//     <DropdownGrid>
-//       <DropdownLabel>WHO Label: {data.who_label}</DropdownLabel>
-//       <DropdownLabel>Nextstrain: {data.nextstrain}</DropdownLabel>
-//       <DropdownLabel>Detected: {data.first_detection}</DropdownLabel>
-//     </DropdownGrid>
-//   );
-// });
 
 const VOCItem = observer(({ data }) => {
   const { groupDataStore } = useStores();
@@ -58,23 +46,8 @@ const VOCItem = observer(({ data }) => {
     );
   };
 
-  // const vocItemOnClick = () => {
-  //   setState((state) => {
-  //     return {
-  //       open: !state.open,
-  //     };
-  //   });
-  // };
-
   return (
     <VOCItemContainer>
-      {/* {!state.open && (
-        <VOCItemName onClick={vocItemOnClick}>▼ {data.name}</VOCItemName>
-      )}
-      {state.open && (
-        <VOCItemName onClick={vocItemOnClick}>► {data.name}</VOCItemName>
-      )}
-      {state.open && <VOCItemDropdown data={data} />} */}
       <VOCItemName>{data.name}</VOCItemName>
       <input
         type="checkbox"
@@ -93,7 +66,9 @@ const VOCList = observer(() => {
   // Variants of Concern (VOC)
   const vocItems = [];
   VOC_LIST.filter((record) => {
-    return record.level === 'VOC';
+    for (const [key, value] in Object.entries(record.level)) {
+      return value === 'VOC';
+    }
   }).forEach((record) => {
     vocItems.push(<VOCItem key={`voc-item-${record.name}`} data={record} />);
   });
@@ -101,7 +76,9 @@ const VOCList = observer(() => {
   // Variants of Interest (VOI)
   const voiItems = [];
   VOC_LIST.filter((record) => {
-    return record.level === 'VOI';
+    for (const [key, value] in Object.entries(record.level)) {
+      return value === 'VOI';
+    }
   }).forEach((record) => {
     voiItems.push(<VOCItem key={`voi-item-${record.name}`} data={record} />);
   });

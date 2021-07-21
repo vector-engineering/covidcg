@@ -39,17 +39,3 @@ export const VOCItemName = styled.span`
     cursor: pointer;
   }
 `;
-
-export const DropdownGrid = styled.div`
-  display: grid;
-  top: 100%;
-  z-index: 2;
-  grid-template-columns: 180px;
-  grid-template-rows: auto;
-  background-color: #ffffff;
-`;
-
-export const DropdownLabel = styled.span`
-  grid-column: 1;
-  grid-row: auto;
-`;

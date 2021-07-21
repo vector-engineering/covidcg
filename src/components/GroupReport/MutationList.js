@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import useDimensions from 'react-use-dimensions';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
@@ -26,6 +27,7 @@ import {
   MutationRowBar,
   MutationRowName,
   MutationRowHeatmapCellContainer,
+  MutationContentContainer,
 } from './MutationList.styles';
 
 const genes = getAllGenes();
@@ -140,7 +142,7 @@ MutationListRow.defaultProps = {
   emptyRow: false,
 };
 
-const MutationListContent = observer(() => {
+const MutationListContent = observer(({ headerheight }) => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
@@ -173,9 +175,9 @@ const MutationListContent = observer(() => {
   {
     // gene or protein
     S: [
-      { 
+      {
         name: D614G
-        ref, 
+        ref,
         alt,
         pos: 614
         frequency: [0.1, 0.9, 0.5] // fractional frequencies per group
@@ -323,7 +325,7 @@ const MutationListContent = observer(() => {
   });
 
   return (
-    <>
+    <MutationContentContainer headerheight={headerheight}>
       <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
         <thead>
           <tr>
@@ -335,12 +337,14 @@ const MutationListContent = observer(() => {
       <MutationListTable ncols={groupDataStore.selectedGroups.length}>
         <tbody>{rowItems}</tbody>
       </MutationListTable>
-    </>
+    </MutationContentContainer>
   );
 });
 
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
+  const [headerRef, headerSize] = useDimensions();
+  const [headerRef1, headerSize1] = useDimensions();
 
   // const onChangeActiveGroupType = (event) => {
   //   groupDataStore.updateActiveGroupType(event.target.value);
@@ -383,7 +387,7 @@ const MutationList = observer(() => {
 
   return (
     <MutationListContainer>
-      <MutationListHeader>
+      <MutationListHeader ref={headerRef}>
         {/* <OptionSelectContainer>
           <label>
             <select
@@ -427,7 +431,7 @@ const MutationList = observer(() => {
           onSelect={handleDownloadSelect}
         />
       </MutationListHeader>
-      <MutationListHeader>
+      <MutationListHeader ref={headerRef1}>
         <OptionCheckboxContainer>
           <label>
             <input
@@ -444,7 +448,9 @@ const MutationList = observer(() => {
           </label>
         </OptionCheckboxContainer>
       </MutationListHeader>
-      <MutationListContent></MutationListContent>
+      <MutationListContent
+        headerheight={headerSize.height + headerSize1.height}
+      ></MutationListContent>
     </MutationListContainer>
   );
 });

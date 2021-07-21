@@ -16,6 +16,10 @@ export const MutationListHeader = styled.div`
   }
 `;
 
+export const MutationContentContainer = styled.div`
+  height: calc(100vh - ${(props) => props.headerheight});
+`;
+
 export const OptionSelectContainer = styled.div`
   margin-right: 12px;
   font-weight: normal;

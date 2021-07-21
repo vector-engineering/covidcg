@@ -30,7 +30,7 @@ const MainContainer = styled.div`
 const PageContainer = styled.div`
   display: grid;
   grid-template-rows: 1;
-  grid-template-columns: 250px, repeat(2, calc((100vw - 250px) / 2));
+  grid-template-columns: 250px, repeat(2, calc((100% - 250px) / 2));
 `;
 
 const GroupReportTab = observer(() => {
@@ -77,6 +77,7 @@ const GroupReportTab = observer(() => {
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
         maxHeight={'100vh'}
+        horizontal={true}
         helpText={
           <ul>
             <li>

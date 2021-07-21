@@ -52,6 +52,9 @@ rule all:
         os.path.join(data_folder, "data_package.json.gz"),
         os.path.join(data_folder, 'data_complete.csv'),
         # Webscraper data
+        os.path.join(static_data_folder, "all_vocs/", "who.json")
+        os.path.join(static_data_folder, "all_vocs/", "cdc.json")
+        os.path.join(static_data_folder, "all_vocs/", "ecdc.json")
         os.path.join(static_data_folder, "vocs.json"),
         # Phylotree
         rules.build_phylotree_graph.output.graph_table,
@@ -322,10 +325,36 @@ rule build_full_dataframe:
             output.full_df
         )
 
+rule get_cdc_vocs:
+    output:
+        cdc_list = os.path.join(static_data_folder, "all_vocs/", "CDC.json")
+    shell:
+        """
+        python3 scripts/get_cdc_vocs.py -o {output.cdc_list}
+        """
+
+rule get_who_vocs:
+    output:
+        who_list = os.path.join(static_data_folder, "all_vocs/", "WHO.json")
+    shell:
+        """
+        python3 scripts/get_who_vocs.py -o {output.who_list}
+        """
+
+rule get_ecdc_vocs:
+    output:
+        ecdc_list = os.path.join(static_data_folder, "all_vocs/", "ECDC.json")
+    shell:
+        """
+        python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
+        """
+
 rule update_vocs:
+    input:
+        all_vocs = os.path.join(static_data_folder, "all_vocs", "")
     output:
         voc_list = os.path.join(static_data_folder, "vocs.json")
     shell:
         """
-        python3 scripts/update_vocs.py -o {output.voc_list}
+        python3 scripts/update_vocs.py -i {input.all_vocs} -o {output.voc_list}
         """

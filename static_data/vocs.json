@@ -1,267 +1,49 @@
-[
-  {
-    "level": "VOI",
-    "name": "B.1.525",
-    "spike_subs": [
-      "A67V",
-      "69del",
-      "70del",
-      "144del",
-      "E484K",
-      "D614G",
-      "Q677H",
-      "F888L"
-    ],
-    "nextstrain": "20A/S:484K",
-    "who_label": "Eta",
-    "first_detection": "United Kingdom/Nigeria - December 2020",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Potential reduction in neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "B.1.526",
-    "spike_subs": [
-      "(L5F*)",
-      "T95I",
-      "D253G",
-      "(S477N*)",
-      "(E484K*)",
-      "D614G",
-      "(A701V*)"
-    ],
-    "nextstrain": "20C/S:484K",
-    "who_label": "Iota",
-    "first_detection": "United States (New York) - November 2020",
-    "ref_isolate": "NR-55359",
-    "attributes": [
-      "Reduced susceptibility to the combination of bamlanivimab and etesevimab monoclonal antibody treatment; however, the clinical implications of this are not known. Alternative monoclonal antibody treatments are available.",
-      "Reduced neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "B.1.526.1",
-    "spike_subs": [
-      "D80G",
-      "144del",
-      "F157S",
-      "L452R",
-      "D614G",
-      "(T791I*)",
-      "(T859N*)",
-      "D950H"
-    ],
-    "nextstrain": "20C",
-    "who_label": "",
-    "first_detection": "United States (New York) - October 2020",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Potential reduction in neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "B.1.617",
-    "spike_subs": ["L452R", "E484Q", "D614G"],
-    "nextstrain": "20A",
-    "who_label": "",
-    "first_detection": "India - February 2021",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Reduced neutralization by postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "B.1.617.1",
-    "spike_subs": [
-      "(T95I)",
-      "G142D",
-      "E154K",
-      "L452R",
-      "E484Q",
-      "D614G",
-      "P681R",
-      "Q1071H"
-    ],
-    "nextstrain": "20A/S:154K",
-    "who_label": "Kappa",
-    "first_detection": "India - December 2020",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Potential reduction in neutralization by postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "B.1.617.3",
-    "spike_subs": [
-      "T19R",
-      "G142D",
-      "L452R",
-      "E484Q",
-      "D614G",
-      "P681R",
-      "D950N"
-    ],
-    "nextstrain": "20A",
-    "who_label": "",
-    "first_detection": "India - October 2020",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Potential reduction in neutralization by postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOI",
-    "name": "P.2",
-    "spike_subs": ["E484K", "(F565L*)", "D614G", "V1176F"],
-    "nextstrain": "20J",
-    "who_label": "Zeta",
-    "first_detection": "Brazil - April 2020",
-    "ref_isolate": "",
-    "attributes": [
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Reduced neutralization by postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "B.1.1.7",
-    "spike_subs": [
-      "69del",
-      "70del",
-      "144del",
-      "(E484K*)",
-      "(S494P*)",
-      "N501Y",
-      "A570D",
-      "D614G",
-      "P681H",
-      "T716I",
-      "S982A",
-      "D1118H (K1191N*)"
-    ],
-    "nextstrain": "20I/501Y.V1",
-    "who_label": "Alpha",
-    "first_detection": "United Kingdom",
-    "ref_isolate": "NR-54000",
-    "attributes": [
-      "~% increased transmission",
-      "Potential increased severity based on hospitalizations and case fatality rates",
-      "No impact on susceptibility to EUA monoclonal antibody treatments",
-      "Minimal impact on neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "B.1.351",
-    "spike_subs": [
-      "D80A",
-      "D215G",
-      "241del",
-      "242del",
-      "243del",
-      "K417N",
-      "E484K",
-      "N501Y",
-      "D614G",
-      "A701V"
-    ],
-    "nextstrain": "20H/501.V2",
-    "who_label": "Beta",
-    "first_detection": "South Africa",
-    "ref_isolate": "NR-55282",
-    "attributes": [
-      "~% increased transmission",
-      "Significantly reduced susceptibility to the combination of bamlanivimab and etesevimab monoclonal antibody treatment, but other EUA monoclonal antibody treatments are available",
-      "Reduced neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "B.1.427",
-    "spike_subs": ["L452R", "D614G"],
-    "nextstrain": "20C/S:452R",
-    "who_label": "Epsilon",
-    "first_detection": "United States-(California)",
-    "ref_isolate": "",
-    "attributes": [
-      "~% increased transmission",
-      "Modest decrease in susceptibility to the combination of bamlanivimab and etesevimab; however, the clinical implications of this decrease are not known. Alternative monoclonal antibody treatments are available.",
-      "Reduced neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "B.1.429",
-    "spike_subs": ["S13I", "W152C", "L452R", "D614G"],
-    "nextstrain": "20C/S:452R",
-    "who_label": "Epsilon",
-    "first_detection": "United States-(California)",
-    "ref_isolate": "",
-    "attributes": [
-      "~% increased transmission",
-      "Reduced susceptibility to the combination of bamlanivimab and etesevimab; however, the clinical implications of this decrease are not known. Alternative monoclonal antibody treatments are available.",
-      "Reduced neutralization by convalescent and postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "B.1.617.2",
-    "spike_subs": [
-      "Spike:\u00a0T19R",
-      "(G142D)",
-      "156del",
-      "157del",
-      "R158G",
-      "L452R",
-      "T478K",
-      "D614G",
-      "P681R",
-      "D950N"
-    ],
-    "nextstrain": "20A/S:478K",
-    "who_label": "Delta",
-    "first_detection": "India",
-    "ref_isolate": "",
-    "attributes": [
-      "Increased transmissibility",
-      "Potential reduction in neutralization by some EUA monoclonal antibody treatments",
-      "Potential reduction in neutralization by postvaccination sera"
-    ]
-  },
-  {
-    "level": "VOC",
-    "name": "P.1",
-    "spike_subs": [
-      "L18F",
-      "T20N",
-      "P26S",
-      "D138Y",
-      "R190S",
-      "K417T",
-      "E484K",
-      "N501Y",
-      "D614G",
-      "H655Y",
-      "T1027I"
-    ],
-    "nextstrain": "20J/501Y.V3",
-    "who_label": "Gamma",
-    "first_detection": "Japan/Brazil",
-    "ref_isolate": "NR-54982",
-    "attributes": [
-      "Significantly reduced susceptibility to the combination of bamlanivimab and etesevimab monoclonal antibody treatment, but other EUA monoclonal antibody treatments are available",
-      "Reduced neutralization by convalescent and postvaccination sera"
-    ]
-  }
-]
+{
+  "B.1.1.7": { "WHO": "VOC", "ECDC": "VOC", "CDC": "VOC" },
+  "B.1.351": { "WHO": "VOC", "ECDC": "VOC", "CDC": "VOC" },
+  "B.1.351.2": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "B.1.351.3": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "P.1": { "WHO": "VOC", "ECDC": "VOC", "CDC": "VOC" },
+  "P.1.1": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "P.1.2": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "B.1.617.2": { "WHO": "VOC", "ECDC": "VOC", "CDC": "VOC" },
+  "AY.1": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "AY.2": { "WHO": "VOC", "ECDC": null, "CDC": null },
+  "B.1.525": { "WHO": "VOI", "ECDC": "VOI", "CDC": "VOI" },
+  "B.1.526": { "WHO": "VOI", "ECDC": "Other", "CDC": "VOI" },
+  "B.1.617.1": { "WHO": "VOI", "ECDC": "VOI", "CDC": "VOI" },
+  "C.37": { "WHO": "VOI", "ECDC": "Other", "CDC": null },
+  "B.1.427": { "WHO": "Other", "ECDC": null, "CDC": "VOI" },
+  "B.1.429": { "WHO": "Other", "ECDC": null, "CDC": "VOI" },
+  "P.2": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "P.3": { "WHO": "Other", "ECDC": "VOI", "CDC": null },
+  "R.1": { "WHO": "Other", "ECDC": null, "CDC": null },
+  "R.2": { "WHO": "Other", "ECDC": null, "CDC": null },
+  "B.1.466.2": { "WHO": "Other", "ECDC": null, "CDC": null },
+  "B.1.621": { "WHO": "Other", "ECDC": "VOI", "CDC": null },
+  "AV.1": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "B.1.1.318": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "B.1.1.519": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "AT.1": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "C.36.3": { "WHO": "Other", "ECDC": null, "CDC": null },
+  "C.36.3.1": { "WHO": "Other", "ECDC": null, "CDC": null },
+  "B.1.214.2": { "WHO": "Other", "ECDC": "Other", "CDC": null },
+  "B.1.1.7+E484K": { "WHO": null, "ECDC": "VOC", "CDC": null },
+  "B.1.427/B.1.429": { "WHO": null, "ECDC": "VOI", "CDC": null },
+  "B.1.616": { "WHO": null, "ECDC": "VOI", "CDC": null },
+  "B.1.620": { "WHO": null, "ECDC": "VOI", "CDC": null },
+  "B.1.617.3": { "WHO": null, "ECDC": "Other", "CDC": "VOI" },
+  "A.23.1+E484K": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "A.27": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "A.28": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "C.16": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.351+P384L": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.351+E516Q": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.1.7+L452R": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.1.7+S494P": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "C.36+L452R": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.526.1": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.526.2": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "P.1+P681H": { "WHO": null, "ECDC": "Other", "CDC": null },
+  "B.1.671.2 + K417N": { "WHO": null, "ECDC": "Other", "CDC": null }
+}
