@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
 
     df = get_cdc_vocs()
-    df.to_json(args.output, orient="records")
+    df.to_json(args.output, orient="records", indent=2)
 
 
 if __name__ == "__main__":

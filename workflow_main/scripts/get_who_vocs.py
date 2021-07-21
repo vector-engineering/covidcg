@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import argparse
-import pandas as pd
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -49,10 +49,7 @@ def get_who_vocs():
                 variant_list.append(variant)
         level_ind += 1
 
-    df = pd.DataFrame(variant_list)
-    df.set_index('name')
-
-    return df
+    return variant_list
 
 
 def main():
@@ -63,8 +60,10 @@ def main():
 
     args = parser.parse_args()
 
-    df = get_who_vocs()
-    df.to_json(args.output, orient="records")
+    variant_list = get_who_vocs()
+
+    with open(args.output, 'w') as fp:
+        fp.write(json.dumps(variant_list, indent=2))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "B.1.427",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.429",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.525",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.526",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.617.1",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.617.3",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.1.7",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.351",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.617.2",
+    "level": "VOC"
+  },
+  {
+    "name": "P.1",
+    "level": "VOC"
+  }
+]
