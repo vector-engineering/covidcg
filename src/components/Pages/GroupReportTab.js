@@ -18,19 +18,18 @@ const GroupReportTabContainer = styled.div`
 
 const GroupTreePlotContainer = styled.div``;
 
-// const GroupTreeToggle = styled.span`
-//   margin: 5px;
-// `;
-
 const MainContainer = styled.div`
   // flex-grow: 1;
   flex-direction: column;
+  overflow-y: scroll;
+  max-height: 100vh;
 `;
 
 const PageContainer = styled.div`
   display: grid;
   grid-template-rows: 1;
   grid-template-columns: 250px, repeat(2, calc((100% - 250px) / 2));
+  max-width: 100%;
 `;
 
 const GroupReportTab = observer(() => {

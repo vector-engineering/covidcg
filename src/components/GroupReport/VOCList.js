@@ -12,27 +12,42 @@ import {
   VOCItemContainer,
   VOCItemGrid,
   VOCItemName,
+  VOCBadgeContainer,
+  VOCBadge,
 } from './VOCList.styles';
 
-const VOCItem = observer(({ data }) => {
+const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
+const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
+
+const VOCItem = observer(({ name, orgArr }) => {
   const { groupDataStore } = useStores();
-  // const [state, setState] = useState({
-  //   open: false,
-  // });
+  const badges = [];
 
-  // See if checkbox should be checked
-  let checked =
-    groupDataStore.selectedGroups.indexOf(data.name) > -1 ? true : false;
+  // To display borders, four badges must be displayed
+  // Loop through orgArr and if real, display colored badge, else display white
+  Object.keys(coords).forEach((item) => {
+    badges.push(
+      <VOCBadge
+        color={orgArr.includes(item) ? colors[item] : 'white'}
+        row={coords[item][0]}
+        col={coords[item][1]}
+      />
+    );
+  });
 
-  const checkBoxOnClick = (event) => {
+  // See if container should be selected
+  let selected =
+    groupDataStore.selectedGroups.indexOf(name) > -1 ? true : false;
+
+  const onClick = (event) => {
     let selectedNodes = groupDataStore.selectedGroups;
 
     // If the checkbox is being checked, add to selectedNodes
-    if (event.target.checked) {
-      selectedNodes.push(data.name);
+    if (!event.target.selected) {
+      selectedNodes.push(name);
     } else {
       // If the check is being removed, remove from selectedNodes
-      const index = selectedNodes.indexOf(data.name);
+      const index = selectedNodes.indexOf(name);
       if (index > -1) {
         selectedNodes.splice(index, 1);
       }
@@ -47,41 +62,56 @@ const VOCItem = observer(({ data }) => {
   };
 
   return (
-    <VOCItemContainer>
-      <VOCItemName>{data.name}</VOCItemName>
-      <input
-        type="checkbox"
-        onChange={checkBoxOnClick}
-        data={data}
-        checked={checked}
-      />
+    <VOCItemContainer onClick={onClick} selected={selected}>
+      <VOCBadgeContainer>{badges}</VOCBadgeContainer>
+      <VOCItemName selected={selected}>{name}</VOCItemName>
     </VOCItemContainer>
   );
 });
 VOCItem.propTypes = {
-  data: PropTypes.object,
+  name: PropTypes.string.isRequired,
+  orgArr: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const VOCList = observer(() => {
+  const filterItems = (level) => {
+    // VOC_LIST is an object with lineages as its keys
+    // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
+    // Each organization's value is the level (VOC, VOI, Other) assigned to the lineage
+
+    // {lineage: {
+    //            org1: level,
+    //            org2: level, ...
+    //           }
+    // }
+
+    const items = [];
+    Object.keys(VOC_LIST)
+      .filter((lineage_name) => {
+        return Object.values(VOC_LIST[lineage_name]).some((v) => v === level);
+      })
+      .forEach((lineage_name) => {
+        let org_dict = VOC_LIST[lineage_name];
+        let orgArr = Object.keys(org_dict).filter((org) => {
+          return org_dict[org] === level;
+        });
+
+        items.push(
+          <VOCItem
+            key={`${level}-item-${lineage_name}`}
+            name={lineage_name}
+            orgArr={orgArr}
+          />
+        );
+      });
+    return items;
+  };
+
   // Variants of Concern (VOC)
-  const vocItems = [];
-  VOC_LIST.filter((record) => {
-    for (const [key, value] in Object.entries(record.level)) {
-      return value === 'VOC';
-    }
-  }).forEach((record) => {
-    vocItems.push(<VOCItem key={`voc-item-${record.name}`} data={record} />);
-  });
+  const vocItems = filterItems('VOC');
 
   // Variants of Interest (VOI)
-  const voiItems = [];
-  VOC_LIST.filter((record) => {
-    for (const [key, value] in Object.entries(record.level)) {
-      return value === 'VOI';
-    }
-  }).forEach((record) => {
-    voiItems.push(<VOCItem key={`voi-item-${record.name}`} data={record} />);
-  });
+  const voiItems = filterItems('VOI');
 
   return (
     <VOCListContainer>

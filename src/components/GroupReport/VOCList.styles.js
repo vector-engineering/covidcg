@@ -27,15 +27,41 @@ export const VOCItemGrid = styled.div`
 `;
 
 export const VOCItemContainer = styled.div`
+  display: grid;
+  grid-template-columns: 20px 100px;
+  grid-gap: 5px
+  align-items: center;
+  background-color: ${({ selected }) => (selected ? '#117733' : '#DDDDDD')};
+  margin-top: 5px;
+  padding: 5px;
+
   position: relative;
 
-  input {
-    vertical-align: 'baseline';
-  }
-`;
-
-export const VOCItemName = styled.span`
   &:hover {
     cursor: pointer;
   }
 `;
+
+export const VOCItemName = styled.span`
+  float: left;
+  color: ${({ selected }) => (selected ? 'white' : 'black')};
+`;
+
+export const VOCBadgeContainer = styled.div`
+  display: grid;
+  margin: auto;
+  max-width: 11px;
+  max-height: 11px;
+  border: 1px solid black;
+  background-color: black;
+  grid-template-columns: repeat(2, 5px);
+  grid-template-rows: repeat(2, 5px);
+  grid-gap: 1px;
+`;
+
+export const VOCBadge = styled.div`
+  background-color: ${({ color }) => color};
+  grid-row: ${({ row }) => row};
+  grid-column: ${({ col }) => col};
+`;
+VOCBadge.defaultProps = { color: 'white', row: 1, col: 1 };
