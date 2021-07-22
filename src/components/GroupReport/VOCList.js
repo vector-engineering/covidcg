@@ -42,11 +42,11 @@ const VOCItem = observer(({ name, orgArr }) => {
   const onClick = (event) => {
     let selectedNodes = groupDataStore.selectedGroups;
 
-    // If the checkbox is being checked, add to selectedNodes
+    // If the container is selected, add to selectedNodes
     if (!event.target.selected) {
       selectedNodes.push(name);
     } else {
-      // If the check is being removed, remove from selectedNodes
+      // If the container is being deselected, remove from selectedNodes
       const index = selectedNodes.indexOf(name);
       if (index > -1) {
         selectedNodes.splice(index, 1);

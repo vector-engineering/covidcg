@@ -6,6 +6,13 @@ import json
 from pathlib import Path
 
 
+def clean_text(str):
+    str = str.replace(" ", "")
+    str = str.split('+')[0]
+    str = str.split('/')
+    return str
+
+
 def update_vocs(voc_files):
     variant_dict = {}
     for filepath in voc_files:
@@ -13,12 +20,20 @@ def update_vocs(voc_files):
         with open(filepath) as voc_list:
             temp_dict = json.load(voc_list)
             for variant in temp_dict:
-                name = variant['name']
-                if name not in variant_dict:
-                    variant_dict[name] = {}
-                variant_dict[name][org] = variant['level']
-                if org == 'who' and variant['who_label']:
-                    variant_dict[name]['who_label'] = variant['who_label']
+                name = clean_text(variant['name'])
+                if isinstance(name, list):
+                    for n in name:
+                        if n not in variant_dict:
+                            variant_dict[n] = {}
+                        variant_dict[n][org] = variant['level']
+                        if org == 'who' and variant['who_label']:
+                            variant_dict[n]['who_label'] = variant['who_label']
+                else:
+                    if name not in variant_dict:
+                        variant_dict[name] = {}
+                    variant_dict[name][org] = variant['level']
+                    if org == 'who' and variant['who_label']:
+                        variant_dict[name]['who_label'] = variant['who_label']
 
     return variant_dict
 
