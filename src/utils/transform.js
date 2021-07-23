@@ -16,6 +16,23 @@ export function aggregate({ data, groupby, fields, ops, as }) {
   // Since this is in a map, populating this should be pretty fast
   const aggContainer = {};
 
+  // Remember the original type of each of our groupby keys
+  // so that we can convert back to the original type after
+  // the aggregation operation
+  // During the aggregation, all groupbys get converted to string
+  // because they need to keys of a object, and only strings are valid keys
+  // ONLY NUMBER IS IMPLEMENTED
+  const groupByTypes = [];
+  groupby.forEach((groupByKey) => {
+    // Skip if the data is an empty array
+    if (data.length === 0) {
+      groupByTypes.push('string');
+      return;
+    }
+    // Infer the type from the first item
+    groupByTypes.push(typeof data[0][groupByKey]);
+  });
+
   // Helper to get the current object, depending how deep we are in
   // groupby
   let curContainer;
@@ -82,6 +99,11 @@ export function aggregate({ data, groupby, fields, ops, as }) {
         row = {};
         // Add the keys from the key chain
         for (k = 0; k < groupby.length; k++) {
+          if (groupByTypes[k] === 'number') {
+            row[groupby[k]] = Number(_keys[k]);
+          } else {
+            row[groupby[k]] = _keys[k];
+          }
           row[groupby[k]] = _keys[k];
         }
         // Calculate aggregate values for each field
