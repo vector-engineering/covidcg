@@ -35,10 +35,8 @@ const AccordionWrapper = ({
     setState({ showHelp: !state.showHelp });
   };
 
-  const style = horizontal ? { height: '100%' } : { width: '100%' };
-
   return (
-    <div style={style}>
+    <div style={{ width: '100%' }}>
       <Title>
         <CollapseButton onClick={toggleCollapsed}>
           {state.collapsed ? '+' : '-'}

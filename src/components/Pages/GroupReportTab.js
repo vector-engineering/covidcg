@@ -11,33 +11,63 @@ import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
 import StructuralViewer from '../GroupReport/GroupStructuralViewer';
 
+const MEDIAWIDTH = '1475px';
+
 const GroupReportTabContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const GroupTreePlotContainer = styled.div``;
-
-const MainContainer = styled.div`
-  // flex-grow: 1;
-  flex-direction: column;
-  overflow-y: scroll;
-  max-height: 100vh;
-`;
-
-const PageContainer = styled.div`
   display: grid;
-  grid-template-rows: 1;
-  grid-template-columns: 250px, repeat(2, calc((100% - 250px) / 2));
-  max-width: 100%;
+  grid-template-rows: auto;
+  grid-template-columns: 250px repeat(2, 1fr);
+  max-height: 100vh;
+  overflow: hidden;
+
+  @media (max-width: ${MEDIAWIDTH}) {
+    grid-template-rows: auto;
+    grid-template-columns: 250px 1fr;
+    overflow-y: auto;
+  }
+`;
+
+const GroupTreePlotContainer = styled.div`
+  grid-row: 1 / 3;
+  grid-column: 1;
+
+  @media (max-width: ${MEDIAWIDTH}) {
+    grid-row: 1 / 4;
+  }
+`;
+
+const MutationsContainer = styled.div`
+  grid-column: 2;
+  grid-row: 1 / 3;
+
+  @media (max-width: ${MEDIAWIDTH}) {
+    grid-row: 2;
+  }
+`;
+
+const VOCContainer = styled.div`
+  grid-column: 3;
+  grid-row: 1;
+
+  @media (max-width: ${MEDIAWIDTH}) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+`;
+
+const StructuralViewerContainer = styled.div`
+  grid-column: 3;
+  grid-row: 2;
+
+  @media (max-width: ${MEDIAWIDTH}) {
+    grid-column: 2;
+    grid-row: 3;
+  }
 `;
 
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
   const [ref, { width }] = useDimensions();
-  // const [state, setState] = useState({
-  //   treeOpen: true,
-  // });
 
   const renderHeader = () => {
     return (
@@ -76,7 +106,6 @@ const GroupReportTab = observer(() => {
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
         maxHeight={'100vh'}
-        horizontal={true}
         helpText={
           <ul>
             <li>
@@ -146,38 +175,17 @@ const GroupReportTab = observer(() => {
     );
   };
 
-  // const toggleTree = () => {
-  //   setState((state) => {
-  //     return {
-  //       treeOpen: !state.treeOpen,
-  //     };
-  //   });
-  // };
-
   return (
-    <PageContainer>
-      <GroupReportTabContainer ref={ref}>
-        {/* {state.treeOpen && (
-          <GroupTreePlotContainer>
-            <GroupTreePlot width={300} />
-          </GroupTreePlotContainer>
-        )}
-        {state.treeOpen && (
-          <GroupTreeToggle onClick={toggleTree}>◄</GroupTreeToggle>
-        )}
-        {!state.treeOpen && (
-          <GroupTreeToggle onClick={toggleTree}>►</GroupTreeToggle>
-        )} */}
-        <GroupTreePlotContainer>
-          <GroupTreePlot width={250} />
-        </GroupTreePlotContainer>
-        <MainContainer>{renderMutationList()}</MainContainer>
-        <MainContainer>
-          {renderHeader()}
-          {renderStructuralViewer()}
-        </MainContainer>
-      </GroupReportTabContainer>
-    </PageContainer>
+    <GroupReportTabContainer ref={ref}>
+      <GroupTreePlotContainer>
+        <GroupTreePlot width={250} />
+      </GroupTreePlotContainer>
+      <MutationsContainer>{renderMutationList()}</MutationsContainer>
+      <VOCContainer>{renderHeader()}</VOCContainer>
+      <StructuralViewerContainer>
+        {renderStructuralViewer()}
+      </StructuralViewerContainer>
+    </GroupReportTabContainer>
   );
 });
 

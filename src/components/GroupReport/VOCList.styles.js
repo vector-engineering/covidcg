@@ -28,7 +28,7 @@ export const VOCItemGrid = styled.div`
 
 export const VOCItemContainer = styled.div`
   display: grid;
-  grid-template-columns: 20px 100px;
+  grid-template-columns: 20px 1fr;
   grid-gap: 5px
   align-items: center;
   background-color: ${({ selected }) => (selected ? '#117733' : '#DDDDDD')};
