@@ -64,6 +64,8 @@ export class DataStore {
   dataAggSnvDate = initialValues.dataAggSnvDate;
   snvCooccurrence = initialValues.snvCooccurrence;
 
+  countsPerLocationDateMap;
+  cumulativeCountsPerLocationDateMap;
   countsPerLocation = initialValues.countsPerLocation;
   countsPerLocationDate = initialValues.countsPerLocationDate;
   validGroups = initialValues.validGroups;
@@ -170,8 +172,11 @@ export class DataStore {
         // console.log(this.aggSequencesGroup);
 
         ({
-          countLocation: this.countsPerLocation,
-          countLocationDate: this.countsPerLocationDate,
+          countsPerLocationDateMap: this.countsPerLocationDateMap,
+          cumulativeCountsPerLocationDateMap:
+            this.cumulativeCountsPerLocationDateMap,
+          countsPerLocation: this.countsPerLocation,
+          countsPerLocationDate: this.countsPerLocationDate,
         } = getLocationCounts({
           aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
         }));

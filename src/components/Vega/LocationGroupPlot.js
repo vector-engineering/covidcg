@@ -37,26 +37,21 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const handleHoverGroup = (...args) => {
-    // Don't fire the action if there's no change
-    let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
   };
 
   const handleSelectedLocations = (...args) => {
-    // configStore.updateFocusedLocations(args[1]);
+    configStore.updateFocusedLocations(args[1]);
   };
 
   const handleSelectedGroups = (...args) => {
-    // configStore.updateSelectedGroups(
-    //   args[1] === null
-    //     ? []
-    //     : args[1].map((item) => {
-    //         return { group: item.group };
-    //       })
-    // );
+    configStore.updateSelectedGroups(
+      args[1] === null
+        ? []
+        : args[1].map((item) => {
+            return { group: item.group };
+          })
+    );
   };
 
   const onChangeHideReference = (e) => {
@@ -109,29 +104,39 @@ const LocationGroupPlot = observer(({ width }) => {
     },
   });
 
-  // useEffect(() => {
-  //   setState({
-  //     ...state,
-  //     hoverGroup: { group: configStore.hoverGroup },
-  //   });
-  // }, [configStore.hoverGroup]);
+  useEffect(() => {
+    setState({
+      ...state,
+      hoverGroup: { group: configStore.hoverGroup },
+    });
+  }, [configStore.hoverGroup]);
 
-  // useEffect(() => {
-  //   setState({
-  //     ...state,
-  //     hoverLocation: { location: configStore.hoverLocation },
-  //   });
-  // });
+  useEffect(() => {
+    setState({
+      ...state,
+      hoverLocation: { location: configStore.hoverLocation },
+    });
+  }, [configStore.hoverLocation]);
 
-  // useEffect(() => {
-  //   setState({
-  //     ...state,
-  //     data: {
-  //       ...state.data,
-  //       selectedLocations: toJS(configStore.focusedLocations),
-  //     },
-  //   });
-  // }, [configStore.focusedLocations]);
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selectedLocations: toJS(configStore.focusedLocations),
+      },
+    });
+  }, [configStore.focusedLocations]);
+
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selectedGroups: toJS(configStore.selectedGroups),
+      },
+    });
+  }, [configStore.selectedGroups]);
 
   useEffect(() => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
@@ -146,11 +151,18 @@ const LocationGroupPlot = observer(({ width }) => {
         selectedGroups: toJS(configStore.selectedGroups),
       },
     });
-  }, [
-    UIStore.caseDataState,
-    configStore.selectedGroups,
-    plotSettingsStore.locationGroupHideReference,
-  ]);
+  }, [UIStore.caseDataState, plotSettingsStore.locationGroupHideReference]);
+
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        location_by_group: processLocationByGroup(),
+        selectedGroups: toJS(configStore.selectedGroups),
+        selectedLocations: [],
+      },
+    });
+  }, []);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

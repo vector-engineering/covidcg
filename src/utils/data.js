@@ -203,7 +203,7 @@ export function getValidGroups({
  */
 export function getLocationCounts({ aggSequencesLocationGroupDate }) {
   // Aggregate then calculate cumulative counts
-  const countLocationDate = aggregate({
+  const countsPerLocationDate = aggregate({
     data: aggSequencesLocationGroupDate,
     groupby: ['location', 'collection_date'],
     fields: ['counts'],
@@ -216,26 +216,51 @@ export function getLocationCounts({ aggSequencesLocationGroupDate }) {
       return a.location > b.location;
     }
   });
-  let cur_location = countLocationDate[0].location;
+  let cur_location = countsPerLocationDate[0].location;
   let cumulative_count = 0;
-  countLocationDate.forEach((record) => {
+  countsPerLocationDate.forEach((record) => {
     if (cur_location !== record.location) {
       cumulative_count = 0;
       cur_location = record.location;
     }
-    record.cumulative_count = cumulative_count + record.counts;
+    cumulative_count += record.counts;
+    record.cumulative_count = cumulative_count;
   });
 
-  const countLocation = aggregate({
-    data: countLocationDate,
+  // Convert into a map so we can do lookups like
+  // countsPerLocationDate[location][date]
+  const countsPerLocationDateMap = new Map();
+  const cumulativeCountsPerLocationDateMap = new Map();
+  countsPerLocationDate.forEach((record) => {
+    if (!countsPerLocationDateMap.has(record.location)) {
+      countsPerLocationDateMap.set(record.location, new Map());
+      cumulativeCountsPerLocationDateMap.set(record.location, new Map());
+    }
+    countsPerLocationDateMap
+      .get(record.location)
+      .set(record.collection_date, record.counts);
+    cumulativeCountsPerLocationDateMap
+      .get(record.location)
+      .set(record.collection_date, record.cumulative_count);
+  });
+
+  const countsPerLocationList = aggregate({
+    data: countsPerLocationDate,
     groupby: ['location'],
     fields: ['counts'],
     ops: ['sum'],
     as: ['counts'],
   });
+  // Convert array of records into key: val map
+  const countsPerLocation = {};
+  countsPerLocationList.forEach((record) => {
+    countsPerLocation[record.location] = record.counts;
+  });
 
   return {
-    countLocationDate,
-    countLocation,
+    countsPerLocationDateMap,
+    cumulativeCountsPerLocationDateMap,
+    countsPerLocationDate,
+    countsPerLocation,
   };
 }
