@@ -52,27 +52,25 @@ const LocationDatePlot = observer(({ width }) => {
     console.log('PROCESS LOCATION DATE DATA');
     let locationData;
     if (configStore.groupKey === GROUP_SNV) {
-      if (dataStore.dataAggLocationSnvDate === undefined) {
+      if (dataStore.aggLocationSelectedSnvsDate === undefined) {
         return [];
       }
 
-      locationData = toJS(dataStore.dataAggLocationSnvDate);
+      locationData = toJS(dataStore.aggLocationSelectedSnvsDate);
     } else {
-      if (dataStore.aggSequencesLocationGroupDate === undefined) {
+      if (dataStore.aggLocationGroupDate === undefined) {
         return [];
       }
 
-      locationData = toJS(dataStore.aggSequencesLocationGroupDate).map(
-        (record) => {
-          record.color = groupDataStore.getGroupColor(
-            configStore.groupKey,
-            record.group_id
-          );
-          record.group = record.group_id;
-          record.group_name = record.group_id;
-          return record;
-        }
-      );
+      locationData = toJS(dataStore.aggLocationGroupDate).map((record) => {
+        record.color = groupDataStore.getGroupColor(
+          configStore.groupKey,
+          record.group_id
+        );
+        record.group = record.group_id;
+        record.group_name = record.group_id;
+        return record;
+      });
     }
 
     if (configStore.groupKey === GROUP_SNV) {
@@ -180,7 +178,7 @@ const LocationDatePlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadAggSequencesLocationGroupDate();
+      dataStore.downloadAggLocationGroupDate();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {

@@ -34,14 +34,14 @@ export class DataStore {
   dataDate;
   numSequences;
   @observable numSequencesAfterAllFiltering;
-  aggSequencesLocationGroupDate = [];
-  aggSequencesGroupDate = [];
+  aggLocationGroupDate = [];
+  aggGroupDate = [];
   aggLocationSingleSnvDate = [];
   dataAggGroup = [];
   @observable metadataCounts = {};
 
-  dataAggLocationSnvDate = [];
-  dataAggSnvDate = [];
+  aggLocationSelectedSnvsDate = [];
+  aggSelectedSnvsDate = [];
   snvCooccurrence = [];
 
   countsPerLocationDateMap = new Map();
@@ -106,7 +106,7 @@ export class DataStore {
         return res.json();
       })
       .then((pkg) => {
-        this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
+        this.aggLocationGroupDate = pkg.aggLocationGroupDate;
         this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.metadataCounts = pkg.metadataCounts;
         this.validGroups = pkg.validGroups;
@@ -114,7 +114,7 @@ export class DataStore {
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
-          aggSequencesLocationGroupDate: pkg.aggSequencesLocationGroupDate,
+          aggLocationGroupDate: pkg.aggLocationGroupDate,
           selectedLocationNodes: toJS(
             configStoreInstance.selectedLocationNodes
           ),
@@ -123,8 +123,7 @@ export class DataStore {
         // Collapse low frequency groups
         // Identify groups to collapse into the "Other" group
         this.groupCounts = countGroups({
-          aggSequencesLocationGroupDate:
-            this.aggSequencesUniqueLocationGroupDate,
+          aggLocationGroupDate: this.aggSequencesUniqueLocationGroupDate,
           groupKey: toJS(configStoreInstance.groupKey),
           // lowFreqFilterType: toJS(configStoreInstance.lowFreqFilterType),
           // lowFreqFilterParams: {
@@ -133,15 +132,13 @@ export class DataStore {
           // },
         });
 
-        ({
-          aggGroupDate: this.aggSequencesGroupDate,
-          aggGroup: this.aggSequencesGroup,
-        } = aggregateGroupDate({
-          aggSequencesUniqueLocationGroupDate:
-            this.aggSequencesUniqueLocationGroupDate,
-          groupKey: configStoreInstance.groupKey,
-        }));
-        // console.log(this.aggSequencesGroupDate);
+        ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
+          aggregateGroupDate({
+            aggSequencesUniqueLocationGroupDate:
+              this.aggSequencesUniqueLocationGroupDate,
+            groupKey: configStoreInstance.groupKey,
+          }));
+        // console.log(this.aggGroupDate);
         // console.log(this.aggSequencesGroup);
 
         ({
@@ -150,17 +147,17 @@ export class DataStore {
             this.cumulativeCountsPerLocationDateMap,
           countsPerLocationMap: this.countsPerLocationMap,
         } = getLocationCounts({
-          aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
+          aggLocationGroupDate: this.aggLocationGroupDate,
         }));
 
-        // Expand aggSequencesLocationGroupDate into
+        // Expand aggLocationGroupDate into
         // single SNV data
         // i.e., transform data where each row represents
         // a co-occurring SNV, into data where each row represents
         // individual SNVs
         if (configStoreInstance.groupKey === GROUP_SNV) {
           this.aggLocationSingleSnvDate = expandSingleSnvData({
-            aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
+            aggLocationGroupDate: this.aggLocationGroupDate,
           });
           // console.log(this.aggLocationSingleSnvDate);
         }
@@ -197,14 +194,14 @@ export class DataStore {
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         countsPerLocationMap: this.countsPerLocationMap,
         validGroups: this.validGroups,
-        aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
-        aggSequencesGroupDate: this.aggSequencesGroupDate,
+        aggLocationGroupDate: this.aggLocationGroupDate,
+        aggGroupDate: this.aggGroupDate,
         // SNV data
         snvColorMap,
       },
-      ({ dataAggLocationSnvDate, dataAggSnvDate }) => {
-        this.dataAggLocationSnvDate = dataAggLocationSnvDate;
-        this.dataAggSnvDate = dataAggSnvDate;
+      ({ aggLocationSelectedSnvsDate, aggSelectedSnvsDate }) => {
+        this.aggLocationSelectedSnvsDate = aggLocationSelectedSnvsDate;
+        this.aggSelectedSnvsDate = aggSelectedSnvsDate;
         UIStoreInstance.onSnvDataFinished();
       }
     );
@@ -384,7 +381,7 @@ export class DataStore {
     let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count\n`;
 
     let intToSnvMap = configStoreInstance.getIntToSnvMap();
-    this.aggSequencesLocationGroupDate.forEach((row) => {
+    this.aggLocationGroupDate.forEach((row) => {
       // Location data, date
       csvString += `"${row.location}","${intToISO(row.collection_date)}",`;
 
@@ -407,10 +404,10 @@ export class DataStore {
     downloadBlobURL(url, 'aggregate_sequences.csv');
   }
 
-  downloadAggSequencesGroupDate() {
+  downloadAggGroupDate() {
     // Write to a CSV string
     let csvString = `collection_date,"${configStoreInstance.getGroupLabel()}",count\n`;
-    this.aggSequencesGroupDate.forEach((row) => {
+    this.aggGroupDate.forEach((row) => {
       let groupName;
       // If we're in SNV mode, then we have to map SNV IDs back
       // to a co-occurring SNV string representation
@@ -440,7 +437,7 @@ export class DataStore {
     downloadBlobURL(url, 'data_agg_group_date.csv');
   }
 
-  downloadAggSequencesLocationGroupDate() {
+  downloadAggLocationGroupDate() {
     let locationData;
     if (configStoreInstance.groupKey === GROUP_SNV) {
       locationData = toJS(this.aggLocationSingleSnvDate);
@@ -455,7 +452,7 @@ export class DataStore {
         record.group = snv.snp_str;
       });
     } else {
-      locationData = toJS(this.aggSequencesLocationGroupDate);
+      locationData = toJS(this.aggLocationGroupDate);
       locationData.forEach((record) => {
         record.group_name = record.group_id;
         record.group = record.group_id;

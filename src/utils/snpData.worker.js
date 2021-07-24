@@ -20,20 +20,20 @@ function processSelectedSnvs({
   dnaOrAa,
   countsPerLocationMap,
   validGroups,
-  aggSequencesLocationGroupDate,
-  aggSequencesGroupDate,
+  aggLocationGroupDate,
+  aggGroupDate,
   snvColorMap,
 }) {
   // If no SNVs are selected, then return empty arrays now
   // if (selectedGroupIds.size === 0) {
   //   return {
-  //     dataAggLocationSnvDate: [],
-  //     dataAggSnvDate: [],
+  //     aggLocationSelectedSnvsDate: [],
+  //     aggSelectedSnvsDate: [],
   //     snvCooccurrence: [],
   //   };
   // }
 
-  const dataAggLocationSnvDateObj = {};
+  const aggLocationSelectedSnvsDateObj = {};
 
   const matchGroupName = Array.from(selectedGroupIds)
     .map((id) => intToSnvMap[id].snp_str)
@@ -44,11 +44,11 @@ function processSelectedSnvs({
     validGroupMap[group] = 1;
   });
 
-  aggSequencesLocationGroupDate.forEach((row) => {
-    !(row.location in dataAggLocationSnvDateObj) &&
-      (dataAggLocationSnvDateObj[row.location] = {});
-    !(row.collection_date in dataAggLocationSnvDateObj[row.location]) &&
-      (dataAggLocationSnvDateObj[row.location][row.collection_date] = {});
+  aggLocationGroupDate.forEach((row) => {
+    !(row.location in aggLocationSelectedSnvsDateObj) &&
+      (aggLocationSelectedSnvsDateObj[row.location] = {});
+    !(row.collection_date in aggLocationSelectedSnvsDateObj[row.location]) &&
+      (aggLocationSelectedSnvsDateObj[row.location][row.collection_date] = {});
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
@@ -71,20 +71,24 @@ function processSelectedSnvs({
       group = matchGroupName;
     }
 
-    !(group in dataAggLocationSnvDateObj[row.location][row.collection_date]) &&
-      (dataAggLocationSnvDateObj[row.location][row.collection_date][group] = 0);
-    dataAggLocationSnvDateObj[row.location][row.collection_date][group] +=
+    !(
+      group in aggLocationSelectedSnvsDateObj[row.location][row.collection_date]
+    ) &&
+      (aggLocationSelectedSnvsDateObj[row.location][row.collection_date][
+        group
+      ] = 0);
+    aggLocationSelectedSnvsDateObj[row.location][row.collection_date][group] +=
       row.counts;
   });
 
   let groupKeys = [];
-  const dataAggLocationSnvDate = [];
-  Object.keys(dataAggLocationSnvDateObj).forEach((location) => {
-    const dates = Object.keys(dataAggLocationSnvDateObj[location]);
+  const aggLocationSelectedSnvsDate = [];
+  Object.keys(aggLocationSelectedSnvsDateObj).forEach((location) => {
+    const dates = Object.keys(aggLocationSelectedSnvsDateObj[location]);
     dates.forEach((date) => {
-      groupKeys = Object.keys(dataAggLocationSnvDateObj[location][date]);
+      groupKeys = Object.keys(aggLocationSelectedSnvsDateObj[location][date]);
       groupKeys.forEach((group) => {
-        dataAggLocationSnvDate.push({
+        aggLocationSelectedSnvsDate.push({
           location: location,
           collection_date: parseInt(date),
           group: group,
@@ -92,7 +96,7 @@ function processSelectedSnvs({
             .split(' + ')
             .map((group) => formatSnv(group, dnaOrAa))
             .join(' + '),
-          counts: dataAggLocationSnvDateObj[location][date][group],
+          counts: aggLocationSelectedSnvsDateObj[location][date][group],
           // For multiple SNVs, just use this nice blue color
           color:
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
@@ -105,10 +109,10 @@ function processSelectedSnvs({
   });
 
   // Aggregate by SNV and date
-  const dataAggSnvDateObj = {};
-  aggSequencesGroupDate.forEach((row) => {
-    !(row.collection_date in dataAggSnvDateObj) &&
-      (dataAggSnvDateObj[row.collection_date] = {});
+  const aggSelectedSnvsDateObj = {};
+  aggGroupDate.forEach((row) => {
+    !(row.collection_date in aggSelectedSnvsDateObj) &&
+      (aggSelectedSnvsDateObj[row.collection_date] = {});
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
@@ -131,23 +135,23 @@ function processSelectedSnvs({
       group = matchGroupName;
     }
 
-    !(group in dataAggSnvDateObj[row.collection_date]) &&
-      (dataAggSnvDateObj[row.collection_date][group] = 0);
-    dataAggSnvDateObj[row.collection_date][group] += row.counts;
+    !(group in aggSelectedSnvsDateObj[row.collection_date]) &&
+      (aggSelectedSnvsDateObj[row.collection_date][group] = 0);
+    aggSelectedSnvsDateObj[row.collection_date][group] += row.counts;
   });
 
-  const dataAggSnvDate = [];
-  Object.keys(dataAggSnvDateObj).forEach((date) => {
-    groupKeys = Object.keys(dataAggSnvDateObj[date]);
+  const aggSelectedSnvsDate = [];
+  Object.keys(aggSelectedSnvsDateObj).forEach((date) => {
+    groupKeys = Object.keys(aggSelectedSnvsDateObj[date]);
     groupKeys.forEach((group) => {
-      dataAggSnvDate.push({
+      aggSelectedSnvsDate.push({
         collection_date: parseInt(date),
         group: group,
         group_name: group
           .split(' + ')
           .map((group) => formatSnv(group, dnaOrAa))
           .join(' + '),
-        counts: dataAggSnvDateObj[date][group],
+        counts: aggSelectedSnvsDateObj[date][group],
         // For multiple SNVs, just use this nice blue color
         color:
           selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
@@ -157,13 +161,13 @@ function processSelectedSnvs({
     });
   });
   // Convert dates back into ints
-  dataAggSnvDate.forEach((row) => {
+  aggSelectedSnvsDate.forEach((row) => {
     row.date = parseInt(row.date);
   });
 
   return {
-    dataAggLocationSnvDate,
-    dataAggSnvDate,
+    aggLocationSelectedSnvsDate,
+    aggSelectedSnvsDate,
   };
 }
 

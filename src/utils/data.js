@@ -18,7 +18,7 @@ import { LOW_FREQ_FILTER_TYPES, GROUP_SNV } from '../constants/defs.json';
  */
 export function removeSubsetLocations({
   selectedLocationNodes,
-  aggSequencesLocationGroupDate,
+  aggLocationGroupDate,
 }) {
   // We can use the location node "path", which is the
   // tree location embedded into a string, as a quick check for
@@ -55,7 +55,7 @@ export function removeSubsetLocations({
   const prunedLocationNames = prunedLocationNodes.map((node) => node.value);
 
   // Filter out all pruned locations
-  return aggSequencesLocationGroupDate.filter((record) => {
+  return aggLocationGroupDate.filter((record) => {
     return !prunedLocationNames.includes(record.location);
   });
 }
@@ -132,7 +132,7 @@ export function aggregateGroupDate({
  * and low frequency collapse settings,
  * identify the groups to collapse into the "Other" group
  */
-export function countGroups({ aggSequencesLocationGroupDate, groupKey }) {
+export function countGroups({ aggLocationGroupDate, groupKey }) {
   // Two main modes of data:
   // In SNV mode, the `group_id` is a list of SNV IDs
   // (co-occurring mutations, i.e., [1, 2, 3, ...])
@@ -142,7 +142,7 @@ export function countGroups({ aggSequencesLocationGroupDate, groupKey }) {
     // Go through the list record by record and
     // tally up counts for each SNV ID
     const snvIdCounts = {};
-    aggSequencesLocationGroupDate.forEach((record) => {
+    aggLocationGroupDate.forEach((record) => {
       record.group_id.forEach((snvId) => {
         snvId = snvId.toString();
         if (!Object.prototype.hasOwnProperty.call(snvIdCounts, snvId)) {
@@ -161,7 +161,7 @@ export function countGroups({ aggSequencesLocationGroupDate, groupKey }) {
     // Collapse data by group only, using the group_id string
     // as the groupby key
     aggSequencesGroup = aggregate({
-      data: aggSequencesLocationGroupDate,
+      data: aggLocationGroupDate,
       groupby: ['group_id'],
       fields: ['counts'],
       ops: ['sum'],
@@ -201,10 +201,10 @@ export function getValidGroups({
  *
  * Input is structured as: [{ location, date, group, count }, ...]
  */
-export function getLocationCounts({ aggSequencesLocationGroupDate }) {
+export function getLocationCounts({ aggLocationGroupDate }) {
   // Aggregate then calculate cumulative counts
   const countsPerLocationDate = aggregate({
-    data: aggSequencesLocationGroupDate,
+    data: aggLocationGroupDate,
     groupby: ['location', 'collection_date'],
     fields: ['counts'],
     ops: ['sum'],
@@ -265,16 +265,16 @@ export function getLocationCounts({ aggSequencesLocationGroupDate }) {
 }
 
 /**
- * Expand aggSequencesLocationGroupDate into
+ * Expand aggLocationGroupDate into
  * single SNV data
  * i.e., transform data where each row represents
  * a co-occurring SNV, into data where each row represents
  * individual SNVs
  */
-export function expandSingleSnvData({ aggSequencesLocationGroupDate }) {
+export function expandSingleSnvData({ aggLocationGroupDate }) {
   const singleSnvList = [];
 
-  aggSequencesLocationGroupDate.forEach((record) => {
+  aggLocationGroupDate.forEach((record) => {
     record.group_id.forEach((snvId) => {
       singleSnvList.push({
         location: record.location,

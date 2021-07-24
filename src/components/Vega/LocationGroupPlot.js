@@ -97,7 +97,7 @@ const LocationGroupPlot = observer(({ width }) => {
       });
     } else {
       locationData = aggregate({
-        data: toJS(dataStore.aggSequencesLocationGroupDate),
+        data: toJS(dataStore.aggLocationGroupDate),
         groupby: ['location', 'group_id'],
         fields: ['counts'],
         ops: ['sum'],

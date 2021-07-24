@@ -77,7 +77,7 @@ const GroupStackPlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadAggSequencesGroupDate();
+      dataStore.downloadAggGroupDate();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -91,16 +91,16 @@ const GroupStackPlot = observer(({ width }) => {
 
   const processData = () => {
     console.log('GROUP STACK PROCESS DATA');
-    // console.log(dataStore.aggSequencesGroupDate);
+    // console.log(dataStore.aggGroupDate);
 
     if (configStore.groupKey === GROUP_SNV) {
-      return toJS(dataStore.dataAggSnvDate);
+      return toJS(dataStore.aggSelectedSnvsDate);
     }
 
     // For non-SNV mode, we'll need some additional fields:
     // 1) color of group
     // 2) name of group (same as group id)
-    return toJS(dataStore.aggSequencesGroupDate).map((record) => {
+    return toJS(dataStore.aggGroupDate).map((record) => {
       record.color = groupDataStore.getGroupColor(
         configStore.groupKey,
         record.group_id

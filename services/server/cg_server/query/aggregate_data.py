@@ -411,7 +411,7 @@ def query_aggregate_data(conn, req):
 
     res = """
     {{
-        "aggSequencesLocationGroupDate": {agg_sequences_location_group_date},
+        "aggLocationGroupDate": {agg_sequences_location_group_date},
         "aggSequencesGroupDate": {agg_sequences_group_date},
         "numSequences": {num_sequences},
         "dataAggLocationGroupDate": {counts_per_location_date_group},
