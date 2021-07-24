@@ -85,6 +85,7 @@ export class SnpDataStore {
       this.intToDnaSnvMap[snvId]['ref'] = split[1];
       this.intToDnaSnvMap[snvId]['alt'] = split[2];
       this.intToDnaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.DNA);
+      this.intToDnaSnvMap[snvId]['color'] = this.snvColorMap[snv];
     });
     Object.keys(this.geneAaSnvMap).forEach((snv) => {
       snvId = parseInt(this.geneAaSnvMap[snv]);
@@ -101,6 +102,7 @@ export class SnpDataStore {
       this.intToGeneAaSnvMap[snvId]['ref'] = split[2];
       this.intToGeneAaSnvMap[snvId]['alt'] = split[3];
       this.intToGeneAaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.AA);
+      this.intToGeneAaSnvMap[snvId]['color'] = this.snvColorMap[snv];
 
       // Get coordinates in NT (from start of codon)
       aaRangeInd = getGene(split[0]).aa_ranges.reduce(
@@ -133,6 +135,7 @@ export class SnpDataStore {
       this.intToProteinAaSnvMap[snvId]['ref'] = split[2];
       this.intToProteinAaSnvMap[snvId]['alt'] = split[3];
       this.intToProteinAaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.AA);
+      this.intToProteinAaSnvMap[snvId]['color'] = this.snvColorMap[snv];
 
       // Get coordinates in NT (from start of codon)
       aaRangeInd = getProtein(split[0]).aa_ranges.reduce(

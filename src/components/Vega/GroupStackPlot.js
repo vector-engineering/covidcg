@@ -77,7 +77,7 @@ const GroupStackPlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadDataAggGroupDate();
+      dataStore.downloadAggSequencesGroupDate();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {

@@ -18,7 +18,7 @@ function processSelectedSnvs({
   selectedGroupIds,
   intToSnvMap,
   dnaOrAa,
-  countsPerLocation,
+  countsPerLocationMap,
   validGroups,
   aggSequencesLocationGroupDate,
   aggSequencesGroupDate,
@@ -98,7 +98,7 @@ function processSelectedSnvs({
             selectedGroupIds.size > 1 && group !== GROUPS.ALL_OTHER_GROUP
               ? '#07B'
               : snvColorMap[group],
-          location_counts: countsPerLocation[location],
+          location_counts: countsPerLocationMap[location],
         });
       });
     });

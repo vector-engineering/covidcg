@@ -7,11 +7,11 @@ export const formatSnv = (snvStr, dnaOrAa) => {
   }
 
   // Print as REF POS ALT
-  // i.e., 23403|A|G -> A23403G, S|614|D|G -> S · D614G
+  // i.e., 23403|A|G -> A23403G, S|614|D|G -> S:D614G
   const chunks = snvStr.split('|');
   if (dnaOrAa === DNA_OR_AA.DNA) {
     return `${chunks[1]}${chunks[0]}${chunks[2]}`;
   } else if (dnaOrAa === DNA_OR_AA.AA) {
-    return `${chunks[0]} · ${chunks[2]}${chunks[1]}${chunks[3]}`;
+    return `${chunks[0]}:${chunks[2]}${chunks[1]}${chunks[3]}`;
   }
 };

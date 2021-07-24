@@ -90,7 +90,7 @@ const LocationDatePlot = observer(({ width }) => {
       as: ['counts', 'group_name'],
     }).map((record) => {
       // Add location counts
-      record.location_counts = dataStore.countsPerLocation[record.location];
+      record.location_counts = dataStore.countsPerLocationMap[record.location];
       record.location_date_count = dataStore.countsPerLocationDateMap
         .get(record.location)
         .get(record.collection_date);
@@ -180,7 +180,7 @@ const LocationDatePlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadDataAggLocationGroupDate();
+      dataStore.downloadAggSequencesLocationGroupDate();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {

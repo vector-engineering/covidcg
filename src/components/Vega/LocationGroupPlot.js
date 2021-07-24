@@ -25,7 +25,14 @@ const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, UIStore, plotSettingsStore } = useStores();
+  const {
+    dataStore,
+    configStore,
+    UIStore,
+    plotSettingsStore,
+    groupDataStore,
+    snpDataStore,
+  } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -60,27 +67,57 @@ const LocationGroupPlot = observer(({ width }) => {
 
   const processLocationByGroup = () => {
     console.log('LOCATION GROUP PLOT PROCESS DATA');
-    let locationData = JSON.parse(
-      JSON.stringify(dataStore.dataAggLocationGroupDate)
-    );
 
-    if (
-      configStore.groupKey === GROUP_SNV &&
-      plotSettingsStore.locationGroupHideReference
-    ) {
-      // Filter out 'Reference' group, when in SNV mode
-      locationData = locationData.filter((row) => {
-        return row.group !== GROUPS.REFERENCE_GROUP;
+    let locationData;
+    if (configStore.groupKey === GROUP_SNV) {
+      locationData = aggregate({
+        data: toJS(dataStore.aggLocationSingleSnvDate),
+        groupby: ['location', 'group_id'],
+        fields: ['counts'],
+        ops: ['sum'],
+        as: ['counts'],
+      });
+
+      if (plotSettingsStore.locationGroupHideReference) {
+        // Filter out 'Reference' group, when in SNV mode
+        locationData = locationData.filter((row) => {
+          return row.group_id !== GROUPS.REFERENCE_GROUP;
+        });
+      }
+
+      locationData.forEach((record) => {
+        let snv = snpDataStore.intToSnv(
+          configStore.dnaOrAa,
+          configStore.coordinateMode,
+          record.group_id
+        );
+        record.color = snv.color;
+        record.group = snv.snp_str;
+        record.group_name = snv.name;
+      });
+    } else {
+      locationData = aggregate({
+        data: toJS(dataStore.aggSequencesLocationGroupDate),
+        groupby: ['location', 'group_id'],
+        fields: ['counts'],
+        ops: ['sum'],
+        as: ['counts'],
+      });
+      locationData.forEach((record) => {
+        record.color = groupDataStore.getGroupColor(
+          configStore.groupKey,
+          record.group_id
+        );
+        record.group = record.group_id;
+        record.group_name = record.group_id;
       });
     }
 
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group', 'group_name'],
-      fields: ['counts', 'color', 'location_counts'],
-      ops: ['sum', 'first', 'max'],
-      as: ['counts', 'color', 'location_counts'],
+    locationData.forEach((record) => {
+      record.location_counts = dataStore.countsPerLocationMap[record.location];
     });
+
+    // console.log(JSON.stringify(locationData));
 
     return locationData;
   };

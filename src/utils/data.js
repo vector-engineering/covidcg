@@ -18,7 +18,7 @@ import { LOW_FREQ_FILTER_TYPES, GROUP_SNV } from '../constants/defs.json';
  */
 export function removeSubsetLocations({
   selectedLocationNodes,
-  dataAggLocationGroupDate,
+  aggSequencesLocationGroupDate,
 }) {
   // We can use the location node "path", which is the
   // tree location embedded into a string, as a quick check for
@@ -55,7 +55,7 @@ export function removeSubsetLocations({
   const prunedLocationNames = prunedLocationNodes.map((node) => node.value);
 
   // Filter out all pruned locations
-  return dataAggLocationGroupDate.filter((record) => {
+  return aggSequencesLocationGroupDate.filter((record) => {
     return !prunedLocationNames.includes(record.location);
   });
 }
@@ -252,15 +252,46 @@ export function getLocationCounts({ aggSequencesLocationGroupDate }) {
     as: ['counts'],
   });
   // Convert array of records into key: val map
-  const countsPerLocation = {};
+  const countsPerLocationMap = {};
   countsPerLocationList.forEach((record) => {
-    countsPerLocation[record.location] = record.counts;
+    countsPerLocationMap[record.location] = record.counts;
   });
 
   return {
     countsPerLocationDateMap,
     cumulativeCountsPerLocationDateMap,
-    countsPerLocationDate,
-    countsPerLocation,
+    countsPerLocationMap,
   };
+}
+
+/**
+ * Expand aggSequencesLocationGroupDate into
+ * single SNV data
+ * i.e., transform data where each row represents
+ * a co-occurring SNV, into data where each row represents
+ * individual SNVs
+ */
+export function expandSingleSnvData({ aggSequencesLocationGroupDate }) {
+  const singleSnvList = [];
+
+  aggSequencesLocationGroupDate.forEach((record) => {
+    record.group_id.forEach((snvId) => {
+      singleSnvList.push({
+        location: record.location,
+        collection_date: record.collection_date,
+        group_id: snvId,
+        counts: record.counts,
+      });
+    });
+  });
+
+  const aggLocationSingleSnvDate = aggregate({
+    data: singleSnvList,
+    groupby: ['location', 'collection_date', 'group_id'],
+    fields: ['counts'],
+    ops: ['sum'],
+    as: ['counts'],
+  });
+
+  return aggLocationSingleSnvDate;
 }

@@ -56,7 +56,8 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
-  const processData = (snvCounts) => {
+  const processData = () => {
+    let snvCounts = toJS(dataStore.groupCounts);
     // Input data from dataStore.groupCounts is in the form
     // [{ group_id: snv_id, counts: int }]
     // Before we pass this into Vega, we also need:
@@ -207,7 +208,7 @@ const EntropyPlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        selected: toJS(configStore.selectedGroups),
       },
     });
   }, [configStore.selectedGroups]);
@@ -222,7 +223,7 @@ const EntropyPlot = observer(({ width }) => {
       xRange: getXRange(),
       data: {
         ...state.data,
-        table: processData(toJS(dataStore.groupCounts)),
+        table: processData(),
         domains: getDomains(),
       },
     });
@@ -232,7 +233,7 @@ const EntropyPlot = observer(({ width }) => {
     setState({
       ...state,
       data: {
-        table: processData(toJS(dataStore.groupCounts)),
+        table: processData(),
         selected: toJS(configStore.selectedGroups),
         domains: getDomains(),
       },
