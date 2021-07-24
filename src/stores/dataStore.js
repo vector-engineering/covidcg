@@ -1,5 +1,5 @@
 import { observable, action, toJS } from 'mobx';
-import { hostname } from '../config';
+import { config, hostname } from '../config';
 import {
   processSelectedSnvs,
   processCooccurrenceData,
@@ -17,6 +17,12 @@ import {
   COORDINATE_MODES,
   TABS,
 } from '../constants/defs.json';
+
+import {
+  removeSubsetLocations,
+  aggregateGroupDate,
+  countGroups,
+} from '../utils/data';
 
 export const initialValues = {
   aggSequencesLocationGroupDate: [],
@@ -122,13 +128,38 @@ export class DataStore {
         this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
         this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
-        this.dataAggGroupDate = pkg.dataAggGroupDate;
         this.metadataCounts = pkg.metadataCounts;
         this.countsPerLocation = pkg.countsPerLocation;
         this.countsPerLocationDate = pkg.countsPerLocationDate;
         this.validGroups = pkg.validGroups;
         this.dataAggGroup = pkg.dataAggGroup;
-        this.groupCounts = pkg.groupCounts;
+        // this.groupCounts = pkg.groupCounts;
+
+        // Create copy of the data with subset locations removed
+        this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
+          dataAggLocationGroupDate: pkg.aggSequencesLocationGroupDate,
+          selectedLocationNodes: toJS(
+            configStoreInstance.selectedLocationNodes
+          ),
+        });
+
+        // Collapse low frequency groups
+        // Identify groups to collapse into the "Other" group
+        this.groupCounts = countGroups({
+          aggSequencesLocationGroupDate:
+            this.aggSequencesUniqueLocationGroupDate,
+          groupKey: toJS(configStoreInstance.groupKey),
+          // lowFreqFilterType: toJS(configStoreInstance.lowFreqFilterType),
+          // lowFreqFilterParams: {
+          //   maxGroupCounts: toJS(configStoreInstance.maxGroupCounts),
+          //   minLocalCounts: toJS(configStoreInstance.minLocalCounts),
+          // },
+        });
+
+        // DERIVED DATA
+        this.dataAggGroupDate = aggregateGroupDate({
+          dataAggLocationGroupDate: this.aggSequencesUniqueLocationGroupDate,
+        });
 
         UIStoreInstance.onCaseDataStateFinished();
 

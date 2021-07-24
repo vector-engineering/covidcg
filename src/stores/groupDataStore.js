@@ -9,6 +9,7 @@ import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
 import { mutationHeatmapToPymolScript } from '../utils/pymol';
+import { cladeColorArray } from '../constants/colors';
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
@@ -30,10 +31,12 @@ export class GroupDataStore {
     this.groupSnvFrequency = {};
     this.groups = {};
     this.groupSelectTree = {};
+    this.groupColors = {};
 
     Object.keys(config['group_cols']).forEach((group) => {
       this.groups[group] = [];
       this.groupSelectTree[group] = [];
+      this.groupColors[group] = {};
     });
   }
 
@@ -53,6 +56,22 @@ export class GroupDataStore {
           value: group.name,
           checked: this.selectedGroups.includes(group.name),
         });
+      });
+    });
+
+    let groupColorInd = 0;
+    const _getGroupColor = () => {
+      const color = cladeColorArray[groupColorInd++];
+      if (groupColorInd === cladeColorArray.length) {
+        groupColorInd = 0;
+      }
+      return color;
+    };
+
+    // Assign group colors
+    Object.keys(this.groups).forEach((groupName) => {
+      this.groups[groupName].forEach((group) => {
+        this.groupColors[group] = _getGroupColor(group);
       });
     });
   }
@@ -157,6 +176,10 @@ export class GroupDataStore {
     } else if (this.groupSnvType === 'protein_aa') {
       return 'Protein AA';
     }
+  }
+
+  getGroupColor(groupKey, group) {
+    return this.groupColors[groupKey][group];
   }
 
   @action

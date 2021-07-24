@@ -100,32 +100,12 @@
     {
       "name": "table",
       "format": {
-        "type": "json",
-        "parse": {
-          "0": "string",
-          "1": "number",
-          "2": "string",
-          "3": "string"
-        }
+        "type": "json"
       },
       "transform": [
         {
-          "type": "project",
-          "fields": ["0", "1", "2", "3"],
-          "as": ["snv", "count", "color", "snvName"]
-        },
-        {
-          "type": "filter",
-          "expr": "datum.snv !== 'Reference'"
-        },
-        {
           "type": "formula",
-          "expr": "parseInt(split(datum.snv, '|')[posField])",
-          "as": "pos"
-        },
-        {
-          "type": "formula",
-          "expr": "datum.count / totalSequences",
+          "expr": "datum.counts / totalSequences",
           "as": "percent"
         }
       ]
@@ -249,7 +229,7 @@
           "name": "entropyYScale",
           "type": "pow",
           "exponent": 0.5,
-          "domain": { "data": "tableFiltered", "field": "count" },
+          "domain": { "data": "tableFiltered", "field": "counts" },
           "range": { "signal": "entropyPlotYRange" }
         }
       ],
@@ -293,10 +273,10 @@
             "update": {
               "xc": { "scale": "xDetail", "field": "pos" },
               "width": { "scale": "xDetail", "signal": "rectWidth" },
-              "y": { "scale": "entropyYScale", "field": "count" },
+              "y": { "scale": "entropyYScale", "field": "counts" },
               "y2": { "scale": "entropyYScale", "value": 0 },
               "tooltip": {
-                "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.snvName, 'Count': datum.counts, '%': format(datum.percent, '.1%')}"
               },
               "fill": { "field": "color" },
               "strokeWidth": [

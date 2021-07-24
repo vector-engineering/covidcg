@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
@@ -24,12 +23,14 @@ import {
 import ExternalLink from '../Common/ExternalLink';
 
 import { geneMap, proteinMap } from '../../utils/gene_protein';
+import { throttle } from '../../utils/func';
 
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, plotSettingsStore } = useStores();
+  const { configStore, dataStore, UIStore, plotSettingsStore, snpDataStore } =
+    useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -56,9 +57,32 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const processData = (snvCounts) => {
-    return snvCounts.filter((group) => {
-      return group[0] !== GROUPS.OTHER_GROUP;
-    });
+    // Input data from dataStore.groupCounts is in the form
+    // [{ group_id: snv_id, counts: int }]
+    // Before we pass this into Vega, we also need:
+    // 1) The color of each SNV
+    // 2) The human-readable name of each SNV
+    // 3) The position of the SNV
+    console.log('ENTROPY PROCESS DATA');
+    return snvCounts
+      .filter((group) => {
+        return (
+          group.group_id !== GROUPS.OTHER_GROUP &&
+          group.group_id !== GROUPS.REFERENCE_GROUP
+        );
+      })
+      .map((record) => {
+        let snv = snpDataStore.intToSnv(
+          configStore.dnaOrAa,
+          configStore.coordinateMode,
+          record.group_id
+        );
+        record.snv = snv.snp_str;
+        record.color = snpDataStore.getSnvColor(snv.snp_str);
+        record.snvName = snv.name;
+        record.pos = snv.pos;
+        return record;
+      });
   };
 
   const handleHoverGroup = (...args) => {
@@ -76,11 +100,11 @@ const EntropyPlot = observer(({ width }) => {
       return { group: item.group };
     });
     // Don't fire if the selection is the same
-    if (_.isEqual(curSelectedGroups, configStore.selectedGroups)) {
-      return;
-    } else {
-      configStore.updateSelectedGroups(curSelectedGroups);
-    }
+    // if (_.isEqual(curSelectedGroups, configStore.selectedGroups)) {
+    //   return;
+    // } else {
+    configStore.updateSelectedGroups(curSelectedGroups);
+    //}
   };
 
   const getXRange = () => {
@@ -166,18 +190,26 @@ const EntropyPlot = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     xRange: getXRange(),
-    data: {
-      table: processData(toJS(dataStore.groupCounts)),
-      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
-      domains: getDomains(),
-    },
+    data: {},
     signalListeners: {
-      hoverGroup: _.throttle(handleHoverGroup, 100),
+      hoverGroup: throttle(handleHoverGroup, 100),
     },
     dataListeners: {
       selected: handleSelected,
     },
   });
+
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        table: processData(toJS(dataStore.groupCounts)),
+        selected: toJS(configStore.selectedGroups),
+        domains: getDomains(),
+      },
+    });
+  }, []);
 
   useEffect(() => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
@@ -284,7 +316,7 @@ const EntropyPlot = observer(({ width }) => {
           totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
-          hoverGroup: { group: configStore.hoverGroup },
+          // hoverGroup: { group: configStore.hoverGroup },
           posField: configStore.dnaOrAa === DNA_OR_AA.DNA ? 0 : 1,
         }}
         signalListeners={state.signalListeners}

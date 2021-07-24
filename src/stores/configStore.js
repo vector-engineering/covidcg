@@ -16,6 +16,7 @@ import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
 import { queryPrimers } from '../utils/primer';
+import { arrayEqual } from '../utils/func';
 
 import {
   GROUP_SNV,
@@ -557,6 +558,22 @@ export class ConfigStore {
 
   @action
   updateSelectedGroups(groups) {
+    // First check to see that it's different. If not,
+    // skip the update
+    // This matters because JS arrays are passed by reference,
+    // and any listeners which see a change to this reference
+    // will update themselves when the reference changes,
+    // even if the underlying data does not
+    // groups are in the structure [{ group: group }]
+    if (
+      arrayEqual(
+        groups.map((group) => group.group),
+        this.selectedGroups.map((group) => group.group)
+      )
+    ) {
+      return;
+    }
+
     this.selectedGroups = groups;
     if (this.groupKey === GROUP_SNV) {
       this.dataStoreInstance.processSelectedSnvs();
