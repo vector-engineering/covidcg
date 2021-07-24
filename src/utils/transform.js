@@ -83,7 +83,7 @@ export function aggregate({ data, groupby, fields, ops, as }) {
     let rows = [];
 
     // Get all the keys under the current one
-    let groupKeys = Object.keys(obj);
+    let groupKeys = Object.keys(obj).sort((a, b) => a > b);
 
     // For each key
     groupKeys.forEach((key) => {
@@ -104,7 +104,6 @@ export function aggregate({ data, groupby, fields, ops, as }) {
           } else {
             row[groupby[k]] = _keys[k];
           }
-          row[groupby[k]] = _keys[k];
         }
         // Calculate aggregate values for each field
         for (k = 0; k < fields.length; k++) {

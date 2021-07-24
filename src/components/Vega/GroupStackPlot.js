@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import {
@@ -11,7 +12,7 @@ import {
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
 } from '../../constants/defs.json';
-import _ from 'underscore';
+import { throttle } from '../../utils/func';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import WarningBox from '../Common/WarningBox';
@@ -24,7 +25,8 @@ import initialSpec from '../../vega_specs/group_stack.vg.json';
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, UIStore, configStore, plotSettingsStore } = useStores();
+  const { dataStore, UIStore, configStore, plotSettingsStore, groupDataStore } =
+    useStores();
 
   // disable this for now
   // const handleBrush = (...args) => {
@@ -67,11 +69,6 @@ const GroupStackPlot = observer(({ width }) => {
       return;
     }
 
-    // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.selectedGroups)) {
-      return;
-    }
-
     configStore.updateSelectedGroups(args[1]);
   };
 
@@ -93,26 +90,34 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   const processData = () => {
-    // console.log(dataStore.dataAggLocationGroupDate);
-    // console.log(dataStore.dataAggGroupDate);
+    console.log('GROUP STACK PROCESS DATA');
+    // console.log(dataStore.aggSequencesGroupDate);
 
-    // console.log('PROCESS DATA');
     if (configStore.groupKey === GROUP_SNV) {
-      return JSON.parse(JSON.stringify(dataStore.dataAggSnvDate));
+      return toJS(dataStore.dataAggSnvDate);
     }
 
-    return JSON.parse(JSON.stringify(dataStore.dataAggGroupDate));
+    // For non-SNV mode, we'll need some additional fields:
+    // 1) color of group
+    // 2) name of group (same as group id)
+    return toJS(dataStore.aggSequencesGroupDate).map((record) => {
+      record.color = groupDataStore.getGroupColor(
+        configStore.groupKey,
+        record.group_id
+      );
+      record.group = record.group_id;
+      record.group_name = record.group_id;
+      return record;
+    });
   };
 
   const [state, setState] = useState({
     showWarning: true,
-    data: {
-      cases_by_date_and_group: processData(),
-      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
-    },
+    // data: {},
+    hoverGroup: null,
     signalListeners: {
-      // detailDomain: _.debounce(handleBrush, 500),
-      hoverBar: _.throttle(handleHoverGroup, 100),
+      // detailDomain: debounce(handleBrush, 500),
+      hoverBar: throttle(handleHoverGroup, 100),
     },
     dataListeners: {
       selected: handleSelected,
@@ -133,6 +138,30 @@ const GroupStackPlot = observer(({ width }) => {
   const onChangeDateBin = (event) =>
     plotSettingsStore.setGroupStackDateBin(event.target.value);
 
+  useEffect(() => {
+    setState({
+      ...state,
+      hoverGroup: { group: configStore.hoverGroup },
+    });
+  }, [configStore.hoverGroup]);
+
+  // Update internal selected groups copy
+  useEffect(() => {
+    // console.log('SELECTED GROUPS');
+    // Skip this update if we're in SNV mode
+    if (configStore.groupKey === GROUP_SNV) {
+      return;
+    }
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selected: toJS(configStore.selectedGroups),
+      },
+    });
+  }, [configStore.selectedGroups]);
+
   // Update internal caseData copy
   useEffect(() => {
     // console.log('CASE DATA STATE');
@@ -149,23 +178,6 @@ const GroupStackPlot = observer(({ width }) => {
     });
   }, [UIStore.caseDataState]);
 
-  // Update internal selected groups copy
-  useEffect(() => {
-    // console.log('SELECTED GROUPS');
-    // Skip this update if we're in SNV mode
-    if (configStore.groupKey === GROUP_SNV) {
-      return;
-    }
-
-    setState({
-      ...state,
-      data: {
-        ...state.data,
-        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
-      },
-    });
-  }, [configStore.selectedGroups]);
-
   useEffect(() => {
     // console.log('SNV DATA STATE');
     // Skip this if we're not in SNV mode
@@ -181,12 +193,21 @@ const GroupStackPlot = observer(({ width }) => {
     setState({
       ...state,
       data: {
-        ...state.data,
         cases_by_date_and_group: processData(),
-        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        selected: toJS(configStore.selectedGroups),
       },
     });
   }, [UIStore.snvDataState]);
+
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        cases_by_date_and_group: processData(),
+        selected: toJS(configStore.selectedGroups),
+      },
+    });
+  }, []);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
@@ -375,7 +396,7 @@ const GroupStackPlot = observer(({ width }) => {
           signals={{
             disableSelectionColoring: configStore.groupKey === GROUP_SNV,
             detailHeight,
-            hoverBar: { group: configStore.hoverGroup },
+            hoverBar: state.hoverGroup,
             stackOffset,
             dateBin,
             cumulativeWindow,

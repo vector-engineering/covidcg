@@ -9,7 +9,6 @@ import { asyncDataStoreInstance } from '../components/App';
 
 import { downloadBlobURL } from '../utils/download';
 import { mutationHeatmapToPymolScript } from '../utils/pymol';
-import { cladeColorArray } from '../constants/colors';
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
@@ -29,6 +28,8 @@ export class GroupDataStore {
 
   constructor() {
     this.groupSnvFrequency = {};
+    // Provided by the server
+    // Array of records { name: string, color: string }
     this.groups = {};
     this.groupSelectTree = {};
     this.groupColors = {};
@@ -59,19 +60,10 @@ export class GroupDataStore {
       });
     });
 
-    let groupColorInd = 0;
-    const _getGroupColor = () => {
-      const color = cladeColorArray[groupColorInd++];
-      if (groupColorInd === cladeColorArray.length) {
-        groupColorInd = 0;
-      }
-      return color;
-    };
-
     // Assign group colors
     Object.keys(this.groups).forEach((groupName) => {
       this.groups[groupName].forEach((group) => {
-        this.groupColors[group] = _getGroupColor(group);
+        this.groupColors[groupName][group.name] = group.color;
       });
     });
   }

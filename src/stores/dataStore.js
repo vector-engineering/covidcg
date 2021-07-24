@@ -22,6 +22,7 @@ import {
   removeSubsetLocations,
   aggregateGroupDate,
   countGroups,
+  getLocationCounts,
 } from '../utils/data';
 
 export const initialValues = {
@@ -125,13 +126,13 @@ export class DataStore {
       })
       .then((pkg) => {
         this.aggSequencesLocationGroupDate = pkg.aggSequencesLocationGroupDate;
-        this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
+        // this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
         this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
         this.dataAggGroupDate = pkg.dataAggGroupDate;
         this.metadataCounts = pkg.metadataCounts;
-        this.countsPerLocation = pkg.countsPerLocation;
-        this.countsPerLocationDate = pkg.countsPerLocationDate;
+        // this.countsPerLocation = pkg.countsPerLocation;
+        // this.countsPerLocationDate = pkg.countsPerLocationDate;
         this.validGroups = pkg.validGroups;
         this.dataAggGroup = pkg.dataAggGroup;
         // this.groupCounts = pkg.groupCounts;
@@ -167,6 +168,13 @@ export class DataStore {
         }));
         // console.log(this.aggSequencesGroupDate);
         // console.log(this.aggSequencesGroup);
+
+        ({
+          countLocation: this.countsPerLocation,
+          countLocationDate: this.countsPerLocationDate,
+        } = getLocationCounts({
+          aggSequencesLocationGroupDate: this.aggSequencesLocationGroupDate,
+        }));
 
         // DERIVED DATA
         // this.dataAggGroupDate = aggregateGroupDate({

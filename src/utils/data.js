@@ -132,12 +132,7 @@ export function aggregateGroupDate({
  * and low frequency collapse settings,
  * identify the groups to collapse into the "Other" group
  */
-export function countGroups({
-  aggSequencesLocationGroupDate,
-  groupKey,
-  // lowFreqFilterType,
-  // lowFreqFilterParams,
-}) {
+export function countGroups({ aggSequencesLocationGroupDate, groupKey }) {
   // Two main modes of data:
   // In SNV mode, the `group_id` is a list of SNV IDs
   // (co-occurring mutations, i.e., [1, 2, 3, ...])
@@ -176,21 +171,71 @@ export function countGroups({
 
   // Sort by counts in descending order
   return aggSequencesGroup.sort((a, b) => b.counts - a.counts);
+}
 
-  // let validGroups;
-  // if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS) {
-  //   validGroups = aggSequencesGroup.slice(
-  //     0,
-  //     lowFreqFilterParams.maxGroupCounts
-  //   );
-  // } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
-  //   validGroups = aggSequencesGroup.filter(
-  //     (group) => group.count >= lowFreqFilterParams.minLocalCounts
-  //   );
-  // }
+/**
+ * Use low frequency parameters to determine which groups to collapse
+ */
+export function getValidGroups({
+  aggSequencesGroup,
+  lowFreqFilterType,
+  lowFreqFilterParams,
+}) {
+  let validGroups;
+  if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS) {
+    validGroups = aggSequencesGroup.slice(
+      0,
+      lowFreqFilterParams.maxGroupCounts
+    );
+  } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
+    validGroups = aggSequencesGroup.filter(
+      (group) => group.count >= lowFreqFilterParams.minLocalCounts
+    );
+  }
 
-  // return {
-  //   aggSequencesGroup,
-  //   validGroups: validGroups.map((group) => group.group_id),
-  // };
+  return validGroups.map((group) => group.group_id);
+}
+
+/**
+ * Count the groups/SNVs per location, and per location-date pair
+ *
+ * Input is structured as: [{ location, date, group, count }, ...]
+ */
+export function getLocationCounts({ aggSequencesLocationGroupDate }) {
+  // Aggregate then calculate cumulative counts
+  const countLocationDate = aggregate({
+    data: aggSequencesLocationGroupDate,
+    groupby: ['location', 'collection_date'],
+    fields: ['counts'],
+    ops: ['sum'],
+    as: ['counts'],
+  }).sort((a, b) => {
+    if (a.location === b.location) {
+      return a.collection_date - b.collection_date;
+    } else {
+      return a.location > b.location;
+    }
+  });
+  let cur_location = countLocationDate[0].location;
+  let cumulative_count = 0;
+  countLocationDate.forEach((record) => {
+    if (cur_location !== record.location) {
+      cumulative_count = 0;
+      cur_location = record.location;
+    }
+    record.cumulative_count = cumulative_count + record.counts;
+  });
+
+  const countLocation = aggregate({
+    data: countLocationDate,
+    groupby: ['location'],
+    fields: ['counts'],
+    ops: ['sum'],
+    as: ['counts'],
+  });
+
+  return {
+    countLocationDate,
+    countLocation,
+  };
 }
