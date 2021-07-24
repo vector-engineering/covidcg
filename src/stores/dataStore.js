@@ -128,6 +128,7 @@ export class DataStore {
         this.aggSequencesGroupDate = pkg.aggSequencesGroupDate;
         this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.dataAggLocationGroupDate = pkg.dataAggLocationGroupDate;
+        this.dataAggGroupDate = pkg.dataAggGroupDate;
         this.metadataCounts = pkg.metadataCounts;
         this.countsPerLocation = pkg.countsPerLocation;
         this.countsPerLocationDate = pkg.countsPerLocationDate;
@@ -156,10 +157,21 @@ export class DataStore {
           // },
         });
 
+        ({
+          aggGroupDate: this.aggSequencesGroupDate,
+          aggGroup: this.aggSequencesGroup,
+        } = aggregateGroupDate({
+          aggSequencesUniqueLocationGroupDate:
+            this.aggSequencesUniqueLocationGroupDate,
+          groupKey: configStoreInstance.groupKey,
+        }));
+        // console.log(this.aggSequencesGroupDate);
+        // console.log(this.aggSequencesGroup);
+
         // DERIVED DATA
-        this.dataAggGroupDate = aggregateGroupDate({
-          dataAggLocationGroupDate: this.aggSequencesUniqueLocationGroupDate,
-        });
+        // this.dataAggGroupDate = aggregateGroupDate({
+        //   dataAggLocationGroupDate: this.aggSequencesUniqueLocationGroupDate,
+        // });
 
         UIStoreInstance.onCaseDataStateFinished();
 
@@ -217,7 +229,7 @@ export class DataStore {
         selectedGroupIds: configStoreInstance.getSelectedGroupIds(),
         intToSnvMap: configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
-        aggSequencesGroupDate: this.aggSequencesGroupDate,
+        aggSequencesGroup: this.aggSequencesGroup,
         // SNV data
         snvColorMap,
       },

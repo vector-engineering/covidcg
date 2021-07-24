@@ -549,7 +549,9 @@ export class ConfigStore {
   @action
   updateHoverGroup(group) {
     // console.log('UPDATE HOVER GROUP', group);
-    if (group === null) {
+    if (group === this.hoverGroup) {
+      return;
+    } else if (group === null) {
       this.hoverGroup = null;
     } else {
       this.hoverGroup = group;
@@ -643,6 +645,14 @@ export class ConfigStore {
 
   @action
   updateFocusedLocations(locations) {
+    if (
+      arrayEqual(
+        locations.map((location) => location.location),
+        this.focusedLocations.map((location) => location.location)
+      )
+    ) {
+      return;
+    }
     this.focusedLocations = locations;
   }
 }

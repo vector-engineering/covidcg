@@ -52,14 +52,14 @@ function processSelectedSnvs({
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
-    const matchingSnvIds = row['group_id'].filter((snvId) =>
+    const matchingSnvIds = row.group_id.filter((snvId) =>
       selectedGroupIds.has(snvId)
     );
     let group;
     // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
       selectedGroupIds.has(-1) &&
-      row['group_id'].some((id) => validGroupMap[id] === undefined)
+      row.group_id.some((id) => validGroupMap[id] === undefined)
     ) {
       group = GROUPS.OTHER_GROUP;
     } else if (
@@ -112,14 +112,14 @@ function processSelectedSnvs({
 
     // Check that every SNV ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
-    const matchingSnvIds = row['group_id'].filter((snvId) =>
+    const matchingSnvIds = row.group_id.filter((snvId) =>
       selectedGroupIds.has(snvId)
     );
     let group;
     // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
       selectedGroupIds.has(-1) &&
-      row['group_id'].some((id) => validGroupMap[id] === undefined)
+      row.group_id.some((id) => validGroupMap[id] === undefined)
     ) {
       group = GROUPS.OTHER_GROUP;
     } else if (
@@ -171,7 +171,7 @@ function processCooccurrenceData({
   selectedGroupIds,
   intToSnvMap,
   dnaOrAa,
-  aggSequencesGroupDate,
+  aggSequencesGroup,
   // SNV data
   snvColorMap,
 }) {
@@ -192,15 +192,15 @@ function processCooccurrenceData({
     snvCombinationCounts[combiKey] = 0;
 
     // Loop thru all data, count SNVs
-    aggSequencesGroupDate.forEach((row) => {
-      if (!combi.every((snvId) => row['group_id'].includes(snvId))) {
+    aggSequencesGroup.forEach((row) => {
+      if (!combi.every((snvId) => row.group_id.includes(snvId))) {
         return;
       }
 
       // Tally counts for this combination
       snvCombinationCounts[combiKey] += row.counts;
 
-      row['group_id'].forEach((snvId) => {
+      row.group_id.forEach((snvId) => {
         // Only check for SNVs that aren't in this combination
         if (!combi.includes(snvId)) {
           !(intToSnvMap[snvId].snp_str in snvCooccurrence[combiKey]) &&

@@ -68,17 +68,62 @@ export function removeSubsetLocations({
  * And the goal is to collapse them into:
  * [{ date, group, count, etc ... }]
  *
- * By aggregating the counts (summing them up) over the
+ * In SNV mode, the `group_id` field will be an array of SNV ids
+ * i.e., [1, 2, 3, ...]
+ * In any other mode, the `group_id` field will be a string of the group name
+ *
+ * Aggregate the counts (summing them up) over the
  * date and group fields
  */
-export function aggregateGroupDate({ dataAggLocationGroupDate }) {
-  return aggregate({
-    data: dataAggLocationGroupDate,
-    groupby: ['date', 'group'],
-    fields: ['counts', 'color', 'group_name', 'group_id'],
-    ops: ['sum', 'first', 'first', 'first'],
-    as: ['counts', 'color', 'group_name', 'group_id'],
-  });
+export function aggregateGroupDate({
+  aggSequencesUniqueLocationGroupDate,
+  groupKey,
+}) {
+  if (groupKey === GROUP_SNV) {
+    // Same as below, except we first have to serialize our co-occurring mutations
+    // into a hashable string, and then unpack it afterwards
+    const aggGroupDate = aggregate({
+      data: aggSequencesUniqueLocationGroupDate.map((record) => {
+        record.group_id_str = record.group_id.join(',');
+        return record;
+      }),
+      groupby: ['collection_date', 'group_id_str'],
+      fields: ['counts', 'group_id'],
+      ops: ['sum', 'first'],
+      as: ['counts', 'group_id'],
+    });
+
+    const aggGroup = aggregate({
+      data: aggGroupDate,
+      groupby: ['group_id_str'],
+      fields: ['counts', 'group_id'],
+      ops: ['sum', 'first'],
+      as: ['counts', 'group_id'],
+    });
+    return {
+      aggGroupDate,
+      aggGroup,
+    };
+  } else {
+    const aggGroupDate = aggregate({
+      data: aggSequencesUniqueLocationGroupDate,
+      groupby: ['collection_date', 'group_id'],
+      fields: ['counts'],
+      ops: ['sum'],
+      as: ['counts'],
+    });
+    const aggGroup = aggregate({
+      data: aggGroupDate,
+      groupby: ['group_id'],
+      fields: ['counts'],
+      ops: ['sum'],
+      as: ['counts'],
+    });
+    return {
+      aggGroupDate,
+      aggGroup,
+    };
+  }
 }
 
 /**
@@ -95,7 +140,7 @@ export function countGroups({
 }) {
   // Two main modes of data:
   // In SNV mode, the `group_id` is a list of SNV IDs
-  // (co-occurring mutations)
+  // (co-occurring mutations, i.e., [1, 2, 3, ...])
   // In all other modes, `group_id` will be a string
   let aggSequencesGroup;
   if (groupKey === GROUP_SNV) {

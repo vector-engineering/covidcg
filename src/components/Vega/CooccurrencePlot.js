@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-
-import _ from 'underscore';
+import { debounce } from '../../utils/func';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
@@ -49,12 +49,9 @@ const CooccurrencePlot = observer(({ width }) => {
   const onChangeNormMode = (event) =>
     plotSettingsStore.setCooccurrenceNormMode(event.target.value);
 
-  const handleHoverGroup = _.debounce((...args) => {
+  const handleHoverGroup = debounce((...args) => {
     // Don't fire the action if there's no change
     let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
 
     // Ignore for the 'None' group
     if (hoverGroup === GROUPS.NONE_GROUP) {
@@ -65,7 +62,9 @@ const CooccurrencePlot = observer(({ width }) => {
   }, 20);
 
   const handleSelectedGroups = (...args) => {
-    const curSelectedGroups = getSelectedGroups().map((item) => item.group);
+    const curSelectedGroups = toJS(configStore.selectedGroups).map(
+      (item) => item.group
+    );
     // console.log(curSelectedGroups);
 
     // Some of the groups might be multiple SNVs, where the
@@ -111,9 +110,8 @@ const CooccurrencePlot = observer(({ width }) => {
   };
 
   const getCooccurrenceData = () => {
-    let newCooccurrenceData = JSON.parse(
-      JSON.stringify(dataStore.snvCooccurrence)
-    );
+    console.log('GET COOCCURRENCE DATA');
+    let newCooccurrenceData = toJS(dataStore.snvCooccurrence);
     newCooccurrenceData = aggregate({
       data: newCooccurrenceData,
       groupby: ['combi', 'snv', 'snvName'],
@@ -125,23 +123,23 @@ const CooccurrencePlot = observer(({ width }) => {
     return newCooccurrenceData;
   };
 
-  const getSelectedGroups = () => {
-    return JSON.parse(JSON.stringify(configStore.selectedGroups));
-  };
-
   const [state, setState] = useState({
-    data: {
-      //selectedGroups: getSelectedGroups(),
-      selectedGroups: [],
-      cooccurrence_data: getCooccurrenceData(),
-    },
+    // data: {},
+    hoverGroup: null,
     signalListeners: {
-      hoverGroup: _.debounce(handleHoverGroup, 20),
+      hoverGroup: debounce(handleHoverGroup, 20),
     },
     dataListeners: {
       selectedGroups: handleSelectedGroups,
     },
   });
+
+  useEffect(() => {
+    setState({
+      ...state,
+      hoverGroup: { group: configStore.hoverGroup },
+    });
+  }, [configStore.hoverGroup]);
 
   useEffect(() => {
     // Only update once the SNV data finished processing
@@ -152,7 +150,7 @@ const CooccurrencePlot = observer(({ width }) => {
     setState({
       ...state,
       data: {
-        //selectedGroups: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        //selectedGroups: toJS(configStore.selectedGroups),
         selectedGroups: [],
         cooccurrence_data: getCooccurrenceData(),
       },
@@ -264,7 +262,7 @@ const CooccurrencePlot = observer(({ width }) => {
         dataListeners={state.dataListeners}
         signals={{
           dna: configStore.dnaOrAa === DNA_OR_AA.DNA,
-          hoverGroup: { group: configStore.hoverGroup },
+          hoverGroup: state.hoverGroup,
           stackOffset,
           xLabel,
           xFormat,
