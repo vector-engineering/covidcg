@@ -86,7 +86,7 @@ function processSelectedSnvs({
       groupKeys.forEach((group) => {
         dataAggLocationSnvDate.push({
           location: location,
-          date: parseInt(date),
+          collection_date: parseInt(date),
           group: group,
           group_name: group
             .split(' + ')
@@ -141,7 +141,7 @@ function processSelectedSnvs({
     groupKeys = Object.keys(dataAggSnvDateObj[date]);
     groupKeys.forEach((group) => {
       dataAggSnvDate.push({
-        date: parseInt(date),
+        collection_date: parseInt(date),
         group: group,
         group_name: group
           .split(' + ')
