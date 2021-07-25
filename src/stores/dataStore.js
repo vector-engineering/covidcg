@@ -37,7 +37,6 @@ export class DataStore {
   aggLocationGroupDate = [];
   aggGroupDate = [];
   aggLocationSingleSnvDate = [];
-  dataAggGroup = [];
   @observable metadataCounts = {};
 
   aggLocationSelectedSnvsDate = [];
@@ -107,10 +106,9 @@ export class DataStore {
       })
       .then((pkg) => {
         this.aggLocationGroupDate = pkg.aggLocationGroupDate;
-        this.numSequencesAfterAllFiltering = pkg.numSequences;
+        // this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.metadataCounts = pkg.metadataCounts;
         this.validGroups = pkg.validGroups;
-        this.dataAggGroup = pkg.dataAggGroup;
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -119,6 +117,13 @@ export class DataStore {
             configStoreInstance.selectedLocationNodes
           ),
         });
+
+        // Count all sequences
+        this.numSequencesAfterAllFiltering =
+          this.aggSequencesUniqueLocationGroupDate.reduce(
+            (accumulator, record) => accumulator + record.counts,
+            0
+          );
 
         // Collapse low frequency groups
         // Identify groups to collapse into the "Other" group
@@ -131,6 +136,8 @@ export class DataStore {
           //   minLocalCounts: toJS(configStoreInstance.minLocalCounts),
           // },
         });
+
+        // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
 
         ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
           aggregateGroupDate({

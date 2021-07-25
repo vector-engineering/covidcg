@@ -123,11 +123,11 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
-    // data: {
-    //   location_by_group: [],
-    //   selectedGroups: [],
-    //   selectedLocations: [],
-    // },
+    data: {
+      location_by_group: [],
+      selectedGroups: [],
+      selectedLocations: [],
+    },
     hoverGroup: null,
     hoverLocation: null,
     spec: JSON.parse(JSON.stringify(initialSpec)),

@@ -10,7 +10,7 @@ import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
 import VegaStackedBars from '../Vega/GroupStackPlot';
-import DataTableContainer from '../Table/DataTableContainer';
+// import DataTableContainer from '../Table/DataTableContainer';
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
@@ -175,67 +175,67 @@ const CompareGroupsTab = observer(() => {
     );
   };
 
-  const renderDataTable = () => {
-    if (configStore.groupKey === GROUP_SNV) {
-      return null;
-    }
+  // const renderDataTable = () => {
+  //   if (configStore.groupKey === GROUP_SNV) {
+  //     return null;
+  //   }
 
-    return (
-      <AccordionWrapper
-        title="Table"
-        defaultCollapsed={false}
-        maxHeight={'1200px'}
-        helpText={
-          <ul>
-            <li>
-              The table shows the counts and associated mutations of each{' '}
-              <b>{configStore.getGroupLabel()}</b>.
-            </li>
-            <li>
-              <i>Click</i> on a column to sort rows by that column. <i>Click</i>{' '}
-              on the same column again to change the sort order.
-            </li>
-            <li>
-              <i>Click</i> a table row to select one, or hold <KBD>Shift</KBD>{' '}
-              and
-              <i>click</i> to select multiple {configStore.getGroupLabel()}s.
-            </li>
-            <li>
-              Selected {configStore.getGroupLabel()}s will be highlighted in the
-              legend and plot, as well as in the{' '}
-              <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
-                Compare Locations
-              </TabIndicator>{' '}
-              tab.
-            </li>
-            <li>
-              {configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues'} can
-              be colored by comparing them to the WIV04 reference sequence{' '}
-              <SelectBoxText>Comparison to Reference</SelectBoxText>, by a set
-              color code{' '}
-              <SelectBoxText>
-                {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-Color Code
-              </SelectBoxText>
-              , or other predefined color schemes.
-            </li>
-            <li>
-              Comparisons to the reference sequence can be a{' '}
-              <SelectBoxText>Match</SelectBoxText>, or a mismatch{' '}
-              <SelectBoxText>Don&apos;t Match</SelectBoxText>.
-            </li>
-            <li>
-              Color bases that satisfy the reference sequence matching condition
-              with a set color <SelectBoxText>Yellow</SelectBoxText>,{' '}
-              <SelectBoxText>Green</SelectBoxText>, etc, or with other
-              predefined color schemes.
-            </li>
-          </ul>
-        }
-      >
-        <DataTableContainer />
-      </AccordionWrapper>
-    );
-  };
+  //   return (
+  //     <AccordionWrapper
+  //       title="Table"
+  //       defaultCollapsed={false}
+  //       maxHeight={'1200px'}
+  //       helpText={
+  //         <ul>
+  //           <li>
+  //             The table shows the counts and associated mutations of each{' '}
+  //             <b>{configStore.getGroupLabel()}</b>.
+  //           </li>
+  //           <li>
+  //             <i>Click</i> on a column to sort rows by that column. <i>Click</i>{' '}
+  //             on the same column again to change the sort order.
+  //           </li>
+  //           <li>
+  //             <i>Click</i> a table row to select one, or hold <KBD>Shift</KBD>{' '}
+  //             and
+  //             <i>click</i> to select multiple {configStore.getGroupLabel()}s.
+  //           </li>
+  //           <li>
+  //             Selected {configStore.getGroupLabel()}s will be highlighted in the
+  //             legend and plot, as well as in the{' '}
+  //             <TabIndicator tab={TABS.TAB_COMPARE_LOCATIONS}>
+  //               Compare Locations
+  //             </TabIndicator>{' '}
+  //             tab.
+  //           </li>
+  //           <li>
+  //             {configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues'} can
+  //             be colored by comparing them to the WIV04 reference sequence{' '}
+  //             <SelectBoxText>Comparison to Reference</SelectBoxText>, by a set
+  //             color code{' '}
+  //             <SelectBoxText>
+  //               {configStore.dnaOrAa === DNA_OR_AA.DNA ? '4' : '20'}-Color Code
+  //             </SelectBoxText>
+  //             , or other predefined color schemes.
+  //           </li>
+  //           <li>
+  //             Comparisons to the reference sequence can be a{' '}
+  //             <SelectBoxText>Match</SelectBoxText>, or a mismatch{' '}
+  //             <SelectBoxText>Don&apos;t Match</SelectBoxText>.
+  //           </li>
+  //           <li>
+  //             Color bases that satisfy the reference sequence matching condition
+  //             with a set color <SelectBoxText>Yellow</SelectBoxText>,{' '}
+  //             <SelectBoxText>Green</SelectBoxText>, etc, or with other
+  //             predefined color schemes.
+  //           </li>
+  //         </ul>
+  //       }
+  //     >
+  //       <DataTableContainer />
+  //     </AccordionWrapper>
+  //   );
+  // };
 
   // const renderAckTable = () => {
   //   return (
@@ -254,7 +254,7 @@ const CompareGroupsTab = observer(() => {
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
-      {renderDataTable()}
+      {/* {renderDataTable()} */}
       {/* renderAckTable() */}
     </CompareGroupsTabContainer>
   );

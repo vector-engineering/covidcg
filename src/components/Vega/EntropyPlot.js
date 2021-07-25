@@ -78,6 +78,7 @@ const EntropyPlot = observer(({ width }) => {
           configStore.coordinateMode,
           record.group_id
         );
+
         record.snv = snv.snp_str;
         record.color = snpDataStore.getSnvColor(snv.snp_str);
         record.snvName = snv.name;
@@ -230,6 +231,10 @@ const EntropyPlot = observer(({ width }) => {
   }, [UIStore.caseDataState]);
 
   useEffect(() => {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
     setState({
       ...state,
       data: {

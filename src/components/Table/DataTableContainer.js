@@ -49,14 +49,16 @@ const DataTableContainer = styled.div`
   }
 `;
 
-const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
-  if (sortDirection === 'ASC' || sortDirection === 'None') {
-    return a[sortColumn] > b[sortColumn] ? 1 : -1;
-  }
-  if (sortDirection === 'DESC') {
-    return a[sortColumn] < b[sortColumn] ? 1 : -1;
-  }
-};
+const comparer =
+  ({ sortDirection, sortColumn }) =>
+  (a, b) => {
+    if (sortDirection === 'ASC' || sortDirection === 'None') {
+      return a[sortColumn] > b[sortColumn] ? 1 : -1;
+    }
+    if (sortDirection === 'DESC') {
+      return a[sortColumn] < b[sortColumn] ? 1 : -1;
+    }
+  };
 
 const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list

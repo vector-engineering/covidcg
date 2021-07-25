@@ -148,7 +148,7 @@ export function countGroups({ aggLocationGroupDate, groupKey }) {
         if (!Object.prototype.hasOwnProperty.call(snvIdCounts, snvId)) {
           snvIdCounts[snvId] = 0;
         }
-        snvIdCounts[snvId] += 1;
+        snvIdCounts[snvId] += record.counts;
       });
     });
 

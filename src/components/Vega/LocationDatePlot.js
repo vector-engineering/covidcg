@@ -143,11 +143,11 @@ const LocationDatePlot = observer(({ width }) => {
 
   const [state, setState] = useState({
     showWarning: true,
-    // data: {
-    //   location_data: [],
-    //   selectedGroups: [],
-    //   selected: [],
-    // },
+    data: {
+      location_data: [],
+      selectedGroups: [],
+      selected: [],
+    },
     hoverLocation: null,
     spec: injectDateBinIntoSpec(),
     signalListeners: {
