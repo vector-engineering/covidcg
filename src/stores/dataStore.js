@@ -46,7 +46,7 @@ export class DataStore {
   countsPerLocationDateMap = new Map();
   cumulativeCountsPerLocationDateMap = new Map();
   countsPerLocationMap = {};
-  validGroups = {};
+  // validGroups = {};
   groupCounts = [];
 
   constructor() {}
@@ -106,9 +106,7 @@ export class DataStore {
       })
       .then((pkg) => {
         this.aggLocationGroupDate = pkg.aggLocationGroupDate;
-        // this.numSequencesAfterAllFiltering = pkg.numSequences;
         this.metadataCounts = pkg.metadataCounts;
-        this.validGroups = pkg.validGroups;
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -200,7 +198,7 @@ export class DataStore {
         intToSnvMap: configStoreInstance.getIntToSnvMap(),
         dnaOrAa: toJS(configStoreInstance.dnaOrAa),
         countsPerLocationMap: this.countsPerLocationMap,
-        validGroups: this.validGroups,
+        // validGroups: this.validGroups,
         aggLocationGroupDate: this.aggLocationGroupDate,
         aggGroupDate: this.aggGroupDate,
         // SNV data

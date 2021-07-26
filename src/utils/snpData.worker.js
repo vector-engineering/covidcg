@@ -19,7 +19,7 @@ function processSelectedSnvs({
   intToSnvMap,
   dnaOrAa,
   countsPerLocationMap,
-  validGroups,
+  // validGroups,
   aggLocationGroupDate,
   aggGroupDate,
   snvColorMap,
@@ -39,10 +39,10 @@ function processSelectedSnvs({
     .map((id) => intToSnvMap[id].snp_str)
     .join(' + ');
 
-  const validGroupMap = {};
-  validGroups.forEach((group) => {
-    validGroupMap[group] = 1;
-  });
+  // const validGroupMap = {};
+  // validGroups.forEach((group) => {
+  //   validGroupMap[group] = 1;
+  // });
 
   aggLocationGroupDate.forEach((row) => {
     !(row.location in aggLocationSelectedSnvsDateObj) &&
@@ -58,8 +58,9 @@ function processSelectedSnvs({
     let group;
     // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
-      selectedGroupIds.has(-1) &&
-      row.group_id.some((id) => validGroupMap[id] === undefined)
+      selectedGroupIds.has(-1)
+      // selectedGroupIds.has(-1) &&
+      // row.group_id.some((id) => validGroupMap[id] === undefined)
     ) {
       group = GROUPS.OTHER_GROUP;
     } else if (
