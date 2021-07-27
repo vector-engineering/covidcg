@@ -214,7 +214,7 @@ const EntropyPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
-  useEffect(() => {
+  const refreshData = () => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
@@ -228,22 +228,11 @@ const EntropyPlot = observer(({ width }) => {
         domains: getDomains(),
       },
     });
-  }, [UIStore.caseDataState]);
+  };
 
-  useEffect(() => {
-    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
-      return;
-    }
-
-    setState({
-      ...state,
-      data: {
-        table: processData(),
-        selected: toJS(configStore.selectedGroups),
-        domains: getDomains(),
-      },
-    });
-  }, []);
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [UIStore.caseDataState]);
+  useEffect(refreshData, []);
 
   // Generate x-axis title
   let xLabel = '';

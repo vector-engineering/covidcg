@@ -216,7 +216,7 @@ const LocationDatePlot = observer(({ width }) => {
     });
   }, [configStore.focusedLocations]);
 
-  useEffect(() => {
+  const refreshData = () => {
     if (
       configStore.groupKey !== GROUP_SNV ||
       UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
@@ -232,25 +232,15 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.snvDataState, configStore.selectedGroups]);
+  };
 
-  useEffect(() => {
-    if (
-      configStore.groupKey === GROUP_SNV ||
-      UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED
-    ) {
-      return;
-    }
-
-    setState({
-      ...state,
-      data: {
-        ...state.data,
-        location_data: processLocationData(),
-        selectedGroups: processSelectedGroups(),
-      },
-    });
-  }, [UIStore.caseDataState, configStore.selectedGroups]);
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [
+    UIStore.caseDataState,
+    UIStore.snvDataState,
+    configStore.selectedGroups,
+  ]);
+  useEffect(refreshData, []);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

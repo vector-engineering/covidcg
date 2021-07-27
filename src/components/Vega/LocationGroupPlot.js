@@ -175,7 +175,7 @@ const LocationGroupPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
-  useEffect(() => {
+  const refreshData = () => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
@@ -188,18 +188,14 @@ const LocationGroupPlot = observer(({ width }) => {
         selectedGroups: toJS(configStore.selectedGroups),
       },
     });
-  }, [UIStore.caseDataState, plotSettingsStore.locationGroupHideReference]);
+  };
 
-  useEffect(() => {
-    setState({
-      ...state,
-      data: {
-        location_by_group: processLocationByGroup(),
-        selectedGroups: toJS(configStore.selectedGroups),
-        selectedLocations: [],
-      },
-    });
-  }, []);
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [
+    UIStore.caseDataState,
+    plotSettingsStore.locationGroupHideReference,
+  ]);
+  useEffect(refreshData, []);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (

@@ -50,15 +50,7 @@ const CooccurrencePlot = observer(({ width }) => {
     plotSettingsStore.setCooccurrenceNormMode(event.target.value);
 
   const handleHoverGroup = debounce((...args) => {
-    // Don't fire the action if there's no change
-    let hoverGroup = args[1] === null ? null : args[1]['group'];
-
-    // Ignore for the 'None' group
-    if (hoverGroup === GROUPS.NONE_GROUP) {
-      return;
-    }
-
-    configStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
   }, 20);
 
   const handleSelectedGroups = (...args) => {
@@ -110,7 +102,7 @@ const CooccurrencePlot = observer(({ width }) => {
   };
 
   const getCooccurrenceData = () => {
-    console.log('GET COOCCURRENCE DATA');
+    // console.log('GET COOCCURRENCE DATA');
     let newCooccurrenceData = toJS(dataStore.snvCooccurrence);
     newCooccurrenceData = aggregate({
       data: newCooccurrenceData,
@@ -124,7 +116,7 @@ const CooccurrencePlot = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
-    // data: {},
+    data: {},
     hoverGroup: null,
     signalListeners: {
       hoverGroup: debounce(handleHoverGroup, 20),
@@ -141,7 +133,7 @@ const CooccurrencePlot = observer(({ width }) => {
     });
   }, [configStore.hoverGroup]);
 
-  useEffect(() => {
+  const refreshData = () => {
     // Only update once the SNV data finished processing
     if (UIStore.cooccurrenceDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
@@ -155,7 +147,11 @@ const CooccurrencePlot = observer(({ width }) => {
         cooccurrence_data: getCooccurrenceData(),
       },
     });
-  }, [UIStore.cooccurrenceDataState]);
+  };
+
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [UIStore.cooccurrenceDataState]);
+  useEffect(refreshData, []);
 
   if (UIStore.cooccurrenceDataState === ASYNC_STATES.STARTED) {
     return (

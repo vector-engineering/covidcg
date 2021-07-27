@@ -162,24 +162,7 @@ const GroupStackPlot = observer(({ width }) => {
     });
   }, [configStore.selectedGroups]);
 
-  // Update internal caseData copy
-  useEffect(() => {
-    // console.log('CASE DATA STATE');
-    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
-      return;
-    }
-
-    setState({
-      ...state,
-      data: {
-        ...state.data,
-        cases_by_date_and_group: processData(),
-      },
-    });
-  }, [UIStore.caseDataState]);
-
-  useEffect(() => {
-    // console.log('SNV DATA STATE');
+  const refreshData = () => {
     // Skip this if we're not in SNV mode
     if (configStore.groupKey !== GROUP_SNV) {
       return;
@@ -190,16 +173,10 @@ const GroupStackPlot = observer(({ width }) => {
       return;
     }
 
-    setState({
-      ...state,
-      data: {
-        cases_by_date_and_group: processData(),
-        selected: toJS(configStore.selectedGroups),
-      },
-    });
-  }, [UIStore.snvDataState]);
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
 
-  useEffect(() => {
     setState({
       ...state,
       data: {
@@ -207,7 +184,11 @@ const GroupStackPlot = observer(({ width }) => {
         selected: toJS(configStore.selectedGroups),
       },
     });
-  }, []);
+  };
+
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [UIStore.caseDataState, UIStore.snvDataState]);
+  useEffect(refreshData, []);
 
   // For development in Vega Editor
   // console.log(JSON.stringify(caseData));
