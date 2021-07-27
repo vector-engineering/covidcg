@@ -20,6 +20,11 @@ export const MutationContentContainer = styled.div`
   height: calc(100vh - ${(props) => props.headerheight});
 `;
 
+export const MutationInnerContainer = styled.div`
+  max-width: 100%;
+  overflow-x: auto;
+`;
+
 export const OptionSelectContainer = styled.div`
   margin-right: 12px;
   font-weight: normal;

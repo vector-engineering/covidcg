@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const VOCGridTitle = styled.span`
   font-size: 1em;
   grid-row: 1;
-  justify-self: center;
   font-weight: bold;
 `;
 
@@ -13,7 +12,7 @@ export const GridItem = styled.div`
 
 export const VOCListContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: 10px;
   overflow: hidden;
   font-weight: normal;
@@ -24,6 +23,7 @@ export const VOCItemGrid = styled.div`
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto;
   grid-column-gap: 10px;
+  justify-items: center;
 `;
 
 export const VOCItemContainer = styled.div`
@@ -34,6 +34,7 @@ export const VOCItemContainer = styled.div`
   background-color: ${({ selected }) => (selected ? '#117733' : '#DDDDDD')};
   margin-top: 5px;
   padding: 5px;
+  padding-right: 10px;
 
   position: relative;
 

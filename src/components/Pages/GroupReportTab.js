@@ -16,13 +16,12 @@ const MEDIAWIDTH = '1475px';
 const GroupReportTabContainer = styled.div`
   display: grid;
   grid-template-rows: auto;
-  grid-template-columns: 250px repeat(2, 1fr);
+  grid-template-columns: 250px repeat(2, minmax(100px, 1fr));
   max-height: 100vh;
-  overflow: hidden;
 
   @media (max-width: ${MEDIAWIDTH}) {
     grid-template-rows: auto;
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: 250px minmax(100px, 1fr);
     overflow-y: auto;
   }
 `;

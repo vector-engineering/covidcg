@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
 import VOC_LIST from '../../../static_data/vocs.json';
+import { OrgLegend } from './OrgLegend';
 
 import {
   VOCListContainer,
@@ -16,7 +17,7 @@ import {
   VOCBadge,
 } from './VOCList.styles';
 
-const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
+export const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
 const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
 
 const VOCItem = observer(({ name, orgArr }) => {
@@ -121,6 +122,7 @@ const VOCList = observer(() => {
         <GridItem>{vocItems}</GridItem>
         <GridItem>{voiItems}</GridItem>
       </VOCItemGrid>
+      <OrgLegend />
     </VOCListContainer>
   );
 });
