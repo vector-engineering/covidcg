@@ -23,7 +23,7 @@ from cg_server.dev_only import dev_only
 from cg_server.test_connpool import raiseDatabaseError
 from cg_server.query import (
     query_initial,
-    query_metadata_fields,
+    query_metadata,
     query_country_score,
     query_group_snv_frequencies,
     query_and_aggregate,
@@ -135,12 +135,12 @@ def get_sequences(conn):
     return query_and_aggregate(conn, req)
 
 
-@app.route("/metadata_fields", methods=["GET", "POST"])
+@app.route("/metadata", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
 @handle_db_errors(options=connection_options, conn_pool=conn_pool)
-def _get_metadata_fields(conn):
+def _get_metadata(conn):
     req = request.json
-    return query_metadata_fields(conn, req)
+    return query_metadata(conn, req)
 
 
 @app.route("/group_snv_frequencies", methods=["POST"])

@@ -327,7 +327,7 @@ def query_and_aggregate(conn, req):
                 snv_filter=snv_filter,
             )
 
-            print(main_query.as_string(conn))
+            # print(main_query.as_string(conn))
 
         else:
             main_query = sql.SQL(
@@ -356,7 +356,7 @@ def query_and_aggregate(conn, req):
         res = pd.DataFrame.from_records(
             cur.fetchall(),
             columns=["location", "collection_date", "group_id", "counts"],
-        )
+        ).to_json(orient="records")
 
     return res
 
