@@ -133,7 +133,7 @@ const LocationGroupPlot = observer(({ width }) => {
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
       hoverLocation: throttle(handleHoverLocation, 100),
-      hoverGroup: debounce(handleHoverGroup, 20),
+      hoverGroup: debounce(handleHoverGroup, 100),
     },
     dataListeners: {
       selectedLocations: handleSelectedLocations,
