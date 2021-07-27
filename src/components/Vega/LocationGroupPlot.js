@@ -78,13 +78,6 @@ const LocationGroupPlot = observer(({ width }) => {
         as: ['counts'],
       });
 
-      if (plotSettingsStore.locationGroupHideReference) {
-        // Filter out 'Reference' group, when in SNV mode
-        locationData = locationData.filter((row) => {
-          return row.group_id !== GROUPS.REFERENCE_GROUP;
-        });
-      }
-
       locationData.forEach((record) => {
         let snv = snpDataStore.intToSnv(
           configStore.dnaOrAa,
@@ -95,6 +88,13 @@ const LocationGroupPlot = observer(({ width }) => {
         record.group = snv.snp_str;
         record.group_name = snv.name;
       });
+
+      if (plotSettingsStore.locationGroupHideReference) {
+        // Filter out 'Reference' group, when in SNV mode
+        locationData = locationData.filter((row) => {
+          return row.group !== GROUPS.REFERENCE_GROUP;
+        });
+      }
     } else {
       locationData = aggregate({
         data: toJS(dataStore.aggLocationGroupDate),
