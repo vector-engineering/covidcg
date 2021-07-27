@@ -7,39 +7,16 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import pandas as pd
 import psycopg2
-import uuid
 
 from cg_server.config import config
-from cg_server.query.selection import build_sequence_query
+from cg_server.query.selection import create_sequence_temp_table
 from psycopg2 import sql
 
 
 def query_metadata(conn, req):
 
-    location_ids = req.get("location_ids", None)
-    start_date = pd.to_datetime(req.get("start_date", None))
-    end_date = pd.to_datetime(req.get("end_date", None))
-    selected_metadata_fields = req.get("selected_metadata_fields", None)
-
     with conn.cursor() as cur:
-        # First store the sequence query into a temp table for iterative
-        # grouping on
-        sequence_query = build_sequence_query(
-            cur, conn, location_ids, start_date, end_date, selected_metadata_fields
-        )
-        temp_table_name = "sequence_selection_" + uuid.uuid4().hex
-        cur.execute(
-            sql.SQL(
-                """
-            CREATE TEMP TABLE {temp_table_name}
-            ON COMMIT DROP
-            AS ({sequence_query})
-            """
-            ).format(
-                temp_table_name=sql.Identifier(temp_table_name),
-                sequence_query=sequence_query,
-            )
-        )
+        temp_table_name = create_sequence_temp_table(cur, req)
 
         # Iterate over each metadata column, and aggregate counts
         # per metadata value

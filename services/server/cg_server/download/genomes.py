@@ -13,7 +13,7 @@ import tempfile
 from flask import make_response, send_file
 from psycopg2 import sql
 
-# from cg_server.query.selection import select_sequences
+from cg_server.query.selection import create_sequence_temp_table
 
 
 def download_genomes(conn, req):
@@ -22,7 +22,7 @@ def download_genomes(conn, req):
 
     try:
         with conn.cursor() as cur:
-            # temp_table_name = select_sequences(conn, cur, req)
+            temp_table_name = create_sequence_temp_table(cur, req)
 
             cur.execute(
                 sql.SQL(

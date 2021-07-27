@@ -161,16 +161,12 @@ def create_location_map_table(cur, location_ids):
     return location_map_table_name
 
 
-def build_sequence_query(
-    cur, conn, location_ids, start_date, end_date, selected_metadata_fields
-):
+def build_sequence_query(location_ids, start_date, end_date, selected_metadata_fields):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
 
     Parameters
     ----------
-    cur: psycopg2.cursor
-    conn: psycopg2.connection
     location_ids: dict
         - Structured as { "location_name": [location_ids], ... }
         - Keys are location names as arbitrary strings
@@ -211,9 +207,11 @@ def build_sequence_query(
             )
         )
 
-    metadata_filters = sql.SQL(" AND ").join(metadata_filters)
-    if metadata_filters.as_string(conn):
+    if metadata_filters:
+        metadata_filters = sql.SQL(" AND ").join(metadata_filters)
         metadata_filters = sql.Composed([metadata_filters, sql.SQL(" AND ")])
+    else:
+        metadata_filters = sql.SQL("")
 
     sequence_query = sql.SQL(
         """
@@ -233,6 +231,46 @@ def build_sequence_query(
     )
 
     return sequence_query
+
+
+def create_sequence_temp_table(cur, req):
+    """Build the sequence query, run it, and store the results
+    in a temporary table
+
+    Parameters
+    ----------
+    conn: psycopg2.cursor
+    req: flask.request
+
+    Returns
+    -------
+    temp_table_name: str
+    """
+
+    location_ids = req.get("location_ids", None)
+    start_date = pd.to_datetime(req.get("start_date", None))
+    end_date = pd.to_datetime(req.get("end_date", None))
+    selected_metadata_fields = req.get("selected_metadata_fields", None)
+
+    # First store the sequence query into a temp table
+    sequence_query = build_sequence_query(
+        location_ids, start_date, end_date, selected_metadata_fields
+    )
+    temp_table_name = "sequence_selection_" + uuid.uuid4().hex
+    cur.execute(
+        sql.SQL(
+            """
+        CREATE TEMP TABLE {temp_table_name}
+        ON COMMIT DROP
+        AS ({sequence_query})
+        """
+        ).format(
+            temp_table_name=sql.Identifier(temp_table_name),
+            sequence_query=sequence_query,
+        )
+    )
+
+    return temp_table_name
 
 
 def query_and_aggregate(conn, req):
@@ -277,7 +315,7 @@ def query_and_aggregate(conn, req):
         selected_protein = req.get("selected_protein", None)
 
         sequence_query = build_sequence_query(
-            cur, conn, location_ids, start_date, end_date, selected_metadata_fields
+            location_ids, start_date, end_date, selected_metadata_fields
         )
 
         location_map_table_name = create_location_map_table(cur, location_ids)
@@ -355,7 +393,7 @@ def query_and_aggregate(conn, req):
                 FROM (
                     {sequence_query}
                 ) q
-                FULL JOIN (
+                LEFT OUTER JOIN (
                     SELECT "id", "name"
                     FROM {location_map_table_name}
                 ) location_map ON q."location_id" = location_map."id"
@@ -366,7 +404,7 @@ def query_and_aggregate(conn, req):
                 location_map_table_name=sql.Identifier(location_map_table_name),
             )
 
-        print(main_query.as_string(conn))
+        # print(main_query.as_string(conn))
         cur.execute(main_query)
 
         res = pd.DataFrame.from_records(
