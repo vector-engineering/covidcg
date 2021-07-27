@@ -222,10 +222,14 @@ export class GroupDataStore {
         return pkg;
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-          rootStoreInstance.UIStore.onGroupSnvFrequencyErr();
-        });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onGroupSnvFrequencyErr();
       });
   }
 

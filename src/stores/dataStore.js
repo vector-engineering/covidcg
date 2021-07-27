@@ -174,20 +174,15 @@ export class DataStore {
         }
       })
       .catch((err) => {
+        let prefix = 'Error fetching data';
         if (!(typeof err.text === 'function')) {
-          console.error(err);
-          UIStoreInstance.onCaseDataStateErr();
+          console.error(prefix, err);
         } else {
-          err
-            .text()
-            .then((errMsg) => {
-              console.error(errMsg);
-            })
-            .finally(() => {
-              UIStoreInstance.onCaseDataStateErr();
-              console.error('Error fetching data');
-            });
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
+          });
         }
+        UIStoreInstance.onCaseDataStateErr();
       });
   }
 
@@ -277,15 +272,15 @@ export class DataStore {
         UIStoreInstance.onDownloadFinished();
       })
       .catch((err) => {
-        err
-          .text()
-          .then((errMsg) => {
-            console.error(errMsg);
-          })
-          .finally(() => {
-            UIStoreInstance.onDownloadErr();
-            console.error('Download metadata failed');
+        let prefix = 'Error downloading metadata';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
           });
+        }
+        UIStoreInstance.onDownloadErr();
       });
   }
 
@@ -324,15 +319,15 @@ export class DataStore {
         downloadBlobURL(url, 'selected_snvs.csv');
       })
       .catch((err) => {
-        err
-          .text()
-          .then((errMsg) => {
-            console.error(errMsg);
-          })
-          .finally(() => {
-            UIStoreInstance.onDownloadErr();
-            console.error('Download selected SNVs failed');
+        let prefix = 'Download selected SNVs failed';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
           });
+        }
+        UIStoreInstance.onDownloadErr();
       });
   }
 
@@ -375,15 +370,15 @@ export class DataStore {
         UIStoreInstance.onDownloadFinished();
       })
       .catch((err) => {
-        err
-          .text()
-          .then((errMsg) => {
-            console.error(errMsg);
-          })
-          .finally(() => {
-            UIStoreInstance.onDownloadErr();
-            console.error('Error downloading genomes');
+        let prefix = 'Error downloading genomes';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
           });
+        }
+        UIStoreInstance.onDownloadErr();
       });
   }
 

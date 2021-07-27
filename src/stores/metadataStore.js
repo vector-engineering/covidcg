@@ -62,10 +62,14 @@ export class MetadataStore {
         rootStoreInstance.UIStore.onMetadataFieldFinished();
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-          rootStoreInstance.UIStore.onMetadataFieldErr();
-        });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onMetadataFieldErr();
       });
   }
 
