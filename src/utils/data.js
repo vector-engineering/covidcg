@@ -215,7 +215,9 @@ export function getLocationCounts({ aggLocationGroupDate }) {
       return a.location > b.location;
     }
   });
-  let cur_location = countsPerLocationDate[0].location;
+
+  let cur_location =
+    countsPerLocationDate.length === 0 ? '' : countsPerLocationDate[0].location;
   let cumulative_count = 0;
   countsPerLocationDate.forEach((record) => {
     if (cur_location !== record.location) {

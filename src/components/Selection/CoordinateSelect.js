@@ -369,9 +369,15 @@ const CoordinateSelect = observer(
         const institutionNode = primerTreeData.find(
           (node) => node.value === primer.Institution
         );
+        if (institutionNode === undefined) {
+          return;
+        }
         const primerNode = institutionNode.children.find(
           (child) => child.value === primer.Name
         );
+        if (primerNode === undefined) {
+          return;
+        }
         primerNode.checked = true;
       });
 

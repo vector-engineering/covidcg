@@ -123,8 +123,8 @@ function processSelectedSnvs({
     let group;
     // "Other" group was selected, and this sequence has a SNV in "Other"
     if (
-      selectedGroupIds.has(-1) &&
-      row.group_id.some((id) => validGroupMap[id] === undefined)
+      selectedGroupIds.has(-1) // &&
+      // row.group_id.some((id) => validGroupMap[id] === undefined)
     ) {
       group = GROUPS.OTHER_GROUP;
     } else if (
