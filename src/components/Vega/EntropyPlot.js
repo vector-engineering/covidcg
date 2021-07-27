@@ -65,13 +65,8 @@ const EntropyPlot = observer(({ width }) => {
     // 2) The human-readable name of each SNV
     // 3) The position of the SNV
     // console.log('ENTROPY PROCESS DATA');
+
     return snvCounts
-      .filter((group) => {
-        return (
-          group.group_id !== GROUPS.OTHER_GROUP &&
-          group.group_id !== GROUPS.REFERENCE_GROUP
-        );
-      })
       .map((record) => {
         let snv = snpDataStore.intToSnv(
           configStore.dnaOrAa,
@@ -84,6 +79,12 @@ const EntropyPlot = observer(({ width }) => {
         record.snvName = snv.name;
         record.pos = snv.pos;
         return record;
+      })
+      .filter((record) => {
+        return (
+          record.group !== GROUPS.OTHER_GROUP &&
+          record.group !== GROUPS.REFERENCE_GROUP
+        );
       });
   };
 
@@ -169,8 +170,16 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    if (
+      configStore.residueCoordinates.length === 0
+      // configStore.residueCoordinates.length === 0 ||
+      // (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+      //   configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN)
+    ) {
+      if (
+        // configStore.dnaOrAa === DNA_OR_AA.DNA ||
+        configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
+      ) {
         return geneMap;
       } else if (
         configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
@@ -218,6 +227,8 @@ const EntropyPlot = observer(({ width }) => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
+
+    console.log(getDomains());
 
     setState({
       ...state,
