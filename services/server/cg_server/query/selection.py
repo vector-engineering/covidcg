@@ -88,7 +88,7 @@ def build_coordinate_filters(
 
     snv_filter.append(pos_filter)
     snv_filter = sql.Composed(snv_filter)
-    
+
     # Only add the WHERE clause if the snv_filter exists
     if snv_filter.join("").as_string(conn):
         snv_filter = (sql.SQL("WHERE") + snv_filter).join(" ")
@@ -144,6 +144,19 @@ def create_location_map_table(cur, location_ids):
         ).format(location_map_table_name=sql.Identifier(location_map_table_name)),
         location_id_to_name_list,
     )
+
+    # Write raw SQL for debugging purposes
+    # print(
+    #     """
+    #     INSERT INTO "{location_map_table_name}" ("name", "id") VALUES
+    #     {location_id_to_name_list}
+    #     """.format(
+    #         location_map_table_name=location_map_table_name,
+    #         location_id_to_name_list=",\n".join(
+    #             ["('{}', {})".format(x[0], x[1]) for x in location_id_to_name_list]
+    #         ),
+    #     )
+    # )
 
     return location_map_table_name
 
@@ -283,44 +296,42 @@ def query_and_aggregate(conn, req):
             # welcome to CTE hell
             main_query = sql.SQL(
                 """
-                WITH "seq" as (
+                WITH "seq" AS (
                     {sequence_query}
                 ),
-                "snp_data" as (
-                    SELECT -1 as "id"
-                    UNION ALL
+                "snp_data" AS (
                     SELECT "id"
                     FROM {snv_table}
                     {snv_filter}
                 ),
-                "snp" as (
+                "filtered_snp" AS (
                     SELECT
-                        seq."collection_date",
-                        seq."id" as "sequence_id",
-                        seq."location_id",
-                        COALESCE(snp."snp_id", -1) as "snp_id"
-                    FROM "seq"
-                    LEFT OUTER JOIN {sequence_snv_table} snp ON seq."id" = snp."sequence_id"
-                ),
-                "selected_snvs" as (
-                    SELECT
-                        "loc_map"."name" as "location",
-                        "snp"."collection_date",
-                        ARRAY_AGG("snp"."snp_id") as "group_id"
-                    FROM "snp"
-                    INNER JOIN snp_data ON (snp."snp_id" = snp_data."id")
+                        "seq"."id" AS "sequence_id",
+                        "seq"."collection_date",
+                        loc_map."name" AS "location",
+                        COALESCE(snp."snp_id", -1) AS "snp_id"
+                    FROM {sequence_snv_table} snp
+                    INNER JOIN "snp_data" ON snp_data.id = snp.snp_id
+                    RIGHT OUTER JOIN "seq" ON snp.sequence_id = "seq".id
                     LEFT OUTER JOIN (
                         SELECT "id", "name"
                         FROM {location_map_table_name}
-                    ) loc_map ON "snp"."location_id" = loc_map."id"
-                    GROUP BY "location", "collection_date", snp."sequence_id"
+                    ) loc_map ON "seq"."location_id" = loc_map."id"
+                ),
+                "snv_list" AS (
+                    SELECT 
+                        "location",
+                        "collection_date",
+                        ARRAY_AGG("snp_id") AS "group_id"
+                    FROM "filtered_snp"
+                    GROUP BY "location", "collection_date", "sequence_id"
                 )
                 SELECT
                     "location",
                     "collection_date",
                     "group_id",
                     COUNT(*) as "count"
-                FROM selected_snvs
+                FROM "snv_list"
                 GROUP BY "location", "collection_date", "group_id"
                 """
             ).format(
