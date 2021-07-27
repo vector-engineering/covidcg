@@ -28,6 +28,7 @@ import {
   COMPARE_COLORS,
   GEO_LEVELS,
   TABS,
+  GROUPS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
@@ -550,6 +551,8 @@ export class ConfigStore {
   updateHoverGroup(group) {
     // console.log('UPDATE HOVER GROUP', group);
     if (group === this.hoverGroup) {
+      return;
+    } else if (group === GROUPS.NONE_GROUP) {
       return;
     } else if (group === null) {
       this.hoverGroup = null;

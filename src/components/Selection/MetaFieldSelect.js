@@ -45,23 +45,23 @@ const MetaFieldSelect = observer(
       metadataFields.forEach((field) => {
         fieldOptions[field] = [];
 
-        if (
-          !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
-        ) {
-          return;
-        }
+        // if (
+        //   !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
+        // ) {
+        //   return;
+        // }
 
-        Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
-          let initialCount = dataStore.metadataCounts[field][option];
-          fieldOptions[field].push({
-            label:
-              metadataStore.getMetadataValueFromId(field, option) +
-              ' [' +
-              initialCount.toString() +
-              ']',
-            value: option,
-          });
-        });
+        // Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
+        //   let initialCount = dataStore.metadataCounts[field][option];
+        //   fieldOptions[field].push({
+        //     label:
+        //       metadataStore.getMetadataValueFromId(field, option) +
+        //       ' [' +
+        //       initialCount.toString() +
+        //       ']',
+        //     value: option,
+        //   });
+        // });
       });
 
       setState({ ...state, fieldOptions });

@@ -33,11 +33,10 @@ let snpDataStoreInstance;
 export class DataStore {
   dataDate;
   numSequences;
-  @observable numSequencesAfterAllFiltering;
+  numSequencesAfterAllFiltering;
   aggLocationGroupDate = [];
   aggGroupDate = [];
   aggLocationSingleSnvDate = [];
-  @observable metadataCounts = {};
 
   aggLocationSelectedSnvsDate = [];
   aggSelectedSnvsDate = [];
@@ -104,13 +103,14 @@ export class DataStore {
         }
         return res.json();
       })
-      .then((pkg) => {
-        this.aggLocationGroupDate = pkg.aggLocationGroupDate;
-        this.metadataCounts = pkg.metadataCounts;
+      .then((res) => {
+        this.aggLocationGroupDate = res;
+
+        console.log(this.aggLocationGroupDate);
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
-          aggLocationGroupDate: pkg.aggLocationGroupDate,
+          aggLocationGroupDate: this.aggLocationGroupDate,
           selectedLocationNodes: toJS(
             configStoreInstance.selectedLocationNodes
           ),
@@ -174,15 +174,20 @@ export class DataStore {
         }
       })
       .catch((err) => {
-        err
-          .text()
-          .then((errMsg) => {
-            console.error(errMsg);
-          })
-          .finally(() => {
-            UIStoreInstance.onCaseDataStateErr();
-            console.error('Error fetching data');
-          });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+          UIStoreInstance.onCaseDataStateErr();
+        } else {
+          err
+            .text()
+            .then((errMsg) => {
+              console.error(errMsg);
+            })
+            .finally(() => {
+              UIStoreInstance.onCaseDataStateErr();
+              console.error('Error fetching data');
+            });
+        }
       });
   }
 

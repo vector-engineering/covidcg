@@ -9,11 +9,11 @@ import pandas as pd
 
 from flask import make_response
 
-from cg_server.query.selection import query_sequences
+# from cg_server.query.selection import query_sequences
 
 
 def download_snvs(conn, req):
-    res_df, res_snv = query_sequences(conn, req)
+    # res_df, res_snv = query_sequences(conn, req)
     res = make_response(
         res_snv.drop(
             columns=[

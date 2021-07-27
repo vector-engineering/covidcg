@@ -17,17 +17,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from cg_server.config import config
 from cg_server.db_seed import seed_database, insert_sequences
-from cg_server.download import (
-    download_genomes, download_metadata, download_snvs)
+from cg_server.download import download_genomes, download_metadata, download_snvs
 from cg_server.error import handle_db_errors
 from cg_server.dev_only import dev_only
 from cg_server.test_connpool import raiseDatabaseError
 from cg_server.query import (
-    query_aggregate_data,
     query_initial,
     query_metadata_fields,
     query_country_score,
     query_group_snv_frequencies,
+    query_and_aggregate,
 )
 
 from psycopg2 import pool
@@ -43,9 +42,7 @@ auth = HTTPBasicAuth()
 users = {}
 load_users = os.getenv("LOGINS", "")
 load_users = [chunk for chunk in load_users.split(",") if chunk]
-load_users = [
-    (chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users
-    ]
+load_users = [(chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
 
@@ -62,8 +59,7 @@ cors_domains.append(config["prod_hostname"])
 
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username),
-                                                 password):
+    if username in users and check_password_hash(users.get(username), password):
         return username
 
 
@@ -76,9 +72,9 @@ connection_options = {
 if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
-conn_pool = psycopg2.pool.SimpleConnectionPool(1,
-                                               os.environ["POSTGRES_MAX_CONN"],
-                                               **connection_options)
+conn_pool = psycopg2.pool.SimpleConnectionPool(
+    1, os.environ["POSTGRES_MAX_CONN"], **connection_options
+)
 
 # Quickly check if our database has been initialized yet
 # If not, then let's seed it
@@ -117,35 +113,31 @@ def index():
 
 @app.route("/init")
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def init(conn):
     return query_initial(conn)
 
 
 @app.route("/country_score", methods=["GET"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def _country_score(conn):
     return query_country_score(conn)
 
 
 @app.route("/data", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def get_sequences(conn):
     req = request.json
     if not req:
         return make_response(("No filter parameters given", 400))
-    return query_aggregate_data(conn, req)
+    return query_and_aggregate(conn, req)
 
 
 @app.route("/metadata_fields", methods=["GET", "POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def _get_metadata_fields(conn):
     req = request.json
     return query_metadata_fields(conn, req)
@@ -153,8 +145,7 @@ def _get_metadata_fields(conn):
 
 @app.route("/group_snv_frequencies", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def get_group_snv_frequencies(conn):
     req = request.json
     return query_group_snv_frequencies(conn, req)
@@ -162,13 +153,11 @@ def get_group_snv_frequencies(conn):
 
 @app.route("/download_metadata", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def _download_metadata(conn):
     if not config["allow_metadata_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG",
-             403)
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
     req = request.json
     return download_metadata(conn, req)
@@ -176,13 +165,11 @@ def _download_metadata(conn):
 
 @app.route("/download_snvs", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def _download_snvs(conn):
     if not config["allow_metadata_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG",
-             403)
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
@@ -191,13 +178,11 @@ def _download_snvs(conn):
 
 @app.route("/download_genomes", methods=["POST"])
 @cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options,
-                  conn_pool=conn_pool)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def _download_genomes(conn):
     if not config["allow_genome_download"]:
         return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG",
-             403)
+            ("Metadata downloads not permitted on this version of COVID CG", 403)
         )
 
     req = request.json
