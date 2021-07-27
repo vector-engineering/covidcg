@@ -88,6 +88,10 @@ def build_coordinate_filters(
 
     snv_filter.append(pos_filter)
     snv_filter = sql.Composed(snv_filter)
+    
+    # Only add the WHERE clause if the snv_filter exists
+    if snv_filter.join("").as_string(conn):
+        snv_filter = (sql.SQL("WHERE") + snv_filter).join(" ")
 
     return snv_filter, snv_table
 
@@ -287,7 +291,7 @@ def query_and_aggregate(conn, req):
                     UNION ALL
                     SELECT "id"
                     FROM {snv_table}
-                    WHERE {snv_filter}
+                    {snv_filter}
                 ),
                 "snp" as (
                     SELECT
@@ -351,6 +355,7 @@ def query_and_aggregate(conn, req):
                 location_map_table_name=sql.Identifier(location_map_table_name),
             )
 
+        print(main_query.as_string(conn))
         cur.execute(main_query)
 
         res = pd.DataFrame.from_records(
