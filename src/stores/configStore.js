@@ -199,7 +199,6 @@ export class ConfigStore {
           // URLSearchParams decodes the string so encode for consistency
           value = encodeURIComponent(value);
           value = value.split('%2C');
-          let arr = [];
           value.forEach((primerStr) => {
             // Decode primerStr to allow searching for primer
             primerStr = decodeURIComponent(primerStr);
@@ -208,9 +207,8 @@ export class ConfigStore {
               Name: primerStr.split('_')[1],
             };
             const primer = queryPrimers(queryObj);
-            if (primer.length) arr.push(primer);
+            if (primer !== undefined) this[key].push(primer);
           });
-          this[key] = arr;
         } else {
           this[key] = value;
         }

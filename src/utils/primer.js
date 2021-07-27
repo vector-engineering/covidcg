@@ -44,7 +44,7 @@ export function getPrimersByGroup(groupName) {
 
 // Example usage: queryPrimers({ Institution: "CDC", Name: "N1" })
 export function queryPrimers(queryObj) {
-  return processedPrimers.filter((primer) => {
+  return processedPrimers.find((primer) => {
     return Object.keys(queryObj).every((key) => {
       return primer[key] === queryObj[key];
     });
