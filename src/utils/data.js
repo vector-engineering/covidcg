@@ -141,21 +141,20 @@ export function countGroups({ aggLocationGroupDate, groupKey }) {
   if (groupKey === GROUP_SNV) {
     // Go through the list record by record and
     // tally up counts for each SNV ID
-    const snvIdCounts = {};
+    const snvIdCounts = new Map();
     aggLocationGroupDate.forEach((record) => {
       record.group_id.forEach((snvId) => {
-        snvId = snvId.toString();
-        if (!Object.prototype.hasOwnProperty.call(snvIdCounts, snvId)) {
-          snvIdCounts[snvId] = 0;
+        if (!snvIdCounts.has(snvId)) {
+          snvIdCounts.set(snvId, 0);
         }
-        snvIdCounts[snvId] += record.counts;
+        snvIdCounts.set(snvId, snvIdCounts.get(snvId) + record.counts);
       });
     });
 
     // Convert Object to an array of records
     // [{ snv_id, counts }]
-    aggSequencesGroup = Object.keys(snvIdCounts).map((snvIdStr) => {
-      return { group_id: parseInt(snvIdStr), counts: snvIdCounts[snvIdStr] };
+    aggSequencesGroup = Array.from(snvIdCounts.keys()).map((snvId) => {
+      return { group_id: snvId, counts: snvIdCounts.get(snvId) };
     });
   } else {
     // Collapse data by group only, using the group_id string
