@@ -54,7 +54,6 @@
     "@sentry/react": "6.2.3",
     "@sentry/tracing": "6.2.3",
     "@sentry/webpack-plugin": "1.14.2",
-    "underscore": "1.12.1",
     "vega": "5.20.2",
     "vega-embed": "6.10.0",
     "vega-lite": "4.12.2"

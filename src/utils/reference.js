@@ -1,8 +1,8 @@
 import refSeq from '../../static_data/reference.json';
 import { DEGENERATES } from '../constants/defs.json';
 
-import _ from 'underscore';
 import { reverseComplement } from './string';
+import { memoize } from './func';
 
 const reverseComplementRefSeq = reverseComplement(refSeq.ref_seq);
 
@@ -17,14 +17,14 @@ export function referenceSequenceIncludes(seq) {
   return forRefSeqIncludes(seq) || revRefSeqIncludes(seq);
 }
 
-const forRefSeqIncludes = _.memoize((seq) => {
+const forRefSeqIncludes = memoize((seq) => {
   return refSeq.ref_seq.includes(seq);
 });
-const revRefSeqIncludes = _.memoize((seq) => {
+const revRefSeqIncludes = memoize((seq) => {
   return reverseComplementRefSeq.includes(seq);
 });
 
-export const queryReferenceSequence = _.memoize((seq) => {
+export const queryReferenceSequence = memoize((seq) => {
   let ind = [];
   [...seq].forEach((char, i) => {
     // Check if char represents a nucleotide (NT)
@@ -97,10 +97,10 @@ export const queryReferenceSequence = _.memoize((seq) => {
   }
 });
 
-const forRefSeqIndexOf = _.memoize((seq) => {
+const forRefSeqIndexOf = memoize((seq) => {
   return refSeq.ref_seq.indexOf(seq);
 });
-const revRefSeqIndexOf = _.memoize((seq) => {
+const revRefSeqIndexOf = memoize((seq) => {
   return reverseComplementRefSeq.indexOf(seq);
 });
 
@@ -108,7 +108,7 @@ function replaceChar(str, ind, char) {
   return str.substr(0, ind) + char + str.substr(ind + 1);
 }
 
-const lookForSeq = _.memoize((seq) => {
+const lookForSeq = memoize((seq) => {
   if (forRefSeqIncludes(seq)) {
     return [forRefSeqIndexOf(seq) + 1, forRefSeqIndexOf(seq) + seq.length];
   } else if (revRefSeqIncludes(seq)) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import _ from 'underscore';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -235,9 +234,9 @@ const CoordinateSelect = observer(
         newResidueCoordsText = `1..${selectedGene.len_aa}`;
         newResidueCoords.push([1, selectedGene.len_aa]);
       } else {
-        const domainObj = _.findWhere(selectedGene.domains, {
-          name: domainName,
-        });
+        const domainObj = selectedGene.domains.find(
+          (domain) => domain.name === domainName
+        );
 
         domainObj.ranges.forEach((range) =>
           newResidueCoords.push(range.slice())
@@ -264,9 +263,9 @@ const CoordinateSelect = observer(
         newResidueCoordsText = `1..${selectedProtein.len_aa}`;
         newResidueCoords.push([1, selectedProtein.len_aa]);
       } else {
-        const domainObj = _.findWhere(selectedProtein.domains, {
-          name: domainName,
-        });
+        const domainObj = selectedProtein.domains.find(
+          (domain) => domain.name === domainName
+        );
 
         domainObj.ranges.forEach((range) =>
           newResidueCoords.push(range.slice())
@@ -367,12 +366,12 @@ const CoordinateSelect = observer(
       });
 
       selectedPrimers.forEach((primer) => {
-        const institutionNode = _.findWhere(primerTreeData, {
-          value: primer.Institution,
-        });
-        const primerNode = _.findWhere(institutionNode.children, {
-          value: primer.Name,
-        });
+        const institutionNode = primerTreeData.find(
+          (node) => node.value === primer.Institution
+        );
+        const primerNode = institutionNode.children.find(
+          (child) => child.value === primer.Name
+        );
         primerNode.checked = true;
       });
 
@@ -398,9 +397,14 @@ const CoordinateSelect = observer(
       });
 
       // Sort by Institution then Name
-      selectedPrimers = _.sortBy(selectedPrimers, (primer) => {
-        return primer.Institution.concat('-', primer.Name);
-      });
+      selectedPrimers = selectedPrimers
+        .map((primer) => {
+          primer.sortKey = primer.Institution.concat('-', primer.Name);
+          return primer;
+        })
+        .sort((a, b) => {
+          return a.sortKey > b.sortKey;
+        });
 
       updateSelectedPrimers(selectedPrimers);
     };

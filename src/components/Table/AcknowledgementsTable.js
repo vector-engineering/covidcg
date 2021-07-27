@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 // import { getAckTextsFromAckIds } from '../../utils/acknowledgements';
-import _ from 'underscore';
 
 import { ASYNC_STATES } from '../../constants/defs.json';
 
@@ -32,13 +31,15 @@ const AckContainer = styled.div`
   }
 `;
 
-const comparer = ({ sortDirection, sortColumn }) => (a, b) => {
-  if (sortDirection === 'ASC') {
-    return a[sortColumn] > b[sortColumn] ? 1 : -1;
-  } else if (sortDirection === 'DESC') {
-    return a[sortColumn] < b[sortColumn] ? 1 : -1;
-  }
-};
+const comparer =
+  ({ sortDirection, sortColumn }) =>
+  (a, b) => {
+    if (sortDirection === 'ASC') {
+      return a[sortColumn] > b[sortColumn] ? 1 : -1;
+    } else if (sortDirection === 'DESC') {
+      return a[sortColumn] < b[sortColumn] ? 1 : -1;
+    }
+  };
 
 const sortRows = (rows, sortFn) => {
   return rows.sort(sortFn);
@@ -52,7 +53,7 @@ const AcknowledgementsTable = observer(() => {
     // let ackIds = Array.from(new Set(dataStore.selectedAckIds));
     let ackIds = [];
     // Remove null IDs
-    ackIds = _.reject(ackIds, (ackId) => ackId == -1);
+    ackIds = ackIds.filter((ackId) => ackId != -1);
 
     // Get the list of selected Accession IDs, and map to
     // acknowledgement texts

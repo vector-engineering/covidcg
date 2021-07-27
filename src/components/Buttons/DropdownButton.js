@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 
 import Button from './Button';
 
@@ -9,6 +8,8 @@ import {
   DropdownMenu,
   DropdownItem,
 } from './DropdownButton.styles';
+
+import { uniqueId } from '../../utils/func';
 
 const DropdownButton = ({
   button,
@@ -21,7 +22,7 @@ const DropdownButton = ({
 }) => {
   const [state, setState] = useState({
     expanded: false,
-    id: _.uniqueId('dropdown_'),
+    id: uniqueId('dropdown_'),
   });
 
   const handleToggle = () => {

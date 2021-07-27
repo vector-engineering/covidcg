@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import _ from 'underscore';
 
 import { Row } from 'react-data-grid';
 
@@ -68,8 +67,9 @@ const RowRenderer = observer(({ row, ...rest }) => {
     let selected = null;
     if (configStore.selectedGroups.length > 0) {
       if (
-        _.findWhere(configStore.selectedGroups, { group: row.group }) !==
-        undefined
+        configStore.selectedGroups.find(
+          (group) => group.group === row.group
+        ) !== undefined
       ) {
         selected = true;
       } else {

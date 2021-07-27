@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import EmptyDataTable from './EmptyDataTable';
 import 'react-data-grid/dist/react-data-grid.css';
 import { observer } from 'mobx-react';
-import _ from 'underscore';
 
 import { useStores } from '../../stores/connect';
 import { meetsContrastGuidelines } from 'polished';
 import { nanmax, nanmin } from '../../utils/math';
+import { debounce } from '../../utils/func';
 import {
   snapGeneNTColors,
   shingAAColors,
@@ -62,8 +62,8 @@ const comparer =
 
 const sortRows = (rows, sortFn) => {
   // Set aside the reference, and remove it from the rows list
-  let refRow = _.findWhere(rows, { group: GROUPS.REFERENCE_GROUP });
-  rows = _.reject(rows, (row) => row.group == GROUPS.REFERENCE_GROUP);
+  let refRow = rows.find((row) => row.group === GROUPS.REFERENCE_GROUP);
+  rows = rows.filter((row) => row.group != GROUPS.REFERENCE_GROUP);
   rows = rows.sort(sortFn);
   if (refRow !== undefined) {
     rows.unshift(refRow);
@@ -83,23 +83,19 @@ const NewLineageDataTable = observer(() => {
 
     // Get the maximum and minimum counts and percent for the colormaps
     // Ignore those values for the reference row (which are NaN)
-    let maxCasesSum = _.reduce(
-      dataStore.dataAggGroup,
+    let maxCasesSum = dataStore.dataAggGroup.reduce(
       (memo, group) => nanmax(memo, group.counts),
       0
     );
-    let minCasesSum = _.reduce(
-      dataStore.dataAggGroup,
+    let minCasesSum = dataStore.dataAggGroup.reduce(
       (memo, group) => nanmin(memo, group.counts),
       0
     );
-    let maxCasesPercent = _.reduce(
-      dataStore.dataAggGroup,
+    let maxCasesPercent = dataStore.dataAggGroup.reduce(
       (memo, group) => nanmax(memo, group.percent),
       0
     );
-    let minCasesPercent = _.reduce(
-      dataStore.dataAggGroup,
+    let minCasesPercent = dataStore.dataAggGroup.reduce(
       (memo, group) => nanmin(memo, group.percent),
       0
     );
@@ -122,9 +118,9 @@ const NewLineageDataTable = observer(() => {
     );
 
     // Build a column for each changing position
-    let refRow = _.findWhere(dataStore.dataAggGroup, {
-      group: GROUPS.REFERENCE_GROUP,
-    });
+    let refRow = dataStore.dataAggGroup.find(
+      (record) => record.group === GROUPS.REFERENCE_GROUP
+    );
     if (refRow === undefined) {
       return null;
     }
@@ -269,7 +265,7 @@ const NewLineageDataTable = observer(() => {
     updateHoverGroup(group);
   };
 
-  const updateHoverGroup = _.debounce((hoverGroup) => {
+  const updateHoverGroup = debounce((hoverGroup) => {
     // Don't fire the action if there's no change
     if (hoverGroup === configStore.hoverGroup) {
       return;
@@ -295,12 +291,12 @@ const NewLineageDataTable = observer(() => {
 
     // If the item is already selected, then deselect it
     if (
-      _.findWhere(configStore.selectedGroups, { group: selectedGroup }) !==
-      undefined
+      configStore.selectedGroups.find(
+        (group) => group.group === selectedGroup
+      ) !== undefined
     ) {
-      newGroups = _.reject(
-        configStore.selectedGroups,
-        (group) => group.group == selectedGroup
+      newGroups = configStore.selectedGroups.filter(
+        (group) => group.group != selectedGroup
       );
     } else {
       // Otherwise, add it
@@ -349,7 +345,7 @@ const NewLineageDataTable = observer(() => {
           height: '100%',
         }}
       >
-        {_.times(20, (i) => (
+        {Array.from({ length: 20 }, (_, i) => (
           <SkeletonElement
             key={Math.random()}
             delay={5 + i + (i % 2) * 12.5}

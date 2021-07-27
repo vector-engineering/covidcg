@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import primers from '../../static_data/primers.json';
 
 let processedPrimers = primers;
@@ -8,7 +7,7 @@ let processedPrimers = primers;
 let primerSelectTree = [];
 let instObj = null;
 processedPrimers.forEach((primer) => {
-  instObj = _.findWhere(primerSelectTree, { value: primer.Institution });
+  instObj = primerSelectTree.find((node) => node.value === primer.Institution);
   if (instObj === undefined) {
     instObj = {
       value: primer.Institution,
@@ -36,14 +35,18 @@ export function getPrimerSelectTree() {
 }
 
 export function getPrimerByName(primerName) {
-  return _.findWhere(processedPrimers, { Name: primerName });
+  return processedPrimers.find((primer) => primer.Name === primerName);
 }
 
 export function getPrimersByGroup(groupName) {
-  return _.where(processedPrimers, { Institution: groupName });
+  return processedPrimers.filter((primer) => primer.Institution === groupName);
 }
 
 // Example usage: queryPrimers({ Institution: "CDC", Name: "N1" })
 export function queryPrimers(queryObj) {
-  return _.where(processedPrimers, queryObj);
+  return processedPrimers.filter((primer) => {
+    return Object.keys(queryObj).every((key) => {
+      return primer[key] === queryObj[key];
+    });
+  });
 }

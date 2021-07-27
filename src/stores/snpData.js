@@ -2,10 +2,9 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-import _ from 'underscore';
-
 import { getGene, getProtein } from '../utils/gene_protein';
 import { formatSnv } from '../utils/snpUtils';
+import { memoize } from '../utils/func';
 import { snpColorArray } from '../constants/colors';
 import { GROUPS, DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
@@ -45,7 +44,7 @@ export class SnpDataStore {
 
     //snv -> color map
     let snvColorInd = 0;
-    const _getSnvColor = _.memoize(() => {
+    const _getSnvColor = memoize(() => {
       const color = snpColorArray[snvColorInd++];
       if (snvColorInd === snpColorArray.length) {
         snvColorInd = 0;
