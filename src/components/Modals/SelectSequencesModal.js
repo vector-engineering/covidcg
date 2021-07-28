@@ -332,11 +332,11 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   const applyDefault = () => {
     setPending({
       ...pending,
-      ...configStore.initialConfigValues,
+      ...configStore.initialValues,
     });
     // Have to manually trigger this to update the tree
     locationDataStore.setSelectedNodes(
-      configStore.initialConfigValues.selectedLocationNodes
+      configStore.initialValues.selectedLocationNodes
     );
   };
 
