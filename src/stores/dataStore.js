@@ -445,7 +445,7 @@ export class DataStore {
       // Get SNV data
       locationData.forEach((record) => {
         let snv = rootStoreInstance.snpDataStore.intToSnv(
-          rootStoreInstance.configStore.groupKey,
+          rootStoreInstance.configStore.dnaOrAa,
           rootStoreInstance.configStore.coordinateMode,
           record.group_id
         );
@@ -491,32 +491,31 @@ export class DataStore {
     csvString += 'pos,ref,alt,counts\n';
     fields.push('pos', 'ref', 'alt');
 
-    // Have to convert SNV string into integer, then into SNV object
-    const snvToIntMap = rootStoreInstance.configStore.getSnvToIntMap();
-    const intToSnvMap = rootStoreInstance.configStore.getIntToSnvMap();
     let snv;
 
-    // groupCounts is a list of lists
-    // [group: str, count: int, color: str, group_name: str]
+    // groupCounts is a list of records
+    // [{group_id: int, group: str, counts: int, color: str, group_name: str}]
     this.groupCounts
-      .sort((a, b) => b[1] - a[1]) // Sort by counts, descending order
-      .forEach((item) => {
-        if (item[0] === GROUPS.OTHER_GROUP) {
-          return;
-        }
-        // Add SNV name
-        csvString +=
-          formatSnv(item[0], rootStoreInstance.configStore.dnaOrAa) + ',';
-        snv = intToSnvMap[snvToIntMap[item[0]]];
+      .sort((a, b) => b.counts - a.counts) // Sort by counts, descending order
+      .forEach((record) => {
+        snv = rootStoreInstance.snpDataStore.intToSnv(
+          rootStoreInstance.configStore.dnaOrAa,
+          rootStoreInstance.configStore.coordinateMode,
+          record.group_id
+        );
+
         // Add SNV fields
-        if (item[0] === GROUPS.REFERENCE_GROUP) {
-          csvString += fields.fill('').join(',');
+        if (snv.snp_str === GROUPS.REFERENCE_GROUP) {
+          csvString += snv.snp_str + ',';
+          csvString += fields.slice().fill('').join(',');
         } else {
-          csvString += fields.map((field) => snv[field]).join(',');
+          csvString +=
+            snv.name + ',' + fields.map((field) => snv[field]).join(',');
         }
         // Add counts
-        csvString += `,${item[1]}\n`;
+        csvString += `,${record.counts}\n`;
       });
+    // console.log(csvString);
 
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
