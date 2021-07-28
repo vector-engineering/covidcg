@@ -69,10 +69,6 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     validDateRange: true,
     selectedMetadataFields: configStore.selectedMetadataFields,
     ageRange: configStore.ageRange,
-    lowFreqFilterType: configStore.lowFreqFilterType,
-    maxGroupCounts: configStore.maxGroupCounts,
-    minLocalCounts: configStore.minLocalCounts,
-    minGlobalCounts: configStore.minGlobalCounts,
   });
 
   const changeGrouping = (groupKey, dnaOrAa) => {
@@ -309,30 +305,6 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   //     ageRange
   //   });
   // };
-  const setLowFreqFilterType = (lowFreqFilterType) => {
-    setPending({
-      ...pending,
-      lowFreqFilterType,
-    });
-  };
-  const setMinLocalCounts = (minLocalCounts) => {
-    setPending({
-      ...pending,
-      minLocalCounts,
-    });
-  };
-  const setMinGlobalCounts = (minGlobalCounts) => {
-    setPending({
-      ...pending,
-      minGlobalCounts,
-    });
-  };
-  const setMaxGroupCounts = (maxGroupCounts) => {
-    setPending({
-      ...pending,
-      maxGroupCounts,
-    });
-  };
 
   // When the component first mounts (i.e., when the modal is first clicked on)
   // Then:
@@ -467,13 +439,6 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           <MetaFieldSelect
             {...pending}
             updateSelectedMetadataFields={updateSelectedMetadataFields}
-          />
-          <FilterDataIntoOther
-            {...pending}
-            setLowFreqFilterType={setLowFreqFilterType}
-            setMinLocalCounts={setMinLocalCounts}
-            setMinGlobalCounts={setMinGlobalCounts}
-            setMaxGroupCounts={setMaxGroupCounts}
           />
         </Column>
       </Content>

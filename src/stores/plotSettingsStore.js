@@ -3,14 +3,14 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-  COLOR_MODES,
-  COMPARE_MODES,
-  COMPARE_COLORS,
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
+  LOW_FREQ_FILTER_TYPES,
 } from '../constants/defs.json';
 
 export const initialValues = {
+  groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
+  groupStackLowFreqValue: 100,
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
   groupStackCountMode: COUNT_MODES.COUNT_NEW,
   groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
@@ -20,12 +20,6 @@ export const initialValues = {
   locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
 
   locationGroupHideReference: true,
-
-  tableColorMode: COLOR_MODES.COLOR_MODE_COMPARE,
-  tableCompareMode: COMPARE_MODES.COMPARE_MODE_MISMATCH,
-  tableCompareColor: COMPARE_COLORS.COLOR_MODE_ZAPPO,
-  tableSortColumn: 'counts',
-  tableSortDirection: SORT_DIRECTIONS.SORT_DESC,
 
   cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
 
@@ -51,80 +45,66 @@ export const initialValues = {
 };
 
 export class PlotSettingsStore {
+  init() {}
+
+  @observable groupStackLowFreqFilter = initialValues.groupStackLowFreqFilter;
+  @observable groupStackLowFreqValue = initialValues.groupStackLowFreqValue;
   @observable groupStackNormMode = initialValues.groupStackNormMode;
   @observable groupStackCountMode = initialValues.groupStackCountMode;
   @observable groupStackDateBin = initialValues.groupStackDateBin;
 
-  init() {}
-
   @action
-  setGroupStackNormMode(mode) {
+  setGroupStackLowFreqFilter = (filterType) => {
+    this.groupStackLowFreqFilter = filterType;
+  };
+  @action
+  setGroupStackLowFreqValue = (filterValue) => {
+    this.groupStackLowFreqValue = filterValue;
+  };
+  @action
+  setGroupStackNormMode = (mode) => {
     this.groupStackNormMode = mode;
-  }
+  };
   @action
-  setGroupStackCountMode(mode) {
+  setGroupStackCountMode = (mode) => {
     this.groupStackCountMode = mode;
-  }
+  };
   @action
-  setGroupStackDateBin(dateBin) {
+  setGroupStackDateBin = (dateBin) => {
     this.groupStackDateBin = dateBin;
-  }
+  };
 
   @observable locationDateNormMode = initialValues.locationDateNormMode;
   @observable locationDateCountMode = initialValues.locationDateCountMode;
   @observable locationDateDateBin = initialValues.locationDateDateBin;
 
   @action
-  setLocationDateNormMode(mode) {
+  setLocationDateNormMode = (mode) => {
     this.locationDateNormMode = mode;
-  }
+  };
   @action
-  setLocationDateCountMode(mode) {
+  setLocationDateCountMode = (mode) => {
     this.locationDateCountMode = mode;
-  }
+  };
   @action
-  setLocationDateDateBin(dateBin) {
+  setLocationDateDateBin = (dateBin) => {
     this.locationDateDateBin = dateBin;
-  }
+  };
 
   @observable locationGroupHideReference =
     initialValues.locationGroupHideReference;
 
   @action
-  setLocationGroupHideReference(hide) {
+  setLocationGroupHideReference = (hide) => {
     this.locationGroupHideReference = hide;
-  }
-
-  @observable tableColorMode = initialValues.tableColorMode;
-  @observable tableCompareMode = initialValues.tableCompareMode;
-  @observable tableCompareColor = initialValues.tableCompareColor;
-  @observable tableSortColumn = initialValues.tableSortColumn;
-  @observable tableSortDirection = initialValues.tableSortDirection;
-
-  @action
-  setTableColorMode(mode) {
-    this.tableColorMode = mode;
-  }
-  @action
-  setTableCompareMode(mode) {
-    this.tableCompareMode = mode;
-  }
-  @action
-  setTableCompareColor(color) {
-    this.tableCompareColor = color;
-  }
-  @action
-  setTableSort(col, dir) {
-    this.tableSortColumn = col;
-    this.tableSortDirection = dir;
-  }
+  };
 
   @observable cooccurrenceNormMode = initialValues.cooccurrenceNormMode;
 
   @action
-  setCooccurrenceNormMode(mode) {
+  setCooccurrenceNormMode = (mode) => {
     this.cooccurrenceNormMode = mode;
-  }
+  };
 
   // -----------------
   // SURVEILLANCE PLOT
@@ -145,41 +125,41 @@ export class PlotSettingsStore {
   @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
 
   @action
-  setSurveillanceMode(mode) {
+  setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
-  }
+  };
   @action
-  setSurveillanceSortField(field) {
+  setSurveillanceSortField = (field) => {
     this.surveillanceSortField = field;
-  }
+  };
   @action
-  setSurveillanceSortDirection(direction) {
+  setSurveillanceSortDirection = (direction) => {
     this.surveillanceSortDirection = direction;
-  }
+  };
   @action
-  setSurveillanceDisplayMinCounts(counts) {
+  setSurveillanceDisplayMinCounts = (counts) => {
     this.surveillanceDisplayMinCounts = counts;
-  }
+  };
   @action
-  setSurveillanceDisplayMinPercent(percent) {
+  setSurveillanceDisplayMinPercent = (percent) => {
     this.surveillanceDisplayMinPercent = percent;
-  }
+  };
   @action
-  setSurveillanceSigMinCounts(counts) {
+  setSurveillanceSigMinCounts = (counts) => {
     this.surveillanceSigMinCounts = counts;
-  }
+  };
   @action
-  setSurveillanceSigMinPercent(percent) {
+  setSurveillanceSigMinPercent = (percent) => {
     this.surveillanceSigMinPercent = percent;
-  }
+  };
   @action
-  setSurveillanceSigMinR(r) {
+  setSurveillanceSigMinR = (r) => {
     this.surveillanceSigMinR = r;
-  }
+  };
   @action
-  setSurveillanceLegendHover(hover) {
+  setSurveillanceLegendHover = (hover) => {
     this.surveillanceLegendHover = hover;
-  }
+  };
 
   // ----------------
   // GROUP REPORT TAB
@@ -198,23 +178,23 @@ export class PlotSettingsStore {
     initialValues.reportStructureActiveGroup;
 
   @action
-  setReportTreeColorMode(mode) {
+  setReportTreeColorMode = (mode) => {
     this.reportTreeColorMode = mode;
-  }
+  };
   @action
-  setReportConsensusThreshold(thresh) {
+  setReportConsensusThreshold = (thresh) => {
     this.reportConsensusThreshold = thresh;
-  }
+  };
   @action
-  setReportMutationListHideEmpty(hideEmpty) {
+  setReportMutationListHideEmpty = (hideEmpty) => {
     this.reportMutationListHideEmpty = hideEmpty;
-  }
+  };
   @action
-  setReportMutationListHidden(hidden) {
+  setReportMutationListHidden = (hidden) => {
     this.reportMutationListHidden = hidden;
-  }
+  };
   @action
-  toggleReportMutationListHiddenItem(itemName) {
+  toggleReportMutationListHiddenItem = (itemName) => {
     let hidden = this.reportMutationListHidden;
 
     // If the item is not in the list yet, then add it
@@ -226,19 +206,19 @@ export class PlotSettingsStore {
     }
 
     this.reportMutationListHidden = hidden;
-  }
+  };
   @action
-  setReportStructureActiveProtein(proteinName) {
+  setReportStructureActiveProtein = (proteinName) => {
     this.reportStructureActiveProtein = proteinName;
-  }
+  };
   @action
-  setReportStructurePdbId(pdbId) {
+  setReportStructurePdbId = (pdbId) => {
     this.reportStructurePdbId = pdbId;
-  }
+  };
   @action
-  setReportStructureActiveGroup(group) {
+  setReportStructureActiveGroup = (group) => {
     this.reportStructureActiveGroup = group;
-  }
+  };
 
   @action
   resetValues(values) {

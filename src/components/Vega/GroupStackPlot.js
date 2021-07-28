@@ -13,13 +13,17 @@ import {
   GROUPS,
 } from '../../constants/defs.json';
 import { throttle } from '../../utils/func';
+import { getValidGroups } from '../../utils/data';
+import { aggregate } from '../../utils/transform';
 
+import LowFreqFilter from './LowFreqFilter';
 import EmptyPlot from '../Common/EmptyPlot';
 import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
-import { PlotTitle, PlotOptions, OptionSelectContainer } from './Plot.styles';
+import { PlotTitle, OptionSelectContainer } from './Plot.styles';
+import { PlotHeader, PlotOptionsRow } from './GroupStackPlot.styles';
 
 import initialSpec from '../../vega_specs/group_stack.vg.json';
 
@@ -28,47 +32,16 @@ const GroupStackPlot = observer(({ width }) => {
   const { dataStore, UIStore, configStore, plotSettingsStore, groupDataStore } =
     useStores();
 
-  // disable this for now
-  // const handleBrush = (...args) => {
-  //   let dateRange = args[1];
-
-  //   if (dateRange === null) {
-  //     // Reset time range
-  //     configStore.updateDateRange([-1, -1]);
-  //   } else if (
-  //     dateRange[0] === configStore.dateRange[0] &&
-  //     dateRange[1] === configStore.dateRange[1]
-  //   ) {
-  //     // No change, return
-  //   } else if (dateRange !== null) {
-  //     configStore.updateDateRange([
-  //       dateRange[0].getTime(),
-  //       dateRange[1].getTime(),
-  //     ]);
-  //   }
-  // };
-
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change
-    let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    // Ignore for some special groups
-    if (hoverGroup === GROUPS.ALL_OTHER_GROUP) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
   };
 
   const handleSelected = (...args) => {
-    // console.log(args);
-
     // Ignore selections in SNV mode
     if (configStore.groupKey === GROUP_SNV) {
       return;
     }
-
     configStore.updateSelectedGroups(args[1]);
   };
 
@@ -97,30 +70,42 @@ const GroupStackPlot = observer(({ width }) => {
       return toJS(dataStore.aggSelectedSnvsDate);
     }
 
-    console.log(
-      toJS(dataStore.aggGroupDate).map((record) => {
-        record.color = groupDataStore.getGroupColor(
-          configStore.groupKey,
-          record.group_id
-        );
-        record.group = record.group_id;
-        record.group_name = record.group_id;
-        return record;
-      })
-    );
-
     // For non-SNV mode, we'll need some additional fields:
     // 1) color of group
     // 2) name of group (same as group id)
-    return toJS(dataStore.aggGroupDate).map((record) => {
+    // Also collapse low-frequency groups based on settings
+    const validGroups = getValidGroups({
+      records: dataStore.aggGroupDate,
+      lowFreqFilterType: plotSettingsStore.groupStackLowFreqFilter,
+      lowFreqFilterValue: plotSettingsStore.groupStackLowFreqValue,
+    });
+    let data = toJS(dataStore.aggGroupDate).map((record) => {
+      if (!validGroups.includes(record.group_id)) {
+        record.group = GROUPS.OTHER_GROUP;
+      } else {
+        record.group = record.group_id;
+      }
+
+      record.group_name = record.group;
       record.color = groupDataStore.getGroupColor(
         configStore.groupKey,
-        record.group_id
+        record.group
       );
-      record.group = record.group_id;
-      record.group_name = record.group_id;
+
       return record;
     });
+
+    data = aggregate({
+      data,
+      groupby: ['group', 'collection_date'],
+      fields: ['counts', 'color', 'group_name'],
+      ops: ['sum', 'first', 'first'],
+      as: ['counts', 'color', 'group_name'],
+    });
+
+    // console.log(data);
+
+    return data;
   };
 
   const [state, setState] = useState({
@@ -197,7 +182,12 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   // Refresh data on mount (i.e., tab change) or when data state changes
-  useEffect(refreshData, [UIStore.caseDataState, UIStore.snvDataState]);
+  useEffect(refreshData, [
+    UIStore.caseDataState,
+    UIStore.snvDataState,
+    plotSettingsStore.groupStackLowFreqFilter,
+    plotSettingsStore.groupStackLowFreqValue,
+  ]);
   useEffect(refreshData, []);
 
   // For development in Vega Editor
@@ -321,60 +311,82 @@ const GroupStackPlot = observer(({ width }) => {
         </EmptyPlot>
       )}
       {!hideDetail && (
-        <PlotOptions>
-          <PlotTitle>
+        <PlotHeader>
+          <PlotTitle style={{ gridRow: '1/-1' }}>
             <span className="title">{plotTitle}</span>
             <span className="subtitle">{selectedLocationsText}</span>
           </PlotTitle>
-          <OptionSelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.groupStackCountMode}
-                onChange={onChangeCountMode}
-              >
-                <option value={COUNT_MODES.COUNT_NEW}>New</option>
-                <option value={COUNT_MODES.COUNT_CUMULATIVE}>Cumulative</option>
-              </select>
-            </label>
-          </OptionSelectContainer>
-          sequences, shown as{' '}
-          <OptionSelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.groupStackNormMode}
-                onChange={onChangeNormMode}
-              >
-                <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
-                <option value={NORM_MODES.NORM_PERCENTAGES}>Percentages</option>
-              </select>
-            </label>
-          </OptionSelectContainer>
-          grouped by{' '}
-          <OptionSelectContainer>
-            <label>
-              <select
-                value={plotSettingsStore.groupStackDateBin}
-                onChange={onChangeDateBin}
-              >
-                <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
-                <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
-                <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
-              </select>
-            </label>
-          </OptionSelectContainer>
-          <div className="spacer"></div>
-          <DropdownButton
-            text={'Download'}
-            options={[
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-              PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-            ]}
-            onSelect={handleDownloadSelect}
-          />
-        </PlotOptions>
+          <PlotOptionsRow>
+            <OptionSelectContainer>
+              <label>
+                <select
+                  value={plotSettingsStore.groupStackCountMode}
+                  onChange={onChangeCountMode}
+                >
+                  <option value={COUNT_MODES.COUNT_NEW}>New</option>
+                  <option value={COUNT_MODES.COUNT_CUMULATIVE}>
+                    Cumulative
+                  </option>
+                </select>
+              </label>
+            </OptionSelectContainer>
+            sequences, shown as{' '}
+            <OptionSelectContainer>
+              <label>
+                <select
+                  value={plotSettingsStore.groupStackNormMode}
+                  onChange={onChangeNormMode}
+                >
+                  <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+                  <option value={NORM_MODES.NORM_PERCENTAGES}>
+                    Percentages
+                  </option>
+                </select>
+              </label>
+            </OptionSelectContainer>
+            grouped by{' '}
+            <OptionSelectContainer>
+              <label>
+                <select
+                  value={plotSettingsStore.groupStackDateBin}
+                  onChange={onChangeDateBin}
+                >
+                  <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
+                  <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
+                  <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+                </select>
+              </label>
+            </OptionSelectContainer>
+          </PlotOptionsRow>
+          {configStore.groupKey !== GROUP_SNV && (
+            <PlotOptionsRow>
+              <LowFreqFilter
+                lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
+                lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
+                updateLowFreqFilterType={
+                  plotSettingsStore.setGroupStackLowFreqFilter
+                }
+                updateLowFreqFilterValue={
+                  plotSettingsStore.setGroupStackLowFreqValue
+                }
+              ></LowFreqFilter>
+            </PlotOptionsRow>
+          )}
+          <PlotOptionsRow style={{ justifyContent: 'flex-end' }}>
+            <DropdownButton
+              text={'Download'}
+              options={[
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+              ]}
+              style={{ minWidth: '90px' }}
+              onSelect={handleDownloadSelect}
+            />
+          </PlotOptionsRow>
+        </PlotHeader>
       )}
 
       <div style={{ width: `${width}px` }}>

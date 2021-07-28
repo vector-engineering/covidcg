@@ -176,20 +176,17 @@ export function countGroups({ aggLocationGroupDate, groupKey }) {
  * Use low frequency parameters to determine which groups to collapse
  */
 export function getValidGroups({
-  aggSequencesGroup,
+  records,
   lowFreqFilterType,
-  lowFreqFilterParams,
+  lowFreqFilterValue,
 }) {
   let validGroups;
   if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS) {
-    validGroups = aggSequencesGroup.slice(
-      0,
-      lowFreqFilterParams.maxGroupCounts
-    );
+    // Sort by counts in descending order
+    records = records.sort((a, b) => b.counts - a.counts);
+    validGroups = records.slice(0, lowFreqFilterValue);
   } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
-    validGroups = aggSequencesGroup.filter(
-      (group) => group.count >= lowFreqFilterParams.minLocalCounts
-    );
+    validGroups = records.filter((group) => group.counts >= lowFreqFilterValue);
   }
 
   return validGroups.map((group) => group.group_id);

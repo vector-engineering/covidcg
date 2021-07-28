@@ -6,6 +6,7 @@ import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
+import { GROUPS } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
 import { mutationHeatmapToPymolScript } from '../utils/pymol';
@@ -62,6 +63,8 @@ export class GroupDataStore {
 
     // Assign group colors
     Object.keys(this.groups).forEach((groupName) => {
+      // Assign color for the "Other" group
+      this.groupColors[groupName][GROUPS.OTHER_GROUP] = '#AAA';
       this.groups[groupName].forEach((group) => {
         this.groupColors[groupName][group.name] = group.color;
       });

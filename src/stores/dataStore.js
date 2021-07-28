@@ -45,7 +45,6 @@ export class DataStore {
   countsPerLocationDateMap = new Map();
   cumulativeCountsPerLocationDateMap = new Map();
   countsPerLocationMap = {};
-  // validGroups = {};
   groupCounts = [];
 
   constructor() {}
@@ -89,10 +88,6 @@ export class DataStore {
         selected_metadata_fields:
           configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
-        low_count_filter: toJS(configStoreInstance.lowFreqFilterType),
-        max_group_counts: parseInt(toJS(configStoreInstance.maxGroupCounts)),
-        min_local_counts: parseInt(toJS(configStoreInstance.minLocalCounts)),
-        min_global_counts: parseInt(toJS(configStoreInstance.minGlobalCounts)),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),
       }),
@@ -123,17 +118,23 @@ export class DataStore {
             0
           );
 
-        // Collapse low frequency groups
-        // Identify groups to collapse into the "Other" group
+        // Count groups
         this.groupCounts = countGroups({
           aggLocationGroupDate: this.aggSequencesUniqueLocationGroupDate,
           groupKey: toJS(configStoreInstance.groupKey),
-          // lowFreqFilterType: toJS(configStoreInstance.lowFreqFilterType),
-          // lowFreqFilterParams: {
-          //   maxGroupCounts: toJS(configStoreInstance.maxGroupCounts),
-          //   minLocalCounts: toJS(configStoreInstance.minLocalCounts),
-          // },
         });
+
+        // Collapse low frequency groups
+        // Identify groups to collapse into the "Other" group
+        // this.validGroups = getValidGroups({
+        //   aggSequencesGroup: this.aggSequencesGroup,
+        //   lowFreqFilterType: toJS(configStoreInstance.lowFreqFilterType),
+        //   lowFreqFilterParams: {
+        //     maxGroupCounts: toJS(configStoreInstance.maxGroupCounts),
+        //     minLocalCounts: toJS(configStoreInstance.minLocalCounts),
+        //   },
+        // });
+        // Make a copy of the data which has collapsed data
 
         // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
 

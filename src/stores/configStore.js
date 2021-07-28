@@ -22,7 +22,6 @@ import {
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-  LOW_FREQ_FILTER_TYPES,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
@@ -72,11 +71,6 @@ export const initialValues = {
   // Location tab
   hoverLocation: null,
   focusedLocations: [],
-
-  lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  maxGroupCounts: 100,
-  minLocalCounts: 50,
-  minGlobalCounts: 100,
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -122,11 +116,6 @@ export class ConfigStore {
 
   @observable hoverLocation = initialValues.hoverLocation;
   @observable focusedLocations = initialValues.focusedLocations;
-
-  @observable lowFreqFilterType = initialValues.lowFreqFilterType;
-  @observable maxGroupCounts = initialValues.maxGroupCounts;
-  @observable minLocalCounts = initialValues.minLocalCounts;
-  @observable minGlobalCounts = initialValues.minGlobalCounts;
 
   constructor() {}
 
@@ -550,7 +539,8 @@ export class ConfigStore {
     // console.log('UPDATE HOVER GROUP', group);
     if (group === this.hoverGroup) {
       return;
-    } else if (group === GROUPS.NONE_GROUP) {
+    } else if (group === GROUPS.NONE_GROUP || GROUPS.ALL_OTHER_GROUP) {
+      // Ignore for some special groups
       return;
     } else if (group === null) {
       this.hoverGroup = null;
