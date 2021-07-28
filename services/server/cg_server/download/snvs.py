@@ -64,7 +64,7 @@ def download_snvs(conn, req):
         snv_cols = ["snv_name", "pos", "ref", "alt"]
         if dna_or_aa == constants["DNA_OR_AA"]["AA"]:
             snv_cols.append("nt_pos")
-            if coordinate_mode == constants["COORDINATE_MODE"]["COORD_GENE"]:
+            if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
                 snv_cols.append("gene")
             else:
                 snv_cols.append("protein")

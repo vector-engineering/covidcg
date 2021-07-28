@@ -27,7 +27,7 @@ def build_coordinate_filters(
     dna_or_aa: str
         - Enum of constants["DNA_OR_AA"] (DNA mode or AA mode)
     coordinate_mode: str
-        - Enum of constants["COORDINATE_MODE"] (NT, GENE AA, or PROTEIN AA)
+        - Enum of constants["COORDINATE_MODES"] (NT, GENE AA, or PROTEIN AA)
     coordinate_ranges: list of [int, int]
         - List of ranges, in nucleotide coordinates, for valid SNVs
     selected_gene: str
@@ -216,7 +216,9 @@ def build_sequence_query(
                 sql.SQL('"submission_date" <= {}').format(sql.Literal(subm_end_date))
             )
 
-        submission_date_filter = sql.Composed([sql.SQL(" AND ").join(chunks), sql.SQL(" AND ")])
+        submission_date_filter = sql.Composed(
+            [sql.SQL(" AND ").join(chunks), sql.SQL(" AND ")]
+        )
 
     metadata_filters = []
     # Build dictionary of metadata value tuples to inject
