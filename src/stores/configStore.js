@@ -59,6 +59,9 @@ export const initialValues = {
   startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
   endDate: today,
 
+  submStartDate: '',
+  submEndDate: '',
+
   selectedLocationNodes: [],
 
   hoverGroup: null,
@@ -105,6 +108,9 @@ export class ConfigStore {
 
   @observable startDate = initialValues.startDate;
   @observable endDate = initialValues.endDate;
+
+  @observable submStartDate = initialValues.submStartDate;
+  @observable submEndDate = initialValues.submEndDate;
 
   @observable selectedLocationNodes = initialValues.selectedLocationNodes;
 

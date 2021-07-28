@@ -25,8 +25,15 @@ def download_snvs(conn, req):
         location_ids = req.get("location_ids", None)
         start_date = pd.to_datetime(req.get("start_date", None))
         end_date = pd.to_datetime(req.get("end_date", None))
+
+        subm_start_date = req.get("subm_start_date", "")
+        subm_end_date = req.get("subm_end_date", "")
+        subm_start_date = (
+            None if subm_start_date == "" else pd.to_datetime(subm_start_date)
+        )
+        subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+
         selected_metadata_fields = req.get("selected_metadata_fields", None)
-        group_key = req.get("group_key", None)
         dna_or_aa = req.get("dna_or_aa", None)
         coordinate_mode = req.get("coordinate_mode", None)
         coordinate_ranges = req.get("coordinate_ranges", None)
@@ -34,7 +41,12 @@ def download_snvs(conn, req):
         selected_protein = req.get("selected_protein", None)
 
         sequence_query = build_sequence_query(
-            location_ids, start_date, end_date, selected_metadata_fields
+            location_ids=location_ids,
+            start_date=start_date,
+            end_date=end_date,
+            subm_start_date=subm_start_date,
+            subm_end_date=subm_end_date,
+            selected_metadata_fields=selected_metadata_fields,
         )
 
         location_map_table_name = create_location_map_table(cur, location_ids)

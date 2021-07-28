@@ -4,12 +4,13 @@ import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
-import { ISOToInt } from '../../utils/date';
+import { ISOToInt, intToISO } from '../../utils/date';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
   GROUP_SNV,
   DNA_OR_AA,
+  MIN_DATE,
 } from '../../constants/defs.json';
 
 import Modal from 'react-modal';
@@ -65,7 +66,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     selectedLocationNodes: configStore.selectedLocationNodes,
     startDate: configStore.startDate,
     endDate: configStore.endDate,
-    validDateRange: true,
+    submStartDate: configStore.submStartDate,
+    submEndDate: configStore.submEndDate,
     selectedMetadataFields: configStore.selectedMetadataFields,
     ageRange: configStore.ageRange,
   });
@@ -281,12 +283,18 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
 
   const updateDateRange = (startDate, endDate) => {
-    const valid = ISOToInt(startDate) < ISOToInt(endDate);
     setPending({
       ...pending,
       startDate,
       endDate,
-      validDateRange: valid,
+    });
+  };
+
+  const updateSubmDateRange = (submStartDate, submEndDate) => {
+    setPending({
+      ...pending,
+      submStartDate,
+      submEndDate,
     });
   };
 
@@ -354,14 +362,25 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   ) {
     invalid = true;
     invalidReason = 'Error in residue coordinates';
-  } else if (!pending.validDateRange) {
+  } else if (ISOToInt(pending.startDate) > ISOToInt(pending.endDate)) {
     invalid = true;
-    invalidReason = 'Error in date range';
+    invalidReason = 'Start date cannot be before end date';
+  } else if (pending.submStartDate !== '' || pending.submStartDate !== '') {
+    let submStartDate =
+      pending.submStartDate === '' ? MIN_DATE : pending.submStartDate;
+    let submEndDate =
+      pending.submEndDate === ''
+        ? intToISO(new Date().getTime())
+        : pending.submEndDate;
+
+    if (ISOToInt(submStartDate) > ISOToInt(submEndDate)) {
+      invalid = true;
+      invalidReason = 'Start date cannot before end date';
+    }
   } else if (pending.selectedLocationNodes.length === 0) {
     invalid = true;
     invalidReason = 'No locations selected';
   }
-
   // When our request goes through, close the modal
   useEffect(() => {
     if (
@@ -434,7 +453,20 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           />
         </Column>
         <Column minWidth={300} collapseRow={'2'} collapseCol={'1'}>
-          <DateSelect {...pending} updateDateRange={updateDateRange} />
+          <DateSelect
+            title={'Date Range'}
+            hintText={`<p>Filter for sequences that were collected between the two dates.<br/>Dates are start- and end-inclusive, i.e., [start, end]</p>`}
+            startDate={pending.startDate}
+            endDate={pending.endDate}
+            updateDateRange={updateDateRange}
+          />
+          <DateSelect
+            title={'Submission Date Range'}
+            hintText={`<p>Filter for sequences that were <i>submitted</i> to the data repository between the two dates.<br/>Note that submission date does not necessarily equal the date the sequences were published onto the repository (there may be a lag between submission and approval).<br/> Dates are start- and end-inclusive, i.e., [start, end].</p>`}
+            startDate={pending.submStartDate}
+            endDate={pending.submEndDate}
+            updateDateRange={updateSubmDateRange}
+          />
           <MetaFieldSelect
             {...pending}
             updateSelectedMetadataFields={updateSelectedMetadataFields}

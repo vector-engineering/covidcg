@@ -82,6 +82,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {
@@ -246,6 +248,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
         // Pass an array of only the fields that were selected
         selected_fields: Object.keys(selectedFields).filter(
           (field) => selectedFields[field]
@@ -301,6 +305,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {
@@ -351,6 +357,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {

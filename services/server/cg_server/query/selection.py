@@ -161,7 +161,14 @@ def create_location_map_table(cur, location_ids):
     return location_map_table_name
 
 
-def build_sequence_query(location_ids, start_date, end_date, selected_metadata_fields):
+def build_sequence_query(
+    location_ids={},
+    start_date=None,
+    end_date=None,
+    subm_start_date=None,
+    subm_end_date=None,
+    selected_metadata_fields={},
+):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
 
@@ -172,9 +179,13 @@ def build_sequence_query(location_ids, start_date, end_date, selected_metadata_f
         - Keys are location names as arbitrary strings
         - Values (location_ids) are a list of integers
     start_date: str
-        - Start date, in ISO format (YYYY-MM-DD)
+        - Collection sart date, in ISO format (YYYY-MM-DD)
     end_date: str
-        - End date, in ISO format (YYYY-MM-DD)
+        - Collection end date, in ISO format (YYYY-MM-DD)
+    subm_start_date: str
+        - Submission start date, in ISO format (YYYY-MM-DD)
+    subm_end_date: str
+        - Submission end date, in ISO format (YYYY-MM-DD)
     selected_metadata_fields: dict
         - Structured as { metadata_field: [metadata_values] }
         - Keys are a metadata field, as a string
@@ -188,10 +199,24 @@ def build_sequence_query(location_ids, start_date, end_date, selected_metadata_f
 
     """
 
+    # Combine all location IDs into one big array
     all_location_ids = sum(location_ids.values(), [])
 
-    # Metadata filters will come in the form of a JSON object
-    # of
+    # Construct submission date filters
+    if subm_start_date is None and subm_end_date is None:
+        submission_date_filter = sql.SQL("")
+    else:
+        chunks = []
+        if subm_start_date is not None:
+            chunks.append(
+                sql.SQL('"submission_date" >= {}').format(sql.Literal(subm_start_date))
+            )
+        if subm_end_date is not None:
+            chunks.append(
+                sql.SQL('"submission_date" <= {}').format(sql.Literal(subm_end_date))
+            )
+
+        submission_date_filter = sql.Composed([sql.SQL(" AND ").join(chunks), sql.SQL(" AND ")])
 
     metadata_filters = []
     # Build dictionary of metadata value tuples to inject
@@ -221,12 +246,14 @@ def build_sequence_query(location_ids, start_date, end_date, selected_metadata_f
             {metadata_filters}
             "collection_date" >= {start_date} AND
             "collection_date" <= {end_date} AND
+            {submission_date_filter}
             "location_id" = ANY({location_ids})
         """
     ).format(
         metadata_filters=metadata_filters,
         start_date=sql.Literal(start_date),
         end_date=sql.Literal(end_date),
+        submission_date_filter=submission_date_filter,
         location_ids=sql.Literal(all_location_ids),
     )
 
@@ -248,13 +275,25 @@ def create_sequence_temp_table(cur, req):
     """
 
     location_ids = req.get("location_ids", None)
+
     start_date = pd.to_datetime(req.get("start_date", None))
     end_date = pd.to_datetime(req.get("end_date", None))
+
+    subm_start_date = req.get("subm_start_date", "")
+    subm_end_date = req.get("subm_end_date", "")
+    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
+    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+
     selected_metadata_fields = req.get("selected_metadata_fields", None)
 
     # First store the sequence query into a temp table
     sequence_query = build_sequence_query(
-        location_ids, start_date, end_date, selected_metadata_fields
+        location_ids=location_ids,
+        start_date=start_date,
+        end_date=end_date,
+        subm_start_date=subm_start_date,
+        subm_end_date=subm_end_date,
+        selected_metadata_fields=selected_metadata_fields,
     )
     temp_table_name = "sequence_selection_" + uuid.uuid4().hex
     cur.execute(
@@ -306,6 +345,14 @@ def query_and_aggregate(conn, req):
         location_ids = req.get("location_ids", None)
         start_date = pd.to_datetime(req.get("start_date", None))
         end_date = pd.to_datetime(req.get("end_date", None))
+
+        subm_start_date = req.get("subm_start_date", "")
+        subm_end_date = req.get("subm_end_date", "")
+        subm_start_date = (
+            None if subm_start_date == "" else pd.to_datetime(subm_start_date)
+        )
+        subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+
         selected_metadata_fields = req.get("selected_metadata_fields", None)
         group_key = req.get("group_key", None)
         dna_or_aa = req.get("dna_or_aa", None)
@@ -315,7 +362,12 @@ def query_and_aggregate(conn, req):
         selected_protein = req.get("selected_protein", None)
 
         sequence_query = build_sequence_query(
-            location_ids, start_date, end_date, selected_metadata_fields
+            location_ids=location_ids,
+            start_date=start_date,
+            end_date=end_date,
+            subm_start_date=subm_start_date,
+            subm_end_date=subm_end_date,
+            selected_metadata_fields=selected_metadata_fields,
         )
 
         location_map_table_name = create_location_map_table(cur, location_ids)
