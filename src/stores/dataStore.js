@@ -94,7 +94,7 @@ export class DataStore {
       .then((res) => {
         this.aggLocationGroupDate = res;
 
-        console.log(this.aggLocationGroupDate);
+        // console.log(this.aggLocationGroupDate);
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({

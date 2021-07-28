@@ -49,7 +49,8 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const processLocationData = () => {
-    console.log('PROCESS LOCATION DATE DATA');
+    //console.log('PROCESS LOCATION DATE DATA');
+
     let locationData;
     if (configStore.groupKey === GROUP_SNV) {
       if (dataStore.aggLocationSelectedSnvsDate === undefined) {

@@ -63,7 +63,7 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   const processData = () => {
-    console.log('GROUP STACK PROCESS DATA');
+    // console.log('GROUP STACK PROCESS DATA');
     // console.log(dataStore.aggGroupDate);
 
     if (configStore.groupKey === GROUP_SNV) {

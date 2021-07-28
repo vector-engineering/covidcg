@@ -66,7 +66,7 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const processLocationByGroup = () => {
-    console.log('LOCATION GROUP PLOT PROCESS DATA');
+    //console.log('LOCATION GROUP PLOT PROCESS DATA');
 
     let locationData;
     if (configStore.groupKey === GROUP_SNV) {
