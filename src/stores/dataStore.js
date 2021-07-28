@@ -86,8 +86,7 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields:
-          configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         low_count_filter: toJS(configStoreInstance.lowFreqFilterType),
         max_group_counts: parseInt(toJS(configStoreInstance.maxGroupCounts)),
@@ -117,11 +116,10 @@ export class DataStore {
         });
 
         // Count all sequences
-        this.numSequencesAfterAllFiltering =
-          this.aggSequencesUniqueLocationGroupDate.reduce(
-            (accumulator, record) => accumulator + record.counts,
-            0
-          );
+        this.numSequencesAfterAllFiltering = this.aggSequencesUniqueLocationGroupDate.reduce(
+          (accumulator, record) => accumulator + record.counts,
+          0
+        );
 
         // Collapse low frequency groups
         // Identify groups to collapse into the "Other" group
@@ -137,19 +135,21 @@ export class DataStore {
 
         // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
 
-        ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
-          aggregateGroupDate({
-            aggSequencesUniqueLocationGroupDate:
-              this.aggSequencesUniqueLocationGroupDate,
-            groupKey: configStoreInstance.groupKey,
-          }));
+        ({
+          aggGroupDate: this.aggGroupDate,
+          aggGroup: this.aggSequencesGroup,
+        } = aggregateGroupDate({
+          aggSequencesUniqueLocationGroupDate: this
+            .aggSequencesUniqueLocationGroupDate,
+          groupKey: configStoreInstance.groupKey,
+        }));
         // console.log(this.aggGroupDate);
         // console.log(this.aggSequencesGroup);
 
         ({
           countsPerLocationDateMap: this.countsPerLocationDateMap,
-          cumulativeCountsPerLocationDateMap:
-            this.cumulativeCountsPerLocationDateMap,
+          cumulativeCountsPerLocationDateMap: this
+            .cumulativeCountsPerLocationDateMap,
           countsPerLocationMap: this.countsPerLocationMap,
         } = getLocationCounts({
           aggLocationGroupDate: this.aggLocationGroupDate,
@@ -248,8 +248,7 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields:
-          configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),
@@ -301,8 +300,7 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields:
-          configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),
@@ -351,8 +349,7 @@ export class DataStore {
         location_ids: getLocationIdsByNode(
           toJS(configStoreInstance.selectedLocationNodes)
         ),
-        selected_metadata_fields:
-          configStoreInstance.getSelectedMetadataFields(),
+        selected_metadata_fields: configStoreInstance.getSelectedMetadataFields(),
         ageRange: toJS(configStoreInstance.ageRange),
         start_date: toJS(configStoreInstance.startDate),
         end_date: toJS(configStoreInstance.endDate),

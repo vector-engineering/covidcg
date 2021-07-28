@@ -463,6 +463,10 @@ export class ConfigStore {
   getCoordinateRanges() {
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      // Return ranges if All Genes
+      if (this.selectedGene.name === 'All Genes') {
+        return this.selectedGene.ranges;
+      }
       // Disable residue indices for non-protein-coding genes
       if (!this.selectedGene.protein_coding) {
         return this.selectedGene.segments;
