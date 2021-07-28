@@ -20,7 +20,6 @@ import GroupBySelect from '../Selection/GroupBySelect';
 import CoordinateSelect from '../Selection/CoordinateSelect';
 import DateSelect from '../Selection/DateSelect';
 import MetaFieldSelect from '../Selection/MetaFieldSelect';
-import FilterDataIntoOther from '../Selection/FilterDataIntoOther';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {

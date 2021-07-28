@@ -1,5 +1,5 @@
-import { observable, action, toJS } from 'mobx';
-import { config, hostname } from '../config';
+import { action, toJS } from 'mobx';
+import { hostname } from '../config';
 import {
   processSelectedSnvs,
   processCooccurrenceData,
@@ -7,7 +7,6 @@ import {
 import { downloadBlobURL } from '../utils/download';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
-import { formatSnv } from '../utils/snpUtils';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 import {

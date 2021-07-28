@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-// import PropTypes from 'prop-types';
-import { useStores } from '../../stores/connect';
 import { observer } from 'mobx-react';
 
 import ExternalLink from '../Common/ExternalLink';

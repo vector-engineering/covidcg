@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-import useDimensions from 'react-use-dimensions';
+// import useDimensions from 'react-use-dimensions';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
@@ -27,7 +27,7 @@ const MainContainer = styled.div`
 
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
-  const [ref, { width }] = useDimensions();
+  // const [ref, { width }] = useDimensions();
   // const [state, setState] = useState({
   //   treeOpen: true,
   // });
@@ -147,7 +147,8 @@ const GroupReportTab = observer(() => {
   // };
 
   return (
-    <GroupReportTabContainer ref={ref}>
+    // <GroupReportTabContainer ref={ref}>
+    <GroupReportTabContainer>
       {/* {state.treeOpen && (
         <GroupTreePlotContainer>
           <GroupTreePlot width={300} />
