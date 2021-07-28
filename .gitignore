@@ -115,3 +115,6 @@ example_data_genbank/fasta_raw/**
 
 data
 data_genbank
+
+# Prettier settings
+.prettierrc

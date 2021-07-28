@@ -37,38 +37,6 @@ const EntropyPlot = observer(({ width }) => {
     snpDataStore,
   } = useStores();
 
-  const nameToAbbr = {
-    "5'UTR": '5',
-    ORF1ab: 'ORF1ab',
-    ORF1a: 'ORF1a',
-    S: 'S',
-    ORF3a: '3a',
-    orf3a: '3a',
-    E: 'E',
-    M: 'M',
-    ORF6: '6',
-    ORF7a: '7a',
-    ORF7b: '7b',
-    ORF8: '8',
-    N: 'N',
-    ORF10: '10',
-    "3'UTR": '3',
-    nsp1: '1',
-    nsp2: 'nsp2',
-    'nsp3 - PL2-PRO': 'nsp3',
-    nsp4: 'nsp4',
-    'nsp5 - 3CLp': '5',
-    nsp6: '6',
-    nsp8: '8',
-    nsp9: '9',
-    'nsp10 - CysHis': '10',
-    'nsp12 - RdRp': 'nsp12',
-    'nsp13 - Helicase': 'nsp13',
-    'nsp14 - ExoN': 'nsp14',
-    'nsp15 - NendoU': '15',
-    "nsp16 - 2'-O-MT": '16',
-  };
-
   const onDismissWarning = () => {
     setState({
       ...state,
@@ -110,7 +78,6 @@ const EntropyPlot = observer(({ width }) => {
         if (rowTwoNames.includes(key)) {
           map[key]['row'] = 2;
         }
-        map[key]['abbr'] = nameToAbbr[map[key]['name']];
         arr.push(map[key]);
         return arr;
       }, []);
