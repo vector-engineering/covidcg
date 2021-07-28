@@ -10,6 +10,7 @@ import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { reds, snpColorArray } from '../../constants/colors';
 import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
+import GroupSearch from './GroupSearch';
 import EmptyPlot from '../Common/EmptyPlot';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -29,6 +30,7 @@ import {
   MutationRowHeatmapCellContainer,
   MutationContentContainer,
   MutationInnerContainer,
+  DeleteButton,
 } from './MutationList.styles';
 
 const genes = getAllGenes();
@@ -162,7 +164,11 @@ const DeleteButtonContainer = ({ group }) => {
     );
   };
 
-  return <div onClick={onClick}>x</div>;
+  return (
+    <DeleteButton title="Deselect" onClick={onClick}>
+      x
+    </DeleteButton>
+  );
 };
 
 const MutationListContent = observer(({ headerheight }) => {
@@ -355,7 +361,7 @@ const MutationListContent = observer(({ headerheight }) => {
       <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
         <thead>
           <tr>
-            <MutationListHeaderEmpty colSpan={2} />
+            <GroupSearch />
             {headerItems}
           </tr>
           <tr>

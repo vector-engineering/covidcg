@@ -97,6 +97,21 @@ export const MutationListHeaderCell = styled.th`
   }
 `;
 
+export const DeleteButton = styled.td`
+  background: none;
+  border-style: none;
+  color: #aaa;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover,
+  &:focus {
+    color: #ff5555;
+  }
+
+  transition: 0.1s all ease-in-out;
+`;
+
 export const MutationListTable = styled.table`
   display: grid;
   grid-template-columns: 80px 120px repeat(${({ ncols }) => ncols}, 50px);

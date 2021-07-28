@@ -61,7 +61,6 @@ const GroupSearch = observer(() => {
 
   return (
     <GroupSearchContainer>
-      <SelectedGroups />
       <GroupSearchHeader>
         <GroupSearchTitle>
           Select {groupDataStore.getActiveGroupTypePrettyName()}s

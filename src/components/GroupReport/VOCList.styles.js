@@ -4,7 +4,12 @@ export const VOCGridTitle = styled.span`
   font-size: 1em;
   grid-row: 1;
   font-weight: bold;
+  text-align: center;
+  grid-column: span ${({ colSpan }) => colSpan};
 `;
+VOCGridTitle.defaultProps = {
+  colSpan: 1,
+};
 
 export const GridItem = styled.div`
   padding-left: 10px;
@@ -20,7 +25,7 @@ export const VOCListContainer = styled.div`
 
 export const VOCItemGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-template-rows: auto;
   grid-column-gap: 10px;
   justify-items: center;

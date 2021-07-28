@@ -20,7 +20,7 @@ import {
 export const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
 const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
 
-const VOCItem = observer(({ name, orgArr }) => {
+const VOCItem = observer(({ name, orgArr, column }) => {
   const { groupDataStore } = useStores();
   const badges = [];
 
@@ -114,13 +114,20 @@ const VOCList = observer(() => {
   // Variants of Interest (VOI)
   const voiItems = filterItems('VOI');
 
+  // Other Variants
+  const otherItems = filterItems('Other');
+  const otherItems1 = otherItems.splice(0, parseInt(otherItems.length / 2));
+
   return (
     <VOCListContainer>
       <VOCItemGrid>
         <VOCGridTitle>Variants of Concern</VOCGridTitle>
         <VOCGridTitle>Variants of Interest</VOCGridTitle>
+        <VOCGridTitle colSpan={2}>Other Variants Being Monitored</VOCGridTitle>
         <GridItem>{vocItems}</GridItem>
         <GridItem>{voiItems}</GridItem>
+        <GridItem>{otherItems}</GridItem>
+        <GridItem>{otherItems1}</GridItem>
       </VOCItemGrid>
       <OrgLegend />
     </VOCListContainer>

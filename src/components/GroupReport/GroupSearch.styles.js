@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
-export const GroupSearchContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+export const GroupSearchContainer = styled.th`
+  grid-column: span 2;
   padding: 10px;
 `;
 
