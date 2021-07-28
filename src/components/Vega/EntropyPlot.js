@@ -29,8 +29,7 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, plotSettingsStore, snpDataStore } =
-    useStores();
+  const { configStore, dataStore, UIStore, snpDataStore } = useStores();
 
   const onDismissWarning = () => {
     setState({

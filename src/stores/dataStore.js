@@ -1,5 +1,5 @@
-import { observable, action, toJS } from 'mobx';
-import { config, hostname } from '../config';
+import { action, toJS } from 'mobx';
+import { hostname } from '../config';
 import {
   processSelectedSnvs,
   processCooccurrenceData,
@@ -7,7 +7,6 @@ import {
 import { downloadBlobURL } from '../utils/download';
 import { intToISO } from '../utils/date';
 import { getLocationIdsByNode } from '../utils/location';
-import { formatSnv } from '../utils/snpUtils';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 import {
@@ -83,6 +82,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {
@@ -94,7 +95,7 @@ export class DataStore {
       .then((res) => {
         this.aggLocationGroupDate = res;
 
-        console.log(this.aggLocationGroupDate);
+        // console.log(this.aggLocationGroupDate);
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -247,6 +248,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
         // Pass an array of only the fields that were selected
         selected_fields: Object.keys(selectedFields).filter(
           (field) => selectedFields[field]
@@ -302,6 +305,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {
@@ -352,6 +357,8 @@ export class DataStore {
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
       }),
     })
       .then((res) => {
