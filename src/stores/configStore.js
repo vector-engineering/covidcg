@@ -464,7 +464,7 @@ export class ConfigStore {
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       // Disable residue indices for non-protein-coding genes
-      if (this.selectedGene.protein_coding === 0) {
+      if (!this.selectedGene.protein_coding) {
         return this.selectedGene.segments;
       }
       const coordinateRanges = [];
@@ -584,8 +584,11 @@ export class ConfigStore {
   }
 
   getSelectedGroupIds() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -610,8 +613,11 @@ export class ConfigStore {
   }
 
   getIntToSnvMap() {
-    const { intToDnaSnvMap, intToGeneAaSnvMap, intToProteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -625,8 +631,11 @@ export class ConfigStore {
   }
 
   getSnvToIntMap() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;

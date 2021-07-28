@@ -37,6 +37,38 @@ const EntropyPlot = observer(({ width }) => {
     snpDataStore,
   } = useStores();
 
+  const nameToAbbr = {
+    "5'UTR": '5',
+    ORF1ab: 'ORF1ab',
+    ORF1a: 'ORF1a',
+    S: 'S',
+    ORF3a: '3a',
+    orf3a: '3a',
+    E: 'E',
+    M: 'M',
+    ORF6: '6',
+    ORF7a: '7a',
+    ORF7b: '7b',
+    ORF8: '8',
+    N: 'N',
+    ORF10: '10',
+    "3'UTR": '3',
+    nsp1: '1',
+    nsp2: 'nsp2',
+    'nsp3 - PL2-PRO': 'nsp3',
+    nsp4: 'nsp4',
+    'nsp5 - 3CLp': '5',
+    nsp6: '6',
+    nsp8: '8',
+    nsp9: '9',
+    'nsp10 - CysHis': '10',
+    'nsp12 - RdRp': 'nsp12',
+    'nsp13 - Helicase': 'nsp13',
+    'nsp14 - ExoN': 'nsp14',
+    'nsp15 - NendoU': '15',
+    "nsp16 - 2'-O-MT": '16',
+  };
+
   const onDismissWarning = () => {
     setState({
       ...state,
@@ -59,6 +91,29 @@ const EntropyPlot = observer(({ width }) => {
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
     }
+  };
+
+  const filterMap = (map, keyToRemove) => {
+    // Used to turn proteinMap and geneMap into an array of objects
+    // that can be used with the domain plot
+    const rowTwoNames = ['nsp12 - RdRp', 'orf9c', 'E', 'orf8'];
+    return Object.keys(map)
+      .filter((key) => key !== keyToRemove)
+      .reduce((arr, key, index) => {
+        map[key]['ranges'] = map[key]['segments'];
+        if (map[key]['ranges'].length > 1) {
+          // Collapse ORF1ab ranges
+          map[key]['ranges'][0][1] = map[key]['ranges'][1][1];
+          map[key]['ranges'].slice(1, 1);
+        }
+        map[key]['row'] = index % 2 === 0 ? 0 : 1;
+        if (rowTwoNames.includes(key)) {
+          map[key]['row'] = 2;
+        }
+        map[key]['abbr'] = nameToAbbr[map[key]['name']];
+        arr.push(map[key]);
+        return arr;
+      }, []);
   };
 
   const processData = () => {
@@ -173,26 +228,17 @@ const EntropyPlot = observer(({ width }) => {
     return xRange;
   };
 
-  const filterMap = (map, keyToRemove) => {
-    // Used to turn proteinMap and geneMap into an array of objects
-    // that can be used with the domain plot
-    return Object.keys(map)
-      .filter((key) => key !== keyToRemove)
-      .reduce((arr, key, index) => {
-        map[key]['ranges'] = map[key]['segments'];
-        if (map[key]['ranges'].length > 1) {
-          // Collapse ORF1ab ranges
-          map[key]['ranges'][0][1] = map[key]['ranges'][1][1];
-          map[key]['ranges'].splice(1, 1);
-        }
-        map[key]['row'] = index % 2 === 0 ? 0 : 1;
-        arr.push(map[key]);
-        return arr;
-      }, []);
-  };
-
   const getDomains = () => {
     // Apply domains
+    const nullDomain = [
+      {
+        name: 'No Domains Available',
+        abbr: 'No Domains Available',
+        ranges: [getXRange()],
+        row: 0,
+      },
+    ];
+
     if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         return filterMap(geneMap, 'All Genes');
@@ -202,9 +248,13 @@ const EntropyPlot = observer(({ width }) => {
         return filterMap(proteinMap, 'All Proteins');
       }
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      return configStore.selectedGene.domains;
+      return configStore.selectedGene.domains.length > 0
+        ? configStore.selectedGene.domains
+        : nullDomain;
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      return configStore.selectedProtein.domains;
+      return configStore.selectedProtein.domains.length > 0
+        ? configStore.selectedProtein.domains
+        : nullDomain;
     }
   };
 
@@ -242,8 +292,6 @@ const EntropyPlot = observer(({ width }) => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
-
-    console.log(getDomains());
 
     setState({
       ...state,
