@@ -100,7 +100,7 @@ export class LocationDataStore {
   }
 
   @action
-  setSelectedNodes(selectedNodes) {
+  setSelectedNodes = (selectedNodes) => {
     // Get the current tree
     const selectTree = Object.assign({}, this.selectTree);
     deselectAll(selectTree);
@@ -115,14 +115,13 @@ export class LocationDataStore {
     });
 
     this.selectTree = selectTree;
-  }
+  };
 
   @action
-  deselectAll() {
+  deselectAll = () => {
     this.selectTree = deselectAll(Object.assign({}, this.selectTree));
-  }
+  };
 
-  @action
   getLocationStrFromId(locationId) {
     return this.locationIdToStrMap[locationId];
   }

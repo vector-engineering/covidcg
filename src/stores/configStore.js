@@ -266,7 +266,7 @@ export class ConfigStore {
   // });
 
   @action
-  resetValues(values) {
+  resetValues = (values) => {
     Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
@@ -297,10 +297,10 @@ export class ConfigStore {
 
     // Trigger data re-run
     this.dataStoreInstance.fetchData();
-  }
+  };
 
   @action
-  applyPendingChanges(pending) {
+  applyPendingChanges = (pending) => {
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== pending.dnaOrAa && pending.dnaOrAa === DNA_OR_AA.AA) {
       this.plotSettingsStoreInstance.tableColorMode =
@@ -412,7 +412,7 @@ export class ConfigStore {
 
     // Get the new data from the server
     this.dataStoreInstance.fetchData();
-  }
+  };
 
   getSnvType() {
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -535,7 +535,7 @@ export class ConfigStore {
   }
 
   @action
-  updateHoverGroup(group) {
+  updateHoverGroup = (group) => {
     // console.log('UPDATE HOVER GROUP', group);
     if (group === this.hoverGroup) {
       return;
@@ -547,10 +547,10 @@ export class ConfigStore {
     } else {
       this.hoverGroup = group;
     }
-  }
+  };
 
   @action
-  updateSelectedGroups(groups) {
+  updateSelectedGroups = (groups) => {
     // First check to see that it's different. If not,
     // skip the update
     // This matters because JS arrays are passed by reference,
@@ -571,7 +571,7 @@ export class ConfigStore {
     if (this.groupKey === GROUP_SNV) {
       this.dataStoreInstance.processSelectedSnvs();
     }
-  }
+  };
 
   getSelectedGroupIds() {
     const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
@@ -630,12 +630,12 @@ export class ConfigStore {
   }
 
   @action
-  updateHoverLocation(location) {
+  updateHoverLocation = (location) => {
     this.hoverLocation = location;
-  }
+  };
 
   @action
-  updateFocusedLocations(locations) {
+  updateFocusedLocations = (locations) => {
     if (
       arrayEqual(
         locations.map((location) => location.location),
@@ -645,5 +645,5 @@ export class ConfigStore {
       return;
     }
     this.focusedLocations = locations;
-  }
+  };
 }

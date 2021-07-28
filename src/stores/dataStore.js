@@ -66,7 +66,7 @@ export class DataStore {
   }
 
   @action
-  fetchData() {
+  fetchData = () => {
     UIStoreInstance.onCaseDataStateStarted();
 
     fetch(hostname + '/data', {
@@ -185,10 +185,10 @@ export class DataStore {
         }
         UIStoreInstance.onCaseDataStateErr();
       });
-  }
+  };
 
   @action
-  processSelectedSnvs() {
+  processSelectedSnvs = () => {
     UIStoreInstance.onSnvDataStarted();
     const { snvColorMap } = snpDataStoreInstance;
 
@@ -211,10 +211,10 @@ export class DataStore {
         UIStoreInstance.onSnvDataFinished();
       }
     );
-  }
+  };
 
   @action
-  processCooccurrenceData() {
+  processCooccurrenceData = () => {
     UIStoreInstance.onCooccurrenceDataStarted();
 
     const { snvColorMap } = snpDataStoreInstance;
@@ -233,10 +233,10 @@ export class DataStore {
         UIStoreInstance.onCooccurrenceDataFinished();
       }
     );
-  }
+  };
 
   @action
-  downloadSelectedSequenceMetadata({ selectedFields, snvFormat }) {
+  downloadSelectedSequenceMetadata = ({ selectedFields, snvFormat }) => {
     UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
@@ -283,9 +283,10 @@ export class DataStore {
         }
         UIStoreInstance.onDownloadErr();
       });
-  }
+  };
 
-  downloadSelectedSNVs() {
+  @action
+  downloadSelectedSNVs = () => {
     fetch(hostname + '/download_snvs', {
       method: 'POST',
       headers: {
@@ -330,7 +331,7 @@ export class DataStore {
         }
         UIStoreInstance.onDownloadErr();
       });
-  }
+  };
 
   // TODO:
   // We should probably change this request to use form data
@@ -339,7 +340,7 @@ export class DataStore {
   // blob on the front-end, and this will get unsustainable
   // if the user tries to download 100,000+ genomes
   @action
-  downloadGenomes() {
+  downloadGenomes = () => {
     UIStoreInstance.onDownloadStarted();
 
     fetch(hostname + '/download_genomes', {
@@ -381,7 +382,7 @@ export class DataStore {
         }
         UIStoreInstance.onDownloadErr();
       });
-  }
+  };
 
   downloadAggSequences() {
     let csvString = `location,collection_date,${configStoreInstance.getGroupLabel()},count\n`;

@@ -92,7 +92,7 @@ export class GroupDataStore {
   }
 
   @action
-  updateActiveGroupType(activeGroupType) {
+  updateActiveGroupType = (activeGroupType) => {
     this.activeGroupType = activeGroupType;
 
     // If we don't have the data for this combo yet, then fetch it now
@@ -103,10 +103,10 @@ export class GroupDataStore {
         consensusThreshold: 0,
       });
     }
-  }
+  };
 
   @action
-  updateGroupSnvType(groupSnvType) {
+  updateGroupSnvType = (groupSnvType) => {
     this.groupSnvType = groupSnvType;
 
     // If we don't have the data for this combo yet, then fetch it now
@@ -128,10 +128,10 @@ export class GroupDataStore {
     else {
       rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
     }
-  }
+  };
 
   @action
-  updateSelectedGroups(selectedGroups) {
+  updateSelectedGroups = (selectedGroups) => {
     this.selectedGroups = selectedGroups;
 
     // Update the groupSelectTree as well
@@ -157,7 +157,7 @@ export class GroupDataStore {
         this.selectedGroups[0]
       );
     }
-  }
+  };
 
   getActiveGroupTypePrettyName() {
     return config.group_cols[this.activeGroupType].title;
@@ -236,6 +236,7 @@ export class GroupDataStore {
       });
   }
 
+  @action
   async downloadGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupSnvFrequencyData({
