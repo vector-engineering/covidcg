@@ -4,7 +4,12 @@ import { observer } from 'mobx-react';
 
 import QuestionButton from '../Buttons/QuestionButton';
 
-import { SelectContainer, RadioForm, Link } from './GroupBySelect.styles';
+import {
+  SelectContainer,
+  RadioForm,
+  Link,
+  HintText,
+} from './GroupBySelect.styles';
 
 import {
   GROUP_SNV,
@@ -77,18 +82,9 @@ const GroupBySelect = observer(
       );
     });
 
-    return (
-      <SelectContainer>
-        <RadioForm>
-          <span className="form-title">
-            Group sequences by
-            <QuestionButton
-              data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment</p>`}
-              data-html="true"
-              data-place="right"
-              data-for="main-tooltip"
-            />
-          </span>
+    const renderGroupKeySelect = () => {
+      return (
+        <>
           <div className="radio-row">
             {groupSelectItems}
             <div className="radio-item">
@@ -112,35 +108,64 @@ const GroupBySelect = observer(
               </Link>
             </>
           )}
+        </>
+      );
+    };
+
+    const renderDnaOrAaSelect = () => {
+      return (
+        <div className="radio-row">
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="dnaChoice"
+              name="dnaOrAa"
+              value={DNA_OR_AA.DNA}
+              checked={dnaOrAa === DNA_OR_AA.DNA}
+              onChange={handleDnaOrAaChange}
+            ></input>
+            <label htmlFor="dnaChoice">NT</label>
+          </div>
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="aaChoice"
+              name="dnaOrAa"
+              value={DNA_OR_AA.AA}
+              checked={dnaOrAa === DNA_OR_AA.AA}
+              disabled={aaDisabled}
+              onChange={handleDnaOrAaChange}
+            ></input>
+            <label htmlFor="aaChoice">AA</label>
+            <span className="disabled-text">{aaDisabledMessage}</span>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <SelectContainer>
+        <RadioForm>
+          <span className="form-title">
+            Group sequences by
+            <QuestionButton
+              data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment</p>`}
+              data-html="true"
+              data-place="right"
+              data-for="main-tooltip"
+            />
+          </span>
+          {renderGroupKeySelect()}
         </RadioForm>
         <RadioForm>
           <span className="form-title">Mutation format</span>
-          <div className="radio-row">
-            <div className="radio-item">
-              <input
-                type="radio"
-                id="dnaChoice"
-                name="dnaOrAa"
-                value={DNA_OR_AA.DNA}
-                checked={dnaOrAa === DNA_OR_AA.DNA}
-                onChange={handleDnaOrAaChange}
-              ></input>
-              <label htmlFor="dnaChoice">NT</label>
-            </div>
-            <div className="radio-item">
-              <input
-                type="radio"
-                id="aaChoice"
-                name="dnaOrAa"
-                value={DNA_OR_AA.AA}
-                checked={dnaOrAa === DNA_OR_AA.AA}
-                disabled={aaDisabled}
-                onChange={handleDnaOrAaChange}
-              ></input>
-              <label htmlFor="aaChoice">AA</label>
-              <span className="disabled-text">{aaDisabledMessage}</span>
-            </div>
-          </div>
+          {groupKey !== GROUP_SNV && (
+            <HintText>
+              Switch to &quot;SNV&quot; under &quot;Group sequences by&quot; in
+              order to enable Mutation Formatting
+            </HintText>
+          )}
+          {groupKey === GROUP_SNV && renderDnaOrAaSelect()}
         </RadioForm>
       </SelectContainer>
     );

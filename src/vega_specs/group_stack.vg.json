@@ -10,82 +10,64 @@
     { "name": "disableSelectionColoring", "value": true },
     { "name": "detailHeight", "value": 280 },
     { "name": "detailClip", "update": "detailHeight == 0" },
-    {
-      "name": "overviewY",
-      "update": "detailHeight == 0 ? 0 : detailHeight + 40"
-    },
+    { "name": "overviewY", "update": "detailHeight == 0 ? 0 : detailHeight + 40" },
     { "name": "overviewHeight", "value": 60 },
     {
-      "name": "dateRangeStart",
-      "value": 1575158400000,
+      "name": "dateRangeStart", "value": 1575158400000,
       "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
     },
     {
-      "name": "dateRangeEnd",
-      "value": 4070908800000
+      "name": "dateRangeEnd", "value": 4070908800000
     },
     {
-      "name": "dateBin",
-      "value": 86400000,
+      "name": "dateBin", "value": 86400000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group"
     },
     {
-      "name": "overviewYLabel",
-      "value": "All Seqs",
+      "name": "overviewYLabel", "value": "All Seqs",
       "comment": "Y-axis label of the overview (bottom) panel"
     },
     {
-      "name": "detailYLabel",
-      "value": "Sequences by Lineage",
+      "name": "detailYLabel", "value": "Sequences by Lineage",
       "comment": "Y-axis label of the detail (upper) panel"
     },
     {
-      "name": "yFormat",
-      "value": "s"
+      "name": "yFormat", "value": "s"
     },
     {
-      "name": "stackOffset",
-      "value": "zero",
+      "name": "stackOffset", "value": "zero",
       "comment": "Whether to show the counts as percentages ('normalize') or as absolute counts ('zero'). This is passed to the stack transform of cases_by_date_and_group"
     },
     {
-      "name": "cumulativeWindow",
-      "value": [0, 0],
+      "name": "cumulativeWindow", "value": [0, 0],
       "comment": "Window to calculate cumulative counts over. [0, 0] disables this behavior, while [null, 0] does the cumulative counting"
     },
     {
-      "name": "detailDomain",
-      "value": null,
+      "name": "detailDomain", "value": null,
       "comment": "The date range selected on the overview (bottom) panel. The units are in JS date objects. If there is no date selected, this should be null."
     },
     {
-      "name": "brush",
-      "value": 0,
+      "name": "brush", "value": 0,
       "comment": "The date range selected on the overview (bottom) panel, in screen-space coordinate units (pixels). This will be converted to dates for the detailDomain signal by referencing the xOverview scale"
     },
     {
-      "name": "delta",
-      "value": 0,
+      "name": "delta", "value": 0,
       "comment": "The difference between windows when dragging a date selection window in the overview (bottom) panel. It is tracked onmousemove and used to update the 'brush' signal after mouseup. Units are in screen-space coordinates (pixels)"
     },
     {
-      "name": "xdown",
-      "value": 0,
+      "name": "xdown", "value": 0,
       "comment": "The initial screen-space click location, in screen-space coordinates (pixels), when first clicking on the date range window before dragging it. This is used to calculate the 'delta' signal"
     },
     {
-      "name": "anchor",
-      "value": null,
+      "name": "anchor", "value": null,
       "comment": "The initial 'brush' signal state, when clicking on the date range window to drag it. Units are in screen-space coordinates (pixels). Used to update the 'brush' signal after dragging it."
     },
     {
-      "name": "hoverBar",
-      "value": null,
+      "name": "hoverBar", "value": null,
       "comment": "Used to store which group is hovered over. Is an object with field 'group'"
     },
     {
-      "name": "clear",
-      "value": true,
+      "name": "clear", "value": true,
       "comment": "If clicking on anything but a grouped bar, then clear the selection (by clearing the 'selection' data object)",
       "on": [
         {
@@ -96,26 +78,24 @@
       ]
     },
     {
-      "name": "shift",
-      "value": false,
+      "name": "shift", "value": false,
       "comment": "Track whether or not the shift key is pressed. Used to select multiple groups by holding down shift before clicking",
       "on": [
         {
           "events": "@detailbars:click",
           "update": "event.shiftKey",
-          "force": true
+          "force":  true
         }
       ]
     },
     {
-      "name": "clicked",
-      "value": null,
+      "name": "clicked", "value": null,
       "comment": "Track clicks on the group bars, for selection purposes",
       "on": [
         {
           "events": "@detailbars:click",
           "update": "{group: datum.group}",
-          "force": true
+          "force":  true
         }
       ]
     }
@@ -125,12 +105,14 @@
     {
       "name": "selected",
       "comment": "A list of groups that are selected",
-      "values": [{ "group": "S|614|D|G" }],
+      "values": [
+        {"group": "B.1.1"}
+      ],
       "on": [
-        { "trigger": "clear", "remove": true },
-        { "trigger": "!shift", "remove": true },
-        { "trigger": "!shift && clicked", "insert": "clicked" },
-        { "trigger": "shift && clicked", "toggle": "clicked" }
+        {"trigger": "clear", "remove": true},
+        {"trigger": "!shift", "remove": true},
+        {"trigger": "!shift && clicked", "insert": "clicked"},
+        {"trigger": "shift && clicked", "toggle": "clicked"}
       ]
     },
     {
@@ -138,9 +120,7 @@
       "comment": "Main data object, same as caseData in store",
       "format": {
         "parse": {
-          "group": "string",
-          "counts": "number",
-          "date": "date:'%Q'"
+          "collection_date": "date:'%Q'"
         }
       },
       "transform": [
@@ -155,24 +135,15 @@
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
-          "field": "date",
-          "extent": [
-            { "signal": "dateRangeStart" },
-            { "signal": "dateRangeEnd" }
-          ],
-          "step": { "signal": "dateBin" },
+          "field": "collection_date",
+          "extent": [{"signal": "dateRangeStart"}, {"signal": "dateRangeEnd"}],
+          "step": {"signal": "dateBin"},
           "as": ["day_start", "day_end"]
         },
         {
           "comment": "After binning, combine observations in the same group and day, by taking the sum of the sequence counts. The max aggs on group_counts and color are just to carry the fields over.",
           "type": "aggregate",
-          "groupby": [
-            "group",
-            "group_name",
-            "new_group",
-            "day_start",
-            "day_end"
-          ],
+          "groupby": ["group", "group_name", "day_start", "day_end"],
           "fields": ["counts", "group_counts", "color"],
           "ops": ["sum", "max", "max"],
           "as": ["counts", "group_counts", "color"]
@@ -194,20 +165,20 @@
         {
           "comment": "Calculate the cumulative counts. If we're not running in cumulative mode, then output the cumulative count in a dummy field (determined by the signal windowField). If we are in cumulative mode, then overwrite the counts field.",
           "type": "window",
-          "sort": { "field": "day_start" },
+          "sort": {"field": "day_start"},
           "groupby": ["group", "group_name"],
           "ops": ["sum"],
           "fields": ["counts"],
           "as": ["counts_new"],
-          "frame": { "signal": "cumulativeWindow" }
+          "frame": {"signal": "cumulativeWindow"}
         },
         {
           "comment": "Stack bars on the same date in preparation for the visualization. Offset (zero vs. normalize) controls counts vs. percentages.",
           "type": "stack",
           "groupby": ["day_start"],
-          "sort": { "field": "group" },
+          "sort": {"field": "group"},
           "field": "counts_new",
-          "offset": { "signal": "stackOffset" }
+          "offset": {"signal": "stackOffset"}
         }
       ]
     },
@@ -235,9 +206,9 @@
       "encode": {
         "comment": "The width and height should be overridden by the plot's container",
         "update": {
-          "clip": { "signal": "detailClip" },
-          "height": { "signal": "detailHeight" },
-          "width": { "signal": "width" }
+          "clip": {"signal": "detailClip" },
+          "height": {"signal": "detailHeight"},
+          "width": {"signal": "width"}
         }
       },
       "signals": [
@@ -248,7 +219,7 @@
           "on": [
             {
               "events": "@detailbars:mouseover!",
-              "update": "{group: datum.group, date: datum.day_start}"
+              "update": "{group: datum.group, collection_date: datum.day_start}"
             },
             {
               "events": "@detailbars:mouseout!",
@@ -265,20 +236,20 @@
           "range": "width",
           "domain": {
             "fields": [
-              { "data": "cases_by_date", "field": "day_start" },
-              { "data": "cases_by_date", "field": "day_end" }
+              {"data": "cases_by_date", "field": "day_start"},
+              {"data": "cases_by_date", "field": "day_end"}
             ]
           },
-          "domainRaw": { "signal": "detailDomain" }
+          "domainRaw": {"signal": "detailDomain"},
+          "nice": {"interval": "day", "step": 14}
         },
         {
           "name": "y",
           "comment": "Scale the y axis from 0 to the highest bar height",
           "type": "linear",
-          "range": [{ "signal": "detailHeight" }, 0],
-          "nice": true,
-          "zero": true,
-          "domain": { "data": "cases_by_date_and_group", "field": "y1" }
+          "range": [{"signal": "detailHeight"}, 0],
+          "nice": true, "zero": true,
+          "domain": {"data": "cases_by_date_and_group", "field": "y1"}
         }
       ],
       "marks": [
@@ -287,8 +258,8 @@
           "comment": "Not sure why we need a group mark here, but this is how it is in the example plot, so I didn't change it",
           "encode": {
             "update": {
-              "height": { "field": { "group": "height" } },
-              "width": { "field": { "group": "width" } }
+              "height": {"field": {"group": "height"}},
+              "width": {"field": {"group": "width"}}
             }
           },
           "axes": [
@@ -304,7 +275,6 @@
                 "date": "%m-%d",
                 "hours": " "
               },
-              "tickCount": 15,
               "grid": true,
               "gridScale": "y",
               "gridColor": "#DDD",
@@ -314,7 +284,8 @@
               "labelBaseline": "middle",
               "labelPadding": 5,
 
-              "labelFontSize": 12
+              "labelFontSize": 12,
+              "tickCount": 10
             },
             {
               "orient": "left",
@@ -324,7 +295,7 @@
               "grid": true,
               "gridColor": "#DDD",
 
-              "title": { "signal": "detailYLabel" },
+              "title": {"signal": "detailYLabel"},
               "titleFontSize": 14,
               "titlePadding": 10,
 
@@ -338,20 +309,20 @@
             {
               "type": "rect",
               "name": "detailbars",
-              "from": { "data": "cases_by_date_and_group" },
+              "from": {"data": "cases_by_date_and_group"},
               "clip": true,
               "encode": {
                 "enter": {
-                  "strokeWidth": { "value": 1 }
+                  "strokeWidth": {"value": 1}
                 },
                 "update": {
                   "tooltip": {
                     "signal": "{title: datum.group_name, 'Total sequences': datum.group_counts, 'Sequences': datum.counts_new, 'Collection date': timeFormat(datum.day_start, '%b %d %Y')}"
                   },
-                  "x": { "scale": "x", "field": "day_start" },
-                  "x2": { "scale": "x", "field": "day_end" },
-                  "y": { "scale": "y", "field": "y0" },
-                  "y2": { "scale": "y", "field": "y1" },
+                  "x": {"scale": "x", "field": "day_start"},
+                  "x2": {"scale": "x", "field": "day_end"},
+                  "y": {"scale": "y", "field": "y0"},
+                  "y2": {"scale": "y", "field": "y1"},
                   "fill": [
                     {
                       "test": "disableSelectionColoring || (!length(data('selected')) || indata('selected', 'group', datum.group)) && (datum.counts_new > 0)",
@@ -369,7 +340,7 @@
                       "value": "#000",
                       "comment": "If this group is being hovered over, then set outline it black. Since we're imputing empty groups, only highlight groups with more than zero cases."
                     },
-                    { "value": "transparent" }
+                    {"value": "transparent"}
                   ],
                   "zindex": [
                     {
@@ -377,7 +348,7 @@
                       "value": 3,
                       "comment": "Same as the 'stroke' test, but we also need to set the z-index here since it's possible the outline stroke will get hidden under other bars"
                     },
-                    { "value": 1 }
+                    {"value": 1}
                   ]
                 }
               }
@@ -393,11 +364,11 @@
       "encode": {
         "comment": "The width should be overridden by the plot container",
         "update": {
-          "x": { "value": 0 },
-          "y": { "signal": "overviewY" },
-          "width": { "signal": "width" },
-          "height": { "signal": "overviewHeight" },
-          "fill": { "value": "transparent" }
+          "x": {"value": 0},
+          "y": {"signal": "overviewY"},
+          "width": {"signal": "width"},
+          "height": {"signal": "overviewHeight"},
+          "fill": {"value": "transparent"}
         }
       },
       "signals": [
@@ -409,8 +380,8 @@
             {
               "events": {
                 "merge": [
-                  { "markname": "overview", "type": "mousedown" },
-                  { "markname": "overviewbars", "type": "mousedown" }
+                  {"markname": "overview", "type": "mousedown" },
+                  {"markname": "overviewbars", "type": "mousedown" }
                 ]
               },
               "update": "[scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000), scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)]"
@@ -419,8 +390,8 @@
               "comment": "Clear the brush selection on any double-click",
               "events": {
                 "merge": [
-                  { "markname": "overview", "type": "dblclick" },
-                  { "markname": "brushrect", "type": "dblclick" }
+                  {"markname": "overview", "type": "dblclick"},
+                  {"markname": "brushrect", "type": "dblclick"}
                 ]
               },
               "update": "0"
@@ -433,8 +404,8 @@
                     "source": "window",
                     "type": "mousemove",
                     "between": [
-                      { "markname": "overview", "type": "mousedown" },
-                      { "source": "window", "type": "mouseup" }
+                      {"markname": "overview", "type": "mousedown"},
+                      {"source": "window", "type": "mouseup"}
                     ],
                     "consume": true
                   },
@@ -442,8 +413,8 @@
                     "source": "window",
                     "type": "mousemove",
                     "between": [
-                      { "markname": "overviewbars", "type": "mousedown" },
-                      { "source": "window", "type": "mouseup" }
+                      {"markname": "overviewbars", "type": "mousedown"},
+                      {"source": "window", "type": "mouseup"}
                     ],
                     "consume": true
                   }
@@ -455,15 +426,15 @@
               "comment": "When the mousemove is finished (marked by mouseup event), then reorganize the brush vector so that the lesser value is first",
               "events": {
                 "merge": [
-                  { "markname": "overview", "type": "mouseup" },
-                  { "markname": "brushrect", "type": "mouseup" }
+                  {"markname": "overview", "type": "mouseup"},
+                  {"markname": "brushrect", "type": "mouseup"}
                 ]
               },
               "update": "abs(span(brush)) <= 2 ? 0 : [brush[0], brush[1]]"
             },
             {
               "comment": "Capture when the date range window is dragged, and update the ranges. Since the dragging logic implements day-snapping on its own, we don't have to round anything here.",
-              "events": { "signal": "delta" },
+              "events": {"signal": "delta"},
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
             }
           ]
@@ -472,18 +443,13 @@
           "name": "anchor",
           "comment": "Make a copy of the brush vector when the date range is clicked. Used by the 'brush' signal to update itself after a date range drag",
           "push": "outer",
-          "on": [{ "events": "@brushrect:mousedown", "update": "slice(brush)" }]
+          "on": [{"events": "@brushrect:mousedown", "update": "slice(brush)"}]
         },
         {
           "name": "xdown",
           "comment": "Track the initial drag x-coordinate, and snap to the nearest day. Used to set the 'delta' signal",
           "push": "outer",
-          "on": [
-            {
-              "events": "@brushrect:mousedown",
-              "update": "scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)"
-            }
-          ]
+          "on": [{"events": "@brushrect:mousedown", "update": "scale('xOverview', round(invert('xOverview', x()) / 86400000) * 86400000)"}]
         },
         {
           "name": "delta",
@@ -502,7 +468,7 @@
           "push": "outer",
           "on": [
             {
-              "events": { "signal": "brush" },
+              "events": {"signal": "brush"},
               "update": "span(brush) ? invert('xOverview', brush) : null"
             }
           ]
@@ -511,23 +477,22 @@
       "scales": [
         {
           "name": "xOverview",
-          "comment": "Provide two fields for the domain, since if we only provide the day_start, the last day will get cut off, and if we only provide day_end, the first day will get cut off",
+           "comment": "Provide two fields for the domain, since if we only provide the day_start, the last day will get cut off, and if we only provide day_end, the first day will get cut off",
           "type": "time",
           "range": "width",
           "domain": {
             "fields": [
-              { "data": "cases_by_date", "field": "day_start" },
-              { "data": "cases_by_date", "field": "day_end" }
+              {"data": "cases_by_date", "field": "day_start"},
+              {"data": "cases_by_date", "field": "day_end"}
             ]
           }
         },
         {
           "name": "yOverview",
           "type": "linear",
-          "range": [{ "signal": "overviewHeight" }, 0],
-          "domain": { "data": "cases_by_date", "field": "counts_by_date" },
-          "nice": true,
-          "zero": true
+          "range": [{"signal": "overviewHeight"}, 0],
+          "domain": {"data": "cases_by_date", "field": "counts_by_date"},
+          "nice": true, "zero": true
         }
       ],
       "axes": [
@@ -545,7 +510,6 @@
             "date": "%m-%d",
             "hours": " "
           },
-
           "grid": true,
           "gridColor": "#DDD",
           "gridScale": "yOverview",
@@ -556,14 +520,14 @@
           "labelPadding": 5,
 
           "labelFontSize": 12,
-
           "tickCount": 15
+
         },
         {
           "orient": "left",
           "scale": "yOverview",
 
-          "title": { "signal": "overviewYLabel" },
+          "title": {"signal": "overviewYLabel"},
           "titleFontSize": 14,
           "titlePadding": 10,
 
@@ -577,20 +541,20 @@
         {
           "type": "rect",
           "name": "overviewbars",
-          "from": { "data": "cases_by_date" },
+          "from": {"data": "cases_by_date"},
           "encode": {
             "update": {
-              "x": { "scale": "xOverview", "field": "day_start" },
-              "x2": { "scale": "xOverview", "field": "day_end" },
-              "y": { "scale": "yOverview", "value": 0 },
-              "y2": { "scale": "yOverview", "field": "counts_by_date" },
+              "x": {"scale": "xOverview", "field": "day_start"},
+              "x2": {"scale": "xOverview", "field": "day_end"},
+              "y": {"scale": "yOverview", "value": 0},
+              "y2": {"scale": "yOverview", "field": "counts_by_date"},
               "fill": [
                 {
                   "test": "detailDomain && inrange(datum.day_start, [detailDomain[0], detailDomain[1] - 1])",
                   "value": "#f00",
                   "comment": "Color this bar red if it's within the date selection range"
                 },
-                { "value": "#888" }
+                {"value": "#888"}
               ]
             }
           }
@@ -602,18 +566,14 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
-              "height": { "signal": "overviewHeight" },
-              "fill": { "value": "#333" },
-              "fillOpacity": { "value": 0.2 }
+              "y": {"value": 0},
+              "height": {"signal": "overviewHeight"},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.2}
             },
             "update": {
-              "x": {
-                "signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[0]))"
-              },
-              "x2": {
-                "signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[1]))"
-              }
+              "x": {"signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[0]))"},
+              "x2": {"signal": "if(detailDomain == null, null, scale('xOverview', detailDomain[1]))"}
             }
           }
         },
@@ -623,15 +583,13 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
-              "height": { "signal": "overviewHeight" },
-              "width": { "value": 1 },
-              "fill": { "value": "firebrick" }
+              "y": {"value": 0},
+              "height": {"signal": "overviewHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
             },
             "update": {
-              "x": {
-                "signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[0]))"
-              }
+              "x": {"signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[0]))"}
             }
           }
         },
@@ -641,15 +599,13 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
-              "height": { "signal": "overviewHeight" },
-              "width": { "value": 1 },
-              "fill": { "value": "firebrick" }
+              "y": {"value": 0},
+              "height": {"signal": "overviewHeight"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
             },
             "update": {
-              "x": {
-                "signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[1]))"
-              }
+              "x": {"signal": "if(detailDomain == null, brush[0], scale('xOverview', detailDomain[1]))"}
             }
           }
         }

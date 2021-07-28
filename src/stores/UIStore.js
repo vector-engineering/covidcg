@@ -3,22 +3,7 @@ import { ASYNC_STATES, TABS } from '../constants/defs.json';
 import { rootStoreInstance } from './rootStore';
 import { updateURLFromParams } from '../utils/updateQueryParam';
 
-function removeItemAll(arr, value) {
-  var i = 0;
-  while (i < arr.length) {
-    if (arr[i] === value) {
-      arr.splice(i, 1);
-    } else {
-      ++i;
-    }
-  }
-  return arr;
-}
-
 export const initialValues = {
-  sidebarOpen: false,
-  sidebarSelectedGroupKeys: [],
-
   caseDataState: ASYNC_STATES.STARTED,
   snvDataState: ASYNC_STATES.STARTED,
   cooccurrenceDataState: ASYNC_STATES.STARTED,
@@ -34,9 +19,6 @@ export const initialValues = {
 };
 
 export class UIStore {
-  @observable sidebarOpen = initialValues.sidebarOpen;
-  @observable sidebarSelectedGroupKeys = initialValues.sidebarSelectedGroupKeys;
-
   @observable caseDataState = initialValues.caseDataState;
   @observable snvDataState = initialValues.snvDataState;
   @observable cooccurrenceDataState = initialValues.cooccurrenceDataState;
@@ -54,7 +36,7 @@ export class UIStore {
   init() {}
 
   @action
-  resetValues(values) {
+  resetValues = (values) => {
     Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
@@ -62,7 +44,7 @@ export class UIStore {
         this[key] = initialValues[key];
       }
     });
-  }
+  };
 
   @action
   onCaseDataStateStarted = () => {
@@ -156,30 +138,7 @@ export class UIStore {
   };
 
   @action
-  setSidebarOpen = () => {
-    this.sidebarOpen = true;
-  };
-
-  @action
-  setSidebarClosed = () => {
-    this.sidebarOpen = false;
-  };
-
-  @action
-  onSelectGroupForSidebar(groupKey) {
-    this.sidebarSelectedGroupKeys.push(groupKey);
-  }
-
-  @action
-  onRemoveGroupFromSidebar(groupKey) {
-    this.sidebarSelectedGroupKeys = removeItemAll(
-      this.sidebarSelectedGroupKeys,
-      groupKey
-    );
-  }
-
-  @action
-  setActiveTab(tab) {
+  setActiveTab = (tab) => {
     if (Object.values(TABS).includes(tab)) {
       this.activeTab = tab;
     } else {
@@ -212,10 +171,10 @@ export class UIStore {
 
     rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
     updateURLFromParams(rootStoreInstance.configStore.urlParams);
-  }
+  };
 
   @action
-  setKeyPressed(keyCode, value) {
+  setKeyPressed = (keyCode, value) => {
     let keysPressed = toJS(this.keysPressed);
     if (!keysPressed.includes(keyCode)) {
       if (value) {
@@ -227,7 +186,7 @@ export class UIStore {
       }
     }
     this.keysPressed = keysPressed;
-  }
+  };
 
   isKeyPressed(keyCode) {
     return this.keysPressed.includes(keyCode);

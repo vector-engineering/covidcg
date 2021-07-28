@@ -1,7 +1,6 @@
 {
   "LOW_FREQ_FILTER_TYPES": {
     "LOCAL_COUNTS": "local",
-    "GLOBAL_COUNTS": "global",
     "GROUP_COUNTS": "group"
   },
   "GROUP_SNV": "snv",

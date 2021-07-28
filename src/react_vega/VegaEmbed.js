@@ -206,7 +206,7 @@ const VegaEmbed = forwardRef(
             !Object.prototype.hasOwnProperty.call(prevData, name) ||
             data[name] !== prevData[name]
           ) {
-            // console.log('Changing datasets', name);
+            console.debug('VEGA Changing datasets', name);
             changed = true;
             if (isFunction(data[name])) {
               data[name](view.data(name));
@@ -314,7 +314,7 @@ const VegaEmbed = forwardRef(
     // Listen to dataset changes and update data
     useEffect(() => {
       modifyView((view) => {
-        // console.log('NEW DATA');
+        console.debug('VEGA NEW DATA');
 
         let prevData = prevDataRef.current;
         let recreate = false;

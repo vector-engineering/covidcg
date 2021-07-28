@@ -6,6 +6,7 @@ import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
+import { GROUPS } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
 import { mutationHeatmapToPymolScript } from '../utils/pymol';
@@ -28,12 +29,16 @@ export class GroupDataStore {
 
   constructor() {
     this.groupSnvFrequency = {};
+    // Provided by the server
+    // Array of records { name: string, color: string }
     this.groups = {};
     this.groupSelectTree = {};
+    this.groupColors = {};
 
     Object.keys(config['group_cols']).forEach((group) => {
       this.groups[group] = [];
       this.groupSelectTree[group] = [];
+      this.groupColors[group] = {};
     });
   }
 
@@ -53,6 +58,15 @@ export class GroupDataStore {
           value: group.name,
           checked: this.selectedGroups.includes(group.name),
         });
+      });
+    });
+
+    // Assign group colors
+    Object.keys(this.groups).forEach((groupName) => {
+      // Assign color for the "Other" group
+      this.groupColors[groupName][GROUPS.OTHER_GROUP] = '#AAA';
+      this.groups[groupName].forEach((group) => {
+        this.groupColors[groupName][group.name] = group.color;
       });
     });
   }
@@ -78,7 +92,7 @@ export class GroupDataStore {
   }
 
   @action
-  updateActiveGroupType(activeGroupType) {
+  updateActiveGroupType = (activeGroupType) => {
     this.activeGroupType = activeGroupType;
 
     // If we don't have the data for this combo yet, then fetch it now
@@ -89,10 +103,10 @@ export class GroupDataStore {
         consensusThreshold: 0,
       });
     }
-  }
+  };
 
   @action
-  updateGroupSnvType(groupSnvType) {
+  updateGroupSnvType = (groupSnvType) => {
     this.groupSnvType = groupSnvType;
 
     // If we don't have the data for this combo yet, then fetch it now
@@ -114,10 +128,10 @@ export class GroupDataStore {
     else {
       rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
     }
-  }
+  };
 
   @action
-  updateSelectedGroups(selectedGroups) {
+  updateSelectedGroups = (selectedGroups) => {
     this.selectedGroups = selectedGroups;
 
     // Update the groupSelectTree as well
@@ -143,7 +157,7 @@ export class GroupDataStore {
         this.selectedGroups[0]
       );
     }
-  }
+  };
 
   getActiveGroupTypePrettyName() {
     return config.group_cols[this.activeGroupType].title;
@@ -157,6 +171,10 @@ export class GroupDataStore {
     } else if (this.groupSnvType === 'protein_aa') {
       return 'Protein AA';
     }
+  }
+
+  getGroupColor(groupKey, group) {
+    return this.groupColors[groupKey][group];
   }
 
   @action
@@ -207,13 +225,18 @@ export class GroupDataStore {
         return pkg;
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-          rootStoreInstance.UIStore.onGroupSnvFrequencyErr();
-        });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onGroupSnvFrequencyErr();
       });
   }
 
+  @action
   async downloadGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupSnvFrequencyData({

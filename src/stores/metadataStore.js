@@ -3,48 +3,45 @@ import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { ASYNC_STATES } from '../constants/defs.json';
 
-export class MetadataStore {
-  UIStoreInstance;
-  dataStoreInstance;
+import { getLocationIdsByNode } from '../utils/location';
 
+export class MetadataStore {
+  // Map of metadata value ID --> metadata value string
   metadataMap;
+  // Map of metadata value ID --> counts
+  metadataCounts;
 
   constructor() {}
 
   init() {
-    this.UIStoreInstance = rootStoreInstance.UIStore;
-    this.dataStoreInstance = rootStoreInstance.dataStore;
+    this.metadataMap = new Map();
+    this.metadataCounts = new Map();
 
-    this.metadataMap = {};
     Object.keys(config.metadata_cols).forEach((field) => {
-      this.metadataMap[field] = {};
+      this.metadataMap.set(field, new Map());
+      this.metadataCounts.set(field, new Map());
     });
   }
 
   @action
   async fetchMetadataFields() {
-    this.UIStoreInstance.onMetadataFieldStarted();
-    const metadataCounts = toJS(this.dataStoreInstance.metadataCounts);
-    const requestedKeys = {};
+    rootStoreInstance.UIStore.onMetadataFieldStarted();
 
-    Object.keys(metadataCounts).forEach((field) => {
-      requestedKeys[field] = Object.keys(metadataCounts[field]).map((key) =>
-        parseInt(key)
-      );
-    });
-
-    if (Object.keys(requestedKeys).length === 0) {
-      this.UIStoreInstance.onMetadataFieldFinished();
-      return;
-    }
-
-    fetch(hostname + '/metadata_fields', {
+    fetch(hostname + '/metadata', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestedKeys),
+      body: JSON.stringify({
+        start_date: toJS(rootStoreInstance.configStore.startDate),
+        end_date: toJS(rootStoreInstance.configStore.endDate),
+        location_ids: getLocationIdsByNode(
+          toJS(rootStoreInstance.configStore.selectedLocationNodes)
+        ),
+        selected_metadata_fields:
+          rootStoreInstance.configStore.getSelectedMetadataFields(),
+      }),
     })
       .then((res) => {
         if (!res.ok) {
@@ -52,32 +49,67 @@ export class MetadataStore {
         }
         return res.json();
       })
-      .then((metadataMap) => {
-        this.metadataMap = metadataMap;
-        this.UIStoreInstance.onMetadataFieldFinished();
+      .then((metadataRecords) => {
+        // Each row in this array of records is structured as:
+        // { "field", "val_id", "count", "val_str" }
+        metadataRecords.forEach((record) => {
+          this.metadataMap.get(record.field).set(record.val_id, record.val_str);
+          this.metadataCounts
+            .get(record.field)
+            .set(record.val_id, record.count);
+        });
+
+        rootStoreInstance.UIStore.onMetadataFieldFinished();
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-          this.UIStoreInstance.onMetadataFieldErr();
-        });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onMetadataFieldErr();
       });
   }
 
   getMetadataValueFromId(field, id) {
-    if (this.UIStoreInstance.metadataFieldState === ASYNC_STATES.SUCCEEDED) {
-      if (!Object.prototype.hasOwnProperty.call(this.metadataMap, field)) {
+    if (
+      rootStoreInstance.UIStore.metadataFieldState === ASYNC_STATES.SUCCEEDED
+    ) {
+      if (!this.metadataMap.has(field)) {
         return undefined;
       }
 
-      return this.metadataMap[field][id];
+      return this.metadataMap.get(field).get(id);
     } else if (
-      this.UIStoreInstance.metadataFieldState === ASYNC_STATES.STARTED ||
-      this.UIStoreInstance.metadataFieldState === ASYNC_STATES.UNINITIALIZED
+      rootStoreInstance.UIStore.metadataFieldState === ASYNC_STATES.STARTED ||
+      rootStoreInstance.UIStore.metadataFieldState ===
+        ASYNC_STATES.UNINITIALIZED
     ) {
       return 'Waiting...';
     } else {
       return 'Error fetching fields';
+    }
+  }
+
+  getMetadataCountsFromId(field, id) {
+    if (
+      rootStoreInstance.UIStore.metadataFieldState === ASYNC_STATES.SUCCEEDED
+    ) {
+      if (!this.metadataCounts.has(field)) {
+        return undefined;
+      }
+
+      return this.metadataCounts.get(field).get(id);
+    } else if (
+      rootStoreInstance.UIStore.metadataFieldState === ASYNC_STATES.STARTED ||
+      rootStoreInstance.UIStore.metadataFieldState ===
+        ASYNC_STATES.UNINITIALIZED
+    ) {
+      return null;
+    } else {
+      return null;
     }
   }
 }

@@ -13,13 +13,14 @@ from psycopg2 import sql
 
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.query.selection import select_sequences
+
+from cg_server.query.selection import create_sequence_temp_table
 
 
 def download_metadata(conn, req):
 
     with conn.cursor() as cur:
-        temp_table_name = select_sequences(conn, cur, req)
+        temp_table_name = create_sequence_temp_table(cur, req)
 
         # Fields that the user wants
         selected_fields = req.get("selected_fields", [])

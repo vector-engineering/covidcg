@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import _ from 'underscore';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
@@ -24,12 +23,14 @@ import {
 import ExternalLink from '../Common/ExternalLink';
 
 import { geneMap, proteinMap } from '../../utils/gene_protein';
+import { throttle } from '../../utils/func';
 
 const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, plotSettingsStore } = useStores();
+  const { configStore, dataStore, UIStore, plotSettingsStore, snpDataStore } =
+    useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -55,10 +56,36 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
-  const processData = (snvCounts) => {
-    return snvCounts.filter((group) => {
-      return group[0] !== GROUPS.OTHER_GROUP;
-    });
+  const processData = () => {
+    let snvCounts = toJS(dataStore.groupCounts);
+    // Input data from dataStore.groupCounts is in the form
+    // [{ group_id: snv_id, counts: int }]
+    // Before we pass this into Vega, we also need:
+    // 1) The color of each SNV
+    // 2) The human-readable name of each SNV
+    // 3) The position of the SNV
+    // console.log('ENTROPY PROCESS DATA');
+
+    return snvCounts
+      .map((record) => {
+        let snv = snpDataStore.intToSnv(
+          configStore.dnaOrAa,
+          configStore.coordinateMode,
+          record.group_id
+        );
+
+        record.snv = snv.snp_str;
+        record.color = snpDataStore.getSnvColor(snv.snp_str);
+        record.snvName = snv.name;
+        record.pos = snv.pos;
+        return record;
+      })
+      .filter((record) => {
+        return (
+          record.group !== GROUPS.OTHER_GROUP &&
+          record.group !== GROUPS.REFERENCE_GROUP
+        );
+      });
   };
 
   const handleHoverGroup = (...args) => {
@@ -75,12 +102,7 @@ const EntropyPlot = observer(({ width }) => {
     const curSelectedGroups = args[1].map((item) => {
       return { group: item.group };
     });
-    // Don't fire if the selection is the same
-    if (_.isEqual(curSelectedGroups, configStore.selectedGroups)) {
-      return;
-    } else {
-      configStore.updateSelectedGroups(curSelectedGroups);
-    }
+    configStore.updateSelectedGroups(curSelectedGroups);
   };
 
   const getXRange = () => {
@@ -148,8 +170,16 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    if (
+      configStore.residueCoordinates.length === 0
+      // configStore.residueCoordinates.length === 0 ||
+      // (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+      //   configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN)
+    ) {
+      if (
+        // configStore.dnaOrAa === DNA_OR_AA.DNA ||
+        configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
+      ) {
         return geneMap;
       } else if (
         configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
@@ -166,13 +196,9 @@ const EntropyPlot = observer(({ width }) => {
   const [state, setState] = useState({
     showWarning: true,
     xRange: getXRange(),
-    data: {
-      table: processData(toJS(dataStore.groupCounts)),
-      selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
-      domains: getDomains(),
-    },
+    hoverGroup: null,
     signalListeners: {
-      hoverGroup: _.throttle(handleHoverGroup, 100),
+      hoverGroup: throttle(handleHoverGroup, 100),
     },
     dataListeners: {
       selected: handleSelected,
@@ -180,20 +206,11 @@ const EntropyPlot = observer(({ width }) => {
   });
 
   useEffect(() => {
-    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
-      return;
-    }
-
     setState({
       ...state,
-      xRange: getXRange(),
-      data: {
-        ...state.data,
-        table: processData(toJS(dataStore.groupCounts)),
-        domains: getDomains(),
-      },
+      hoverGroup: { group: configStore.hoverGroup },
     });
-  }, [UIStore.caseDataState, plotSettingsStore.entropyMinCount]);
+  }, [configStore.hoverGroup]);
 
   // Update internal selected groups copy
   useEffect(() => {
@@ -201,10 +218,34 @@ const EntropyPlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: JSON.parse(JSON.stringify(configStore.selectedGroups)),
+        selected: toJS(configStore.selectedGroups),
       },
     });
   }, [configStore.selectedGroups]);
+
+  const refreshData = () => {
+    if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
+      return;
+    }
+
+    // console.log(getDomains());
+    // console.log(getXRange());
+    // console.log(processData());
+
+    setState({
+      ...state,
+      xRange: getXRange(),
+      data: {
+        ...state.data,
+        table: processData(),
+        domains: getDomains(),
+      },
+    });
+  };
+
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [UIStore.caseDataState]);
+  useEffect(refreshData, []);
 
   // Generate x-axis title
   let xLabel = '';
@@ -284,7 +325,7 @@ const EntropyPlot = observer(({ width }) => {
           totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
-          hoverGroup: { group: configStore.hoverGroup },
+          hoverGroup: state.hoverGroup,
           posField: configStore.dnaOrAa === DNA_OR_AA.DNA ? 0 : 1,
         }}
         signalListeners={state.signalListeners}

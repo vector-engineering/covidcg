@@ -24,15 +24,9 @@
       "value": 604800000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
     },
-    { "name": "cumulativeWindow", "update": "cumulative ? [null, 0] : [0, 0]" },
-    {
-      "name": "locationDateCountField",
-      "update": "cumulative ? 'cumulative_location_date_count_agg' : 'location_date_count_agg'"
-    },
-    {
-      "name": "yField",
-      "update": "percentages ? 'cases_norm' : 'counts_agg'"
-    },
+    { "name": "cumulativeWindow", "update": "cumulative ? [null, 0] : [0, 0]"},
+    { "name": "locationDateCountField", "update": "cumulative ? 'cumulative_location_date_count_agg' : 'location_date_count_agg'" },
+    { "name": "yField", "update": "percentages ? 'counts_norm' : 'counts_agg'" },
     { "name": "yLabel", "value": "% Sequences" },
     { "name": "yFormat", "update": "percentages ? '%' : 's'" },
     { "name": "tooltipCountFormat", "update": "percentages ? '.1%' : 'd'" },
@@ -43,21 +37,9 @@
         {
           "events": {
             "merge": [
-              {
-                "markname": "locationlines",
-                "type": "mouseover",
-                "consume": true
-              },
-              {
-                "markname": "locationdots",
-                "type": "mouseover",
-                "consume": true
-              },
-              {
-                "markname": "locationlabel",
-                "type": "mouseover",
-                "consume": true
-              }
+              {"markname": "locationlines", "type": "mouseover", "consume": true },
+              {"markname": "locationdots", "type": "mouseover", "consume": true },
+              {"markname": "locationlabel", "type": "mouseover", "consume": true }
             ]
           },
           "update": "{location: datum.location}",
@@ -66,21 +48,9 @@
         {
           "events": {
             "merge": [
-              {
-                "markname": "locationlines",
-                "type": "mouseout",
-                "consume": true
-              },
-              {
-                "markname": "locationdots",
-                "type": "mouseout",
-                "consume": true
-              },
-              {
-                "markname": "locationlabel",
-                "type": "mouseout",
-                "consume": true
-              }
+              {"markname": "locationlines", "type": "mouseout", "consume": true },
+              {"markname": "locationdots", "type": "mouseout", "consume": true },
+              {"markname": "locationlabel", "type": "mouseout", "consume": true }
             ]
           },
           "update": "null",
@@ -150,8 +120,7 @@
 
   "data": [
     {
-      "name": "selectedGroups",
-      "values": [{ "group": "S|614|D|G" }, { "group": "Reference" }]
+      "name": "selectedGroups"
     },
     {
       "name": "location_data",
@@ -161,7 +130,7 @@
           "counts": "number",
           "location_counts": "number",
           "location_date_count": "number",
-          "date": "date:'%Q'"
+          "collection_date": "date:'%Q'"
         }
       },
       "transform": [
@@ -171,25 +140,15 @@
         },
         {
           "type": "aggregate",
-          "groupby": ["location", "date"],
-          "fields": [
-            "counts",
-            "location_date_count",
-            "cumulative_location_date_count",
-            "location_counts"
-          ],
+          "groupby": ["location", "collection_date"],
+          "fields": ["counts", "location_date_count", "cumulative_location_date_count", "location_counts"],
           "ops": ["sum", "max", "max", "max"],
-          "as": [
-            "counts",
-            "location_date_count",
-            "cumulative_location_date_count",
-            "location_counts"
-          ]
+          "as": ["counts", "location_date_count", "cumulative_location_date_count", "location_counts"]
         },
         {
           "comment": "Bin observations by date. The width of each bin is determined by the signal dateBin. Since the most detail in the date from GISAID is by day, the bin shouldn't ever be smaller than a day.",
           "type": "bin",
-          "field": "date",
+          "field": "collection_date",
           "extent": [
             { "signal": "dateRangeStart" },
             { "signal": "dateRangeEnd" }
@@ -202,16 +161,8 @@
           "sort": { "field": "day_start" },
           "groupby": ["location"],
           "ops": ["sum", "sum", "max"],
-          "fields": [
-            "counts",
-            "location_date_count",
-            "cumulative_location_date_count"
-          ],
-          "as": [
-            "counts_agg",
-            "location_date_count_agg",
-            "cumulative_location_date_count_agg"
-          ],
+          "fields": ["counts", "location_date_count", "cumulative_location_date_count"],
+          "as": ["counts_agg", "location_date_count_agg", "cumulative_location_date_count_agg"],
           "frame": { "signal": "cumulativeWindow" }
         },
         {
@@ -224,7 +175,7 @@
         {
           "type": "formula",
           "expr": "datum.counts_agg / datum[locationDateCountField]",
-          "as": "cases_norm"
+          "as": "counts_norm"
         },
         {
           "comment": "Recalculate the day_end from the day_start and dateBin, since the imputation can't work on more than one field at once.",
@@ -258,8 +209,8 @@
       "range": "width",
       "domain": {
         "fields": [
-          { "data": "location_data", "field": "day_start" },
-          { "data": "location_data", "field": "day_end" }
+          {"data": "location_data", "field": "day_start"},
+          {"data": "location_data", "field": "day_end"}
         ]
       }
     },
@@ -269,13 +220,13 @@
       "range": "height",
       "nice": true,
       "zero": true,
-      "domain": { "data": "location_data", "field": { "signal": "yField" } }
+      "domain": {"data": "location_data", "field": {"signal": "yField"}}
     },
     {
       "name": "color",
       "type": "ordinal",
-      "range": { "scheme": "category10" },
-      "domain": { "data": "location_data", "field": "location" }
+      "range": {"scheme": "category10"},
+      "domain": {"data": "location_data", "field": "location"}
     }
   ],
 
@@ -312,7 +263,7 @@
       "labelFontSize": 14,
       "labelPadding": 4,
 
-      "title": { "signal": "yLabel" },
+      "title": {"signal": "yLabel"},
       "titleFontSize": 14,
       "titlePadding": 10
     }
@@ -330,16 +281,16 @@
           "name": "legendSymbol",
           "interactive": true,
           "update": {
-            "fill": { "value": "transparent" },
-            "strokeWidth": { "value": 2 },
+            "fill": {"value": "transparent"},
+            "strokeWidth": {"value": 2},
             "opacity": [
               {
                 "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
                 "value": 0.8
               },
-              { "value": 0.15 }
+              {"value": 0.15}
             ],
-            "size": { "value": 64 }
+            "size": {"value": 64}
           }
         },
         "labels": {
@@ -351,7 +302,7 @@
                 "test": "!length(data('selected')) || indata('selected', 'location', datum.value)",
                 "value": 1
               },
-              { "value": 0.25 }
+              {"value": 0.25}
             ]
           }
         }
@@ -392,31 +343,31 @@
         {
           "name": "locationlines",
           "type": "line",
-          "from": { "data": "series" },
+          "from": {"data": "series"},
           "encode": {
             "enter": {
-              "strokeWidth": { "value": 3 },
-              "strokeMiterLimit": { "value": 2 },
-              "strokeCap": { "value": "round" }
+              "strokeWidth": {"value": 3},
+              "strokeMiterLimit": {"value": 2},
+              "strokeCap": {"value": "round"}
             },
             "update": {
-              "interpolate": { "signal": "interpolate" },
-              "x": { "scale": "xscale", "field": "day_middle" },
-              "y": { "scale": "yscale", "field": { "signal": "yField" } },
+              "interpolate": {"signal": "interpolate"},
+              "x": {"scale": "xscale", "field": "day_middle"},
+              "y": {"scale": "yscale", "field": {"signal": "yField"}},
               "stroke": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
-                { "value": "#CCC" }
+                {"value": "#CCC"}
               ],
               "strokeOpacity": [
                 {
                   "test": "hoverLocation && hoverLocation.location == datum.location",
                   "value": 0.6
                 },
-                { "value": 1.0 }
+                {"value": 1.0}
               ],
               "zindex": [
                 {
@@ -431,30 +382,30 @@
         {
           "name": "locationdots",
           "type": "symbol",
-          "from": { "data": "series" },
+          "from": {"data": "series"},
           "encode": {
             "enter": {
-              "size": { "value": 30 },
-              "fill": { "value": "#fff" },
-              "strokeWidth": { "value": 1.5 }
+              "size": {"value": 30},
+              "fill": {"value": "#fff"},
+              "strokeWidth": {"value": 1.5}
             },
             "update": {
-              "x": { "scale": "xscale", "field": "day_middle" },
-              "y": { "scale": "yscale", "field": { "signal": "yField" } },
+              "x": {"scale": "xscale", "field": "day_middle"},
+              "y": {"scale": "yscale", "field": {"signal": "yField"}},
               "stroke": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
                   "scale": "color",
                   "field": "location"
                 },
-                { "value": "#CCC" }
+                {"value": "#CCC"}
               ],
               "strokeOpacity": [
                 {
                   "test": "hoverLocation && hoverLocation.location == datum.location",
                   "value": 0.6
                 },
-                { "value": 1.0 }
+                {"value": 1.0}
               ],
               "zindex": [
                 {
@@ -472,18 +423,18 @@
         {
           "name": "locationlabel",
           "type": "text",
-          "from": { "data": "label" },
+          "from": {"data": "label"},
           "encode": {
             "enter": {
-              "dy": { "value": -5 },
-              "fontSize": { "value": 14 },
-              "angle": { "value": 340 },
-              "zindex": { "value": 5 }
+              "dy": {"value": -5},
+              "fontSize": {"value": 14},
+              "angle": {"value": 340},
+              "zindex": {"value": 5}
             },
             "update": {
-              "x": { "scale": "xscale", "field": "day_middle", "offset": 2 },
-              "y": { "scale": "yscale", "field": { "signal": "yField" } },
-              "text": { "field": "location" },
+              "x": {"scale": "xscale", "field": "day_middle", "offset": 2},
+              "y": {"scale": "yscale", "field": {"signal": "yField"}},
+              "text": {"field": "location"},
               "fill": [
                 {
                   "test": "(!length(data('selected')) || indata('selected', 'location', datum.location)) && (datum.counts_agg > 0)",
@@ -497,7 +448,7 @@
                   "test": "hoverLocation && hoverLocation.location == datum.location",
                   "value": 0.6
                 },
-                { "value": 1 }
+                {"value": 1}
               ]
             }
           }

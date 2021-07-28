@@ -46,12 +46,8 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const {
-    configStore,
-    UIStore,
-    locationDataStore,
-    metadataStore,
-  } = useStores();
+  const { configStore, UIStore, locationDataStore, metadataStore } =
+    useStores();
   const sentRequest = useRef(false);
 
   const [pending, setPending] = useState({
@@ -73,10 +69,6 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     validDateRange: true,
     selectedMetadataFields: configStore.selectedMetadataFields,
     ageRange: configStore.ageRange,
-    lowFreqFilterType: configStore.lowFreqFilterType,
-    maxGroupCounts: configStore.maxGroupCounts,
-    minLocalCounts: configStore.minLocalCounts,
-    minGlobalCounts: configStore.minGlobalCounts,
   });
 
   const changeGrouping = (groupKey, dnaOrAa) => {
@@ -152,9 +144,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     return { dnaOrAa, coordinateMode, residueCoordinates };
   };
   const updateCoordinateMode = (_coordinateMode) => {
-    const { dnaOrAa, coordinateMode, residueCoordinates } = getCoordinateMode(
-      _coordinateMode
-    );
+    const { dnaOrAa, coordinateMode, residueCoordinates } =
+      getCoordinateMode(_coordinateMode);
     setPending({
       ...pending,
       dnaOrAa,
@@ -314,30 +305,6 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   //     ageRange
   //   });
   // };
-  const setLowFreqFilterType = (lowFreqFilterType) => {
-    setPending({
-      ...pending,
-      lowFreqFilterType,
-    });
-  };
-  const setMinLocalCounts = (minLocalCounts) => {
-    setPending({
-      ...pending,
-      minLocalCounts,
-    });
-  };
-  const setMinGlobalCounts = (minGlobalCounts) => {
-    setPending({
-      ...pending,
-      minGlobalCounts,
-    });
-  };
-  const setMaxGroupCounts = (maxGroupCounts) => {
-    setPending({
-      ...pending,
-      maxGroupCounts,
-    });
-  };
 
   // When the component first mounts (i.e., when the modal is first clicked on)
   // Then:
@@ -441,7 +408,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         </HeaderRow>
       </HeaderContainer>
       <Content>
-        <Column minWidth={300} maxWidth={350}>
+        <Column minWidth={300} collapseRow={'1'} collapseCol={'1'}>
           <GroupBySelect
             {...pending}
             onGroupKeyChange={onGroupKeyChange}
@@ -461,24 +428,17 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             updateValidCustomSequences={updateValidCustomSequences}
           />
         </Column>
-        <Column minWidth={300} maxWidth={300}>
+        <Column minWidth={300} collapseRow={'1/3'} collapseCol={'2'}>
           <LocationSelect
             {...pending}
             updateSelectedLocationNodes={updateSelectedLocationNodes}
           />
         </Column>
-        <Column minWidth={300} grow={true}>
+        <Column minWidth={300} collapseRow={'2'} collapseCol={'1'}>
           <DateSelect {...pending} updateDateRange={updateDateRange} />
           <MetaFieldSelect
             {...pending}
             updateSelectedMetadataFields={updateSelectedMetadataFields}
-          />
-          <FilterDataIntoOther
-            {...pending}
-            setLowFreqFilterType={setLowFreqFilterType}
-            setMinLocalCounts={setMinLocalCounts}
-            setMinGlobalCounts={setMinGlobalCounts}
-            setMaxGroupCounts={setMaxGroupCounts}
           />
         </Column>
       </Content>

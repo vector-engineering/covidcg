@@ -26,10 +26,14 @@ class ObservableAsyncDataStore {
         runInAction(() => {
           this.status = ASYNC_STATES.FAILED;
         });
-        err.text().then((errMsg) => {
-          console.error('Error getting initial data');
-          console.error(errMsg);
-        });
+        let prefix = 'Error getting initial data';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
+          });
+        }
       });
   }
 }

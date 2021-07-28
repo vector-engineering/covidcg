@@ -1,6 +1,7 @@
 import React from 'react';
-
-import QuestionButton from '../Buttons/QuestionButton';
+import { useStores } from '../../stores/connect';
+import { observer } from 'mobx-react';
+import { LOW_FREQ_FILTER_TYPES } from '../../constants/defs.json';
 
 import {
   SelectContainer,
@@ -9,10 +10,7 @@ import {
   RadioLabel,
   NumberInput,
 } from './FilterDataIntoOther.styles';
-
-import { useStores } from '../../stores/connect';
-import { observer } from 'mobx-react';
-import { LOW_FREQ_FILTER_TYPES } from '../../constants/defs.json';
+import QuestionButton from '../Buttons/QuestionButton';
 
 const FilterDataIntoOther = observer(
   ({
@@ -21,12 +19,10 @@ const FilterDataIntoOther = observer(
 
     lowFreqFilterType,
     minLocalCounts,
-    minGlobalCounts,
     maxGroupCounts,
 
     setLowFreqFilterType,
     setMinLocalCounts,
-    setMinGlobalCounts,
     setMaxGroupCounts,
   }) => {
     const { configStore } = useStores();
@@ -37,10 +33,6 @@ const FilterDataIntoOther = observer(
 
     const _setMinLocalCounts = (e) => {
       setMinLocalCounts(e.target.value);
-    };
-
-    const _setMinGlobalCounts = (e) => {
-      setMinGlobalCounts(e.target.value);
     };
 
     const _setMaxGroupCounts = (e) => {
@@ -93,45 +85,6 @@ const FilterDataIntoOther = observer(
               groupKey,
               dnaOrAa
             )}s</b> with less than <b>${minLocalCounts}</b> counts in the selected locations will be grouped into "Other"</p>`}
-            data-html="true"
-            data-for="main-tooltip"
-          />
-        </SelectItem>
-        <SelectItem>
-          <Radio>
-            <input
-              type="radio"
-              value={LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS}
-              onChange={_setLowFreqFilterType}
-              checked={
-                lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
-              }
-            />
-            <RadioLabel
-              itemSelected={
-                lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
-              }
-            >
-              Minimum global counts
-            </RadioLabel>
-          </Radio>
-          <NumberInput>
-            <input
-              type="number"
-              value={minGlobalCounts}
-              onChange={_setMinGlobalCounts}
-              disabled={
-                lowFreqFilterType !== LOW_FREQ_FILTER_TYPES.GLOBAL_COUNTS
-              }
-              min={1}
-              step={1}
-            />
-          </NumberInput>
-          <QuestionButton
-            data-tip={`<p><b>${configStore.getGroupLabel(
-              groupKey,
-              dnaOrAa
-            )}s</b> with less than <b>${minGlobalCounts}</b> counts globally will be grouped into "Other"</p>`}
             data-html="true"
             data-for="main-tooltip"
           />

@@ -16,17 +16,18 @@ import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
 import { queryPrimers } from '../utils/primer';
+import { arrayEqual } from '../utils/func';
 
 import {
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-  LOW_FREQ_FILTER_TYPES,
   COLOR_MODES,
   COMPARE_MODES,
   COMPARE_COLORS,
   GEO_LEVELS,
   TABS,
+  GROUPS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
@@ -70,11 +71,6 @@ export const initialValues = {
   // Location tab
   hoverLocation: null,
   focusedLocations: [],
-
-  lowFreqFilterType: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  maxGroupCounts: 100,
-  minLocalCounts: 50,
-  minGlobalCounts: 100,
 };
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -120,11 +116,6 @@ export class ConfigStore {
 
   @observable hoverLocation = initialValues.hoverLocation;
   @observable focusedLocations = initialValues.focusedLocations;
-
-  @observable lowFreqFilterType = initialValues.lowFreqFilterType;
-  @observable maxGroupCounts = initialValues.maxGroupCounts;
-  @observable minLocalCounts = initialValues.minLocalCounts;
-  @observable minGlobalCounts = initialValues.minGlobalCounts;
 
   constructor() {}
 
@@ -197,7 +188,6 @@ export class ConfigStore {
           // URLSearchParams decodes the string so encode for consistency
           value = encodeURIComponent(value);
           value = value.split('%2C');
-          let arr = [];
           value.forEach((primerStr) => {
             // Decode primerStr to allow searching for primer
             primerStr = decodeURIComponent(primerStr);
@@ -206,9 +196,8 @@ export class ConfigStore {
               Name: primerStr.split('_')[1],
             };
             const primer = queryPrimers(queryObj);
-            if (primer.length) arr.push(primer);
+            if (primer !== undefined) this[key].push(primer);
           });
-          this[key] = arr;
         } else {
           this[key] = value;
         }
@@ -277,7 +266,7 @@ export class ConfigStore {
   // });
 
   @action
-  resetValues(values) {
+  resetValues = (values) => {
     Object.keys(initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
@@ -308,10 +297,10 @@ export class ConfigStore {
 
     // Trigger data re-run
     this.dataStoreInstance.fetchData();
-  }
+  };
 
   @action
-  applyPendingChanges(pending) {
+  applyPendingChanges = (pending) => {
     // Change table coloring settings when switching from DNA <-> AA
     if (this.dnaOrAa !== pending.dnaOrAa && pending.dnaOrAa === DNA_OR_AA.AA) {
       this.plotSettingsStoreInstance.tableColorMode =
@@ -423,7 +412,7 @@ export class ConfigStore {
 
     // Get the new data from the server
     this.dataStoreInstance.fetchData();
-  }
+  };
 
   getSnvType() {
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -546,22 +535,43 @@ export class ConfigStore {
   }
 
   @action
-  updateHoverGroup(group) {
+  updateHoverGroup = (group) => {
     // console.log('UPDATE HOVER GROUP', group);
-    if (group === null) {
+    if (group === this.hoverGroup) {
+      return;
+    } else if (group === GROUPS.NONE_GROUP || GROUPS.ALL_OTHER_GROUP) {
+      // Ignore for some special groups
+      return;
+    } else if (group === null) {
       this.hoverGroup = null;
     } else {
       this.hoverGroup = group;
     }
-  }
+  };
 
   @action
-  updateSelectedGroups(groups) {
+  updateSelectedGroups = (groups) => {
+    // First check to see that it's different. If not,
+    // skip the update
+    // This matters because JS arrays are passed by reference,
+    // and any listeners which see a change to this reference
+    // will update themselves when the reference changes,
+    // even if the underlying data does not
+    // groups are in the structure [{ group: group }]
+    if (
+      arrayEqual(
+        groups.map((group) => group.group),
+        this.selectedGroups.map((group) => group.group)
+      )
+    ) {
+      return;
+    }
+
     this.selectedGroups = groups;
     if (this.groupKey === GROUP_SNV) {
       this.dataStoreInstance.processSelectedSnvs();
     }
-  }
+  };
 
   getSelectedGroupIds() {
     const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
@@ -620,12 +630,20 @@ export class ConfigStore {
   }
 
   @action
-  updateHoverLocation(location) {
+  updateHoverLocation = (location) => {
     this.hoverLocation = location;
-  }
+  };
 
   @action
-  updateFocusedLocations(locations) {
+  updateFocusedLocations = (locations) => {
+    if (
+      arrayEqual(
+        locations.map((location) => location.location),
+        this.focusedLocations.map((location) => location.location)
+      )
+    ) {
+      return;
+    }
     this.focusedLocations = locations;
-  }
+  };
 }

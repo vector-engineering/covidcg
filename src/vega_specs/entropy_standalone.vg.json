@@ -4,32 +4,46 @@
   "width": 700,
   "height": 220,
   "padding": 5,
+
   "signals": [
-    {"name": "entropyPlotHeight", "value": 120},
-    {"name": "domainPlotHeight", "value": 60},
-    {"name": "domainPlotYRange", "update": "[domainPlotHeight, 0]"},
-    {"name": "domainPlotY", "update": "height - domainPlotHeight"},
-    {"name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]"},
-    {"name": "totalSequences", "value": 1000},
-    {"name": "posField", "value": 1},
-    {"name": "rectWidth", "update": "invert('xDetail', 3)"},
-    {"name": "xRange", "value": [0, 1200]},
-    {"name": "xLabel", "value": "S Gene (AA)"},
-    {"name": "yLabel", "value": "# SNVs"},
-    {"name": "detailDomain"},
+    { "name": "entropyPlotHeight", "value": 120 },
+    { "name": "domainPlotHeight", "value": 60 },
+    { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
+    { "name": "domainPlotY", "update": "height - domainPlotHeight" },
+    { "name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]" },
+    { "name": "totalSequences", "value": 1000 },
+    { "name": "posField", "value": 1 },
+    {
+      "name": "rectWidth",
+      "update": "invert('xDetail', 3)"
+    },
+    { "name": "xRange", "value": [0, 1200] },
+    { "name": "xLabel", "value": "S Gene (AA)" },
+    { "name": "yLabel", "value": "# SNVs" },
+    { "name": "detailDomain" },
     {
       "name": "hoverGroup",
       "value": null,
       "on": [
-        {"events": "@entropybars:mouseover!", "update": "{group: datum.snv}"},
-        {"events": "@entropybars:mouseout!", "update": "null"}
+        {
+          "events": "@entropybars:mouseover!",
+          "update": "{group: datum.snv}"
+        },
+        {
+          "events": "@entropybars:mouseout!",
+          "update": "null"
+        }
       ]
     },
     {
       "name": "clearSnv",
       "value": true,
       "on": [
-        {"events": "mouseup[!event.item]", "update": "true", "force": true}
+        {
+          "events": "mouseup[!event.item]",
+          "update": "true",
+          "force": true
+        }
       ]
     },
     {
@@ -57,9 +71,7 @@
     {
       "name": "clearDomain",
       "value": true,
-      "on": [
-        {"events": "window:mousedown", "update": "true", "force": true}
-      ]
+      "on": [{ "events": "window:mousedown", "update": "true", "force": true }]
     },
     {
       "name": "shiftDomain",
@@ -86,93 +98,22 @@
   ],
   "data": [
     {
-      "name": "mutations",
-      "values": [
-        ["S|614|D|G", 982, "#88ccee", "S · D614G"],
-        ["Reference", 77, "#0077bb", "Reference"],
-        ["S|5|L|F", 8, "#cc3311", "S · L5F"],
-        ["S|145|Y|H", 6, "#ee3377", "S · Y145H"],
-        ["S|98|S|F", 3, "#ddcc77", "S · S98F"],
-        ["S|812|P|L", 3, "#999933", "S · P812L"],
-        ["S|655|H|Y", 2, "#44aa99", "S · H655Y"],
-        ["S|583|E|D", 2, "#0077bb", "S · E583D"],
-        ["S|243|A|S", 2, "#117733", "S · A243S"],
-        ["S|631|P|S", 2, "#999933", "S · P631S"],
-        ["S|323|T|I", 2, "#332288", "S · T323I"],
-        ["S|384|P|S", 2, "#009988", "S · P384S"],
-        ["S|647|A|S", 2, "#33bbee", "S · A647S"],
-        ["S|215|D|Y", 2, "#009988", "S · D215Y"],
-        ["S|1101|H|Y", 2, "#33bbee", "S · H1101Y"],
-        ["S|1104|V|L", 1, "#ee7733", "S · V1104L"],
-        ["S|618|T|I", 1, "#cc6677", "S · T618I"],
-        ["S|153|M|V", 1, "#cc3311", "S · M153V"],
-        ["S|483|V|F", 1, "#cc3311", "S · V483F"],
-        ["S|845|A|S", 1, "#009988", "S · A845S"],
-        ["S|27|A|V", 1, "#009988", "S · A27V"],
-        ["S|1020|A|S", 1, "#cc3311", "S · A1020S"],
-        ["S|1176|V|F", 1, "#aa4499", "S · V1176F"],
-        ["S|90|V|F", 1, "#332288", "S · V90F"],
-        ["S|679|N|K", 1, "#117733", "S · N679K"],
-        ["S|83|V|F", 1, "#33bbee", "S · V83F"],
-        ["S|1162|P|L", 1, "#cc3311", "S · P1162L"],
-        ["S|778|T|I", 1, "#882255", "S · T778I"],
-        ["S|67|A|V", 1, "#ddcc77", "S · A67V"],
-        ["S|80|D|N", 1, "#44aa99", "S · D80N"],
-        ["S|522|A|S", 1, "#117733", "S · A522S"],
-        ["S|1248|C|F", 1, "#882255", "S · C1248F"],
-        ["S|1203|L|F", 1, "#cc6677", "S · L1203F"],
-        ["S|1252|S|F", 1, "#cc3311", "S · S1252F"],
-        ["S|214|R|L", 1, "#aa4499", "S · R214L"],
-        ["S|1237|M|I", 1, "#33bbee", "S · M1237I"],
-        ["S|520|A|S", 1, "#332288", "S · A520S"],
-        ["S|950|D|H", 1, "#0077bb", "S · D950H"],
-        ["S|127|V|F", 1, "#ee3377", "S · V127F"],
-        ["S|677|Q|H", 1, "#332288", "S · Q677H"],
-        ["S|680|S|F", 1, "#cc6677", "S · S680F"],
-        ["S|309|E|Q", 1, "#009988", "S · E309Q"],
-        ["S|554|E|D", 1, "#ee7733", "S · E554D"],
-        ["S|1133|V|F", 1, "#ee7733", "S · V1133F"],
-        ["S|359|S|N", 1, "#88ccee", "S · S359N"],
-        ["S|181|G|V", 1, "#117733", "S · G181V"],
-        ["S|94|S|F", 1, "#aa4499", "S · S94F"],
-        ["S|54|L|F", 1, "#33bbee", "S · L54F"],
-        ["S|1191|K|N", 1, "#88ccee", "S · K1191N"],
-        ["S|809|P|S", 1, "#332288", "S · P809S"],
-        ["S|501|N|Y", 1, "#0077bb", "S · N501Y"],
-        ["S|253|D|G", 1, "#332288", "S · D253G"],
-        ["S|659|S|L", 1, "#ddcc77", "S · S659L"],
-        ["S|769|G|V", 1, "#88ccee", "S · G769V"],
-        ["S|95|T|I", 1, "#ee3377", "S · T95I"],
-        ["S|1163|D|Y", 1, "#332288", "S · D1163Y"],
-        ["S|830|D|G", 1, "#332288", "S · D830G"],
-        ["S|941|T|I", 1, "#44aa99", "S · T941I"]
-      ],
+      "name": "table",
       "format": {
-        "type": "json",
-        "parse": {"0": "string", "1": "number", "2": "string", "3": "string"}
+        "type": "json"
       },
+      "values": [{"group_id":3,"counts":7286,"snv":"S|614|D|G","color":"#44aa99","snvName":"S · D614G","pos":614},{"group_id":1557,"counts":1429,"snv":"S|452|L|R","color":"#332288","snvName":"S · L452R","pos":452},{"group_id":161,"counts":1401,"snv":"S|681|P|H","color":"#009988","snvName":"S · P681H","pos":681},{"group_id":30,"counts":1388,"snv":"S|13|S|I","color":"#ddcc77","snvName":"S · S13I","pos":13},{"group_id":6639,"counts":1333,"snv":"S|152|W|C","color":"#ee7733","snvName":"S · W152C","pos":152},{"group_id":157,"counts":931,"snv":"S|69|HV|-","color":"#cc3311","snvName":"S · HV69-","pos":69},{"group_id":159,"counts":794,"snv":"S|501|N|Y","color":"#332288","snvName":"S · N501Y","pos":501},{"group_id":158,"counts":787,"snv":"S|144|Y|-","color":"#332288","snvName":"S · Y144-","pos":144},{"group_id":162,"counts":777,"snv":"S|716|T|I","color":"#cc3311","snvName":"S · T716I","pos":716},{"group_id":160,"counts":753,"snv":"S|570|A|D","color":"#cc3311","snvName":"S · A570D","pos":570},{"group_id":163,"counts":753,"snv":"S|982|S|A","color":"#44aa99","snvName":"S · S982A","pos":982},{"group_id":164,"counts":753,"snv":"S|1118|D|H","color":"#cc6677","snvName":"S · D1118H","pos":1118},{"group_id":1244,"counts":595,"snv":"S|677|Q|H","color":"#44aa99","snvName":"S · Q677H","pos":677},{"group_id":3754,"counts":405,"snv":"S|732|T|A","color":"#0077bb","snvName":"S · T732A","pos":732},{"group_id":78,"counts":361,"snv":"S|5|L|F","color":"#ee7733","snvName":"S · L5F","pos":5},{"group_id":4653,"counts":284,"snv":"S|478|T|K","color":"#ee7733","snvName":"S · T478K","pos":478},{"group_id":2946,"counts":274,"snv":"S|1191|K|N","color":"#009988","snvName":"S · K1191N","pos":1191},{"group_id":1719,"counts":245,"snv":"S|26|P|S","color":"#882255","snvName":"S · P26S","pos":26},{"group_id":1895,"counts":173,"snv":"S|484|E|K","color":"#999933","snvName":"S · E484K","pos":484},{"group_id":2502,"counts":169,"snv":"S|258|W|L","color":"#cc6677","snvName":"S · W258L","pos":258},{"group_id":6868,"counts":149,"snv":"S|677|Q|P","color":"#117733","snvName":"S · Q677P","pos":677},{"group_id":704,"counts":146,"snv":"S|501|N|T","color":"#ee3377","snvName":"S · N501T","pos":501},{"group_id":2019,"counts":143,"snv":"S|18|L|F","color":"#0077bb","snvName":"S · L18F","pos":18},{"group_id":1933,"counts":119,"snv":"S|675|Q|H","color":"#cc3311","snvName":"S · Q675H","pos":675},{"group_id":2123,"counts":114,"snv":"S|1176|V|F","color":"#ddcc77","snvName":"S · V1176F","pos":1176},{"group_id":7144,"counts":113,"snv":"S|732|T|S","color":"#009988","snvName":"S · T732S","pos":732},{"group_id":1036,"counts":104,"snv":"S|222|A|V","color":"#0077bb","snvName":"S · A222V","pos":222},{"group_id":77,"counts":102,"snv":"S|1228|V|L","color":"#88ccee","snvName":"S · V1228L","pos":1228},{"group_id":2243,"counts":101,"snv":"S|138|D|Y","color":"#999933","snvName":"S · D138Y","pos":138},{"group_id":1479,"counts":96,"snv":"S|520|A|S","color":"#ddcc77","snvName":"S · A520S","pos":520},{"group_id":4242,"counts":84,"snv":"S|1202|E|Q","color":"#117733","snvName":"S · E1202Q","pos":1202},{"group_id":815,"counts":79,"snv":"S|572|T|I","color":"#88ccee","snvName":"S · T572I","pos":572},{"group_id":375,"counts":76,"snv":"S|769|G|V","color":"#33bbee","snvName":"S · G769V","pos":769},{"group_id":300,"counts":74,"snv":"S|29|T|I","color":"#999933","snvName":"S · T29I","pos":29},{"group_id":5936,"counts":74,"snv":"S|20|T|I","color":"#117733","snvName":"S · T20I","pos":20},{"group_id":1264,"counts":70,"snv":"S|780|E|Q","color":"#ddcc77","snvName":"S · E780Q","pos":780},{"group_id":368,"counts":67,"snv":"S|54|L|F","color":"#88ccee","snvName":"S · L54F","pos":54},{"group_id":2729,"counts":67,"snv":"S|494|S|P","color":"#ee7733","snvName":"S · S494P","pos":494},{"group_id":1189,"counts":66,"snv":"S|939|S|F","color":"#ee7733","snvName":"S · S939F","pos":939},{"group_id":4692,"counts":65,"snv":"S|679|N|K","color":"#cc6677","snvName":"S · N679K","pos":679},{"group_id":5235,"counts":64,"snv":"S|173|Q|K","color":"#ddcc77","snvName":"S · Q173K","pos":173},{"group_id":7449,"counts":63,"snv":"S|72|G|R","color":"#ddcc77","snvName":"S · G72R","pos":72},{"group_id":2021,"counts":62,"snv":"S|176|L|F","color":"#0077bb","snvName":"S · L176F","pos":176},{"group_id":315,"counts":61,"snv":"S|477|S|N","color":"#0077bb","snvName":"S · S477N","pos":477},{"group_id":1989,"counts":61,"snv":"S|812|P|L","color":"#999933","snvName":"S · P812L","pos":812},{"group_id":4652,"counts":58,"snv":"S|142|G|S","color":"#ee7733","snvName":"S · G142S","pos":142},{"group_id":1318,"counts":56,"snv":"S|49|H|Y","color":"#cc3311","snvName":"S · H49Y","pos":49},{"group_id":7231,"counts":56,"snv":"S|936|D|N","color":"#0077bb","snvName":"S · D936N","pos":936},{"group_id":1414,"counts":54,"snv":"S|859|T|I","color":"#0077bb","snvName":"S · T859I","pos":859},{"group_id":5296,"counts":54,"snv":"S|180|E|V","color":"#88ccee","snvName":"S · E180V","pos":180},{"group_id":172,"counts":53,"snv":"S|845|A|S","color":"#009988","snvName":"S · A845S","pos":845},{"group_id":4271,"counts":53,"snv":"S|681|P|R","color":"#cc3311","snvName":"S · P681R","pos":681},{"group_id":1462,"counts":50,"snv":"S|1264|V|L","color":"#009988","snvName":"S · V1264L","pos":1264},{"group_id":216,"counts":49,"snv":"S|12|S|F","color":"#332288","snvName":"S · S12F","pos":12},{"group_id":1149,"counts":49,"snv":"S|98|S|F","color":"#117733","snvName":"S · S98F","pos":98},{"group_id":3812,"counts":49,"snv":"S|26|P|L","color":"#cc6677","snvName":"S · P26L","pos":26},{"group_id":6325,"counts":47,"snv":"S|252|G|V","color":"#aa4499","snvName":"S · G252V","pos":252},{"group_id":31,"counts":45,"snv":"S|95|T|I","color":"#0077bb","snvName":"S · T95I","pos":95},{"group_id":1229,"counts":45,"snv":"S|688|A|V","color":"#ddcc77","snvName":"S · A688V","pos":688},{"group_id":4927,"counts":43,"snv":"S|1252|S|F","color":"#44aa99","snvName":"S · S1252F","pos":1252},{"group_id":111,"counts":42,"snv":"S|640|S|F","color":"#882255","snvName":"S · S640F","pos":640},{"group_id":3987,"counts":41,"snv":"S|178|D|N","color":"#cc3311","snvName":"S · D178N","pos":178},{"group_id":6605,"counts":41,"snv":"S|251|P|S","color":"#882255","snvName":"S · P251S","pos":251},{"group_id":633,"counts":38,"snv":"S|254|S|F","color":"#cc3311","snvName":"S · S254F","pos":254},{"group_id":1035,"counts":38,"snv":"S|1237|M|I","color":"#ee7733","snvName":"S · M1237I","pos":1237},{"group_id":5743,"counts":37,"snv":"S|747|T|I","color":"#ee3377","snvName":"S · T747I","pos":747},{"group_id":1740,"counts":35,"snv":"S|153|M|I","color":"#332288","snvName":"S · M153I","pos":153},{"group_id":2214,"counts":35,"snv":"S|1073|K|N","color":"#ee3377","snvName":"S · K1073N","pos":1073},{"group_id":2953,"counts":35,"snv":"S|177|M|I","color":"#33bbee","snvName":"S · M177I","pos":177},{"group_id":5165,"counts":34,"snv":"S|1117|T|I","color":"#ddcc77","snvName":"S · T1117I","pos":1117},{"group_id":3110,"counts":33,"snv":"S|701|A|V","color":"#cc6677","snvName":"S · A701V","pos":701},{"group_id":1047,"counts":32,"snv":"S|80|D|Y","color":"#44aa99","snvName":"S · D80Y","pos":80},{"group_id":1118,"counts":32,"snv":"S|1229|M|I","color":"#44aa99","snvName":"S · M1229I","pos":1229},{"group_id":960,"counts":30,"snv":"S|22|T|I","color":"#009988","snvName":"S · T22I","pos":22},{"group_id":5370,"counts":30,"snv":"S|1070|A|V","color":"#009988","snvName":"S · A1070V","pos":1070},{"group_id":7126,"counts":30,"snv":"S|478|T|R","color":"#cc3311","snvName":"S · T478R","pos":478},{"group_id":1152,"counts":29,"snv":"S|477|S|R","color":"#33bbee","snvName":"S · S477R","pos":477},{"group_id":3671,"counts":29,"snv":"S|152|W|L","color":"#cc3311","snvName":"S · W152L","pos":152},{"group_id":189,"counts":28,"snv":"S|1078|A|S","color":"#117733","snvName":"S · A1078S","pos":1078},{"group_id":1207,"counts":27,"snv":"S|809|P|S","color":"#ee7733","snvName":"S · P809S","pos":809},{"group_id":5507,"counts":27,"snv":"S|198|D|G","color":"#332288","snvName":"S · D198G","pos":198},{"group_id":463,"counts":26,"snv":"S|879|A|S","color":"#ee3377","snvName":"S · A879S","pos":879},{"group_id":2134,"counts":26,"snv":"S|308|V|L","color":"#aa4499","snvName":"S · V308L","pos":308},{"group_id":4476,"counts":25,"snv":"S|771|A|S","color":"#cc3311","snvName":"S · A771S","pos":771},{"group_id":840,"counts":24,"snv":"S|936|D|Y","color":"#33bbee","snvName":"S · D936Y","pos":936},{"group_id":2958,"counts":24,"snv":"S|138|D|H","color":"#117733","snvName":"S · D138H","pos":138},{"group_id":4272,"counts":24,"snv":"S|143|V|F","color":"#ee3377","snvName":"S · V143F","pos":143},{"group_id":641,"counts":23,"snv":"S|938|L|F","color":"#009988","snvName":"S · L938F","pos":938},{"group_id":1284,"counts":23,"snv":"S|613|Q|H","color":"#88ccee","snvName":"S · Q613H","pos":613},{"group_id":1637,"counts":23,"snv":"S|655|H|Y","color":"#117733","snvName":"S · H655Y","pos":655},{"group_id":3386,"counts":23,"snv":"S|1167|G|V","color":"#332288","snvName":"S · G1167V","pos":1167},{"group_id":2826,"counts":22,"snv":"S|67|A|V","color":"#0077bb","snvName":"S · A67V","pos":67},{"group_id":3495,"counts":22,"snv":"S|382|V|L","color":"#882255","snvName":"S · V382L","pos":382},{"group_id":6282,"counts":22,"snv":"S|1040|V|F","color":"#332288","snvName":"S · V1040F","pos":1040},{"group_id":2827,"counts":21,"snv":"S|253|D|G","color":"#0077bb","snvName":"S · D253G","pos":253},{"group_id":7055,"counts":21,"snv":"S|1071|Q|L","color":"#cc3311","snvName":"S · Q1071L","pos":1071},{"group_id":52,"counts":20,"snv":"S|307|T|I","color":"#cc6677","snvName":"S · T307I","pos":307},{"group_id":392,"counts":20,"snv":"S|1263|P|L","color":"#33bbee","snvName":"S · P1263L","pos":1263},{"group_id":837,"counts":20,"snv":"S|215|D|Y","color":"#ee3377","snvName":"S · D215Y","pos":215},{"group_id":1348,"counts":20,"snv":"S|1162|P|S","color":"#882255","snvName":"S · P1162S","pos":1162},{"group_id":1460,"counts":20,"snv":"S|27|A|S","color":"#009988","snvName":"S · A27S","pos":27},{"group_id":2093,"counts":20,"snv":"S|1101|H|Y","color":"#882255","snvName":"S · H1101Y","pos":1101},{"group_id":3120,"counts":20,"snv":"S|1020|A|S","color":"#aa4499","snvName":"S · A1020S","pos":1020},{"group_id":3800,"counts":20,"snv":"S|152|W|R","color":"#ee3377","snvName":"S · W152R","pos":152},{"group_id":7781,"counts":20,"snv":"S|1167|G|A","color":"#ee3377","snvName":"S · G1167A","pos":1167},{"group_id":1436,"counts":19,"snv":"S|255|S|F","color":"#ee3377","snvName":"S · S255F","pos":255},{"group_id":1852,"counts":19,"snv":"S|257|G|S","color":"#117733","snvName":"S · G257S","pos":257},{"group_id":3209,"counts":19,"snv":"S|32|F|L","color":"#88ccee","snvName":"S · F32L","pos":32},{"group_id":217,"counts":18,"snv":"S|330|P|S","color":"#117733","snvName":"S · P330S","pos":330},{"group_id":411,"counts":18,"snv":"S|1124|G|V","color":"#ee3377","snvName":"S · G1124V","pos":1124},{"group_id":593,"counts":18,"snv":"S|558|K|N","color":"#cc6677","snvName":"S · K558N","pos":558},{"group_id":3867,"counts":18,"snv":"S|622|V|F","color":"#33bbee","snvName":"S · V622F","pos":622},{"group_id":7268,"counts":18,"snv":"S|26|P|H","color":"#ddcc77","snvName":"S · P26H","pos":26},{"group_id":1226,"counts":17,"snv":"S|189|L|F","color":"#aa4499","snvName":"S · L189F","pos":189},{"group_id":3335,"counts":17,"snv":"S|1153|D|Y","color":"#117733","snvName":"S · D1153Y","pos":1153},{"group_id":4163,"counts":17,"snv":"S|141|LGV|-","color":"#aa4499","snvName":"S · LGV141-","pos":141},{"group_id":7195,"counts":17,"snv":"S|359|S|N","color":"#332288","snvName":"S · S359N","pos":359},{"group_id":126,"counts":16,"snv":"S|76|T|I","color":"#009988","snvName":"S · T76I","pos":76},{"group_id":871,"counts":16,"snv":"S|522|A|S","color":"#aa4499","snvName":"S · A522S","pos":522},{"group_id":1858,"counts":16,"snv":"S|675|Q|R","color":"#332288","snvName":"S · Q675R","pos":675},{"group_id":2453,"counts":16,"snv":"S|111|D|N","color":"#aa4499","snvName":"S · D111N","pos":111},{"group_id":2530,"counts":16,"snv":"S|622|V|I","color":"#009988","snvName":"S · V622I","pos":622},{"group_id":4293,"counts":16,"snv":"S|1027|T|I","color":"#ee7733","snvName":"S · T1027I","pos":1027},{"group_id":6946,"counts":16,"snv":"S|1236|C|S","color":"#009988","snvName":"S · C1236S","pos":1236},{"group_id":7758,"counts":16,"snv":"S|569|I|F","color":"#009988","snvName":"S · I569F","pos":569},{"group_id":724,"counts":15,"snv":"S|672|A|V","color":"#33bbee","snvName":"S · A672V","pos":672},{"group_id":1117,"counts":15,"snv":"S|439|N|K","color":"#aa4499","snvName":"S · N439K","pos":439},{"group_id":2022,"counts":15,"snv":"S|583|E|D","color":"#ddcc77","snvName":"S · E583D","pos":583},{"group_id":2654,"counts":15,"snv":"S|631|P|S","color":"#117733","snvName":"S · P631S","pos":631},{"group_id":3425,"counts":15,"snv":"S|384|P|L","color":"#aa4499","snvName":"S · P384L","pos":384},{"group_id":3902,"counts":15,"snv":"S|677|Q|R","color":"#999933","snvName":"S · Q677R","pos":677},{"group_id":7156,"counts":15,"snv":"S|257|G|V","color":"#999933","snvName":"S · G257V","pos":257},{"group_id":251,"counts":14,"snv":"S|262|A|S","color":"#88ccee","snvName":"S · A262S","pos":262},{"group_id":928,"counts":14,"snv":"S|1219|G|C","color":"#0077bb","snvName":"S · G1219C","pos":1219},{"group_id":3091,"counts":14,"snv":"S|2|F|L","color":"#ddcc77","snvName":"S · F2L","pos":2},{"group_id":4407,"counts":14,"snv":"S|689|S|I","color":"#cc6677","snvName":"S · S689I","pos":689},{"group_id":6899,"counts":14,"snv":"S|1168|D|G","color":"#88ccee","snvName":"S · D1168G","pos":1168},{"group_id":39,"counts":13,"snv":"S|1219|G|V","color":"#33bbee","snvName":"S · G1219V","pos":1219},{"group_id":369,"counts":13,"snv":"S|1104|V|L","color":"#0077bb","snvName":"S · V1104L","pos":1104},{"group_id":1029,"counts":13,"snv":"S|812|P|S","color":"#cc6677","snvName":"S · P812S","pos":812},{"group_id":6318,"counts":13,"snv":"S|263|A|S","color":"#117733","snvName":"S · A263S","pos":263},{"group_id":6933,"counts":13,"snv":"S|136|C|G","color":"#44aa99","snvName":"S · C136G","pos":136},{"group_id":526,"counts":12,"snv":"S|1020|A|V","color":"#0077bb","snvName":"S · A1020V","pos":1020},{"group_id":839,"counts":12,"snv":"S|547|T|I","color":"#ee3377","snvName":"S · T547I","pos":547},{"group_id":1227,"counts":12,"snv":"S|772|V|I","color":"#ee3377","snvName":"S · V772I","pos":772},{"group_id":2471,"counts":12,"snv":"S|653|A|V","color":"#ee3377","snvName":"S · A653V","pos":653},{"group_id":2477,"counts":12,"snv":"S|27|A|V","color":"#ee7733","snvName":"S · A27V","pos":27},{"group_id":2988,"counts":12,"snv":"S|1243|C|F","color":"#999933","snvName":"S · C1243F","pos":1243},{"group_id":3935,"counts":12,"snv":"S|654|E|Q","color":"#88ccee","snvName":"S · E654Q","pos":654},{"group_id":5214,"counts":12,"snv":"S|813|S|I","color":"#882255","snvName":"S · S813I","pos":813},{"group_id":6840,"counts":12,"snv":"S|490|F|S","color":"#0077bb","snvName":"S · F490S","pos":490},{"group_id":6886,"counts":12,"snv":"S|674|Y|F","color":"#ee7733","snvName":"S · Y674F","pos":674},{"group_id":2270,"counts":11,"snv":"S|221|S|L","color":"#882255","snvName":"S · S221L","pos":221},{"group_id":3254,"counts":11,"snv":"S|1118|D|Y","color":"#882255","snvName":"S · D1118Y","pos":1118},{"group_id":3396,"counts":11,"snv":"S|256|S|L","color":"#332288","snvName":"S · S256L","pos":256},{"group_id":3805,"counts":11,"snv":"S|22|T|N","color":"#ee7733","snvName":"S · T22N","pos":22},{"group_id":4307,"counts":11,"snv":"S|243|A|S","color":"#aa4499","snvName":"S · A243S","pos":243},{"group_id":4603,"counts":11,"snv":"S|67|A|S","color":"#aa4499","snvName":"S · A67S","pos":67},{"group_id":4981,"counts":11,"snv":"S|1078|A|T","color":"#999933","snvName":"S · A1078T","pos":1078},{"group_id":5524,"counts":11,"snv":"S|19|T|I","color":"#88ccee","snvName":"S · T19I","pos":19},{"group_id":7226,"counts":11,"snv":"S|1133|V|A","color":"#999933","snvName":"S · V1133A","pos":1133},{"group_id":90,"counts":10,"snv":"S|153|M|T","color":"#88ccee","snvName":"S · M153T","pos":153},{"group_id":1504,"counts":10,"snv":"S|215|D|G","color":"#ee7733","snvName":"S · D215G","pos":215},{"group_id":1667,"counts":10,"snv":"S|69|H|Y","color":"#88ccee","snvName":"S · H69Y","pos":69},{"group_id":2472,"counts":10,"snv":"S|570|A|V","color":"#332288","snvName":"S · A570V","pos":570},{"group_id":4184,"counts":10,"snv":"S|245|H|Y","color":"#cc3311","snvName":"S · H245Y","pos":245},{"group_id":6157,"counts":10,"snv":"S|88|D|H","color":"#cc6677","snvName":"S · D88H","pos":88},{"group_id":6878,"counts":10,"snv":"S|1026|A|S","color":"#009988","snvName":"S · A1026S","pos":1026},{"group_id":6880,"counts":10,"snv":"S|565|F|L","color":"#0077bb","snvName":"S · F565L","pos":565},{"group_id":7414,"counts":10,"snv":"S|1050|M|I","color":"#44aa99","snvName":"S · M1050I","pos":1050},{"group_id":7666,"counts":10,"snv":"S|370|N|S","color":"#cc6677","snvName":"S · N370S","pos":370},{"group_id":7996,"counts":10,"snv":"S|156|E|V","color":"#009988","snvName":"S · E156V","pos":156},{"group_id":62,"counts":9,"snv":"S|181|G|V","color":"#999933","snvName":"S · G181V","pos":181},{"group_id":374,"counts":9,"snv":"S|1162|P|L","color":"#cc6677","snvName":"S · P1162L","pos":1162},{"group_id":1154,"counts":9,"snv":"S|626|A|S","color":"#ee3377","snvName":"S · A626S","pos":626},{"group_id":1365,"counts":9,"snv":"S|731|M|I","color":"#aa4499","snvName":"S · M731I","pos":731},{"group_id":1375,"counts":9,"snv":"S|846|A|V","color":"#88ccee","snvName":"S · A846V","pos":846},{"group_id":1547,"counts":9,"snv":"S|940|S|F","color":"#cc3311","snvName":"S · S940F","pos":940},{"group_id":1584,"counts":9,"snv":"S|796|D|Y","color":"#117733","snvName":"S · D796Y","pos":796},{"group_id":1689,"counts":9,"snv":"S|75|G|V","color":"#999933","snvName":"S · G75V","pos":75},{"group_id":1692,"counts":9,"snv":"S|346|R|K","color":"#0077bb","snvName":"S · R346K","pos":346},{"group_id":1706,"counts":9,"snv":"S|241|LLA|-","color":"#ddcc77","snvName":"S · LLA241-","pos":241},{"group_id":1731,"counts":9,"snv":"S|384|P|S","color":"#0077bb","snvName":"S · P384S","pos":384},{"group_id":1934,"counts":9,"snv":"S|21|R|I","color":"#117733","snvName":"S · R21I","pos":21},{"group_id":2090,"counts":9,"snv":"S|157|F|L","color":"#ee7733","snvName":"S · F157L","pos":157},{"group_id":2904,"counts":9,"snv":"S|626|A|V","color":"#332288","snvName":"S · A626V","pos":626},{"group_id":3049,"counts":9,"snv":"S|676|T|I","color":"#88ccee","snvName":"S · T676I","pos":676},{"group_id":3253,"counts":9,"snv":"S|14|Q|H","color":"#33bbee","snvName":"S · Q14H","pos":14},{"group_id":5578,"counts":9,"snv":"S|251|P|H","color":"#cc6677","snvName":"S · P251H","pos":251},{"group_id":7917,"counts":9,"snv":"S|809|P|L","color":"#009988","snvName":"S · P809L","pos":809},{"group_id":8284,"counts":9,"snv":"S|6|V|I","color":"#117733","snvName":"S · V6I","pos":6},{"group_id":8288,"counts":9,"snv":"S|156|E|Q","color":"#33bbee","snvName":"S · E156Q","pos":156},{"group_id":143,"counts":8,"snv":"S|778|T|I","color":"#332288","snvName":"S · T778I","pos":778},{"group_id":474,"counts":8,"snv":"S|141|LGVY|-","color":"#882255","snvName":"S · LGVY141-","pos":141},{"group_id":1258,"counts":8,"snv":"S|687|V|I","color":"#44aa99","snvName":"S · V687I","pos":687},{"group_id":1272,"counts":8,"snv":"S|1163|D|Y","color":"#33bbee","snvName":"S · D1163Y","pos":1163},{"group_id":1911,"counts":8,"snv":"S|1063|L|F","color":"#cc6677","snvName":"S · L1063F","pos":1063},{"group_id":1998,"counts":8,"snv":"S|936|D|H","color":"#aa4499","snvName":"S · D936H","pos":936},{"group_id":3327,"counts":8,"snv":"S|213|V|L","color":"#0077bb","snvName":"S · V213L","pos":213},{"group_id":5720,"counts":8,"snv":"S|479|P|S","color":"#332288","snvName":"S · P479S","pos":479},{"group_id":6068,"counts":8,"snv":"S|1239|S|T","color":"#44aa99","snvName":"S · S1239T","pos":1239},{"group_id":6820,"counts":8,"snv":"S|607|Q|H","color":"#ee3377","snvName":"S · Q607H","pos":607},{"group_id":6927,"counts":8,"snv":"S|102|R|S","color":"#ee3377","snvName":"S · R102S","pos":102},{"group_id":7543,"counts":8,"snv":"S|385|T|I","color":"#33bbee","snvName":"S · T385I","pos":385},{"group_id":7586,"counts":8,"snv":"S|163|A|S","color":"#332288","snvName":"S · A163S","pos":163},{"group_id":8012,"counts":8,"snv":"S|69|H|Q","color":"#ee3377","snvName":"S · H69Q","pos":69},{"group_id":8129,"counts":8,"snv":"S|80|D|A","color":"#cc3311","snvName":"S · D80A","pos":80},{"group_id":420,"counts":7,"snv":"S|344|A|S","color":"#aa4499","snvName":"S · A344S","pos":344},{"group_id":471,"counts":7,"snv":"S|367|V|F","color":"#44aa99","snvName":"S · V367F","pos":367},{"group_id":580,"counts":7,"snv":"S|899|A|S","color":"#009988","snvName":"S · A899S","pos":899},{"group_id":738,"counts":7,"snv":"S|215|D|H","color":"#cc3311","snvName":"S · D215H","pos":215},{"group_id":1356,"counts":7,"snv":"S|70|V|F","color":"#ee7733","snvName":"S · V70F","pos":70},{"group_id":1863,"counts":7,"snv":"S|484|E|Q","color":"#ddcc77","snvName":"S · E484Q","pos":484},{"group_id":2108,"counts":7,"snv":"S|216|L|F","color":"#332288","snvName":"S · L216F","pos":216},{"group_id":2448,"counts":7,"snv":"S|96|E|D","color":"#ee7733","snvName":"S · E96D","pos":96},{"group_id":2691,"counts":7,"snv":"S|681|P|L","color":"#ee7733","snvName":"S · P681L","pos":681},{"group_id":3042,"counts":7,"snv":"S|78|R|M","color":"#ee7733","snvName":"S · R78M","pos":78},{"group_id":3262,"counts":7,"snv":"S|1120|T|I","color":"#0077bb","snvName":"S · T1120I","pos":1120},{"group_id":3550,"counts":7,"snv":"S|522|A|V","color":"#0077bb","snvName":"S · A522V","pos":522},{"group_id":3611,"counts":7,"snv":"S|684|A|V","color":"#88ccee","snvName":"S · A684V","pos":684},{"group_id":3726,"counts":7,"snv":"S|446|G|V","color":"#009988","snvName":"S · G446V","pos":446},{"group_id":4093,"counts":7,"snv":"S|879|A|V","color":"#88ccee","snvName":"S · A879V","pos":879},{"group_id":5009,"counts":7,"snv":"S|1087|A|S","color":"#332288","snvName":"S · A1087S","pos":1087},{"group_id":5778,"counts":7,"snv":"S|871|A|V","color":"#cc3311","snvName":"S · A871V","pos":871},{"group_id":6983,"counts":7,"snv":"S|779|Q|R","color":"#88ccee","snvName":"S · Q779R","pos":779},{"group_id":7672,"counts":7,"snv":"S|249|L|S","color":"#117733","snvName":"S · L249S","pos":249},{"group_id":7714,"counts":7,"snv":"S|52|Q|R","color":"#ee7733","snvName":"S · Q52R","pos":52},{"group_id":8130,"counts":7,"snv":"S|417|K|N","color":"#ddcc77","snvName":"S · K417N","pos":417},{"group_id":8153,"counts":7,"snv":"S|893|A|S","color":"#0077bb","snvName":"S · A893S","pos":893},{"group_id":762,"counts":6,"snv":"S|47|V|I","color":"#88ccee","snvName":"S · V47I","pos":47},{"group_id":879,"counts":6,"snv":"S|831|A|V","color":"#44aa99","snvName":"S · A831V","pos":831},{"group_id":979,"counts":6,"snv":"S|72|G|W","color":"#882255","snvName":"S · G72W","pos":72},{"group_id":1698,"counts":6,"snv":"S|791|T|I","color":"#cc3311","snvName":"S · T791I","pos":791},{"group_id":1756,"counts":6,"snv":"S|9|P|L","color":"#999933","snvName":"S · P9L","pos":9},{"group_id":1783,"counts":6,"snv":"S|197|I|V","color":"#ee3377","snvName":"S · I197V","pos":197},{"group_id":1890,"counts":6,"snv":"S|309|E|Q","color":"#0077bb","snvName":"S · E309Q","pos":309},{"group_id":2207,"counts":6,"snv":"S|859|T|N","color":"#33bbee","snvName":"S · T859N","pos":859},{"group_id":2755,"counts":6,"snv":"S|1091|R|H","color":"#88ccee","snvName":"S · R1091H","pos":1091},{"group_id":2874,"counts":6,"snv":"S|1163|D|G","color":"#aa4499","snvName":"S · D1163G","pos":1163},{"group_id":2979,"counts":6,"snv":"S|214|R|L","color":"#009988","snvName":"S · R214L","pos":214},{"group_id":3138,"counts":6,"snv":"S|678|T|I","color":"#ddcc77","snvName":"S · T678I","pos":678},{"group_id":3599,"counts":6,"snv":"S|348|A|S","color":"#33bbee","snvName":"S · A348S","pos":348},{"group_id":4150,"counts":6,"snv":"S|181|G|A","color":"#44aa99","snvName":"S · G181A","pos":181},{"group_id":4386,"counts":6,"snv":"S|1235|C|F","color":"#0077bb","snvName":"S · C1235F","pos":1235},{"group_id":4552,"counts":6,"snv":"S|735|S|L","color":"#ee7733","snvName":"S · S735L","pos":735},{"group_id":4588,"counts":6,"snv":"S|1164|V|I","color":"#ee7733","snvName":"S · V1164I","pos":1164},{"group_id":4667,"counts":6,"snv":"S|257|G|D","color":"#44aa99","snvName":"S · G257D","pos":257},{"group_id":4714,"counts":6,"snv":"S|227|V|L","color":"#33bbee","snvName":"S · V227L","pos":227},{"group_id":5029,"counts":6,"snv":"S|178|D|G","color":"#ee7733","snvName":"S · D178G","pos":178},{"group_id":5344,"counts":6,"snv":"S|16|V|F","color":"#117733","snvName":"S · V16F","pos":16},{"group_id":5460,"counts":6,"snv":"S|1103|F|L","color":"#aa4499","snvName":"S · F1103L","pos":1103},{"group_id":5834,"counts":6,"snv":"S|654|E|K","color":"#332288","snvName":"S · E654K","pos":654},{"group_id":6226,"counts":6,"snv":"S|888|F|L","color":"#999933","snvName":"S · F888L","pos":888},{"group_id":7118,"counts":6,"snv":"S|1153|D|G","color":"#44aa99","snvName":"S · D1153G","pos":1153},{"group_id":7269,"counts":6,"snv":"S|8|L|F","color":"#cc3311","snvName":"S · L8F","pos":8},{"group_id":7280,"counts":6,"snv":"S|1023|N|S","color":"#33bbee","snvName":"S · N1023S","pos":1023},{"group_id":7502,"counts":6,"snv":"S|157|F|S","color":"#cc3311","snvName":"S · F157S","pos":157},{"group_id":7673,"counts":6,"snv":"S|1121|F|L","color":"#009988","snvName":"S · F1121L","pos":1121},{"group_id":7692,"counts":6,"snv":"S|846|A|G","color":"#ee3377","snvName":"S · A846G","pos":846},{"group_id":8152,"counts":6,"snv":"S|246|R|I","color":"#ee3377","snvName":"S · R246I","pos":246},{"group_id":8187,"counts":6,"snv":"S|244|L|S","color":"#33bbee","snvName":"S · L244S","pos":244},{"group_id":8345,"counts":6,"snv":"S|80|D|F","color":"#ee3377","snvName":"S · D80F","pos":80},{"group_id":503,"counts":5,"snv":"S|1114|I|T","color":"#44aa99","snvName":"S · I1114T","pos":1114},{"group_id":1186,"counts":5,"snv":"S|272|P|L","color":"#0077bb","snvName":"S · P272L","pos":272},{"group_id":1199,"counts":5,"snv":"S|90|V|F","color":"#88ccee","snvName":"S · V90F","pos":90},{"group_id":1218,"counts":5,"snv":"S|1122|V|L","color":"#ee7733","snvName":"S · V1122L","pos":1122},{"group_id":1265,"counts":5,"snv":"S|1251|G|V","color":"#88ccee","snvName":"S · G1251V","pos":1251},{"group_id":1332,"counts":5,"snv":"S|1203|L|F","color":"#999933","snvName":"S · L1203F","pos":1203},{"group_id":1545,"counts":5,"snv":"S|508|Y|H","color":"#88ccee","snvName":"S · Y508H","pos":508},{"group_id":2013,"counts":5,"snv":"S|28|Y|H","color":"#88ccee","snvName":"S · Y28H","pos":28},{"group_id":2094,"counts":5,"snv":"S|575|A|S","color":"#999933","snvName":"S · A575S","pos":575},{"group_id":2248,"counts":5,"snv":"S|1259|D|Y","color":"#ddcc77","snvName":"S · D1259Y","pos":1259},{"group_id":2393,"counts":5,"snv":"S|929|S|I","color":"#ddcc77","snvName":"S · S929I","pos":929},{"group_id":2509,"counts":5,"snv":"S|71|S|F","color":"#88ccee","snvName":"S · S71F","pos":71},{"group_id":2737,"counts":5,"snv":"S|704|S|L","color":"#0077bb","snvName":"S · S704L","pos":704},{"group_id":2890,"counts":5,"snv":"S|892|A|S","color":"#882255","snvName":"S · A892S","pos":892},{"group_id":3841,"counts":5,"snv":"S|96|E|G","color":"#cc3311","snvName":"S · E96G","pos":96},{"group_id":4013,"counts":5,"snv":"S|112|S|L","color":"#88ccee","snvName":"S · S112L","pos":112},{"group_id":4359,"counts":5,"snv":"S|190|R|S","color":"#ee7733","snvName":"S · R190S","pos":190},{"group_id":4395,"counts":5,"snv":"S|1251|G|R","color":"#332288","snvName":"S · G1251R","pos":1251},{"group_id":4427,"counts":5,"snv":"S|52|Q|H","color":"#33bbee","snvName":"S · Q52H","pos":52},{"group_id":4451,"counts":5,"snv":"S|584|I|V","color":"#882255","snvName":"S · I584V","pos":584},{"group_id":4520,"counts":5,"snv":"S|1237|M|V","color":"#ee3377","snvName":"S · M1237V","pos":1237},{"group_id":4843,"counts":5,"snv":"S|1116|T|N","color":"#999933","snvName":"S · T1116N","pos":1116},{"group_id":4873,"counts":5,"snv":"S|1069|P|S","color":"#0077bb","snvName":"S · P1069S","pos":1069},{"group_id":4954,"counts":5,"snv":"S|521|P|S","color":"#cc6677","snvName":"S · P521S","pos":521},{"group_id":5018,"counts":5,"snv":"S|247|S|N","color":"#332288","snvName":"S · S247N","pos":247},{"group_id":5186,"counts":5,"snv":"S|547|T|K","color":"#332288","snvName":"S · T547K","pos":547},{"group_id":5236,"counts":5,"snv":"S|1070|A|S","color":"#33bbee","snvName":"S · A1070S","pos":1070},{"group_id":5246,"counts":5,"snv":"S|1242|S|I","color":"#117733","snvName":"S · S1242I","pos":1242},{"group_id":5280,"counts":5,"snv":"S|193|V|L","color":"#cc3311","snvName":"S · V193L","pos":193},{"group_id":5318,"counts":5,"snv":"S|573|T|I","color":"#44aa99","snvName":"S · T573I","pos":573},{"group_id":5415,"counts":5,"snv":"S|719|T|I","color":"#332288","snvName":"S · T719I","pos":719},{"group_id":5517,"counts":5,"snv":"S|414|Q|R","color":"#117733","snvName":"S · Q414R","pos":414},{"group_id":5872,"counts":5,"snv":"S|870|I|V","color":"#009988","snvName":"S · I870V","pos":870},{"group_id":6065,"counts":5,"snv":"S|1109|F|I","color":"#009988","snvName":"S · F1109I","pos":1109},{"group_id":6461,"counts":5,"snv":"S|1139|D|N","color":"#aa4499","snvName":"S · D1139N","pos":1139},{"group_id":6537,"counts":5,"snv":"S|148|N|T","color":"#aa4499","snvName":"S · N148T","pos":148},{"group_id":7071,"counts":5,"snv":"S|171|V|F","color":"#999933","snvName":"S · V171F","pos":171},{"group_id":7214,"counts":5,"snv":"S|95|T|N","color":"#33bbee","snvName":"S · T95N","pos":95},{"group_id":7428,"counts":5,"snv":"S|367|V|L","color":"#999933","snvName":"S · V367L","pos":367},{"group_id":8041,"counts":5,"snv":"S|1233|M|L","color":"#aa4499","snvName":"S · M1233L","pos":1233},{"group_id":8044,"counts":5,"snv":"S|1239|S|G","color":"#88ccee","snvName":"S · S1239G","pos":1239},{"group_id":8244,"counts":5,"snv":"S|414|Q|K","color":"#44aa99","snvName":"S · Q414K","pos":414},{"group_id":8263,"counts":5,"snv":"S|1266|K|R","color":"#ee7733","snvName":"S · K1266R","pos":1266},{"group_id":8276,"counts":5,"snv":"S|121|N|D","color":"#009988","snvName":"S · N121D","pos":121},{"group_id":8299,"counts":5,"snv":"S|415|T|A","color":"#999933","snvName":"S · T415A","pos":415},{"group_id":8381,"counts":5,"snv":"S|327|V|I","color":"#332288","snvName":"S · V327I","pos":327},{"group_id":22,"counts":4,"snv":"S|477|S|G","color":"#882255","snvName":"S · S477G","pos":477},{"group_id":425,"counts":4,"snv":"S|1247|C|F","color":"#33bbee","snvName":"S · C1247F","pos":1247},{"group_id":731,"counts":4,"snv":"S|822|L|F","color":"#009988","snvName":"S · L822F","pos":822},{"group_id":1155,"counts":4,"snv":"S|1150|E|D","color":"#88ccee","snvName":"S · E1150D","pos":1150},{"group_id":1300,"counts":4,"snv":"S|299|T|I","color":"#117733","snvName":"S · T299I","pos":299},{"group_id":1481,"counts":4,"snv":"S|118|L|F","color":"#33bbee","snvName":"S · L118F","pos":118},{"group_id":1813,"counts":4,"snv":"S|856|N|S","color":"#882255","snvName":"S · N856S","pos":856},{"group_id":2064,"counts":4,"snv":"S|574|D|Y","color":"#117733","snvName":"S · D574Y","pos":574},{"group_id":2160,"counts":4,"snv":"S|6|V|F","color":"#44aa99","snvName":"S · V6F","pos":6},{"group_id":2266,"counts":4,"snv":"S|151|S|I","color":"#009988","snvName":"S · S151I","pos":151},{"group_id":2482,"counts":4,"snv":"S|240|T|I","color":"#999933","snvName":"S · T240I","pos":240},{"group_id":2559,"counts":4,"snv":"S|1230|V|L","color":"#999933","snvName":"S · V1230L","pos":1230},{"group_id":2577,"counts":4,"snv":"S|818|I|V","color":"#33bbee","snvName":"S · I818V","pos":818},{"group_id":3291,"counts":4,"snv":"S|72|G|V","color":"#cc6677","snvName":"S · G72V","pos":72},{"group_id":3385,"counts":4,"snv":"S|660|Y|F","color":"#cc6677","snvName":"S · Y660F","pos":660},{"group_id":3562,"counts":4,"snv":"S|25|P|S","color":"#0077bb","snvName":"S · P25S","pos":25},{"group_id":3591,"counts":4,"snv":"S|623|A|S","color":"#ee7733","snvName":"S · A623S","pos":623},{"group_id":3868,"counts":4,"snv":"S|441|L|I","color":"#33bbee","snvName":"S · L441I","pos":441},{"group_id":4005,"counts":4,"snv":"S|483|V|F","color":"#117733","snvName":"S · V483F","pos":483},{"group_id":4065,"counts":4,"snv":"S|647|A|S","color":"#009988","snvName":"S · A647S","pos":647},{"group_id":4155,"counts":4,"snv":"S|289|V|I","color":"#332288","snvName":"S · V289I","pos":289},{"group_id":4402,"counts":4,"snv":"S|1071|Q|H","color":"#ee7733","snvName":"S · Q1071H","pos":1071},{"group_id":4431,"counts":4,"snv":"S|153|M|V","color":"#44aa99","snvName":"S · M153V","pos":153},{"group_id":4452,"counts":4,"snv":"S|687|V|L","color":"#117733","snvName":"S · V687L","pos":687},{"group_id":4505,"counts":4,"snv":"S|1006|T|I","color":"#ddcc77","snvName":"S · T1006I","pos":1006},{"group_id":4592,"counts":4,"snv":"S|80|D|N","color":"#88ccee","snvName":"S · D80N","pos":80},{"group_id":4615,"counts":4,"snv":"S|1144|E|Q","color":"#009988","snvName":"S · E1144Q","pos":1144},{"group_id":4791,"counts":4,"snv":"S|1171|G|S","color":"#117733","snvName":"S · G1171S","pos":1171},{"group_id":4874,"counts":4,"snv":"S|796|D|N","color":"#44aa99","snvName":"S · D796N","pos":796},{"group_id":5118,"counts":4,"snv":"S|455|L|F","color":"#44aa99","snvName":"S · L455F","pos":455},{"group_id":5204,"counts":4,"snv":"S|33|T|I","color":"#cc6677","snvName":"S · T33I","pos":33},{"group_id":5325,"counts":4,"snv":"S|174|P|S","color":"#882255","snvName":"S · P174S","pos":174},{"group_id":5537,"counts":4,"snv":"S|181|G|R","color":"#117733","snvName":"S · G181R","pos":181},{"group_id":5765,"counts":4,"snv":"S|1244|L|F","color":"#cc6677","snvName":"S · L1244F","pos":1244},{"group_id":5962,"counts":4,"snv":"S|1208|Q|H","color":"#882255","snvName":"S · Q1208H","pos":1208},{"group_id":5974,"counts":4,"snv":"S|243|AL|-","color":"#882255","snvName":"S · AL243-","pos":243},{"group_id":6195,"counts":4,"snv":"S|64|W|R","color":"#cc3311","snvName":"S · W64R","pos":64},{"group_id":6430,"counts":4,"snv":"S|690|Q|R","color":"#0077bb","snvName":"S · Q690R","pos":690},{"group_id":6476,"counts":4,"snv":"S|879|A|T","color":"#332288","snvName":"S · A879T","pos":879},{"group_id":6497,"counts":4,"snv":"S|1260|D|Y","color":"#aa4499","snvName":"S · D1260Y","pos":1260},{"group_id":6941,"counts":4,"snv":"S|245|H|N","color":"#009988","snvName":"S · H245N","pos":245},{"group_id":7112,"counts":4,"snv":"S|1210|I|V","color":"#aa4499","snvName":"S · I1210V","pos":1210},{"group_id":7177,"counts":4,"snv":"S|694|A|V","color":"#009988","snvName":"S · A694V","pos":694},{"group_id":7566,"counts":4,"snv":"S|1087|A|G","color":"#ee3377","snvName":"S · A1087G","pos":1087},{"group_id":7674,"counts":4,"snv":"S|608|V|I","color":"#332288","snvName":"S · V608I","pos":608},{"group_id":7720,"counts":4,"snv":"S|175|F|S","color":"#aa4499","snvName":"S · F175S","pos":175},{"group_id":7744,"counts":4,"snv":"S|179|L|I","color":"#ee3377","snvName":"S · L179I","pos":179},{"group_id":7812,"counts":4,"snv":"S|871|A|S","color":"#ee7733","snvName":"S · A871S","pos":871},{"group_id":7904,"counts":4,"snv":"S|936|D|G","color":"#882255","snvName":"S · D936G","pos":936},{"group_id":7925,"counts":4,"snv":"S|786|K|R","color":"#0077bb","snvName":"S · K786R","pos":786},{"group_id":7950,"counts":4,"snv":"S|522|A|P","color":"#882255","snvName":"S · A522P","pos":522},{"group_id":8051,"counts":4,"snv":"S|154|E|A","color":"#117733","snvName":"S · E154A","pos":154},{"group_id":8173,"counts":4,"snv":"S|95|T|S","color":"#009988","snvName":"S · T95S","pos":95},{"group_id":8212,"counts":4,"snv":"S|1245|K|R","color":"#0077bb","snvName":"S · K1245R","pos":1245},{"group_id":8274,"counts":4,"snv":"S|19|T|R","color":"#44aa99","snvName":"S · T19R","pos":19},{"group_id":8301,"counts":4,"snv":"S|1114|I|V","color":"#117733","snvName":"S · I1114V","pos":1114},{"group_id":8342,"counts":4,"snv":"S|75|G|A","color":"#117733","snvName":"S · G75A","pos":75},{"group_id":8398,"counts":4,"snv":"S|132|E|Q","color":"#88ccee","snvName":"S · E132Q","pos":132},{"group_id":226,"counts":3,"snv":"S|1146|D|Y","color":"#cc3311","snvName":"S · D1146Y","pos":1146},{"group_id":327,"counts":3,"snv":"S|163|A|V","color":"#88ccee","snvName":"S · A163V","pos":163},{"group_id":345,"counts":3,"snv":"S|9|P|S","color":"#ddcc77","snvName":"S · P9S","pos":9},{"group_id":367,"counts":3,"snv":"S|51|T|I","color":"#999933","snvName":"S · T51I","pos":51},{"group_id":505,"counts":3,"snv":"S|146|H|Y","color":"#cc6677","snvName":"S · H146Y","pos":146},{"group_id":754,"counts":3,"snv":"S|846|A|S","color":"#332288","snvName":"S · A846S","pos":846},{"group_id":982,"counts":3,"snv":"S|884|S|F","color":"#117733","snvName":"S · S884F","pos":884},{"group_id":1024,"counts":3,"snv":"S|1250|C|F","color":"#ee3377","snvName":"S · C1250F","pos":1250},{"group_id":1126,"counts":3,"snv":"S|1084|D|Y","color":"#009988","snvName":"S · D1084Y","pos":1084},{"group_id":1865,"counts":3,"snv":"S|140|F|-","color":"#cc6677","snvName":"S · F140-","pos":140},{"group_id":2206,"counts":3,"snv":"S|210|I|-","color":"#ddcc77","snvName":"S · I210-","pos":210},{"group_id":2319,"counts":3,"snv":"S|1192|N|T","color":"#ee7733","snvName":"S · N1192T","pos":1192},{"group_id":2536,"counts":3,"snv":"S|957|Q|L","color":"#ddcc77","snvName":"S · Q957L","pos":957},{"group_id":2646,"counts":3,"snv":"S|323|T|I","color":"#ee3377","snvName":"S · T323I","pos":323},{"group_id":2697,"counts":3,"snv":"S|145|Y|H","color":"#117733","snvName":"S · Y145H","pos":145},{"group_id":2875,"counts":3,"snv":"S|1260|D|N","color":"#882255","snvName":"S · D1260N","pos":1260},{"group_id":2907,"counts":3,"snv":"S|1079|P|S","color":"#cc6677","snvName":"S · P1079S","pos":1079},{"group_id":3041,"counts":3,"snv":"S|892|A|V","color":"#aa4499","snvName":"S · A892V","pos":892},{"group_id":3272,"counts":3,"snv":"S|554|E|D","color":"#999933","snvName":"S · E554D","pos":554},{"group_id":3303,"counts":3,"snv":"S|25|P|L","color":"#aa4499","snvName":"S · P25L","pos":25},{"group_id":3369,"counts":3,"snv":"S|450|N|K","color":"#ee7733","snvName":"S · N450K","pos":450},{"group_id":3389,"counts":3,"snv":"S|146|H|Q","color":"#999933","snvName":"S · H146Q","pos":146},{"group_id":3406,"counts":3,"snv":"S|698|S|L","color":"#ee7733","snvName":"S · S698L","pos":698},{"group_id":3452,"counts":3,"snv":"S|142|G|V","color":"#cc3311","snvName":"S · G142V","pos":142},{"group_id":3492,"counts":3,"snv":"S|1147|S|L","color":"#ee3377","snvName":"S · S1147L","pos":1147},{"group_id":3606,"counts":3,"snv":"S|190|R|K","color":"#33bbee","snvName":"S · R190K","pos":190},{"group_id":3636,"counts":3,"snv":"S|242|L|F","color":"#cc6677","snvName":"S · L242F","pos":242},{"group_id":3676,"counts":3,"snv":"S|751|N|D","color":"#88ccee","snvName":"S · N751D","pos":751},{"group_id":3997,"counts":3,"snv":"S|675|Q|K","color":"#ee3377","snvName":"S · Q675K","pos":675},{"group_id":4236,"counts":3,"snv":"S|1139|D|H","color":"#882255","snvName":"S · D1139H","pos":1139},{"group_id":4320,"counts":3,"snv":"S|95|T|A","color":"#aa4499","snvName":"S · T95A","pos":95},{"group_id":4358,"counts":3,"snv":"S|146|H|R","color":"#ddcc77","snvName":"S · H146R","pos":146},{"group_id":4434,"counts":3,"snv":"S|141|L|F","color":"#0077bb","snvName":"S · L141F","pos":141},{"group_id":4587,"counts":3,"snv":"S|1009|T|I","color":"#cc6677","snvName":"S · T1009I","pos":1009},{"group_id":4773,"counts":3,"snv":"S|186|F|L","color":"#882255","snvName":"S · F186L","pos":186},{"group_id":5155,"counts":3,"snv":"S|706|A|V","color":"#009988","snvName":"S · A706V","pos":706},{"group_id":5451,"counts":3,"snv":"S|68|I|T","color":"#882255","snvName":"S · I68T","pos":68},{"group_id":5608,"counts":3,"snv":"S|452|L|Q","color":"#ee3377","snvName":"S · L452Q","pos":452},{"group_id":5648,"counts":3,"snv":"S|1199|D|Y","color":"#ee3377","snvName":"S · D1199Y","pos":1199},{"group_id":5649,"counts":3,"snv":"S|1260|D|E","color":"#cc6677","snvName":"S · D1260E","pos":1260},{"group_id":5733,"counts":3,"snv":"S|1174|A|V","color":"#999933","snvName":"S · A1174V","pos":1174},{"group_id":5821,"counts":3,"snv":"S|950|D|N","color":"#999933","snvName":"S · D950N","pos":950},{"group_id":5977,"counts":3,"snv":"S|638|T|I","color":"#cc6677","snvName":"S · T638I","pos":638},{"group_id":6139,"counts":3,"snv":"S|259|T|I","color":"#882255","snvName":"S · T259I","pos":259},{"group_id":6140,"counts":3,"snv":"S|717|N|S","color":"#ee3377","snvName":"S · N717S","pos":717},{"group_id":6145,"counts":3,"snv":"S|440|N|K","color":"#0077bb","snvName":"S · N440K","pos":440},{"group_id":6199,"counts":3,"snv":"S|339|G|S","color":"#ddcc77","snvName":"S · G339S","pos":339},{"group_id":6214,"counts":3,"snv":"S|25|P|T","color":"#33bbee","snvName":"S · P25T","pos":25},{"group_id":6297,"counts":3,"snv":"S|211|N|D","color":"#882255","snvName":"S · N211D","pos":211},{"group_id":6326,"counts":3,"snv":"S|1111|E|Q","color":"#cc3311","snvName":"S · E1111Q","pos":1111},{"group_id":6337,"counts":3,"snv":"S|84|L|I","color":"#999933","snvName":"S · L84I","pos":84},{"group_id":6418,"counts":3,"snv":"S|250|T|I","color":"#999933","snvName":"S · T250I","pos":250},{"group_id":6553,"counts":3,"snv":"S|769|G|R","color":"#0077bb","snvName":"S · G769R","pos":769},{"group_id":6737,"counts":3,"snv":"S|657|N|K","color":"#999933","snvName":"S · N657K","pos":657},{"group_id":6895,"counts":3,"snv":"S|260|A|S","color":"#009988","snvName":"S · A260S","pos":260},{"group_id":7041,"counts":3,"snv":"S|109|T|A","color":"#cc6677","snvName":"S · T109A","pos":109},{"group_id":7323,"counts":3,"snv":"S|842|G|D","color":"#0077bb","snvName":"S · G842D","pos":842},{"group_id":7458,"counts":3,"snv":"S|155|S|N","color":"#882255","snvName":"S · S155N","pos":155},{"group_id":7469,"counts":3,"snv":"S|1114|I|L","color":"#88ccee","snvName":"S · I1114L","pos":1114},{"group_id":7476,"counts":3,"snv":"S|339|G|D","color":"#999933","snvName":"S · G339D","pos":339},{"group_id":7488,"counts":3,"snv":"S|1099|G|S","color":"#ddcc77","snvName":"S · G1099S","pos":1099},{"group_id":7516,"counts":3,"snv":"S|1073|K|T","color":"#332288","snvName":"S · K1073T","pos":1073},{"group_id":7528,"counts":3,"snv":"S|76|T|S","color":"#ee7733","snvName":"S · T76S","pos":76},{"group_id":7787,"counts":3,"snv":"S|20|T|N","color":"#999933","snvName":"S · T20N","pos":20},{"group_id":7836,"counts":3,"snv":"S|30|N|S","color":"#33bbee","snvName":"S · N30S","pos":30},{"group_id":7839,"counts":3,"snv":"S|627|D|N","color":"#88ccee","snvName":"S · D627N","pos":627},{"group_id":7926,"counts":3,"snv":"S|96|E|Q","color":"#ee3377","snvName":"S · E96Q","pos":96},{"group_id":7991,"counts":3,"snv":"S|847|R|K","color":"#44aa99","snvName":"S · R847K","pos":847},{"group_id":8059,"counts":3,"snv":"S|836|Q|K","color":"#999933","snvName":"S · Q836K","pos":836},{"group_id":8140,"counts":3,"snv":"S|7|L|-","color":"#ddcc77","snvName":"S · L7-","pos":7},{"group_id":8405,"counts":3,"snv":"S|561|P|T","color":"#aa4499","snvName":"S · P561T","pos":561},{"group_id":84,"counts":2,"snv":"S|1079|P|T","color":"#882255","snvName":"S · P1079T","pos":1079},{"group_id":303,"counts":2,"snv":"S|127|V|F","color":"#ee3377","snvName":"S · V127F","pos":127},{"group_id":407,"counts":2,"snv":"S|478|T|I","color":"#009988","snvName":"S · T478I","pos":478},{"group_id":560,"counts":2,"snv":"S|494|S|L","color":"#009988","snvName":"S · S494L","pos":494},{"group_id":570,"counts":2,"snv":"S|222|A|S","color":"#aa4499","snvName":"S · A222S","pos":222},{"group_id":740,"counts":2,"snv":"S|1078|A|V","color":"#ddcc77","snvName":"S · A1078V","pos":1078},{"group_id":853,"counts":2,"snv":"S|218|Q|E","color":"#88ccee","snvName":"S · Q218E","pos":218},{"group_id":973,"counts":2,"snv":"S|1273|T|I","color":"#cc3311","snvName":"S · T1273I","pos":1273},{"group_id":1000,"counts":2,"snv":"S|765|R|L","color":"#882255","snvName":"S · R765L","pos":765},{"group_id":1153,"counts":2,"snv":"S|673|S|T","color":"#009988","snvName":"S · S673T","pos":673},{"group_id":1233,"counts":2,"snv":"S|814|K|T","color":"#0077bb","snvName":"S · K814T","pos":814},{"group_id":1307,"counts":2,"snv":"S|1058|H|Y","color":"#999933","snvName":"S · H1058Y","pos":1058},{"group_id":1333,"counts":2,"snv":"S|688|A|S","color":"#999933","snvName":"S · A688S","pos":688},{"group_id":1355,"counts":2,"snv":"S|352|A|S","color":"#009988","snvName":"S · A352S","pos":352},{"group_id":1470,"counts":2,"snv":"S|408|R|I","color":"#332288","snvName":"S · R408I","pos":408},{"group_id":1598,"counts":2,"snv":"S|250|T|N","color":"#ddcc77","snvName":"S · T250N","pos":250},{"group_id":1937,"counts":2,"snv":"S|701|A|S","color":"#999933","snvName":"S · A701S","pos":701},{"group_id":2145,"counts":2,"snv":"S|1112|P|L","color":"#ee3377","snvName":"S · P1112L","pos":1112},{"group_id":2330,"counts":2,"snv":"S|8|L|V","color":"#ee3377","snvName":"S · L8V","pos":8},{"group_id":2449,"counts":2,"snv":"S|1168|D|H","color":"#44aa99","snvName":"S · D1168H","pos":1168},{"group_id":3001,"counts":2,"snv":"S|261|G|D","color":"#ee7733","snvName":"S · G261D","pos":261},{"group_id":3268,"counts":2,"snv":"S|1195|E|Q","color":"#cc3311","snvName":"S · E1195Q","pos":1195},{"group_id":3273,"counts":2,"snv":"S|79|F|L","color":"#999933","snvName":"S · F79L","pos":79},{"group_id":3338,"counts":2,"snv":"S|1201|Q|K","color":"#44aa99","snvName":"S · Q1201K","pos":1201},{"group_id":3553,"counts":2,"snv":"S|845|A|V","color":"#ee7733","snvName":"S · A845V","pos":845},{"group_id":3643,"counts":2,"snv":"S|243|A|V","color":"#0077bb","snvName":"S · A243V","pos":243},{"group_id":3808,"counts":2,"snv":"S|261|G|R","color":"#cc3311","snvName":"S · G261R","pos":261},{"group_id":3869,"counts":2,"snv":"S|1091|R|L","color":"#44aa99","snvName":"S · R1091L","pos":1091},{"group_id":3973,"counts":2,"snv":"S|690|Q|H","color":"#aa4499","snvName":"S · Q690H","pos":690},{"group_id":3975,"counts":2,"snv":"S|155|S|I","color":"#cc6677","snvName":"S · S155I","pos":155},{"group_id":4034,"counts":2,"snv":"S|724|T|A","color":"#117733","snvName":"S · T724A","pos":724},{"group_id":4118,"counts":2,"snv":"S|1187|N|Y","color":"#aa4499","snvName":"S · N1187Y","pos":1187},{"group_id":4119,"counts":2,"snv":"S|248|Y|H","color":"#44aa99","snvName":"S · Y248H","pos":248},{"group_id":4170,"counts":2,"snv":"S|261|G|S","color":"#ee3377","snvName":"S · G261S","pos":261},{"group_id":4173,"counts":2,"snv":"S|281|E|Q","color":"#cc3311","snvName":"S · E281Q","pos":281},{"group_id":4174,"counts":2,"snv":"S|703|N|D","color":"#aa4499","snvName":"S · N703D","pos":703},{"group_id":4302,"counts":2,"snv":"S|154|E|G","color":"#999933","snvName":"S · E154G","pos":154},{"group_id":4329,"counts":2,"snv":"S|253|D|Y","color":"#ee7733","snvName":"S · D253Y","pos":253},{"group_id":4494,"counts":2,"snv":"S|893|A|V","color":"#33bbee","snvName":"S · A893V","pos":893},{"group_id":4551,"counts":2,"snv":"S|1238|T|I","color":"#332288","snvName":"S · T1238I","pos":1238},{"group_id":4610,"counts":2,"snv":"S|477|S|I","color":"#aa4499","snvName":"S · S477I","pos":477},{"group_id":4661,"counts":2,"snv":"S|62|V|L","color":"#44aa99","snvName":"S · V62L","pos":62},{"group_id":4759,"counts":2,"snv":"S|287|D|G","color":"#ee3377","snvName":"S · D287G","pos":287},{"group_id":4822,"counts":2,"snv":"S|854|K|N","color":"#cc6677","snvName":"S · K854N","pos":854},{"group_id":4890,"counts":2,"snv":"S|233|I|V","color":"#ee3377","snvName":"S · I233V","pos":233},{"group_id":4939,"counts":2,"snv":"S|21|R|T","color":"#ddcc77","snvName":"S · R21T","pos":21},{"group_id":4990,"counts":2,"snv":"S|1094|V|I","color":"#117733","snvName":"S · V1094I","pos":1094},{"group_id":5135,"counts":2,"snv":"S|1076|T|I","color":"#44aa99","snvName":"S · T1076I","pos":1076},{"group_id":5146,"counts":2,"snv":"S|1122|V|M","color":"#cc3311","snvName":"S · V1122M","pos":1122},{"group_id":5228,"counts":2,"snv":"S|796|D|H","color":"#88ccee","snvName":"S · D796H","pos":796},{"group_id":5380,"counts":2,"snv":"S|141|L|V","color":"#33bbee","snvName":"S · L141V","pos":141},{"group_id":5385,"counts":2,"snv":"S|826|V|L","color":"#cc3311","snvName":"S · V826L","pos":826},{"group_id":5405,"counts":2,"snv":"S|585|L|F","color":"#aa4499","snvName":"S · L585F","pos":585},{"group_id":5523,"counts":2,"snv":"S|1112|P|S","color":"#332288","snvName":"S · P1112S","pos":1112},{"group_id":5525,"counts":2,"snv":"S|72|G|E","color":"#999933","snvName":"S · G72E","pos":72},{"group_id":5577,"counts":2,"snv":"S|595|V|I","color":"#33bbee","snvName":"S · V595I","pos":595},{"group_id":5848,"counts":2,"snv":"S|659|S|L","color":"#ddcc77","snvName":"S · S659L","pos":659},{"group_id":6014,"counts":2,"snv":"S|883|T|I","color":"#44aa99","snvName":"S · T883I","pos":883},{"group_id":6077,"counts":2,"snv":"S|1258|E|D","color":"#999933","snvName":"S · E1258D","pos":1258},{"group_id":6127,"counts":2,"snv":"S|219|G|S","color":"#44aa99","snvName":"S · G219S","pos":219},{"group_id":6228,"counts":2,"snv":"S|618|T|I","color":"#ddcc77","snvName":"S · T618I","pos":618},{"group_id":6290,"counts":2,"snv":"S|911|V|I","color":"#44aa99","snvName":"S · V911I","pos":911},{"group_id":6361,"counts":2,"snv":"S|430|T|I","color":"#882255","snvName":"S · T430I","pos":430},{"group_id":6382,"counts":2,"snv":"S|1130|I|L","color":"#44aa99","snvName":"S · I1130L","pos":1130},{"group_id":6420,"counts":2,"snv":"S|569|I|V","color":"#ee7733","snvName":"S · I569V","pos":569},{"group_id":6593,"counts":2,"snv":"S|1130|I|M","color":"#117733","snvName":"S · I1130M","pos":1130},{"group_id":6764,"counts":2,"snv":"S|561|P|S","color":"#882255","snvName":"S · P561S","pos":561},{"group_id":6950,"counts":2,"snv":"S|308|V|I","color":"#882255","snvName":"S · V308I","pos":308},{"group_id":7111,"counts":2,"snv":"S|642|V|G","color":"#0077bb","snvName":"S · V642G","pos":642},{"group_id":7279,"counts":2,"snv":"S|808|D|H","color":"#33bbee","snvName":"S · D808H","pos":808},{"group_id":7438,"counts":2,"snv":"S|82|P|H","color":"#88ccee","snvName":"S · P82H","pos":82},{"group_id":7495,"counts":2,"snv":"S|1236|C|F","color":"#33bbee","snvName":"S · C1236F","pos":1236},{"group_id":7762,"counts":2,"snv":"S|1243|C|S","color":"#ddcc77","snvName":"S · C1243S","pos":1243},{"group_id":7776,"counts":2,"snv":"S|805|I|V","color":"#aa4499","snvName":"S · I805V","pos":805},{"group_id":7788,"counts":2,"snv":"S|417|K|T","color":"#cc6677","snvName":"S · K417T","pos":417},{"group_id":8020,"counts":2,"snv":"S|1155|Y|F","color":"#999933","snvName":"S · Y1155F","pos":1155},{"group_id":8094,"counts":2,"snv":"S|46|S|A","color":"#117733","snvName":"S · S46A","pos":46},{"group_id":-1,"counts":2,"snv":"Reference","color":"#0077bb"},{"group_id":42,"counts":1,"snv":"S|1205|K|N","color":"#ddcc77","snvName":"S · K1205N","pos":1205},{"group_id":67,"counts":1,"snv":"S|119|I|V","color":"#332288","snvName":"S · I119V","pos":119},{"group_id":483,"counts":1,"snv":"S|1143|P|L","color":"#0077bb","snvName":"S · P1143L","pos":1143},{"group_id":522,"counts":1,"snv":"S|556|N|K","color":"#ddcc77","snvName":"S · N556K","pos":556},{"group_id":563,"counts":1,"snv":"S|839|D|Y","color":"#882255","snvName":"S · D839Y","pos":839},{"group_id":799,"counts":1,"snv":"S|453|Y|F","color":"#88ccee","snvName":"S · Y453F","pos":453},{"group_id":867,"counts":1,"snv":"S|261|G|V","color":"#332288","snvName":"S · G261V","pos":261},{"group_id":894,"counts":1,"snv":"S|354|N|K","color":"#cc3311","snvName":"S · N354K","pos":354},{"group_id":914,"counts":1,"snv":"S|1245|K|N","color":"#aa4499","snvName":"S · K1245N","pos":1245},{"group_id":933,"counts":1,"snv":"S|852|A|V","color":"#ddcc77","snvName":"S · A852V","pos":852},{"group_id":1093,"counts":1,"snv":"S|723|T|I","color":"#44aa99","snvName":"S · T723I","pos":723},{"group_id":1480,"counts":1,"snv":"S|825|K|R","color":"#ee7733","snvName":"S · K825R","pos":825},{"group_id":1871,"counts":1,"snv":"S|942|A|V","color":"#332288","snvName":"S · A942V","pos":942},{"group_id":2016,"counts":1,"snv":"S|354|N|D","color":"#ee7733","snvName":"S · N354D","pos":354},{"group_id":2052,"counts":1,"snv":"S|97|K|N","color":"#332288","snvName":"S · K97N","pos":97},{"group_id":2101,"counts":1,"snv":"S|858|L|F","color":"#aa4499","snvName":"S · L858F","pos":858},{"group_id":2208,"counts":1,"snv":"S|583|E|Q","color":"#cc6677","snvName":"S · E583Q","pos":583},{"group_id":2213,"counts":1,"snv":"S|124|T|I","color":"#cc3311","snvName":"S · T124I","pos":124},{"group_id":2238,"counts":1,"snv":"S|21|R|K","color":"#999933","snvName":"S · R21K","pos":21},{"group_id":2306,"counts":1,"snv":"S|930|A|V","color":"#cc6677","snvName":"S · A930V","pos":930},{"group_id":2335,"counts":1,"snv":"S|74|N|K","color":"#332288","snvName":"S · N74K","pos":74},{"group_id":2366,"counts":1,"snv":"S|476|G|S","color":"#cc6677","snvName":"S · G476S","pos":476},{"group_id":2405,"counts":1,"snv":"S|483|V|A","color":"#44aa99","snvName":"S · V483A","pos":483},{"group_id":2529,"counts":1,"snv":"S|615|V|F","color":"#117733","snvName":"S · V615F","pos":615},{"group_id":2562,"counts":1,"snv":"S|148|N|S","color":"#882255","snvName":"S · N148S","pos":148},{"group_id":2647,"counts":1,"snv":"S|1248|C|F","color":"#009988","snvName":"S · C1248F","pos":1248},{"group_id":2891,"counts":1,"snv":"S|1207|E|D","color":"#cc6677","snvName":"S · E1207D","pos":1207},{"group_id":2896,"counts":1,"snv":"S|621|P|S","color":"#aa4499","snvName":"S · P621S","pos":621},{"group_id":2959,"counts":1,"snv":"S|490|F|L","color":"#aa4499","snvName":"S · F490L","pos":490},{"group_id":2987,"counts":1,"snv":"S|706|A|S","color":"#33bbee","snvName":"S · A706S","pos":706},{"group_id":3022,"counts":1,"snv":"S|553|T|I","color":"#117733","snvName":"S · T553I","pos":553},{"group_id":3190,"counts":1,"snv":"S|740|M|I","color":"#cc3311","snvName":"S · M740I","pos":740},{"group_id":3274,"counts":1,"snv":"S|1261|S|F","color":"#0077bb","snvName":"S · S1261F","pos":1261},{"group_id":3370,"counts":1,"snv":"S|452|L|M","color":"#cc3311","snvName":"S · L452M","pos":452},{"group_id":3371,"counts":1,"snv":"S|1229|M|L","color":"#117733","snvName":"S · M1229L","pos":1229},{"group_id":3393,"counts":1,"snv":"S|211|N|Y","color":"#aa4499","snvName":"S · N211Y","pos":211},{"group_id":3516,"counts":1,"snv":"S|245|H|R","color":"#ee7733","snvName":"S · H245R","pos":245},{"group_id":3579,"counts":1,"snv":"S|1085|G|R","color":"#ee7733","snvName":"S · G1085R","pos":1085},{"group_id":3840,"counts":1,"snv":"S|1068|V|F","color":"#882255","snvName":"S · V1068F","pos":1068},{"group_id":3992,"counts":1,"snv":"S|1254|C|F","color":"#117733","snvName":"S · C1254F","pos":1254},{"group_id":4069,"counts":1,"snv":"S|102|R|I","color":"#cc3311","snvName":"S · R102I","pos":102},{"group_id":4105,"counts":1,"snv":"S|314|Q|K","color":"#009988","snvName":"S · Q314K","pos":314},{"group_id":4238,"counts":1,"snv":"S|475|A|V","color":"#ddcc77","snvName":"S · A475V","pos":475},{"group_id":4301,"counts":1,"snv":"S|15|C|F","color":"#ee3377","snvName":"S · C15F","pos":15},{"group_id":4330,"counts":1,"snv":"S|702|E|Q","color":"#882255","snvName":"S · E702Q","pos":702},{"group_id":4338,"counts":1,"snv":"S|765|R|H","color":"#cc6677","snvName":"S · R765H","pos":765},{"group_id":4483,"counts":1,"snv":"S|732|T|I","color":"#33bbee","snvName":"S · T732I","pos":732},{"group_id":4484,"counts":1,"snv":"S|680|S|F","color":"#33bbee","snvName":"S · S680F","pos":680},{"group_id":4578,"counts":1,"snv":"S|552|L|F","color":"#44aa99","snvName":"S · L552F","pos":552},{"group_id":4693,"counts":1,"snv":"S|941|T|A","color":"#ee3377","snvName":"S · T941A","pos":941},{"group_id":4730,"counts":1,"snv":"S|805|I|M","color":"#882255","snvName":"S · I805M","pos":805},{"group_id":4751,"counts":1,"snv":"S|946|G|V","color":"#44aa99","snvName":"S · G946V","pos":946},{"group_id":4867,"counts":1,"snv":"S|1083|H|Y","color":"#33bbee","snvName":"S · H1083Y","pos":1083},{"group_id":5041,"counts":1,"snv":"S|330|P|A","color":"#44aa99","snvName":"S · P330A","pos":330},{"group_id":5059,"counts":1,"snv":"S|258|W|C","color":"#ddcc77","snvName":"S · W258C","pos":258},{"group_id":5117,"counts":1,"snv":"S|957|Q|R","color":"#cc6677","snvName":"S · Q957R","pos":957},{"group_id":5144,"counts":1,"snv":"S|256|S|P","color":"#88ccee","snvName":"S · S256P","pos":256},{"group_id":5166,"counts":1,"snv":"S|83|V|F","color":"#aa4499","snvName":"S · V83F","pos":83},{"group_id":5211,"counts":1,"snv":"S|623|A|V","color":"#cc3311","snvName":"S · A623V","pos":623},{"group_id":5383,"counts":1,"snv":"S|783|A|V","color":"#882255","snvName":"S · A783V","pos":783},{"group_id":5419,"counts":1,"snv":"S|1107|R|S","color":"#33bbee","snvName":"S · R1107S","pos":1107},{"group_id":5438,"counts":1,"snv":"S|1231|T|A","color":"#ddcc77","snvName":"S · T1231A","pos":1231},{"group_id":5592,"counts":1,"snv":"S|341|V|I","color":"#882255","snvName":"S · V341I","pos":341},{"group_id":5674,"counts":1,"snv":"S|615|V|I","color":"#999933","snvName":"S · V615I","pos":615},{"group_id":5705,"counts":1,"snv":"S|604|T|I","color":"#cc3311","snvName":"S · T604I","pos":604},{"group_id":5786,"counts":1,"snv":"S|177|M|T","color":"#009988","snvName":"S · M177T","pos":177},{"group_id":5824,"counts":1,"snv":"S|367|V|I","color":"#117733","snvName":"S · V367I","pos":367},{"group_id":5853,"counts":1,"snv":"S|836|Q|E","color":"#117733","snvName":"S · Q836E","pos":836},{"group_id":5921,"counts":1,"snv":"S|619|E|K","color":"#882255","snvName":"S · E619K","pos":619},{"group_id":5922,"counts":1,"snv":"S|765|R|C","color":"#ddcc77","snvName":"S · R765C","pos":765},{"group_id":5959,"counts":1,"snv":"S|847|R|T","color":"#117733","snvName":"S · R847T","pos":847},{"group_id":6121,"counts":1,"snv":"S|1129|V|L","color":"#332288","snvName":"S · V1129L","pos":1129},{"group_id":6155,"counts":1,"snv":"S|1045|K|N","color":"#88ccee","snvName":"S · K1045N","pos":1045},{"group_id":6378,"counts":1,"snv":"S|679|N|S","color":"#882255","snvName":"S · N679S","pos":679},{"group_id":6482,"counts":1,"snv":"S|237|R|S","color":"#332288","snvName":"S · R237S","pos":237},{"group_id":6596,"counts":1,"snv":"S|23|Q|R","color":"#117733","snvName":"S · Q23R","pos":23},{"group_id":6666,"counts":1,"snv":"S|1074|N|D","color":"#88ccee","snvName":"S · N1074D","pos":1074},{"group_id":6682,"counts":1,"snv":"S|356|K|R","color":"#ee3377","snvName":"S · K356R","pos":356},{"group_id":6788,"counts":1,"snv":"S|214|R|H","color":"#33bbee","snvName":"S · R214H","pos":214},{"group_id":6815,"counts":1,"snv":"S|943|S|I","color":"#88ccee","snvName":"S · S943I","pos":943},{"group_id":6826,"counts":1,"snv":"S|23|Q|L","color":"#44aa99","snvName":"S · Q23L","pos":23},{"group_id":7018,"counts":1,"snv":"S|670|I|M","color":"#0077bb","snvName":"S · I670M","pos":670},{"group_id":7050,"counts":1,"snv":"S|1086|K|E","color":"#cc3311","snvName":"S · K1086E","pos":1086},{"group_id":7087,"counts":1,"snv":"S|641|N|K","color":"#aa4499","snvName":"S · N641K","pos":641},{"group_id":7127,"counts":1,"snv":"S|1081|I|V","color":"#aa4499","snvName":"S · I1081V","pos":1081},{"group_id":7347,"counts":1,"snv":"S|154|E|Q","color":"#ddcc77","snvName":"S · E154Q","pos":154},{"group_id":7351,"counts":1,"snv":"S|406|E|Q","color":"#ee3377","snvName":"S · E406Q","pos":406},{"group_id":7644,"counts":1,"snv":"S|80|D|H","color":"#332288","snvName":"S · D80H","pos":80}],
       "transform": [
         {
-          "type": "project",
-          "fields": ["0", "1", "2", "3"],
-          "as": ["snv", "count", "color", "snvName"]
-        },
-        {"type": "filter", "expr": "datum.snv !== 'Reference'"},
-        {
           "type": "formula",
-          "expr": "parseInt(split(datum.snv, '|')[posField])",
-          "as": "pos"
-        },
-        {
-          "type": "formula",
-          "expr": "datum.count / totalSequences",
+          "expr": "datum.counts / totalSequences",
           "as": "percent"
         }
       ]
     },
     {
-      "name": "mutationsFiltered",
-      "source": "mutations",
+      "name": "tableFiltered",
+      "source": "table",
       "transform": [
         {
           "type": "filter",
@@ -182,12 +123,12 @@
     },
     {
       "name": "selected",
-      "values": [{"group": "S|614|D|G"}],
+      "values": [{ "group": "S|614|D|G" }],
       "on": [
-        {"trigger": "clearSnv", "remove": true},
-        {"trigger": "!shiftSnv", "remove": true},
-        {"trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv"},
-        {"trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv"}
+        { "trigger": "clearSnv", "remove": true },
+        { "trigger": "!shiftSnv", "remove": true },
+        { "trigger": "!shiftSnv && clickedSnv", "insert": "clickedSnv" },
+        { "trigger": "shiftSnv && clickedSnv", "toggle": "clickedSnv" }
       ],
       "transform": [
         {
@@ -197,7 +138,7 @@
         },
         {
           "type": "lookup",
-          "from": "mutations",
+          "from": "table",
           "key": "snv",
           "values": ["color"],
           "fields": ["group"],
@@ -206,105 +147,52 @@
       ]
     },
     {
-      "name": "selectedDomains",
-      "values": [],
-      "on": [
-        {"trigger": "clearDomain", "remove": true},
-        {"trigger": "!shiftDomain", "remove": true},
-        {"trigger": "!shiftDomain && clickedDomain", "insert": "clickedDomain"},
-        {"trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain"}
-      ]
-    },
-    {
       "name": "domains",
-      "values": [
-        {
-          "abbr": "S1 Subunit",
-          "name": "S1 Subunit",
-          "start": 14,
-          "end": 685,
-          "row": 0
-        },
-        {
-          "abbr": "RBD",
-          "name": "Receptor Binding Domain",
-          "start": 319,
-          "end": 541,
-          "row": 1
-        },
-        {
-          "abbr": "S2 Subunit",
-          "name": "S2 Subunit",
-          "start": 686,
-          "end": 1273,
-          "row": 0
-        },
-        {
-          "abbr": "SP",
-          "name": "Signal Peptide",
-          "start": 1,
-          "end": 13,
-          "row": 2
-        },
-        {
-          "abbr": "NTD",
-          "name": "N-Terminal Domain",
-          "start": 14,
-          "end": 305,
-          "row": 1
-        },
-        {
-          "abbr": "FP",
-          "name": "Fusion Peptide",
-          "start": 788,
-          "end": 806,
-          "row": 2
-        },
-        {
-          "abbr": "HR1",
-          "name": "Heptapeptide Repeat Sequence 1",
-          "start": 912,
-          "end": 984,
-          "row": 1
-        },
-        {
-          "abbr": "HR2",
-          "name": "Heptapeptide Repeat Sequence 2",
-          "start": 1163,
-          "end": 1213,
-          "row": 1
-        },
-        {
-          "abbr": "TM",
-          "name": "Transmembrane Domain",
-          "start": 1213,
-          "end": 1237,
-          "row": 1
-        },
-        {
-          "abbr": "CT",
-          "name": "Cytoplasm Domain",
-          "start": 1237,
-          "end": 1273,
-          "row": 1
-        }
-      ],
+      "format": {
+        "type": "json"
+      },
+      "values": [{"abbr":"RBD","name":"Receptor binding domain","ranges":[[319,541]],"row":1},{"abbr":"S1 Subunit","name":"S1 Subunit","ranges":[[14,685]],"row":0},{"abbr":"S2 Subunit","name":"S2 Subunit","ranges":[[686,1273]],"row":0},{"abbr":"S","name":"Signal Peptide","ranges":[[1,13]],"row":2},{"abbr":"NTD","name":"N-Terminal Domain","ranges":[[14,305]],"row":1},{"abbr":"F","name":"Fusion Peptide","ranges":[[788,806]],"row":2},{"abbr":"HR1","name":"Heptapeptide Repeat Sequence 1","ranges":[[912,984]],"row":1},{"abbr":"HR2","name":"Heptapeptide Repeat Sequence 2","ranges":[[1163,1213]],"row":1},{"abbr":"TM","name":"Transmembrane Domain","ranges":[[1213,1237]],"row":2},{"abbr":"CT","name":"Cytoplasm Domain","ranges":[[1237,1273]],"row":1}],
       "transform": [
         {
           "type": "formula",
           "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
           "as": "rowTop"
         },
-        {"type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom"},
-        {"type": "filter", "expr": "datum.start < xRange[1]"}
+        { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
+          "as": "start"
+        },
+        {
+          "type": "formula",
+          "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
+          "as": "end"
+        },
+        { "type": "filter", "expr": "datum.start < xRange[1]" },
+        { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
+      ]
+    },
+    {
+      "name": "selectedDomains",
+      "values": [],
+      "on": [
+        { "trigger": "clearDomain", "remove": true },
+        { "trigger": "!shiftDomain", "remove": true },
+        {
+          "trigger": "!shiftDomain && clickedDomain",
+          "insert": "clickedDomain"
+        },
+        { "trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain" }
       ]
     }
   ],
+
   "scales": [
     {
       "name": "xOverview",
       "type": "linear",
-      "domain": {"signal": "xRange"},
+      "domain": { "signal": "xRange" },
       "range": "width",
       "padding": 0.05,
       "round": true,
@@ -314,8 +202,8 @@
     {
       "name": "xDetail",
       "type": "linear",
-      "domain": {"signal": "xRange"},
-      "domainRaw": {"signal": "detailDomain"},
+      "domain": { "signal": "xRange" },
+      "domainRaw": { "signal": "detailDomain" },
       "range": "width",
       "padding": 0.05,
       "round": true,
@@ -323,17 +211,19 @@
       "clamp": true
     }
   ],
+
   "axes": [],
+
   "marks": [
     {
       "name": "entropybarplot",
       "type": "group",
       "encode": {
         "update": {
-          "x": {"value": 0},
-          "y": {"value": 0},
-          "width": {"signal": "width"},
-          "height": {"signal": "entropyPlotHeight"}
+          "x": { "value": 0 },
+          "y": { "value": 0 },
+          "width": { "signal": "width" },
+          "height": { "signal": "entropyPlotHeight" }
         }
       },
       "scales": [
@@ -341,8 +231,8 @@
           "name": "entropyYScale",
           "type": "pow",
           "exponent": 0.5,
-          "domain": {"data": "mutationsFiltered", "field": "count"},
-          "range": {"signal": "entropyPlotYRange"}
+          "domain": { "data": "tableFiltered", "field": "counts" },
+          "range": { "signal": "entropyPlotYRange" }
         }
       ],
       "axes": [
@@ -350,60 +240,60 @@
           "orient": "bottom",
           "scale": "xDetail",
           "format": "d",
-          "title": {"signal": "xLabel"}
+          "title": { "signal": "xLabel" }
         },
         {
           "orient": "left",
           "scale": "entropyYScale",
           "labelOverlap": "greedy",
           "tickCount": 5,
-          "title": {"signal": "yLabel"}
+          "title": { "signal": "yLabel" }
         }
       ],
       "marks": [
         {
           "name": "entropymark",
           "type": "rule",
-          "from": {"data": "selected"},
+          "from": { "data": "selected" },
           "encode": {
-            "enter": {"zindex": {"value": 1}},
+            "enter": { "zindex": { "value": 1 } },
             "update": {
-              "x": {"scale": "xDetail", "field": "pos"},
-              "x2": {"scale": "xDetail", "field": "pos"},
-              "y": {"value": 0},
-              "y2": {"signal": "entropyPlotHeight"},
-              "stroke": {"field": "color"}
+              "x": { "scale": "xDetail", "field": "pos" },
+              "x2": { "scale": "xDetail", "field": "pos" },
+              "y": { "value": 0 },
+              "y2": { "signal": "entropyPlotHeight" },
+              "stroke": { "field": "color" }
             }
           }
         },
         {
           "name": "entropybars",
           "type": "rect",
-          "from": {"data": "mutationsFiltered"},
+          "from": { "data": "tableFiltered" },
           "encode": {
-            "enter": {"stroke": {"value": "#000"}},
+            "enter": { "stroke": { "value": "#000" } },
             "update": {
-              "xc": {"scale": "xDetail", "field": "pos"},
-              "width": {"scale": "xDetail", "signal": "rectWidth"},
-              "y": {"scale": "entropyYScale", "field": "count"},
-              "y2": {"scale": "entropyYScale", "value": 0},
+              "xc": { "scale": "xDetail", "field": "pos" },
+              "width": { "scale": "xDetail", "signal": "rectWidth" },
+              "y": { "scale": "entropyYScale", "field": "counts" },
+              "y2": { "scale": "entropyYScale", "value": 0 },
               "tooltip": {
-                "signal": "{title: datum.snvName, 'Count': datum.count, '%': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.snvName, 'Count': datum.counts, '%': format(datum.percent, '.1%')}"
               },
-              "fill": {"field": "color"},
+              "fill": { "field": "color" },
               "strokeWidth": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.snv",
                   "value": 1
                 },
-                {"value": 0}
+                { "value": 0 }
               ],
               "zindex": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.snv",
                   "value": 3
                 },
-                {"value": 2}
+                { "value": 2 }
               ]
             }
           }
@@ -414,12 +304,12 @@
       "name": "domainPlot",
       "type": "group",
       "encode": {
-        "enter": {"fill": {"value": "transparent"}},
+        "enter": { "fill": { "value": "transparent" } },
         "update": {
-          "x": {"value": 0},
-          "y": {"signal": "domainPlotY"},
-          "width": {"signal": "width"},
-          "height": {"signal": "domainPlotHeight"}
+          "x": { "value": 0 },
+          "y": { "signal": "domainPlotY" },
+          "width": { "signal": "width" },
+          "height": { "signal": "domainPlotHeight" }
         }
       },
       "signals": [
@@ -427,13 +317,13 @@
           "name": "brush",
           "value": 0,
           "on": [
-            {"events": "@domainPlot:mousedown", "update": "[x(), x()]"},
+            { "events": "@domainPlot:mousedown", "update": "[x(), x()]" },
             {
               "events": "[@domainPlot:mousedown, window:mouseup] > window:mousemove!",
               "update": "[brush[0], clamp(x(), 0, width)]"
             },
             {
-              "events": {"signal": "delta"},
+              "events": { "signal": "delta" },
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
             },
             {
@@ -445,12 +335,12 @@
         {
           "name": "anchor",
           "value": null,
-          "on": [{"events": "@brush:mousedown", "update": "slice(brush)"}]
+          "on": [{ "events": "@brush:mousedown", "update": "slice(brush)" }]
         },
         {
           "name": "xdown",
           "value": 0,
-          "on": [{"events": "@brush:mousedown", "update": "x()"}]
+          "on": [{ "events": "@brush:mousedown", "update": "x()" }]
         },
         {
           "name": "delta",
@@ -467,7 +357,7 @@
           "push": "outer",
           "on": [
             {
-              "events": {"signal": "brush"},
+              "events": { "signal": "brush" },
               "update": "span(brush) ? invert('xOverview', brush) : null"
             }
           ]
@@ -478,54 +368,61 @@
           "name": "domainYScale",
           "type": "linear",
           "domain": [0, 5],
-          "range": {"signal": "domainPlotYRange"}
+          "range": { "signal": "domainPlotYRange" }
         }
       ],
-      "axes": [{"orient": "bottom", "scale": "xOverview"}],
+      "axes": [{ "orient": "bottom", "scale": "xOverview" }],
       "marks": [
         {
           "name": "domain_rects",
           "type": "rect",
-          "from": {"data": "domains"},
+          "from": { "data": "domains" },
           "encode": {
             "enter": {
-              "x": {"scale": "xOverview", "field": "start"},
-              "x2": {"scale": "xOverview", "field": "end"},
-              "y": {"scale": "domainYScale", "field": "rowTop"},
-              "y2": {"scale": "domainYScale", "field": "rowBottom"},
-              "stroke": {"value": "black"},
-              "tooltip": {
-                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
-              }
+              "y": { "scale": "domainYScale", "field": "rowTop" },
+              "y2": { "scale": "domainYScale", "field": "rowBottom" }
             },
             "update": {
+              "x": { "scale": "xOverview", "field": "start" },
+              "x2": { "scale": "xOverview", "field": "end" },
+              "tooltip": {
+                "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
+              },
+              "strokeWidth": { "value": 0 },
               "fill": [
                 {
                   "test": "indata('selectedDomains', 'name', datum.name)",
-                  "value": "#00ff00"
+                  "value": "#34d5aa"
                 },
-                {"value": "#34d5eb"}
+                { "value": "#34d5eb" }
               ]
             },
-            "hover": {"fill": {"value": "#ff0000"}}
+            "hover": {
+              "fill": { "value": "#34eeaa" },
+              "strokeWidth": { "value": 1 },
+              "stroke": { "value": "black" },
+              "cursor": { "value": "pointer" }
+            }
           }
         },
         {
           "name": "domain_labels",
           "type": "text",
-          "from": {"data": "domain_rects"},
+          "from": { "data": "domain_rects" },
           "interactive": false,
           "encode": {
             "enter": {
-              "x": {"field": "x"},
-              "dx": {"field": "width", "mult": 0.5},
-              "y": {"field": "y"},
-              "dy": {"field": "height", "mult": 0.5},
-              "text": {"field": "datum.abbr"},
-              "align": {"value": "center"},
-              "baseline": {"value": "middle"},
-              "fill": {"value": "black"},
-              "tooltip": {"signal": "datum.tooltip"}
+              "y": { "field": "y" },
+              "dy": { "field": "height", "mult": 0.5 },
+              "align": { "value": "center" },
+              "baseline": { "value": "middle" },
+              "fill": { "value": "black" }
+            },
+            "update": {
+              "x": { "field": "x" },
+              "dx": { "field": "width", "mult": 0.5 },
+              "tooltip": { "signal": "datum.tooltip" },
+              "text": { "field": "datum.abbr" }
             }
           }
         },
@@ -535,14 +432,14 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {"value": 0},
-              "height": {"signal": "domainPlotHeight"},
-              "fill": {"value": "#333"},
-              "fillOpacity": {"value": 0.2}
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "fill": { "value": "#333" },
+              "fillOpacity": { "value": 0.2 }
             },
             "update": {
-              "x": {"signal": "brush[0]"},
-              "x2": {"signal": "brush[1]"}
+              "x": { "signal": "brush[0]" },
+              "x2": { "signal": "brush[1]" }
             }
           }
         },
@@ -551,12 +448,12 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {"value": 0},
-              "height": {"signal": "domainPlotHeight"},
-              "width": {"value": 1},
-              "fill": {"value": "firebrick"}
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
             },
-            "update": {"x": {"signal": "brush[0]"}}
+            "update": { "x": { "signal": "brush[0]" } }
           }
         },
         {
@@ -564,12 +461,12 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {"value": 0},
-              "height": {"signal": "domainPlotHeight"},
-              "width": {"value": 1},
-              "fill": {"value": "firebrick"}
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
             },
-            "update": {"x": {"signal": "brush[1]"}}
+            "update": { "x": { "signal": "brush[1]" } }
           }
         }
       ]

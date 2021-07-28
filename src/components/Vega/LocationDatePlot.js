@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-import _ from 'underscore';
+import { throttle } from '../../utils/func';
 
 import {
   NORM_MODES,
@@ -31,7 +32,8 @@ const PlotContainer = styled.div``;
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, UIStore, plotSettingsStore } = useStores();
+  const { dataStore, configStore, UIStore, plotSettingsStore, groupDataStore } =
+    useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -43,32 +45,32 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const handleSelected = (...args) => {
-    // console.log(args);
-    // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.focusedLocations)) {
-      return;
-    }
     configStore.updateFocusedLocations(args[1]);
   };
 
   const processLocationData = () => {
+    console.log('PROCESS LOCATION DATE DATA');
     let locationData;
     if (configStore.groupKey === GROUP_SNV) {
-      if (dataStore.dataAggLocationSnvDate === undefined) {
+      if (dataStore.aggLocationSelectedSnvsDate === undefined) {
         return [];
       }
 
-      locationData = JSON.parse(
-        JSON.stringify(dataStore.dataAggLocationSnvDate)
-      );
+      locationData = toJS(dataStore.aggLocationSelectedSnvsDate);
     } else {
-      if (dataStore.dataAggLocationGroupDate === undefined) {
+      if (dataStore.aggLocationGroupDate === undefined) {
         return [];
       }
 
-      locationData = JSON.parse(
-        JSON.stringify(dataStore.dataAggLocationGroupDate)
-      );
+      locationData = toJS(dataStore.aggLocationGroupDate).map((record) => {
+        record.color = groupDataStore.getGroupColor(
+          configStore.groupKey,
+          record.group_id
+        );
+        record.group = record.group_id;
+        record.group_name = record.group_id;
+        return record;
+      });
     }
 
     if (configStore.groupKey === GROUP_SNV) {
@@ -78,53 +80,26 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
-    // // Filter by date
-    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-    //   locationData = locationData.filter((row) => {
-    //     return (
-    //       (configStore.dateRange[0] == -1 ||
-    //         row.date > configStore.dateRange[0]) &&
-    //       (configStore.dateRange[1] == -1 ||
-    //         row.date < configStore.dateRange[1])
-    //     );
-    //   });
-    // }
-
     locationData = aggregate({
       data: locationData,
-      groupby: ['location', 'date', 'group', 'group_name'],
-      fields: ['counts', 'location_counts'],
-      ops: ['sum', 'max'],
-      as: ['counts', 'location_counts'],
+      groupby: ['location', 'collection_date', 'group'],
+      fields: ['counts', 'group_name'],
+      ops: ['sum', 'first'],
+      as: ['counts', 'group_name'],
+    }).map((record) => {
+      // Add location counts
+      record.location_counts = dataStore.countsPerLocationMap[record.location];
+      record.location_date_count = dataStore.countsPerLocationDateMap
+        .get(record.location)
+        .get(record.collection_date);
+      record.cumulative_location_date_count =
+        dataStore.cumulativeCountsPerLocationDateMap
+          .get(record.location)
+          .get(record.collection_date);
+      return record;
     });
 
-    const countsPerLocationDateMap = {};
-    dataStore.countsPerLocationDate.forEach((row) => {
-      !(row.location in countsPerLocationDateMap) &&
-        (countsPerLocationDateMap[row.location] = {});
-      !(row.date.toString() in countsPerLocationDateMap[row.location]) &&
-        (countsPerLocationDateMap[row.location][row.date.toString()] = {});
-
-      countsPerLocationDateMap[row.location][row.date.toString()]['count'] =
-        row.counts;
-      countsPerLocationDateMap[row.location][row.date.toString()][
-        'cumulative_count'
-      ] = row.cumulative_count;
-    });
-
-    // Manually join the countsPerLocationDate to locationData
-    locationData.forEach((row) => {
-      // row.location_date_count =
-      //   dataStore.countsPerLocationDate[row.location][row.date.toString()];
-      // row.cumulative_location_date_count =
-      //   cumulativeCountsPerLocationDate[row.location][row.date.toString()];
-      row.location_date_count =
-        countsPerLocationDateMap[row.location][row.date.toString()]['count'];
-      row.cumulative_location_date_count =
-        countsPerLocationDateMap[row.location][row.date.toString()][
-          'cumulative_count'
-        ];
-    });
+    // console.log(locationData);
     // console.log(JSON.stringify(locationData));
 
     return locationData;
@@ -158,7 +133,9 @@ const LocationDatePlot = observer(({ width }) => {
       dateBin = 1000 * 60 * 60 * 24 * 30;
     }
 
-    const dateBinSignal = _.findWhere(spec.signals, { name: 'dateBin' });
+    const dateBinSignal = spec.signals.find(
+      (signal) => signal.name === 'dateBin'
+    );
     dateBinSignal['value'] = dateBin;
 
     return spec;
@@ -171,9 +148,10 @@ const LocationDatePlot = observer(({ width }) => {
       selectedGroups: [],
       selected: [],
     },
+    hoverLocation: null,
     spec: injectDateBinIntoSpec(),
     signalListeners: {
-      hoverLocation: _.throttle(handleHoverLocation, 100),
+      hoverLocation: throttle(handleHoverLocation, 100),
     },
     dataListeners: {
       selected: handleSelected,
@@ -200,7 +178,7 @@ const LocationDatePlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadDataAggLocationGroupDate();
+      dataStore.downloadAggLocationGroupDate();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -224,6 +202,13 @@ const LocationDatePlot = observer(({ width }) => {
   useEffect(() => {
     setState({
       ...state,
+      hoverLocation: { location: configStore.hoverLocation },
+    });
+  }, [configStore.hoverLocation]);
+
+  useEffect(() => {
+    setState({
+      ...state,
       data: {
         ...state.data,
         selected: processFocusedLocations(),
@@ -231,9 +216,9 @@ const LocationDatePlot = observer(({ width }) => {
     });
   }, [configStore.focusedLocations]);
 
-  useEffect(() => {
+  const refreshData = () => {
     if (
-      configStore.groupKey !== GROUP_SNV ||
+      configStore.groupKey === GROUP_SNV &&
       UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;
@@ -247,25 +232,15 @@ const LocationDatePlot = observer(({ width }) => {
         selectedGroups: processSelectedGroups(),
       },
     });
-  }, [UIStore.snvDataState, configStore.selectedGroups]);
+  };
 
-  useEffect(() => {
-    if (
-      configStore.groupKey === GROUP_SNV ||
-      UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED
-    ) {
-      return;
-    }
-
-    setState({
-      ...state,
-      data: {
-        ...state.data,
-        location_data: processLocationData(),
-        selectedGroups: processSelectedGroups(),
-      },
-    });
-  }, [UIStore.caseDataState, configStore.selectedGroups]);
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [
+    UIStore.caseDataState,
+    UIStore.snvDataState,
+    configStore.selectedGroups,
+  ]);
+  useEffect(refreshData, []);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
@@ -453,7 +428,7 @@ const LocationDatePlot = observer(({ width }) => {
               plotSettingsStore.locationDateCountMode ===
               COUNT_MODES.COUNT_CUMULATIVE,
             skipFiltering: configStore.groupKey === GROUP_SNV,
-            hoverLocation: { location: configStore.hoverLocation },
+            hoverLocation: state.hoverLocation,
             yLabel,
           }}
           actions={false}
