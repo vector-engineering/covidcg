@@ -97,6 +97,18 @@ const GroupStackPlot = observer(({ width }) => {
       return toJS(dataStore.aggSelectedSnvsDate);
     }
 
+    console.log(
+      toJS(dataStore.aggGroupDate).map((record) => {
+        record.color = groupDataStore.getGroupColor(
+          configStore.groupKey,
+          record.group_id
+        );
+        record.group = record.group_id;
+        record.group_name = record.group_id;
+        return record;
+      })
+    );
+
     // For non-SNV mode, we'll need some additional fields:
     // 1) color of group
     // 2) name of group (same as group id)
@@ -163,13 +175,11 @@ const GroupStackPlot = observer(({ width }) => {
   }, [configStore.selectedGroups]);
 
   const refreshData = () => {
-    // Skip this if we're not in SNV mode
-    if (configStore.groupKey !== GROUP_SNV) {
-      return;
-    }
-
     // Skip unless the SNV data finished processing
-    if (UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED) {
+    if (
+      configStore.groupKey === GROUP_SNV &&
+      UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
+    ) {
       return;
     }
 

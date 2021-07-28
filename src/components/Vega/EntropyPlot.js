@@ -293,6 +293,13 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
+<<<<<<< HEAD
+=======
+    // console.log(getDomains());
+    // console.log(getXRange());
+    // console.log(processData());
+
+>>>>>>> data-opt
     setState({
       ...state,
       xRange: getXRange(),

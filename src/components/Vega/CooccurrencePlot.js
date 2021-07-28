@@ -5,7 +5,7 @@ import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-import { debounce } from '../../utils/func';
+import { throttle } from '../../utils/func';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import EmptyPlot from '../Common/EmptyPlot';
@@ -49,9 +49,9 @@ const CooccurrencePlot = observer(({ width }) => {
   const onChangeNormMode = (event) =>
     plotSettingsStore.setCooccurrenceNormMode(event.target.value);
 
-  const handleHoverGroup = debounce((...args) => {
+  const handleHoverGroup = (...args) => {
     configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
-  }, 20);
+  };
 
   const handleSelectedGroups = (...args) => {
     const curSelectedGroups = toJS(configStore.selectedGroups).map(
@@ -119,7 +119,7 @@ const CooccurrencePlot = observer(({ width }) => {
     data: {},
     hoverGroup: null,
     signalListeners: {
-      hoverGroup: debounce(handleHoverGroup, 20),
+      hoverGroup: throttle(handleHoverGroup, 50),
     },
     dataListeners: {
       selectedGroups: handleSelectedGroups,

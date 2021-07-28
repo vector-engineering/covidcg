@@ -218,7 +218,7 @@ const LocationDatePlot = observer(({ width }) => {
 
   const refreshData = () => {
     if (
-      configStore.groupKey !== GROUP_SNV ||
+      configStore.groupKey === GROUP_SNV &&
       UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;

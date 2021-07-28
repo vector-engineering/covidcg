@@ -3,6 +3,8 @@ import { lighten } from 'polished';
 
 import Button from '../Buttons/Button';
 
+const FOLD_WIDTH = '1000px';
+
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -19,27 +21,33 @@ export const Content = styled.div`
   font-size: 1em;
   font-weight: normal;
 
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: ${FOLD_WIDTH}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
 export const Column = styled.div`
   min-width: ${({ minWidth }) => minWidth}px;
-  ${({ maxWidth }) => (maxWidth > 0 ? 'max-width: ' + maxWidth + 'px;' : '')}
   height: 100%;
 
   display: flex;
   flex-direction: column;
   align-items: stretch;
   overflow-y: scroll;
-  ${({ grow }) => (grow ? 'flex-grow: 1;' : '')}
+
+  @media (max-width: ${FOLD_WIDTH}) {
+    grid-row: ${({ collapseRow }) => collapseRow};
+    grid-column: ${({ collapseCol }) => collapseCol};
+  }
 `;
 Column.defaultProps = {
   minWidth: 300,
-  grow: false,
-  maxWidth: 0,
+  collapseRow: 1,
+  collapseCol: 1,
 };
 
 export const ApplyButton = styled(Button)`
