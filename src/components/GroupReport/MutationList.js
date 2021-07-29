@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import useDimensions from 'react-use-dimensions';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
@@ -9,6 +10,7 @@ import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { reds, snpColorArray } from '../../constants/colors';
 import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
+import GroupSearch from './GroupSearch';
 import EmptyPlot from '../Common/EmptyPlot';
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -26,6 +28,9 @@ import {
   MutationRowBar,
   MutationRowName,
   MutationRowHeatmapCellContainer,
+  MutationContentContainer,
+  MutationInnerContainer,
+  DeleteButton,
 } from './MutationList.styles';
 
 const genes = getAllGenes();
@@ -140,7 +145,33 @@ MutationListRow.defaultProps = {
   emptyRow: false,
 };
 
-const MutationListContent = observer(() => {
+const DeleteButtonContainer = ({ group, index }) => {
+  const { groupDataStore } = useStores();
+
+  const onClick = (event) => {
+    console.log(group);
+    let selectedNodes = groupDataStore.selectedGroups;
+    const index = selectedNodes.indexOf(group);
+    if (index > -1) {
+      selectedNodes.splice(index, 1);
+    }
+
+    // Update selectedNodes
+    groupDataStore.updateSelectedGroups(
+      selectedNodes.map((node) => {
+        return node;
+      })
+    );
+  };
+
+  return (
+    <DeleteButton title="Deselect" onClick={onClick}>
+      x
+    </DeleteButton>
+  );
+};
+
+const MutationListContent = observer(({ headerheight }) => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
@@ -153,6 +184,7 @@ const MutationListContent = observer(() => {
           paddingRight: '24px',
           paddingLeft: '12px',
           paddingBottom: '24px',
+          overflow: 'auto',
         }}
       >
         <SkeletonElement delay={2} height={400} />
@@ -173,9 +205,9 @@ const MutationListContent = observer(() => {
   {
     // gene or protein
     S: [
-      { 
+      {
         name: D614G
-        ref, 
+        ref,
         alt,
         pos: 614
         frequency: [0.1, 0.9, 0.5] // fractional frequencies per group
@@ -312,7 +344,8 @@ const MutationListContent = observer(() => {
   });
 
   const headerItems = [];
-  groupDataStore.selectedGroups.forEach((group) => {
+  const deleteButtons = [];
+  groupDataStore.selectedGroups.forEach((group, i) => {
     headerItems.push(
       <MutationListHeaderCell key={`mutation-list-table-head-${group}`}>
         <div>
@@ -320,27 +353,36 @@ const MutationListContent = observer(() => {
         </div>
       </MutationListHeaderCell>
     );
+    deleteButtons.push(
+      <DeleteButtonContainer key={`delete-${group}-${i}`} group={group} />
+    );
   });
 
   return (
-    <>
+    <MutationContentContainer headerheight={headerheight}>
       <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
         <thead>
           <tr>
-            <MutationListHeaderEmpty colSpan={2} />
+            <GroupSearch />
             {headerItems}
+          </tr>
+          <tr>
+            <MutationListHeaderEmpty colSpan={2} />
+            {deleteButtons}
           </tr>
         </thead>
       </MutationListHeaderTable>
       <MutationListTable ncols={groupDataStore.selectedGroups.length}>
         <tbody>{rowItems}</tbody>
       </MutationListTable>
-    </>
+    </MutationContentContainer>
   );
 });
 
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
+  const [headerRef, headerSize] = useDimensions();
+  const [headerRef1, headerSize1] = useDimensions();
 
   // const onChangeActiveGroupType = (event) => {
   //   groupDataStore.updateActiveGroupType(event.target.value);
@@ -383,7 +425,7 @@ const MutationList = observer(() => {
 
   return (
     <MutationListContainer>
-      <MutationListHeader>
+      <MutationListHeader ref={headerRef}>
         {/* <OptionSelectContainer>
           <label>
             <select
@@ -427,24 +469,28 @@ const MutationList = observer(() => {
           onSelect={handleDownloadSelect}
         />
       </MutationListHeader>
-      <MutationListHeader>
-        <OptionCheckboxContainer>
-          <label>
-            <input
-              type="checkbox"
-              name="mutation-list-hide-empty"
-              checked={plotSettingsStore.reportMutationListHideEmpty}
-              onChange={onChangeHideEmpty}
-            />
-            Hide{' '}
-            {groupDataStore.groupSnvType === 'protein_aa'
-              ? 'Proteins'
-              : 'Genes'}{' '}
-            without SNVs
-          </label>
-        </OptionCheckboxContainer>
-      </MutationListHeader>
-      <MutationListContent></MutationListContent>
+      <MutationInnerContainer>
+        <MutationListHeader ref={headerRef1}>
+          <OptionCheckboxContainer>
+            <label>
+              <input
+                type="checkbox"
+                name="mutation-list-hide-empty"
+                checked={plotSettingsStore.reportMutationListHideEmpty}
+                onChange={onChangeHideEmpty}
+              />
+              Hide{' '}
+              {groupDataStore.groupSnvType === 'protein_aa'
+                ? 'Proteins'
+                : 'Genes'}{' '}
+              without SNVs
+            </label>
+          </OptionCheckboxContainer>
+        </MutationListHeader>
+        <MutationListContent
+          headerheight={headerSize.height + headerSize1.height}
+        />
+      </MutationInnerContainer>
     </MutationListContainer>
   );
 });

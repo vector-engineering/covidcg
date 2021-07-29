@@ -10,7 +10,6 @@ const GroupReportHeader = observer(() => {
   return (
     <HeaderContainer>
       <HeaderBoxRow>
-        <GroupSearch />
         <VOCList />
       </HeaderBoxRow>
     </HeaderContainer>

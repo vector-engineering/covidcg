@@ -3,9 +3,13 @@ import styled from 'styled-components';
 export const VOCGridTitle = styled.span`
   font-size: 1em;
   grid-row: 1;
-  justify-self: center;
   font-weight: bold;
+  text-align: center;
+  grid-column: span ${({ colSpan }) => colSpan};
 `;
+VOCGridTitle.defaultProps = {
+  colSpan: 1,
+};
 
 export const GridItem = styled.div`
   padding-left: 10px;
@@ -21,35 +25,50 @@ export const VOCListContainer = styled.div`
 
 export const VOCItemGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-template-rows: auto;
   grid-column-gap: 10px;
+  justify-items: center;
 `;
 
 export const VOCItemContainer = styled.div`
+  display: grid;
+  grid-template-columns: 11px 1fr;
+  grid-gap: 5px
+  align-items: center;
+  background-color: ${({ selected }) => (selected ? '#009988' : '#eeeeee')};
+  margin-top: 5px;
+  padding: 1px 5px;
+  font-size: 0.85em;
+  border-radius: 5px;
+
   position: relative;
 
-  input {
-    vertical-align: 'baseline';
-  }
-`;
-
-export const VOCItemName = styled.span`
   &:hover {
     cursor: pointer;
   }
 `;
 
-export const DropdownGrid = styled.div`
-  display: grid;
-  top: 100%;
-  z-index: 2;
-  grid-template-columns: 180px;
-  grid-template-rows: auto;
-  background-color: #ffffff;
+export const VOCItemName = styled.span`
+  margin-left: 5px;
+  color: ${({ selected }) => (selected ? 'white' : 'black')};
 `;
 
-export const DropdownLabel = styled.span`
-  grid-column: 1;
-  grid-row: auto;
+export const VOCBadgeContainer = styled.div`
+  display: grid;
+  margin: auto;
+  max-width: 11px;
+  max-height: 11px;
+  border: 1px solid black;
+  background-color: black;
+  grid-template-columns: repeat(2, 5px);
+  grid-template-rows: repeat(2, 5px);
+  grid-gap: 1px;
 `;
+
+export const VOCBadge = styled.div`
+  background-color: ${({ color }) => color};
+  grid-row: ${({ row }) => row};
+  grid-column: ${({ col }) => col};
+`;
+VOCBadge.defaultProps = { color: 'white', row: 1, col: 1 };

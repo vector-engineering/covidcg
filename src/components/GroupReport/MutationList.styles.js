@@ -4,6 +4,12 @@ import { transparentize } from 'polished';
 export const MutationListContainer = styled.div`
   display: flex;
   flex-direction: column;
+  position: sticky;
+  left: 0px;
+  top: 0px;
+  align-items: stretch;
+
+  height: 100vh;
 `;
 
 export const MutationListHeader = styled.div`
@@ -14,6 +20,13 @@ export const MutationListHeader = styled.div`
   .spacer {
     flex-grow: 1;
   }
+`;
+
+export const MutationContentContainer = styled.div``;
+
+export const MutationInnerContainer = styled.div`
+  max-width: 100%;
+  overflow-x: auto;
 `;
 
 export const OptionSelectContainer = styled.div`
@@ -75,6 +88,7 @@ export const MutationListHeaderEmpty = styled.th`
 MutationListHeaderEmpty.defaultProps = {
   colSpan: 1,
 };
+
 export const MutationListHeaderCell = styled.th`
   white-space: nowrap;
   div {
@@ -86,6 +100,21 @@ export const MutationListHeaderCell = styled.th`
       padding: 5px 10px;
     }
   }
+`;
+
+export const DeleteButton = styled.td`
+  background: none;
+  border-style: none;
+  color: #aaa;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover,
+  &:focus {
+    color: #ff5555;
+  }
+
+  transition: 0.1s all ease-in-out;
 `;
 
 export const MutationListTable = styled.table`
@@ -100,8 +129,6 @@ export const MutationListTable = styled.table`
   }
   min-width: 100%;
   font-weight: normal;
-  max-height: 500px;
-  overflow-y: scroll;
 `;
 MutationListTable.defaultProps = {
   ncols: 1,
