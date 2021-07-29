@@ -281,57 +281,6 @@ export class DataStore {
       });
   };
 
-  @action
-  downloadSelectedSNVs = () => {
-    fetch(hostname + '/download_snvs', {
-      method: 'POST',
-      headers: {
-        Accept: 'text/csv',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        group_key: toJS(rootStoreInstance.configStore.groupKey),
-        dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
-        coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
-        coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
-        selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
-        selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
-          .name,
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
-        ageRange: toJS(rootStoreInstance.configStore.ageRange),
-        start_date: toJS(rootStoreInstance.configStore.startDate),
-        end_date: toJS(rootStoreInstance.configStore.endDate),
-        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
-        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw res;
-        }
-        return res.blob();
-      })
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        downloadBlobURL(url, 'selected_snvs.csv');
-      })
-      .catch((err) => {
-        let prefix = 'Download selected SNVs failed';
-        if (!(typeof err.text === 'function')) {
-          console.error(prefix, err);
-        } else {
-          err.text().then((errMsg) => {
-            console.error(prefix, errMsg);
-          });
-        }
-        rootStoreInstance.UIStore.onDownloadErr();
-      });
-  };
-
   // TODO:
   // We should probably change this request to use form data
   // or query params, so that we can open the request in a new
