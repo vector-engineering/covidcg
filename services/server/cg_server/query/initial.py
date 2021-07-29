@@ -53,7 +53,7 @@ def query_stats(cur):
     cur.execute(
         """
         SELECT "value"
-        FROM "stats"        
+        FROM "stats"
         """
     )
     return cur.fetchone()[0]
@@ -63,7 +63,7 @@ def query_geo_select_tree(cur):
     cur.execute(
         """
         SELECT "value"
-        FROM "geo_select_tree"        
+        FROM "geo_select_tree"
         """
     )
     return cur.fetchone()[0]
@@ -76,8 +76,8 @@ def query_groups(cur):
         group_queries.append(
             sql.SQL(
                 """
-            SELECT 
-                "name", 
+            SELECT
+                "name",
                 "color",
                 {group_name} as "group"
             FROM {group_table}
@@ -105,4 +105,3 @@ def query_initial(conn):
         "geo_select_tree": geo_select_tree,
         "groups": groups,
     }
-

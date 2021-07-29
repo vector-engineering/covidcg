@@ -294,3 +294,8 @@ export const DomainSelect = styled.div`
   flex-direction: row;
   align-items: center;
 `;
+
+export const HintText = styled.div`
+  font-size: 1em;
+  color: #888;
+`;

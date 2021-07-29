@@ -66,3 +66,8 @@ export const Link = styled(ExternalLink)`
   font-size: 0.9em;
   margin-left: 10px;
 `;
+
+export const HintText = styled.div`
+  font-size: 1em;
+  color: #888;
+`;

@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-// import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import _ from 'underscore';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -18,6 +16,7 @@ import {
   InvalidText,
   RangesText,
   DomainSelectForm,
+  HintText,
 } from './CoordinateSelect.styles';
 
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
@@ -28,13 +27,18 @@ import {
 } from '../../utils/primer';
 import { queryReferenceSequence } from '../../utils/reference';
 
-import { DNA_OR_AA, COORDINATE_MODES } from '../../constants/defs.json';
+import {
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  GROUP_SNV,
+} from '../../constants/defs.json';
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
 
 const CoordinateSelect = observer(
   ({
+    groupKey,
     dnaOrAa,
     coordinateMode,
     selectedGene,
@@ -156,9 +160,9 @@ const CoordinateSelect = observer(
     // useEffect(() => {
     //   let _geneOptionElements = state.geneOptionElements;
     //   let _proteinOptionElements = state.proteinOptionElements;
-    //   if (configStore.groupKey !== GROUP_SNV && configStore.dnaOrAa === DNA_OR_AA.AA) {
+    //   if (groupKey !== GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
     //   }
-    // }, [configStore.groupKey, configStore.dnaOrAa]);
+    // }, [groupKey, dnaOrAa]);
 
     // Update custom coordinates from the store
     useEffect(() => {
@@ -235,9 +239,9 @@ const CoordinateSelect = observer(
         newResidueCoordsText = `1..${selectedGene.len_aa}`;
         newResidueCoords.push([1, selectedGene.len_aa]);
       } else {
-        const domainObj = _.findWhere(selectedGene.domains, {
-          name: domainName,
-        });
+        const domainObj = selectedGene.domains.find(
+          (domain) => domain.name === domainName
+        );
 
         domainObj.ranges.forEach((range) =>
           newResidueCoords.push(range.slice())
@@ -264,9 +268,9 @@ const CoordinateSelect = observer(
         newResidueCoordsText = `1..${selectedProtein.len_aa}`;
         newResidueCoords.push([1, selectedProtein.len_aa]);
       } else {
-        const domainObj = _.findWhere(selectedProtein.domains, {
-          name: domainName,
-        });
+        const domainObj = selectedProtein.domains.find(
+          (domain) => domain.name === domainName
+        );
 
         domainObj.ranges.forEach((range) =>
           newResidueCoords.push(range.slice())
@@ -367,12 +371,18 @@ const CoordinateSelect = observer(
       });
 
       selectedPrimers.forEach((primer) => {
-        const institutionNode = _.findWhere(primerTreeData, {
-          value: primer.Institution,
-        });
-        const primerNode = _.findWhere(institutionNode.children, {
-          value: primer.Name,
-        });
+        const institutionNode = primerTreeData.find(
+          (node) => node.value === primer.Institution
+        );
+        if (institutionNode === undefined) {
+          return;
+        }
+        const primerNode = institutionNode.children.find(
+          (child) => child.value === primer.Name
+        );
+        if (primerNode === undefined) {
+          return;
+        }
         primerNode.checked = true;
       });
 
@@ -398,9 +408,14 @@ const CoordinateSelect = observer(
       });
 
       // Sort by Institution then Name
-      selectedPrimers = _.sortBy(selectedPrimers, (primer) => {
-        return primer.Institution.concat('-', primer.Name);
-      });
+      selectedPrimers = selectedPrimers
+        .map((primer) => {
+          primer.sortKey = primer.Institution.concat('-', primer.Name);
+          return primer;
+        })
+        .sort((a, b) => {
+          return a.sortKey > b.sortKey;
+        });
 
       updateSelectedPrimers(selectedPrimers);
     };
@@ -427,16 +442,8 @@ const CoordinateSelect = observer(
       );
     }, [state.primerTreeData]);
 
-    return (
-      <SelectContainer>
-        <span className="title">
-          Genomic Coordinates
-          <QuestionButton
-            data-tip="<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p>"
-            data-html="true"
-            data-for="main-tooltip"
-          />
-        </span>
+    const renderMainForm = () => {
+      return (
         <ModeSelectForm>
           {/* GENE SELECT */}
           <ModeRadioVertical>
@@ -681,6 +688,28 @@ const CoordinateSelect = observer(
             )}
           </ModeRadioVertical>
         </ModeSelectForm>
+      );
+    };
+
+    return (
+      <SelectContainer>
+        <span className="title">
+          Genomic Coordinates
+          <QuestionButton
+            data-tip='<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p><p>These options are only enabled when in "SNV" mode.</p>'
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </span>
+        {groupKey !== GROUP_SNV && (
+          <ModeSelectForm>
+            <HintText>
+              Switch to &quot;SNV&quot; under &quot;Group sequences by&quot; in
+              order to enable Genomic Coordinate filtering.
+            </HintText>
+          </ModeSelectForm>
+        )}
+        {groupKey === GROUP_SNV && renderMainForm()}
       </SelectContainer>
     );
   }

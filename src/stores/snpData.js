@@ -2,12 +2,11 @@
  * Load SNP data, and map integers -> SNP strings
  */
 
-import _ from 'underscore';
-
 import { getGene, getProtein } from '../utils/gene_protein';
-
+import { formatSnv } from '../utils/snpUtils';
+import { memoize } from '../utils/func';
 import { snpColorArray } from '../constants/colors';
-import { GROUPS } from '../constants/defs.json';
+import { GROUPS, DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 
 export class SnpDataStore {
@@ -45,7 +44,7 @@ export class SnpDataStore {
 
     //snv -> color map
     let snvColorInd = 0;
-    const _getSnvColor = _.memoize(() => {
+    const _getSnvColor = memoize(() => {
       const color = snpColorArray[snvColorInd++];
       if (snvColorInd === snpColorArray.length) {
         snvColorInd = 0;
@@ -84,6 +83,8 @@ export class SnpDataStore {
       this.intToDnaSnvMap[snvId]['pos'] = parseInt(split[0]);
       this.intToDnaSnvMap[snvId]['ref'] = split[1];
       this.intToDnaSnvMap[snvId]['alt'] = split[2];
+      this.intToDnaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.DNA);
+      this.intToDnaSnvMap[snvId]['color'] = this.snvColorMap[snv];
     });
     Object.keys(this.geneAaSnvMap).forEach((snv) => {
       snvId = parseInt(this.geneAaSnvMap[snv]);
@@ -99,6 +100,8 @@ export class SnpDataStore {
       this.intToGeneAaSnvMap[snvId]['pos'] = parseInt(split[1]);
       this.intToGeneAaSnvMap[snvId]['ref'] = split[2];
       this.intToGeneAaSnvMap[snvId]['alt'] = split[3];
+      this.intToGeneAaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.AA);
+      this.intToGeneAaSnvMap[snvId]['color'] = this.snvColorMap[snv];
 
       // Get coordinates in NT (from start of codon)
       aaRangeInd = getGene(split[0]).aa_ranges.reduce(
@@ -130,6 +133,8 @@ export class SnpDataStore {
       this.intToProteinAaSnvMap[snvId]['pos'] = parseInt(split[1]);
       this.intToProteinAaSnvMap[snvId]['ref'] = split[2];
       this.intToProteinAaSnvMap[snvId]['alt'] = split[3];
+      this.intToProteinAaSnvMap[snvId]['name'] = formatSnv(snv, DNA_OR_AA.AA);
+      this.intToProteinAaSnvMap[snvId]['color'] = this.snvColorMap[snv];
 
       // Get coordinates in NT (from start of codon)
       aaRangeInd = getProtein(split[0]).aa_ranges.reduce(
@@ -161,6 +166,17 @@ export class SnpDataStore {
   intToProteinAaSnv(aaSnvId) {
     return this.intToProteinAaSnvMap[aaSnvId];
   }
+  intToSnv(dnaOrAa, coordinateMode, snvId) {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
+      return this.intToDnaSnv(snvId);
+    } else {
+      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return this.intToGeneAaSnv(snvId);
+      } else {
+        return this.intToProteinAaSnv(snvId);
+      }
+    }
+  }
 
   dnaSnvToInt(dnaSnv) {
     return this.dnaSnvMap[dnaSnv];
@@ -170,5 +186,16 @@ export class SnpDataStore {
   }
   proteinAaSnvToInt(proteinAaSnv) {
     return this.proteinAaSnvMap[proteinAaSnv];
+  }
+  snvToInt(dnaOrAa, coordinateMode, snv) {
+    if (dnaOrAa === DNA_OR_AA.DNA) {
+      return this.dnaSnvToInt(snv);
+    } else {
+      if (coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return this.geneAaSnvToInt(snv);
+      } else {
+        return this.proteinAaSnvToInt(snv);
+      }
+    }
   }
 }

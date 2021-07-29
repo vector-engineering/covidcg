@@ -36,10 +36,14 @@ export class GlobalSequencingDataStore {
         rootStoreInstance.UIStore.onGlobalSequencingDataFinished();
       })
       .catch((err) => {
-        err.text().then((errMsg) => {
-          console.error(errMsg);
-          rootStoreInstance.UIStore.onGlobalSequencingDataErr();
-        });
+        if (!(typeof err.text === 'function')) {
+          console.error(err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onGlobalSequencingDataErr();
       });
   }
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
-import _ from 'underscore';
 import { GROUP_SNV } from '../../constants/defs.json';
 import { useStores } from '../../stores/connect';
 import { formatSnv } from '../../utils/snpUtils';
@@ -90,8 +89,9 @@ const TableLegendItem = observer(
       let _selected = null;
       if (configStore.selectedGroups.length > 0) {
         if (
-          _.findWhere(configStore.selectedGroups, { group: item.group }) !==
-          undefined
+          configStore.selectedGroups.find(
+            (group) => group.group === item.group
+          ) !== undefined
         ) {
           _selected = true;
         } else {

@@ -32,7 +32,7 @@ metadataFields.forEach((field) => {
 
 const MetaFieldSelect = observer(
   ({ selectedMetadataFields, updateSelectedMetadataFields }) => {
-    const { dataStore, metadataStore, UIStore } = useStores();
+    const { metadataStore, UIStore } = useStores();
 
     const [state, setState] = useState({
       fieldOptions: initialFieldOptions,
@@ -45,23 +45,26 @@ const MetaFieldSelect = observer(
       metadataFields.forEach((field) => {
         fieldOptions[field] = [];
 
-        if (
-          !Object.prototype.hasOwnProperty.call(dataStore.metadataCounts, field)
-        ) {
+        if (!metadataStore.metadataCounts.has(field)) {
           return;
         }
 
-        Object.keys(dataStore.metadataCounts[field]).forEach((option) => {
-          let initialCount = dataStore.metadataCounts[field][option];
-          fieldOptions[field].push({
-            label:
-              metadataStore.getMetadataValueFromId(field, option) +
-              ' [' +
-              initialCount.toString() +
-              ']',
-            value: option,
-          });
-        });
+        Array.from(metadataStore.metadataMap.get(field).keys()).forEach(
+          (metadata_val_id) => {
+            let fieldName = metadataStore.getMetadataValueFromId(
+              field,
+              metadata_val_id
+            );
+            let counts = metadataStore.getMetadataCountsFromId(
+              field,
+              metadata_val_id
+            );
+            fieldOptions[field].push({
+              label: fieldName + ' [' + counts.toString() + ']',
+              value: metadata_val_id,
+            });
+          }
+        );
       });
 
       setState({ ...state, fieldOptions });

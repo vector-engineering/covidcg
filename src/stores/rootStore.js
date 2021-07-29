@@ -53,10 +53,11 @@ class RootStore {
     this.snpDataStore.init();
 
     this.configStore.init();
-    this.dataStore.init();
 
     this.globalSequencingDataStore.init();
     this.groupDataStore.init();
+
+    this.dataStore.init();
 
     const urlParams = new URLSearchParams(window.location.search);
 

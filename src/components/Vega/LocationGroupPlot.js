@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
-import _ from 'underscore';
+import { throttle, debounce } from '../../utils/func';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -24,7 +25,14 @@ const PlotContainer = styled.div``;
 
 const LocationGroupPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, UIStore, plotSettingsStore } = useStores();
+  const {
+    dataStore,
+    configStore,
+    UIStore,
+    plotSettingsStore,
+    groupDataStore,
+    snpDataStore,
+  } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -36,37 +44,21 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const handleHoverGroup = (...args) => {
-    // Don't fire the action if there's no change
-    let hoverGroup = args[1] === null ? null : args[1]['group'];
-    if (hoverGroup === configStore.hoverGroup) {
-      return;
-    }
-    configStore.updateHoverGroup(hoverGroup);
+    configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
   };
 
   const handleSelectedLocations = (...args) => {
-    // console.log(args);
-    // Don't fire if the selection is the same
-    if (_.isEqual(args[1], configStore.focusedLocations)) {
-      return;
-    }
     configStore.updateFocusedLocations(args[1]);
   };
 
   const handleSelectedGroups = (...args) => {
-    // Don't fire if the selection is the same
-    const newGroups =
+    configStore.updateSelectedGroups(
       args[1] === null
         ? []
         : args[1].map((item) => {
             return { group: item.group };
-          });
-
-    if (_.isEqual(newGroups, configStore.selectedGroups)) {
-      return;
-    }
-
-    configStore.updateSelectedGroups(newGroups);
+          })
+    );
   };
 
   const onChangeHideReference = (e) => {
@@ -74,49 +66,60 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const processLocationByGroup = () => {
-    let locationData = JSON.parse(
-      JSON.stringify(dataStore.dataAggLocationGroupDate)
-    );
+    //console.log('LOCATION GROUP PLOT PROCESS DATA');
 
-    if (
-      configStore.groupKey === GROUP_SNV &&
-      plotSettingsStore.locationGroupHideReference
-    ) {
-      // Filter out 'Reference' group, when in SNV mode
-      locationData = locationData.filter((row) => {
-        return row.group !== GROUPS.REFERENCE_GROUP;
+    let locationData;
+    if (configStore.groupKey === GROUP_SNV) {
+      locationData = aggregate({
+        data: toJS(dataStore.aggLocationSingleSnvDate),
+        groupby: ['location', 'group_id'],
+        fields: ['counts'],
+        ops: ['sum'],
+        as: ['counts'],
+      });
+
+      locationData.forEach((record) => {
+        let snv = snpDataStore.intToSnv(
+          configStore.dnaOrAa,
+          configStore.coordinateMode,
+          record.group_id
+        );
+        record.color = snv.color;
+        record.group = snv.snp_str;
+        record.group_name = snv.name;
+      });
+
+      if (plotSettingsStore.locationGroupHideReference) {
+        // Filter out 'Reference' group, when in SNV mode
+        locationData = locationData.filter((row) => {
+          return row.group !== GROUPS.REFERENCE_GROUP;
+        });
+      }
+    } else {
+      locationData = aggregate({
+        data: toJS(dataStore.aggLocationGroupDate),
+        groupby: ['location', 'group_id'],
+        fields: ['counts'],
+        ops: ['sum'],
+        as: ['counts'],
+      });
+      locationData.forEach((record) => {
+        record.color = groupDataStore.getGroupColor(
+          configStore.groupKey,
+          record.group_id
+        );
+        record.group = record.group_id;
+        record.group_name = record.group_id;
       });
     }
 
-    // Filter by date
-    // if (configStore.dateRange[0] != -1 || configStore.dateRange[1] != -1) {
-    //   locationData = locationData.filter((row) => {
-    //     return (
-    //       (configStore.dateRange[0] == -1 ||
-    //         row.date > configStore.dateRange[0]) &&
-    //       (configStore.dateRange[1] == -1 ||
-    //         row.date < configStore.dateRange[1])
-    //     );
-    //   });
-    // }
-
-    locationData = aggregate({
-      data: locationData,
-      groupby: ['location', 'date', 'group', 'group_name'],
-      fields: ['counts', 'color', 'location_counts'],
-      ops: ['sum', 'first', 'max'],
-      as: ['counts', 'color', 'location_counts'],
+    locationData.forEach((record) => {
+      record.location_counts = dataStore.countsPerLocationMap[record.location];
     });
 
+    // console.log(JSON.stringify(locationData));
+
     return locationData;
-  };
-
-  const processSelectedGroups = () => {
-    return JSON.parse(JSON.stringify(configStore.selectedGroups));
-  };
-
-  const processSelectedLocations = () => {
-    return JSON.parse(JSON.stringify(configStore.focusedLocations));
   };
 
   const [state, setState] = useState({
@@ -125,10 +128,12 @@ const LocationGroupPlot = observer(({ width }) => {
       selectedGroups: [],
       selectedLocations: [],
     },
+    hoverGroup: null,
+    hoverLocation: null,
     spec: JSON.parse(JSON.stringify(initialSpec)),
     signalListeners: {
-      hoverLocation: _.throttle(handleHoverLocation, 100),
-      hoverGroup: _.debounce(handleHoverGroup, 20),
+      hoverLocation: throttle(handleHoverLocation, 100),
+      hoverGroup: debounce(handleHoverGroup, 100),
     },
     dataListeners: {
       selectedLocations: handleSelectedLocations,
@@ -139,14 +144,38 @@ const LocationGroupPlot = observer(({ width }) => {
   useEffect(() => {
     setState({
       ...state,
+      hoverGroup: { group: configStore.hoverGroup },
+    });
+  }, [configStore.hoverGroup]);
+
+  useEffect(() => {
+    setState({
+      ...state,
+      hoverLocation: { location: configStore.hoverLocation },
+    });
+  }, [configStore.hoverLocation]);
+
+  useEffect(() => {
+    setState({
+      ...state,
       data: {
         ...state.data,
-        selectedLocations: processSelectedLocations(),
+        selectedLocations: toJS(configStore.focusedLocations),
       },
     });
   }, [configStore.focusedLocations]);
 
   useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        selectedGroups: toJS(configStore.selectedGroups),
+      },
+    });
+  }, [configStore.selectedGroups]);
+
+  const refreshData = () => {
     if (UIStore.caseDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
@@ -156,14 +185,17 @@ const LocationGroupPlot = observer(({ width }) => {
       data: {
         ...state.data,
         location_by_group: processLocationByGroup(),
-        selectedGroups: processSelectedGroups(),
+        selectedGroups: toJS(configStore.selectedGroups),
       },
     });
-  }, [
+  };
+
+  // Refresh data on mount (i.e., tab change) or when data state changes
+  useEffect(refreshData, [
     UIStore.caseDataState,
-    configStore.selectedGroups,
     plotSettingsStore.locationGroupHideReference,
   ]);
+  useEffect(refreshData, []);
 
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
@@ -240,8 +272,8 @@ const LocationGroupPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            hoverLocation: { location: configStore.hoverLocation },
-            hoverGroup: { group: configStore.hoverGroup },
+            hoverLocation: state.hoverLocation,
+            hoverGroup: state.hoverGroup,
             xLabel,
             xLabelFormat,
             stackOffset,
