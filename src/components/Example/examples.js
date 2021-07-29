@@ -1,6 +1,7 @@
 import { getGene } from '../../utils/gene_protein';
 import { getLocationByNameAndLevel } from '../../utils/location';
 import { queryPrimers } from '../../utils/primer';
+import { todayISO } from '../../utils/date';
 
 import {
   GROUP_SNV,
@@ -10,6 +11,7 @@ import {
   COUNT_MODES,
   DATE_BINS,
   TABS,
+  MIN_DATE,
 } from '../../constants/defs.json';
 import { config } from '../../config';
 
@@ -43,6 +45,8 @@ export const getExampleItems = ({ selectTree }) => {
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [selectTree], // select root
+          startDate: MIN_DATE,
+          endDate: todayISO(),
         },
       },
     },
@@ -91,6 +95,8 @@ export const getExampleItems = ({ selectTree }) => {
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'Iceland', 'country')[0],
           ],
+          startDate: MIN_DATE,
+          endDate: todayISO(),
         },
       },
     },
@@ -158,6 +164,8 @@ export const getExampleItems = ({ selectTree }) => {
             getLocationByNameAndLevel(selectTree, 'Texas', 'division')[0],
             getLocationByNameAndLevel(selectTree, 'Wisconsin', 'division')[0],
           ],
+          startDate: MIN_DATE,
+          endDate: todayISO(),
         },
       },
     },
@@ -201,6 +209,8 @@ export const getExampleItems = ({ selectTree }) => {
             .concat(
               queryPrimers({ Institution: 'US CDC', Name: '2019-nCoV-N2-P' })
             ),
+          startDate: MIN_DATE,
+          endDate: todayISO(),
         },
       },
     },
@@ -227,6 +237,8 @@ export const getExampleItems = ({ selectTree }) => {
             getLocationByNameAndLevel(selectTree, 'USA', 'country')[0],
           ],
           selectedGroups: [{ group: 'N|203|R|K' }, { group: 'N|204|G|R' }],
+          startDate: MIN_DATE,
+          endDate: todayISO(),
         },
       },
     },
@@ -253,6 +265,8 @@ export const getExampleItems = ({ selectTree }) => {
             getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0],
           ],
           selectedGroups: [{ group: 'S|614|D|G' }],
+          startDate: MIN_DATE,
+          endDate: '2020-12-31',
         },
       },
     },
