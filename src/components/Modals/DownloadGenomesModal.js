@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
@@ -19,6 +19,7 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
+  CheckboxInput,
 } from './Modal.styles';
 import {
   Wrapper,
@@ -34,10 +35,19 @@ const NOOP = () => {};
 const DownloadGenomesContent = observer(({ onRequestClose }) => {
   const { UIStore, dataStore } = useStores();
   const sentRequest = useRef();
+  const [state, setState] = useState({
+    compress: true,
+  });
+
+  const handleCompressSelect = (e) => {
+    setState({
+      compress: e.target.checked,
+    });
+  };
 
   const confirmDownload = () => {
     sentRequest.current = true;
-    dataStore.downloadGenomes();
+    dataStore.downloadGenomes({ compress: state.compress });
   };
 
   // When our request goes through, close the modal
@@ -98,9 +108,25 @@ const DownloadGenomesContent = observer(({ onRequestClose }) => {
           </Info>
         </Row>
         <Row>
+          <CheckboxInput>
+            <input
+              name="compress"
+              type="checkbox"
+              checked={state.compress}
+              onChange={handleCompressSelect}
+            ></input>
+            Compress Output
+          </CheckboxInput>
+        </Row>
+        <Row>
           <Info>
             <b>Note</b>: downloading a large number of genomes (i.e., 10,000+)
             may take a few minutes
+          </Info>
+          <Info>
+            Selecting &quot;Compress Output&quot; will compress the resulting
+            FASTA file on our server. This may take much longer but will reduce
+            the filesize and bandwidth required.
           </Info>
         </Row>
       </Content>
