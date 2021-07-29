@@ -38,7 +38,7 @@ def generate_report(conn, req):
 
     Returns
     -------
-    ...
+    Flask send_file response with a xlsx file attachment
     """
 
     start_date = pd.to_datetime(req.get("start_date", None))
