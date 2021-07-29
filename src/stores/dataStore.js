@@ -339,7 +339,7 @@ export class DataStore {
   // blob on the front-end, and this will get unsustainable
   // if the user tries to download 100,000+ genomes
   @action
-  downloadGenomes = () => {
+  downloadGenomes = ({ compress }) => {
     rootStoreInstance.UIStore.onDownloadStarted();
 
     fetch(hostname + '/download_genomes', {
@@ -359,6 +359,7 @@ export class DataStore {
         end_date: toJS(rootStoreInstance.configStore.endDate),
         subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
         subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+        compress,
       }),
     })
       .then((res) => {
@@ -369,7 +370,7 @@ export class DataStore {
       })
       .then((blob) => {
         const url = URL.createObjectURL(blob);
-        downloadBlobURL(url, 'genomes.fa.gz');
+        downloadBlobURL(url, compress ? 'genomes.fa.gz' : 'genomes.fa');
         rootStoreInstance.UIStore.onDownloadFinished();
       })
       .catch((err) => {
