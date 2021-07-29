@@ -36,78 +36,25 @@ UnselectButton.defaultProps = {
   show: true,
 };
 
+export const SelectedLocationsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 5px 0px;
+`;
+
 export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   overflow-y: hidden;
 
-  ul.tag-list {
-    li:first-child {
-      span.placeholder:after {
-        content: 'None';
-        font-size: 0.9rem;
-        font-weight: normal;
-        font-style: italic;
-      }
-    }
-  }
-  .tag {
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    padding: 3px 6px;
-    border-radius: 3px;
-    display: inline-block;
-    font-weight: normal;
-    &:focus-within {
-      background-color: #e9e9e9;
-      border-color: #a0a0a0;
-    }
-  }
   span.placeholder {
     background-color: #ffffff;
     font-size: 0em;
-  }
-  .tag-remove {
-    color: #a0a0a0;
-    font-size: 1.25em;
-    line-height: 100%;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    &:hover,
-    &:focus {
-      color: #ff5555;
-    }
-    &.disabled,
-    &.readOnly {
-      cursor: not-allowed;
-    }
   }
 
   .node > label {
     cursor: pointer;
     margin-left: 2px;
-  }
-
-  .tag-list {
-    display: flex;
-    padding: 0;
-    margin: 0;
-    flex-wrap: wrap;
-  }
-
-  .tag-item {
-    display: inline-block;
-    margin: 4px;
-
-    .search {
-      border: none;
-      border-bottom: 1px solid #ccc;
-      outline: none;
-    }
-    &:last-child {
-      margin-right: 4px;
-    }
   }
 
   .node {
@@ -177,14 +124,7 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     align-items: stretch;
 
     a.dropdown-trigger {
-      width: calc(100% - 16px);
-      border: none;
-      padding: 0px 12px;
-      line-height: 20px;
-
-      &:focus {
-        outline: none;
-      }
+      display: none;
     }
 
     .dropdown-content {

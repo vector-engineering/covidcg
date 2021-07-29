@@ -21,7 +21,7 @@ import {
 const FilterSidebar = observer(() => {
   const { UIStore } = useStores();
 
-  const [modalActive, setModalActive] = useState(false);
+  const [modalActive, setModalActive] = useState(true);
 
   const hideModal = () => {
     // Don't close the modal if we're in the middle of a request
