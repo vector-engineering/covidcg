@@ -11,4 +11,5 @@ from .group_snv_frequencies import query_group_snv_frequencies
 from .initial import query_initial
 from .metadata import query_metadata
 from .selection import query_and_aggregate
+from .report import generate_report
 

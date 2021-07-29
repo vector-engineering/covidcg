@@ -27,6 +27,7 @@ from cg_server.query import (
     query_country_score,
     query_group_snv_frequencies,
     query_and_aggregate,
+    generate_report,
 )
 
 from psycopg2 import pool
@@ -187,3 +188,11 @@ def _download_genomes(conn):
 
     req = request.json
     return download_genomes(conn, req)
+
+
+@app.route("/az_report", methods=["GET", "POST"])
+@cross_origin(origins=cors_domains)
+@handle_db_errors(options=connection_options, conn_pool=conn_pool)
+def _generate_report(conn):
+    req = request.args
+    return generate_report(conn, req)
