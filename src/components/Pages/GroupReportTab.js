@@ -101,6 +101,7 @@ const GroupReportTab = observer(() => {
 
   const renderMutationList = () => {
     return (
+      /*
       <AccordionWrapper
         title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
         defaultCollapsed={false}
@@ -132,6 +133,8 @@ const GroupReportTab = observer(() => {
       >
         <MutationList />
       </AccordionWrapper>
+      */
+      <MutationList />
     );
   };
 

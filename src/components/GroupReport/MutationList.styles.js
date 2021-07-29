@@ -4,6 +4,12 @@ import { transparentize } from 'polished';
 export const MutationListContainer = styled.div`
   display: flex;
   flex-direction: column;
+  position: sticky;
+  left: 0px;
+  top: 0px;
+  align-items: stretch;
+
+  height: 100vh;
 `;
 
 export const MutationListHeader = styled.div`
@@ -16,9 +22,7 @@ export const MutationListHeader = styled.div`
   }
 `;
 
-export const MutationContentContainer = styled.div`
-  height: calc(100vh - ${(props) => props.headerheight});
-`;
+export const MutationContentContainer = styled.div``;
 
 export const MutationInnerContainer = styled.div`
   max-width: 100%;
@@ -84,6 +88,7 @@ export const MutationListHeaderEmpty = styled.th`
 MutationListHeaderEmpty.defaultProps = {
   colSpan: 1,
 };
+
 export const MutationListHeaderCell = styled.th`
   white-space: nowrap;
   div {
@@ -124,8 +129,6 @@ export const MutationListTable = styled.table`
   }
   min-width: 100%;
   font-weight: normal;
-  max-height: 86vh;
-  overflow-y: scroll;
 `;
 MutationListTable.defaultProps = {
   ncols: 1,

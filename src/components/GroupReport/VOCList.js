@@ -120,6 +120,7 @@ const VOCList = observer(() => {
 
   return (
     <VOCListContainer>
+      <OrgLegend />
       <VOCItemGrid>
         <VOCGridTitle>Variants of Concern</VOCGridTitle>
         <VOCGridTitle>Variants of Interest</VOCGridTitle>
@@ -129,7 +130,6 @@ const VOCList = observer(() => {
         <GridItem>{otherItems}</GridItem>
         <GridItem>{otherItems1}</GridItem>
       </VOCItemGrid>
-      <OrgLegend />
     </VOCListContainer>
   );
 });

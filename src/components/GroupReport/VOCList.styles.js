@@ -17,7 +17,7 @@ export const GridItem = styled.div`
 
 export const VOCListContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   padding: 10px;
   overflow: hidden;
   font-weight: normal;
@@ -33,13 +33,14 @@ export const VOCItemGrid = styled.div`
 
 export const VOCItemContainer = styled.div`
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 11px 1fr;
   grid-gap: 5px
   align-items: center;
-  background-color: ${({ selected }) => (selected ? '#117733' : '#DDDDDD')};
+  background-color: ${({ selected }) => (selected ? '#009988' : '#eeeeee')};
   margin-top: 5px;
-  padding: 5px;
-  padding-right: 10px;
+  padding: 1px 5px;
+  font-size: 0.85em;
+  border-radius: 5px;
 
   position: relative;
 
@@ -49,7 +50,7 @@ export const VOCItemContainer = styled.div`
 `;
 
 export const VOCItemName = styled.span`
-  float: left;
+  margin-left: 5px;
   color: ${({ selected }) => (selected ? 'white' : 'black')};
 `;
 

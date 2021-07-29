@@ -2,29 +2,33 @@ import styled from 'styled-components';
 
 export const OrgLegendContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   text-align: center;
   margin-left: 10px;
+  margin-bottom: 5px;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const OrgLegendTitle = styled.span`
   font-size: 1em;
   font-weight: bold;
+  margin-right: 5px;
 `;
 
 export const OrgList = styled.div``;
 
 export const OrgItemContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  border: 2px solid black;
 `;
 
 export const OrgItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #dddddd;
-  margin: 5px;
+  margin: auto;
   padding: 5px;
 `;
 
@@ -36,6 +40,6 @@ export const OrgBadge = styled.div`
 `;
 
 export const OrgName = styled.div`
-  margin: auto;
+  margin-left: 5px;
   color: black;
 `;
