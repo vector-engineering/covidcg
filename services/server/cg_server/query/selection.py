@@ -386,6 +386,24 @@ def query_and_aggregate(conn, req):
             sequence_snv_table = "sequence_" + snv_table
 
             # welcome to CTE hell
+            # The main challenge here is that we need to preserve
+            # sequences without selected SNVs because we need to
+            # count these as a "Reference" group
+            # 1) Get the selected sequences into the "seq" CTE
+            # 2) Get the selected SNV ids in the "snp_data" CTE
+            # 3) Right join the selected SNVs into the "seq" table,
+            #    such that each SNV has its own row. The right join
+            #    also ensures that sequences without selected SNVs
+            #    will still be present in the table. They will have
+            #    a single SNV with ID "-1", which will denote that this
+            #    sequences does not have any selected SNVs.
+            #    This result is stored in the "filtered_snp" CTE
+            # 4) Next, we collapse by sequence ID so that each row
+            #    represents a single sequence, instead of a single SNV
+            #    This result is stored in the "snv_list" CTE
+            # 5) Finally, we collapse sequences by their co-occurring SNVs
+            #    and count them. This is the final aggregated data that we
+            #    will send to the client
             main_query = sql.SQL(
                 """
                 WITH "seq" AS (
