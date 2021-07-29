@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from cg_server.config import config
 from cg_server.db_seed import seed_database, insert_sequences
-from cg_server.download import download_genomes, download_metadata, download_snvs
+from cg_server.download import download_genomes, download_metadata
 from cg_server.error import handle_db_errors
 from cg_server.dev_only import dev_only
 from cg_server.test_connpool import raiseDatabaseError
@@ -162,19 +162,6 @@ def _download_metadata(conn):
         )
     req = request.json
     return download_metadata(conn, req)
-
-
-@app.route("/download_snvs", methods=["POST"])
-@cross_origin(origins=cors_domains)
-@handle_db_errors(options=connection_options, conn_pool=conn_pool)
-def _download_snvs(conn):
-    if not config["allow_metadata_download"]:
-        return make_response(
-            ("Metadata downloads not permitted on this version of COVID CG", 403)
-        )
-
-    req = request.json
-    return download_snvs(conn, req)
 
 
 @app.route("/download_genomes", methods=["POST"])

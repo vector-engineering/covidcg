@@ -35,7 +35,6 @@ const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
   CONSENSUS_MUTATIONS: 'Consensus Mutations',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
-  SELECTED_SNVS: 'Selected SNVs',
   SELECTED_GENOMES: 'Selected Genomes',
 };
 
@@ -69,8 +68,6 @@ const StatusBox = observer(() => {
       showModal('downloadConsensusMutations');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       showModal('downloadMetadata');
-    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SNVS) {
-      dataStore.downloadSelectedSNVs();
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_GENOMES) {
       showModal('downloadGenomes');
     }
@@ -161,7 +158,6 @@ const StatusBox = observer(() => {
   ];
   if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
-    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SNVS);
   }
   if (config.allow_genome_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_GENOMES);
