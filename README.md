@@ -21,7 +21,6 @@ Table of Contents
   - [License](#license)
   - [Contributing](#contributing)
 
-
 ## Installation
 
 The COVID-19 CG website comprises of 3 services (PostgreSQL database, Flask server, React frontend). These can be run separately (see detailed instructions at [per-service installation](#per-service-installation)) but we recommend using Docker to manage these services.
@@ -33,8 +32,8 @@ The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate instal
 
 ```bash
 $ cd covidcg
-$ docker-compose build # Build containers 
-                       # (Re-builds only necessary if packages or 
+$ docker-compose build # Build containers
+                       # (Re-builds only necessary if packages or
                        # dependencies have changed)
 $ docker-compose up -d # Run all services
 $ docker-compose down # Shut down all services when finished
@@ -119,7 +118,6 @@ This app was built from the [react-slingshot](https://github.com/coryhouse/react
 
    This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development with this kit, this command will continue watching all your files. Every time you hit save the code is rebuilt, linting runs, and tests run automatically. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
 
-
 ### PostgreSQL
 
 This development environment was tested with PostgreSQL 12
@@ -131,13 +129,14 @@ Please provide DB connection information to the Flask server with the following 
 - POSTGRES_DB
 - POSTGRES_HOST
 - POSTGRES_PORT
+- POSTGRES_MAX_CONN (the maximum number of connections for the Postgres connection pool)
 
 ### Flask Server
 
 Requirements:
 
 - Python3 (Python >= 3.8) with virtual environments. We recommend conda via. [miniconda3](https://docs.conda.io/en/latest/miniconda.html), but python3 with `virtualenv` or any other virtual environment provider should also work fine
-  
+
 Install dependencies:
 
 ```bash
@@ -164,7 +163,6 @@ Configuration of the pipeline is defined in the `config/config_[workflow].yaml` 
 
 ### Pipeline Installation
 
-
 1. Clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
 2. Install [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
 3. Create conda environment:
@@ -187,9 +185,9 @@ $ pip install pysam
 
 ### Ingestion
 
-Three ingestion workflows are currently available, `workflow_genbank_ingest`, `workflow_custom_ingest`, and `workflow_gisaid_ingest`. 
+Three ingestion workflows are currently available, `workflow_genbank_ingest`, `workflow_custom_ingest`, and `workflow_gisaid_ingest`.
 
-**NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**. 
+**NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**.
 
 Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to automatically download and process data from their respective data source. The `workflow_custom_ingest` can be used for analyzing and visualizing your own in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file . i.e., `config/config_genbank.yaml` for the GenBank workflow.
 
