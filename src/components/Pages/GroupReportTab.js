@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
-// import useDimensions from 'react-use-dimensions';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
@@ -66,7 +65,6 @@ const StructuralViewerContainer = styled.div`
 
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
-  const [ref, { width }] = useDimensions();
 
   const renderHeader = () => {
     return (
@@ -178,7 +176,7 @@ const GroupReportTab = observer(() => {
   };
 
   return (
-    <GroupReportTabContainer ref={ref}>
+    <GroupReportTabContainer>
       <GroupTreePlotContainer>
         <GroupTreePlot width={250} />
       </GroupTreePlotContainer>

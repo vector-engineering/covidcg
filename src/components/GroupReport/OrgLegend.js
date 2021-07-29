@@ -12,7 +12,7 @@ import {
 
 const Org = ({ name, color }) => {
   return (
-    <OrgItem>
+    <OrgItem key={'org-' + name}>
       <OrgBadge color={color} />
       <OrgName>{name}</OrgName>
     </OrgItem>
@@ -22,7 +22,7 @@ const Org = ({ name, color }) => {
 export const OrgLegend = () => {
   const orgs = [];
   Object.keys(colors).forEach((key) => {
-    orgs.push(<Org name={key} color={colors[key]} />);
+    orgs.push(<Org key={'org-' + key} name={key} color={colors[key]} />);
   });
 
   return (

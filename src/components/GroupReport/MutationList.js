@@ -145,7 +145,7 @@ MutationListRow.defaultProps = {
   emptyRow: false,
 };
 
-const DeleteButtonContainer = ({ group }) => {
+const DeleteButtonContainer = ({ group, index }) => {
   const { groupDataStore } = useStores();
 
   const onClick = (event) => {
@@ -345,7 +345,7 @@ const MutationListContent = observer(({ headerheight }) => {
 
   const headerItems = [];
   const deleteButtons = [];
-  groupDataStore.selectedGroups.forEach((group) => {
+  groupDataStore.selectedGroups.forEach((group, i) => {
     headerItems.push(
       <MutationListHeaderCell key={`mutation-list-table-head-${group}`}>
         <div>
@@ -353,7 +353,9 @@ const MutationListContent = observer(({ headerheight }) => {
         </div>
       </MutationListHeaderCell>
     );
-    deleteButtons.push(<DeleteButtonContainer group={group} />);
+    deleteButtons.push(
+      <DeleteButtonContainer key={`delete-${group}-${i}`} group={group} />
+    );
   });
 
   return (

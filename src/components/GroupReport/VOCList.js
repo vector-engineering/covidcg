@@ -26,12 +26,13 @@ const VOCItem = observer(({ name, orgArr, column }) => {
 
   // To display borders, four badges must be displayed
   // Loop through orgArr and if real, display colored badge, else display white
-  Object.keys(coords).forEach((item) => {
+  Object.keys(coords).forEach((item, index) => {
     badges.push(
       <VOCBadge
         color={orgArr.includes(item) ? colors[item] : 'white'}
         row={coords[item][0]}
         col={coords[item][1]}
+        key={`${item}-badge-${index}`}
       />
     );
   });
@@ -125,10 +126,10 @@ const VOCList = observer(() => {
         <VOCGridTitle>Variants of Concern</VOCGridTitle>
         <VOCGridTitle>Variants of Interest</VOCGridTitle>
         <VOCGridTitle colSpan={2}>Other Variants Being Monitored</VOCGridTitle>
-        <GridItem>{vocItems}</GridItem>
-        <GridItem>{voiItems}</GridItem>
-        <GridItem>{otherItems}</GridItem>
-        <GridItem>{otherItems1}</GridItem>
+        <GridItem key={'vocGridItems'}>{vocItems}</GridItem>
+        <GridItem key={'voiGridItems'}>{voiItems}</GridItem>
+        <GridItem key={'otherGridItems'}>{otherItems}</GridItem>
+        <GridItem key={'otherGridItems1'}>{otherItems1}</GridItem>
       </VOCItemGrid>
     </VOCListContainer>
   );

@@ -46,17 +46,17 @@ include: "analyses/Snakefile"
 rule all:
     input:
         # Generate reference-related data
-        #os.path.join(static_data_folder, "reference.json"),
-        #os.path.join(static_data_folder, "primers.json"),
+        os.path.join(static_data_folder, "reference.json"),
+        os.path.join(static_data_folder, "primers.json"),
         # Packaged data
-        #os.path.join(data_folder, "data_package.json.gz"),
-        #os.path.join(data_folder, 'data_complete.csv'),
+        os.path.join(data_folder, "data_package.json.gz"),
+        os.path.join(data_folder, 'data_complete.csv'),
         # Webscraper data
         os.path.join(static_data_folder, "vocs.json"),
         # Phylotree
-        #rules.build_phylotree_graph.output.graph_table,
+        rules.build_phylotree_graph.output.graph_table,
         # Additional analyses
-        #rules.additional_analyses.output.done
+        rules.additional_analyses.output.done
 
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)

@@ -18,7 +18,6 @@ const AccordionWrapper = ({
   defaultShowHelp,
   helpButtonText,
   helpText,
-  horizontal = false,
 }) => {
   const [state, setState] = useState({
     collapsed: defaultCollapsed,

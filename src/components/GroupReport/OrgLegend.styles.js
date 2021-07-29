@@ -21,7 +21,6 @@ export const OrgList = styled.div``;
 export const OrgItemContainer = styled.div`
   display: flex;
   flex-direction: row;
-  border: 2px solid black;
 `;
 
 export const OrgItem = styled.div`
@@ -36,7 +35,6 @@ export const OrgBadge = styled.div`
   width: 15px;
   height: 15px;
   background-color: ${({ color }) => color};
-  border: 2px solid black;
 `;
 
 export const OrgName = styled.div`
