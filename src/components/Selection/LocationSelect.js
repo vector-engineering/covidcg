@@ -5,13 +5,14 @@ import { useStores } from '../../stores/connect';
 import { getNodeFromPath } from '../../utils/location';
 
 import QuestionButton from '../Buttons/QuestionButton';
-
+import LocationItem from './LocationItem';
 import {
   ContainerDiv,
   DropdownHeader,
   Title,
   UnselectButton,
   StyledDropdownTreeSelect,
+  SelectedLocationsContainer,
 } from './LocationSelect.styles';
 
 const LocationSelect = observer(
@@ -74,6 +75,15 @@ const LocationSelect = observer(
     // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
     //   console.log('onNodeToggle::', currentNode);
     // };
+    const onLocationNodeDeselect = (node_path) => {
+      let selectedNodeObjs = selectedLocationNodes.filter(
+        (node) => node.path !== node_path
+      );
+      updateSelectedLocationNodes(selectedNodeObjs);
+      // Have to update the store's version as well, since
+      // we didn't directly click on these new nodes
+      locationDataStore.setSelectedNodes(selectedNodeObjs);
+    };
 
     const dropdownContainer = useMemo(
       () => (
@@ -99,6 +109,18 @@ const LocationSelect = observer(
       [state.data]
     );
 
+    const selectedLocationItems = [];
+    selectedLocationNodes.forEach((node) => {
+      selectedLocationItems.push(
+        <LocationItem
+          key={`selected-location-${node.path}`}
+          label={node.label}
+          path={node.path}
+          onDeselect={onLocationNodeDeselect}
+        />
+      );
+    });
+
     return (
       <ContainerDiv>
         <DropdownHeader>
@@ -116,6 +138,9 @@ const LocationSelect = observer(
             Unselect All
           </UnselectButton>
         </DropdownHeader>
+        <SelectedLocationsContainer>
+          {selectedLocationItems}
+        </SelectedLocationsContainer>
         {dropdownContainer}
       </ContainerDiv>
     );
