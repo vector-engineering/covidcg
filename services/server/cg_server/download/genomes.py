@@ -34,7 +34,7 @@ def download_genomes(conn, req):
                 ).format(temp_table_name=sql.Identifier(temp_table_name))
             )
 
-            fasta_file = gzip.open(fp, mode="wt")
+            fasta_file = gzip.open(fp, mode="wt", compresslevel=6)
             counter = 0
             while seqs := cur.fetchmany(1000):
                 counter += 1
