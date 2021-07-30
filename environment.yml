@@ -17,6 +17,7 @@ dependencies:
   - fasttree=2.1.10
   - treetime=0.7.5
   - networkx=2.5.1
+  - xlrd=2.0.1
   - pip:
       - pysam==0.15.4
   # For pushing to database
