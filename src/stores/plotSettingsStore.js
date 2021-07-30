@@ -10,7 +10,7 @@ import {
 
 export const initialValues = {
   groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  groupStackLowFreqValue: 100,
+  groupStackLowFreqValue: 20,
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
   groupStackCountMode: COUNT_MODES.COUNT_NEW,
   groupStackDateBin: DATE_BINS.DATE_BIN_DAY,

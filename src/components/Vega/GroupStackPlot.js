@@ -75,7 +75,7 @@ const GroupStackPlot = observer(({ width }) => {
     // 2) name of group (same as group id)
     // Also collapse low-frequency groups based on settings
     const validGroups = getValidGroups({
-      records: dataStore.aggGroupDate,
+      records: dataStore.groupCounts,
       lowFreqFilterType: plotSettingsStore.groupStackLowFreqFilter,
       lowFreqFilterValue: plotSettingsStore.groupStackLowFreqValue,
     });
