@@ -183,8 +183,9 @@ export function getValidGroups({
   let validGroups;
   if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.GROUP_COUNTS) {
     // Sort by counts in descending order
-    records = records.sort((a, b) => b.counts - a.counts);
-    validGroups = records.slice(0, lowFreqFilterValue);
+    validGroups = records
+      .sort((a, b) => b.counts - a.counts)
+      .slice(0, lowFreqFilterValue);
   } else if (lowFreqFilterType === LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS) {
     validGroups = records.filter((group) => group.counts >= lowFreqFilterValue);
   }

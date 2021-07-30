@@ -36,7 +36,7 @@ const LowFreqFilter = observer(
       [LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS]: 'counts',
     };
     const defaults = {
-      [LOW_FREQ_FILTER_TYPES.GROUP_COUNTS]: 100,
+      [LOW_FREQ_FILTER_TYPES.GROUP_COUNTS]: 20,
       [LOW_FREQ_FILTER_TYPES.LOCAL_COUNTS]: 50,
     };
 
