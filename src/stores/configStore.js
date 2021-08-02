@@ -22,9 +22,6 @@ import {
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-  COLOR_MODES,
-  COMPARE_MODES,
-  COMPARE_COLORS,
   GEO_LEVELS,
   TABS,
   GROUPS,
@@ -308,24 +305,6 @@ export class ConfigStore {
 
   @action
   applyPendingChanges = (pending) => {
-    // Change table coloring settings when switching from DNA <-> AA
-    if (this.dnaOrAa !== pending.dnaOrAa && pending.dnaOrAa === DNA_OR_AA.AA) {
-      this.plotSettingsStoreInstance.tableColorMode =
-        COLOR_MODES.COLOR_MODE_COMPARE;
-      this.plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      this.plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COLOR_MODE_ZAPPO;
-    } else {
-      // Clear table coloring settings
-      this.plotSettingsStoreInstance.tableColorMode =
-        COLOR_MODES.COLOR_MODE_COMPARE;
-      this.plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      this.plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
-    }
-
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
