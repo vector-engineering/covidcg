@@ -214,6 +214,7 @@ export class ConfigStore {
         value = value.split('%2C');
 
         value.forEach((item) => {
+          item = item.replace('%20', ' ');
           const node = getLocationByNameAndLevel(
             this.locationDataStoreInstance.selectTree,
             item,
@@ -581,8 +582,11 @@ export class ConfigStore {
   };
 
   getSelectedGroupIds() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -607,8 +611,11 @@ export class ConfigStore {
   }
 
   getIntToSnvMap() {
-    const { intToDnaSnvMap, intToGeneAaSnvMap, intToProteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -622,8 +629,11 @@ export class ConfigStore {
   }
 
   getSnvToIntMap() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = this.snpDataStoreInstance;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;
