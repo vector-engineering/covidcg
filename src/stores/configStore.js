@@ -409,6 +409,11 @@ export class ConfigStore {
     });
 
     this.selectedLocationNodes.forEach((node) => {
+      // If level is undefined, all is selected and should be filtered out
+      if (node.level === undefined) {
+        return;
+      }
+
       if (this.urlParams.has(String(node.level))) {
         this.urlParams.append(String(node.level), String(node.value));
       } else {
