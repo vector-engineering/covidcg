@@ -86,11 +86,6 @@ export class ConfigStore {
   // Maintain a reference to the initial values
   initialValues = initialValues;
 
-  // References to store instances
-  plotSettingsStoreInstance;
-  locationDataStoreInstance;
-  dataStoreInstance;
-
   @observable groupKey = initialValues.groupKey;
   @observable dnaOrAa = initialValues.dnaOrAa;
 
@@ -123,11 +118,6 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.plotSettingsStoreInstance = rootStoreInstance.plotSettingsStore;
-    this.locationDataStoreInstance = rootStoreInstance.locationDataStore;
-    this.dataStoreInstance = rootStoreInstance.dataStore;
-    this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
         // console.log('setting: ', param, urlParams.get(param));
@@ -212,7 +202,7 @@ export class ConfigStore {
 
         value.forEach((item) => {
           const node = getLocationByNameAndLevel(
-            this.locationDataStoreInstance.selectTree,
+            rootStoreInstance.locationDataStore.selectTree,
             item,
             key,
             true
@@ -243,13 +233,13 @@ export class ConfigStore {
 
     const defaultSelectedLocationNodes = [
       getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
+        rootStoreInstance.locationDataStore.selectTree,
         'USA',
         'country',
         true
       )[0],
       getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
+        rootStoreInstance.locationDataStore.selectTree,
         'Canada',
         'country',
         true
@@ -280,7 +270,7 @@ export class ConfigStore {
 
       // Special actions for some keys
       if (key === 'selectedLocationNodes') {
-        this.locationDataStoreInstance.setSelectedNodes(values[key]);
+        rootStoreInstance.locationDataStore.setSelectedNodes(values[key]);
       }
     });
 
@@ -300,7 +290,7 @@ export class ConfigStore {
     }
 
     // Trigger data re-run
-    this.dataStoreInstance.fetchData();
+    rootStoreInstance.dataStore.fetchData();
   };
 
   @action
@@ -379,7 +369,9 @@ export class ConfigStore {
     }
 
     // Update the location node tree with our new selection
-    this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
+    rootStoreInstance.locationDataStore.setSelectedNodes(
+      this.selectedLocationNodes
+    );
 
     // Update the location URL params
     Object.values(GEO_LEVELS).forEach((level) => {
@@ -397,7 +389,7 @@ export class ConfigStore {
     updateURLFromParams(this.urlParams);
 
     // Get the new data from the server
-    this.dataStoreInstance.fetchData();
+    rootStoreInstance.dataStore.fetchData();
   };
 
   getSnvType() {
@@ -555,13 +547,13 @@ export class ConfigStore {
 
     this.selectedGroups = groups;
     if (this.groupKey === GROUP_SNV) {
-      this.dataStoreInstance.processSelectedSnvs();
+      rootStoreInstance.dataStore.processSelectedSnvs();
     }
   };
 
   getSelectedGroupIds() {
     const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+      rootStoreInstance.snpDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -587,7 +579,7 @@ export class ConfigStore {
 
   getIntToSnvMap() {
     const { intToDnaSnvMap, intToGeneAaSnvMap, intToProteinAaSnvMap } =
-      this.snpDataStoreInstance;
+      rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -602,7 +594,7 @@ export class ConfigStore {
 
   getSnvToIntMap() {
     const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      this.snpDataStoreInstance;
+      rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;
