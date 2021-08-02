@@ -295,6 +295,12 @@ export class ConfigStore {
 
   @action
   applyPendingChanges = (pending) => {
+    // Clear selected groups/locations
+    this.hoverGroup = initialValues.hoverGroup;
+    this.selectedGroups = initialValues.selectedGroups;
+    this.hoverLocation = initialValues.hoverLocation;
+    this.focusedLocations = initialValues.focusedLocations;
+
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
