@@ -214,7 +214,7 @@ export class ConfigStore {
         value = value.split('%2C');
 
         value.forEach((item) => {
-          item = item.replace('%20', ' ');
+          item = decodeURIComponent(item);
           const node = getLocationByNameAndLevel(
             this.locationDataStoreInstance.selectTree,
             item,
