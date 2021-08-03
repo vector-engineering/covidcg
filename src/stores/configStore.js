@@ -226,6 +226,11 @@ export class ConfigStore {
             this.selectedLocationNodes.push(node);
           }
         });
+      } else if (key === 'allRegions') {
+        // Push All to selectedLocationNodes
+        this.selectedLocationNodes.push(
+          this.locationDataStoreInstance.selectTree
+        );
       } else if (key === 'tab') {
         // Check if the specified tab value is valid (included in TABS)
         // tab is read and activeTab is set from routes.js
@@ -409,8 +414,11 @@ export class ConfigStore {
     });
 
     this.selectedLocationNodes.forEach((node) => {
-      // If level is undefined, all is selected and should be filtered out
+      // If level is undefined, All is selected
       if (node.level === undefined) {
+        node.level = 'allRegions';
+        // Overwrite to prevent mutliple settings of allRegions
+        this.urlParams.set(String(node.level), String(node.value));
         return;
       }
 
