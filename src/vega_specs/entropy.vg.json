@@ -167,6 +167,26 @@
           "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
           "as": "end"
         },
+        {
+          "type": "formula",
+          "expr": "(datum.end - datum.start)",
+          "as": "barWidth"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.rowTop - datum.rowBottom)",
+          "as": "rowHeight"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.start + (datum.barWidth / 2))",
+          "as": "xCenter"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.rowTop - (datum.rowHeight / 2))",
+          "as": "yCenter"
+        },
         { "type": "filter", "expr": "datum.start < xRange[1]" },
         { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
       ]
@@ -410,17 +430,16 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "field": "y" },
-              "dy": { "field": "height", "mult": 0.5 },
-              "align": { "value": "center" },
-              "baseline": { "value": "middle" },
-              "fill": { "value": "black" }
+              "align": "left",
+              "baseline": "top",
+              "text": { "field": "datum.name" },
+              "yc": { "scale": "domainYScale", "field": "datum.yCenter" },
+              "dy": { "value": 2 }
             },
             "update": {
-              "x": { "field": "x" },
-              "dx": { "field": "width", "mult": 0.5 },
+              "x": { "scale": "xOverview", "field": "datum.start" },
               "tooltip": { "signal": "datum.tooltip" },
-              "text": { "field": "datum.abbr" }
+              "limit": { "scale": "xOverview", "field": "datum.barWidth" }
             }
           }
         },
