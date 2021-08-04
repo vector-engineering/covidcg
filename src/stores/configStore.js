@@ -172,9 +172,8 @@ export class ConfigStore {
           // If coordinates are specified, save them as an array of numbers
           // Coordinates can stay as a string in the URL
           let arr = [];
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = decodeURIComponent(value);
+          value = value.split(',');
           value.forEach((item, i) => {
             value[i] = parseInt(item);
 
@@ -186,14 +185,12 @@ export class ConfigStore {
           this[key] = arr;
         } else if (key === 'customSequences') {
           // Store customSequences as an array of strings
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = decodeURIComponent(value);
+          value = value.split(',');
           this[key] = value;
         } else if (key === 'selectedPrimers') {
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = decodeURIComponent(value);
+          value = value.split(',');
           value.forEach((primerStr) => {
             // Decode primerStr to allow searching for primer
             primerStr = decodeURIComponent(primerStr);
@@ -209,9 +206,8 @@ export class ConfigStore {
         }
       } else if (key.toUpperCase() in GEO_LEVELS) {
         // If a location is specified, update selectedLocationNodes
-        // URLSearchParams decodes the string so encode for consistency
-        value = encodeURIComponent(value);
-        value = value.split('%2C');
+        value = decodeURIComponent(value);
+        value = value.split(',');
 
         value.forEach((item) => {
           item = decodeURIComponent(item);
