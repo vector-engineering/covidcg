@@ -227,6 +227,16 @@
       "round": true,
       "zero": false,
       "clamp": true
+    },
+    {
+      "name": "textLength",
+      "type": "linear",
+      "domain": { "signal": "xRange" },
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": true,
+      "clamp": true
     }
   ],
 
@@ -434,12 +444,12 @@
               "baseline": "top",
               "text": { "field": "datum.name" },
               "yc": { "scale": "domainYScale", "field": "datum.yCenter" },
-              "dy": { "value": 2 }
+              "dy": { "value": 3 }
             },
             "update": {
               "x": { "scale": "xOverview", "field": "datum.start" },
               "tooltip": { "signal": "datum.tooltip" },
-              "limit": { "scale": "xOverview", "field": "datum.barWidth" }
+              "limit": "posField ? { 'scale': 'xOverview', 'field': '(datum.barWidth - 2) / 3 ' } : { 'scale': 'xOverview', 'field': 'datum.barWidth' }"
             }
           }
         },
