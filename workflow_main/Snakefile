@@ -30,8 +30,6 @@ reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
 gene_defs_path = os.path.join(static_data_folder, "genes.json")
 protein_defs_path = os.path.join(static_data_folder, "proteins.json")
 
-bt2_index_name = os.path.join(data_folder, "reference_index", "reference")
-
 # Find chunks
 CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
@@ -74,53 +72,18 @@ rule preprocess_sequences:
     run:
         preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
 
-
-rule bt2build:
-    """Build the bowtie2 index for the reference sequence
-    This should only be run once - it shouldn't ever change
-    """
-    input:
-        reference = reference_sequence_path
-    params:
-        bt2_index_name = bt2_index_name
-    output:
-        output1 = os.path.join(data_folder, "reference_index", "reference.1.bt2"),
-        output2 = os.path.join(data_folder, "reference_index", "reference.2.bt2"),
-        output3 = os.path.join(data_folder, "reference_index", "reference.3.bt2"),
-        output4 = os.path.join(data_folder, "reference_index", "reference.4.bt2"),
-        outputrev1 = os.path.join(data_folder, "reference_index", "reference.rev.1.bt2"),
-        outputrev2 = os.path.join(data_folder, "reference_index", "reference.rev.2.bt2")
-    shell:
-        """
-        bowtie2-build {input.reference} {params.bt2_index_name}
-        """
-
-
 rule align_sequences:
-    """Align each sequence to the reference using bowtie2
-    The alignment is costly but this allows us to get SNVs for each sequence
-    by using a widely used tool, without having to write any bespoke code ourselves
-    """
     input:
-        fasta = rules.preprocess_sequences.output.fasta,
-        bt2_1 = rules.bt2build.output.output1,
-        bt2_2 = rules.bt2build.output.output2,
-        bt2_3 = rules.bt2build.output.output3,
-        bt2_4 = rules.bt2build.output.output4,
-        bt2_rev1 = rules.bt2build.output.outputrev1,
-        bt2_rev2 = rules.bt2build.output.outputrev2
+        fasta = rules.preprocess_sequences.output.fasta
     params:
-        bt2_index_name = bt2_index_name
-    threads: workflow.cores
+        ref_seq = os.path.join(static_data_folder, 'reference.fasta')
+    threads: workflow.cores / 2
     output:
         bam = os.path.join(data_folder, "bam", "{chunk}.bam")
-    # bowtie2 is really memory intensive (10GB per thread), so make sure it
-    # doesn't crash by allocating a set number of cores, where ncores = RAM / 10GB
     shell:
         """
-        bowtie2 --end-to-end --very-fast --xeq --reorder --sam-no-qname-trunc -x {params.bt2_index_name} -f -U {input.fasta} --threads {threads} | samtools view -b > {output.bam}
+        minimap2 -t {threads} -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
-
 
 rule extract_dna_snps:
     """Find SNVs on the NT level for each sequence

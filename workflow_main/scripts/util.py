@@ -117,7 +117,18 @@ def reverse_complement(seq):
         "C": "G",
         "G": "C",
         "T": "A",
+        "U": "T",
         "N": "N",  # Degenerates stay degenerate
+        "R": "R",
+        "Y": "Y",
+        "S": "S",
+        "W": "W",
+        "K": "K",
+        "M": "M",
+        "B": "B",
+        "D": "D",
+        "H": "H",
+        "V": "V",
     }
     # Build reverse complement sequence
     rev_comp_seq = ""
