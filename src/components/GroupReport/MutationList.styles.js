@@ -22,6 +22,10 @@ export const MutationListHeader = styled.div`
   }
 `;
 
+export const MutationListTitle = styled.div`
+  font-weight: 500;
+`;
+
 export const MutationContentContainer = styled.div``;
 
 export const MutationInnerContainer = styled.div`

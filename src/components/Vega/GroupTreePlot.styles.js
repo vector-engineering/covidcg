@@ -23,6 +23,12 @@ export const Header = styled.div`
   height: ${({ headerHeight }) => headerHeight}px;
 `;
 
+export const HeaderRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 export const Title = styled.span`
   font-size: 1.2em;
   font-weight: bold;

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
+
+import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
@@ -65,6 +67,10 @@ const StructuralViewerContainer = styled.div`
 
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
+
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  }, []);
 
   const renderHeader = () => {
     return (
