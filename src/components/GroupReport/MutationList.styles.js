@@ -11,7 +11,7 @@ export const MutationListContainer = styled.div`
 
   height: 100vh;
 
-  padding-top: 10px;
+  padding-top: 4px;
 `;
 
 export const MutationListHeader = styled.div`
