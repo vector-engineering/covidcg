@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import useDimensions from 'react-use-dimensions';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
