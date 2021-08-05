@@ -173,7 +173,7 @@ const DeleteButtonContainer = ({ group, index }) => {
   );
 };
 
-const MutationListContent = observer(({ headerheight }) => {
+const MutationListContent = observer(() => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
@@ -361,7 +361,7 @@ const MutationListContent = observer(({ headerheight }) => {
   });
 
   return (
-    <MutationContentContainer headerheight={headerheight}>
+    <MutationContentContainer>
       <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
         <thead>
           <tr>
@@ -383,8 +383,6 @@ const MutationListContent = observer(({ headerheight }) => {
 
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
-  const [headerRef, headerSize] = useDimensions();
-  const [headerRef1, headerSize1] = useDimensions();
   const [state, setState] = useState({
     showHelp: false,
   });
@@ -464,7 +462,7 @@ const MutationList = observer(() => {
           </ul>
         </HelpText>
       </MutationListHeader>
-      <MutationListHeader ref={headerRef}>
+      <MutationListHeader>
         {/* <OptionSelectContainer>
           <label>
             <select
@@ -509,7 +507,7 @@ const MutationList = observer(() => {
         />
       </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListHeader ref={headerRef1}>
+        <MutationListHeader>
           <OptionCheckboxContainer>
             <label>
               <input
@@ -526,9 +524,7 @@ const MutationList = observer(() => {
             </label>
           </OptionCheckboxContainer>
         </MutationListHeader>
-        <MutationListContent
-          headerheight={headerSize.height + headerSize1.height}
-        />
+        <MutationListContent />
       </MutationInnerContainer>
     </MutationListContainer>
   );
