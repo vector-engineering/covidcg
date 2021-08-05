@@ -232,11 +232,13 @@
       "name": "textLength",
       "type": "linear",
       "domain": { "signal": "xRange" },
+      "domainMin": 0,
+      "domainMax": { "signal": "xRange[1] - xRange[0]" },
       "range": "width",
       "padding": 0.05,
-      "round": true,
       "zero": true,
-      "clamp": true
+      "round": true,
+      "clamp": false
     }
   ],
 
@@ -449,7 +451,7 @@
             "update": {
               "x": { "scale": "xOverview", "field": "datum.start" },
               "tooltip": { "signal": "datum.tooltip" },
-              "limit": "posField ? { 'scale': 'xOverview', 'field': '(datum.barWidth - 2) / 3 ' } : { 'scale': 'xOverview', 'field': 'datum.barWidth' }"
+              "limit": { "scale": "textLength", "field": "datum.barWidth" }
             }
           }
         },
