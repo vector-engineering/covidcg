@@ -130,7 +130,7 @@ class ReadExtractor:
 
         # Start the read at the position it is mapped onto the reference
         # using read.query_alignment_start
-        self.read_i = self.read.query_alignment_start
+        self.read_i = 0
 
     def crawl_to(self, destination):
         """Iterate (consume bases) through both the read and the reference
@@ -262,7 +262,7 @@ class ReadExtractor:
                 # is an ambiguous base (N)
                 # This is useless data bloat and should be removed as
                 # early as possible
-                if ref == "N" or alt == "N":
+                if alt not in ["A", "C", "G", "T"]:
                     continue
 
                 self.dna_snps.append((query_name, pos, ref, alt))

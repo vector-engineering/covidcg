@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
+
+import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
@@ -66,6 +68,10 @@ const StructuralViewerContainer = styled.div`
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
 
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  }, []);
+
   const renderHeader = () => {
     return (
       <AccordionWrapper
@@ -98,42 +104,7 @@ const GroupReportTab = observer(() => {
   };
 
   const renderMutationList = () => {
-    return (
-      /*
-      <AccordionWrapper
-        title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
-        defaultCollapsed={false}
-        maxHeight={'100vh'}
-        helpText={
-          <ul>
-            <li>
-              Use &quot;SNV Type&quot; to toggle between nucleotide and amino
-              acid mutation formats
-            </li>
-            <li>
-              &quot;Consensus Threshold&quot; hides low-prevalence SNVs. SNVs
-              with less than this fraction of prevalence in <i>all</i> selected{' '}
-              {groupDataStore.getGroupSnvTypePrettyName()}s will be filtered
-              out.
-            </li>
-            <li>
-              Note: We define ORF1a and ORF1ab as separate genes. In
-              &quot;NT&quot; or &quot;Gene AA&quot; mode, an SNV in ORF1a will
-              also be listed in ORF1ab. By default, ORF1a is hidden to avoid
-              this confusion.
-            </li>
-            <li>
-              Switch to &quot;Protein AA&quot; mode to see SNVs in the context
-              of proteins (i.e., NSPs)
-            </li>
-          </ul>
-        }
-      >
-        <MutationList />
-      </AccordionWrapper>
-      */
-      <MutationList />
-    );
+    return <MutationList />;
   };
 
   const renderStructuralViewer = () => {
