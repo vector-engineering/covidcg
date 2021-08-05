@@ -10,6 +10,8 @@ export const MutationListContainer = styled.div`
   align-items: stretch;
 
   height: 100vh;
+
+  padding-top: 10px;
 `;
 
 export const MutationListHeader = styled.div`
@@ -20,6 +22,10 @@ export const MutationListHeader = styled.div`
   .spacer {
     flex-grow: 1;
   }
+`;
+
+export const MutationListTitle = styled.div`
+  font-weight: 500;
 `;
 
 export const MutationContentContainer = styled.div``;

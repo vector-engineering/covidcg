@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import useDimensions from 'react-use-dimensions';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
@@ -17,6 +16,7 @@ import SkeletonElement from '../Common/SkeletonElement';
 import {
   MutationListContainer,
   MutationListHeader,
+  MutationListTitle,
   OptionSelectContainer,
   OptionInputContainer,
   OptionCheckboxContainer,
@@ -32,6 +32,7 @@ import {
   MutationInnerContainer,
   DeleteButton,
 } from './MutationList.styles';
+import { HelpButton, HelpText } from '../Common/Accordion.styles';
 
 const genes = getAllGenes();
 const proteins = getAllProteins();
@@ -171,7 +172,7 @@ const DeleteButtonContainer = ({ group, index }) => {
   );
 };
 
-const MutationListContent = observer(({ headerheight }) => {
+const MutationListContent = observer(() => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupSnvFrequencyState);
@@ -359,7 +360,7 @@ const MutationListContent = observer(({ headerheight }) => {
   });
 
   return (
-    <MutationContentContainer headerheight={headerheight}>
+    <MutationContentContainer>
       <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
         <thead>
           <tr>
@@ -381,8 +382,9 @@ const MutationListContent = observer(({ headerheight }) => {
 
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
-  const [headerRef, headerSize] = useDimensions();
-  const [headerRef1, headerSize1] = useDimensions();
+  const [state, setState] = useState({
+    showHelp: false,
+  });
 
   // const onChangeActiveGroupType = (event) => {
   //   groupDataStore.updateActiveGroupType(event.target.value);
@@ -405,6 +407,10 @@ const MutationList = observer(() => {
       });
     }
   };
+  const toggleHelp = (e) => {
+    e.preventDefault();
+    setState({ ...state, showHelp: !state.showHelp });
+  };
 
   if (groupDataStore.selectedGroups.length === 0) {
     return (
@@ -425,7 +431,37 @@ const MutationList = observer(() => {
 
   return (
     <MutationListContainer>
-      <MutationListHeader ref={headerRef}>
+      <MutationListHeader>
+        <MutationListTitle>Lineage Mutations</MutationListTitle>
+        <HelpButton onClick={toggleHelp}>Show Help</HelpButton>
+      </MutationListHeader>
+      <MutationListHeader>
+        <HelpText show={state.showHelp}>
+          <ul>
+            <li>
+              Use &quot;SNV Type&quot; to toggle between nucleotide and amino
+              acid mutation formats
+            </li>
+            <li>
+              &quot;Consensus Threshold&quot; hides low-prevalence SNVs. SNVs
+              with less than this fraction of prevalence in <i>all</i> selected{' '}
+              {groupDataStore.getGroupSnvTypePrettyName()}s will be filtered
+              out.
+            </li>
+            <li>
+              Note: We define ORF1a and ORF1ab as separate genes. In
+              &quot;NT&quot; or &quot;Gene AA&quot; mode, an SNV in ORF1a will
+              also be listed in ORF1ab. By default, ORF1a is hidden to avoid
+              this confusion.
+            </li>
+            <li>
+              Switch to &quot;Protein AA&quot; mode to see SNVs in the context
+              of proteins (i.e., NSPs)
+            </li>
+          </ul>
+        </HelpText>
+      </MutationListHeader>
+      <MutationListHeader>
         {/* <OptionSelectContainer>
           <label>
             <select
@@ -470,7 +506,7 @@ const MutationList = observer(() => {
         />
       </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListHeader ref={headerRef1}>
+        <MutationListHeader>
           <OptionCheckboxContainer>
             <label>
               <input
@@ -487,9 +523,7 @@ const MutationList = observer(() => {
             </label>
           </OptionCheckboxContainer>
         </MutationListHeader>
-        <MutationListContent
-          headerheight={headerSize.height + headerSize1.height}
-        />
+        <MutationListContent />
       </MutationInnerContainer>
     </MutationListContainer>
   );

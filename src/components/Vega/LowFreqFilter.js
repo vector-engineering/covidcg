@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+
+import ReactTooltip from 'react-tooltip';
+import QuestionButton from '../Buttons/QuestionButton';
 
 import { LOW_FREQ_FILTER_TYPES } from '../../constants/defs.json';
 
@@ -70,6 +73,10 @@ const LowFreqFilter = observer(
       });
     };
 
+    useEffect(() => {
+      ReactTooltip.rebuild();
+    }, []);
+
     return (
       <LowFreqFilterContainer>
         <LowFreqFilterSelectContainer>
@@ -97,6 +104,24 @@ const LowFreqFilter = observer(
         >
           Apply
         </ApplyButton>
+        <QuestionButton
+          data-tip={`
+            <p>${configStore.getGroupLabel(
+              configStore.groupKey,
+              configStore.dnaOrAa
+            )}s that do not meet the following criteria will be grouped into the "Other" group. This is done to increase performance in the app</p><p>Including more groups gives more detail into the data, but may come at the cost of app performance.</p>
+            <p>For the "Minimum Counts" option, <b>${configStore.getGroupLabel(
+              configStore.groupKey,
+              configStore.dnaOrAa
+            )}s</b> with less than N counts in the selected locations will be grouped into "Other"</p>
+            <p>For the "Top N" option, only show the top N <b>${configStore.getGroupLabel(
+              configStore.groupKey,
+              configStore.dnaOrAa
+            )}s</b> by counts in the selected locations</p>
+          `}
+          data-html="true"
+          data-for="main-tooltip"
+        />
       </LowFreqFilterContainer>
     );
   }

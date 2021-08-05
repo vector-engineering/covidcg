@@ -5,12 +5,14 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { TREE_COLOR_MODES } from '../../constants/defs.json';
 
+import QuestionButton from '../Buttons/QuestionButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import ExternalLink from '../Common/ExternalLink';
 
 import {
   TreePlotContainer,
   Header,
+  HeaderRow,
   Title,
   SubTitle,
   SelectContainer,
@@ -131,13 +133,22 @@ const GroupTreePlot = observer(({ width }) => {
   return (
     <TreePlotContainer width={width}>
       <Header headerHeight={headerHeight}>
-        <Title>Time-Scaled Tree</Title>
-        <SubTitle>
-          Methodology and Visualization from{' '}
-          <ExternalLink href="https://filogeneti.ca/CoVizu/">
-            CoVizu
-          </ExternalLink>
-        </SubTitle>
+        <HeaderRow>
+          <Title>Time-Scaled Tree</Title>
+          <QuestionButton
+            data-tip='<p>Displayed below is a phylogenetic tree of PANGO lineages (each lineage represented by a "representative genome".</p><p>Branch points in the tree indicate the <i>predicted</i> date of divergence.</p><p>The bars represent the collection range for each lineage. The start of the bar represents the earliest collection date, and the end of the bar represents the most recent collection date.</p><p>In the dropdown below, you can color the bars by collection date, # sequences, or by the region (continent) with the most counts of that lineage.</p>'
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </HeaderRow>
+        <HeaderRow>
+          <SubTitle>
+            Methodology and Visualization from{' '}
+            <ExternalLink href="https://filogeneti.ca/CoVizu/">
+              CoVizu
+            </ExternalLink>
+          </SubTitle>
+        </HeaderRow>
         <SelectContainer>
           <label>
             Color tree by
