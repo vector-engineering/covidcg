@@ -167,6 +167,16 @@
           "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
           "as": "end"
         },
+        {
+          "type": "formula",
+          "expr": "datum.end - datum.start",
+          "as": "length"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.rowTop - (datum.rowTop - datum.rowBottom) / 2",
+          "as": "yCenter"
+        },
         { "type": "filter", "expr": "datum.start < xRange[1]" },
         { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
       ]
@@ -207,6 +217,18 @@
       "round": true,
       "zero": false,
       "clamp": true
+    },
+    {
+      "name": "textLength",
+      "type": "linear",
+      "domain": { "signal": "xRange" },
+      "domainMin": 0,
+      "domainMax": { "signal": "xRange[1] - xRange[0]" },
+      "range": "width",
+      "padding": 0.05,
+      "round": true,
+      "zero": true,
+      "clamp": false
     }
   ],
 
@@ -410,17 +432,19 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "field": "y" },
-              "dy": { "field": "height", "mult": 0.5 },
-              "align": { "value": "center" },
-              "baseline": { "value": "middle" },
-              "fill": { "value": "black" }
+              "align": "left",
+              "baseline": "top",
+              "text": { "field": "datum.name" },
+              "yc": { "scale": "domainYScale", "field": "datum.yCenter" },
+              "dy": { "value": 3 }
             },
             "update": {
-              "x": { "field": "x" },
-              "dx": { "field": "width", "mult": 0.5 },
+              "x": { "scale": "xOverview", "field": "datum.start" },
               "tooltip": { "signal": "datum.tooltip" },
-              "text": { "field": "datum.abbr" }
+              "limit": {
+                "scale": "textLength",
+                "field": "datum.length"
+              }
             }
           }
         },
