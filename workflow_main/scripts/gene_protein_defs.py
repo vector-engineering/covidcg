@@ -6,6 +6,27 @@ import pandas as pd
 # import numpy as np
 
 
+def bars_overlap(df, bar_row, segments):
+    # Determines if a given gene/protein would overlap others in the
+    # entropy domain plot
+    buffer = 100
+    items_in_row = df[df["row"] == bar_row]
+
+    for item, row in items_in_row.iterrows():
+        item_segments = df.at[item, "segments"][0]
+        # Flatten ORF1ab segments
+        if isinstance(item_segments[0], (list, tuple)):
+            item_segments = [item_segments[0][0], item_segments[-1][1]]
+
+        if ((segments[0] >= item_segments[0] - buffer and
+            segments[0] <= item_segments[1] + buffer) or
+            (segments[1] >= item_segments[0] - buffer and
+             segments[1] <= item_segments[1] + buffer)):
+            # Bars overlap
+            return True
+    return False
+
+
 def load_genes_or_proteins(file):
 
     df = pd.read_json(file)
@@ -21,8 +42,22 @@ def load_genes_or_proteins(file):
 
     df["aa_ranges"] = None
     df["nt_ranges"] = None
+    df["row"] = None
     for name, row in df.iterrows():
         cur_residue_index = 1
+
+        # Determine row for entropy plot
+        bar_row = 0
+        segments = df.at[name, "segments"][0]
+        # Flatten ORF1ab segments
+        if isinstance(segments[0], (list, tuple)):
+            segments = [segments[0][0], segments[-1][1]]
+
+        # If bars would overlap, move down a row and check again
+        while bars_overlap(df, bar_row, segments):
+            bar_row += 1
+
+        df.at[name, "row"] = bar_row
 
         if not row["protein_coding"]:
             continue
