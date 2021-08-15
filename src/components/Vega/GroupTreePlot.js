@@ -184,9 +184,7 @@ const GroupTreePlot = observer(({ width }) => {
       let tickLocs = ticks.map((tick) => {
         return (ISOToInt(tick) - startDate) / rangeMS;
       });
-      let tickLabels = ticks.map((tick) => {
-        return tick.substr(0, 7);
-      });
+      let tickLabels = ['2020-01', '07', '2021-01', '07'];
 
       return (
         <GradientLegend

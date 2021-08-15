@@ -74,7 +74,7 @@ if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
 conn_pool = psycopg2.pool.SimpleConnectionPool(
-    1, os.environ["POSTGRES_MAX_CONN"], **connection_options
+    1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
 )
 
 # Quickly check if our database has been initialized yet
