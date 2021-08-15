@@ -28,6 +28,11 @@ export const HeaderRow = styled.div`
   flex-direction: row;
   align-items: center;
 `;
+export const LegendRow = styled.div`
+  display: block;
+  width: 100%;
+  padding-top: 5px;
+`;
 
 export const Title = styled.span`
   font-size: 1.2em;

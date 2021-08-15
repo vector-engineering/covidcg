@@ -80,6 +80,10 @@
         {
           "type": "filter",
           "expr": "datum.leaf"
+        },
+        {
+          "type": "collect",
+          "sort": {"field": "region_most_common"}
         }
       ]
     }
@@ -92,7 +96,7 @@
     },
     {
       "name": "colorScale",
-      "value": "colorNumSequences"
+      "value": "colorRegion"
     },
     {
       "name": "colorField",
@@ -166,6 +170,14 @@
           "force": true
         }
       ]
+    },
+    {
+      "name": "latestDomain",
+      "update": "[1576368000000, now()]"
+    },
+    {
+      "name": "numSequencesDomain",
+      "update": "[1, 200000]"
     }
   ],
 
@@ -186,21 +198,23 @@
     {
       "name": "colorRegion",
       "type": "ordinal",
-      "range": { "scheme": "category10" },
+      "range": { 
+        "scheme": "tableau10"
+      },
       "domain": { "data": "tips", "field": {"signal": "colorField"}}
     },
     {
       "name": "colorLatest",
       "type": "linear",
       "range": {"scheme": "viridis"},
-      "domain": {"data": "tips", "field": {"signal": "colorField"}}
+      "domain": {"signal": "latestDomain"}
     },
     {
       "name": "colorNumSequences",
       "type": "log",
       "base": 10,
       "range": {"scheme": "inferno"},
-      "domain": {"data": "tips", "field": {"signal": "colorField"}}
+      "domain": {"signal": "numSequencesDomain"}
     }
   ],
 

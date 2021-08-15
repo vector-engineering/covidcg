@@ -3,16 +3,20 @@ import PropTypes from 'prop-types';
 
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { TREE_COLOR_MODES } from '../../constants/defs.json';
+import { ISOToInt } from '../../utils/date';
+import { TREE_COLOR_MODES, MIN_DATE } from '../../constants/defs.json';
 
 import QuestionButton from '../Buttons/QuestionButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import ExternalLink from '../Common/ExternalLink';
+import GradientLegend from './GradientLegend';
+import MarkLegend from './MarkLegend';
 
 import {
   TreePlotContainer,
   Header,
   HeaderRow,
+  LegendRow,
   Title,
   SubTitle,
   SelectContainer,
@@ -22,8 +26,14 @@ import {
 // import legendSpec from '../../vega_specs/group_tree_legend_v2.vg.json';
 import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
-const headerHeight = 60;
+const headerHeight = 120;
 const treePlotHeight = 12000;
+
+// https://cssgradient.io/
+const VIRIDIS_GRADIENT =
+  'linear-gradient(90deg, rgba(68,1,84,1) 0%, rgba(57,86,140,1) 25%, rgba(31,150,139,1) 50%, rgba(115,208,85,1) 75%, rgba(253,231,37,1) 100%);';
+const INFERNO_GRADIENT =
+  'linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(26,11,64,1) 11%, rgba(74,11,106,1) 22%, rgba(120,28,109,1) 33%, rgba(164,44,96,1) 44%, rgba(207,68,70,1) 55%, rgba(237,104,37,1) 66%, rgba(251,155,6,1) 77%, rgba(247,209,60,1) 88%, rgba(252,254,164,1) 100%);';
 
 const GroupTreePlot = observer(({ width }) => {
   // const vegaLegendRef = useRef();
@@ -130,6 +140,81 @@ const GroupTreePlot = observer(({ width }) => {
     });
   }, [groupDataStore.selectedGroups]);
 
+  const renderLegend = () => {
+    if (
+      plotSettingsStore.reportTreeColorMode === TREE_COLOR_MODES.COLOR_REGION
+    ) {
+      return (
+        <MarkLegend
+          title={'Most Common Region'}
+          itemLabels={[
+            'Africa',
+            'Asia',
+            'Europe',
+            'North America',
+            'Oceania',
+            'South America',
+          ]}
+          itemColors={[
+            // TABLEAU10
+            '#4c78a8',
+            '#f58518',
+            '#e45756',
+            '#72b7b2',
+            '#54a24b',
+            '#eeca3b',
+            '#b279a2',
+            '#ff9da6',
+            '#9d755d',
+            '#bab0ac',
+          ]}
+        />
+      );
+    } else if (
+      plotSettingsStore.reportTreeColorMode === TREE_COLOR_MODES.COLOR_LATEST
+    ) {
+      // A tick for each 6 months?
+      const startDate = ISOToInt(MIN_DATE);
+      const endDate = Date.now();
+      // Overall date range in milliseconds
+      const rangeMS = endDate - startDate;
+
+      // Convert ISO strings to fractional tick locations
+      let ticks = ['2020-01-01', '2020-07-01', '2021-01-01', '2021-07-01'];
+      let tickLocs = ticks.map((tick) => {
+        return (ISOToInt(tick) - startDate) / rangeMS;
+      });
+      let tickLabels = ticks.map((tick) => {
+        return tick.substr(0, 7);
+      });
+
+      return (
+        <GradientLegend
+          title={'Most Recent Collection Date'}
+          gradient={VIRIDIS_GRADIENT}
+          ticks={tickLocs}
+          tickLabels={tickLabels}
+        />
+      );
+    } else if (
+      plotSettingsStore.reportTreeColorMode ===
+      TREE_COLOR_MODES.COLOR_NUM_SEQUENCES
+    ) {
+      let tickLocs = [1, 10, 100, 1000, 10000, 100000];
+      let tickLabels = tickLocs.map((tick) => tick.toString());
+      tickLocs = tickLocs.map((tick) => Math.log10(tick) / Math.log10(100000));
+
+      return (
+        <GradientLegend
+          title={'Num. Sequences'}
+          gradient={INFERNO_GRADIENT}
+          ticks={tickLocs}
+          tickLabels={tickLabels}
+        />
+      );
+    }
+  };
+
   return (
     <TreePlotContainer width={width}>
       <Header headerHeight={headerHeight}>
@@ -166,6 +251,7 @@ const GroupTreePlot = observer(({ width }) => {
             </select>
           </label>
         </SelectContainer>
+        <LegendRow>{renderLegend()}</LegendRow>
       </Header>
       {/* <VegaEmbed
         ref={vegaLegendRef}
@@ -183,6 +269,8 @@ const GroupTreePlot = observer(({ width }) => {
           signals={{
             plotHeight: treePlotHeight,
             colorScale: plotSettingsStore.reportTreeColorMode,
+            latestDomain: [ISOToInt('2019-12-15'), Date.now()],
+            numSequencesDomain: [1, 100000],
           }}
           width={width - 75}
           actions={false}
