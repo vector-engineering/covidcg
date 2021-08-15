@@ -41,7 +41,7 @@ export const initialValues = {
   reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
   reportStructureActiveProtein: 'S',
   reportStructurePdbId: '6ZGG',
-  reportStructureActiveGroup: 'B.1.1.7',
+  reportStructureActiveGroup: 'B.1.617.2',
 };
 
 export class PlotSettingsStore {
