@@ -4,6 +4,7 @@ export const LegendContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  padding-right: 40px;
 `;
 export const LegendTitle = styled.div``;
 export const LegendGradientBar = styled.div`
