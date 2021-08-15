@@ -136,7 +136,7 @@ const StructuralViewer = observer(() => {
     colorHeatmap({ plugin, entries: heatmapEntries, ref });
   };
 
-  useEffect(() => {
+  const loadModel = () => {
     if (!plugin) {
       return;
     }
@@ -236,6 +236,10 @@ const StructuralViewer = observer(() => {
     });
 
     modelAction;
+  };
+
+  useEffect(() => {
+    loadModel();
   }, [
     plugin,
     plotSettingsStore.reportStructurePdbId,
