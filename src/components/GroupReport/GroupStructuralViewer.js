@@ -117,7 +117,8 @@ const StructuralViewer = observer(() => {
       .map((snv) => {
         snv.colorInd = Math.floor((snv.fraction - 0.001) * numColors);
         return snv;
-      });
+      })
+      .sort((a, b) => a.pos - b.pos);
 
     // For each color level, build a list of residues
     const heatmapEntries = [];
@@ -136,7 +137,7 @@ const StructuralViewer = observer(() => {
     colorHeatmap({ plugin, entries: heatmapEntries, ref });
   };
 
-  useEffect(() => {
+  const loadModel = () => {
     if (!plugin) {
       return;
     }
@@ -236,6 +237,10 @@ const StructuralViewer = observer(() => {
     });
 
     modelAction;
+  };
+
+  useEffect(() => {
+    loadModel();
   }, [
     plugin,
     plotSettingsStore.reportStructurePdbId,
