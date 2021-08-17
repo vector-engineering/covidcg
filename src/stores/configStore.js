@@ -436,8 +436,12 @@ export class ConfigStore {
   getCoordinateRanges() {
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      // Return ranges if All Genes
+      if (this.selectedGene.name === 'All Genes') {
+        return this.selectedGene.ranges;
+      }
       // Disable residue indices for non-protein-coding genes
-      if (this.selectedGene.protein_coding === 0) {
+      if (!this.selectedGene.protein_coding) {
         return this.selectedGene.segments;
       }
       const coordinateRanges = [];
@@ -558,8 +562,11 @@ export class ConfigStore {
   };
 
   getSelectedGroupIds() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      rootStoreInstance.snpDataStore;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = rootStoreInstance.snpDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -584,8 +591,11 @@ export class ConfigStore {
   }
 
   getIntToSnvMap() {
-    const { intToDnaSnvMap, intToGeneAaSnvMap, intToProteinAaSnvMap } =
-      rootStoreInstance.snpDataStore;
+    const {
+      intToDnaSnvMap,
+      intToGeneAaSnvMap,
+      intToProteinAaSnvMap,
+    } = rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -599,8 +609,11 @@ export class ConfigStore {
   }
 
   getSnvToIntMap() {
-    const { dnaSnvMap, geneAaSnvMap, proteinAaSnvMap } =
-      rootStoreInstance.snpDataStore;
+    const {
+      dnaSnvMap,
+      geneAaSnvMap,
+      proteinAaSnvMap,
+    } = rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;
