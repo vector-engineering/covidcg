@@ -17,17 +17,20 @@ configfile: "../config/config_genbank.yaml"
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
+data_folder = os.path.join("..", config["data_folder"])
+# static_data_folder = os.path.join("..", config["static_data_folder"])
+
 rule all:
     input:
         # Download latest data feed, process sequences
         os.path.join(
-            config["data_folder"], "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_" + today_str + ".done"
         ),
         os.path.join(
-            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+            data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Cleaned metadata, with lineage assignments
-        os.path.join(config["data_folder"], "metadata.csv")
+        os.path.join(data_folder, "metadata.csv")
 
 
 rule download:
@@ -35,9 +38,9 @@ rule download:
     newline-delimited JSON records (the file itself is not strict JSON)
     """
     output:
-        feed = temp(os.path.join(config["data_folder"], "feed.csv")),
+        feed = temp(os.path.join(data_folder, "feed.csv")),
         status = touch(os.path.join(
-            config["data_folder"], "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_" + today_str + ".done"
         ))
     shell:
         """
@@ -52,8 +55,8 @@ checkpoint chunk_data:
     input:
         feed = rules.download.output.feed
     output:
-        fasta = directory(os.path.join(config["data_folder"], "fasta_temp")),
-        metadata_dirty = temp(os.path.join(config["data_folder"], "metadata_dirty.csv"))
+        fasta = directory(os.path.join(data_folder, "fasta_temp")),
+        metadata_dirty = temp(os.path.join(data_folder, "metadata_dirty.csv"))
     params:
         chunk_size = config["chunk_size"]
     run:
@@ -83,14 +86,14 @@ def get_changed_chunks(wildcards):
     
     # Only run to trigger DAG re-evaluation
     checkpoint_output = checkpoints.chunk_data.get(**wildcards)
-    chunks, = glob_wildcards(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"))
+    chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
 
     # Keep track of which chunks have changed
     changed_chunks = []
 
     for chunk in chunks:
-        fasta_temp_path = Path(config["data_folder"]) / "fasta_temp" / (chunk + ".fa.gz")
-        fasta_raw_path = Path(config["data_folder"]) / "fasta_raw" / (chunk + ".fa.gz")
+        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
 
         # If the current chunk doesn't exist yet, then mark it as changed
         if (
@@ -111,7 +114,7 @@ def get_changed_chunks(wildcards):
 
     # Return a list of fasta_temp files that have changed, so that they can be copied
     # over to fasta_raw by the below `copy_changed_files` rule
-    return expand(os.path.join(config["data_folder"], "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
+    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
 
 
 checkpoint copy_changed_files:
@@ -128,10 +131,10 @@ checkpoint copy_changed_files:
         # Have the output be a flag instead, that the "all" rule checks for
         # to make sure that we actually run this rule
         status = touch(os.path.join(
-            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+            data_folder, "status", "merge_sequences_" + today_str + ".done"
         ))
     run:
-        copy_changed_files(input, config["data_folder"])
+        copy_changed_files(input, data_folder)
 
 
 def get_chunks(wildcards):
@@ -146,18 +149,18 @@ def get_chunks(wildcards):
     checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
     
     return expand(
-        os.path.join(config["data_folder"], "lineages", "{chunk}.csv"),
-        chunk=glob_wildcards(os.path.join(config["data_folder"], "fasta_raw", "{i}.fa.gz")).i
+        os.path.join(data_folder, "lineages", "{chunk}.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
     )
 
 rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
     """
     input:
-        fasta = os.path.join(config["data_folder"], "fasta_raw", "{chunk}.fa.gz")
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
     output:
-        fasta = temp(os.path.join(config["data_folder"], "lineages", "{chunk}.fa")),
-        lineages = os.path.join(config["data_folder"], "lineages", "{chunk}.csv")
+        fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
+        lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
     conda: "envs/pangolin.yaml"
     shell:
         """
@@ -172,7 +175,7 @@ rule combine_lineages:
     input:
         lineages = get_chunks
     output:
-        lineages = os.path.join(config["data_folder"], "lineages.csv")
+        lineages = os.path.join(data_folder, "lineages.csv")
     run:
         combine_lineages(input.lineages, output.lineages)
 
@@ -184,6 +187,6 @@ rule clean_metadata:
         metadata_dirty = rules.chunk_data.output.metadata_dirty,
         lineages = rules.combine_lineages.output.lineages
     output:
-        metadata_clean = os.path.join(config["data_folder"], "metadata.csv")
+        metadata_clean = os.path.join(data_folder, "metadata.csv")
     run:
         clean_metadata(input.metadata_dirty, input.lineages, output.metadata_clean)
