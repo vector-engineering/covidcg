@@ -142,6 +142,7 @@ export class ConfigStore {
 
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
+      value = decodeURIComponent(value);
       if (key in initialValues) {
         if (key === 'selectedGene') {
           // If the specified gene is in the geneMap get the gene
@@ -172,7 +173,6 @@ export class ConfigStore {
           // If coordinates are specified, save them as an array of numbers
           // Coordinates can stay as a string in the URL
           let arr = [];
-          value = decodeURIComponent(value);
           value = value.split(',');
           value.forEach((item, i) => {
             value[i] = parseInt(item);
@@ -185,15 +185,11 @@ export class ConfigStore {
           this[key] = arr;
         } else if (key === 'customSequences') {
           // Store customSequences as an array of strings
-          value = decodeURIComponent(value);
           value = value.split(',');
           this[key] = value;
         } else if (key === 'selectedPrimers') {
-          value = decodeURIComponent(value);
           value = value.split(',');
           value.forEach((primerStr) => {
-            // Decode primerStr to allow searching for primer
-            primerStr = decodeURIComponent(primerStr);
             let queryObj = {
               Institution: primerStr.split('_')[0],
               Name: primerStr.split('_')[1],
@@ -206,11 +202,9 @@ export class ConfigStore {
         }
       } else if (key.toUpperCase() in GEO_LEVELS) {
         // If a location is specified, update selectedLocationNodes
-        value = decodeURIComponent(value);
         value = value.split(',');
 
         value.forEach((item) => {
-          item = decodeURIComponent(item);
           const node = getLocationByNameAndLevel(
             this.locationDataStoreInstance.selectTree,
             item,
@@ -218,15 +212,20 @@ export class ConfigStore {
             true
           )[0];
 
-          if (typeof node !== 'undefined') {
+          if (
+            typeof node !== 'undefined' &&
+            !this.selectedLocationNodes.includes(node)
+          ) {
             this.selectedLocationNodes.push(node);
           }
         });
       } else if (key === 'allRegions') {
-        // Push All to selectedLocationNodes
-        this.selectedLocationNodes.push(
-          this.locationDataStoreInstance.selectTree
-        );
+        // Push all regions to selectedLocationNodes
+        this.locationDataStoreInstance.selectTree.children.forEach((child) => {
+          if (!this.selectedLocationNodes.includes(child)) {
+            this.selectedLocationNodes.push(child);
+          }
+        });
       } else if (key === 'tab') {
         // Check if the specified tab value is valid (included in TABS)
         // tab is read and activeTab is set from routes.js
