@@ -55,6 +55,23 @@ const EntropyPlot = observer(({ width }) => {
     }
   };
 
+  const filterMap = (map, keyToRemove) => {
+    // Used to turn proteinMap and geneMap into an array of objects
+    // that can be used with the domain plot
+    return Object.keys(map)
+      .filter((key) => key !== keyToRemove)
+      .reduce((arr, key, index) => {
+        map[key]['ranges'] = map[key]['segments'];
+        if (map[key]['ranges'].length > 1) {
+          // Collapse ORF1ab ranges
+          map[key]['ranges'][0][1] = map[key]['ranges'][1][1];
+          map[key]['ranges'].slice(1, 1);
+        }
+        arr.push(map[key]);
+        return arr;
+      }, []);
+  };
+
   const processData = () => {
     let snvCounts = toJS(dataStore.groupCounts);
     // Input data from dataStore.groupCounts is in the form
@@ -169,26 +186,31 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
-    if (
-      configStore.residueCoordinates.length === 0
-      // configStore.residueCoordinates.length === 0 ||
-      // (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
-      //   configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN)
-    ) {
-      if (
-        // configStore.dnaOrAa === DNA_OR_AA.DNA ||
-        configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
-      ) {
-        return geneMap;
+    const nullDomain = [
+      {
+        name: 'No Domains Available',
+        abbr: 'No Domains Available',
+        ranges: [getXRange()],
+        row: 0,
+      },
+    ];
+
+    if (configStore.residueCoordinates.length === 0) {
+      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        return filterMap(geneMap, 'All Genes');
       } else if (
         configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
       ) {
-        return proteinMap;
+        return filterMap(proteinMap, 'All Proteins');
       }
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      return configStore.selectedGene.domains;
+      return configStore.selectedGene.domains.length > 0
+        ? configStore.selectedGene.domains
+        : nullDomain;
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      return configStore.selectedProtein.domains;
+      return configStore.selectedProtein.domains.length > 0
+        ? configStore.selectedProtein.domains
+        : nullDomain;
     }
   };
 
@@ -325,7 +347,11 @@ const EntropyPlot = observer(({ width }) => {
           xLabel,
           xRange: state.xRange,
           hoverGroup: state.hoverGroup,
-          posField: configStore.dnaOrAa === DNA_OR_AA.DNA ? 0 : 1,
+          posField:
+            configStore.dnaOrAa === DNA_OR_AA.DNA &&
+            configStore.residueCoordinates.length !== 0
+              ? 0
+              : 1,
         }}
         signalListeners={state.signalListeners}
         dataListeners={state.dataListeners}
