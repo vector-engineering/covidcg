@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { colors } from './VOCList';
 
 import {
@@ -17,6 +18,10 @@ const Org = ({ name, color }) => {
       <OrgName>{name}</OrgName>
     </OrgItem>
   );
+};
+Org.propTypes = {
+  name: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 export const OrgLegend = () => {

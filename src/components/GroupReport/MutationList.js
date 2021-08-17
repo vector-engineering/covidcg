@@ -146,11 +146,10 @@ MutationListRow.defaultProps = {
   emptyRow: false,
 };
 
-const DeleteButtonContainer = ({ group, index }) => {
+const DeleteButtonContainer = ({ group }) => {
   const { groupDataStore } = useStores();
 
-  const onClick = (event) => {
-    console.log(group);
+  const onClick = () => {
     let selectedNodes = groupDataStore.selectedGroups;
     const index = selectedNodes.indexOf(group);
     if (index > -1) {
@@ -170,6 +169,9 @@ const DeleteButtonContainer = ({ group, index }) => {
       x
     </DeleteButton>
   );
+};
+DeleteButtonContainer.propTypes = {
+  group: PropTypes.string.isRequired,
 };
 
 const MutationListContent = observer(() => {
