@@ -20,7 +20,7 @@ import {
 export const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
 const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
 
-const VOCItem = observer(({ name, orgArr, column }) => {
+const VOCItem = observer(({ name, orgArr }) => {
   const { groupDataStore } = useStores();
   const badges = [];
 
