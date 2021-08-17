@@ -149,7 +149,7 @@ Run server:
 
 ```bash
 $ cd services/server
-$ CONFIGFILE=config/config_genbank.yaml ./serve.sh # Run Flask server in development mode, with GenBank settings
+$ CONFIGFILE=../../config/config_genbank.yaml ./serve.sh # Run Flask server in development mode, with GenBank settings
                                                    # Optionally, edit the serve.sh script to set the config file
 ```
 
