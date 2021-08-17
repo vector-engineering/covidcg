@@ -17,11 +17,8 @@ import os
 from phylotree.scripts.representative_seqs import get_representative_seqs
 from phylotree.scripts.build_graph_table import build_graph_table
 
-# data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
-
-data_folder = config['data_folder']
-static_data_folder = config['static_data_folder']
+data_folder = os.path.join("..", config["data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()

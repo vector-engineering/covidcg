@@ -19,8 +19,12 @@ from cg_server.color import get_categorical_colormap
 from cg_server.config import config
 from .load_snvs import process_dna_snvs, process_aa_snvs
 
-data_path = Path(os.getenv("DATA_PATH", config["data_folder"]))
-static_data_path = Path(os.getenv("STATIC_DATA_PATH", config["static_data_folder"]))
+# root/services/server/cg_server/db_seed/seed.py
+project_root = Path(__file__).parent.parent.parent.parent.parent
+data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
+static_data_path = Path(
+    os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
+)
 
 genes = pd.read_json(str(static_data_path / "genes_processed.json"))
 genes = genes.set_index("name")
