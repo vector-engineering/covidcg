@@ -34,7 +34,6 @@ def get_cdc_vocs():
             variant_row = list(row.stripped_strings)
             for col in variant_row:
                 for match in lineage_pattern.findall(col):
-                    print(match)
                     variant = {'name': match[0],
                                'level': level}
                     variant_list.append(variant)
