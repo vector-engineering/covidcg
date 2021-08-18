@@ -96,14 +96,16 @@ const VOCList = observer(() => {
     Object.keys(VOC_LIST)
       .filter((lineage_name) => {
         return Object.values(VOC_LIST[lineage_name]).some(
-          (v) => v === level || (v === altLevel && v !== null)
+          (v) => v === level || (v === altLevel && altLevel !== null)
         );
       })
       .forEach((lineage_name) => {
         let org_dict = VOC_LIST[lineage_name];
         let orgArr = Object.keys(org_dict).filter((org) => {
-          org_dict[org] === level ||
-            (org_dict[org] === altLevel && org_dict[org] !== null);
+          return (
+            org_dict[org] === level ||
+            (org_dict[org] === altLevel && altLevel !== null)
+          );
         });
 
         items.push(
