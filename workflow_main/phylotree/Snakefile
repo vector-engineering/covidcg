@@ -35,7 +35,7 @@ rule get_representative_sequences:
         table = os.path.join(data_folder, 'lineage_representative_table.csv')
     run:
         get_representative_seqs(
-            input.case_data, input.metadata_map, input.location_map, input.ref_seq, 
+            input.case_data, input.metadata_map, input.location_map, input.ref_seq,
             output.representatives, output.datefile, output.table
         )
 
@@ -51,9 +51,9 @@ rule fasttree:
         """
 
 rule clean_newick_tree:
-    input: 
+    input:
         newick_in = rules.fasttree.output.newick_tree
-    output: 
+    output:
         newick_out = os.path.join(data_folder, "lineage_representatives_cleaned.nwk")
     run:
         with open(input.newick_in, 'r') as fp:
@@ -73,7 +73,7 @@ rule treetime:
         tree_dates = os.path.join(data_folder, 'lineage_treetime', 'dates.tsv'),
     shell:
         """
-        treetime --tree {input.newick_tree} --aln {input.alignment} --dates {input.datefile} --outdir {params.output_dir} --verbose 1 --plot-rtt none --clock-filter 0 
+        treetime --tree {input.newick_tree} --aln {input.alignment} --dates {input.datefile} --outdir {params.output_dir} --verbose 1 --plot-rtt none --clock-filter 0
         """
 
 
