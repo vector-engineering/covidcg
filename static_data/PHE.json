@@ -1,0 +1,74 @@
+[
+  {
+    "name": "B.1.1.7",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.351",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.617.2",
+    "level": "VOC"
+  },
+  {
+    "name": "AY.1",
+    "level": "VOC"
+  },
+  {
+    "name": "AY.2",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.1.7",
+    "level": "VOC"
+  },
+  {
+    "name": "P.1",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.617.1",
+    "level": "VUI"
+  },
+  {
+    "name": "B.1.617.3",
+    "level": "VUI"
+  },
+  {
+    "name": "A.23.1",
+    "level": "VUI"
+  },
+  {
+    "name": "B.1.525",
+    "level": "VUI"
+  },
+  {
+    "name": "B.1.1.318",
+    "level": "VUI"
+  },
+  {
+    "name": "P.2",
+    "level": "VUI"
+  },
+  {
+    "name": "P.3",
+    "level": "VUI"
+  },
+  {
+    "name": "AV.1",
+    "level": "VUI"
+  },
+  {
+    "name": "C.36.3",
+    "level": "VUI"
+  },
+  {
+    "name": "C.37",
+    "level": "VUI"
+  },
+  {
+    "name": "B.1.621",
+    "level": "VUI"
+  }
+]

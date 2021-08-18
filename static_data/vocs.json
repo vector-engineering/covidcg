@@ -1,18 +1,9 @@
 {
-  "B.1.427": {
-    "CDC": "VOI",
-    "WHO": "Other",
-    "ECDC": "VOI"
-  },
-  "B.1.429": {
-    "CDC": "VOI",
-    "WHO": "Other",
-    "ECDC": "VOI"
-  },
   "B.1.525": {
     "CDC": "VOI",
     "WHO": "VOI",
-    "ECDC": "VOI"
+    "ECDC": "VOI",
+    "PHE": "VUI"
   },
   "B.1.526": {
     "CDC": "VOI",
@@ -22,66 +13,88 @@
   "B.1.617.1": {
     "CDC": "VOI",
     "WHO": "VOI",
-    "ECDC": "VOI"
+    "ECDC": "VOI",
+    "PHE": "VUI"
   },
   "B.1.617.3": {
     "CDC": "VOI",
-    "ECDC": "Other"
+    "ECDC": "Other",
+    "PHE": "VUI"
   },
   "B.1.1.7": {
     "CDC": "VOC",
     "WHO": "VOC",
-    "ECDC": "Other"
+    "ECDC": "Other",
+    "PHE": "VOC"
   },
   "B.1.351": {
     "CDC": "VOC",
     "WHO": "VOC",
-    "ECDC": "Other"
+    "ECDC": "Other",
+    "PHE": "VOC"
+  },
+  "B.1.351.2": {
+    "CDC": "VOC",
+    "WHO": "VOC"
+  },
+  "B.1.351.3": {
+    "CDC": "VOC",
+    "WHO": "VOC"
   },
   "B.1.617.2": {
     "CDC": "VOC",
     "WHO": "VOC",
-    "ECDC": "VOC"
-  },
-  "P.1": {
-    "CDC": "VOC",
-    "WHO": "VOC",
-    "ECDC": "Other"
-  },
-  "B.1.351.2": {
-    "WHO": "VOC"
-  },
-  "B.1.351.3": {
-    "WHO": "VOC"
+    "ECDC": "VOC",
+    "PHE": "VOC"
   },
   "P.1.1": {
+    "CDC": "VOC",
     "WHO": "VOC"
   },
   "P.1.2": {
+    "CDC": "VOC",
+    "WHO": "VOC"
+  },
+  "P.1": {
+    "WHO": "VOC",
+    "ECDC": "Other",
+    "PHE": "VOC"
+  },
+  "P.1.4": {
+    "WHO": "VOC"
+  },
+  "P.1.6": {
+    "WHO": "VOC"
+  },
+  "P.1.7": {
     "WHO": "VOC"
   },
   "AY.1": {
-    "WHO": "VOC"
+    "WHO": "VOC",
+    "PHE": "VOC"
   },
   "AY.2": {
+    "WHO": "VOC",
+    "PHE": "VOC"
+  },
+  "AY.3": {
+    "WHO": "VOC"
+  },
+  "AY.3.1": {
     "WHO": "VOC"
   },
   "C.37": {
     "WHO": "VOI",
-    "ECDC": "Other"
+    "ECDC": "VOI",
+    "PHE": "VUI"
   },
-  "P.2": {
-    "WHO": "Other",
-    "ECDC": "Other"
-  },
-  "P.3": {
-    "WHO": "Other",
-    "ECDC": "VOI"
-  },
-  "R.1": {
+  "B.1.427": {
     "WHO": "Other"
   },
-  "R.2": {
+  "B.1.429": {
+    "WHO": "Other"
+  },
+  "R.1": {
     "WHO": "Other"
   },
   "B.1.466.2": {
@@ -89,26 +102,24 @@
   },
   "B.1.621": {
     "WHO": "Other",
-    "ECDC": "VOI"
+    "ECDC": "VOI",
+    "PHE": "VUI"
   },
-  "AV.1": {
-    "WHO": "Other",
-    "ECDC": "Other"
+  "B.1.621.1": {
+    "WHO": "Other"
   },
   "B.1.1.318": {
     "WHO": "Other",
-    "ECDC": "Other"
+    "ECDC": "Other",
+    "PHE": "VUI"
   },
   "B.1.1.519": {
     "WHO": "Other",
     "ECDC": "Other"
   },
-  "AT.1": {
-    "WHO": "Other",
-    "ECDC": "Other"
-  },
   "C.36.3": {
-    "WHO": "Other"
+    "WHO": "Other",
+    "PHE": "VUI"
   },
   "C.36.3.1": {
     "WHO": "Other"
@@ -117,14 +128,26 @@
     "WHO": "Other",
     "ECDC": "Other"
   },
-  "B.1.616": {
-    "ECDC": "VOI"
+  "B.1.1.523": {
+    "WHO": "Other"
+  },
+  "B.1.619": {
+    "WHO": "Other"
+  },
+  "B.1.619.1": {
+    "WHO": "Other"
   },
   "B.1.620": {
+    "WHO": "Other",
     "ECDC": "VOI"
   },
+  "P.3": {
+    "ECDC": "VOI",
+    "PHE": "VUI"
+  },
   "A.23.1": {
-    "ECDC": "Other"
+    "ECDC": "Other",
+    "PHE": "VUI"
   },
   "A.27": {
     "ECDC": "Other"
@@ -138,13 +161,27 @@
   "C.36": {
     "ECDC": "Other"
   },
+  "AT.1": {
+    "ECDC": "Other"
+  },
   "B.1.526.1": {
     "ECDC": "Other"
   },
   "B.1.526.2": {
     "ECDC": "Other"
   },
+  "P.2": {
+    "ECDC": "Other",
+    "PHE": "VUI"
+  },
+  "AV.1": {
+    "ECDC": "Other",
+    "PHE": "VUI"
+  },
   "B.1.671.2": {
+    "ECDC": "Other"
+  },
+  "C.1.2": {
     "ECDC": "Other"
   }
 }

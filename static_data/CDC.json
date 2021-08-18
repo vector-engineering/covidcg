@@ -1,13 +1,5 @@
 [
   {
-    "name": "B.1.427",
-    "level": "VOI"
-  },
-  {
-    "name": "B.1.429",
-    "level": "VOI"
-  },
-  {
     "name": "B.1.525",
     "level": "VOI"
   },
@@ -32,11 +24,23 @@
     "level": "VOC"
   },
   {
+    "name": "B.1.351.2",
+    "level": "VOC"
+  },
+  {
+    "name": "B.1.351.3",
+    "level": "VOC"
+  },
+  {
     "name": "B.1.617.2",
     "level": "VOC"
   },
   {
-    "name": "P.1",
+    "name": "P.1.1",
+    "level": "VOC"
+  },
+  {
+    "name": "P.1.2",
     "level": "VOC"
   }
 ]
