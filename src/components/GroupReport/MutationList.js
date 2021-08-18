@@ -507,24 +507,24 @@ const MutationList = observer(() => {
           onSelect={handleDownloadSelect}
         />
       </MutationListHeader>
+      <MutationListHeader>
+        <OptionCheckboxContainer>
+          <label>
+            <input
+              type="checkbox"
+              name="mutation-list-hide-empty"
+              checked={plotSettingsStore.reportMutationListHideEmpty}
+              onChange={onChangeHideEmpty}
+            />
+            Hide{' '}
+            {groupDataStore.groupSnvType === 'protein_aa'
+              ? 'Proteins'
+              : 'Genes'}{' '}
+            without SNVs
+          </label>
+        </OptionCheckboxContainer>
+      </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListHeader>
-          <OptionCheckboxContainer>
-            <label>
-              <input
-                type="checkbox"
-                name="mutation-list-hide-empty"
-                checked={plotSettingsStore.reportMutationListHideEmpty}
-                onChange={onChangeHideEmpty}
-              />
-              Hide{' '}
-              {groupDataStore.groupSnvType === 'protein_aa'
-                ? 'Proteins'
-                : 'Genes'}{' '}
-              without SNVs
-            </label>
-          </OptionCheckboxContainer>
-        </MutationListHeader>
         <MutationListContent />
       </MutationInnerContainer>
     </MutationListContainer>
