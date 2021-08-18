@@ -40,7 +40,22 @@ def get_cdc_vocs():
                     variant_list.append(variant)
         level_ind += 1
 
-    print(variant_list)
+    return variant_list
 
 
-get_cdc_vocs()
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-o", "--output", required=True, type=str,
+                        help="Path to output file")
+
+    args = parser.parse_args()
+
+    variant_list = get_cdc_vocs()
+
+    with open(args.output, 'w') as fp:
+        fp.write(json.dumps(variant_list, indent=2))
+
+
+if __name__ == "__main__":
+    main()
