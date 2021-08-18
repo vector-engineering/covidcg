@@ -21,7 +21,7 @@ export const colors = {
   WHO: '#88CCEE',
   CDC: '#DDCC77',
   ECDC: '#AA4499',
-  PHE: '#000000',
+  PHE: '#004488',
 };
 const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], PHE: [2, 2] };
 
