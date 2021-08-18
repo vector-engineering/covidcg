@@ -17,8 +17,13 @@ import {
   VOCBadge,
 } from './VOCList.styles';
 
-export const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
-const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
+export const colors = {
+  WHO: '#88CCEE',
+  CDC: '#DDCC77',
+  ECDC: '#AA4499',
+  PHE: '#000000',
+};
+const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], PHE: [2, 2] };
 
 const VOCItem = observer(({ name, orgArr }) => {
   const { groupDataStore } = useStores();
@@ -76,7 +81,7 @@ VOCItem.propTypes = {
 };
 
 const VOCList = observer(() => {
-  const filterItems = (level) => {
+  const filterItems = (level, altLevel = null) => {
     // VOC_LIST is an object with lineages as its keys
     // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
     // Each organization's value is the level (VOC, VOI, Other) assigned to the lineage
@@ -90,12 +95,15 @@ const VOCList = observer(() => {
     const items = [];
     Object.keys(VOC_LIST)
       .filter((lineage_name) => {
-        return Object.values(VOC_LIST[lineage_name]).some((v) => v === level);
+        return Object.values(VOC_LIST[lineage_name]).some(
+          (v) => v === level || (v === altLevel && v !== null)
+        );
       })
       .forEach((lineage_name) => {
         let org_dict = VOC_LIST[lineage_name];
         let orgArr = Object.keys(org_dict).filter((org) => {
-          return org_dict[org] === level;
+          org_dict[org] === level ||
+            (org_dict[org] === altLevel && org_dict[org] !== null);
         });
 
         items.push(
@@ -113,7 +121,8 @@ const VOCList = observer(() => {
   const vocItems = filterItems('VOC');
 
   // Variants of Interest (VOI)
-  const voiItems = filterItems('VOI');
+  // The PHE calls this same level (one below VOC) VUI
+  const voiItems = filterItems('VOI', 'VUI');
 
   // Other Variants
   const otherItems = filterItems('Other');
