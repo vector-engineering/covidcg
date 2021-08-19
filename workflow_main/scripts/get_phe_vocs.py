@@ -36,6 +36,10 @@ def get_phe_vocs():
             level = list(row.find_all('td')[0].stripped_strings)
         level = level[0]
 
+        # Rename VUI to VOI for ease of processing
+        if level == 'VUI':
+            level = 'VOI'
+
         # Lineage is in col 2. Some have multiple lineages separated by spaces
         lineages = list(row.find_all('td')[2].stripped_strings)
         # Remove any accidental spaces
