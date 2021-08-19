@@ -3,7 +3,7 @@
     "CDC": "VOI",
     "WHO": "VOI",
     "ECDC": "VOI",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.526": {
     "CDC": "VOI",
@@ -14,12 +14,12 @@
     "CDC": "VOI",
     "WHO": "VOI",
     "ECDC": "VOI",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.617.3": {
     "CDC": "VOI",
     "ECDC": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.1.7": {
     "CDC": "VOC",
@@ -86,7 +86,7 @@
   "C.37": {
     "WHO": "VOI",
     "ECDC": "VOI",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.427": {
     "WHO": "Other"
@@ -103,7 +103,7 @@
   "B.1.621": {
     "WHO": "Other",
     "ECDC": "VOI",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.621.1": {
     "WHO": "Other"
@@ -111,7 +111,7 @@
   "B.1.1.318": {
     "WHO": "Other",
     "ECDC": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.1.519": {
     "WHO": "Other",
@@ -119,7 +119,7 @@
   },
   "C.36.3": {
     "WHO": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "C.36.3.1": {
     "WHO": "Other"
@@ -143,11 +143,11 @@
   },
   "P.3": {
     "ECDC": "VOI",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "A.23.1": {
     "ECDC": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "A.27": {
     "ECDC": "Other"
@@ -172,11 +172,11 @@
   },
   "P.2": {
     "ECDC": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "AV.1": {
     "ECDC": "Other",
-    "PHE": "VUI"
+    "PHE": "VOI"
   },
   "B.1.671.2": {
     "ECDC": "Other"
