@@ -22,9 +22,6 @@ import {
   GROUP_SNV,
   DNA_OR_AA,
   COORDINATE_MODES,
-  COLOR_MODES,
-  COMPARE_MODES,
-  COMPARE_COLORS,
   GEO_LEVELS,
   TABS,
   GROUPS,
@@ -89,11 +86,6 @@ export class ConfigStore {
   // Maintain a reference to the initial values
   initialValues = initialValues;
 
-  // References to store instances
-  plotSettingsStoreInstance;
-  locationDataStoreInstance;
-  dataStoreInstance;
-
   @observable groupKey = initialValues.groupKey;
   @observable dnaOrAa = initialValues.dnaOrAa;
 
@@ -126,11 +118,6 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.plotSettingsStoreInstance = rootStoreInstance.plotSettingsStore;
-    this.locationDataStoreInstance = rootStoreInstance.locationDataStore;
-    this.dataStoreInstance = rootStoreInstance.dataStore;
-    this.snpDataStoreInstance = rootStoreInstance.snpDataStore;
-
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
         // console.log('setting: ', param, urlParams.get(param));
@@ -206,7 +193,7 @@ export class ConfigStore {
 
         value.forEach((item) => {
           const node = getLocationByNameAndLevel(
-            this.locationDataStoreInstance.selectTree,
+            rootStoreInstance.locationDataStore.selectTree,
             item,
             key,
             true
@@ -247,13 +234,13 @@ export class ConfigStore {
 
     const defaultSelectedLocationNodes = [
       getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
+        rootStoreInstance.locationDataStore.selectTree,
         'USA',
         'country',
         true
       )[0],
       getLocationByNameAndLevel(
-        this.locationDataStoreInstance.selectTree,
+        rootStoreInstance.locationDataStore.selectTree,
         'Canada',
         'country',
         true
@@ -284,7 +271,7 @@ export class ConfigStore {
 
       // Special actions for some keys
       if (key === 'selectedLocationNodes') {
-        this.locationDataStoreInstance.setSelectedNodes(values[key]);
+        rootStoreInstance.locationDataStore.setSelectedNodes(values[key]);
       }
     });
 
@@ -304,28 +291,16 @@ export class ConfigStore {
     }
 
     // Trigger data re-run
-    this.dataStoreInstance.fetchData();
+    rootStoreInstance.dataStore.fetchData();
   };
 
   @action
   applyPendingChanges = (pending) => {
-    // Change table coloring settings when switching from DNA <-> AA
-    if (this.dnaOrAa !== pending.dnaOrAa && pending.dnaOrAa === DNA_OR_AA.AA) {
-      this.plotSettingsStoreInstance.tableColorMode =
-        COLOR_MODES.COLOR_MODE_COMPARE;
-      this.plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      this.plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COLOR_MODE_ZAPPO;
-    } else {
-      // Clear table coloring settings
-      this.plotSettingsStoreInstance.tableColorMode =
-        COLOR_MODES.COLOR_MODE_COMPARE;
-      this.plotSettingsStoreInstance.tableCompareMode =
-        COMPARE_MODES.COMPARE_MODE_MISMATCH;
-      this.plotSettingsStoreInstance.tableCompareColor =
-        COMPARE_COLORS.COMPARE_COLOR_YELLOW;
-    }
+    // Clear selected groups/locations
+    this.hoverGroup = initialValues.hoverGroup;
+    this.selectedGroups = initialValues.selectedGroups;
+    this.hoverLocation = initialValues.hoverLocation;
+    this.focusedLocations = initialValues.focusedLocations;
 
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
@@ -401,7 +376,9 @@ export class ConfigStore {
     }
 
     // Update the location node tree with our new selection
-    this.locationDataStoreInstance.setSelectedNodes(this.selectedLocationNodes);
+    rootStoreInstance.locationDataStore.setSelectedNodes(
+      this.selectedLocationNodes
+    );
 
     // Update the location URL params
     Object.values(GEO_LEVELS).forEach((level) => {
@@ -427,7 +404,7 @@ export class ConfigStore {
     updateURLFromParams(this.urlParams);
 
     // Get the new data from the server
-    this.dataStoreInstance.fetchData();
+    rootStoreInstance.dataStore.fetchData();
   };
 
   getSnvType() {
@@ -468,8 +445,12 @@ export class ConfigStore {
   getCoordinateRanges() {
     // Set the coordinate range based off the coordinate mode
     if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      // Return ranges if All Genes
+      if (this.selectedGene.name === 'All Genes') {
+        return this.selectedGene.ranges;
+      }
       // Disable residue indices for non-protein-coding genes
-      if (this.selectedGene.protein_coding === 0) {
+      if (!this.selectedGene.protein_coding) {
         return this.selectedGene.segments;
       }
       const coordinateRanges = [];
@@ -585,7 +566,7 @@ export class ConfigStore {
 
     this.selectedGroups = groups;
     if (this.groupKey === GROUP_SNV) {
-      this.dataStoreInstance.processSelectedSnvs();
+      rootStoreInstance.dataStore.processSelectedSnvs();
     }
   };
 
@@ -594,7 +575,7 @@ export class ConfigStore {
       dnaSnvMap,
       geneAaSnvMap,
       proteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    } = rootStoreInstance.snpDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -623,7 +604,7 @@ export class ConfigStore {
       intToDnaSnvMap,
       intToGeneAaSnvMap,
       intToProteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    } = rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return intToDnaSnvMap;
@@ -641,7 +622,7 @@ export class ConfigStore {
       dnaSnvMap,
       geneAaSnvMap,
       proteinAaSnvMap,
-    } = this.snpDataStoreInstance;
+    } = rootStoreInstance.snpDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaSnvMap;

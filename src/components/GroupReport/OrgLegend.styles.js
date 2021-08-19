@@ -39,5 +39,4 @@ export const OrgBadge = styled.div`
 
 export const OrgName = styled.div`
   margin-left: 5px;
-  color: black;
 `;

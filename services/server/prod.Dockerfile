@@ -35,6 +35,7 @@ ENV FLASK_ENV production
 ENV PORT 8080
 ENV CONFIGFILE /opt/$CONFIGFILE
 ENV STATIC_DATA_PATH /opt/static_data
+ENV CONSTANTSFILE /opt/constants/defs.json
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.

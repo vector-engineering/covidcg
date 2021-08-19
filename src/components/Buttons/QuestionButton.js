@@ -6,9 +6,9 @@ const QuestionButtonContainer = ({ ...props }) => {
 };
 
 const QuestionButton = styled(QuestionButtonContainer)`
-  font-family: monospace;
-  font-size: 1em;
+  font-size: 0.9em;
   line-height: normal;
+  font-weight: normal;
 
   margin-left: 8px;
   padding: 2px 5px;

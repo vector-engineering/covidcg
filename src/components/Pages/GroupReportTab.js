@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { observer } from 'mobx-react';
-import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
+
+import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
@@ -10,61 +11,20 @@ import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
 import StructuralViewer from '../GroupReport/GroupStructuralViewer';
 
-const MEDIAWIDTH = '1475px';
-
-const GroupReportTabContainer = styled.div`
-  display: grid;
-  grid-template-rows: auto;
-  grid-template-columns: 250px repeat(2, minmax(100px, 1fr));
-  max-height: 100vh;
-
-  @media (max-width: ${MEDIAWIDTH}) {
-    grid-template-rows: auto;
-    grid-template-columns: 250px minmax(100px, 1fr);
-    overflow-y: auto;
-  }
-`;
-
-const GroupTreePlotContainer = styled.div`
-  grid-row: 1 / 3;
-  grid-column: 1;
-
-  @media (max-width: ${MEDIAWIDTH}) {
-    grid-row: 1 / 4;
-  }
-`;
-
-const MutationsContainer = styled.div`
-  grid-column: 2;
-  grid-row: 1 / 3;
-
-  @media (max-width: ${MEDIAWIDTH}) {
-    grid-row: 2;
-  }
-`;
-
-const VOCContainer = styled.div`
-  grid-column: 3;
-  grid-row: 1;
-
-  @media (max-width: ${MEDIAWIDTH}) {
-    grid-column: 2;
-    grid-row: 1;
-  }
-`;
-
-const StructuralViewerContainer = styled.div`
-  grid-column: 3;
-  grid-row: 2;
-
-  @media (max-width: ${MEDIAWIDTH}) {
-    grid-column: 2;
-    grid-row: 3;
-  }
-`;
+import {
+  GroupReportTabContainer,
+  GroupTreePlotContainer,
+  MutationsContainer,
+  VOCContainer,
+  StructuralViewerContainer,
+} from './GroupReportTab.styles';
 
 const GroupReportTab = observer(() => {
   const { groupDataStore } = useStores();
+
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  }, []);
 
   const renderHeader = () => {
     return (
@@ -83,11 +43,19 @@ const GroupReportTab = observer(() => {
               {groupDataStore.getActiveGroupTypePrettyName()}s
             </li>
             <li>
-              Notable lineages, as defined by the{' '}
-              <ExternalLink href="https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-info.html">
-                CDC
-              </ExternalLink>
-              , can be selected from the displayed list
+              Variants of Concern are being most closely monitored, followed by
+              Variants of Interest (called Variants Under Investigation by the
+              UK PHE).
+            </li>
+            <li>
+              Any other, organization-specific classifications are collectively
+              grouped under Other Variants Being Monitored.
+            </li>
+            <li>
+              If a square next to a lineage is colored in, that organization has
+              given the lineage whichever classification it is below. (i.e.
+              B.1.1.7 has been labeled a Variant of Concern by the WHO, CDC, and
+              PHE but another classification by the ECDC).
             </li>
           </ul>
         }
@@ -98,42 +66,7 @@ const GroupReportTab = observer(() => {
   };
 
   const renderMutationList = () => {
-    return (
-      /*
-      <AccordionWrapper
-        title={`${groupDataStore.getGroupSnvTypePrettyName()} per ${groupDataStore.getActiveGroupTypePrettyName()}`}
-        defaultCollapsed={false}
-        maxHeight={'100vh'}
-        helpText={
-          <ul>
-            <li>
-              Use &quot;SNV Type&quot; to toggle between nucleotide and amino
-              acid mutation formats
-            </li>
-            <li>
-              &quot;Consensus Threshold&quot; hides low-prevalence SNVs. SNVs
-              with less than this fraction of prevalence in <i>all</i> selected{' '}
-              {groupDataStore.getGroupSnvTypePrettyName()}s will be filtered
-              out.
-            </li>
-            <li>
-              Note: We define ORF1a and ORF1ab as separate genes. In
-              &quot;NT&quot; or &quot;Gene AA&quot; mode, an SNV in ORF1a will
-              also be listed in ORF1ab. By default, ORF1a is hidden to avoid
-              this confusion.
-            </li>
-            <li>
-              Switch to &quot;Protein AA&quot; mode to see SNVs in the context
-              of proteins (i.e., NSPs)
-            </li>
-          </ul>
-        }
-      >
-        <MutationList />
-      </AccordionWrapper>
-      */
-      <MutationList />
-    );
+    return <MutationList />;
   };
 
   const renderStructuralViewer = () => {

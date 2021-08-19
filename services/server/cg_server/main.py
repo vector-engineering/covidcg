@@ -30,8 +30,12 @@ from cg_server.query import (
     generate_report,
 )
 
+from pathlib import Path
 from psycopg2 import pool
 from cg_server.query.connection_pooling import get_conn_from_pool
+
+# root/services/server/cg_server/main.py
+project_root = Path(__file__).parent.parent.parent.parent
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
@@ -74,7 +78,7 @@ if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
 conn_pool = psycopg2.pool.SimpleConnectionPool(
-    1, os.environ["POSTGRES_MAX_CONN"], **connection_options
+    1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
 )
 
 # Quickly check if our database has been initialized yet
@@ -98,7 +102,7 @@ if os.getenv("FLASK_ENV", "development") == "development":
             seed_database(conn)
             insert_sequences(
                 conn,
-                os.getenv("DATA_PATH", config["data_folder"]),
+                os.getenv("DATA_PATH", project_root / config["data_folder"]),
                 filenames_as_dates=True,
             )
 

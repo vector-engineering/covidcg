@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Extract DNA SNPs from bowtie2 alignments
@@ -5,6 +6,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import pandas as pd
 import pysam
 from pathlib import Path
@@ -48,3 +50,22 @@ def extract_dna_snps(sam_file, reference_file):
 
     return dna_snp_df
 
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--bam", type=str, required=True, help="Path to BAM file",
+    )
+    parser.add_argument(
+        "--reference", type=str, required=True, help="Path to reference file"
+    )
+    parser.add_argument("--out", type=str, required=True, help="Path to output")
+    args = parser.parse_args()
+
+    dna_snp_df = extract_dna_snps(args.bam, args.reference)
+    dna_snp_df.to_csv(args.out, index=False)
+
+
+if __name__ == "__main__":
+    main()

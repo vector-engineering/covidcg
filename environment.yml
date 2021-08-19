@@ -8,7 +8,6 @@ dependencies:
   - numpy=1.20.2
   - scipy=1.6.2
   - pandas=1.2.5
-  - bowtie2=2.4.1
   - pip=20.1.1
   - snakemake-minimal=5.20.1
   - samtools=1.10
@@ -17,6 +16,8 @@ dependencies:
   - fasttree=2.1.10
   - treetime=0.7.5
   - networkx=2.5.1
+  - xlrd=2.0.1
+  - minimap2=2.21
   - pip:
       - pysam==0.15.4
   # For pushing to database

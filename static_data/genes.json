@@ -11,64 +11,45 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "nsp1",
         "name": "nsp1",
-        "ranges": [[1, 180]],
-        "row": 0
+        "ranges": [[1, 180]]
       },
       {
-        "abbr": "nsp2",
         "name": "nsp2",
-        "ranges": [[181, 818]],
-        "row": 1
+        "ranges": [[181, 818]]
       },
       {
-        "abbr": "nsp3",
         "name": "nsp3",
-        "ranges": [[819, 2763]],
-        "row": 0
+        "ranges": [[819, 2763]]
       },
       {
-        "abbr": "nsp4",
         "name": "nsp4",
-        "ranges": [[2764, 3263]],
-        "row": 1
+        "ranges": [[2764, 3263]]
       },
       {
-        "abbr": "nsp5",
         "name": "nsp5 - 3C-like proteinase",
-        "ranges": [[3264, 3569]],
-        "row": 0
+        "ranges": [[3264, 3569]]
       },
       {
-        "abbr": "nsp6",
         "name": "nsp6",
-        "ranges": [[3570, 3859]],
-        "row": 1
+        "ranges": [[3570, 3859]]
       },
       {
         "abbr": "7",
         "name": "nsp7",
-        "ranges": [[3860, 3942]],
-        "row": 0
+        "ranges": [[3860, 3942]]
       },
       {
-        "abbr": "nsp8",
         "name": "nsp8",
-        "ranges": [[3943, 4140]],
-        "row": 1
+        "ranges": [[3943, 4140]]
       },
       {
-        "abbr": "9",
         "name": "nsp9",
-        "ranges": [[4141, 4253]],
-        "row": 0
+        "ranges": [[4141, 4253]]
       },
       {
-        "abbr": "10",
         "name": "nsp10",
-        "ranges": [[4254, 4392]],
-        "row": 1
+        "ranges": [[4254, 4392]]
       }
     ]
   },
@@ -81,94 +62,64 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "1",
         "name": "nsp1",
-        "ranges": [[1, 180]],
-        "row": 0
+        "ranges": [[1, 180]]
       },
       {
-        "abbr": "nsp2",
         "name": "nsp2",
-        "ranges": [[181, 818]],
-        "row": 1
+        "ranges": [[181, 818]]
       },
       {
-        "abbr": "nsp3",
         "name": "nsp3 - PL2-PRO",
-        "ranges": [[819, 2763]],
-        "row": 0
+        "ranges": [[819, 2763]]
       },
       {
-        "abbr": "nsp4",
         "name": "nsp4",
-        "ranges": [[2764, 3263]],
-        "row": 1
+        "ranges": [[2764, 3263]]
       },
       {
-        "abbr": "nsp5",
         "name": "nsp5 - 3CLp",
-        "ranges": [[3264, 3569]],
-        "row": 0
+        "ranges": [[3264, 3569]]
       },
       {
-        "abbr": "nsp6",
         "name": "nsp6",
-        "ranges": [[3570, 3859]],
-        "row": 1
+        "ranges": [[3570, 3859]]
       },
       {
-        "abbr": "7",
         "name": "nsp7",
-        "ranges": [[3860, 3942]],
-        "row": 0
+        "ranges": [[3860, 3942]]
       },
       {
-        "abbr": "8",
         "name": "nsp8",
-        "ranges": [[3943, 4140]],
-        "row": 1
+        "ranges": [[3943, 4140]]
       },
       {
-        "abbr": "9",
         "name": "nsp9",
-        "ranges": [[4141, 4253]],
-        "row": 0
+        "ranges": [[4141, 4253]]
       },
       {
-        "abbr": "10",
         "name": "nsp10 - CysHis",
-        "ranges": [[4254, 4392]],
-        "row": 1
+        "ranges": [[4254, 4392]]
       },
       {
-        "abbr": "nsp12",
         "name": "nsp12 - RdRp",
-        "ranges": [[4393, 5324]],
-        "row": 0
+        "ranges": [[4393, 5324]]
       },
       {
-        "abbr": "nsp13",
         "name": "nsp13 - Helicase",
-        "ranges": [[5325, 5925]],
-        "row": 1
+        "ranges": [[5325, 5925]]
       },
       {
-        "abbr": "nsp14",
         "name": "nsp14 - ExoN",
-        "ranges": [[5926, 6452]],
-        "row": 0
+        "ranges": [[5926, 6452]]
       },
       {
-        "abbr": "nsp15",
         "name": "nsp15 - NendoU",
-        "ranges": [[6453, 6798]],
-        "row": 1
+        "ranges": [[6453, 6798]]
       },
       {
-        "abbr": "16",
         "name": "nsp16 - 2'-O-MT",
-        "ranges": [[6799, 7096]],
-        "row": 0
+        "ranges": [[6799, 7096]]
       }
     ]
   },
@@ -178,64 +129,44 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "RBD",
         "name": "Receptor binding domain",
-        "ranges": [[319, 541]],
-        "row": 1
+        "ranges": [[319, 541]]
       },
       {
-        "abbr": "S1 Subunit",
         "name": "S1 Subunit",
-        "ranges": [[14, 685]],
-        "row": 0
+        "ranges": [[14, 685]]
       },
       {
-        "abbr": "S2 Subunit",
         "name": "S2 Subunit",
-        "ranges": [[686, 1273]],
-        "row": 0
+        "ranges": [[686, 1273]]
       },
       {
-        "abbr": "S",
         "name": "Signal Peptide",
-        "ranges": [[1, 13]],
-        "row": 2
+        "ranges": [[1, 13]]
       },
       {
-        "abbr": "NTD",
         "name": "N-Terminal Domain",
-        "ranges": [[14, 305]],
-        "row": 1
+        "ranges": [[14, 305]]
       },
       {
-        "abbr": "F",
         "name": "Fusion Peptide",
-        "ranges": [[788, 806]],
-        "row": 2
+        "ranges": [[788, 806]]
       },
       {
-        "abbr": "HR1",
         "name": "Heptapeptide Repeat Sequence 1",
-        "ranges": [[912, 984]],
-        "row": 1
+        "ranges": [[912, 984]]
       },
       {
-        "abbr": "HR2",
         "name": "Heptapeptide Repeat Sequence 2",
-        "ranges": [[1163, 1213]],
-        "row": 1
+        "ranges": [[1163, 1213]]
       },
       {
-        "abbr": "TM",
         "name": "Transmembrane Domain",
-        "ranges": [[1213, 1237]],
-        "row": 2
+        "ranges": [[1213, 1237]]
       },
       {
-        "abbr": "CT",
         "name": "Cytoplasm Domain",
-        "ranges": [[1237, 1273]],
-        "row": 1
+        "ranges": [[1237, 1273]]
       }
     ]
   },
@@ -251,28 +182,20 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "Virion Surface",
         "name": "Virion Surface",
-        "ranges": [[1, 16]],
-        "row": 0
+        "ranges": [[1, 16]]
       },
       {
-        "abbr": "Transmembrane",
         "name": "Transmembrane, Helical",
-        "ranges": [[17, 37]],
-        "row": 0
+        "ranges": [[17, 37]]
       },
       {
-        "abbr": "Intravirion",
         "name": "Intravirion",
-        "ranges": [[38, 75]],
-        "row": 0
+        "ranges": [[38, 75]]
       },
       {
-        "abbr": "PDZ",
         "name": "PDZ-binding motif",
-        "ranges": [[72, 75]],
-        "row": 1
+        "ranges": [[72, 75]]
       }
     ]
   },
@@ -304,46 +227,32 @@
         ]
       },
       {
-        "abbr": "VS1",
         "name": "Virion Surface 1",
-        "ranges": [[2, 19]],
-        "row": 0
+        "ranges": [[2, 19]]
       },
       {
-        "abbr": "TM1",
         "name": "Transmembrane 1, Helical",
-        "ranges": [[20, 40]],
-        "row": 1
+        "ranges": [[20, 40]]
       },
       {
-        "abbr": "IV1",
         "name": "Intravirion 1",
-        "ranges": [[41, 50]],
-        "row": 0
+        "ranges": [[41, 50]]
       },
       {
-        "abbr": "TM2",
         "name": "Transmembrane 2, Helical",
-        "ranges": [[51, 71]],
-        "row": 1
+        "ranges": [[51, 71]]
       },
       {
-        "abbr": "VS2",
         "name": "Virion Surface 2",
-        "ranges": [[72, 79]],
-        "row": 0
+        "ranges": [[72, 79]]
       },
       {
-        "abbr": "TM3",
         "name": "Transmembrane 3, Helical",
-        "ranges": [[80, 100]],
-        "row": 1
+        "ranges": [[80, 100]]
       },
       {
-        "abbr": "IV2",
         "name": "Intravirion 2",
-        "ranges": [[101, 222]],
-        "row": 0
+        "ranges": [[101, 222]]
       }
     ]
   },
@@ -359,16 +268,12 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "TM",
         "name": "Transmembrane, Helical",
-        "ranges": [[96, 116]],
-        "row": 0
+        "ranges": [[96, 116]]
       },
       {
-        "abbr": "SP",
         "name": "Signal Peptide",
-        "ranges": [[1, 15]],
-        "row": 0
+        "ranges": [[1, 15]]
       }
     ]
   },
@@ -378,10 +283,8 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "TM",
         "name": "Transmembrane, Helical",
-        "ranges": [[9, 29]],
-        "row": 0
+        "ranges": [[9, 29]]
       }
     ]
   },
@@ -391,16 +294,12 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "SP",
         "name": "Signal Peptide",
-        "ranges": [[1, 15]],
-        "row": 0
+        "ranges": [[1, 15]]
       },
       {
-        "abbr": "ORF8 Protein",
         "name": "ORF8 Protein",
-        "ranges": [[16, 121]],
-        "row": 0
+        "ranges": [[16, 121]]
       }
     ]
   },
@@ -410,16 +309,12 @@
     "protein_coding": 1,
     "domains": [
       {
-        "abbr": "RNA",
         "name": "RNA-binding",
-        "ranges": [[41, 186]],
-        "row": 0
+        "ranges": [[41, 186]]
       },
       {
-        "abbr": "Dimerization",
         "name": "Dimerization",
-        "ranges": [[258, 361]],
-        "row": 0
+        "ranges": [[258, 361]]
       }
     ]
   },

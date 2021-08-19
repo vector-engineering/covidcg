@@ -1,4 +1,5 @@
-# docker-compose -f docker-compose.cloudsql.yml -p cgcloudsql
+# docker compose --env-file .cloudsql_env -f docker-compose.cloudsql.yml -p cgcloudsql build
+# docker compose --env-file .cloudsql_env -f docker-compose.cloudsql.yml -p cgcloudsql up -d
 
 version: "3.7"
 
@@ -12,6 +13,7 @@ services:
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
       - CONFIGFILE=/opt/${CONFIGFILE}
+      - CONSTANTSFILE=/opt/constants/defs.json
       - DATA_PATH=/data
       - STATIC_DATA_PATH=/opt/static_data
       - CLOUDSQL_CONNECTION_NAME
@@ -19,6 +21,7 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DB
       - POSTGRES_HOST
+      - POSTGRES_MAX_CONN=20
     # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
     command: "flask run --host 0.0.0.0 --port=5000"
     ports:

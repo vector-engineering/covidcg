@@ -9,7 +9,9 @@ export const MutationListContainer = styled.div`
   top: 0px;
   align-items: stretch;
 
-  height: 100vh;
+  height: 99vh;
+
+  padding-top: 4px;
 `;
 
 export const MutationListHeader = styled.div`
@@ -20,6 +22,10 @@ export const MutationListHeader = styled.div`
   .spacer {
     flex-grow: 1;
   }
+`;
+
+export const MutationListTitle = styled.div`
+  font-weight: 500;
 `;
 
 export const MutationContentContainer = styled.div``;
@@ -66,6 +72,10 @@ export const OptionCheckboxContainer = styled(OptionInputContainer)`
 `;
 
 export const MutationListHeaderTable = styled.table`
+  position: sticky;
+  top: 0px;
+  z-index: 1;
+  background-color: white;
   display: grid;
   grid-template-columns: 80px 120px repeat(${({ ncols }) => ncols}, 50px);
   grid-template-rows: 60px auto;
@@ -118,6 +128,7 @@ export const DeleteButton = styled.td`
 `;
 
 export const MutationListTable = styled.table`
+  position: relative;
   display: grid;
   grid-template-columns: 80px 120px repeat(${({ ncols }) => ncols}, 50px);
   grid-column-gap: 2px;

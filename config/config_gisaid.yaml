@@ -3,12 +3,12 @@
 # ------------------
 
 # Path to folder with downloaded and processed data
-# This path is relative to the workflow folders
-data_folder: "../data"
+# This path is relative to the project root
+data_folder: "data"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
-# This path is relative to the workflow folders
-static_data_folder: "../static_data"
+# This path is relative to the project root
+static_data_folder: "static_data"
 
 # ------------------
 #       INGEST
@@ -72,7 +72,6 @@ group_cols:
     link:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
-
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py

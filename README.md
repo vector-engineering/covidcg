@@ -13,6 +13,7 @@ Table of Contents
   - [PostgreSQL](#postgresql)
   - [Flask Server](#flask-server)
 - [Analysis Pipeline](#analysis-pipeline)
+  - [Pipeline Installation](#pipeline-installation)
   - [Ingestion](#ingestion)
   - [Main Analysis](#main-analysis)
 - [About the project](#about-the-project)
@@ -148,7 +149,8 @@ Run server:
 
 ```bash
 $ cd services/server
-$ ./serve.sh # Run Flask server in development mode
+$ CONFIGFILE=../../config/config_genbank.yaml ./serve.sh # Run Flask server in development mode, with GenBank settings
+                                                   # Optionally, edit the serve.sh script to set the config file
 ```
 
 ---
