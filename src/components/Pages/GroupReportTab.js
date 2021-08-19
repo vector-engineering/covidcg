@@ -49,13 +49,13 @@ const GroupReportTab = observer(() => {
             </li>
             <li>
               Any other, organization-specific classifications are collectively
-              grouped under 'Other Variants Being Monitored'.
+              grouped under Other Variants Being Monitored.
             </li>
             <li>
               If a square next to a lineage is colored in, that organization has
               given the lineage whichever classification it is below. (i.e.
               B.1.1.7 has been labeled a Variant of Concern by the WHO, CDC, and
-              PHE but an 'other' classification by the ECDC).
+              PHE but another classification by the ECDC).
             </li>
           </ul>
         }

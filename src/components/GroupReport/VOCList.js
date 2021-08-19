@@ -81,7 +81,7 @@ VOCItem.propTypes = {
 };
 
 const VOCList = observer(() => {
-  const filterItems = (level, altLevel = null) => {
+  const filterItems = (level) => {
     // VOC_LIST is an object with lineages as its keys
     // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
     // Each organization's value is the level (VOC, VOI, Other) assigned to the lineage

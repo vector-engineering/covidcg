@@ -60,7 +60,7 @@ const EntropyPlot = observer(({ width }) => {
     // that can be used with the domain plot
     return Object.keys(map)
       .filter((key) => key !== keyToRemove)
-      .reduce((arr, key, index) => {
+      .reduce((arr, key) => {
         map[key]['ranges'] = map[key]['segments'];
         if (map[key]['ranges'].length > 1) {
           // Collapse ORF1ab ranges

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { colors } from './VOCList';
 
-import QuestionButton from '../Buttons/QuestionButton';
 import {
   OrgLegendContainer,
   OrgLegendTitle,
