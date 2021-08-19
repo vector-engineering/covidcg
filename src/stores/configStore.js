@@ -129,6 +129,7 @@ export class ConfigStore {
 
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
+      value = decodeURIComponent(value);
       if (key in initialValues) {
         if (key === 'selectedGene') {
           // If the specified gene is in the geneMap get the gene
@@ -159,9 +160,7 @@ export class ConfigStore {
           // If coordinates are specified, save them as an array of numbers
           // Coordinates can stay as a string in the URL
           let arr = [];
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = value.split(',');
           value.forEach((item, i) => {
             value[i] = parseInt(item);
 
@@ -173,17 +172,11 @@ export class ConfigStore {
           this[key] = arr;
         } else if (key === 'customSequences') {
           // Store customSequences as an array of strings
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = value.split(',');
           this[key] = value;
         } else if (key === 'selectedPrimers') {
-          // URLSearchParams decodes the string so encode for consistency
-          value = encodeURIComponent(value);
-          value = value.split('%2C');
+          value = value.split(',');
           value.forEach((primerStr) => {
-            // Decode primerStr to allow searching for primer
-            primerStr = decodeURIComponent(primerStr);
             let queryObj = {
               Institution: primerStr.split('_')[0],
               Name: primerStr.split('_')[1],
@@ -196,9 +189,7 @@ export class ConfigStore {
         }
       } else if (key.toUpperCase() in GEO_LEVELS) {
         // If a location is specified, update selectedLocationNodes
-        // URLSearchParams decodes the string so encode for consistency
-        value = encodeURIComponent(value);
-        value = value.split('%2C');
+        value = value.split(',');
 
         value.forEach((item) => {
           const node = getLocationByNameAndLevel(
@@ -208,8 +199,18 @@ export class ConfigStore {
             true
           )[0];
 
-          if (typeof node !== 'undefined') {
+          if (
+            typeof node !== 'undefined' &&
+            !this.selectedLocationNodes.includes(node)
+          ) {
             this.selectedLocationNodes.push(node);
+          }
+        });
+      } else if (key === 'allRegions') {
+        // Push all regions to selectedLocationNodes
+        this.locationDataStoreInstance.selectTree.children.forEach((child) => {
+          if (!this.selectedLocationNodes.includes(child)) {
+            this.selectedLocationNodes.push(child);
           }
         });
       } else if (key === 'tab') {
@@ -385,6 +386,14 @@ export class ConfigStore {
     });
 
     this.selectedLocationNodes.forEach((node) => {
+      // If level is undefined, All is selected
+      if (node.level === undefined) {
+        node.level = 'allRegions';
+        // Overwrite to prevent mutliple settings of allRegions
+        this.urlParams.set(String(node.level), String(node.value));
+        return;
+      }
+
       if (this.urlParams.has(String(node.level))) {
         this.urlParams.append(String(node.level), String(node.value));
       } else {

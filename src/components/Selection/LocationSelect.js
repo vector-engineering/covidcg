@@ -35,17 +35,29 @@ const LocationSelect = observer(
 
     const treeSelectOnChange = (_currentNode, selectedNodes) => {
       //console.log('onChange::', currentNode, selectedNodes);
+      let allRegions = false;
 
       // Since the tree is rendered in a flat state, we need to get all node
       // children from the original data, via. the node paths
       let selectedNodeObjs = selectedNodes.map((node) => {
         // If the path doesn't exist, then we're at the root node
         if (!Object.prototype.hasOwnProperty.call(node, 'path')) {
+          // Select all regions when All is checked
+          allRegions = true;
           return state.data;
         }
 
         return getNodeFromPath(state.data, node['path']);
       });
+
+      if (allRegions) {
+        // Add any regions not already in selectedNodeObjs
+        state.data.children.forEach((region) => {
+          if (!selectedNodeObjs.includes(region)) {
+            selectedNodeObjs.push(region);
+          }
+        });
+      }
       updateSelectedLocationNodes(selectedNodeObjs);
     };
     const treeSelectOnAction = (node, action) => {
@@ -111,14 +123,16 @@ const LocationSelect = observer(
 
     const selectedLocationItems = [];
     selectedLocationNodes.forEach((node) => {
-      selectedLocationItems.push(
-        <LocationItem
-          key={`selected-location-${node.path}`}
-          label={node.label}
-          path={node.path}
-          onDeselect={onLocationNodeDeselect}
-        />
-      );
+      if (!selectedLocationItems.includes(node)) {
+        selectedLocationItems.push(
+          <LocationItem
+            key={`selected-location-${node.path}`}
+            label={node.label}
+            path={node.path}
+            onDeselect={onLocationNodeDeselect}
+          />
+        );
+      }
     });
 
     return (
