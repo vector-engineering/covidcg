@@ -43,11 +43,19 @@ const GroupReportTab = observer(() => {
               {groupDataStore.getActiveGroupTypePrettyName()}s
             </li>
             <li>
-              Notable lineages, as defined by the{' '}
-              <ExternalLink href="https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-info.html">
-                CDC
-              </ExternalLink>
-              , can be selected from the displayed list
+              Variants of Concern are being most closely monitored, followed by
+              Variants of Interest (called Variants Under Investigation by the
+              UK PHE).
+            </li>
+            <li>
+              Any other, organization-specific classifications are collectively
+              grouped under 'Other Variants Being Monitored'.
+            </li>
+            <li>
+              If a square next to a lineage is colored in, that organization has
+              given the lineage whichever classification it is below. (i.e.
+              B.1.1.7 has been labeled a Variant of Concern by the WHO, CDC, and
+              PHE but an 'other' classification by the ECDC).
             </li>
           </ul>
         }
