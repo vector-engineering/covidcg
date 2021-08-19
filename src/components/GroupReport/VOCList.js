@@ -95,17 +95,12 @@ const VOCList = observer(() => {
     const items = [];
     Object.keys(VOC_LIST)
       .filter((lineage_name) => {
-        return Object.values(VOC_LIST[lineage_name]).some(
-          (v) => v === level || (v === altLevel && altLevel !== null)
-        );
+        return Object.values(VOC_LIST[lineage_name]).some((v) => v === level);
       })
       .forEach((lineage_name) => {
         let org_dict = VOC_LIST[lineage_name];
         let orgArr = Object.keys(org_dict).filter((org) => {
-          return (
-            org_dict[org] === level ||
-            (org_dict[org] === altLevel && altLevel !== null)
-          );
+          return org_dict[org] === level;
         });
 
         items.push(
@@ -124,7 +119,7 @@ const VOCList = observer(() => {
 
   // Variants of Interest (VOI)
   // The PHE calls this same level (one below VOC) VUI
-  const voiItems = filterItems('VOI', 'VUI');
+  const voiItems = filterItems('VOI');
 
   // Other Variants
   const otherItems = filterItems('Other');
