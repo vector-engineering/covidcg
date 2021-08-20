@@ -92,7 +92,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         className="tab-link"
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
-        <span>Acknowledgements</span>
+        <span>About COVID CG</span>
       </a>
     </TabItem>,
     <DropdownButton
