@@ -124,9 +124,10 @@ const EntropyPlot = observer(({ width }) => {
   const getDomainPlotHeight = () => {
     // Domain Plot height is calculated as the number of rows times a constant
     const heightConst = 15;
-    let geneProteinObj = {};
-    // There will always be at least 1 row
+    // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
+
+    let geneProteinObj = null;
 
     if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
@@ -137,7 +138,9 @@ const EntropyPlot = observer(({ width }) => {
         geneProteinObj = filterMap(proteinMap, 'All Proteins');
       }
 
+      // Greedily get the max number of rows
       geneProteinObj.forEach((geneProtein) => {
+        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
         if (geneProtein['row'] + 1 > numRows) {
           numRows = geneProtein['row'] + 1;
         }
@@ -150,8 +153,10 @@ const EntropyPlot = observer(({ width }) => {
       geneProteinObj = configStore.selectedProtein;
     }
 
+    // Greedily get the number of rows
     if (geneProteinObj.domains.length > 0) {
       geneProteinObj.domains.forEach((domain) => {
+        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
         if (domain['row'] + 1 > numRows) {
           numRows = domain['row'] + 1;
         }
