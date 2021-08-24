@@ -154,7 +154,7 @@ const EntropyPlot = observer(({ width }) => {
     }
 
     // Greedily get the number of rows
-    if (geneProteinObj.domains.length > 0) {
+    if (geneProteinObj && geneProteinObj.domains.length > 0) {
       geneProteinObj.domains.forEach((domain) => {
         // geneProtein[row] is zero-indexed so add 1 to get total number of rows
         if (domain['row'] + 1 > numRows) {
