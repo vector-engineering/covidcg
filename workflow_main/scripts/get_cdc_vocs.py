@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import re
 import argparse
-import pandas as pd
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,6 +13,8 @@ def get_cdc_vocs():
            'variants/variant-info.html')
     level_order = ['VOI', 'VOC']
     variant_list = []
+
+    lineage_pattern = re.compile('([A-Z]+([.]+\\d+)+([.]+\\d+))')
 
     vocPage = requests.get(url)
     soup = BeautifulSoup(vocPage.content, 'html.parser')
@@ -28,16 +31,15 @@ def get_cdc_vocs():
         rowgroup = table.div
         rows = rowgroup.find_all('div', class_='col-md-12 p-md-3 pt-0 pb-3')
         for row in rows:
-            variants = list(row.stripped_strings)
-            variant = {'name': variants[0],
-                       'level': level}
-            variant_list.append(variant)
+            variant_row = list(row.stripped_strings)
+            for col in variant_row:
+                for match in lineage_pattern.findall(col):
+                    variant = {'name': match[0],
+                               'level': level}
+                    variant_list.append(variant)
         level_ind += 1
 
-    df = pd.DataFrame(variant_list)
-    df.set_index('name')
-
-    return df
+    return variant_list
 
 
 def main():
@@ -48,8 +50,10 @@ def main():
 
     args = parser.parse_args()
 
-    df = get_cdc_vocs()
-    df.to_json(args.output, orient="records", indent=2)
+    variant_list = get_cdc_vocs()
+
+    with open(args.output, 'w') as fp:
+        fp.write(json.dumps(variant_list, indent=2))
 
 
 if __name__ == "__main__":

@@ -35,6 +35,21 @@
     "who_label": "Gamma"
   },
   {
+    "name": "P.1.4",
+    "level": "VOC",
+    "who_label": "Gamma"
+  },
+  {
+    "name": "P.1.6",
+    "level": "VOC",
+    "who_label": "Gamma"
+  },
+  {
+    "name": "P.1.7",
+    "level": "VOC",
+    "who_label": "Gamma"
+  },
+  {
     "name": "B.1.617.2",
     "level": "VOC",
     "who_label": "Delta"
@@ -46,6 +61,16 @@
   },
   {
     "name": "AY.2",
+    "level": "VOC",
+    "who_label": "Delta"
+  },
+  {
+    "name": "AY.3",
+    "level": "VOC",
+    "who_label": "Delta"
+  },
+  {
+    "name": "AY.3.1",
     "level": "VOC",
     "who_label": "Delta"
   },
@@ -78,19 +103,7 @@
     "level": "Other"
   },
   {
-    "name": "P.2",
-    "level": "Other"
-  },
-  {
-    "name": "P.3",
-    "level": "Other"
-  },
-  {
     "name": "R.1",
-    "level": "Other"
-  },
-  {
-    "name": "R.2",
     "level": "Other"
   },
   {
@@ -102,7 +115,7 @@
     "level": "Other"
   },
   {
-    "name": "AV.1",
+    "name": "B.1.621.1",
     "level": "Other"
   },
   {
@@ -111,10 +124,6 @@
   },
   {
     "name": "B.1.1.519",
-    "level": "Other"
-  },
-  {
-    "name": "AT.1",
     "level": "Other"
   },
   {
@@ -127,6 +136,22 @@
   },
   {
     "name": "B.1.214.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.1.523",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.619",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.619.1",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.620",
     "level": "Other"
   }
 ]

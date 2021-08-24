@@ -24,7 +24,7 @@ const LocationItem = ({ label, path, onDeselect }) => {
 };
 LocationItem.propTypes = {
   label: PropTypes.string.isRequired,
-  path: PropTypes.string.isRequired,
+  path: PropTypes.string,
   onDeselect: PropTypes.func.isRequired,
 };
 

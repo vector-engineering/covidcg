@@ -146,11 +146,10 @@ MutationListRow.defaultProps = {
   emptyRow: false,
 };
 
-const DeleteButtonContainer = ({ group, index }) => {
+const DeleteButtonContainer = ({ group }) => {
   const { groupDataStore } = useStores();
 
-  const onClick = (event) => {
-    console.log(group);
+  const onClick = () => {
     let selectedNodes = groupDataStore.selectedGroups;
     const index = selectedNodes.indexOf(group);
     if (index > -1) {
@@ -170,6 +169,9 @@ const DeleteButtonContainer = ({ group, index }) => {
       x
     </DeleteButton>
   );
+};
+DeleteButtonContainer.propTypes = {
+  group: PropTypes.string.isRequired,
 };
 
 const MutationListContent = observer(() => {
@@ -505,24 +507,24 @@ const MutationList = observer(() => {
           onSelect={handleDownloadSelect}
         />
       </MutationListHeader>
+      <MutationListHeader>
+        <OptionCheckboxContainer>
+          <label>
+            <input
+              type="checkbox"
+              name="mutation-list-hide-empty"
+              checked={plotSettingsStore.reportMutationListHideEmpty}
+              onChange={onChangeHideEmpty}
+            />
+            Hide{' '}
+            {groupDataStore.groupSnvType === 'protein_aa'
+              ? 'Proteins'
+              : 'Genes'}{' '}
+            without SNVs
+          </label>
+        </OptionCheckboxContainer>
+      </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListHeader>
-          <OptionCheckboxContainer>
-            <label>
-              <input
-                type="checkbox"
-                name="mutation-list-hide-empty"
-                checked={plotSettingsStore.reportMutationListHideEmpty}
-                onChange={onChangeHideEmpty}
-              />
-              Hide{' '}
-              {groupDataStore.groupSnvType === 'protein_aa'
-                ? 'Proteins'
-                : 'Genes'}{' '}
-              without SNVs
-            </label>
-          </OptionCheckboxContainer>
-        </MutationListHeader>
         <MutationListContent />
       </MutationInnerContainer>
     </MutationListContainer>

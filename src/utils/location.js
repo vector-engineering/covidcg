@@ -1,6 +1,6 @@
 // Recursively look through children for location IDs
 function getLocationIdsFromNode(node) {
-  if (node === undefined) {
+  if (node.location_id === undefined) {
     return [];
   }
 

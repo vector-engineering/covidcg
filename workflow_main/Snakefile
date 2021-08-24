@@ -23,8 +23,8 @@ from scripts.update_vocs import update_vocs
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"
 
-data_folder = config["data_folder"]
-static_data_folder = config["static_data_folder"]
+data_folder = os.path.join("..", config["data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
 gene_defs_path = os.path.join(static_data_folder, "genes.json")
@@ -309,14 +309,23 @@ rule get_ecdc_vocs:
         python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
         """
 
+rule get_phe_vocs:
+    output:
+        phe_list = os.path.join(static_data_folder, "PHE.json")
+    shell:
+        """
+        python3 scripts/get_phe_vocs.py -o {output.phe_list}
+        """
+
 rule update_vocs:
     input:
         cdc_list = rules.get_cdc_vocs.output.cdc_list,
         who_list = rules.get_who_vocs.output.who_list,
         ecdc_list = rules.get_ecdc_vocs.output.ecdc_list,
+        phe_list = rules.get_phe_vocs.output.phe_list,
     output:
         voc_list = os.path.join(static_data_folder, "vocs.json")
     shell:
         """
-        python3 scripts/update_vocs.py -i {input.cdc_list} {input.who_list} {input.ecdc_list} -o {output.voc_list}
+        python3 scripts/update_vocs.py -i {input.cdc_list} {input.who_list} {input.ecdc_list} {input.phe_list} -o {output.voc_list}
         """

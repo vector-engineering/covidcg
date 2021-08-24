@@ -1,7 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 
-import GroupSearch from './GroupSearch';
 import VOCList from './VOCList';
 
 import { HeaderContainer, HeaderBoxRow } from './GroupReportHeader.styles';

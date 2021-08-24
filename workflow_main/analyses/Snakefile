@@ -12,8 +12,8 @@ from analyses.scripts.az_report_generation import generate_az_reports
 from analyses.scripts.global_sequencing_efforts import global_sequencing_efforts
 from analyses.scripts.standalone_map_spec import standalone_map_spec
 
-data_folder = config['data_folder']
-static_data_folder = config['static_data_folder']
+data_folder = os.path.join("..", config["data_folder"])
+# static_data_folder = os.path.join("..", config["data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
@@ -132,4 +132,3 @@ rule additional_analyses:
         done = touch(os.path.join(
             data_folder, "status", "additional_analyses_" + today_str + ".done"
         )),
-

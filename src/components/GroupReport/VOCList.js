@@ -17,10 +17,15 @@ import {
   VOCBadge,
 } from './VOCList.styles';
 
-export const colors = { WHO: '#88CCEE', CDC: '#DDCC77', ECDC: '#AA4499' };
-const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], EMPTY: [2, 2] };
+export const colors = {
+  WHO: '#88CCEE',
+  CDC: '#DDCC77',
+  ECDC: '#AA4499',
+  PHE: '#004488',
+};
+const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], PHE: [2, 2] };
 
-const VOCItem = observer(({ name, orgArr, column }) => {
+const VOCItem = observer(({ name, orgArr }) => {
   const { groupDataStore } = useStores();
   const badges = [];
 
@@ -113,6 +118,7 @@ const VOCList = observer(() => {
   const vocItems = filterItems('VOC');
 
   // Variants of Interest (VOI)
+  // The PHE calls this same level (one below VOC) VUI
   const voiItems = filterItems('VOI');
 
   // Other Variants

@@ -24,12 +24,89 @@ const AboutTab = () => {
     <TabContainer>
       <Content>
         <ContentSection>
+          <a id="about"></a>
+          <span className="section-title">About COVID CG</span>
+
+          <div className="content-text">
+            <p>
+              In the first year since COVID CG was launched, the site has been
+              visited more than 47,900 times by users from 180 countries. We
+              have fielded inquiries from AP News, CNN, WSJ, and scientists from
+              the European Commission, Canadian government, and Australian
+              government who are using our site to track genomic variants and
+              global sequencing efforts. Thanks to the GISAID database, the
+              covidcg.org site is helping to make an impact on the development
+              of Covid-19 diagnostics and therapeutics in different countries.
+            </p>
+            <p>
+              Our new site, with significant behind the scenes enhancements,
+              allows users to quickly analyze the 2.2 million and growing
+              SARS-CoV-2 genomes deposited in GISAID. We are also excited to
+              present our newly released Lineage Reports page.
+            </p>
+            <p>
+              <b>
+                On the COVID CG’s Lineage Reports page, you can easily learn
+                more about Variants of Concern (VOC) and Variants of Interest
+                (VOI) using these new features:
+              </b>
+              <ul>
+                <li>
+                  <b>Phylogenetic Time-Scaled Tree:</b> How are the different
+                  SARS-CoV-2 lineages and variants related to each other? This
+                  feature was developed based on open source code shared by Art
+                  Poon who also runs a GISAID-powered{' '}
+                  <ExternalLink href="https://filogeneti.ca/covizu/">
+                    CoVizu
+                  </ExternalLink>
+                  resource.
+                </li>
+                <li>
+                  <b>SNV Type Heat Map:</b> What are the mutations that
+                  distinguish my lineage or variant from the original SARS-CoV-2
+                  genome? How frequently do specific mutations occur in that
+                  lineage or variant as compared to other lineages? This
+                  analysis covers all SARS-CoV-2 genes, not just the spike.
+                </li>
+                <li>
+                  <b>Structural Viewer:</b> For Spike mutations in my lineage or
+                  variant of interest, how do these map onto the protein
+                  structure of the SARS-CoV-2 Spike?
+                </li>
+              </ul>
+            </p>
+            <p>
+              <b>
+                Other interactive features have been upgraded so that users can
+                rapidly visualize:
+              </b>
+              <ul>
+                <li>
+                  The emergence of new lineages and variants in a location and
+                  date-specific manner.
+                </li>
+                <li>
+                  Genome-wide entropy and mutations that co-occur with your
+                  mutation of interest.
+                </li>
+              </ul>
+            </p>
+            <p>
+              COVID CG continues to be a free, public resource, supported by{' '}
+              <ExternalLink href="https://giving.broadinstitute.org/broadignite">
+                Broad Ignite
+              </ExternalLink>
+              and a research collaboration with AstraZeneca.
+            </p>
+          </div>
+        </ContentSection>
+        <ContentSection>
           <a id="contributors"></a>
           <span className="section-title">COVID-CG is developed by</span>
 
           <div className="content-text">
             <p>
-              COVID CoV Genomics (CG) was developed in the{' '}
+              COVID CoV Genomics (CG) was developed in the
               <ExternalLink href="https://vector-engineering.github.io/">
                 Vector Engineering Lab
               </ExternalLink>{' '}

@@ -16,25 +16,28 @@ envvars:
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
+data_folder = os.path.join("..", config["data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
+
 
 rule all:
     input:
         # Download latest data feed, process sequences
         download_status = os.path.join(
-            config["data_folder"], "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_" + today_str + ".done"
         ),
         copy_status = os.path.join(
-            config["data_folder"], "status", "merge_sequences_" + today_str + ".done"
+            data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Cleaned metadata
-        metadata = os.path.join(config["data_folder"], "metadata.csv")
+        metadata = os.path.join(data_folder, "metadata.csv")
 
 
 rule download:
     """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
     """
     output:
-        feed = temp(os.path.join(config["data_folder"], "feed.json")),
+        feed = temp(os.path.join(data_folder, "feed.json")),
         status = touch(rules.all.input.download_status)
     threads: workflow.cores
     shell:
@@ -48,10 +51,10 @@ rule process_feed:
     input:
         feed = rules.download.output.feed,
     output:
-        metadata_dirty = os.path.join(config["data_folder"], "metadata_dirty.csv"),
+        metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv"),
         status = touch(rules.all.input.copy_status)
     params:
-        fasta = directory(os.path.join(config["data_folder"], "fasta_raw"))
+        fasta = directory(os.path.join(data_folder, "fasta_raw"))
     threads: workflow.cores
     shell:
         """
@@ -65,10 +68,10 @@ rule clean_metadata:
     input:
         metadata_dirty = rules.process_feed.output.metadata_dirty,
         location_corrections = os.path.join(
-            config["static_data_folder"], "location_corrections.csv"
+            static_data_folder, "location_corrections.csv"
         ),
     output:
-        metadata_clean = os.path.join(config["data_folder"], "metadata.csv")
+        metadata_clean = os.path.join(data_folder, "metadata.csv")
     shell:
         """
         python3 scripts/clean_metadata.py -i {input.metadata_dirty} -l {input.location_corrections} -o {output.metadata_clean}
