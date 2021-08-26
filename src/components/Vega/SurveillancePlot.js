@@ -36,6 +36,7 @@ import {
   LegendItemContainer,
   LegendItemName,
   LegendItemCounts,
+  CollapseButton,
 } from './SurveillancePlot.styles';
 
 const maxCharsPerLine = 10;
@@ -198,7 +199,15 @@ const SurveillancePlot = observer(({ width }) => {
     },
     signalListeners: {},
     legendItems: [],
+    showSettings: false,
   });
+
+  const onToggleShowSettings = () => {
+    setState({
+      ...state,
+      showSettings: !state.showSettings,
+    });
+  };
 
   const onDismissWarning = () => {
     setState({
@@ -349,127 +358,140 @@ const SurveillancePlot = observer(({ width }) => {
                 </select>
               </label>
             </OptionSelectContainer>{' '}
-            {/* Sort by{' '}
-            <OptionSelectContainer>
-              <label>
-                <select
-                  value={plotSettingsStore.surveillanceSortField}
-                  onChange={onChangeSortField}
-                >
-                  <option value={'group'}>Name</option>
-                  <option value={'counts'}>Counts</option>
-                </select>
-              </label>
-            </OptionSelectContainer>
-            <OptionSelectContainer>
-              <label>
-                <select
-                  value={plotSettingsStore.surveillanceSortDirection}
-                  onChange={onChangeSortDirection}
-                >
-                  <option value={SORT_DIRECTIONS.SORT_ASC}>Ascending</option>
-                  <option value={SORT_DIRECTIONS.SORT_DESC}>Descending</option>
-                </select>
-              </label>
-            </OptionSelectContainer> */}
-          </OptionsRow>
-          <OptionsRow>
-            <span>Displayed {groupName}</span>
-            <QuestionButton
-              data-tip={`<p>To improve readability, ${groupName} which do not meet these conditions in any of the six continents are removed from the plots. For example, if one ${groupName} fails these conditions in 5 continents but passes in the last one, it will still be shown. If one ${groupName} fails these conditions in all 6 continents, it will be excluded.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p>`}
-              data-html="true"
-              data-place="right"
-              data-for="main-tooltip"
-              style={{ marginRight: 8 }}
+            <CollapseButton onClick={onToggleShowSettings}>
+              {state.showSettings ? 'Hide' : 'Show'} Settings{' '}
+              <span className="caret"></span>
+            </CollapseButton>
+            <div className="spacer"></div>
+            <DropdownButton
+              text={'Download'}
+              options={[
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+              ]}
+              onSelect={handleDownloadSelect}
             />
-            <OptionInputContainer>
-              <label>
-                Min Counts
-                <input
-                  type="number"
-                  value={plotSettingsStore.surveillanceDisplayMinCounts}
-                  onChange={onChangeDisplayMinCounts}
-                  min={0}
-                  step={1}
-                />
-              </label>
-            </OptionInputContainer>
-            <OptionInputContainer>
-              <label>
-                Min Percent
-                <input
-                  type="number"
-                  value={plotSettingsStore.surveillanceDisplayMinPercent}
-                  onChange={onChangeDisplayMinPercent}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                />
-              </label>
-            </OptionInputContainer>
           </OptionsRow>
-          <OptionsRow>
-            <span>Highlighted {groupName}</span>
-            <QuestionButton
-              data-tip={`<p>Choose ${groupName} to highlight and display in the legend. ${groupName} which pass these conditions in at least one of six continents will be highlighted. Non-highlighted ${groupName} are still displayed but not colored.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p><p>Min Correlation is defined as the minimum Pearson correlation of the % sequences of this ${groupName}. For the correlation calculations, the last ${config.surv_end_date_days_ago} days from today are omitted, to reduce noise in this metric.</p>`}
-              data-html="true"
-              data-place="right"
-              data-for="main-tooltip"
-              style={{ marginRight: 8 }}
-            />
-            <OptionInputContainer>
-              <label>
-                Min Counts
-                <input
-                  type="number"
-                  value={plotSettingsStore.surveillanceSigMinCounts}
-                  onChange={onChangeSigMinCounts}
-                  min={0}
-                  step={1}
+          {state.showSettings && (
+            <>
+              <OptionsRow>
+                Sort by{' '}
+                <OptionSelectContainer>
+                  <label>
+                    <select
+                      value={plotSettingsStore.surveillanceSortField}
+                      onChange={onChangeSortField}
+                    >
+                      <option value={'group'}>Name</option>
+                      <option value={'counts'}>Counts</option>
+                    </select>
+                  </label>
+                </OptionSelectContainer>
+                <OptionSelectContainer>
+                  <label>
+                    <select
+                      value={plotSettingsStore.surveillanceSortDirection}
+                      onChange={onChangeSortDirection}
+                    >
+                      <option value={SORT_DIRECTIONS.SORT_ASC}>
+                        Ascending
+                      </option>
+                      <option value={SORT_DIRECTIONS.SORT_DESC}>
+                        Descending
+                      </option>
+                    </select>
+                  </label>
+                </OptionSelectContainer>
+              </OptionsRow>
+              <OptionsRow>
+                <span>Displayed {groupName}</span>
+                <QuestionButton
+                  data-tip={`<p>To improve readability, ${groupName} which do not meet these conditions in any of the six continents are removed from the plots. For example, if one ${groupName} fails these conditions in 5 continents but passes in the last one, it will still be shown. If one ${groupName} fails these conditions in all 6 continents, it will be excluded.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p>`}
+                  data-html="true"
+                  data-place="right"
+                  data-for="main-tooltip"
+                  style={{ marginRight: 8 }}
                 />
-              </label>
-            </OptionInputContainer>
-            <OptionInputContainer>
-              <label>
-                Min Percent
-                <input
-                  type="number"
-                  value={plotSettingsStore.surveillanceSigMinPercent}
-                  onChange={onChangeSigMinPercent}
-                  min={0}
-                  max={1}
-                  step={0.01}
+                <OptionInputContainer>
+                  <label>
+                    Min Counts
+                    <input
+                      type="number"
+                      value={plotSettingsStore.surveillanceDisplayMinCounts}
+                      onChange={onChangeDisplayMinCounts}
+                      min={0}
+                      step={1}
+                    />
+                  </label>
+                </OptionInputContainer>
+                <OptionInputContainer>
+                  <label>
+                    Min Percent
+                    <input
+                      type="number"
+                      value={plotSettingsStore.surveillanceDisplayMinPercent}
+                      onChange={onChangeDisplayMinPercent}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                    />
+                  </label>
+                </OptionInputContainer>
+              </OptionsRow>
+              <OptionsRow>
+                <span>Highlighted {groupName}</span>
+                <QuestionButton
+                  data-tip={`<p>Choose ${groupName} to highlight and display in the legend. ${groupName} which pass these conditions in at least one of six continents will be highlighted. Non-highlighted ${groupName} are still displayed but not colored.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p><p>Min Correlation is defined as the minimum Pearson correlation of the % sequences of this ${groupName}. For the correlation calculations, the last ${config.surv_end_date_days_ago} days from today are omitted, to reduce noise in this metric.</p>`}
+                  data-html="true"
+                  data-place="right"
+                  data-for="main-tooltip"
+                  style={{ marginRight: 8 }}
                 />
-              </label>
-            </OptionInputContainer>
-            <OptionInputContainer>
-              <label>
-                Min Correlation
-                <input
-                  type="number"
-                  value={plotSettingsStore.surveillanceSigMinR}
-                  onChange={onChangeSigMinR}
-                  min={-1}
-                  max={1}
-                  step={0.01}
-                />
-              </label>
-            </OptionInputContainer>
-          </OptionsRow>
+                <OptionInputContainer>
+                  <label>
+                    Min Counts
+                    <input
+                      type="number"
+                      value={plotSettingsStore.surveillanceSigMinCounts}
+                      onChange={onChangeSigMinCounts}
+                      min={0}
+                      step={1}
+                    />
+                  </label>
+                </OptionInputContainer>
+                <OptionInputContainer>
+                  <label>
+                    Min Percent
+                    <input
+                      type="number"
+                      value={plotSettingsStore.surveillanceSigMinPercent}
+                      onChange={onChangeSigMinPercent}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                    />
+                  </label>
+                </OptionInputContainer>
+                <OptionInputContainer>
+                  <label>
+                    Min Correlation
+                    <input
+                      type="number"
+                      value={plotSettingsStore.surveillanceSigMinR}
+                      onChange={onChangeSigMinR}
+                      min={-1}
+                      max={1}
+                      step={0.01}
+                    />
+                  </label>
+                </OptionInputContainer>
+              </OptionsRow>
+            </>
+          )}
         </OptionsColumn>
-
-        <div className="spacer"></div>
-        <DropdownButton
-          text={'Download'}
-          options={[
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-            PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-          ]}
-          onSelect={handleDownloadSelect}
-        />
       </PlotOptions>
       <PlotAndLegend>
         <SurveillanceLegend
