@@ -300,6 +300,18 @@ const StructuralViewer = observer(() => {
         <ConfirmButton onClick={downloadData}>Download Data</ConfirmButton>
       </StructuralViewerHeader>
       <StructuralViewerHeader>
+        <OptionInputContainer>
+          <label>
+            PDB ID
+            <input type="text" value={state.pdbId} onChange={onChangePdbId} />
+          </label>
+          {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
+          {(state.pdbIdChanged || state.activeProteinChanged) && (
+            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
+              Apply
+            </ConfirmButton>
+          )}
+        </OptionInputContainer>
         <OptionSelectContainer>
           <label>
             Protein
@@ -311,18 +323,6 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <OptionInputContainer>
-          <label>
-            PDB ID
-            <input type="text" value={state.pdbId} onChange={onChangePdbId} />
-          </label>
-          {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
-          {(state.pdbIdChanged || state.activeProteinChanged) && (
-            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
-              Apply Changes
-            </ConfirmButton>
-          )}
-        </OptionInputContainer>
         <div className="spacer"></div>
         <ConfirmButton onClick={showDownloadPymolScriptModal}>
           Download PyMOL Script
