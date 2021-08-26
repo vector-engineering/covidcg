@@ -30,8 +30,8 @@ export const initialValues = {
   surveillanceDisplayMinCounts: 5,
   surveillanceDisplayMinPercent: 0.01,
   surveillanceSigMinCounts: 10,
-  surveillanceSigMinPercent: 0.05,
-  surveillanceSigMinR: 0.5,
+  surveillanceSigMinPercent: 0.02,
+  surveillanceSigMinR: 0.3,
   surveillanceLegendHover: [],
 
   // GROUP REPORT TAB
