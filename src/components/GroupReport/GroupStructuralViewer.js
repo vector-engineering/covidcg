@@ -8,6 +8,7 @@ import { colorHeatmap, getMoleculeAssemblies } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
+import defaultStructures from '../../../static_data/default_structures.json';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
@@ -64,11 +65,24 @@ const StructuralViewer = observer(() => {
   };
   const onChangeReportStructureActiveProtein = (event) => {
     const newProtein = event.target.value;
+
+    if (newProtein === state.activeProtein) {
+      return;
+    }
+
     setState({
       ...state,
       activeProtein: newProtein,
       activeProteinChanged:
         newProtein != plotSettingsStore.reportStructureActiveProtein,
+      // Clear PDB ID when protein changes
+      pdbId: Object.keys(defaultStructures).includes(newProtein)
+        ? defaultStructures[newProtein]
+        : '',
+      validPdbId: Object.keys(defaultStructures).includes(newProtein)
+        ? true
+        : false,
+      pdbIdChanged: true,
     });
   };
   const onChangePdbId = (event) => {
