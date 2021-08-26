@@ -121,6 +121,51 @@ const EntropyPlot = observer(({ width }) => {
     configStore.updateSelectedGroups(curSelectedGroups);
   };
 
+  const getDomainPlotHeight = () => {
+    // Domain Plot height is calculated as the number of rows times a constant
+    const heightConst = 15;
+    // There will always be at least 1 row (nullDomain displays when no rows)
+    let numRows = 1;
+
+    let geneProteinObj = null;
+
+    if (configStore.residueCoordinates.length === 0) {
+      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        geneProteinObj = filterMap(geneMap, 'All Genes');
+      } else if (
+        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        geneProteinObj = filterMap(proteinMap, 'All Proteins');
+      }
+
+      // Greedily get the max number of rows
+      geneProteinObj.forEach((geneProtein) => {
+        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
+        if (geneProtein['row'] + 1 > numRows) {
+          numRows = geneProtein['row'] + 1;
+        }
+      });
+
+      return numRows * heightConst;
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      geneProteinObj = configStore.selectedGene;
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      geneProteinObj = configStore.selectedProtein;
+    }
+
+    // Greedily get the number of rows
+    if (geneProteinObj && geneProteinObj.domains.length > 0) {
+      geneProteinObj.domains.forEach((domain) => {
+        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
+        if (domain['row'] + 1 > numRows) {
+          numRows = domain['row'] + 1;
+        }
+      });
+    }
+
+    return numRows * heightConst;
+  };
+
   const getXRange = () => {
     // Apply xRange
     let xRange;
@@ -218,6 +263,7 @@ const EntropyPlot = observer(({ width }) => {
     showWarning: true,
     xRange: getXRange(),
     hoverGroup: null,
+    domainPlotHeight: getDomainPlotHeight(),
     signalListeners: {
       hoverGroup: throttle(handleHoverGroup, 100),
     },
@@ -256,6 +302,7 @@ const EntropyPlot = observer(({ width }) => {
     setState({
       ...state,
       xRange: getXRange(),
+      domainPlotHeight: getDomainPlotHeight(),
       data: {
         ...state.data,
         table: processData(),
@@ -308,6 +355,9 @@ const EntropyPlot = observer(({ width }) => {
     );
   }
 
+  const entropyPlotHeight = 120;
+  const padding = 40;
+
   return (
     <PlotContainer>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
@@ -342,11 +392,13 @@ const EntropyPlot = observer(({ width }) => {
         spec={initialSpec}
         data={state.data}
         width={width}
+        height={entropyPlotHeight + padding + state.domainPlotHeight}
         signals={{
           totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
           hoverGroup: state.hoverGroup,
+          domainPlotHeight: state.domainPlotHeight,
           posField:
             configStore.dnaOrAa === DNA_OR_AA.DNA &&
             configStore.residueCoordinates.length !== 0
@@ -362,9 +414,11 @@ const EntropyPlot = observer(({ width }) => {
 });
 EntropyPlot.propTypes = {
   width: PropTypes.number,
+  height: PropTypes.number,
 };
 EntropyPlot.defaultProps = {
   width: 100,
+  height: 220,
 };
 
 export default EntropyPlot;
