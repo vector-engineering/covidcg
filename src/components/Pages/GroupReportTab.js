@@ -100,6 +100,12 @@ const GroupReportTab = observer(() => {
               compatibility, so it is possible to, for example, erroneously map
               nsp12 SNVs onto a Spike structure.
             </li>
+            <li>
+              More structures available at the{' '}
+              <ExternalLink href="https://www.rcsb.org/news?year=2020&article=5e74d55d2d410731e9944f52&feature=true">
+                RCSB COVID-19 resource page
+              </ExternalLink>
+            </li>
           </ul>
         }
       >

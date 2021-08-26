@@ -8,6 +8,7 @@ import { colorHeatmap, getMoleculeAssemblies } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
+import defaultStructures from '../../../static_data/default_structures.json';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
@@ -64,11 +65,24 @@ const StructuralViewer = observer(() => {
   };
   const onChangeReportStructureActiveProtein = (event) => {
     const newProtein = event.target.value;
+
+    if (newProtein === state.activeProtein) {
+      return;
+    }
+
     setState({
       ...state,
       activeProtein: newProtein,
       activeProteinChanged:
         newProtein != plotSettingsStore.reportStructureActiveProtein,
+      // Clear PDB ID when protein changes
+      pdbId: Object.keys(defaultStructures).includes(newProtein)
+        ? defaultStructures[newProtein]
+        : '',
+      validPdbId: Object.keys(defaultStructures).includes(newProtein)
+        ? true
+        : false,
+      pdbIdChanged: true,
     });
   };
   const onChangePdbId = (event) => {
@@ -300,6 +314,18 @@ const StructuralViewer = observer(() => {
         <ConfirmButton onClick={downloadData}>Download Data</ConfirmButton>
       </StructuralViewerHeader>
       <StructuralViewerHeader>
+        <OptionInputContainer>
+          <label>
+            PDB ID
+            <input type="text" value={state.pdbId} onChange={onChangePdbId} />
+          </label>
+          {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
+          {(state.pdbIdChanged || state.activeProteinChanged) && (
+            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
+              Apply
+            </ConfirmButton>
+          )}
+        </OptionInputContainer>
         <OptionSelectContainer>
           <label>
             Protein
@@ -311,18 +337,6 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <OptionInputContainer>
-          <label>
-            PDB ID
-            <input type="text" value={state.pdbId} onChange={onChangePdbId} />
-          </label>
-          {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
-          {(state.pdbIdChanged || state.activeProteinChanged) && (
-            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
-              Apply Changes
-            </ConfirmButton>
-          )}
-        </OptionInputContainer>
         <div className="spacer"></div>
         <ConfirmButton onClick={showDownloadPymolScriptModal}>
           Download PyMOL Script
