@@ -39,7 +39,7 @@ def process_location_metadata(df, location_corretions):
         location_df["location"] = -1
 
     # Clean location data
-    location_df = clean_location_data(location_df, location_corretions)
+    # location_df = clean_location_data(location_df, location_corretions)
 
     # Re-create index for the join
     location_df["Accession ID"] = df.index.values
