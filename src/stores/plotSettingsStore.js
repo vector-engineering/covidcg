@@ -25,8 +25,8 @@ export const initialValues = {
 
   // SURVEILLANCE PLOT
   surveillanceMode: 'lineage',
-  surveillanceSortField: 'group',
-  surveillanceSortDirection: SORT_DIRECTIONS.SORT_ASC,
+  surveillanceSortField: 'counts', // 'group' or 'counts'
+  surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
   surveillanceDisplayMinCounts: 5,
   surveillanceDisplayMinPercent: 0.01,
   surveillanceSigMinCounts: 10,

@@ -349,7 +349,7 @@ const SurveillancePlot = observer(({ width }) => {
                 </select>
               </label>
             </OptionSelectContainer>{' '}
-            Sort by{' '}
+            {/* Sort by{' '}
             <OptionSelectContainer>
               <label>
                 <select
@@ -371,7 +371,7 @@ const SurveillancePlot = observer(({ width }) => {
                   <option value={SORT_DIRECTIONS.SORT_DESC}>Descending</option>
                 </select>
               </label>
-            </OptionSelectContainer>
+            </OptionSelectContainer> */}
           </OptionsRow>
           <OptionsRow>
             <span>Displayed {groupName}</span>
