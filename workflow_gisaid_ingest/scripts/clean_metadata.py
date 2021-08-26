@@ -1101,7 +1101,7 @@ def main():
     df = clean_originating_lab_metadata(df)
     df = clean_submitting_lab_metadata(df)
 
-    # df = process_location_metadata(df, args.location_corrections)
+    df = process_location_metadata(df, args.location_corrections)
 
     # Take subset of columns
     df = df[
