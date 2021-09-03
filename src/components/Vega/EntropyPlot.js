@@ -123,7 +123,7 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomainPlotHeight = () => {
     // Domain Plot height is calculated as the number of rows times a constant
-    let heightConst = 50;
+    let heightConst = 25;
     // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
 
@@ -142,7 +142,7 @@ const EntropyPlot = observer(({ width }) => {
         });
       }
 
-      if (numRows > 1) heightConst = 15;
+      if (numRows > 2) heightConst = 15;
       return numRows * heightConst;
     }
 
@@ -181,7 +181,7 @@ const EntropyPlot = observer(({ width }) => {
       });
     }
 
-    if (numRows > 1) heightConst = 15;
+    if (numRows > 2) heightConst = 15;
 
     return numRows * heightConst;
   };
@@ -266,7 +266,7 @@ const EntropyPlot = observer(({ width }) => {
         selectedPrimers[0].row = 0;
         let oldInst = selectedPrimers[0].Institution;
         let curRow = 0;
-        selectedPrimers.forEach((primer) => {
+        selectedPrimers.forEach((primer, i) => {
           if (primer.Institution !== oldInst) {
             curRow += 1;
             oldInst = primer.Institution;
