@@ -123,12 +123,30 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomainPlotHeight = () => {
     // Domain Plot height is calculated as the number of rows times a constant
-    const heightConst = 15;
+    let heightConst = 50;
     // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
 
     let geneProteinObj = null;
 
+    // Logic for Primer track
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
+      if (configStore.selectedPrimers.length > 0) {
+        const primerObj = configStore.selectedPrimers;
+        let oldInst = primerObj[0].Institution;
+        primerObj.forEach((primer, i) => {
+          if (primer.Institution !== oldInst) {
+            numRows += 1;
+            oldInst = primer.Institution;
+          }
+        });
+      }
+
+      if (numRows > 1) heightConst = 15;
+      return numRows * heightConst;
+    }
+
+    // Logic for Gene/Protein track
     if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         geneProteinObj = filterMap(geneMap, 'All Genes');
@@ -162,6 +180,8 @@ const EntropyPlot = observer(({ width }) => {
         }
       });
     }
+
+    if (numRows > 1) heightConst = 15;
 
     return numRows * heightConst;
   };
@@ -231,14 +251,36 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomains = () => {
     // Apply domains
+    const xRange = getXRange();
     const nullDomain = [
       {
         name: 'No Domains Available',
-        abbr: 'No Domains Available',
-        ranges: [getXRange()],
+        ranges: [xRange],
         row: 0,
       },
     ];
+
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
+      if (configStore.selectedPrimers.length > 0) {
+        const selectedPrimers = configStore.selectedPrimers;
+        selectedPrimers[0].row = 0;
+        let oldInst = selectedPrimers[0].Institution;
+        let curRow = 0;
+        selectedPrimers.forEach((primer) => {
+          if (primer.Institution !== oldInst) {
+            curRow += 1;
+            oldInst = primer.Institution;
+          }
+          primer.row = curRow;
+          primer.ranges = [[primer.Start, primer.End]];
+          primer.name = primer.Name;
+        });
+        return selectedPrimers;
+      } else {
+        nullDomain.name = 'No Primers Selected';
+        return nullDomain;
+      }
+    }
 
     if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
@@ -263,6 +305,7 @@ const EntropyPlot = observer(({ width }) => {
     showWarning: true,
     xRange: getXRange(),
     hoverGroup: null,
+    data: { domains: getDomains() },
     domainPlotHeight: getDomainPlotHeight(),
     signalListeners: {
       hoverGroup: throttle(handleHoverGroup, 100),
@@ -305,8 +348,8 @@ const EntropyPlot = observer(({ width }) => {
       domainPlotHeight: getDomainPlotHeight(),
       data: {
         ...state.data,
-        table: processData(),
         domains: getDomains(),
+        table: processData(),
       },
     });
   };
@@ -401,7 +444,8 @@ const EntropyPlot = observer(({ width }) => {
           domainPlotHeight: state.domainPlotHeight,
           posField:
             configStore.dnaOrAa === DNA_OR_AA.DNA &&
-            configStore.residueCoordinates.length !== 0
+            configStore.residueCoordinates.length !== 0 &&
+            configStore.coordinateMode !== COORDINATE_MODES.COORD_PRIMER
               ? 0
               : 1,
         }}
