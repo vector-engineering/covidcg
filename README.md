@@ -213,9 +213,7 @@ cd workflow_main
 snakemake --configfile ../config/config_genbank.yaml
 ```
 
-This pipeline will align sequences to the reference sequence with `bowtie2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
-
-**NOTE**: `bowtie2`, the sequence aligner we use, usually uses anywhere from 8 – 10 GB of RAM per CPU during the alignment step. If the pipeline includes the alignment step, then only use as many cores as you have RAM / 10. i.e., if your machine has 128 GB RAM, then you can run at most 128 / 10 ~= 12 cores.
+This pipeline will align sequences to the reference sequence with `minimap2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
 
 To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in the `data_package_url` field in the `config/config_[workflow]` file that you are using.
 
