@@ -123,7 +123,7 @@ const EntropyPlot = observer(({ width }) => {
 
   const getDomainPlotHeight = () => {
     // Domain Plot height is calculated as the number of rows times a constant
-    let heightConst = 25;
+    let heightConst = 30;
     // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
 
@@ -133,17 +133,14 @@ const EntropyPlot = observer(({ width }) => {
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       if (configStore.selectedPrimers.length > 0) {
         const primerObj = configStore.selectedPrimers;
-        let oldInst = primerObj[0].Institution;
-        primerObj.forEach((primer, i) => {
-          if (primer.Institution !== oldInst) {
-            numRows += 1;
-            oldInst = primer.Institution;
+        primerObj.forEach((primer) => {
+          if (primer.row + 1 > numRows) {
+            numRows = primer.row + 1;
           }
         });
-      }
 
-      if (numRows > 2) heightConst = 15;
-      return numRows * heightConst;
+        return numRows * heightConst;
+      }
     }
 
     // Logic for Gene/Protein track
@@ -180,8 +177,6 @@ const EntropyPlot = observer(({ width }) => {
         }
       });
     }
-
-    if (numRows > 2) heightConst = 15;
 
     return numRows * heightConst;
   };
@@ -249,6 +244,13 @@ const EntropyPlot = observer(({ width }) => {
     return xRange;
   };
 
+  const checkIfPrimersOverlap = (primer1, primer2) => {
+    return (
+      (primer1.Start < primer2.End && primer1.End > primer2.End) ||
+      (primer1.Start < primer2.Start && primer1.End > primer2.Start)
+    );
+  };
+
   const getDomains = () => {
     // Apply domains
     const xRange = getXRange();
@@ -264,17 +266,27 @@ const EntropyPlot = observer(({ width }) => {
       if (configStore.selectedPrimers.length > 0) {
         const selectedPrimers = configStore.selectedPrimers;
         selectedPrimers[0].row = 0;
-        let oldInst = selectedPrimers[0].Institution;
         let curRow = 0;
-        selectedPrimers.forEach((primer, i) => {
-          if (primer.Institution !== oldInst) {
-            curRow += 1;
-            oldInst = primer.Institution;
+        selectedPrimers.forEach((primerToPlace, i) => {
+          let overlaps = true;
+          let curRow = 0;
+          while (overlaps) {
+            const primersInRow = selectedPrimers.filter(
+              (primer) => primer.hasOwnProperty('row') && primer.row === curRow
+            );
+
+            for (const primer of primersInRow) {
+              overlaps = checkIfPrimersOverlap(primer, primerToPlace);
+              if (!overlaps) break;
+            }
+
+            if (overlaps) curRow += 1;
           }
-          primer.row = curRow;
-          primer.ranges = [[primer.Start, primer.End]];
-          primer.name = primer.Name;
+          primerToPlace.row = curRow;
+          primerToPlace.ranges = [[primerToPlace.Start, primerToPlace.End]];
+          primerToPlace.name = primerToPlace.Name;
         });
+        configStore.selectedPrimers = selectedPrimers;
         return selectedPrimers;
       } else {
         nullDomain.name = 'No Primers Selected';

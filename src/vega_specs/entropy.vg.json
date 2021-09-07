@@ -444,7 +444,8 @@
               "limit": {
                 "scale": "textLength",
                 "field": "datum.length"
-              }
+              },
+              "ellipsis": { "value": "." }
             }
           }
         },
