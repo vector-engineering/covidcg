@@ -455,7 +455,7 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
+              "y": { "value": -5 },
               "height": { "signal": "domainPlotHeight" },
               "fill": { "value": "#333" },
               "fillOpacity": { "value": 0.2 }
@@ -471,7 +471,7 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
+              "y": { "value": -5 },
               "height": { "signal": "domainPlotHeight" },
               "width": { "value": 0 },
               "fill": { "value": "firebrick" }
@@ -484,7 +484,7 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": { "value": 0 },
+              "y": { "value": -5 },
               "height": { "signal": "domainPlotHeight" },
               "width": { "value": 0 },
               "fill": { "value": "firebrick" }

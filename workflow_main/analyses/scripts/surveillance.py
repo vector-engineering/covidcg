@@ -172,7 +172,7 @@ def main():
     )
     spike_single_snv_counts = (
         spike_single_snv_counts.explode("group")
-        .fillna(-1)
+        .assign(group=lambda x: x["group"].fillna(-1))
         .groupby(["region", "collection_week", "group"])
         .agg(counts=("counts", np.sum))
         .reset_index()

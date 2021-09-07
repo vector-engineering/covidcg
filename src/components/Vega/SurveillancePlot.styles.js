@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
+import Button from '../Buttons/Button';
+
 export const PlotContainer = styled.div`
   overflow-x: hidden;
 `;
@@ -38,12 +40,17 @@ export const HelpText = styled.p`
 export const OptionsColumn = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
 `;
 
 export const OptionsRow = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: 5px;
+
+  .spacer {
+    flex-grow: 1;
+  }
 `;
 
 export const PlotAndLegend = styled.div`
@@ -101,4 +108,31 @@ export const LegendItemCounts = styled.div`
   width: 30px;
   padding-left: 3px;
   border-left: 1px solid #eee;
+`;
+
+export const CollapseButton = styled(Button)`
+  background-color: #f8f8f8;
+  background-image: none;
+  color: #444;
+  padding-right: 20px;
+
+  &:hover,
+  &:active {
+    background-color: #eee;
+  }
+
+  .caret {
+    position: relative;
+    margin-left: 5px;
+  }
+
+  .caret:after {
+    content: '';
+    position: absolute;
+    left: 1px;
+    top: 5px;
+    border-top: 5px solid #444;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
 `;

@@ -25,13 +25,13 @@ export const initialValues = {
 
   // SURVEILLANCE PLOT
   surveillanceMode: 'lineage',
-  surveillanceSortField: 'group',
-  surveillanceSortDirection: SORT_DIRECTIONS.SORT_ASC,
+  surveillanceSortField: 'counts', // 'group' or 'counts'
+  surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
   surveillanceDisplayMinCounts: 5,
   surveillanceDisplayMinPercent: 0.01,
   surveillanceSigMinCounts: 10,
-  surveillanceSigMinPercent: 0.05,
-  surveillanceSigMinR: 0.5,
+  surveillanceSigMinPercent: 0.02,
+  surveillanceSigMinR: 0.3,
   surveillanceLegendHover: [],
 
   // GROUP REPORT TAB

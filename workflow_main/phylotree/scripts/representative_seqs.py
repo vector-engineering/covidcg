@@ -53,12 +53,23 @@ def get_representative_seqs(
     df["collection_date"] = pd.to_datetime(df["collection_date"])
     df = df.join(location_map, on="location_id")
 
+    # https://github.com/cov-lineages/pango-designation
+    # See: DOI 10.1038/s41564-020-0770-5, 10.1093/ve/veab064
+    pango_lineages = pd.read_csv(
+        "https://github.com/cov-lineages/pango-designation/raw/master/lineages.csv"
+    )
+
     reps = (
         df.loc[
             (df["collection_date"] >= pd.to_datetime("2019-12-15"))
             & (df["collection_date"] <= pd.to_datetime(date.today()))
+            & (
+                df["virus_name"]
+                .str.replace("hCoV-19/", "")
+                .isin(pango_lineages["taxon"])
+            )
         ]
-        .drop_duplicates("lineage", keep="last")[
+        .drop_duplicates("lineage", keep="first")[
             ["Accession ID", "collection_date", "lineage", "dna_snp_str"]
         ]
         .set_index("Accession ID")

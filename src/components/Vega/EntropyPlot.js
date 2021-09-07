@@ -128,7 +128,7 @@ const EntropyPlot = observer(({ width }) => {
     let numRows = 1;
 
     let geneProteinObj = null;
-
+    
     // Logic for Primer track
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       if (configStore.selectedPrimers.length > 0) {
