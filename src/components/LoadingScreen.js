@@ -14,7 +14,7 @@ import {
   ProgressText,
 } from './LoadingScreen.styles';
 
-import CGLogo from '../assets/images/cg_logo_v13.svg';
+import CGLogo from '../assets/images/cg_logo_v13@4x.png';
 
 const duration = 1000;
 
