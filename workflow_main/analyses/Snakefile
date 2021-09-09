@@ -33,6 +33,7 @@ rule az_reports:
         spike_cooc_region = os.path.join(az_report_out, 'spike_cooc_region.csv'),
         lineage_global = os.path.join(az_report_out, 'lineage_global.csv'),
         lineage_region = os.path.join(az_report_out, 'lineage_region.csv'),
+    threads: workflow.cores / 2
     run:
         generate_az_reports(
             input.case_data, input.metadata_map, input.location_map,
@@ -55,6 +56,7 @@ rule surveillance_data:
         end_date_days_ago = config['surv_end_date_days_ago'],
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
+    threads: workflow.cores / 2
     output:
         group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
         group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
@@ -74,6 +76,7 @@ rule global_sequencing_efforts:
         location_map = os.path.join(data_folder, "location_map.json"),
     output:
         country_score = os.path.join(data_folder, "country_score.json")
+    threads: workflow.cores / 2
     run:
         global_sequencing_efforts(
             input.case_data, input.location_map,
@@ -102,6 +105,7 @@ rule global_seq_data:
         sequences_per_month = os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
         turnaround_per_month = os.path.join(data_folder, "new_global_data", "turnaround_per_month.json"),
         iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
+    threads: workflow.cores / 2
     shell:
         """
         python3 analyses/scripts/global_seq_data.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
