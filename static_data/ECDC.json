@@ -1,13 +1,5 @@
 [
   {
-    "name": "B.1.1.7",
-    "level": "VOC"
-  },
-  {
-    "name": "B.1.1.7+E484K",
-    "level": "VOC"
-  },
-  {
     "name": "B.1.351",
     "level": "VOC"
   },
@@ -18,18 +10,6 @@
   {
     "name": "B.1.617.2",
     "level": "VOC"
-  },
-  {
-    "name": "B.1.525",
-    "level": "VOI"
-  },
-  {
-    "name": "P.3",
-    "level": "VOI"
-  },
-  {
-    "name": "B.1.617.1",
-    "level": "VOI"
   },
   {
     "name": "B.1.620",
@@ -44,47 +24,7 @@
     "level": "VOI"
   },
   {
-    "name": "B.1.617.3",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.214.2",
-    "level": "Other"
-  },
-  {
-    "name": "A.23.1+E484K",
-    "level": "Other"
-  },
-  {
-    "name": "A.27",
-    "level": "Other"
-  },
-  {
-    "name": "A.28",
-    "level": "Other"
-  },
-  {
-    "name": "C.16",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.351+P384L",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.351+E516Q",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.1.7+L452R",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.1.7+S494P",
-    "level": "Other"
-  },
-  {
-    "name": "C.36+L452R",
+    "name": "C.36",
     "level": "Other"
   },
   {
@@ -92,43 +32,27 @@
     "level": "Other"
   },
   {
-    "name": "B.1.526",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.526.1",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.526.2",
-    "level": "Other"
-  },
-  {
     "name": "B.1.1.318",
     "level": "Other"
   },
   {
-    "name": "P.2",
+    "name": "P.1",
     "level": "Other"
   },
   {
-    "name": "B.1.1.519",
-    "level": "Other"
-  },
-  {
-    "name": "AV.1",
-    "level": "Other"
-  },
-  {
-    "name": "P.1+P681H",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.671.2 + K417N",
+    "name": "B.1.617.2",
     "level": "Other"
   },
   {
     "name": "C.1.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.617.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.617.2",
     "level": "Other"
   }
 ]

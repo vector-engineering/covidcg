@@ -5,6 +5,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import datetime
 import os
 
 # Import scripts
@@ -30,6 +31,9 @@ reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
 gene_defs_path = os.path.join(static_data_folder, "genes.json")
 protein_defs_path = os.path.join(static_data_folder, "proteins.json")
 
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
+
 # Find chunks
 CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
@@ -51,6 +55,7 @@ rule all:
         os.path.join(data_folder, 'data_complete.csv'),
         # Webscraper data
         os.path.join(static_data_folder, "vocs.json"),
+        os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
         # Phylotree
         rules.build_phylotree_graph.output.graph_table,
         # Additional analyses
@@ -285,47 +290,20 @@ rule build_full_dataframe:
             output.full_df
         )
 
-rule get_cdc_vocs:
+
+rule update_vocs:
     output:
-        cdc_list = os.path.join(static_data_folder, "CDC.json")
+        voc_list = os.path.join(static_data_folder, "vocs.json"),
+        cdc_list = os.path.join(static_data_folder, "CDC.json"),
+        who_list = os.path.join(static_data_folder, "WHO.json"),
+        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
+        phe_list = os.path.join(static_data_folder, "PHE.json"),
+        status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """
         python3 scripts/get_cdc_vocs.py -o {output.cdc_list}
-        """
-
-rule get_who_vocs:
-    output:
-        who_list = os.path.join(static_data_folder, "WHO.json")
-    shell:
-        """
         python3 scripts/get_who_vocs.py -o {output.who_list}
-        """
-
-rule get_ecdc_vocs:
-    output:
-        ecdc_list = os.path.join(static_data_folder, "ECDC.json")
-    shell:
-        """
         python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
-        """
-
-rule get_phe_vocs:
-    output:
-        phe_list = os.path.join(static_data_folder, "PHE.json")
-    shell:
-        """
         python3 scripts/get_phe_vocs.py -o {output.phe_list}
-        """
-
-rule update_vocs:
-    input:
-        cdc_list = rules.get_cdc_vocs.output.cdc_list,
-        who_list = rules.get_who_vocs.output.who_list,
-        ecdc_list = rules.get_ecdc_vocs.output.ecdc_list,
-        phe_list = rules.get_phe_vocs.output.phe_list,
-    output:
-        voc_list = os.path.join(static_data_folder, "vocs.json")
-    shell:
-        """
-        python3 scripts/update_vocs.py -i {input.cdc_list} {input.who_list} {input.ecdc_list} {input.phe_list} -o {output.voc_list}
+        python3 scripts/update_vocs.py -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} -o {output.voc_list}
         """
