@@ -36,17 +36,20 @@ def get_who_vocs():
                 names = list(row.find_all('td')[0].stripped_strings)
 
             for name in names:
-                name = name.strip('*')
-                variant = {}
-                if label:
-                    variant = {
-                               'name': name,
-                               'level': level,
-                               'who_label': label
-                               }
-                else:
-                    variant = {'name': name, 'level': level}
-                variant_list.append(variant)
+                # Strip any non alphanumeric char that is not a .
+                name = ''.join(e for e in name if e.isalnum() or e == '.')
+                # If the name is valid, add the variant
+                if name:
+                    variant = {}
+                    if label:
+                        variant = {
+                                   'name': name,
+                                   'level': level,
+                                   'who_label': label
+                                   }
+                    else:
+                        variant = {'name': name, 'level': level}
+                    variant_list.append(variant)
         level_ind += 1
 
     return variant_list
