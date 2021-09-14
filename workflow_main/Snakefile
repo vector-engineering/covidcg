@@ -292,19 +292,18 @@ rule build_full_dataframe:
 
 
 rule update_vocs:
-    input:
+    output:
+        voc_list = os.path.join(static_data_folder, "vocs.json"),
         cdc_list = os.path.join(static_data_folder, "CDC.json"),
         who_list = os.path.join(static_data_folder, "WHO.json"),
         ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
         phe_list = os.path.join(static_data_folder, "PHE.json"),
-    output:
-        voc_list = os.path.join(static_data_folder, "vocs.json"),
         status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """
-        python3 scripts/get_cdc_vocs.py -o {input.cdc_list}
-        python3 scripts/get_who_vocs.py -o {input.who_list}
-        python3 scripts/get_ecdc_vocs.py -o {input.ecdc_list}
-        python3 scripts/get_phe_vocs.py -o {input.phe_list}
-        python3 scripts/update_vocs.py -i {input.cdc_list} {input.who_list} {input.ecdc_list} {input.phe_list} -o {output.voc_list}
+        python3 scripts/get_cdc_vocs.py -o {output.cdc_list}
+        python3 scripts/get_who_vocs.py -o {output.who_list}
+        python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
+        python3 scripts/get_phe_vocs.py -o {output.phe_list}
+        python3 scripts/update_vocs.py -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} -o {output.voc_list}
         """
