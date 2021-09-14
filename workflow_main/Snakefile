@@ -5,6 +5,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import datetime
 import os
 
 # Import scripts
@@ -47,17 +48,18 @@ include: "analyses/Snakefile"
 rule all:
     input:
         # Generate reference-related data
-        os.path.join(static_data_folder, "reference.json"),
-        os.path.join(static_data_folder, "primers.json"),
+        #os.path.join(static_data_folder, "reference.json"),
+        #os.path.join(static_data_folder, "primers.json"),
         # Packaged data
-        os.path.join(data_folder, "data_package.json.gz"),
-        os.path.join(data_folder, 'data_complete.csv'),
+        #os.path.join(data_folder, "data_package.json.gz"),
+        #os.path.join(data_folder, 'data_complete.csv'),
         # Webscraper data
         os.path.join(static_data_folder, "vocs.json"),
+        os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
         # Phylotree
-        rules.build_phylotree_graph.output.graph_table,
+        #rules.build_phylotree_graph.output.graph_table,
         # Additional analyses
-        rules.additional_analyses.output.done
+        #rules.additional_analyses.output.done
 
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
@@ -292,12 +294,12 @@ rule build_full_dataframe:
 rule update_vocs:
     input:
         cdc_list = os.path.join(static_data_folder, "CDC.json"),
-        who_list = who_list = os.path.join(static_data_folder, "WHO.json"),
-        ecdc_list = ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
-        phe_list = phe_list = os.path.join(static_data_folder, "PHE.json"),
+        who_list = os.path.join(static_data_folder, "WHO.json"),
+        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
+        phe_list = os.path.join(static_data_folder, "PHE.json"),
     output:
         voc_list = os.path.join(static_data_folder, "vocs.json"),
-        status = os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done")
+        status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """
         python3 scripts/get_cdc_vocs.py -o {input.cdc_list}
