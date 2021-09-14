@@ -37,7 +37,7 @@ rule download:
     newline-delimited JSON records (the file itself is not strict JSON)
     """
     output:
-        feed = temp(os.path.join(data_folder, "feed.csv")),
+        feed = os.path.join(data_folder, "feed.csv"),
         status = touch(os.path.join(
             data_folder, "status", "download_" + today_str + ".done"
         ))
@@ -55,7 +55,8 @@ checkpoint chunk_data:
         feed = rules.download.output.feed
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
-        metadata_dirty = temp(os.path.join(data_folder, "metadata_dirty.csv"))
+        metadata_dirty = temp(os.path.join(data_folder, "metadata_dirty.csv")),
+        status = touch(os.path.join(data_folder, "status", "finished_chunks_" + today_str + ".done"))
     params:
         chunk_size = config["chunk_size"]
     run:
@@ -78,53 +79,54 @@ def get_num_seqs(fasta_gz):
     return num_seqs
 
 
-def get_changed_chunks(wildcards):
-    """Helper function for detecting which chunks have changed in terms of their contents
-    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
-    isolates on GISAID, aligning them would take 1 week for the whole batch.
-    """
+rule get_changed_chunks:
+    input:
+        rules.chunk_data.output.status
+    output:
+        changed_chunks = os.path.join(data_folder, "chunks", "changed_chunks.txt")
+    run:
+        chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
 
-    # Only run to trigger DAG re-evaluation
-    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
-    chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
+        # Keep track of which chunks have changed
+        changed_chunks = []
 
-    # Keep track of which chunks have changed
-    changed_chunks = []
+        for chunk in chunks:
+            fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+            fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
 
-    for chunk in chunks:
-        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
-        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
+            # If the current chunk doesn't exist yet, then mark it as changed
+            if (
+                    not fasta_raw_path.exists() or
+                    not fasta_raw_path.is_file()
+                ):
+                changed_chunks.append(chunk)
+                continue
 
-        # If the current chunk doesn't exist yet, then mark it as changed
-        if (
-                not fasta_raw_path.exists() or
-                not fasta_raw_path.is_file()
-            ):
-            changed_chunks.append(chunk)
-            continue
+            # Count ">" characters in both the temp and raw files
+            # as a proxy for the number of sequences in each
+            # If they're different, then mark as changed
+            num_seqs_temp = get_num_seqs(str(fasta_temp_path))
+            num_seqs_raw = get_num_seqs(str(fasta_raw_path))
 
-        # Count ">" characters in both the temp and raw files
-        # as a proxy for the number of sequences in each
-        # If they're different, then mark as changed
-        num_seqs_temp = get_num_seqs(str(fasta_temp_path))
-        num_seqs_raw = get_num_seqs(str(fasta_raw_path))
+            if num_seqs_temp != num_seqs_raw:
+                changed_chunks.append(chunk)
 
-        if num_seqs_temp != num_seqs_raw:
-            changed_chunks.append(chunk)
+        # Return a list of fasta_temp files that have changed, so that they can be copied
+        # over to fasta_raw by the below `copy_changed_files` rule
 
-    # Return a list of fasta_temp files that have changed, so that they can be copied
-    # over to fasta_raw by the below `copy_changed_files` rule
-    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
+        filenames = expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz\n"), i=changed_chunks)
+        with open(output.changed_chunks, 'w') as f:
+            f.writelines(filenames)
 
 
-checkpoint copy_changed_files:
+rule copy_changed_files:
     """Using the `get_changed_chunks` function, only copy fasta files which have changed
     from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
     it will flag to snakemake that they (and only they - not the others) will need to be
     reprocessed and realigned.
     """
     input:
-        get_changed_chunks
+        changed_chunks = rules.get_changed_chunks.output.changed_chunks
     output:
         # Instead of explicitly defining the fasta_raw outputs
         # (and risking touching fasta files that haven't actually changed)
@@ -134,20 +136,7 @@ checkpoint copy_changed_files:
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ))
     run:
-        copy_changed_files(input, data_folder)
-
-
-def get_chunks(wildcards):
-    """Get all copied chunks from copy_changed_files
-    """
-
-    # Only do this to trigger the DAG recalculation
-    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
-
-    return expand(
-        os.path.join(data_folder, "{chunk}.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-    )
+        copy_changed_files(input.changed_chunks, data_folder)
 
 
 rule clean_metadata:
