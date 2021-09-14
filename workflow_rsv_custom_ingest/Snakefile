@@ -1,0 +1,35 @@
+# coding: utf-8
+
+import os
+
+from pathlib import Path
+
+# Import scripts
+from scripts.clean_metadata import clean_metadata
+from scripts.combine_lineages import combine_lineages
+
+configfile: "../config/config_rsv_custom.yaml"
+
+data_folder = os.path.join("..", config["data_folder"])
+# static_data_folder = os.path.join("..", config["static_data_folder"])
+
+CHUNKS, = glob_wildcards(os.path.join(
+    data_folder, "fasta_raw", "{chunk}.fa.gz"
+))
+
+
+rule all:
+    input:
+        # Cleaned metadata, with lineage assignments
+        os.path.join(data_folder, "metadata.csv")
+
+
+rule clean_metadata:
+    """Clean metadata, incorporate lineage assignments into metadata
+    """
+    input:
+        metadata_dirty = os.path.join(data_folder, "metadata_raw.csv"),
+    output:
+        metadata_clean = os.path.join(data_folder, "metadata.csv")
+    run:
+        clean_metadata(input.metadata_dirty, output.metadata_clean)
