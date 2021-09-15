@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Rsvgs01",
+    "segments": [[1, 44]],
+    "protein_coding": 0,
+    "domains": []
+  },
+  {
+    "name": "NS1",
+    "segments": [[45, 576]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "NS2",
+    "segments": [[596, 1097]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "N",
+    "segments": [[1125, 2329]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "P",
+    "segments": [[2331, 3220]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "M",
+    "segments": [[3224, 4180]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "SH",
+    "segments": [[4190, 4599]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "G",
+    "segments": [[4644, 5565]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "F",
+    "segments": [[5619, 7521]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "M2",
+    "segments": [[7567, 8527]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "L",
+    "segments": [[8460, 15037]],
+    "protein_coding": 1,
+    "domains": []
+  },
+  {
+    "name": "Rsvgs02",
+    "segments": [[15038, 15191]],
+    "protein_coding": 0,
+    "domains": []
+  }
+]
