@@ -19,7 +19,6 @@ from scripts.extract_dna_snps import extract_dna_snps
 from scripts.global_group_counts import global_group_counts
 from scripts.preprocess_sequences import preprocess_sequences
 from scripts.write_reference_files import write_reference_files
-from scripts.update_vocs import update_vocs
 
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"
@@ -39,9 +38,6 @@ CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
 
-
-# Additional analyses module
-include: "analyses/Snakefile"
 
 rule all:
     input:
@@ -281,21 +277,3 @@ rule build_full_dataframe:
             input.case_data, input.metadata_map, input.location_map,
             output.full_df
         )
-
-
-rule update_vocs:
-    output:
-        voc_list = os.path.join(static_data_folder, "vocs.json"),
-        cdc_list = os.path.join(static_data_folder, "CDC.json"),
-        who_list = os.path.join(static_data_folder, "WHO.json"),
-        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
-        phe_list = os.path.join(static_data_folder, "PHE.json"),
-        status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
-    shell:
-        """
-        python3 scripts/get_cdc_vocs.py -o {output.cdc_list}
-        python3 scripts/get_who_vocs.py -o {output.who_list}
-        python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
-        python3 scripts/get_phe_vocs.py -o {output.phe_list}
-        python3 scripts/update_vocs.py -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} -o {output.voc_list}
-        """
