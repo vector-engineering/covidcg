@@ -45,9 +45,7 @@ rule all:
         os.path.join(static_data_folder, "reference.json"),
         # Packaged data
         os.path.join(data_folder, "data_package.json.gz"),
-        os.path.join(data_folder, 'data_complete.csv'),
-        # Additional analyses
-        rules.additional_analyses.output.done
+        os.path.join(data_folder, 'data_complete.csv')
 
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
@@ -58,7 +56,7 @@ rule preprocess_sequences:
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
         nextstrain_exclude = os.path.join(
-            static_data_folder, "nextstrain_exclude_20200520.txt"
+            static_data_folder, "nextstrain_exclude_20210915.txt"
         )
     output:
         fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
@@ -179,7 +177,7 @@ rule build_location_tree:
         case_data = rules.combine_all_data.output.case_data,
         location_map = rules.combine_all_data.output.location_map,
         emoji_map_file = os.path.join(
-            static_data_folder, "country_to_emoji.xls"
+            static_data_folder, "..", "country_to_emoji.xls"
         )
     output:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
@@ -251,9 +249,7 @@ rule assemble_data_package:
     """
     input:
         case_data = rules.combine_all_data.output.case_data,
-        country_score = rules.global_sequencing_efforts.output.country_score,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-        global_group_counts = rules.global_group_counts.output.global_group_counts,
         group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
         metadata_map = rules.combine_all_data.output.metadata_map,
         location_map = rules.combine_all_data.output.location_map
