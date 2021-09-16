@@ -41,7 +41,7 @@ app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
 
 # Load allowed CORS domains
-cors_domains = [config['prod_hostname']]
+cors_domains = ['https://covidcg.org', config['prod_hostname']]
 if os.getenv("FLASK_ENV", "development") == "development":
     # Allow any connections from localhost in development
     cors_domains.append("http://localhost:{}".format(os.getenv("FRONTEND_PORT")))
