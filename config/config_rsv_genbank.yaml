@@ -37,8 +37,6 @@ metadata_cols:
     title: "Database"
   host:
     title: "Host"
-  isolation_source:
-    title: "Isolation source"
   authors:
     title: "Authors"
   publications:

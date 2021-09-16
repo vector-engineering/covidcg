@@ -11,7 +11,7 @@ import pandas as pd
 from scripts.fasta import read_fasta_file
 
 
-def write_reference_files(reference_fasta, primers_csv, reference_json, primers_json):
+def write_reference_files(reference_fasta, reference_json):
 
     # Write the reference fasta file to json
     # Load the reference sequence
@@ -22,10 +22,3 @@ def write_reference_files(reference_fasta, primers_csv, reference_json, primers_
 
     with open(reference_json, "w") as fp:
         fp.write(json.dumps({"ref_seq": ref_seq}))
-
-    # Load primers, write to JSON
-    primers_df = pd.read_csv(primers_csv, comment="#")
-    # Only take a subset of the data to kee file sizes down
-    primers_df[["Institution", "Name", "Sequence", "Reverse", "Start", "End"]].to_json(
-        primers_json, orient="records"
-    )

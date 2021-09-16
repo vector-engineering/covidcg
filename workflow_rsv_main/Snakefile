@@ -50,7 +50,7 @@ rule all:
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
-    2. Can't be less than 29700NT
+    2. Can't be less than 15000NT
 	3. Can't have more than 5% ambiguous NT
     """
     input:
@@ -193,16 +193,13 @@ rule write_reference_files:
     files that can be easily loaded by the front-end
     """
     input:
-        reference = reference_sequence_path,
-        primers = os.path.join(static_data_folder, "primers.csv")
+        reference = reference_sequence_path
     output:
         # Write data to JSON for the JS/UI to handle
-        reference = os.path.join(static_data_folder, "reference.json"),
-        primers = os.path.join(static_data_folder, "primers.json")
+        reference = os.path.join(static_data_folder, "reference.json")
     run:
         write_reference_files(
-            input.reference, input.primers,
-            output.reference, output.primers
+            input.reference, output.reference
         )
 
 
@@ -221,7 +218,7 @@ rule consensus_snps:
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
-            group_cols=list(config["group_cols"].keys()),
+            group_cols=[],
             consensus_fraction=config["consensus_fraction"],
             min_reporting_fraction=config['min_reporting_fraction']
         )
@@ -240,7 +237,7 @@ rule global_group_counts:
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
-            group_cols=config["group_cols"]
+            group_cols=[]
         )
 
 rule assemble_data_package:

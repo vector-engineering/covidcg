@@ -61,8 +61,8 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
                     # 1: Check against nextstrain exclusion list
                     (cur_entry in exclude_taxons)
                     or
-                    # 2: Can't be less than 29700 NT
-                    len(cur_seq) < 29700
+                    # 2: Can't be less than 15000 NT
+                    len(cur_seq) < 15000
                     or
                     # 3: Can't have more than 5% ambiguous (N) NT
                     num_ambiguous > math.floor(len(cur_seq) * 0.05)
