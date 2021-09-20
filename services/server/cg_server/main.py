@@ -39,7 +39,16 @@ project_root = Path(__file__).parent.parent.parent.parent
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
-CORS(app)
+
+# Load allowed CORS domains
+cors_domains = ['https://covidcg.org', config['prod_hostname']]
+if os.getenv("FLASK_ENV", "development") == "development":
+    # Allow any connections from localhost in development
+    cors_domains.append("http://localhost:{}".format(os.getenv("FRONTEND_PORT")))
+
+# CORS config
+CORS(app, origins=cors_domains)
+
 auth = HTTPBasicAuth()
 
 # Load usernames/passwords via. an environment variable,
@@ -52,14 +61,6 @@ for username, password in load_users:
     users[username] = generate_password_hash(password)
 
 
-# Load allowed CORS domains
-cors_domains = []
-if os.getenv("FLASK_ENV", "development") == "development":
-    # Allow any connections from localhost in development
-    cors_domains.append(re.compile(r"http://localhost"))
-
-# Whitelist the production hostname
-cors_domains.append(config["prod_hostname"])
 
 
 @auth.verify_password
@@ -117,7 +118,6 @@ def index():
 
 
 @app.route("/init")
-@cross_origin(origins=cors_domains)
 @handle_db_errors(options=connection_options, conn_pool=conn_pool)
 def init(conn):
     return query_initial(conn)
