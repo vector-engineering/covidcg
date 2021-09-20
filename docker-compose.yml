@@ -18,6 +18,7 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
+      - FRONTEND_PORT=3000
     # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
     command: "flask run --host 0.0.0.0 --port=5000"
     ports:
@@ -45,6 +46,7 @@ services:
     ports: # Expose 5432 so we can use DB administration tools
       - 5432:5432
   frontend:
+    restart: always
     build:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
