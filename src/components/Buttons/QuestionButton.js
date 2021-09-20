@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import ReactTooltip from 'react-tooltip';
+import PropTypes from 'prop-types';
 
 const QuestionButtonContainer = ({ ...props }) => {
+  useEffect(() => {
+    // This prevents every single QuestionButton from rebuilding if they aren't visible.
+    if (props.rebuild) {
+      ReactTooltip.rebuild();
+    }
+  });
   return <span {...props}>?</span>;
 };
 
@@ -19,5 +27,13 @@ const QuestionButton = styled(QuestionButtonContainer)`
     background-color: #f8f8f8;
   }
 `;
+
+QuestionButtonContainer.defaultProps = {
+  rebuild: false
+};
+
+QuestionButtonContainer.propTypes = {
+  rebuild: PropTypes.bool
+};
 
 export default QuestionButton;
