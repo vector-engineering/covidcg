@@ -183,13 +183,6 @@
 
   "scales": [
     {
-      "name": "num_seqs_stroke_width",
-      "type": "log",
-      "base": 2,
-      "range": [2.5, 6],
-      "domain": [100, 100000]
-    },
-    {
       "name": "date_x",
       "type": "time",
       "range": {"signal": "xRange"},
@@ -228,8 +221,7 @@
           "path": {"field": "path"},
           "stroke": {"value": "#ccc"},
           "strokeWidth": {
-            "scale": "num_seqs_stroke_width",
-            "field": "target.num_seqs"
+            "value": 1
           }
         },
         "update": {
