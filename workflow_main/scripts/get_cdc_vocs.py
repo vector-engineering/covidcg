@@ -29,7 +29,7 @@ def get_cdc_vocs():
             break
         level = level_order[level_ind]
         rowgroup = table.div
-        rows = rowgroup.find_all('div', class_='col-md-12 p-md-3 pt-0 pb-3')
+        rows = rowgroup.find_all('div', class_='mb-0 pt-3')
         for row in rows:
             variant_row = list(row.stripped_strings)
             for col in variant_row:
@@ -47,7 +47,6 @@ def main():
 
     parser.add_argument("-o", "--output", required=True, type=str,
                         help="Path to output file")
-
     args = parser.parse_args()
 
     variant_list = get_cdc_vocs()

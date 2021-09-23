@@ -25,7 +25,7 @@ const GroupReportTab = observer(() => {
   useEffect(() => {
     ReactTooltip.rebuild();
   }, []);
-
+  
   const renderHeader = () => {
     return (
       <AccordionWrapper
