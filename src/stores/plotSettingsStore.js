@@ -25,6 +25,8 @@ export const initialValues = {
 
   // SURVEILLANCE PLOT
   surveillanceMode: 'lineage',
+  surveillanceShowWarning: true,
+  surveillanceShowSettings: false,
   surveillanceSortField: 'counts', // 'group' or 'counts'
   surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
   surveillanceDisplayMinCounts: 5,
@@ -111,6 +113,8 @@ export class PlotSettingsStore {
   // -----------------
 
   @observable surveillanceMode = initialValues.surveillanceMode;
+  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
+  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
   @observable surveillanceSortField = initialValues.surveillanceSortField;
   @observable surveillanceSortDirection =
     initialValues.surveillanceSortDirection;
@@ -127,6 +131,14 @@ export class PlotSettingsStore {
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
+  };
+  @action
+  setSurveillanceShowWarning = (show) => {
+    this.surveillanceShowWarning = show;
+  };
+  @action
+  setSurveillanceShowSettings = (show) => {
+    this.surveillanceShowSettings = show;
   };
   @action
   setSurveillanceSortField = (field) => {
