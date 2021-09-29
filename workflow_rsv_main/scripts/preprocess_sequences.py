@@ -15,8 +15,7 @@ from pathlib import Path
 def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
-    2. Can't be less than 29700NT
-	3. Can't have more than 5% ambiguous NT
+	2. Can't have more than 5% ambiguous NT
     """
 
     # print("\nPreprocessing sequences")
@@ -61,10 +60,7 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
                     # 1: Check against nextstrain exclusion list
                     (cur_entry in exclude_taxons)
                     or
-                    # 2: Can't be less than 15000 NT
-                    len(cur_seq) < 15000
-                    or
-                    # 3: Can't have more than 5% ambiguous (N) NT
+                    # 2: Can't have more than 5% ambiguous (N) NT
                     num_ambiguous > math.floor(len(cur_seq) * 0.05)
                 ):
                     num_excluded += 1
