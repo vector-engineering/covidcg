@@ -11,6 +11,31 @@
 # The following link links to an NCBI table which queries the vvsearch2 endpoint
 # https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide
 
+# Here is a list of all fields in the response:
+['ExportDate_dt', 'QualNum_i', 'IncompleteCds_ss', 'IncompleteCdsCnt_i',
+       'Host_s', 'HostSpecies_s', 'HostLineage_ss', 'HostLineageId_ss',
+       'Locus_s', 'OrgId_i', 'VirusFamily_s', 'VirusGenus_s', 'VirusSpecies_s',
+       'VirusSpeciesId_i', 'VirusLineage_ss', 'VirusLineageId_ss', 'VirusL0_s',
+       'VirusL1_s', 'VirusL2_s', 'VirusL3_s', 'VirusL4_s', 'VirusL5_s',
+       'VirusL6_s', 'VirusL7_s', 'VirusL8_s', 'ViralHost_ss',
+       'GenomicMoltype_s', 'SLen_i', 'SetAcc_s', 'Strain_s', 'Authors_ss',
+       'Authors_csv', 'AuthorsCount_i', 'Country_s', 'Segment_s', 'Division_s',
+       'TaxName_s', 'Segments_ss', 'SegmentsCount_i', 'Serotype_s', 'Region_s',
+       'ParentAcc_s', 'SourceDB_s', 'Definition_s', 'HostId_i',
+       'CreateDate_dt', 'MolType_s', 'ProtAcc_ss', 'ProtAccCount_i',
+       'UpdateDate_dt', 'Completeness_s', 'CountryFull_s', 'ProtNames_ss',
+       'ProtNamesCount_i', 'NuclAcc_ss', 'NuclAccCount_i', 'CollectionDate_dr',
+       'AccVer_s', 'CollectionDate_s', 'AccNV_s', 'id', 'SeqType_s',
+       'FastaMD5_s', 'ids_ss', 'gi_i', 'Genome_js', 'Flags_ss', 'Flags_csv',
+       'FlagsCount_i', 'Isolation_ss', 'Isolation_csv', 'IsolationCount_i',
+       'Isolate_s', 'LatLon_s', 'IsolateParsed_s', 'Genotype_s', 'Note_s',
+       'Tech_s', 'Keywords_ss', 'KeywordsCount_i', 'PubMed_ss', 'PubMed_csv',
+       'PubMedCount_i', 'LabHost_s', 'SetPosition_i', 'BioProject_ss',
+       'BioProject_csv', 'BioProjectCount_i', 'GenomeCompleteness_s',
+       'BioProject_s', 'SRALink_ss', 'SRALink_csv', 'SRALinkCount_i',
+       'USAState_s', 'BioSample_ss', 'BioSample_csv', 'BioSampleCount_i',
+       'BioSample_s', 'Subtype_s', 'Clone_s']
+       
 # The params for a request and part of the response for those params have been pasted below
 
 "params":{
