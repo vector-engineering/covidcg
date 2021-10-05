@@ -1,9 +1,22 @@
 # pip install google-cloud-bigtable
 
 import argparse
-
+import json
+import os
+import pandas as pd
 from google.cloud import bigtable
+from itertools import islice
 
+
+# TODO: Move project_id, instance_id, and table_id into environment variables
+
+# 1. Load metadata definitions
+#    - Load example_data_genbank/metadata_map.json (JSON file)
+#    - Load example_data_genbank/location_map.json (loaded via. pandas)
+# 2. Load metadata dataframe (example_data_genbank/case_data.json)
+# 3. Join metadata definitions onto the dataframe
+# 4. Plan out/make column families
+# 5. Push to bigtable
 
 def main():
 
@@ -20,14 +33,134 @@ def main():
     # Open an existing table.
     table = instance.table(table_id)
 
-    row_key = 'r1'
-    row = table.read_row(row_key.encode('utf-8'))
+    case_data = pd.read_json('example_data_genbank/case_data.json')
+    location_map = pd.read_json('example_data_genbank/location_map.json')
+    with open('example_data_genbank/metadata_map.json', "r") as fp:
+        metadata_map = json.loads(fp.read())
 
-    column_family_id = 'metadata'
-    column_id = 'c1'.encode('utf-8')
-    value = row.cells[column_family_id][column_id][0].value.decode('utf-8')
+    df = case_data.join(location_map, on="location_id")
 
-    print('Row key: {}\nData: {}'.format(row_key, value))
+    print(df.columns)
+    print(metadata_map.keys())
+    """
+    'Accession ID', 
+
+    # DATES
+    'collection_date',
+    'submission_date'
+
+    # METADATA (integers, map is in metadata_map)
+    'database', 'strain', 'host', 'isolation_source', 'biosample_accession',  
+    'authors', 'publications', 
+    
+    # METADATA - string format
+    'lineage', 
+
+    # MUTATION IDs
+    'dna_snp_str', 'gene_aa_snp_str',
+    'protein_aa_snp_str', 
+    
+    # LOCATION INFORMATION
+    'location_id', 'region', 'country', 'division',  
+    'location'
+    """
+
+    # Create unique row key
+    # [location_id]:[date]:[Accession ID]
+
+    """
+    Collection date is in ISO format (YYYY-MM-DD)
+    """
+
+    START_DATE = pd.to_datetime('2019-01-01')
+    days_from_start = df['collection_date'].apply(lambda x: (pd.to_datetime(x) - START_DATE).days)
+
+    bigtable_key = df['location_id'].astype(str) + ':' + days_from_start.astype(str) + ':' + df['Accession ID']
+
+    # Helper function to map over lists and map to a dict.
+    # Assumes the dictionary keys are ints.
+    def geneHelper(l, d):
+        for i in range(0, len(l)):
+            l[i] = d[l[i]]
+        return l
+    # Map from metadata_map to df.
+    print(df['dna_snp_str'].head())
+    # Iterate over columns.
+    for c in df.columns:
+        # Map columns to the metadata map where the key is the int and the value
+        # is the value e.g. Homo sapiens, etc.
+        try:
+            d = metadata_map[c.replace('_str', '')]
+            # Reverse item and key order so that ints can be used as keys.
+            #mappingData = {v: k for k, v in d.items()}
+            d = {int(k): v for k, v in d.items()}
+            df[c] = df[c].map(d)
+        # Map columns where the columns contain lists. This is for all of the
+        # sequences where 0, 1, or more can be present.
+        except:
+            try:
+                d = metadata_map[c.replace('_str', '')]
+                d = {v: k for k, v in d.items()}
+                df[c] = df[c].apply(lambda x: geneHelper(x, d))
+            except:
+                pass
+    print(df['dna_snp_str'].head())
+    # TODO: config_genbank.yaml as map for ints in df
+
+    # Create core metadata family.
+    # Create sparse matrix for from location and location id.
+    # TODO: Map for locations.
+    coreMetadata = df[['location', 'location_id']].get_dummies()
+    coreMetadata[['collection_data', 'submission_date', 'Accession ID']] = df[[
+        'collection_data', 'submission_date', 'Accession ID']]
+    # Create other metadata family.
+    otherMetadata = df[['database', 'strain', 'host',
+                        'isolation_source', 'biosample_accession']]
+    # Mutations family.
+    mutationsFam = df[['dna_snp_str', 'gene_aa_snp_str',
+                       'protein_aa_snp_str']].get_dummies()
+
+
+    """
+    `metadata_cols` field in config_genbank.yaml has a list of metadata columns that will need to be "unmapped" from integers back to strings. The int->string map itself is in `metadata_map.json` (already loaded in here)
+
+    Map mutations back from integers -> strings. This map should also be in `metadata_map.json` file. Three levels of mutations, 'dna', 'gene_aa', and 'protein_aa'. These are currently integers in the main DF, in columns: 'dna_snp_str', 'gene_aa_snp_str',
+    'protein_aa_snp_str'
+    - use pandas dummy variables function
+    
+    
+    Separate into column families:
+        - core_metadata
+            - location
+            - collection date
+            - submission date
+            - Accession ID
+            - location_id
+        - other metadata (less frequently accessed)
+            - 'database', 'strain', 'host', 'isolation_source', 'biosample_accession',  
+    'authors', 'publications', 
+        - DNA mutations
+        - GENE AA mutations
+        - PROTEIN AA mutations
+        - Location
+            - region (continent)
+            - country
+            - division (state, province)
+            - location (county, city, etc)
+        - sequence
+            - whole genome sequence
+            - NOT NOW
+    
+    """
+
+    # row_key = 'r1'
+    # row = table.read_row(row_key.encode('utf-8'))
+
+    # column_family_id = 'metadata'
+    # column_id = 'c1'.encode('utf-8')
+    # value = row.cells[column_family_id][column_id][0].value.decode('utf-8')
+
+    # print('Row key: {}\nData: {}'.format(row_key, value))
 
 
 if __name__ == '__main__':
