@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 const QuestionButtonContainer = ({ ...props }) => {
   useEffect(() => {
     // This prevents every single QuestionButton from rebuilding if they aren't visible.
-    if (props.rebuild === 'rebuild') {
+    if (props.rebuildAfterMount) {
       ReactTooltip.rebuild();
     }
   });
