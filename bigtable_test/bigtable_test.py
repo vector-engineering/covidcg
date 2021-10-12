@@ -5,8 +5,7 @@ import json
 import os
 import pandas as pd
 from google.cloud import bigtable
-from itertools import islice
-
+from sklearn.preprocessing import MultiLabelBinarizer
 
 # TODO: Move project_id, instance_id, and table_id into environment variables
 
@@ -110,16 +109,27 @@ def main():
     # Create core metadata family.
     # Create sparse matrix for from location and location id.
     # TODO: Map for locations.
-    coreMetadata = df[['location', 'location_id']].get_dummies()
+    coreMetadata = pd.get_dummies(df[['location', 'location_id']])
     coreMetadata[['collection_data', 'submission_date', 'Accession ID']] = df[[
-        'collection_data', 'submission_date', 'Accession ID']]
+        'collection_date', 'submission_date', 'Accession ID']]
     # Create other metadata family.
     otherMetadata = df[['database', 'strain', 'host',
                         'isolation_source', 'biosample_accession']]
     # Mutations family.
-    mutationsFam = df[['dna_snp_str', 'gene_aa_snp_str',
-                       'protein_aa_snp_str']].get_dummies()
-
+    mlb = MultiLabelBinarizer()
+    # Binarize all mutations, and add _type suffix to column name to prevent collisions.
+    dnaMuts = pd.DataFrame(mlb.fit_transform(
+        df['dna_snp_str']),
+        columns=mlb.classes_, index=df.index).add_suffix('_dna')
+    geneMuts = pd.DataFrame(mlb.fit_transform(
+        df['gene_aa_snp_str']),
+        columns=mlb.classes_, index=df.index).add_suffix('_gene')
+    proteinMuts = pd.DataFrame(mlb.fit_transform(
+        df['protein_aa_snp_str']),
+        columns=mlb.classes_, index=df.index).add_suffix('_protein')
+    print(dnaMuts)
+    mutationFam = pd.concat([dnaMuts, geneMuts, proteinMuts])
+    print(mutationFam.shape)
 
     """
     `metadata_cols` field in config_genbank.yaml has a list of metadata columns that will need to be "unmapped" from integers back to strings. The int->string map itself is in `metadata_map.json` (already loaded in here)
