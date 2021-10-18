@@ -209,9 +209,28 @@ class ReadExtractor:
             # Insertion or Soft Clip
             elif op == 1 or op == 4:
 
+                ins_nt = [self.read_seq[self.read_i]]
+
+                # Check ahead for more insertions
+                if (
+                    self.cigar_i < len(self.cigar_ops) - 1
+                    and self.read_i < len(self.read_seq) - 1
+                ):
+                    next_op = self.cigar_ops[self.cigar_i + 1]
+                    while (
+                        (next_op == 1 or next_op == 4)
+                        and self.cigar_i < len(self.cigar_ops) - 2
+                        and self.read_i < len(self.read_seq) - 2
+                    ):
+                        self.read_i += 1
+                        self.cigar_i += 1
+
+                        ins_nt.append(self.read_seq[self.read_i])
+                        next_op = self.cigar_ops[self.cigar_i + 1]
+
                 # Add insertion information to mutation string
                 self.mutation_str.append(
-                    (self.read.query_name, self.ref_i, "", self.read_seq[self.read_i])
+                    (self.read.query_name, self.ref_i, "", "".join(ins_nt))
                 )
 
                 self.read_i += 1
