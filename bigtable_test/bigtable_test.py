@@ -24,13 +24,13 @@ def main():
     table_id="gisaid"
 
     # Create a Cloud Bigtable client.
-    client = bigtable.Client(project=project_id)
+    # client = bigtable.Client(project=project_id)
 
-    # Connect to an existing Cloud Bigtable instance.
-    instance = client.instance(instance_id)
+    # # Connect to an existing Cloud Bigtable instance.
+    # instance = client.instance(instance_id)
 
-    # Open an existing table.
-    table = instance.table(table_id)
+    # # Open an existing table.
+    # table = instance.table(table_id)
 
     case_data = pd.read_json('example_data_genbank/case_data.json')
     location_map = pd.read_json('example_data_genbank/location_map.json')
@@ -65,6 +65,7 @@ def main():
     """
 
     # Create unique row key
+    # TODO:
     # [location_id]:[date]:[Accession ID]
 
     """
@@ -104,33 +105,16 @@ def main():
             except:
                 pass
     print(df['dna_snp_str'].head())
+    df[['dna_snp_str', 'gene_aa_snp_str', 'protein_aa_snp_str', 'Accession ID']].to_json('test_mutations.csv')
     # TODO: config_genbank.yaml as map for ints in df
 
     # Create core metadata family.
     # Create sparse matrix for from location and location id.
     # TODO: Map for locations.
-    coreMetadata = pd.get_dummies(df[['location', 'location_id']])
-    coreMetadata[['collection_data', 'submission_date', 'Accession ID']] = df[[
-        'collection_date', 'submission_date', 'Accession ID']]
-    # Create other metadata family.
-    otherMetadata = df[['database', 'strain', 'host',
-                        'isolation_source', 'biosample_accession']]
-    # Mutations family.
-    mlb = MultiLabelBinarizer()
-    # Binarize all mutations, and add _type suffix to column name to prevent collisions.
-    dnaMuts = pd.DataFrame(mlb.fit_transform(
-        df['dna_snp_str']),
-        columns=mlb.classes_, index=df.index).add_suffix('_dna')
-    geneMuts = pd.DataFrame(mlb.fit_transform(
-        df['gene_aa_snp_str']),
-        columns=mlb.classes_, index=df.index).add_suffix('_gene')
-    proteinMuts = pd.DataFrame(mlb.fit_transform(
-        df['protein_aa_snp_str']),
-        columns=mlb.classes_, index=df.index).add_suffix('_protein')
-    print(dnaMuts)
-    mutationFam = pd.concat([dnaMuts, geneMuts, proteinMuts])
-    print(mutationFam.shape)
-
+    coreMetadata = df[['location', 'location_id']]
+    coreMetadata = df[['collection_date', 'submission_date', 'Accession ID', 'location', 'location_id']]
+    coreMetadata.to_csv('test_metadata.csv')
+    
     """
     `metadata_cols` field in config_genbank.yaml has a list of metadata columns that will need to be "unmapped" from integers back to strings. The int->string map itself is in `metadata_map.json` (already loaded in here)
 
