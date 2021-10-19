@@ -111,9 +111,36 @@ export class PlotSettingsStore {
   // SURVEILLANCE PLOT
   // -----------------
 
+<<<<<<< HEAD
+=======
+  @observable surveillanceMode = initialValues.surveillanceMode;
+  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
+  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
+  @observable surveillanceSortField = initialValues.surveillanceSortField;
+  @observable surveillanceSortDirection =
+    initialValues.surveillanceSortDirection;
+  @observable surveillanceDisplayMinCounts =
+    initialValues.surveillanceDisplayMinCounts;
+  @observable surveillanceDisplayMinPercent =
+    initialValues.surveillanceDisplayMinPercent;
+  @observable surveillanceSigMinCounts = initialValues.surveillanceSigMinCounts;
+  @observable surveillanceSigMinPercent =
+    initialValues.surveillanceSigMinPercent;
+  @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
+  @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
+
+>>>>>>> 2064dad (Fixes (v2.2.4) (#400))
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
+  };
+  @action
+  setSurveillanceShowWarning = (show) => {
+    this.surveillanceShowWarning = show;
+  };
+  @action
+  setSurveillanceShowSettings = (show) => {
+    this.surveillanceShowSettings = show;
   };
   @action
   setSurveillanceSortField = (field) => {

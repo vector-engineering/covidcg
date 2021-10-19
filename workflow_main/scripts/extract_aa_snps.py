@@ -157,11 +157,12 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                             ]
                         )
                         if not ref_snp_seq == snp["ref"]:
-                            raise Exception(
+                            print(
                                 "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
                                     ref_snp_seq, snp["ref"],
                                 )
                             )
+                            continue
 
                     # Remove the reference base(s)
                     if len(snp["ref"]) > 0:

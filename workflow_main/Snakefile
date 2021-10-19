@@ -195,6 +195,7 @@ rule build_location_tree:
         )
     output:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
+    threads: workflow.cores / 2
     run:
         geo_select_tree = build_location_tree(
             input.case_data, input.location_map, input.emoji_map_file,
@@ -232,6 +233,7 @@ rule consensus_snps:
     output:
         group_consensus_snvs = os.path.join(data_folder, "group_consensus_snps.json"),
         group_snv_frequencies = os.path.join(data_folder, "group_snv_frequencies.json")
+    threads: workflow.cores / 2
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
@@ -251,6 +253,7 @@ rule global_group_counts:
         global_group_counts = os.path.join(
             data_folder, "global_group_counts.json"
         )
+    threads: workflow.cores / 2
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
@@ -271,6 +274,7 @@ rule assemble_data_package:
         location_map = rules.combine_all_data.output.location_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")
+    threads: workflow.cores / 2
     run:
         assemble_data_package(
             **input,
@@ -284,6 +288,7 @@ rule build_full_dataframe:
         location_map = rules.combine_all_data.output.location_map
     output:
         full_df = os.path.join(data_folder, 'data_complete.csv')
+    threads: workflow.cores / 2
     run:
         build_full_dataframe(
             input.case_data, input.metadata_map, input.location_map,

@@ -61,6 +61,7 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     df = df.rename(
         columns={
             "genbank_accession": "Accession ID",
+            "strain": "virus_name",
             "submitted": "submission_date",
             "collected": "collection_date",
         }
@@ -127,7 +128,7 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     # metadata columns
     fill_in_cols = [
         "database",
-        "strain",
+        "virus_name",
         "host",
         "isolation_source",
         "biosample_accession",

@@ -477,8 +477,7 @@
     },
     {
       "name": "casesY",
-      "type": "symlog",
-      "constant": 10,
+      "type": "linear",
       "domain": {"data": "selected_cases", "field": "cumulative_cases"},
       "range": {"signal": "bottomRowYRange"}
     },
@@ -839,7 +838,7 @@
               "domain": false,
               "orient": "left",
               "titlePadding": 5,
-              "title": "Sequences"
+              "title": "Cumulative Sequences"
             }
           ],
           "marks": [
@@ -925,18 +924,8 @@
               "domain": false,
               "orient": "left",
               "titlePadding": 5,
-              "title": "Cases",
-              "format": ".3s",
-              "values": [
-                0,
-                100,
-                1000,
-                10000,
-                100000,
-                1000000,
-                10000000,
-                1000000000
-              ]
+              "title": "Cumulative Cases",
+              "format": ".3s"
             }
           ],
           "marks": [
