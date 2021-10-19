@@ -21,6 +21,7 @@ def combine_all_data(
     dna_snp_files,
     gene_aa_snp_files,
     protein_aa_snp_files,
+    genotypes,
     # Output
     metadata_map,
     location_map,
@@ -55,12 +56,20 @@ def combine_all_data(
     # Load metadata
     df = pd.read_csv(metadata).set_index("Accession ID")
 
+    # Load genotypes
+    genotype_df = pd.read_csv(genotypes).set_index("Accession ID")
+
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)
     # "group_cols" is defined in the "group_cols" field in the
     # config.yaml file
     # for col in group_cols:
     #     df = df.loc[~pd.isnull(df[col]), :]
+
+    # Join genotypes to main data frame
+    df = df.join(
+        genotype_df[["genotype"]], on="Accession ID", how="inner", sort=False
+    )
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences

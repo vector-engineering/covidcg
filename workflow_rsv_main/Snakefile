@@ -15,6 +15,7 @@ from scripts.build_location_tree import build_location_tree
 from scripts.combine_all_data import combine_all_data
 from scripts.consensus_snps import get_all_consensus_snps
 from scripts.extract_aa_snps import extract_aa_snps
+from scripts.assign_genotype import assign_genotype
 from scripts.extract_dna_snps import extract_dna_snps
 from scripts.global_group_counts import global_group_counts
 from scripts.preprocess_sequences import preprocess_sequences
@@ -88,6 +89,18 @@ rule extract_dna_snps:
         dna_snp_df.to_csv(output.dna_snp, index=False)
 
 
+rule assign_genotype:
+    """Read bam files and assign rsv genotype (A or B)
+    """
+    input:
+        bam = rules.align_sequences.output.bam
+    output:
+        genotypes = os.path.join(data_folder, "genotypes", "{chunk}_genotype.csv")
+    run:
+        genotype_df = assign_genotype(input.bam)
+        genotype_df.to_csv(output.genotypes, index=False)
+
+
 rule process_genes_and_proteins:
     """Calculate some additional columns on top of the human-generated
     genes.json and proteins.json annotations file
@@ -154,6 +167,10 @@ rule combine_all_data:
         ),
         protein_aa_snp_files = expand(
             os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
+            chunk=CHUNKS
+        ),
+        genotypes = expand(
+            os.path.join(data_folder, "genotypes", "{chunk}_genotype.csv"),
             chunk=CHUNKS
         )
     output:

@@ -19,7 +19,6 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
         ref = read_fasta_file(lines)
-        ref_seq = list(ref.values())[0]
 
     # JSON to dataframe
     gene_or_protein_df = pd.read_json(gene_or_protein_file)
@@ -61,7 +60,9 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
         # print(ref_name)
 
         resi_counter = 0
-        aa_seqs[ref_name] = []
+        for key in ref:
+            aa_seqs[key] = {}
+            aa_seqs[key][ref_name] = []
 
         for segment in ref_row["segments"]:
             # Get the region in coordinates to translate/look for SNPs in
@@ -70,9 +71,11 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
             segment_len = ((segment_end - segment_start) // 3) + 1
 
             # Translate the sequence and store it for later
-            aa_seqs[ref_name] += list(
-                translate(ref_seq[segment_start - 1 : segment_end])
-            )
+            for key in ref:
+                ref_seq = ref[key]
+                aa_seqs[key][ref_name] += list(
+                    translate(ref_seq[segment_start - 1 : segment_end])
+                )
 
             # Get all NT SNPs in this segment
             segment_snp_df = (
@@ -136,6 +139,8 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                     pos_inside_region.append(snp["pos"] - region_start - 1)
 
                 # Get the reference sequence of the region
+                ref_seq_name = cur_snp["ref_seq_name"]
+                ref_seq = ref[ref_seq_name]
                 region_seq = list(ref_seq[region_start:region_end])
                 initial_region_seq = [s for s in region_seq]
                 # Translate the reference region sequence

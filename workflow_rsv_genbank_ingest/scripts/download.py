@@ -62,6 +62,8 @@ params = {
             ("authors", "Authors_csv"),
             ("publications", "PubMed_csv"),
             ("sequence", "Nucleotide_seq"),
+            ("serotype", "Serotype_s"),
+            ("protein_names", "ProtNames_ss")
         ]
     ),
     # Stable sort with newest last so diffs work nicely.  Columns are source

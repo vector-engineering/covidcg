@@ -19,8 +19,7 @@ def extract_dna_snps(sam_file, reference_file):
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
-        ref = read_fasta_file(lines)
-        ref_seq = list(ref.values())[0]
+        ref_seq = read_fasta_file(lines)
 
     ReadExtractor.RefSeq = ref_seq
 
@@ -36,12 +35,13 @@ def extract_dna_snps(sam_file, reference_file):
 
         # print(read.query_name)
         dna_snps = read_extractor.process_all()
-        all_dna_snps.extend(dna_snps)
+        if dna_snps:
+            all_dna_snps.extend(dna_snps)
 
     samfile.close()
 
     dna_snp_df = pd.DataFrame.from_records(
-        all_dna_snps, columns=["Accession ID", "pos", "ref", "alt"]
+        all_dna_snps, columns=["Accession ID", "pos", "ref", "alt", "ref_seq_name"]
     )
 
     # Fill NaN values

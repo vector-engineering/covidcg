@@ -3,7 +3,7 @@
 """Extract variable regions from an aligned segment, in a flexible
 and SNP-tolerant manner
 
-Modified and heavily trimmed down version of read_extractor.py (v0.1.0) 
+Modified and heavily trimmed down version of read_extractor.py (v0.1.0)
 from the variant_extractor project
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
@@ -74,7 +74,7 @@ class ReadExtractor:
             return
 
         # Get the reference sequence
-        self.reference_seq = ReadExtractor.RefSeq
+        self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
 
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
@@ -84,30 +84,30 @@ class ReadExtractor:
 
         Op                  Code    Description
         -----------------------------------------------------------------------------------------
-        M	BAM_CMATCH      0       Match (alignment column containing two letters). This could 
-                                    contain two different letters (mismatch) or two identical 
-                                    letters. USEARCH generates CIGAR strings containing Ms rather 
+        M	BAM_CMATCH      0       Match (alignment column containing two letters). This could
+                                    contain two different letters (mismatch) or two identical
+                                    letters. USEARCH generates CIGAR strings containing Ms rather
                                     than X's and ='s (see below).
-        I	BAM_CINS        1       Insertion (gap in the query sequence). 
+        I	BAM_CINS        1       Insertion (gap in the query sequence).
         D	BAM_CDEL        2       Deletion (gap in the target sequence).
         N	BAM_CREF_SKIP   3       skipped region from the reference
         S	BAM_CSOFT_CLIP  4       Segment of the query sequence that does not appear in the
-                                    alignment. This is used with soft clipping, where the 
+                                    alignment. This is used with soft clipping, where the
                                     full-length query sequence is given (field 10 in the SAM record)
                                     . In this case, S operations specify segments at the start and/
                                     or end of the query that do not appear in a local alignment.
         H	BAM_CHARD_CLIP  5       Segment of the query sequence that does not appear in the
-                                    alignment. This is used with hard clipping, where only the 
-                                    aligned segment of the query sequences is given (field 10 in 
-                                    the SAM record). In this case, H operations specify segments at 
-                                    the start and/or end of the query that do not appear in the SAM 
+                                    alignment. This is used with hard clipping, where only the
+                                    aligned segment of the query sequences is given (field 10 in
+                                    the SAM record). In this case, H operations specify segments at
+                                    the start and/or end of the query that do not appear in the SAM
                                     record.
         P	BAM_CPAD        6       padding (silent deletion from padded reference)
         =	BAM_CEQUAL      7       Alignment column containing two identical letters. USEARCH can
-                                    read CIGAR strings using this operation, but does not generate 
+                                    read CIGAR strings using this operation, but does not generate
                                     them.
         X	BAM_CDIFF       8       Alignment column containing a mismatch, i.e. two different
-                                    letters. USEARCH can read CIGAR strings using this operation, 
+                                    letters. USEARCH can read CIGAR strings using this operation,
                                     but does not generate them.
         B	BAM_CBACK       9
         """
@@ -265,7 +265,7 @@ class ReadExtractor:
                 if alt not in ["A", "C", "G", "T"]:
                     continue
 
-                self.dna_snps.append((query_name, pos, ref, alt))
+                self.dna_snps.append((query_name, pos, ref, alt, self.read.reference_name))
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -291,6 +291,7 @@ class ReadExtractor:
                     pos,
                     "".join([m[2] for m in adj_muts]),
                     "".join([m[3] for m in adj_muts]),
+                    self.read.reference_name
                 )
             )
             # Skip ahead to the end of the adjacent mutations
@@ -298,6 +299,9 @@ class ReadExtractor:
 
     def process_all(self):
         """Do everything, return everything"""
+        # Skip read without read_seq
+        if not self.read_seq:
+            return None
 
         # Travel to the end of the read
         # so that we can collect additional mutations (if they exist)
