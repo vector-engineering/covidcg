@@ -15,10 +15,12 @@ def write_reference_files(reference_fasta, reference_json):
 
     # Write the reference fasta file to json
     # Load the reference sequence
+    ref_seq = {}
     with open(reference_fasta, "r") as fp:
         lines = fp.readlines()
         ref = read_fasta_file(lines)
-        ref_seq = list(ref.values())[0]
+        for key in ref:
+            ref_seq[key] = ref[key]
 
     with open(reference_json, "w") as fp:
         fp.write(json.dumps({"ref_seq": ref_seq}))

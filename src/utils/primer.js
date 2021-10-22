@@ -1,28 +1,37 @@
-import primers from '../../static_data/primers.json';
+import { config } from '../config';
 
-let processedPrimers = primers;
-// console.log(processedPrimers);
-
-// Build primer tree - with Institutions as the roots
+let processedPrimers = null;
 let primerSelectTree = [];
 let instObj = null;
-processedPrimers.forEach((primer) => {
-  instObj = primerSelectTree.find((node) => node.value === primer.Institution);
-  if (instObj === undefined) {
-    instObj = {
-      value: primer.Institution,
-      label: primer.Institution,
-      level: 'group',
-      children: [],
-    };
-    primerSelectTree.push(instObj);
-  }
-  instObj.children.push({
-    value: primer.Name,
-    label: primer.Name,
-    level: 'individual',
+
+if (config.virus === 'SARS-CoV-2') {
+  import('../../static_data/primers.json').then((mod) => {
+    const primers = mod.default;
+    if (primers && primers.length > 0) {
+      // Build primer tree - with Institutions as the roots
+      processedPrimers = primers;
+      primers.forEach((primer) => {
+        instObj = primerSelectTree.find(
+          (node) => node.value === primer.Institution
+        );
+        if (instObj === undefined) {
+          instObj = {
+            value: primer.Institution,
+            label: primer.Institution,
+            level: 'group',
+            children: [],
+          };
+          primerSelectTree.push(instObj);
+        }
+        instObj.children.push({
+          value: primer.Name,
+          label: primer.Name,
+          level: 'individual',
+        });
+      });
+    }
   });
-});
+}
 
 // console.log(primerSelectTree);
 
@@ -35,18 +44,24 @@ export function getPrimerSelectTree() {
 }
 
 export function getPrimerByName(primerName) {
-  return processedPrimers.find((primer) => primer.Name === primerName);
+  return processedPrimers
+    ? processedPrimers.find((primer) => primer.Name === primerName)
+    : null;
 }
 
 export function getPrimersByGroup(groupName) {
-  return processedPrimers.filter((primer) => primer.Institution === groupName);
+  return processedPrimers
+    ? processedPrimers.filter((primer) => primer.Institution === groupName)
+    : null;
 }
 
 // Example usage: queryPrimers({ Institution: "CDC", Name: "N1" })
 export function queryPrimers(queryObj) {
-  return processedPrimers.find((primer) => {
-    return Object.keys(queryObj).every((key) => {
-      return primer[key] === queryObj[key];
-    });
-  });
+  return processedPrimers
+    ? processedPrimers.find((primer) => {
+        return Object.keys(queryObj).every((key) => {
+          return primer[key] === queryObj[key];
+        });
+      })
+    : null;
 }

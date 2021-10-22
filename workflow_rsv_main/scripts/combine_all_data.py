@@ -57,7 +57,10 @@ def combine_all_data(
     df = pd.read_csv(metadata).set_index("Accession ID")
 
     # Load genotypes
-    genotype_df = pd.read_csv(genotypes).set_index("Accession ID")
+    genotype_df_list = []
+    for file in genotypes:
+        genotype_df_list.append(pd.read_csv(file).set_index("Accession ID"))
+    genotype_df = pd.concat(genotype_df_list)
 
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)

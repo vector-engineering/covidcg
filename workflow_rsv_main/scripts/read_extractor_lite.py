@@ -65,6 +65,10 @@ class ReadExtractor:
         # Nucleotide sequence of the read
         self.read_seq = self.read.get_forward_sequence()
 
+        # Don't try to do anything else if this read has no sequence
+        if not self.read_seq:
+            return
+
         # If reverse complement, flip the sequence and the quality scores
         if self.read.is_reverse:
             self.read_seq = reverse_complement(self.read_seq)

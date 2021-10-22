@@ -20,7 +20,7 @@ def assign_genotype(sam_file):
         if read.reference_name == "NC_038235.1":
             all_genotypes.append([read.query_name, "A"])
         elif read.reference_name == "NC_001781.1":
-            all_genotypes.append([read.query_name, "A"])
+            all_genotypes.append([read.query_name, "B"])
 
     samfile.close()
 

@@ -37,41 +37,84 @@ import { rootStoreInstance } from './rootStore';
 const today = intToISO(new Date().getTime());
 const lastNDays = 30; // By default, show only the last 1 month
 
-export const initialValues = {
-  groupKey: 'snv',
-  dnaOrAa: DNA_OR_AA.AA,
+const determineInitialValues = (virus) => {
+  switch (virus) {
+    case 'SARS-CoV-2':
+      return {
+        groupKey: 'snv',
+        dnaOrAa: DNA_OR_AA.AA,
 
-  // Select the Spike gene and nsp13 protein by default
-  selectedGene: getGene('S'),
-  selectedProtein: getProtein('nsp12 - RdRp'),
-  selectedPrimers: [],
-  customCoordinates: [[8000, 12000]],
-  customSequences: ['GACCCCAAAATCAGCGAAAT'],
-  residueCoordinates: [[1, getGene('S').len_aa]],
+        // Select the Spike gene and nsp13 protein by default
+        selectedGene: getGene('S'),
+        selectedProtein: getProtein('nsp12 - RdRp'),
+        selectedPrimers: [],
+        customCoordinates: [[8000, 12000]],
+        customSequences: ['GACCCCAAAATCAGCGAAAT'],
+        residueCoordinates: [[1, getGene('S').len_aa]],
 
-  // Selecting the gene as the coordinate range by default
-  coordinateMode: COORDINATE_MODES.COORD_GENE,
+        // Selecting the gene as the coordinate range by default
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
 
-  // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
-  startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
-  endDate: today,
+        // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
+        startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
+        endDate: today,
 
-  submStartDate: '',
-  submEndDate: '',
+        submStartDate: '',
+        submEndDate: '',
 
-  selectedLocationNodes: [],
+        selectedLocationNodes: [],
 
-  hoverGroup: null,
-  selectedGroups: [],
+        hoverGroup: null,
+        selectedGroups: [],
 
-  // Metadata filtering
-  selectedMetadataFields: {},
-  ageRange: [null, null],
+        // Metadata filtering
+        selectedMetadataFields: {},
+        ageRange: [null, null],
 
-  // Location tab
-  hoverLocation: null,
-  focusedLocations: [],
+        // Location tab
+        hoverLocation: null,
+        focusedLocations: [],
+      };
+    case 'rsv':
+      return {
+        groupKey: 'snv',
+        dnaOrAa: DNA_OR_AA.AA,
+
+        // Select the F gene and protein by default
+        selectedGene: getGene('F'),
+        selectedProtein: getProtein('F'),
+        selectedPrimers: [],
+        customCoordinates: [[8000, 12000]],
+        customSequences: ['GACCCCAAAATCAGCGAAAT'],
+        residueCoordinates: [[1, getGene('F').len_aa]],
+
+        // Selecting the gene as the coordinate range by default
+        coordinateMode: COORDINATE_MODES.COORD_GENE,
+
+        // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
+        startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
+        endDate: today,
+
+        submStartDate: '',
+        submEndDate: '',
+
+        selectedLocationNodes: [],
+
+        hoverGroup: null,
+        selectedGroups: [],
+
+        // Metadata filtering
+        selectedMetadataFields: {},
+        ageRange: [null, null],
+
+        // Location tab
+        hoverLocation: null,
+        focusedLocations: [],
+      };
+  }
 };
+
+export const initialValues = determineInitialValues(config.virus);
 
 const urlParams = new URLSearchParams(window.location.search);
 

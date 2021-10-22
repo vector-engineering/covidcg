@@ -234,7 +234,7 @@ rule consensus_snps:
     run:
         get_all_consensus_snps(
             input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
-            group_cols=[],
+            group_cols=list(config["group_cols"].keys()),
             consensus_fraction=config["consensus_fraction"],
             min_reporting_fraction=config['min_reporting_fraction']
         )
@@ -247,13 +247,11 @@ rule global_group_counts:
     input:
         case_data = rules.combine_all_data.output.case_data
     output:
-        global_group_counts = os.path.join(
-            data_folder, "global_group_counts.json"
-        )
+        global_group_counts = os.path.join(data_folder, "global_group_counts.json")
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
-            group_cols=[]
+            group_cols=list(config["group_cols"].keys())
         )
 
 rule assemble_data_package:
@@ -271,7 +269,7 @@ rule assemble_data_package:
     run:
         assemble_data_package(
             **input,
-            data_package_out = output.data_package
+            data_package_out=output.data_package
         )
 
 rule build_full_dataframe:
