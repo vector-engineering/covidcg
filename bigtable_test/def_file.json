@@ -1,0 +1,16 @@
+{
+    "sourceFormat": "BIGTABLE",
+    "sourceUris": [
+        "https://googleapis.com/bigtable/projects/test-project-1-2-3/instances/covid-cg/tables/test"
+    ],
+    "bigtableOptions": {
+        "columnFamilies" : [
+            {
+                "familyId": "metadata",
+                "onlyReadLatest": "true",
+                "type": "INTEGER",
+                "encoding": "BINARY"
+            }
+        ]
+    }
+}
