@@ -5,16 +5,12 @@ import numpy as np
 import json
 
 
-def build_full_dataframe(case_data, metadata_map, location_map, df_out):
+def build_full_dataframe(case_data, metadata_map, df_out):
 
     # Load data
     df = pd.read_json(case_data).set_index("Accession ID")
-    location_map = pd.read_json(location_map)
     with open(metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
-
-    # Join location information
-    df = df.join(location_map, on="location_id").drop(columns=["location_id"])
 
     # Join SNV information
     dna_snp_map = {v: k for k, v in metadata_map["dna_snp"].items()}
@@ -40,7 +36,11 @@ def build_full_dataframe(case_data, metadata_map, location_map, df_out):
     )
 
     # Metadata
-    for col in list(metadata_map.keys())[:-3]:
+    for col in metadata_map.keys():
+        # We already did these
+        if col in ["dna_snp", "gene_aa_snp", "protein_aa_snp"]:
+            continue
+
         mmap = {int(k): v for k, v in metadata_map[col].items()}
         df[col] = df[col].map(mmap)
 

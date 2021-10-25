@@ -174,7 +174,6 @@ rule combine_all_data:
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        location_map = os.path.join(data_folder, "location_map.json"),
         case_data = os.path.join(data_folder, "case_data.json"),
         case_data_csv = os.path.join(data_folder, "case_data.csv")
     run:
@@ -189,7 +188,7 @@ rule combine_all_data:
 rule build_location_tree:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map,
+        metadata_map = rules.combine_all_data.output.metadata_map,
         emoji_map_file = os.path.join(
             static_data_folder, "country_to_emoji.xls"
         )
@@ -198,7 +197,7 @@ rule build_location_tree:
     threads: workflow.cores / 2
     run:
         geo_select_tree = build_location_tree(
-            input.case_data, input.location_map, input.emoji_map_file,
+            input.case_data, input.metadata_map, input.emoji_map_file,
             output.geo_select_tree
         )
 
@@ -270,8 +269,7 @@ rule assemble_data_package:
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.global_group_counts.output.global_group_counts,
         group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")
     threads: workflow.cores / 2
@@ -284,16 +282,12 @@ rule assemble_data_package:
 rule build_full_dataframe:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         full_df = os.path.join(data_folder, 'data_complete.csv')
     threads: workflow.cores / 2
     run:
-        build_full_dataframe(
-            input.case_data, input.metadata_map, input.location_map,
-            output.full_df
-        )
+        build_full_dataframe(input.case_data, input.metadata_map, output.full_df)
 
 
 rule update_vocs:

@@ -12,10 +12,6 @@
     "level": "VOC"
   },
   {
-    "name": "B.1.620",
-    "level": "VOI"
-  },
-  {
     "name": "B.1.621",
     "level": "VOI"
   },
@@ -25,10 +21,6 @@
   },
   {
     "name": "C.36",
-    "level": "Other"
-  },
-  {
-    "name": "AT.1",
     "level": "Other"
   },
   {
@@ -53,6 +45,14 @@
   },
   {
     "name": "B.1.617.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.617.2",
+    "level": "Other"
+  },
+  {
+    "name": "AY.4.2",
     "level": "Other"
   }
 ]
