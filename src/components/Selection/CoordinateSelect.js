@@ -480,7 +480,7 @@ const CoordinateSelect = observer(
                       onChange={handleResidueCoordsChange}
                     />
                     <QuestionButton
-                      rebuild={true}
+                      rebuildAfterMount={true}
                       data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
                       data-html="true"
                       data-for="main-tooltip"
@@ -498,7 +498,7 @@ const CoordinateSelect = observer(
                       {geneDomainOptionElements[selectedGene.name]}
                     </select>
                     <QuestionButton
-                      rebuild={true}
+                      rebuildAfterMount={true}
                       data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
                       data-html="true"
                       data-for="main-tooltip"
@@ -546,7 +546,7 @@ const CoordinateSelect = observer(
                       onChange={handleResidueCoordsChange}
                     />
                     <QuestionButton
-                      rebuild={true}
+                      rebuildAfterMount={true}
                       data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
                       data-html="true"
                       data-for="main-tooltip"
@@ -564,7 +564,7 @@ const CoordinateSelect = observer(
                       {proteinDomainOptionElements[selectedProtein.name]}
                     </select>
                     <QuestionButton
-                      rebuild={true}
+                      rebuildAfterMount={true}
                       data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
                       data-html="true"
                       data-for="main-tooltip"
@@ -634,7 +634,7 @@ const CoordinateSelect = observer(
                   onChange={handleCustomCoordChange}
                 />
                 <QuestionButton
-                  rebuild={true}
+                  rebuildAfterMount={true}
                   data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
                   data-html="true"
                   data-for="main-tooltip"
@@ -671,7 +671,7 @@ const CoordinateSelect = observer(
                     invalid={!validCustomSequences}
                   />
                   <QuestionButton
-                    rebuild={true}
+                    rebuildAfterMount={true}
                     data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
                     data-html="true"
                     data-for="main-tooltip"
