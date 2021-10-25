@@ -17,7 +17,7 @@ session.execute("USE cg_gisaid;")
 
 start = time.time()
 rows = session.execute("""
-SELECT * FROM dna_mut WHERE location_id IN %s AND collection_date >= %s
+SELECT * FROM dna_snp WHERE location_id IN %s AND collection_date >= %s
 """, (query.ValueSequence(list(range(800))), datetime.datetime.fromisoformat('2020-01-01')))
 rows = list(rows)
 
