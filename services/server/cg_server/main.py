@@ -69,7 +69,7 @@ def verify_password(username, password):
 
 
 connection_options = {
-    "dbname": os.environ["POSTGRES_DB"],
+    "dbname": config["postgres_db"],
     "user": os.environ["POSTGRES_USER"],
     "password": os.environ["POSTGRES_PASSWORD"],
     "host": os.environ["POSTGRES_HOST"],
@@ -102,7 +102,7 @@ if os.getenv("FLASK_ENV", "development") == "development":
             seed_database(conn)
             insert_sequences(
                 conn,
-                os.getenv("DATA_PATH", project_root / config["data_folder"]),
+                os.getenv("DATA_PATH", project_root / config["example_data_folder"]),
                 filenames_as_dates=True,
             )
 

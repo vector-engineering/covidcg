@@ -21,7 +21,7 @@ from .load_snvs import process_dna_snvs, process_aa_snvs
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
+data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
 static_data_path = Path(
     os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
 )
@@ -485,4 +485,3 @@ def seed_database(conn, schema="public"):
         )
 
         print("done")
-

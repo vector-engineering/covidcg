@@ -92,11 +92,15 @@ def process_aa_snvs(aa_snv_dict, name, defs):
     aa_snv["snv_name"] = aa_snv["snp_str"].apply(format_aa_snv)
 
     def get_nt_pos(snv):
-        segment_ind = [
-            i
-            for i, segment in enumerate(defs.at[snv[name], "aa_ranges"])
-            if snv["pos"] >= segment[0] and snv["pos"] <= segment[1]
-        ][0]
+        try:
+            segment_ind = [
+                i
+                for i, segment in enumerate(defs.at[snv[name], "aa_ranges"])
+                if snv["pos"] >= segment[0] and snv["pos"] <= segment[1]
+            ][0]
+        except Exception as e:
+            print(snv)
+            raise e
         return defs.at[snv[name], "segments"][segment_ind][0] + (
             (snv["pos"] - defs.at[snv[name], "aa_ranges"][segment_ind][0]) * 3
         )
