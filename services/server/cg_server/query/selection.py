@@ -6,14 +6,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
-import psycopg2
-import uuid
-
 from psycopg2 import sql
-from psycopg2.extras import execute_values
-
 from cg_server.constants import constants
-
 
 def build_coordinate_filters(
     conn, dna_or_aa, coordinate_mode, coordinate_ranges, selected_gene, selected_protein
@@ -96,73 +90,9 @@ def build_coordinate_filters(
     return snv_filter, snv_table
 
 
-def create_location_map_table(cur, location_ids):
-    """Create a temp table of location name -> location_id
-    This is joined onto the results so that we pass to the client
-    an aggregated list of group counts per location name
-
-    Parameters
-    ----------
-    cur: psycopg2.cursor
-    location_ids: dict
-        - Structured as { "location_name": [location_ids], ... }
-          i.e., keys are location names as arbitrary strings, and
-          location_ids is a list of integers
-
-    Returns
-    -------
-    location_map_table_name: str
-        - Name of the location map temp table
-          Table name has a uuid appended to not collide with other
-          ongoing queries
-    """
-
-    # Transform into a list of tuples for record insertion
-    # [('location', id), ...]
-    location_id_to_name_list = []
-    for location in location_ids.keys():
-        for location_id in location_ids[location]:
-            location_id_to_name_list.append((location, location_id))
-
-    location_map_table_name = "location_map_" + uuid.uuid4().hex
-
-    cur.execute(
-        sql.SQL(
-            """
-        CREATE TEMP TABLE {location_map_table_name} (
-            "id" INTEGER NOT NULL,
-            "name" TEXT  NOT NULL 
-        ) ON COMMIT DROP;
-        """
-        ).format(location_map_table_name=sql.Identifier(location_map_table_name))
-    )
-
-    execute_values(
-        cur,
-        sql.SQL(
-            """INSERT INTO {location_map_table_name} ("name", "id") VALUES %s"""
-        ).format(location_map_table_name=sql.Identifier(location_map_table_name)),
-        location_id_to_name_list,
-    )
-
-    # Write raw SQL for debugging purposes
-    # print(
-    #     """
-    #     INSERT INTO "{location_map_table_name}" ("name", "id") VALUES
-    #     {location_id_to_name_list}
-    #     """.format(
-    #         location_map_table_name=location_map_table_name,
-    #         location_id_to_name_list=",\n".join(
-    #             ["('{}', {})".format(x[0], x[1]) for x in location_id_to_name_list]
-    #         ),
-    #     )
-    # )
-
-    return location_map_table_name
-
-
-def build_sequence_query(
-    location_ids={},
+def build_sequence_where_filter(
+    loc_level,
+    loc_ids=[],
     start_date=None,
     end_date=None,
     subm_start_date=None,
@@ -174,10 +104,10 @@ def build_sequence_query(
 
     Parameters
     ----------
-    location_ids: dict
-        - Structured as { "location_name": [location_ids], ... }
-        - Keys are location names as arbitrary strings
-        - Values (location_ids) are a list of integers
+    loc_level: str
+        - One of: 'region', 'country', 'division', 'location'
+    loc_ids:
+        - List of integer IDs for the given loc_level
     start_date: str
         - Collection sart date, in ISO format (YYYY-MM-DD)
     end_date: str
@@ -198,9 +128,6 @@ def build_sequence_query(
           inline table expression or CTE
 
     """
-
-    # Combine all location IDs into one big array
-    all_location_ids = sum(location_ids.values(), [])
 
     # Construct submission date filters
     if subm_start_date is None and subm_end_date is None:
@@ -240,78 +167,27 @@ def build_sequence_query(
     else:
         metadata_filters = sql.SQL("")
 
-    sequence_query = sql.SQL(
+    sequence_where_filter = sql.SQL(
         """
-        SELECT m.*
-        FROM "metadata" m
-        WHERE
-            {metadata_filters}
-            "collection_date" >= {start_date} AND
-            "collection_date" <= {end_date} AND
-            {submission_date_filter}
-            "location_id" = ANY({location_ids})
+        {metadata_filters}
+        "collection_date" >= {start_date} AND
+        "collection_date" <= {end_date} AND
+        {submission_date_filter}
+        {loc_level_col} = ANY({loc_ids})
         """
     ).format(
         metadata_filters=metadata_filters,
         start_date=sql.Literal(start_date),
         end_date=sql.Literal(end_date),
         submission_date_filter=submission_date_filter,
-        location_ids=sql.Literal(all_location_ids),
+        loc_level_col=sql.Identifier(loc_level),
+        loc_ids=sql.Literal(loc_ids),
     )
 
-    return sequence_query
+    return sequence_where_filter
 
 
-def create_sequence_temp_table(cur, req):
-    """Build the sequence query, run it, and store the results
-    in a temporary table
-
-    Parameters
-    ----------
-    conn: psycopg2.cursor
-    req: flask.request
-
-    Returns
-    -------
-    temp_table_name: str
-    """
-
-    location_ids = req.get("location_ids", None)
-
-    start_date = pd.to_datetime(req.get("start_date", None))
-    end_date = pd.to_datetime(req.get("end_date", None))
-
-    subm_start_date = req.get("subm_start_date", "")
-    subm_end_date = req.get("subm_end_date", "")
-    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
-    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
-
-    selected_metadata_fields = req.get("selected_metadata_fields", None)
-
-    # First store the sequence query into a temp table
-    sequence_query = build_sequence_query(
-        location_ids=location_ids,
-        start_date=start_date,
-        end_date=end_date,
-        subm_start_date=subm_start_date,
-        subm_end_date=subm_end_date,
-        selected_metadata_fields=selected_metadata_fields,
-    )
-    temp_table_name = "sequence_selection_" + uuid.uuid4().hex
-    cur.execute(
-        sql.SQL(
-            """
-        CREATE TEMP TABLE {temp_table_name}
-        ON COMMIT DROP
-        AS ({sequence_query})
-        """
-        ).format(
-            temp_table_name=sql.Identifier(temp_table_name),
-            sequence_query=sequence_query,
-        )
-    )
-
-    return temp_table_name
+loc_levels = ["region", "country", "division", "location"]
 
 
 def query_and_aggregate(conn, req):
@@ -342,141 +218,110 @@ def query_and_aggregate(conn, req):
           name.
     """
 
+    start_date = pd.to_datetime(req.get("start_date", None))
+    end_date = pd.to_datetime(req.get("end_date", None))
+
+    subm_start_date = req.get("subm_start_date", "")
+    subm_end_date = req.get("subm_end_date", "")
+    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
+    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+
+    selected_metadata_fields = req.get("selected_metadata_fields", None)
+    group_key = req.get("group_key", None)
+    dna_or_aa = req.get("dna_or_aa", None)
+    coordinate_mode = req.get("coordinate_mode", None)
+    coordinate_ranges = req.get("coordinate_ranges", None)
+    selected_gene = req.get("selected_gene", None)
+    selected_protein = req.get("selected_protein", None)
+
     with conn.cursor() as cur:
 
-        location_ids = req.get("location_ids", None)
-        start_date = pd.to_datetime(req.get("start_date", None))
-        end_date = pd.to_datetime(req.get("end_date", None))
+        main_query = []
+        for loc_level in loc_levels:
+            loc_ids = req.get(loc_level, None)
+            if not loc_ids:
+                continue
 
-        subm_start_date = req.get("subm_start_date", "")
-        subm_end_date = req.get("subm_end_date", "")
-        subm_start_date = (
-            None if subm_start_date == "" else pd.to_datetime(subm_start_date)
-        )
-        subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
-
-        selected_metadata_fields = req.get("selected_metadata_fields", None)
-        group_key = req.get("group_key", None)
-        dna_or_aa = req.get("dna_or_aa", None)
-        coordinate_mode = req.get("coordinate_mode", None)
-        coordinate_ranges = req.get("coordinate_ranges", None)
-        selected_gene = req.get("selected_gene", None)
-        selected_protein = req.get("selected_protein", None)
-
-        sequence_query = build_sequence_query(
-            location_ids=location_ids,
-            start_date=start_date,
-            end_date=end_date,
-            subm_start_date=subm_start_date,
-            subm_end_date=subm_end_date,
-            selected_metadata_fields=selected_metadata_fields,
-        )
-
-        location_map_table_name = create_location_map_table(cur, location_ids)
-
-        if group_key == constants["GROUP_SNV"]:
-            (snv_filter, snv_table) = build_coordinate_filters(
-                conn,
-                dna_or_aa,
-                coordinate_mode,
-                coordinate_ranges,
-                selected_gene,
-                selected_protein,
+            sequence_where_filter = build_sequence_where_filter(
+                loc_level,
+                loc_ids=loc_ids,
+                selected_metadata_fields=selected_metadata_fields,
+                start_date=start_date,
+                end_date=end_date,
+                subm_start_date=subm_start_date,
+                subm_end_date=subm_end_date,
             )
-            sequence_snv_table = "sequence_" + snv_table
 
-            # welcome to CTE hell
-            # The main challenge here is that we need to preserve
-            # sequences without selected SNVs because we need to
-            # count these as a "Reference" group
-            # 1) Get the selected sequences into the "seq" CTE
-            # 2) Get the selected SNV ids in the "snp_data" CTE
-            # 3) Right join the selected SNVs into the "seq" table,
-            #    such that each SNV has its own row. The right join
-            #    also ensures that sequences without selected SNVs
-            #    will still be present in the table. They will have
-            #    a single SNV with ID "-1", which will denote that this
-            #    sequences does not have any selected SNVs.
-            #    This result is stored in the "filtered_snp" CTE
-            # 4) Next, we collapse by sequence ID so that each row
-            #    represents a single sequence, instead of a single SNV
-            #    This result is stored in the "snv_list" CTE
-            # 5) Finally, we collapse sequences by their co-occurring SNVs
-            #    and count them. This is the final aggregated data that we
-            #    will send to the client
-            main_query = sql.SQL(
-                """
-                WITH "seq" AS (
-                    {sequence_query}
-                ),
-                "snp_data" AS (
-                    SELECT "id"
-                    FROM {snv_table}
-                    {snv_filter}
-                ),
-                "filtered_snp" AS (
-                    SELECT
-                        "seq"."id" AS "sequence_id",
-                        "seq"."collection_date",
-                        loc_map."name" AS "location",
-                        COALESCE(snp."snp_id", -1) AS "snp_id"
-                    FROM {sequence_snv_table} snp
-                    INNER JOIN "snp_data" ON snp_data.id = snp.snp_id
-                    RIGHT OUTER JOIN "seq" ON snp.sequence_id = "seq".id
-                    LEFT OUTER JOIN (
-                        SELECT "id", "name"
-                        FROM {location_map_table_name}
-                    ) loc_map ON "seq"."location_id" = loc_map."id"
-                ),
-                "snv_list" AS (
-                    SELECT 
-                        "location",
-                        "collection_date",
-                        ARRAY_AGG("snp_id") AS "group_id"
-                    FROM "filtered_snp"
-                    GROUP BY "location", "collection_date", "sequence_id"
+            if group_key == constants["GROUP_SNV"]:
+                (snv_filter, snv_table) = build_coordinate_filters(
+                    conn,
+                    dna_or_aa,
+                    coordinate_mode,
+                    coordinate_ranges,
+                    selected_gene,
+                    selected_protein,
                 )
-                SELECT
-                    "location",
-                    "collection_date",
-                    "group_id",
-                    COUNT(*) as "count"
-                FROM "snv_list"
-                GROUP BY "location", "collection_date", "group_id"
-                """
-            ).format(
-                sequence_query=sequence_query,
-                location_map_table_name=sql.Identifier(location_map_table_name),
-                sequence_snv_table=sql.Identifier(sequence_snv_table),
-                snv_table=sql.Identifier(snv_table),
-                snv_filter=snv_filter,
-            )
+                sequence_snv_table = "sequence_" + snv_table
 
-            # print(main_query.as_string(conn))
+                main_query.append(
+                    sql.SQL(
+                        """
+                    SELECT
+                        sm."location", 
+                        sm."collection_date", 
+                        sm."mutations", 
+                        COUNT(*) as "count"
+                    FROM (
+                        SELECT 
+                            sst."collection_date", 
+                            locdef."value" AS "location",
+                            (sst.mutations & (
+                                SELECT ARRAY_AGG("id")
+                                FROM {snv_table}
+                                {snv_filter}
+                            )) as "mutations"
+                        FROM {sequence_snv_table} sst 
+                        INNER JOIN {loc_def_table} locdef ON sst.{loc_level_col} = locdef.id
+                        WHERE {sequence_where_filter}
+                    ) sm
+                    GROUP BY sm.mutations, sm."location", sm.collection_date
+                    """
+                    ).format(
+                        loc_level_col=sql.Identifier(loc_level),
+                        loc_def_table=sql.Identifier("metadata_" + loc_level),
+                        snv_table=sql.Identifier(snv_table),
+                        snv_filter=snv_filter,
+                        sequence_snv_table=sql.Identifier(sequence_snv_table),
+                        sequence_where_filter=sequence_where_filter,
+                    )
+                )
+            else:
+                main_query.append(
+                    sql.SQL(
+                        """
+                    SELECT 
+                        locdef."value" as "location", 
+                        m."collection_date", 
+                        m.{group_key}, 
+                        COUNT(m."sequence_id") as "count"
+                    FROM "metadata" m
+                    INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"
+                    WHERE {sequence_where_filter}
+                    GROUP BY locdef."value", m."collection_date", m."lineage"
+                    """
+                    ).format(
+                        group_key=sql.Identifier(group_key),
+                        loc_level_col=sql.Identifier(loc_level),
+                        loc_def_table=sql.Identifier("metadata_" + loc_level),
+                        sequence_where_filter=sequence_where_filter,
+                    )
+                )
 
-        else:
-            main_query = sql.SQL(
-                """
-                SELECT 
-                    location_map."name",
-                    q."collection_date",
-                    q."lineage",
-                    count(*) as "count"
-                FROM (
-                    {sequence_query}
-                ) q
-                LEFT OUTER JOIN (
-                    SELECT "id", "name"
-                    FROM {location_map_table_name}
-                ) location_map ON q."location_id" = location_map."id"
-                GROUP BY location_map."name", q."collection_date", q."lineage"
-                """
-            ).format(
-                sequence_query=sequence_query,
-                location_map_table_name=sql.Identifier(location_map_table_name),
-            )
+        if not main_query:
+            raise Exception("No locations provided")
 
-        # print(main_query.as_string(conn))
+        main_query = sql.SQL(" UNION ALL ").join(main_query)
+
         cur.execute(main_query)
 
         res = pd.DataFrame.from_records(
@@ -485,4 +330,3 @@ def query_and_aggregate(conn, req):
         ).to_json(orient="records")
 
     return res
-

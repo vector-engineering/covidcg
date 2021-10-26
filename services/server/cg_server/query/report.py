@@ -64,41 +64,38 @@ def generate_report(conn, req):
         # REGIONAL SINGLE SPIKE SNVs
         cur.execute(
             """
-            WITH snp_region_counts AS (
-                SELECT 
-                    seq_snp."snp_id",
-                    l."region",
-                    COUNT(seq_snp."sequence_id") AS "count"
-                FROM "sequence_gene_aa_snp" seq_snp
-                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."id"
-                INNER JOIN "location" l ON m."location_id" = l."id"
-                WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY seq_snp."snp_id", l."region"
+            WITH mutation_region_counts AS (
+                SELECT
+                    "region", "mutation_id", COUNT(*) as "count"
+                FROM (
+                    SELECT "region", UNNEST("mutations") as "mutation_id"
+                    FROM "sequence_gene_aa_snp" seq_snp
+                    WHERE
+                        "collection_date" >= %(start_date)s AND
+                        "collection_date" <= %(end_date)s
+                ) muts
+                GROUP BY "region", "mutation_id"
             ),
             region_counts AS (
-                SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
+                SELECT "region", COUNT("sequence_id")
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                    "collection_date" >= %(start_date)s AND
+                    "collection_date" <= %(end_date)s
+                GROUP BY "region"
             )
             SELECT
                 SUBSTRING(snp_def."snv_name" FROM 3) AS "name",
                 snp_def."pos",
                 snp_def."ref",
                 snp_def."alt",
-                snp_region_counts."region",
-                snp_region_counts."count",
-                ((snp_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
-            FROM snp_region_counts
-            INNER JOIN "gene_aa_snp" snp_def ON snp_region_counts."snp_id" = snp_def."id"
-            INNER JOIN region_counts ON region_counts."region" = snp_region_counts."region"
+                mutation_region_counts."region",
+                mutation_region_counts."count",
+                ((mutation_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
+            FROM mutation_region_counts
+            INNER JOIN "gene_aa_snp" snp_def ON mutation_region_counts."mutation_id" = snp_def."id"
+            INNER JOIN region_counts ON region_counts."region" = mutation_region_counts."region"
+            INNER JOIN "metadata_region" mr ON region_counts."region" = mr."id"
             WHERE snp_def."gene" = 'S'
             """,
             {"start_date": start_date, "end_date": end_date},
