@@ -113,6 +113,7 @@ def seed_database(conn, schema="public"):
         cur.execute('CREATE INDEX "ix_dna_snp_pos" ON "dna_snp"("pos");')
 
         # AA SNVs
+        print(metadata_map["gene_aa_snp"])
         gene_aa_snp = process_aa_snvs(metadata_map["gene_aa_snp"], "gene", genes)
         cur.execute('DROP TABLE IF EXISTS "gene_aa_snp";')
         cur.execute(
@@ -447,22 +448,24 @@ def seed_database(conn, schema="public"):
         # Country score
         # Just dump this as a big JSON
         cur.execute('DROP TABLE IF EXISTS "country_score";')
-        cur.execute(
-            """
-            CREATE TABLE "country_score" (
-                value JSON NOT NULL
-            );
-            """
-        )
-        with (data_path / "country_score.json").open("r") as fp:
-            country_score = json.loads(fp.read())
+        # Only include country_score for covidcg
+        if config["virus"] == "SARS-CoV-2":
+            cur.execute(
+                """
+                CREATE TABLE "country_score" (
+                    value JSON NOT NULL
+                );
+                """
+            )
+            with (data_path / "country_score.json").open("r") as fp:
+                country_score = json.loads(fp.read())
 
-        cur.execute(
-            """
-            INSERT INTO "country_score" (value) VALUES (%s)
-            """,
-            [Json(country_score)],
-        )
+            cur.execute(
+                """
+                INSERT INTO "country_score" (value) VALUES (%s)
+                """,
+                [Json(country_score)],
+            )
 
         # Geo select tree
         # Just dump this as a JSON string in a table

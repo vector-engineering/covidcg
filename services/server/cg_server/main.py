@@ -77,9 +77,56 @@ connection_options = {
 if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
-conn_pool = psycopg2.pool.SimpleConnectionPool(
-    1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
-)
+conn_pool = None
+try:
+    conn_pool = psycopg2.pool.SimpleConnectionPool(
+        1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
+    )
+except Exception:
+    # If an error is thrown, check if the database exists
+    connection = psycopg2.connect(user=connection_options["user"],
+                                  password=connection_options["password"],
+                                  host=connection_options["host"],
+                                  port=connection_options["port"])
+    cur = connection.cursor()
+    cur.execute(
+        psycopg2.sql.SQL(
+            """
+            SELECT EXISTS (
+                SELECT datname FROM pg_catalog.pg_database
+                WHERE datname = {dbname}
+            );
+            """
+        ).format(dbname=psycopg2.sql.Literal(connection_options["dbname"]))
+    )
+
+    if not cur.fetchone()[0]:
+        connection.commit()
+        connection.close()
+        # Open a new connection in autocommit to create db
+        connection = psycopg2.connect(user=connection_options["user"],
+                                      password=connection_options["password"],
+                                      host=connection_options["host"],
+                                      port=connection_options["port"])
+        connection.autocommit = True
+        # If the database does not exist, create it
+        cur = connection.cursor()
+        cur.execute(
+            psycopg2.sql.SQL(
+                """
+                CREATE DATABASE {dbname};
+                """
+            ).format(dbname=psycopg2.sql.Identifier(connection_options["dbname"]))
+            )
+
+    connection.commit()
+    connection.close()
+
+    # Create conn_pool
+    conn_pool = psycopg2.pool.SimpleConnectionPool(
+        1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
+    )
+
 
 # Quickly check if our database has been initialized yet
 # If not, then let's seed it
