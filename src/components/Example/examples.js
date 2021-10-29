@@ -44,7 +44,7 @@ export const getExampleItems = ({ selectTree }) => {
           dnaOrAa: DNA_OR_AA.DNA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
-          selectedLocationNodes: [selectTree], // select root
+          selectedLocationNodes: selectTree.children, // select root
           startDate: MIN_DATE,
           endDate: todayISO(),
         },
