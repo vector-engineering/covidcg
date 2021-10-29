@@ -9,7 +9,7 @@ const QuestionButtonContainer = ({ ...props }) => {
     if (props.rebuildAfterMount) {
       ReactTooltip.rebuild();
     }
-  });
+  }, []);
   return <span {...props}>?</span>;
 };
 
@@ -29,11 +29,11 @@ const QuestionButton = styled(QuestionButtonContainer)`
 `;
 
 QuestionButtonContainer.defaultProps = {
-  rebuild: ''
+  rebuild: 'false',
 };
 
 QuestionButtonContainer.propTypes = {
-  rebuild: PropTypes.bool
+  rebuild: PropTypes.string,
 };
 
 export default QuestionButton;
