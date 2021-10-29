@@ -449,7 +449,7 @@ def seed_database(conn, schema="public"):
         # Just dump this as a big JSON
         cur.execute('DROP TABLE IF EXISTS "country_score";')
         # Only include country_score for covidcg
-        if config["virus"] == "SARS-CoV-2":
+        if config["virus"] == "sars2":
             cur.execute(
                 """
                 CREATE TABLE "country_score" (

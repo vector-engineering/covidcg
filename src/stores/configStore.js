@@ -39,7 +39,7 @@ const lastNDays = 30; // By default, show only the last 1 month
 
 const determineInitialValues = (virus) => {
   switch (virus) {
-    case 'SARS-CoV-2':
+    case 'sars2':
       return {
         groupKey: 'snv',
         dnaOrAa: DNA_OR_AA.AA,

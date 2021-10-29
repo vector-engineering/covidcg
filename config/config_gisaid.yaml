@@ -3,7 +3,7 @@
 # ------------------
 
 # Virus this config is written for
-virus: "SARS-CoV-2"
+virus: "sars2"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
@@ -16,6 +16,9 @@ static_data_folder: "static_data"
 # Path to folder with data to use in development
 # This path is relative to the project root
 example_data_folder: "data_private"
+
+# Database for this virus
+postgres_db: "cg_dev"
 # ------------------
 #       INGEST
 # ------------------

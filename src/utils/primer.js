@@ -4,7 +4,7 @@ let processedPrimers = null;
 let primerSelectTree = [];
 let instObj = null;
 
-if (config.virus === 'SARS-CoV-2') {
+if (config.virus === 'sars2') {
   import('../../static_data/primers.json').then((mod) => {
     const primers = mod.default;
     if (primers && primers.length > 0) {
