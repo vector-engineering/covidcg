@@ -111,6 +111,9 @@ if os.getenv("FLASK_ENV", "development") == "development":
 
 @app.route("/seed")
 def _seed():
+    if os.getenv("FLASK_ENV", "development") != "development":
+        return "no"
+
     conn = get_conn_from_pool(connection_options, conn_pool)
     with conn.cursor() as cur:
         print("Seeding DB")
