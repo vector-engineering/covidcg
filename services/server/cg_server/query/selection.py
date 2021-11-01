@@ -9,6 +9,7 @@ import pandas as pd
 from psycopg2 import sql
 from cg_server.constants import constants
 
+
 def build_coordinate_filters(
     conn, dna_or_aa, coordinate_mode, coordinate_ranges, selected_gene, selected_protein
 ):
@@ -90,24 +91,16 @@ def build_coordinate_filters(
     return snv_filter, snv_table
 
 
-def build_sequence_where_filter(
-    loc_level,
-    loc_ids=[],
-    start_date=None,
-    end_date=None,
-    subm_start_date=None,
-    subm_end_date=None,
-    selected_metadata_fields={},
-):
+def build_sequence_where_filter(req):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
 
     Parameters
     ----------
-    loc_level: str
-        - One of: 'region', 'country', 'division', 'location'
-    loc_ids:
-        - List of integer IDs for the given loc_level
+    req: flask.Request
+
+    Request fields
+    --------------
     start_date: str
         - Collection sart date, in ISO format (YYYY-MM-DD)
     end_date: str
@@ -129,6 +122,16 @@ def build_sequence_where_filter(
 
     """
 
+    start_date = pd.to_datetime(req.get("start_date", None))
+    end_date = pd.to_datetime(req.get("end_date", None))
+
+    subm_start_date = req.get("subm_start_date", "")
+    subm_end_date = req.get("subm_end_date", "")
+    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
+    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+
+    selected_metadata_fields = req.get("selected_metadata_fields", None)
+
     # Construct submission date filters
     if subm_start_date is None and subm_end_date is None:
         submission_date_filter = sql.SQL("")
@@ -144,7 +147,7 @@ def build_sequence_where_filter(
             )
 
         submission_date_filter = sql.Composed(
-            [sql.SQL(" AND ").join(chunks), sql.SQL(" AND ")]
+            [sql.SQL(" AND "), sql.SQL(" AND ").join(chunks)]
         )
 
     metadata_filters = []
@@ -170,24 +173,17 @@ def build_sequence_where_filter(
     sequence_where_filter = sql.SQL(
         """
         {metadata_filters}
-        "collection_date" >= {start_date} AND
-        "collection_date" <= {end_date} AND
+        "collection_date" >= {start_date} AND "collection_date" <= {end_date}
         {submission_date_filter}
-        {loc_level_col} = ANY({loc_ids})
         """
     ).format(
         metadata_filters=metadata_filters,
         start_date=sql.Literal(start_date),
         end_date=sql.Literal(end_date),
         submission_date_filter=submission_date_filter,
-        loc_level_col=sql.Identifier(loc_level),
-        loc_ids=sql.Literal(loc_ids),
     )
 
     return sequence_where_filter
-
-
-loc_levels = ["region", "country", "division", "location"]
 
 
 def query_and_aggregate(conn, req):
@@ -218,15 +214,6 @@ def query_and_aggregate(conn, req):
           name.
     """
 
-    start_date = pd.to_datetime(req.get("start_date", None))
-    end_date = pd.to_datetime(req.get("end_date", None))
-
-    subm_start_date = req.get("subm_start_date", "")
-    subm_end_date = req.get("subm_end_date", "")
-    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
-    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
-
-    selected_metadata_fields = req.get("selected_metadata_fields", None)
     group_key = req.get("group_key", None)
     dna_or_aa = req.get("dna_or_aa", None)
     coordinate_mode = req.get("coordinate_mode", None)
@@ -237,19 +224,18 @@ def query_and_aggregate(conn, req):
     with conn.cursor() as cur:
 
         main_query = []
-        for loc_level in loc_levels:
+        for loc_level in constants["GEO_LEVELS"].values():
             loc_ids = req.get(loc_level, None)
             if not loc_ids:
                 continue
 
-            sequence_where_filter = build_sequence_where_filter(
-                loc_level,
-                loc_ids=loc_ids,
-                selected_metadata_fields=selected_metadata_fields,
-                start_date=start_date,
-                end_date=end_date,
-                subm_start_date=subm_start_date,
-                subm_end_date=subm_end_date,
+            sequence_where_filter = build_sequence_where_filter(req)
+            sequence_where_filter = sql.SQL(
+                "{prior} AND {loc_level_col} = ANY({loc_ids})"
+            ).format(
+                prior=sequence_where_filter,
+                loc_level_col=sql.Identifier(loc_level),
+                loc_ids=sql.Literal(loc_ids),
             )
 
             if group_key == constants["GROUP_SNV"]:
