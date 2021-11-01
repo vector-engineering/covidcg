@@ -186,6 +186,28 @@ def build_sequence_where_filter(req):
     return sequence_where_filter
 
 
+def build_sequence_location_where_filter(req):
+    sequence_where_filter = [build_sequence_where_filter(req)]
+    loc_where = []
+    for loc_level in constants["GEO_LEVELS"].values():
+        loc_ids = req.get(loc_level, None)
+        if not loc_ids:
+            continue
+        loc_where.append(
+            sql.SQL("({loc_level_col} = ANY({loc_ids}))").format(
+                loc_level_col=sql.Identifier(loc_level),
+                loc_ids=sql.Literal(loc_ids),
+            )
+        )
+    loc_where = sql.Composed(
+        [sql.SQL("("), sql.SQL(" OR ").join(loc_where), sql.SQL(")")]
+    )
+    sequence_where_filter.append(sql.SQL(" AND "))
+    sequence_where_filter.append(loc_where)
+    sequence_where_filter = sql.Composed(sequence_where_filter)
+    return sequence_where_filter
+
+
 def query_and_aggregate(conn, req):
     """Select sequences and aggregate results
     If in "SNV" mode, return sequences grouped by co-occurring SNVs

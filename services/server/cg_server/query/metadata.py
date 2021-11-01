@@ -8,32 +8,14 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import pandas as pd
 
 from cg_server.config import config
-from cg_server.constants import constants
-from cg_server.query import build_sequence_where_filter
+from cg_server.query import build_sequence_location_where_filter
 from psycopg2 import sql
 
 
 def query_metadata(conn, req):
     with conn.cursor() as cur:
 
-        sequence_where_filter = [build_sequence_where_filter(req)]
-        loc_where = []
-        for loc_level in constants["GEO_LEVELS"].values():
-            loc_ids = req.get(loc_level, None)
-            if not loc_ids:
-                continue
-            loc_where.append(
-                sql.SQL("({loc_level_col} = ANY({loc_ids}))").format(
-                    loc_level_col=sql.Identifier(loc_level),
-                    loc_ids=sql.Literal(loc_ids),
-                )
-            )
-        loc_where = sql.Composed(
-            [sql.SQL("("), sql.SQL(" OR ").join(loc_where), sql.SQL(")")]
-        )
-        sequence_where_filter.append(sql.SQL(" AND "))
-        sequence_where_filter.append(loc_where)
-        sequence_where_filter = sql.Composed(sequence_where_filter)
+        sequence_where_filter = build_sequence_location_where_filter(req)
 
         # Iterate over each metadata column, and aggregate counts
         # per metadata value
