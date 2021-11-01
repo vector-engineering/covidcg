@@ -56,7 +56,7 @@ checkpoint chunk_data:
         feed = rules.download.output.feed
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
-        metadata_dirty = temp(os.path.join(data_folder, "metadata_dirty.csv"))
+        metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv")
     params:
         chunk_size = config["chunk_size"]
     run:
