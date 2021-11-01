@@ -115,10 +115,15 @@ def _seed():
     with conn.cursor() as cur:
         print("Seeding DB")
         seed_database(conn)
+        insert_sequences(
+            conn,
+            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            filenames_as_dates=True,
+        )
         conn.commit()
         conn_pool.putconn(conn)
 
-    return "hello world"
+    return "Done!"
 
 
 @app.route("/")
