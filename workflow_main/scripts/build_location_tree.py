@@ -105,7 +105,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
     )
 
     # Root node
-    select_tree = {"label": "All", "value": "All", "children": []}
+    select_tree = {"label": "All", "value": "All", "value_txt": "All", "children": []}
 
     for i, loc in unique_locations_df.iterrows():
         # Add region node
@@ -121,6 +121,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             region_node = {
                 "label": loc["region"],
                 "value": loc["region_id"],
+                "value_txt": loc["region"],
                 "level": "region",
                 "actions": [
                     {
@@ -156,6 +157,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             country_node = {
                 "label": country_emoji + loc["country"],
                 "value": loc["country_id"],
+                "value_txt": loc["country"],
                 "region": loc["region_id"],
                 "level": "country",
                 "actions": [
@@ -187,6 +189,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             division_node = {
                 "label": loc["division"],
                 "value": loc["division_id"],
+                "value_txt": loc["division"],
                 "region": loc["region_id"],
                 "country": loc["country_id"],
                 "level": "division",
@@ -231,6 +234,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             location_node = {
                 "label": loc["location"],
                 "value": loc["location_id"],
+                "value_txt": loc["location"],
                 "region": loc["region_id"],
                 "country": loc["country_id"],
                 "division": loc["division_id"],
