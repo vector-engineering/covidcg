@@ -199,11 +199,14 @@ def build_sequence_location_where_filter(req):
                 loc_ids=sql.Literal(loc_ids),
             )
         )
-    loc_where = sql.Composed(
-        [sql.SQL("("), sql.SQL(" OR ").join(loc_where), sql.SQL(")")]
-    )
-    sequence_where_filter.append(sql.SQL(" AND "))
-    sequence_where_filter.append(loc_where)
+    
+    if loc_where:
+        loc_where = sql.Composed(
+            [sql.SQL("("), sql.SQL(" OR ").join(loc_where), sql.SQL(")")]
+        )
+        sequence_where_filter.append(sql.SQL(" AND "))
+        sequence_where_filter.append(loc_where)
+    
     sequence_where_filter = sql.Composed(sequence_where_filter)
     return sequence_where_filter
 

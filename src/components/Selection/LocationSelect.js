@@ -51,14 +51,22 @@ const LocationSelect = observer(
       });
 
       if (allRegions) {
-        // Add any regions not already in selectedNodeObjs
+        // Add any regions not already in selectedNodeObjs, and remove self
         state.data.children.forEach((region) => {
           if (!selectedNodeObjs.includes(region)) {
             selectedNodeObjs.push(region);
           }
         });
+        // Remove self
+        selectedNodeObjs = selectedNodeObjs.filter((node) => {
+          return node.value != 'All';
+        });
       }
+      
       updateSelectedLocationNodes(selectedNodeObjs);
+      // Have to update the store's version as well, since
+      // we didn't directly click on these new nodes
+      locationDataStore.setSelectedNodes(selectedNodeObjs);
     };
     const treeSelectOnAction = (node, action) => {
       // console.log('onAction::', action, node);

@@ -1,40 +1,3 @@
-// Recursively look through children for location IDs
-function getLocationIdsFromNode(node) {
-  if (node.location_id === undefined) {
-    return [];
-  }
-
-  return [node.location_id].concat(
-    node.children.reduce((memo, child) => {
-      return memo.concat(getLocationIdsFromNode(child));
-    }, [])
-  );
-}
-
-export function getLocationIds(selectedNodes) {
-  // Get all locations matching the selected nodes
-  let locationIds = [];
-
-  // For each selected node
-  selectedNodes.forEach((node) => {
-    locationIds.push(Array.from(new Set(getLocationIdsFromNode(node))));
-  });
-
-  return locationIds;
-}
-
-// Create map of node to location IDs
-// i.e., "USA": [1, 3, 4, 5, 6]
-export function getLocationIdsByNode(selectedNodes) {
-  const locationNodeToIdMap = {};
-  selectedNodes.forEach((node) => {
-    locationNodeToIdMap[node.value] = Array.from(
-      new Set(getLocationIdsFromNode(node))
-    );
-  });
-  return locationNodeToIdMap;
-}
-
 export function getLocationByNameAndLevel(
   selectTree,
   name,
@@ -48,7 +11,7 @@ export function getLocationByNameAndLevel(
     // Check all children
     for (let i = 0; i < nodes.length; i++) {
       let node = nodes[i];
-      if (node.level === level && node.value === name) {
+      if (node.level === level && node.value_txt === name) {
         validNodes.push(node);
       }
 
