@@ -82,7 +82,7 @@ rule align_sequences:
         fasta = rules.preprocess_sequences.output.fasta
     params:
         ref_seq = os.path.join(static_data_folder, 'reference.fasta')
-    threads: workflow.cores / 2
+    threads: workflow.cores
     output:
         bam = os.path.join(data_folder, "bam", "{chunk}.bam")
     shell:
