@@ -61,6 +61,7 @@ def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
 
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
+        cur.execute("CREATE EXTENSION IF NOT EXISTS intarray;")
 
         print("Writing metadata maps...", end="", flush=True)
 
