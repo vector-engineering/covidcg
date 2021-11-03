@@ -24,7 +24,6 @@ export default class InitialValueStore {
       .then((config) => {
         import(`../constants/initialValues.${config.virus}.js`)
           .then((mod) => {
-            console.log(mod);
             return mod.default();
           })
           .then((allInitialValues) => {
