@@ -1,16 +1,22 @@
 import { observable, action, runInAction } from 'mobx';
 
-export class InitialValueStore {
+import { ASYNC_STATES } from '../constants/defs.json';
+
+export default class InitialValueStore {
   @observable configStore = {};
+  @observable plotSettingsStore = {};
 
-  constructor() {}
+  @observable status = ASYNC_STATES.UNINITIALIZED;
 
-  init() {
+  constructor() {
     this.getInitialValues();
   }
 
+  init() {}
+
   @action
   async getInitialValues() {
+    this.status = ASYNC_STATES.STARTED;
     import('../config')
       .then((configMod) => {
         return configMod.config;
@@ -18,13 +24,29 @@ export class InitialValueStore {
       .then((config) => {
         import(`../constants/initialValues.${config.virus}.js`)
           .then((mod) => {
+            console.log(mod);
             return mod.default();
           })
           .then((allInitialValues) => {
             runInAction(() => {
               this.configStore = allInitialValues.configStore;
+              this.plotSettingsStore = allInitialValues.plotSettingsStore;
+              this.status = ASYNC_STATES.SUCCEEDED;
             });
           });
+      })
+      .catch((err) => {
+        runInAction(() => {
+          this.status = ASYNC_STATES.FAILED;
+        });
+        let prefix = 'Error setting initial values';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
+          });
+        }
       });
   }
 }

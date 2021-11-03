@@ -9,6 +9,7 @@ import {
 } from '../constants/defs.json';
 
 import { rootStoreInstance } from './rootStore';
+import { initialValueStoreInstance } from '../components/App';
 
 export class PlotSettingsStore {
   initialValues = {};
@@ -55,7 +56,7 @@ export class PlotSettingsStore {
   @observable reportStructureActiveGroup = '';
 
   init() {
-    this.initialValues = rootStoreInstance.initialValueStore.plotSettingsStore;
+    this.initialValues = initialValueStoreInstance.plotSettingsStore;
 
     Object.keys(this.initialValues).forEach((key, i) => {
       this[key] = this.initialValues[key];

@@ -11,7 +11,6 @@ import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
 import { ExampleStore } from './exampleStore';
-import { InitialValueStore } from './initialValueStore';
 
 class RootStore {
   UIStore;
@@ -21,8 +20,6 @@ class RootStore {
   metadataStore;
   locationDataStore;
   snpDataStore;
-
-  initialValueStore;
 
   configStore;
   dataStore;
@@ -41,8 +38,6 @@ class RootStore {
     this.locationDataStore = new LocationDataStore();
     this.snpDataStore = new SnpDataStore();
 
-    this.initialValueStore = new InitialValueStore();
-
     this.configStore = new ConfigStore();
     this.dataStore = new DataStore();
 
@@ -56,8 +51,6 @@ class RootStore {
     // Initialize all stores
     this.UIStore.init();
     startRouter(routes, this);
-
-    this.initialValueStore.init();
 
     this.plotSettingsStore.init();
     this.metadataStore.init();

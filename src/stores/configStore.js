@@ -31,6 +31,7 @@ import { config } from '../config';
 // import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
+import { initialValueStoreInstance } from '../components/App';
 
 // Define initial values
 
@@ -83,7 +84,7 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.initialValues = rootStoreInstance.initialValueStore.configStore;
+    this.initialValues = initialValueStoreInstance.configStore;
 
     Object.keys(this.initialValues).forEach((key, i) => {
       this[key] = this.initialValues[key];

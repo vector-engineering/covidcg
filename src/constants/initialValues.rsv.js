@@ -43,5 +43,40 @@ export default function values() {
       hoverLocation: null,
       focusedLocations: [],
     },
+    plotSettingsStore: {
+      groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
+      groupStackLowFreqValue: 20,
+      groupStackNormMode: NORM_MODES.NORM_COUNTS,
+      groupStackCountMode: COUNT_MODES.COUNT_NEW,
+      groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+
+      locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
+      locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
+      locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+
+      locationGroupHideReference: true,
+
+      cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
+
+      // SURVEILLANCE PLOT
+      surveillanceMode: 'genotype',
+      surveillanceSortField: 'counts', // 'group' or 'counts'
+      surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
+      surveillanceDisplayMinCounts: 5,
+      surveillanceDisplayMinPercent: 0.01,
+      surveillanceSigMinCounts: 10,
+      surveillanceSigMinPercent: 0.02,
+      surveillanceSigMinR: 0.3,
+      surveillanceLegendHover: [],
+
+      // GROUP REPORT TAB
+      reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
+      reportConsensusThreshold: 0.7,
+      reportMutationListHideEmpty: true,
+      reportMutationListHidden: [], // By default, hide none
+      reportStructureActiveProtein: 'F',
+      reportStructurePdbId: '',
+      reportStructureActiveGroup: 'A',
+    },
   };
 }
