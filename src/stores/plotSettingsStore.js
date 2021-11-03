@@ -8,7 +8,7 @@ import {
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/defs.json';
 
-export const initialValues = {
+const initialValues = {
   groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
   groupStackLowFreqValue: 20,
   groupStackNormMode: NORM_MODES.NORM_COUNTS,
