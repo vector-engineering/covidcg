@@ -1,7 +1,16 @@
 import { getGene, getProtein } from '../utils/gene_protein';
 import { intToISO, ISOToInt } from '../utils/date';
 
-import { DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
+import {
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  NORM_MODES,
+  COUNT_MODES,
+  DATE_BINS,
+  SORT_DIRECTIONS,
+  TREE_COLOR_MODES,
+  LOW_FREQ_FILTER_TYPES,
+} from '../constants/defs.json';
 
 const today = intToISO(new Date().getTime());
 const lastNDays = 30; // By default, show only the last 1 month
