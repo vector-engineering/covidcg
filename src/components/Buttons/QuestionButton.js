@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
 
-const QuestionButtonContainer = ({ ...props }) => {
+const QuestionButtonContainer = ({ rebuildAfterMount, ...props }) => {
   useEffect(() => {
     // This prevents every single QuestionButton from rebuilding if they aren't visible.
-    if (props.rebuild !== 'false') {
+    if (rebuildAfterMount !== 'false') {
       ReactTooltip.rebuild();
     }
   }, []);
@@ -29,11 +29,11 @@ const QuestionButton = styled(QuestionButtonContainer)`
 `;
 
 QuestionButtonContainer.defaultProps = {
-  rebuild: 'false',
+  rebuildAfterMount: false,
 };
 
 QuestionButtonContainer.propTypes = {
-  rebuild: PropTypes.string,
+  rebuildAfterMount: PropTypes.bool,
 };
 
 export default QuestionButton;
