@@ -20,21 +20,6 @@
     "who_label": "Delta"
   },
   {
-    "name": "B.1.525",
-    "level": "VOI",
-    "who_label": "Eta"
-  },
-  {
-    "name": "B.1.526",
-    "level": "VOI",
-    "who_label": "Iota"
-  },
-  {
-    "name": "B.1.617.1",
-    "level": "VOI",
-    "who_label": "Kappa"
-  },
-  {
     "name": "C.37",
     "level": "VOI",
     "who_label": "Lambda"
@@ -43,14 +28,6 @@
     "name": "B.1.621",
     "level": "VOI",
     "who_label": "Mu"
-  },
-  {
-    "name": "B.1.427",
-    "level": "Other"
-  },
-  {
-    "name": "B.1.429",
-    "level": "Other"
   },
   {
     "name": "R.1",
@@ -77,6 +54,14 @@
     "level": "Other"
   },
   {
+    "name": "B.1.427",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.429",
+    "level": "Other"
+  },
+  {
     "name": "B.1.1.523",
     "level": "Other"
   },
@@ -90,6 +75,22 @@
   },
   {
     "name": "C.1.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.617.1",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.526",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.525",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.630",
     "level": "Other"
   }
 ]

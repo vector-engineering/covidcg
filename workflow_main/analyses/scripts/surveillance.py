@@ -24,13 +24,6 @@ def main():
     )
 
     parser.add_argument(
-        "--location-map",
-        type=str,
-        required=True,
-        help="Path to location map JSON file",
-    )
-
-    parser.add_argument(
         "--metadata-map", type=str, required=True, help="Path to metadata map JSON file"
     )
 
@@ -50,7 +43,13 @@ def main():
         "--end-date-days-ago",
         type=int,
         default=30,
-        help="Number of days before today to cut off data prior to regressions. Default: 0",
+        help="Number of days before today to cut off data prior to regressions. Default: 30",
+    )
+    parser.add_argument(
+        "--end-date",
+        type=str,
+        default=None,
+        help="End date for filtering data in ISO format (YYYY-MM-DD). Overrides --end-date-days-ago if defined. Default: None",
     )
 
     parser.add_argument(
@@ -73,9 +72,13 @@ def main():
     args = parser.parse_args()
 
     case_data = pd.read_json(args.case_data)
-    location_map = pd.read_json(args.location_map)
     with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
+
+    # Join region onto case_data
+    case_data.loc[:, "region"] = case_data["region"].map(
+        {int(k): v for k, v in metadata_map["region"].items()}
+    )
 
     out_path = Path(args.output)
 
@@ -88,8 +91,8 @@ def main():
     spike_snv_map = spike_snvs["snv"].to_dict()
 
     df = case_data[
-        ["Accession ID", "collection_date", "lineage", "gene_aa_snp_str", "location_id"]
-    ].join(location_map, on="location_id")
+        ["Accession ID", "collection_date", "lineage", "gene_aa_snp_str", "region"]
+    ]
 
     # Filter for only SNVs in spike
     valid_snv_ids = spike_snvs["snv_id"].values
@@ -126,9 +129,12 @@ def main():
         ).isoformat()
 
     # End date only used for the regression
-    end_date_iso = (
-        datetime.date.today() - datetime.timedelta(days=args.end_date_days_ago)
-    ).isoformat()
+    if args.end_date:
+        end_date_iso = args.end_date
+    else:
+        end_date_iso = (
+            datetime.date.today() - datetime.timedelta(days=args.end_date_days_ago)
+        ).isoformat()
 
     # LINEAGE DATA
     lineage_counts = (

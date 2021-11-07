@@ -6,17 +6,16 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
-import psycopg2
 
 from cg_server.config import config
-from cg_server.query.selection import create_sequence_temp_table
+from cg_server.query import build_sequence_location_where_filter
 from psycopg2 import sql
 
 
 def query_metadata(conn, req):
-
     with conn.cursor() as cur:
-        temp_table_name = create_sequence_temp_table(cur, req)
+
+        sequence_where_filter = build_sequence_location_where_filter(req)
 
         # Iterate over each metadata column, and aggregate counts
         # per metadata value
@@ -29,11 +28,17 @@ def query_metadata(conn, req):
                 sql.SQL(
                     """
                 SELECT
-                    counts.*,
-                    def."value" as "val_str"
+                    counts."field",
+                    counts."val_id",
+                    counts."count",
+                    def."value" AS "val_str"
                 FROM (
-                    SELECT {metadata_field_literal} as "field", {metadata_field_ident} as "val_id", count({metadata_field_ident})
-                    FROM {temp_table_name}
+                    SELECT 
+                        {metadata_field_literal} AS "field", 
+                        {metadata_field_ident} AS "val_id", 
+                        count({metadata_field_ident}) AS "count"
+                    FROM "metadata"
+                    WHERE {sequence_where_filter}
                     GROUP BY {metadata_field_ident}
                 ) counts
                 INNER JOIN {metadata_def_table} def ON counts."val_id" = def."id"
@@ -41,10 +46,11 @@ def query_metadata(conn, req):
                 ).format(
                     metadata_field_literal=sql.Literal(field),
                     metadata_field_ident=sql.Identifier(field),
-                    temp_table_name=sql.Identifier(temp_table_name),
                     metadata_def_table=sql.Identifier("metadata_" + field),
+                    sequence_where_filter=sequence_where_filter,
                 )
             )
+            # print(metadata_queries[-1].as_string(conn))
 
         metadata_queries = sql.SQL(
             """

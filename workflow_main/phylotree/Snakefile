@@ -27,7 +27,6 @@ rule get_representative_sequences:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
         ref_seq = os.path.join(static_data_folder, "reference.json"),
     output:
         representatives = os.path.join(data_folder, "lineage_representatives.fa"),
@@ -36,7 +35,7 @@ rule get_representative_sequences:
     threads: workflow.cores / 2
     run:
         get_representative_seqs(
-            input.case_data, input.metadata_map, input.location_map, input.ref_seq,
+            input.case_data, input.metadata_map, input.ref_seq,
             output.representatives, output.datefile, output.table
         )
 
@@ -48,7 +47,7 @@ rule fasttree:
         newick_tree = os.path.join(data_folder, "lineage_representatives.nwk")
     shell:
         """
-        FastTreeMP -nt -quote -seed 1 < {input.representatives} > {output.newick_tree}
+        fasttree -nt -quote -seed 1 < {input.representatives} > {output.newick_tree}
         """
 
 rule clean_newick_tree:

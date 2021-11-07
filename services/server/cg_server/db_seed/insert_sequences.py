@@ -8,12 +8,51 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import datetime
 import io
 import gzip
-import pandas as pd
 
-from cg_server.config import config
 from psycopg2 import sql
-
 from pathlib import Path
+
+
+def flush_chunk(cur, buffer):
+    # Drop old temp table
+    cur.execute('DROP TABLE IF EXISTS "temp_sequence";')
+    # Create new temp table
+    cur.execute(
+        """
+        CREATE TEMP TABLE "temp_sequence" (
+            "Accession ID"  TEXT       NOT NULL,
+            sequence        TEXT       NOT NULL,
+            filename        TEXT       NOT NULL,
+            modified        TIMESTAMP  NOT NULL
+        );
+        """
+    )
+
+    # Flush anything queued for writing, and reset pointer
+    buffer.flush()
+    buffer.seek(0)
+
+    cur.copy_expert(
+        """
+        COPY "temp_sequence" FROM STDIN WITH (FORMAT CSV);
+        """,
+        buffer,
+    )
+    buffer.close()
+
+    cur.execute(
+        """
+        INSERT INTO "sequence" ("sequence_id", "Accession ID", "sequence", "filename", "modified")
+            SELECT m."sequence_id", t."Accession ID", t."sequence", t."filename", t."modified"
+            FROM "temp_sequence" t
+            INNER JOIN "metadata" m on t."Accession ID" = m."Accession ID"
+        ON CONFLICT DO NOTHING;
+        """
+    )
+
+    # Reset buffer
+    buffer = io.StringIO()
+    return buffer
 
 
 def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False):
@@ -53,13 +92,18 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
         # )
         # loaded_files = [record[0] for record in cur.fetchall()]
 
+        # Write everything into a string buffer
+        buffer = io.StringIO()
+        counter = 0
+        chunk_counter = 0
+        chunk_size = 10_000
+
         for i, fasta_file in enumerate(sorted(fasta_path.iterdir())):
 
             # if fasta_file.name in loaded_files:
             #     print("Skipping: ", fasta_file.name)
             #     continue
-
-            print("Inserting: ", fasta_file.name)
+            # print("Inserting: ", fasta_file.name)
 
             if filenames_as_dates:
                 # Get the date from the fasta file name, as a string
@@ -69,8 +113,6 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
             else:
                 file_date = datetime.date.fromtimestamp(fasta_file.stat().st_mtime)
 
-            # Write everything into a string buffer
-            buffer = io.StringIO()
             with gzip.open(str(fasta_file), "rt") as fp:
                 # TODO: rewrite so the entire file isn't in the buffer?
                 #       I guess it doesn't really matter since the IO
@@ -78,7 +120,6 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
                 #       no way for this to be super memory efficient without
                 #       additional chunking
                 lines = fp.readlines()
-
                 cur_entry = ""
                 cur_seq = ""
 
@@ -117,39 +158,17 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
                             cur_entry = cur_entry.split()[0]
                         cur_seq = ""
 
-            # Drop old temp table
-            cur.execute('DROP TABLE IF EXISTS "temp_sequence";')
-            # Create new temp table
-            cur.execute(
-                """
-                CREATE TEMP TABLE "temp_sequence" (
-                    "Accession ID"  TEXT       NOT NULL,
-                    sequence        TEXT       NOT NULL,
-                    filename        TEXT       NOT NULL,
-                    modified        TIMESTAMP  NOT NULL
-                );
-                """
-            )
+                    counter += 1
 
-            buffer.flush()
-            buffer.seek(0)
-            cur.copy_expert(
-                """
-                COPY "temp_sequence" FROM STDIN WITH (FORMAT CSV);
-                """,
-                buffer,
-            )
-            buffer.close()
-
-            cur.execute(
-                """
-                INSERT INTO "sequence" ("sequence_id", "Accession ID", "sequence", "filename", "modified")
-                    SELECT m."id" as "sequence_id", t."Accession ID", t."sequence", t."filename", t."modified"
-                    FROM "temp_sequence" t
-                    INNER JOIN "metadata" m on t."Accession ID" = m."Accession ID"
-                ON CONFLICT DO NOTHING;
-                """
-            )
+                    if counter >= chunk_size:
+                        print(
+                            "Writing chunk {} ({} sequences so far)".format(
+                                chunk_counter, (chunk_counter + 1) * chunk_size
+                            )
+                        )
+                        buffer = flush_chunk(cur, buffer)
+                        counter = 0
+                        chunk_counter += 1
 
         # Create indices
         cur.execute(

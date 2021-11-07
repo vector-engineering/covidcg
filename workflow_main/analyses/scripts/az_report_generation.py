@@ -26,9 +26,7 @@ def aa_snv_str_to_name(snv_str):
     return split[2] + split[1] + split[3]
 
 
-def generate_az_reports(
-    case_data_path, metadata_map_path, location_map_path, report_out
-):
+def generate_az_reports(case_data_path, metadata_map_path, report_out):
     report_out = Path(report_out)
 
     # ------------------------
@@ -37,16 +35,21 @@ def generate_az_reports(
 
     case_data = pd.read_json(case_data_path)
 
-    # Join locations onto case_data
-    location_map = pd.read_json(location_map_path)
-    case_data = case_data.join(location_map, on="location_id")
-
     # Load DNA mutation ID map
     with open(metadata_map_path, "r") as fp:
         metadata_map = json.loads(fp.read())
+
     id_to_dna_snp = {v: k for k, v in metadata_map["dna_snp"].items()}
     id_to_gene_aa_snp = {v: k for k, v in metadata_map["gene_aa_snp"].items()}
     id_to_protein_aa_snp = {v: k for k, v in metadata_map["protein_aa_snp"].items()}
+
+    # Join locations onto case_data
+    loc_levels = ["region", "country", "division", "location"]
+    for loc_level in loc_levels:
+        case_data.loc[:, loc_level] = case_data[loc_level].map(
+            {int(k): v for k, v in metadata_map[loc_level].items()}
+        )
+        case_data.loc[case_data[loc_level].isna(), loc_level] = None
 
     # ------------------------
     #     SNV DEFINITIONS

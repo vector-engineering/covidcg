@@ -206,13 +206,6 @@ export class ConfigStore {
             this.selectedLocationNodes.push(node);
           }
         });
-      } else if (key === 'allRegions') {
-        // Push all regions to selectedLocationNodes
-        this.locationDataStoreInstance.selectTree.children.forEach((child) => {
-          if (!this.selectedLocationNodes.includes(child)) {
-            this.selectedLocationNodes.push(child);
-          }
-        });
       } else if (key === 'tab') {
         // Check if the specified tab value is valid (included in TABS)
         // tab is read and activeTab is set from routes.js
@@ -386,18 +379,10 @@ export class ConfigStore {
     });
 
     this.selectedLocationNodes.forEach((node) => {
-      // If level is undefined, All is selected
-      if (node.level === undefined) {
-        node.level = 'allRegions';
-        // Overwrite to prevent mutliple settings of allRegions
-        this.urlParams.set(String(node.level), String(node.value));
-        return;
-      }
-
       if (this.urlParams.has(String(node.level))) {
-        this.urlParams.append(String(node.level), String(node.value));
+        this.urlParams.append(String(node.level), String(node.value_txt));
       } else {
-        this.urlParams.set(String(node.level), String(node.value));
+        this.urlParams.set(String(node.level), String(node.value_txt));
       }
     });
 
@@ -440,6 +425,19 @@ export class ConfigStore {
         return 'AA SNV';
       }
     }
+  }
+
+  getSelectedLocations() {
+    const res = {
+      region: [],
+      country: [],
+      division: [],
+      location: []
+    };
+    this.selectedLocationNodes.forEach((node) => {
+      res[node.level].push(node.value);
+    });
+    return res
   }
 
   getCoordinateRanges() {
