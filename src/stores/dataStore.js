@@ -44,8 +44,8 @@ export class DataStore {
   constructor() {}
 
   init() {
-    this.dataDate = asyncDataStoreInstance.data.data_date;
-    this.numSequences = asyncDataStoreInstance.data.num_sequences;
+    this.dataDate = asyncDataStoreInstance.data.stats.data_date;
+    this.numSequences = asyncDataStoreInstance.data.stats.num_sequences;
 
     if (
       rootStoreInstance.UIStore.activeTab === TABS.TAB_COMPARE_GROUPS ||
