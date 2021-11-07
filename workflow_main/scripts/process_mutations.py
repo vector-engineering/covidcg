@@ -88,7 +88,7 @@ def process_snps(
         file_date = Path(chunk).name.replace("_" + mode + "_snp.csv", "")
         with open(chunk, "r") as fp_in:
             # Write dates, so we can remove duplicate sequences
-            # and default to the SNVs of the latest sequence, by date
+            # and default to the mutations of the latest sequence, by date
             for j, line in enumerate(fp_in):
                 # Write the header of the first file
                 if i == 0 and j == 0:
@@ -116,7 +116,7 @@ def process_snps(
     # We'll add them back in later
     no_snp_seqs = snp_df.loc[snp_df["pos"].isna(), "Accession ID"].values
 
-    # Remove sequences with no mutations before counting SNVs
+    # Remove sequences with no mutations before counting mutations
     snp_df = snp_df.loc[~snp_df["pos"].isna()]
     snp_df.loc[:, "pos"] = snp_df["pos"].astype(int)
     # Replace NaNs in the 'ref' and 'alt' column with '-'
@@ -154,7 +154,7 @@ def process_snps(
     snp_df["snp_id"] = snp_df["snp_str"].map(snp_map)
 
     snp_group_df = snp_df.groupby("Accession ID")["snp_id"].agg(list).reset_index()
-    # Add back the sequences with no SNVs
+    # Add back the sequences with no mutations
     snp_group_df = pd.concat(
         [
             snp_group_df,

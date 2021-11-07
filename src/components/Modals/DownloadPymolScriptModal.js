@@ -31,8 +31,8 @@ const NOOP = () => {};
 const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
   const { groupDataStore } = useStores();
   const [state, setState] = useState({
-    selectIndividualSNVs: true,
-    selectAllSNVs: true,
+    selectIndividualMutations: true,
+    selectAllMutations: true,
     includeDomains: true,
     baseColor: '#FFFFFF',
     useAssembly: false,
@@ -47,17 +47,17 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
     groupDataStore.downloadStructurePymolScript(state);
   };
 
-  const toggleSelectIndividualSNVs = (event) => {
+  const toggleSelectIndividualMutations = (event) => {
     setState({
       ...state,
-      selectIndividualSNVs: event.target.checked,
+      selectIndividualMutations: event.target.checked,
     });
   };
 
-  const toggleSelectAllSNVs = (event) => {
+  const toggleSelectAllMutations = (event) => {
     setState({
       ...state,
-      selectAllSNVs: event.target.checked,
+      selectAllMutations: event.target.checked,
     });
   };
 
@@ -136,22 +136,22 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
           <CheckboxInput>
             <input
               type="checkbox"
-              name="download-pymol-script-select-individual-snvs"
-              checked={state.selectIndividualSNVs}
-              onChange={toggleSelectIndividualSNVs}
+              name="download-pymol-script-select-individual-mutations"
+              checked={state.selectIndividualMutations}
+              onChange={toggleSelectIndividualMutations}
             />
-            Create a selection for each individual SNV
+            Create a selection for each individual mutation
           </CheckboxInput>
         </Row>
         <Row>
           <CheckboxInput>
             <input
               type="checkbox"
-              name="download-pymol-script-select-all-snvs"
-              checked={state.selectAllSNVs}
-              onChange={toggleSelectAllSNVs}
+              name="download-pymol-script-select-all-mutations"
+              checked={state.selectAllMutations}
+              onChange={toggleSelectAllMutations}
             />
-            Create a selection for all SNVs
+            Create a selection for all mutations
           </CheckboxInput>
         </Row>
         <Row>

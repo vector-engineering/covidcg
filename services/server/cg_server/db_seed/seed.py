@@ -17,7 +17,7 @@ from psycopg2.extras import Json
 
 from cg_server.color import get_categorical_colormap
 from cg_server.config import config
-from .load_snvs import process_dna_snvs, process_aa_snvs
+from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -99,90 +99,90 @@ def seed_database(conn, schema="public"):
 
         print("done")
 
-        print("Writing SNV maps...", end="", flush=True)
+        print("Writing mutation maps...", end="", flush=True)
 
-        # DNA SNVs
-        dna_snp = process_dna_snvs(metadata_map["dna_snp"])
-        cur.execute('DROP TABLE IF EXISTS "dna_snp";')
+        # DNA mutations
+        dna_mutation = process_dna_mutations(metadata_map["dna_mutation"])
+        cur.execute('DROP TABLE IF EXISTS "dna_mutation";')
         cur.execute(
             """
-            CREATE TABLE "dna_snp" (
-                id          INTEGER  PRIMARY KEY,
-                snp_str     TEXT     NOT NULL,
-                pos         INTEGER  NOT NULL,
-                ref         TEXT     NOT NULL,
-                alt         TEXT     NOT NULL,
-                color       TEXT     NOT NULL,
-                snv_name    TEXT     NOT NULL
+            CREATE TABLE "dna_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL
             );
             """
         )
-        df_to_sql(cur, dna_snp, "dna_snp", index_label="id")
-        cur.execute('CREATE INDEX "ix_dna_snp_pos" ON "dna_snp"("pos");')
+        df_to_sql(cur, dna_mutation, "dna_mutation", index_label="id")
+        cur.execute('CREATE INDEX "ix_dna_mutation_pos" ON "dna_mutation"("pos");')
 
-        # AA SNVs
-        gene_aa_snp = process_aa_snvs(metadata_map["gene_aa_snp"], "gene", genes)
-        cur.execute('DROP TABLE IF EXISTS "gene_aa_snp";')
+        # AA mutations
+        gene_aa_mutation = process_aa_mutations(metadata_map["gene_aa_mutation"], "gene", genes)
+        cur.execute('DROP TABLE IF EXISTS "gene_aa_mutation";')
         cur.execute(
             """
-            CREATE TABLE "gene_aa_snp" (
-                id          INTEGER  PRIMARY KEY,
-                snp_str     TEXT     NOT NULL,
-                gene        TEXT     NOT NULL,
-                pos         INTEGER  NOT NULL,
-                ref         TEXT     NOT NULL,
-                alt         TEXT     NOT NULL,
-                color       TEXT     NOT NULL,
-                snv_name    TEXT     NOT NULL,
-                nt_pos      INTEGER  NOT NULL
+            CREATE TABLE "gene_aa_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                gene           TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL,
+                nt_pos         INTEGER  NOT NULL
             );
             """
         )
-        df_to_sql(cur, gene_aa_snp, "gene_aa_snp", index_label="id")
-        cur.execute('CREATE INDEX "ix_gene_aa_snp_pos" ON "gene_aa_snp"("pos");')
-        cur.execute('CREATE INDEX "ix_gene_aa_snp_nt_pos" ON "gene_aa_snp"("nt_pos");')
-        cur.execute('CREATE INDEX "ix_gene_aa_snp_gene" ON "gene_aa_snp"("gene");')
+        df_to_sql(cur, gene_aa_mutation, "gene_aa_mutation", index_label="id")
+        cur.execute('CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");')
+        cur.execute('CREATE INDEX "ix_gene_aa_mutation_nt_pos" ON "gene_aa_mutation"("nt_pos");')
+        cur.execute('CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");')
 
-        protein_aa_snp = process_aa_snvs(
-            metadata_map["protein_aa_snp"], "protein", proteins
+        protein_aa_mutation = process_aa_mutations(
+            metadata_map["protein_aa_mutation"], "protein", proteins
         )
-        cur.execute('DROP TABLE IF EXISTS "protein_aa_snp";')
+        cur.execute('DROP TABLE IF EXISTS "protein_aa_mutation";')
         cur.execute(
             """
-            CREATE TABLE "protein_aa_snp" (
-                id          INTEGER  PRIMARY KEY,
-                snp_str     TEXT     NOT NULL,
-                protein     TEXT     NOT NULL,
-                pos         INTEGER  NOT NULL,
-                ref         TEXT     NOT NULL,
-                alt         TEXT     NOT NULL,
-                color       TEXT     NOT NULL,
-                snv_name    TEXT     NOT NULL,
-                nt_pos      INTEGER  NOT NULL
+            CREATE TABLE "protein_aa_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                protein        TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL,
+                nt_pos         INTEGER  NOT NULL
             );
             """
         )
-        df_to_sql(cur, protein_aa_snp, "protein_aa_snp", index_label="id")
-        cur.execute('CREATE INDEX "ix_protein_aa_snp_pos" ON "protein_aa_snp"("pos");')
+        df_to_sql(cur, protein_aa_mutation, "protein_aa_mutation", index_label="id")
+        cur.execute('CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");')
         cur.execute(
-            'CREATE INDEX "ix_protein_aa_snp_nt_pos" ON "protein_aa_snp"("nt_pos");'
+            'CREATE INDEX "ix_protein_aa_mutation_nt_pos" ON "protein_aa_mutation"("nt_pos");'
         )
         cur.execute(
-            'CREATE INDEX "ix_protein_aa_snp_protein" ON "protein_aa_snp"("protein");'
+            'CREATE INDEX "ix_protein_aa_mutation_protein" ON "protein_aa_mutation"("protein");'
         )
 
         print("done")
 
-        # SNV frequencies
-        print("Writing group SNV frequencies...", end="", flush=True)
-        with (data_path / "group_snv_frequencies.json").open("r") as fp:
-            group_snv_frequencies = json.loads(fp.read())
+        # mutation frequencies
+        print("Writing group mutation frequencies...", end="", flush=True)
+        with (data_path / "group_mutation_frequencies.json").open("r") as fp:
+            group_mutation_frequencies = json.loads(fp.read())
 
-        snp_fields = ["dna", "gene_aa", "protein_aa"]
-        for grouping in group_snv_frequencies.keys():
-            for snp_field in snp_fields:
-                table_name = "{grouping}_frequency_{snp_field}_snp".format(
-                    grouping=grouping, snp_field=snp_field
+        mutation_fields = ["dna", "gene_aa", "protein_aa"]
+        for grouping in group_mutation_frequencies.keys():
+            for mutation_field in mutation_fields:
+                table_name = "{grouping}_frequency_{mutation_field}_mutation".format(
+                    grouping=grouping, mutation_field=mutation_field
                 )
                 # Create tables
                 cur.execute(
@@ -191,23 +191,25 @@ def seed_database(conn, schema="public"):
                 cur.execute(
                     """
                     CREATE TABLE "{table_name}" (
-                        name      TEXT     NOT NULL,
-                        snv_id    INTEGER  NOT NULL,
-                        count     INTEGER  NOT NULL,
-                        fraction  REAL     NOT NULL
+                        name         TEXT     NOT NULL,
+                        mutation_id  INTEGER  NOT NULL,
+                        count        INTEGER  NOT NULL,
+                        fraction     REAL     NOT NULL
                     );
                     """.format(
                         table_name=table_name
                     )
                 )
-                group_snv_frequency_df = (
+                group_mutation_frequency_df = (
                     pd.DataFrame.from_records(
-                        group_snv_frequencies[grouping][snp_field]
+                        group_mutation_frequencies[grouping][mutation_field]
                     )
                     .rename(columns={"group": "name"})
                     .set_index("name")
                 )
-                df_to_sql(cur, group_snv_frequency_df, table_name, index_label="name")
+                df_to_sql(
+                    cur, group_mutation_frequency_df, table_name, index_label="name"
+                )
 
                 cur.execute(
                     """
@@ -351,13 +353,13 @@ def seed_database(conn, schema="public"):
             )
         print("done")
 
-        print("Writing sequence SNVs...", end="", flush=True)
+        print("Writing sequence mutations...", end="", flush=True)
 
-        # Sequence SNV data
-        snp_fields = ["dna", "gene_aa", "protein_aa"]
-        for snp_field in snp_fields:
-            snp_col = snp_field + "_snp_str"
-            table_name = "sequence_{snp_field}_snp".format(snp_field=snp_field)
+        # Sequence mutation data
+        mutation_fields = ["dna", "gene_aa", "protein_aa"]
+        for mutation_field in mutation_fields:
+            mutation_col = mutation_field + "_mutation_str"
+            table_name = "sequence_{mutation_field}_mutation".format(mutation_field=mutation_field)
             cur.execute(
                 'DROP TABLE IF EXISTS "{table_name}";'.format(table_name=table_name)
             )
@@ -392,17 +394,17 @@ def seed_database(conn, schema="public"):
                     )
                 )
 
-            snv_df = case_data[
-                ["collection_date", "submission_date"] + metadata_cols + [snp_col]
+            mutation_df = case_data[
+                ["collection_date", "submission_date"] + metadata_cols + [mutation_col]
             ]
-            snv_df = snv_df.loc[~snv_df[snp_col].isna()]
+            mutation_df = mutation_df.loc[~mutation_df[mutation_col].isna()]
             # Serialize list of integers
-            snv_df.loc[:, snp_col] = snv_df[snp_col].apply(
+            mutation_df.loc[:, mutation_col] = mutation_df[mutation_col].apply(
                 lambda x: "{" + ",".join([str(_x) for _x in sorted(x)]) + "}"
             )
 
             df_to_sql(
-                cur, snv_df, table_name, index_label="sequence_id",
+                cur, mutation_df, table_name, index_label="sequence_id",
             )
 
             # Create indices
@@ -472,16 +474,16 @@ def seed_database(conn, schema="public"):
 
         # Metadata map
         table_queries = []
-        for snp_type in ["dna", "gene_aa", "protein_aa"]:
+        for mutation_type in ["dna", "gene_aa", "protein_aa"]:
             table_queries.append(
                 sql.SQL(
                     """
-                    SELECT {snp_type_name} as "field", "snp_str" as "id", "id"::text as "value"
-                    FROM {snp_type}
+                    SELECT {mutation_type_name} as "field", "mutation_str" as "id", "id"::text as "value"
+                    FROM {mutation_type}
                     """
                 ).format(
-                    snp_type_name=sql.Literal(snp_type + "_snp"),
-                    snp_type=sql.Identifier(snp_type + "_snp"),
+                    mutation_type_name=sql.Literal(mutation_type + "_mutation"),
+                    mutation_type=sql.Identifier(mutation_type + "_mutation"),
                 )
             )
         table_queries = sql.SQL(" UNION ALL ").join(table_queries)

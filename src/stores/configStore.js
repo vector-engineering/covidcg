@@ -19,7 +19,7 @@ import { queryPrimers } from '../utils/primer';
 import { arrayEqual } from '../utils/func';
 
 import {
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
   GEO_LEVELS,
@@ -38,7 +38,7 @@ const today = intToISO(new Date().getTime());
 const lastNDays = 30; // By default, show only the last 1 month
 
 export const initialValues = {
-  groupKey: 'snv',
+  groupKey: GROUP_MUTATION,
   dnaOrAa: DNA_OR_AA.AA,
 
   // Select the Spike gene and nsp13 protein by default
@@ -392,7 +392,7 @@ export class ConfigStore {
     rootStoreInstance.dataStore.fetchData();
   };
 
-  getSnvType() {
+  getMutationType() {
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return 'dna';
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
@@ -418,11 +418,11 @@ export class ConfigStore {
 
     if (Object.keys(config.group_cols).includes(groupKey)) {
       return config.group_cols[groupKey].title;
-    } else if (groupKey === GROUP_SNV) {
+    } else if (groupKey === GROUP_MUTATION) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
-        return 'NT SNV';
+        return 'NT mutation';
       } else {
-        return 'AA SNV';
+        return 'AA mutation';
       }
     }
   }
@@ -563,32 +563,32 @@ export class ConfigStore {
     }
 
     this.selectedGroups = groups;
-    if (this.groupKey === GROUP_SNV) {
-      rootStoreInstance.dataStore.processSelectedSnvs();
+    if (this.groupKey === GROUP_MUTATION) {
+      rootStoreInstance.dataStore.processSelectedMutations();
     }
   };
 
   getSelectedGroupIds() {
     const {
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-    } = rootStoreInstance.snpDataStore;
+      dnaMutationMap,
+      geneAaMutationMap,
+      proteinAaMutationMap,
+    } = rootStoreInstance.mutationDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       selectedGroupIds = this.selectedGroups
-        .map((item) => dnaSnvMap[item.group])
-        .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
+        .map((item) => dnaMutationMap[item.group])
+        .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         selectedGroupIds = this.selectedGroups
-          .map((item) => geneAaSnvMap[item.group])
-          .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
+          .map((item) => geneAaMutationMap[item.group])
+          .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         selectedGroupIds = this.selectedGroups
-          .map((item) => proteinAaSnvMap[item.group])
-          .map((snpId) => (snpId === undefined ? -1 : parseInt(snpId)));
+          .map((item) => proteinAaMutationMap[item.group])
+          .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
       }
     }
     // Array to Set
@@ -597,38 +597,38 @@ export class ConfigStore {
     return selectedGroupIds;
   }
 
-  getIntToSnvMap() {
+  getIntToMutationMap() {
     const {
-      intToDnaSnvMap,
-      intToGeneAaSnvMap,
-      intToProteinAaSnvMap,
-    } = rootStoreInstance.snpDataStore;
+      intToDnaMutationMap,
+      intToGeneAaMutationMap,
+      intToProteinAaMutationMap,
+    } = rootStoreInstance.mutationDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
-      return intToDnaSnvMap;
+      return intToDnaMutationMap;
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        return intToGeneAaSnvMap;
+        return intToGeneAaMutationMap;
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-        return intToProteinAaSnvMap;
+        return intToProteinAaMutationMap;
       }
     }
   }
 
-  getSnvToIntMap() {
+  getMutationToIntMap() {
     const {
-      dnaSnvMap,
-      geneAaSnvMap,
-      proteinAaSnvMap,
-    } = rootStoreInstance.snpDataStore;
+      dnaMutationMap,
+      geneAaMutationMap,
+      proteinAaMutationMap,
+    } = rootStoreInstance.mutationDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
-      return dnaSnvMap;
+      return dnaMutationMap;
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        return geneAaSnvMap;
+        return geneAaMutationMap;
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-        return proteinAaSnvMap;
+        return proteinAaMutationMap;
       }
     }
   }

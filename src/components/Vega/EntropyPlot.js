@@ -29,7 +29,7 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, snpDataStore } = useStores();
+  const { configStore, dataStore, UIStore, mutationDataStore } = useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -43,7 +43,7 @@ const EntropyPlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadSnvFrequencies();
+      dataStore.downloadMutationFrequencies();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -73,27 +73,27 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const processData = () => {
-    let snvCounts = toJS(dataStore.groupCounts);
+    let mutationCounts = toJS(dataStore.groupCounts);
     // Input data from dataStore.groupCounts is in the form
-    // [{ group_id: snv_id, counts: int }]
+    // [{ group_id: mutation_id, counts: int }]
     // Before we pass this into Vega, we also need:
-    // 1) The color of each SNV
-    // 2) The human-readable name of each SNV
-    // 3) The position of the SNV
+    // 1) The color of each mutation
+    // 2) The human-readable name of each mutation
+    // 3) The position of the mutation
     // console.log('ENTROPY PROCESS DATA');
 
-    return snvCounts
+    return mutationCounts
       .map((record) => {
-        let snv = snpDataStore.intToSnv(
+        let mutation = mutationDataStore.intToMutation(
           configStore.dnaOrAa,
           configStore.coordinateMode,
           record.group_id
         );
 
-        record.snv = snv.snp_str;
-        record.color = snpDataStore.getSnvColor(snv.snp_str);
-        record.snvName = snv.name;
-        record.pos = snv.pos;
+        record.mutation = mutation.mutation_str;
+        record.color = mutationDataStore.getMutationColor(mutation.mutation_str);
+        record.mutationName = mutation.name;
+        record.pos = mutation.pos;
         return record;
       })
       .filter((record) => {

@@ -14,14 +14,14 @@ from itertools import chain
 from pathlib import Path
 
 
-def dna_snv_str_to_name(snv_str):
-    split = snv_str.split("|")
+def dna_mutation_str_to_name(mut_str):
+    split = mut_str.split("|")
     # REF POS ALT
     return split[1] + split[0] + split[2]
 
 
-def aa_snv_str_to_name(snv_str):
-    split = snv_str.split("|")
+def aa_mutation_str_to_name(mut_str):
+    split = mut_str.split("|")
     # REF POS ALT
     return split[2] + split[1] + split[3]
 
@@ -39,9 +39,11 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     with open(metadata_map_path, "r") as fp:
         metadata_map = json.loads(fp.read())
 
-    id_to_dna_snp = {v: k for k, v in metadata_map["dna_snp"].items()}
-    id_to_gene_aa_snp = {v: k for k, v in metadata_map["gene_aa_snp"].items()}
-    id_to_protein_aa_snp = {v: k for k, v in metadata_map["protein_aa_snp"].items()}
+    id_to_dna_mutation = {v: k for k, v in metadata_map["dna_mutation"].items()}
+    id_to_gene_aa_mutation = {v: k for k, v in metadata_map["gene_aa_mutation"].items()}
+    id_to_protein_aa_mutation = {
+        v: k for k, v in metadata_map["protein_aa_mutation"].items()
+    }
 
     # Join locations onto case_data
     loc_levels = ["region", "country", "division", "location"]
@@ -51,279 +53,332 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         )
         case_data.loc[case_data[loc_level].isna(), loc_level] = None
 
-    # ------------------------
-    #     SNV DEFINITIONS
-    # ------------------------
+    # -----------------------------
+    #     MUTATION DEFINITIONS
+    # -----------------------------
 
-    dna_snv_def = (
-        pd.Series(id_to_dna_snp).rename("snv_str").rename_axis("snv_id").to_frame()
-    )
-    dna_snv_def.insert(
-        1, "pos", dna_snv_def["snv_str"].apply(lambda x: int(x.split("|")[0]))
-    )
-    dna_snv_def.insert(
-        2, "ref", dna_snv_def["snv_str"].apply(lambda x: x.split("|")[1])
-    )
-    dna_snv_def.insert(
-        3, "alt", dna_snv_def["snv_str"].apply(lambda x: x.split("|")[2])
-    )
-    dna_snv_def.insert(0, "snv_name", dna_snv_def["snv_str"].apply(dna_snv_str_to_name))
-    dna_snv_def.drop(columns=["snv_str"], inplace=True)
-
-    gene_aa_snv_def = (
-        pd.Series(id_to_gene_aa_snp).rename("snv_str").rename_axis("snv_id").to_frame()
-    )
-    gene_aa_snv_def.insert(
-        1, "gene", gene_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[0])
-    )
-    gene_aa_snv_def.insert(
-        2, "pos", gene_aa_snv_def["snv_str"].apply(lambda x: int(x.split("|")[1]))
-    )
-    gene_aa_snv_def.insert(
-        3, "ref", gene_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[2])
-    )
-    gene_aa_snv_def.insert(
-        4, "alt", gene_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[3])
-    )
-    gene_aa_snv_def.insert(
-        0, "snv_name", gene_aa_snv_def["snv_str"].apply(aa_snv_str_to_name)
-    )
-    gene_aa_snv_def.drop(columns=["snv_str"], inplace=True)
-
-    protein_aa_snv_def = (
-        pd.Series(id_to_protein_aa_snp)
-        .rename("snv_str")
-        .rename_axis("snv_id")
+    dna_mutation_def = (
+        pd.Series(id_to_dna_mutation)
+        .rename("mutation_str")
+        .rename_axis("mutation_id")
         .to_frame()
     )
-    protein_aa_snv_def.insert(
-        1, "protein", protein_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[0])
+    dna_mutation_def.insert(
+        1, "pos", dna_mutation_def["mutation_str"].apply(lambda x: int(x.split("|")[0]))
     )
-    protein_aa_snv_def.insert(
-        2, "pos", protein_aa_snv_def["snv_str"].apply(lambda x: int(x.split("|")[1]))
+    dna_mutation_def.insert(
+        2, "ref", dna_mutation_def["mutation_str"].apply(lambda x: x.split("|")[1])
     )
-    protein_aa_snv_def.insert(
-        3, "ref", protein_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[2])
+    dna_mutation_def.insert(
+        3, "alt", dna_mutation_def["mutation_str"].apply(lambda x: x.split("|")[2])
     )
-    protein_aa_snv_def.insert(
-        4, "alt", protein_aa_snv_def["snv_str"].apply(lambda x: x.split("|")[3])
+    dna_mutation_def.insert(
+        0,
+        "mutation_name",
+        dna_mutation_def["mutation_str"].apply(dna_mutation_str_to_name),
     )
-    protein_aa_snv_def.insert(
-        0, "snv_name", protein_aa_snv_def["snv_str"].apply(aa_snv_str_to_name)
-    )
-    protein_aa_snv_def.drop(columns=["snv_str"], inplace=True)
+    dna_mutation_def.drop(columns=["mutation_str"], inplace=True)
 
-    # ------------------------
-    #    GLOBAL SPIKE SNVS
-    # ------------------------
+    gene_aa_mutation_def = (
+        pd.Series(id_to_gene_aa_mutation)
+        .rename("mutation_str")
+        .rename_axis("mutation_id")
+        .to_frame()
+    )
+    gene_aa_mutation_def.insert(
+        1, "gene", gene_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[0])
+    )
+    gene_aa_mutation_def.insert(
+        2,
+        "pos",
+        gene_aa_mutation_def["mutation_str"].apply(lambda x: int(x.split("|")[1])),
+    )
+    gene_aa_mutation_def.insert(
+        3, "ref", gene_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[2])
+    )
+    gene_aa_mutation_def.insert(
+        4, "alt", gene_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[3])
+    )
+    gene_aa_mutation_def.insert(
+        0,
+        "mutation_name",
+        gene_aa_mutation_def["mutation_str"].apply(aa_mutation_str_to_name),
+    )
+    gene_aa_mutation_def.drop(columns=["mutation_str"], inplace=True)
 
-    collapsed_snvs = (
+    protein_aa_mutation_def = (
+        pd.Series(id_to_protein_aa_mutation)
+        .rename("mutation_str")
+        .rename_axis("mutation_id")
+        .to_frame()
+    )
+    protein_aa_mutation_def.insert(
+        1,
+        "protein",
+        protein_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[0]),
+    )
+    protein_aa_mutation_def.insert(
+        2,
+        "pos",
+        protein_aa_mutation_def["mutation_str"].apply(lambda x: int(x.split("|")[1])),
+    )
+    protein_aa_mutation_def.insert(
+        3,
+        "ref",
+        protein_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[2]),
+    )
+    protein_aa_mutation_def.insert(
+        4,
+        "alt",
+        protein_aa_mutation_def["mutation_str"].apply(lambda x: x.split("|")[3]),
+    )
+    protein_aa_mutation_def.insert(
+        0,
+        "mutation_name",
+        protein_aa_mutation_def["mutation_str"].apply(aa_mutation_str_to_name),
+    )
+    protein_aa_mutation_def.drop(columns=["mutation_str"], inplace=True)
+
+    # -----------------------------
+    #    GLOBAL SPIKE MUTATIONS
+    # -----------------------------
+
+    collapsed_mutations = (
         case_data.groupby(lambda x: True)[
-            ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+            ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
         # (and calling like 100K+ mem allocs)
         # Just make an iterator over each element of the nested lists
         # Also, package the number of isolates per lineage in with the
         # iterator so we can use a single aggregate function later
-        # to determine which SNVs are consensus SNVs
+        # to determine which mutations are consensus mutations
         .agg(list).applymap(lambda x: chain.from_iterable(x))
     )
-    dna_snvs = Counter(collapsed_snvs.iat[0, 0])
-    gene_aa_snvs = Counter(collapsed_snvs.iat[0, 1])
-    protein_aa_snvs = Counter(collapsed_snvs.iat[0, 2])
+    dna_mutations = Counter(collapsed_mutations.iat[0, 0])
+    gene_aa_mutations = Counter(collapsed_mutations.iat[0, 1])
+    protein_aa_mutations = Counter(collapsed_mutations.iat[0, 2])
 
     # DNA
-    dna_snv_df = dna_snv_def.join(
-        pd.Series(dict(dna_snvs)).rename("count").rename_axis("dna_snv_id").to_frame(),
-        how="inner",
-    )
-    dna_snv_df = dna_snv_df.assign(freq=(dna_snv_df["count"] / len(case_data)) * 100)
-    dna_snv_df = dna_snv_df.sort_values("count", ascending=False)
-    dna_snv_df.to_csv(report_out / "dna_snv_global.csv", index=False)
-
-    # GENE AA
-    gene_aa_snv_df = gene_aa_snv_def.join(
-        pd.Series(dict(gene_aa_snvs))
+    dna_mutation_df = dna_mutation_def.join(
+        pd.Series(dict(dna_mutations))
         .rename("count")
-        .rename_axis("gene_aa_snv_id")
+        .rename_axis("dna_mutation_id")
         .to_frame(),
         how="inner",
     )
-    gene_aa_snv_df = gene_aa_snv_df.assign(
-        freq=(gene_aa_snv_df["count"] / len(case_data)) * 100
+    dna_mutation_df = dna_mutation_df.assign(
+        freq=(dna_mutation_df["count"] / len(case_data)) * 100
     )
-    gene_aa_snv_df = gene_aa_snv_df.sort_values("count", ascending=False)
-    gene_aa_snv_df.to_csv(report_out / "gene_aa_snv_global.csv", index=False)
+    dna_mutation_df = dna_mutation_df.sort_values("count", ascending=False)
+    dna_mutation_df.to_csv(report_out / "dna_mutation_global.csv", index=False)
+
+    # GENE AA
+    gene_aa_mutation_df = gene_aa_mutation_def.join(
+        pd.Series(dict(gene_aa_mutations))
+        .rename("count")
+        .rename_axis("gene_aa_mutation_id")
+        .to_frame(),
+        how="inner",
+    )
+    gene_aa_mutation_df = gene_aa_mutation_df.assign(
+        freq=(gene_aa_mutation_df["count"] / len(case_data)) * 100
+    )
+    gene_aa_mutation_df = gene_aa_mutation_df.sort_values("count", ascending=False)
+    gene_aa_mutation_df.to_csv(report_out / "gene_aa_mutation_global.csv", index=False)
 
     (
-        gene_aa_snv_df.loc[gene_aa_snv_df["gene"] == "S"]
+        gene_aa_mutation_df.loc[gene_aa_mutation_df["gene"] == "S"]
         .drop(columns=["gene"])
-        .to_csv(report_out / "spike_snv_global.csv", index=False)
+        .to_csv(report_out / "spike_mutation_global.csv", index=False)
     )
 
     # PROTEIN AA
-    protein_aa_snv_df = protein_aa_snv_def.join(
-        pd.Series(dict(protein_aa_snvs))
+    protein_aa_mutation_df = protein_aa_mutation_def.join(
+        pd.Series(dict(protein_aa_mutations))
         .rename("count")
-        .rename_axis("protein_aa_snv_id")
+        .rename_axis("protein_aa_mutation_id")
         .to_frame(),
         how="inner",
     )
-    protein_aa_snv_df = protein_aa_snv_df.assign(
-        freq=(protein_aa_snv_df["count"] / len(case_data)) * 100
+    protein_aa_mutation_df = protein_aa_mutation_df.assign(
+        freq=(protein_aa_mutation_df["count"] / len(case_data)) * 100
     )
-    protein_aa_snv_df = protein_aa_snv_df.sort_values("count", ascending=False)
-    protein_aa_snv_df.to_csv(report_out / "protein_aa_snv_global.csv", index=False)
+    protein_aa_mutation_df = protein_aa_mutation_df.sort_values(
+        "count", ascending=False
+    )
+    protein_aa_mutation_df.to_csv(
+        report_out / "protein_aa_mutation_global.csv", index=False
+    )
 
-    # ------------------------
-    #   REGIONAL SPIKE SNVS
-    # ------------------------
+    # ------------------------------
+    #   REGIONAL SPIKE MUTATIONS
+    # ------------------------------
 
-    collapsed_region_snvs = (
+    collapsed_region_mutations = (
         case_data.groupby("region")[
-            ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+            ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
         # (and calling like 100K+ mem allocs)
         # Just make an iterator over each element of the nested lists
         # Also, package the number of isolates per lineage in with the
         # iterator so we can use a single aggregate function later
-        # to determine which SNVs are consensus SNVs
+        # to determine which mutations are consensus mutations
         .agg(list).applymap(lambda x: (len(x), chain.from_iterable(x)))
     )
 
     # For a given number of isolates per group, and the iterator
-    # over all SNVs in that group, get the consensus SNVs
+    # over all mutations in that group, get the consensus mutations
     def count_consensus(pkg):
         # Unbundle the input tuple
         n_isolates, it = pkg
-        snvs = list(it)
+        mutations = list(it)
         # Count unique occurrences
-        counts = dict(Counter(snvs))
+        counts = dict(Counter(mutations))
 
-        # Return all SNVs which pass the min_freq threshold, sorted
-        # in ascending order by SNV ID
+        # Return all mutations which pass the min_freq threshold, sorted
+        # in ascending order by mutation ID
         # Also include the counts and the fraction of counts relative to
         # the number of genomes for this group
         return sorted([(int(k), v, (v / n_isolates) * 100) for k, v in counts.items()])
 
     # Do this column-by-column because for some reason pandas applymap()
     # misses the first column. I have no idea why...
-    for col in ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]:
-        collapsed_region_snvs[col] = collapsed_region_snvs[col].apply(count_consensus)
+    for col in ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]:
+        collapsed_region_mutations[col] = collapsed_region_mutations[col].apply(
+            count_consensus
+        )
 
-    def snvs_to_df(field):
-        _df = collapsed_region_snvs[field].explode()
+    def mutations_to_df(field):
+        _df = collapsed_region_mutations[field].explode()
         _df = pd.DataFrame.from_records(
-            _df, columns=["snv_id", "count", "freq"], index=_df.index
+            _df, columns=["mutation_id", "count", "freq"], index=_df.index
         )
         return _df
 
-    collapsed_dna_snvs = snvs_to_df("dna_snp_str")
-    collapsed_gene_aa_snvs = snvs_to_df("gene_aa_snp_str")
-    collapsed_protein_aa_snvs = snvs_to_df("protein_aa_snp_str")
+    collapsed_dna_mutations = mutations_to_df("dna_mutation_str")
+    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_mutation_str")
+    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_mutation_str")
 
     # DNA
-    dna_snv_region = pd.pivot_table(
-        collapsed_dna_snvs.reset_index(),
-        index="snv_id",
+    dna_mutation_region = pd.pivot_table(
+        collapsed_dna_mutations.reset_index(),
+        index="mutation_id",
         columns="region",
         values=["count", "freq"],
         aggfunc="first",  # should never trigger, all pairs should be unique
     ).fillna(0)
-    dna_snv_region.columns = [col[1] + " " + col[0] for col in dna_snv_region.columns]
-
-    count_cols = [col for col in dna_snv_region.columns if "count" in col]
-    dna_snv_region[count_cols] = dna_snv_region[count_cols].astype(int)
-    dna_snv_region.insert(
-        0, "sum_counts", dna_snv_region[count_cols].apply(np.sum, axis=1)
-    )
-
-    dna_snv_region = dna_snv_def.join(dna_snv_region, how="inner")
-    dna_snv_region = dna_snv_region.sort_values("sum_counts", ascending=False)
-    dna_snv_region.to_csv(report_out / "dna_snv_region.csv", index=False)
-
-    # GENE AA
-    gene_aa_snv_region = pd.pivot_table(
-        collapsed_gene_aa_snvs.reset_index(),
-        index="snv_id",
-        columns="region",
-        values=["count", "freq"],
-        aggfunc="first",  # should never trigger, all pairs should be unique
-    ).fillna(0)
-    gene_aa_snv_region.columns = [
-        col[1] + " " + col[0] for col in gene_aa_snv_region.columns
+    dna_mutation_region.columns = [
+        col[1] + " " + col[0] for col in dna_mutation_region.columns
     ]
 
-    count_cols = [col for col in gene_aa_snv_region.columns if "count" in col]
-    gene_aa_snv_region[count_cols] = gene_aa_snv_region[count_cols].astype(int)
-    gene_aa_snv_region.insert(
-        0, "sum_counts", gene_aa_snv_region[count_cols].apply(np.sum, axis=1)
+    count_cols = [col for col in dna_mutation_region.columns if "count" in col]
+    dna_mutation_region[count_cols] = dna_mutation_region[count_cols].astype(int)
+    dna_mutation_region.insert(
+        0, "sum_counts", dna_mutation_region[count_cols].apply(np.sum, axis=1)
     )
 
-    gene_aa_snv_region = gene_aa_snv_def.join(gene_aa_snv_region, how="inner")
-    gene_aa_snv_region = gene_aa_snv_region.sort_values("sum_counts", ascending=False)
-    gene_aa_snv_region.to_csv(report_out / "gene_aa_snv_region.csv", index=False)
+    dna_mutation_region = dna_mutation_def.join(dna_mutation_region, how="inner")
+    dna_mutation_region = dna_mutation_region.sort_values("sum_counts", ascending=False)
+    dna_mutation_region.to_csv(report_out / "dna_mutation_region.csv", index=False)
 
-    gene_aa_snv_region.loc[gene_aa_snv_region["gene"] == "S"].to_csv(
-        report_out / "spike_snv_region.csv", index=False
+    # GENE AA
+    gene_aa_mutation_region = pd.pivot_table(
+        collapsed_gene_aa_mutations.reset_index(),
+        index="mutation_id",
+        columns="region",
+        values=["count", "freq"],
+        aggfunc="first",  # should never trigger, all pairs should be unique
+    ).fillna(0)
+    gene_aa_mutation_region.columns = [
+        col[1] + " " + col[0] for col in gene_aa_mutation_region.columns
+    ]
+
+    count_cols = [col for col in gene_aa_mutation_region.columns if "count" in col]
+    gene_aa_mutation_region[count_cols] = gene_aa_mutation_region[count_cols].astype(
+        int
+    )
+    gene_aa_mutation_region.insert(
+        0, "sum_counts", gene_aa_mutation_region[count_cols].apply(np.sum, axis=1)
+    )
+
+    gene_aa_mutation_region = gene_aa_mutation_def.join(
+        gene_aa_mutation_region, how="inner"
+    )
+    gene_aa_mutation_region = gene_aa_mutation_region.sort_values(
+        "sum_counts", ascending=False
+    )
+    gene_aa_mutation_region.to_csv(
+        report_out / "gene_aa_mutation_region.csv", index=False
+    )
+
+    gene_aa_mutation_region.loc[gene_aa_mutation_region["gene"] == "S"].to_csv(
+        report_out / "spike_mutation_region.csv", index=False
     )
 
     # PROTEIN AA
-    protein_aa_snv_region = pd.pivot_table(
-        collapsed_protein_aa_snvs.reset_index(),
-        index="snv_id",
+    protein_aa_mutation_region = pd.pivot_table(
+        collapsed_protein_aa_mutations.reset_index(),
+        index="mutation_id",
         columns="region",
         values=["count", "freq"],
         aggfunc="first",  # should never trigger, all pairs should be unique
     ).fillna(0)
-    protein_aa_snv_region.columns = [
-        col[1] + " " + col[0] for col in protein_aa_snv_region.columns
+    protein_aa_mutation_region.columns = [
+        col[1] + " " + col[0] for col in protein_aa_mutation_region.columns
     ]
 
-    count_cols = [col for col in protein_aa_snv_region.columns if "count" in col]
-    protein_aa_snv_region[count_cols] = protein_aa_snv_region[count_cols].astype(int)
-    protein_aa_snv_region.insert(
-        0, "sum_counts", protein_aa_snv_region[count_cols].apply(np.sum, axis=1)
+    count_cols = [col for col in protein_aa_mutation_region.columns if "count" in col]
+    protein_aa_mutation_region[count_cols] = protein_aa_mutation_region[
+        count_cols
+    ].astype(int)
+    protein_aa_mutation_region.insert(
+        0, "sum_counts", protein_aa_mutation_region[count_cols].apply(np.sum, axis=1)
     )
 
-    protein_aa_snv_region = protein_aa_snv_def.join(protein_aa_snv_region, how="inner")
-    protein_aa_snv_region = protein_aa_snv_region.sort_values(
+    protein_aa_mutation_region = protein_aa_mutation_def.join(
+        protein_aa_mutation_region, how="inner"
+    )
+    protein_aa_mutation_region = protein_aa_mutation_region.sort_values(
         "sum_counts", ascending=False
     )
-    protein_aa_snv_region.to_csv(report_out / "protein_aa_snv_region.csv", index=False)
-
-    # ------------------------
-    #  CO-OCCURRING SPIKE SNVS
-    # ------------------------
-
-    case_data["dna_snp_str"] = case_data["dna_snp_str"].apply(np.unique).apply(tuple)
-    case_data["gene_aa_snp_str"] = (
-        case_data["gene_aa_snp_str"].apply(np.unique).apply(tuple)
-    )
-    case_data["protein_aa_snp_str"] = (
-        case_data["protein_aa_snp_str"].apply(np.unique).apply(tuple)
+    protein_aa_mutation_region.to_csv(
+        report_out / "protein_aa_mutation_region.csv", index=False
     )
 
-    case_data_gene_snv = case_data[
-        ["Accession ID", "gene_aa_snp_str", "lineage", "region"]
-    ].explode("gene_aa_snp_str")
+    # -------------------------------
+    #  CO-OCCURRING SPIKE MUTATIONS
+    # -------------------------------
 
-    # Filter for only spike SNVs
-    case_data_spike_snv = (
-        case_data_gene_snv.reset_index(drop=True).join(
-            (gene_aa_snv_def.loc[gene_aa_snv_def["gene"] == "S"]),
-            on="gene_aa_snp_str",
+    case_data["dna_mutation_str"] = (
+        case_data["dna_mutation_str"].apply(np.unique).apply(tuple)
+    )
+    case_data["gene_aa_mutation_str"] = (
+        case_data["gene_aa_mutation_str"].apply(np.unique).apply(tuple)
+    )
+    case_data["protein_aa_mutation_str"] = (
+        case_data["protein_aa_mutation_str"].apply(np.unique).apply(tuple)
+    )
+
+    case_data_gene_mutation = case_data[
+        ["Accession ID", "gene_aa_mutation_str", "lineage", "region"]
+    ].explode("gene_aa_mutation_str")
+
+    # Filter for only spike mutations
+    case_data_spike_mutation = (
+        case_data_gene_mutation.reset_index(drop=True).join(
+            (gene_aa_mutation_def.loc[gene_aa_mutation_def["gene"] == "S"]),
+            on="gene_aa_mutation_str",
             how="inner",
         )
         # Sort this dataframe by position first so that
-        # the final co-occuring SNV string is in the right order
+        # the final co-occuring mutation string is in the right order
         .sort_values("pos")
     )
 
-    spike_cooc = case_data_spike_snv.groupby("Accession ID").agg(
-        spike_snv=("snv_name", lambda x: ":".join(x)),
+    spike_cooc = case_data_spike_mutation.groupby("Accession ID").agg(
+        spike_mutation=("mutation_name", lambda x: ":".join(x)),
         region=("region", "first"),
         lineage=("lineage", "first"),
     )
@@ -331,7 +386,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     # GLOBAL
     spike_cooc_global = (
         spike_cooc.reset_index()
-        .groupby("spike_snv", as_index=False)
+        .groupby("spike_mutation", as_index=False)
         .agg(count=("Accession ID", "count"))
         .assign(freq=lambda x: (x["count"] / len(case_data)) * 100)
         .sort_values("count", ascending=False)
@@ -339,7 +394,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     )
     spike_cooc_global_lineage = (
         spike_cooc.reset_index()
-        .groupby(["spike_snv", "lineage"], as_index=False)
+        .groupby(["spike_mutation", "lineage"], as_index=False)
         .agg(count=("Accession ID", "count"))
         .assign(freq=lambda x: (x["count"] / len(case_data)) * 100)
         .sort_values("count", ascending=False)
@@ -362,7 +417,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
 
     spike_cooc_region = (
         spike_cooc.reset_index()
-        .groupby(["spike_snv", "region"], as_index=False)
+        .groupby(["spike_mutation", "region"], as_index=False)
         .agg(count=("Accession ID", "count"))
         .assign(
             region_counts=lambda x: x["region"].map(region_counts),
@@ -374,7 +429,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     )
     spike_cooc_region = pd.pivot_table(
         spike_cooc_region,
-        index="spike_snv",
+        index="spike_mutation",
         columns="region",
         values=["count", "freq"],
     ).fillna(0)
@@ -391,7 +446,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
 
     spike_cooc_region_lineage = (
         spike_cooc.reset_index()
-        .groupby(["spike_snv", "lineage", "region"], as_index=False)
+        .groupby(["spike_mutation", "lineage", "region"], as_index=False)
         .agg(count=("Accession ID", "count"))
         .assign(
             region_counts=lambda x: x["region"].map(region_counts),
@@ -403,7 +458,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     )
     spike_cooc_region_lineage = pd.pivot_table(
         spike_cooc_region_lineage,
-        index=["spike_snv", "lineage"],
+        index=["spike_mutation", "lineage"],
         columns="region",
         values=["count", "freq"],
     ).fillna(0)

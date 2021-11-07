@@ -118,28 +118,28 @@ const StructuralViewer = observer(() => {
   };
 
   const applyHeatmap = ({ ref }) => {
-    const snvs = groupDataStore.groupSnvFrequency[
+    const mutations = groupDataStore.groupMutationFrequency[
       groupDataStore.activeGroupType
     ]['protein_aa']
       .filter(
-        (groupSnv) =>
-          groupSnv.name === plotSettingsStore.reportStructureActiveGroup &&
-          groupSnv.protein === plotSettingsStore.reportStructureActiveProtein
+        (groupMutation) =>
+          groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&
+          groupMutation.protein === plotSettingsStore.reportStructureActiveProtein
       )
       // Convert fractional frequencies to colors
       .slice()
-      .map((snv) => {
-        snv.colorInd = Math.floor((snv.fraction - 0.001) * numColors);
-        return snv;
+      .map((mut) => {
+        mut.colorInd = Math.floor((mut.fraction - 0.001) * numColors);
+        return mut;
       })
       .sort((a, b) => a.pos - b.pos);
 
     // For each color level, build a list of residues
     const heatmapEntries = [];
     reds.forEach((color, i) => {
-      let indices = snvs
-        .filter((snv) => snv.colorInd == i)
-        .map((snv) => snv.pos);
+      let indices = mutations
+        .filter((mut) => mut.colorInd == i)
+        .map((mut) => mut.pos);
       if (indices.length === 0) return;
 
       heatmapEntries.push({
@@ -301,7 +301,7 @@ const StructuralViewer = observer(() => {
       <StructuralViewerHeader>
         <OptionSelectContainer>
           <label>
-            Displaying SNVs for {groupDataStore.getActiveGroupTypePrettyName()}
+            Displaying mutations for {groupDataStore.getActiveGroupTypePrettyName()}
             <select
               value={plotSettingsStore.reportStructureActiveGroup}
               onChange={onChangeStructureActiveGroup}

@@ -14,7 +14,7 @@ import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
 
 import { config } from '../../config';
 import {
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   GROUPS,
   ASYNC_STATES,
@@ -31,7 +31,7 @@ const LocationGroupPlot = observer(({ width }) => {
     UIStore,
     plotSettingsStore,
     groupDataStore,
-    snpDataStore,
+    mutationDataStore,
   } = useStores();
 
   const handleHoverLocation = (...args) => {
@@ -69,9 +69,9 @@ const LocationGroupPlot = observer(({ width }) => {
     //console.log('LOCATION GROUP PLOT PROCESS DATA');
 
     let locationData;
-    if (configStore.groupKey === GROUP_SNV) {
+    if (configStore.groupKey === GROUP_MUTATION) {
       locationData = aggregate({
-        data: toJS(dataStore.aggLocationSingleSnvDate),
+        data: toJS(dataStore.aggLocationSingleMutationDate),
         groupby: ['location', 'group_id'],
         fields: ['counts'],
         ops: ['sum'],
@@ -79,18 +79,18 @@ const LocationGroupPlot = observer(({ width }) => {
       });
 
       locationData.forEach((record) => {
-        let snv = snpDataStore.intToSnv(
+        let mutation = mutationDataStore.intToMutation(
           configStore.dnaOrAa,
           configStore.coordinateMode,
           record.group_id
         );
-        record.color = snv.color;
-        record.group = snv.snp_str;
-        record.group_name = snv.name;
+        record.color = mutation.color;
+        record.group = mutation.mutation_str;
+        record.group_name = mutation.name;
       });
 
       if (plotSettingsStore.locationGroupHideReference) {
-        // Filter out 'Reference' group, when in SNV mode
+        // Filter out 'Reference' group, when in mutation mode
         locationData = locationData.filter((row) => {
           return row.group !== GROUPS.REFERENCE_GROUP;
         });
@@ -227,17 +227,17 @@ const LocationGroupPlot = observer(({ width }) => {
   let xLabel, xLabelFormat, stackOffset;
   if (Object.keys(config.group_cols).includes(configStore.groupKey)) {
     xLabel += `${config.group_cols[configStore.groupKey].title} `;
-  } else if (configStore.groupKey === GROUP_SNV) {
+  } else if (configStore.groupKey === GROUP_MUTATION) {
     if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       xLabel += 'NT';
     } else {
       xLabel += 'AA';
     }
-    xLabel += ' SNV ';
+    xLabel += ' mutation ';
   }
   xLabel += ' (Cumulative, All Sequences)';
 
-  if (configStore.groupKey === GROUP_SNV) {
+  if (configStore.groupKey === GROUP_MUTATION) {
     xLabelFormat = 's';
     stackOffset = 'zero';
     xLabel = `# Sequences with ${configStore.getGroupLabel()} (Cumulative, All Sequences)`;
@@ -250,7 +250,7 @@ const LocationGroupPlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <PlotOptions>
-        {configStore.groupKey === GROUP_SNV && (
+        {configStore.groupKey === GROUP_MUTATION && (
           <OptionCheckboxContainer>
             <label>
               <input

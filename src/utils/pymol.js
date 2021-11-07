@@ -8,27 +8,27 @@ export function mutationHeatmapToPymolScript({
   activeProtein,
   activeGroup,
   pdbId,
-  snvs,
-  selectIndividualSNVs,
-  selectAllSNVs,
+  mutations,
+  selectIndividualMutations,
+  selectAllMutations,
   includeDomains,
   baseColor,
   useAssembly,
   assemblyName,
 }) {
-  let individualSnvSelections = '';
-  if (selectIndividualSNVs) {
-    snvs.forEach((snv) => {
-      individualSnvSelections += `cmd.select('${snv.ref}${snv.pos.toString()}${
-        snv.alt
-      }', 'resi ${snv.pos.toString()}')\n`;
+  let individualMutationSelections = '';
+  if (selectIndividualMutations) {
+    mutations.forEach((mut) => {
+      individualMutationSelections += `cmd.select('${mut.ref}${mut.pos.toString()}${
+        mut.alt
+      }', 'resi ${mut.pos.toString()}')\n`;
     });
   }
 
-  let allSnvSelection = '';
-  if (selectAllSNVs) {
-    allSnvSelection = `cmd.select('all_snvs', 'resi ${snvs
-      .map((snv) => snv.pos.toString())
+  let allMutationsSelection = '';
+  if (selectAllMutations) {
+    allMutationsSelection = `cmd.select('all_mutations', 'resi ${mutations
+      .map((mut) => mut.pos.toString())
       .join(' or resi ')}')\n`;
   }
 
@@ -77,17 +77,17 @@ cmd.show('surface')
 cmd.color('0x${baseColor.substr(1)}')
 
 # Create selections
-${individualSnvSelections}
-${allSnvSelection}
+${individualMutationSelections}
+${allMutationsSelection}
 ${domainSelection}
 
 # RESI COLORING CODE
 `;
 
-  snvs.forEach((snv) => {
-    const colorInd = Math.floor((snv.fraction - 0.001) * numColors);
+  mutations.forEach((mut) => {
+    const colorInd = Math.floor((mut.fraction - 0.001) * numColors);
     // PyMOL needs colors in "0xRRGGBB" instead of "#RRGGBB"
-    script += `cmd.color('0x${reds[colorInd].substr(1)}', 'resi ${snv.pos}')\n`;
+    script += `cmd.color('0x${reds[colorInd].substr(1)}', 'resi ${mut.pos}')\n`;
   });
 
   return script;

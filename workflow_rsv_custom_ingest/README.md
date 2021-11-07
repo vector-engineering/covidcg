@@ -17,7 +17,7 @@ To make use of this data please do the following:
    > cp -r test-data/data_custom ../
    ```
 
-2. Review the configuration settings in [config/config_rsv_custom.yaml](../config/config_rsv_custom.yaml). In particular, for this test you may want to change `snp_count_threshold` to `0` (so that rsvg does not remove any low-frequency SNVs since the test dataset is very small).
+2. Review the configuration settings in [config/config_rsv_custom.yaml](../config/config_rsv_custom.yaml). In particular, for this test you may want to change `mutation_count_threshold` to `0` (so that rsvg does not remove any low-frequency mutations since the test dataset is very small).
 
 3. Run the workflow in `workflow_custom_ingest` to clean up the metadata.
 
@@ -25,7 +25,7 @@ To make use of this data please do the following:
    > snakemake --cores 1
    ```
 
-4. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
+4. Run main workflow to call mutations/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
 
    ```bash
    > cd ../workflow_rsv_main

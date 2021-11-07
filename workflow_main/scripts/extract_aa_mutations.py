@@ -101,8 +101,8 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
             while i < len(segment_snp_df):
                 cur_snp = segment_snp_df.iloc[i, :]
 
-                # Look ahead in the SNV list (ordered by position)
-                # for any other SNVs within this codon
+                # Look ahead in the mutation list (ordered by position)
+                # for any other mutations within this codon
                 j = i + 1
                 snps = [cur_snp]
                 codon_ind_start = cur_snp["codon_ind_start"]
@@ -123,7 +123,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                         else:
                             break
 
-                # Increment our counter so we don't reprocess any grouped SNVs
+                # Increment our counter so we don't reprocess any grouped mutations
                 i = j
 
                 # Get region start/end, 0-indexed

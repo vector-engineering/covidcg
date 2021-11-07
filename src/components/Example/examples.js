@@ -4,7 +4,7 @@ import { queryPrimers } from '../../utils/primer';
 import { todayISO } from '../../utils/date';
 
 import {
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
   NORM_MODES,
@@ -115,7 +115,7 @@ export const getExampleItems = ({ selectTree }) => {
           activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
-          groupKey: GROUP_SNV,
+          groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -145,7 +145,7 @@ export const getExampleItems = ({ selectTree }) => {
           activeTab: TABS.TAB_COMPARE_LOCATIONS,
         },
         config: {
-          groupKey: GROUP_SNV,
+          groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -170,7 +170,7 @@ export const getExampleItems = ({ selectTree }) => {
       },
     },
     {
-      title: 'Diagnostics: NT SNVs in US CDC qPCR primer/probe sequences',
+      title: 'Diagnostics: NT mutations in US CDC qPCR primer/probe sequences',
       description:
         'Prevalence of any mutations present within the US CDC primer and probe sequences (N1 + N2), for sequences in the US',
       image: USCDCPrimerImage,
@@ -184,7 +184,7 @@ export const getExampleItems = ({ selectTree }) => {
           activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
-          groupKey: GROUP_SNV,
+          groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.DNA,
           coordinateMode: COORDINATE_MODES.COORD_PRIMER,
           selectedLocationNodes: [
@@ -217,7 +217,7 @@ export const getExampleItems = ({ selectTree }) => {
     {
       title: 'Co-occurrence of R203K and G204R in N gene',
       description:
-        'Two SNVs in the N gene, R203K and G204R, co-occur with each other. These SNVs are associated with the B.1.1 lineage.',
+        'Two mutations in the N gene, R203K and G204R, co-occur with each other. These mutations are associated with the B.1.1 lineage.',
       image: N203204Image,
       settings: {
         plotSettings: {
@@ -229,7 +229,7 @@ export const getExampleItems = ({ selectTree }) => {
           activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
-          groupKey: GROUP_SNV,
+          groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('N'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -256,7 +256,7 @@ export const getExampleItems = ({ selectTree }) => {
           activeTab: TABS.TAB_COMPARE_GROUPS,
         },
         config: {
-          groupKey: GROUP_SNV,
+          groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,

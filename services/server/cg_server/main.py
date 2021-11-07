@@ -25,7 +25,7 @@ from cg_server.query import (
     query_initial,
     query_metadata,
     query_country_score,
-    query_group_snv_frequencies,
+    query_group_mutation_frequencies,
     query_and_aggregate,
     generate_report,
 )
@@ -167,12 +167,12 @@ def _get_metadata(conn):
     return query_metadata(conn, req)
 
 
-@app.route("/group_snv_frequencies", methods=["POST"])
+@app.route("/group_mutation_frequencies", methods=["POST"])
 @cross_origin(origins=cors_domains)
 @handle_db_errors(options=connection_options, conn_pool=conn_pool)
-def get_group_snv_frequencies(conn):
+def get_group_mutation_frequencies(conn):
     req = request.json
-    return query_group_snv_frequencies(conn, req)
+    return query_group_mutation_frequencies(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])

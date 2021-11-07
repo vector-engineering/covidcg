@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""Get sequences/SNVs from database based on user selections
+"""Get sequences/mutations from database based on user selections
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
@@ -13,8 +13,8 @@ from cg_server.constants import constants
 def build_coordinate_filters(
     conn, dna_or_aa, coordinate_mode, coordinate_ranges, selected_gene, selected_protein
 ):
-    """Build SQL 'WHERE' expression to filter for SNVs within the user-defined range
-    Only valid in "SNV" mode, not in any other grouping mode
+    """Build SQL 'WHERE' expression to filter for mutations within the user-defined range
+    Only valid in "mutation" mode, not in any other grouping mode
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def build_coordinate_filters(
     coordinate_mode: str
         - Enum of constants["COORDINATE_MODES"] (NT, GENE AA, or PROTEIN AA)
     coordinate_ranges: list of [int, int]
-        - List of ranges, in nucleotide coordinates, for valid SNVs
+        - List of ranges, in nucleotide coordinates, for valid mutations
     selected_gene: str
         - Only used for filtering if in GENE AA mode
     selected_protein: str
@@ -32,31 +32,31 @@ def build_coordinate_filters(
 
     Returns
     -------
-    snv_filter: sql.Composed
+    mutation_filter: sql.Composed
         - The "WHERE" clause, in a format-ready sql.Composable form
-    snv_table
-        - The name of the SNV definition table to use (dna_snp, gene_aa_snp, protein_aa_snp)
+    mutation_table
+        - The name of the mutation definition table to use (dna_mutation, gene_aa_mutation, protein_aa_mutation)
 
     """
 
-    snv_filter = []
+    mutation_filter = []
     if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
-        snv_table = "dna_snp"
+        mutation_table = "dna_mutation"
     elif dna_or_aa == constants["DNA_OR_AA"]["AA"]:
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
-            snv_table = "gene_aa_snp"
-            snv_filter.append(
+            mutation_table = "gene_aa_mutation"
+            mutation_filter.append(
                 sql.SQL('"gene" = {gene}').format(gene=sql.Literal(selected_gene))
             )
         elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
-            snv_table = "protein_aa_snp"
-            snv_filter.append(
+            mutation_table = "protein_aa_mutation"
+            mutation_filter.append(
                 sql.SQL('"protein" = {protein}').format(
                     protein=sql.Literal(selected_protein)
                 )
             )
 
-    snv_filter = sql.SQL(" AND ").join(snv_filter)
+    mutation_filter = sql.SQL(" AND ").join(mutation_filter)
 
     pos_filter = []
     for i in range(len(coordinate_ranges)):
@@ -76,19 +76,19 @@ def build_coordinate_filters(
     pos_filter = sql.SQL(" OR ").join(pos_filter)
 
     # Compose final WHERE expression
-    snv_filter = [snv_filter]
-    # Only combine the snv_filter and pos_filter if the snv_filter exists
-    if snv_filter[0].as_string(conn):
-        snv_filter.append(sql.SQL(" AND "))
+    mutation_filter = [mutation_filter]
+    # Only combine the mutation_filter and pos_filter if the mutation_filter exists
+    if mutation_filter[0].as_string(conn):
+        mutation_filter.append(sql.SQL(" AND "))
 
-    snv_filter.append(pos_filter)
-    snv_filter = sql.Composed(snv_filter)
+    mutation_filter.append(pos_filter)
+    mutation_filter = sql.Composed(mutation_filter)
 
-    # Only add the WHERE clause if the snv_filter exists
-    if snv_filter.join("").as_string(conn):
-        snv_filter = (sql.SQL("WHERE") + snv_filter).join(" ")
+    # Only add the WHERE clause if the mutation_filter exists
+    if mutation_filter.join("").as_string(conn):
+        mutation_filter = (sql.SQL("WHERE") + mutation_filter).join(" ")
 
-    return snv_filter, snv_table
+    return mutation_filter, mutation_table
 
 
 def build_sequence_where_filter(req):
@@ -195,25 +195,24 @@ def build_sequence_location_where_filter(req):
             continue
         loc_where.append(
             sql.SQL("({loc_level_col} = ANY({loc_ids}))").format(
-                loc_level_col=sql.Identifier(loc_level),
-                loc_ids=sql.Literal(loc_ids),
+                loc_level_col=sql.Identifier(loc_level), loc_ids=sql.Literal(loc_ids),
             )
         )
-    
+
     if loc_where:
         loc_where = sql.Composed(
             [sql.SQL("("), sql.SQL(" OR ").join(loc_where), sql.SQL(")")]
         )
         sequence_where_filter.append(sql.SQL(" AND "))
         sequence_where_filter.append(loc_where)
-    
+
     sequence_where_filter = sql.Composed(sequence_where_filter)
     return sequence_where_filter
 
 
 def query_and_aggregate(conn, req):
     """Select sequences and aggregate results
-    If in "SNV" mode, return sequences grouped by co-occurring SNVs
+    If in "mutation" mode, return sequences grouped by co-occurring mutations
     In any other mode, return sequences grouped by their group column
     (i.e., lineage or clade)
 
@@ -232,8 +231,8 @@ def query_and_aggregate(conn, req):
         "group_id", "counts"
         - Each row represents sequences aggregated by location, 
           collection_date, and group_id
-        - In "SNV" mode, "group_id" represents co-occurring SNVs,
-          and is structured as a list of SNV IDs (integers)
+        - In "mutation" mode, "group_id" represents co-occurring mutations,
+          and is structured as a list of mutation IDs (integers)
         - In any other mode, "group_id" is a string of the group
           name. i.e., in lineage grouping, group_id is the lineage
           name.
@@ -263,8 +262,8 @@ def query_and_aggregate(conn, req):
                 loc_ids=sql.Literal(loc_ids),
             )
 
-            if group_key == constants["GROUP_SNV"]:
-                (snv_filter, snv_table) = build_coordinate_filters(
+            if group_key == constants["GROUP_MUTATION"]:
+                (mutation_filter, mutation_table) = build_coordinate_filters(
                     conn,
                     dna_or_aa,
                     coordinate_mode,
@@ -272,7 +271,7 @@ def query_and_aggregate(conn, req):
                     selected_gene,
                     selected_protein,
                 )
-                sequence_snv_table = "sequence_" + snv_table
+                sequence_mutation_table = "sequence_" + mutation_table
 
                 main_query.append(
                     sql.SQL(
@@ -288,10 +287,10 @@ def query_and_aggregate(conn, req):
                             locdef."value" AS "location",
                             (sst.mutations & (
                                 SELECT ARRAY_AGG("id")
-                                FROM {snv_table}
-                                {snv_filter}
+                                FROM {mutation_table}
+                                {mutation_filter}
                             )) as "mutations"
-                        FROM {sequence_snv_table} sst 
+                        FROM {sequence_mutation_table} sst 
                         INNER JOIN {loc_def_table} locdef ON sst.{loc_level_col} = locdef.id
                         WHERE {sequence_where_filter}
                     ) sm
@@ -300,9 +299,9 @@ def query_and_aggregate(conn, req):
                     ).format(
                         loc_level_col=sql.Identifier(loc_level),
                         loc_def_table=sql.Identifier("metadata_" + loc_level),
-                        snv_table=sql.Identifier(snv_table),
-                        snv_filter=snv_filter,
-                        sequence_snv_table=sql.Identifier(sequence_snv_table),
+                        mutation_table=sql.Identifier(mutation_table),
+                        mutation_filter=mutation_filter,
+                        sequence_mutation_table=sql.Identifier(sequence_mutation_table),
                         sequence_where_filter=sequence_where_filter,
                     )
                 )
