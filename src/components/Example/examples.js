@@ -1,4 +1,5 @@
 import { config } from '../../config';
+import sars2 from './examples.sars2';
 
 export function getExampleItems({ selectTree }) {
   switch (config.virus) {

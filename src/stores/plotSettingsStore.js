@@ -111,25 +111,26 @@ export class PlotSettingsStore {
   // SURVEILLANCE PLOT
   // -----------------
 
-<<<<<<< HEAD
-=======
-  @observable surveillanceMode = initialValues.surveillanceMode;
-  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
-  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
-  @observable surveillanceSortField = initialValues.surveillanceSortField;
-  @observable surveillanceSortDirection =
-    initialValues.surveillanceSortDirection;
-  @observable surveillanceDisplayMinCounts =
-    initialValues.surveillanceDisplayMinCounts;
-  @observable surveillanceDisplayMinPercent =
-    initialValues.surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts = initialValues.surveillanceSigMinCounts;
-  @observable surveillanceSigMinPercent =
-    initialValues.surveillanceSigMinPercent;
-  @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
+  @observable surveillanceMode = this.initialValues.surveillanceMode;
+  @observable surveillanceShowWarning = this.initialValues
+    .surveillanceShowWarning;
+  @observable surveillanceShowSettings = this.initialValues
+    .surveillanceShowSettings;
+  @observable surveillanceSortField = this.initialValues.surveillanceSortField;
+  @observable surveillanceSortDirection = this.initialValues
+    .surveillanceSortDirection;
+  @observable surveillanceDisplayMinCounts = this.initialValues
+    .surveillanceDisplayMinCounts;
+  @observable surveillanceDisplayMinPercent = this.initialValues
+    .surveillanceDisplayMinPercent;
+  @observable surveillanceSigMinCounts = this.initialValues
+    .surveillanceSigMinCounts;
+  @observable surveillanceSigMinPercent = this.initialValues
+    .surveillanceSigMinPercent;
+  @observable surveillanceSigMinR = this.initialValues.surveillanceSigMinR;
+  @observable surveillanceLegendHover = this.initialValues
+    .surveillanceLegendHover;
 
->>>>>>> 2064dad (Fixes (v2.2.4) (#400))
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
