@@ -1,2 +1,6 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 HB384531,N,117,A,S
+=======
+HB384531,N,122,A,S
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

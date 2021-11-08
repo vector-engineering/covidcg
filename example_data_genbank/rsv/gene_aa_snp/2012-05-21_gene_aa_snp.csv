@@ -1,5 +1,12 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 JQ822101,N,84,R,K
 JQ822101,N,216,H,Y
 JQ822102,N,84,R,K
 JQ822102,N,216,H,Y
+=======
+JQ822101,N,89,R,K
+JQ822101,N,221,H,Y
+JQ822102,N,89,R,K
+JQ822102,N,221,H,Y
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

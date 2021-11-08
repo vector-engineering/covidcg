@@ -404,12 +404,12 @@ export class ConfigStore {
       region: [],
       country: [],
       division: [],
-      location: []
+      location: [],
     };
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });
-    return res
+    return res;
   }
 
   getCoordinateRanges() {

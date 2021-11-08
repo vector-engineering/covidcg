@@ -1,6 +1,14 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 KP713401,N,117,A,S
 KP713402,N,70,A,V
 KP713402,N,72,S,T
 KP713402,N,74,L,A
 KP713402,N,75,G,R
+=======
+KP713401,N,122,A,S
+KP713402,N,75,A,V
+KP713402,N,77,S,T
+KP713402,N,79,L,A
+KP713402,N,80,G,R
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

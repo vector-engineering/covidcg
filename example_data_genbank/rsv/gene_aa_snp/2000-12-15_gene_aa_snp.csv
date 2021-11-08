@@ -1,2 +1,7 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 AX047073,F,149,F,V
+=======
+AX047073,F,153,V,G
+AX047073,F,192,L,V
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

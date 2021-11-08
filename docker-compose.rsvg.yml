@@ -15,6 +15,10 @@ services:
       - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
+<<<<<<< HEAD
+=======
+      - POSTGRES_DB=cg_dev
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20

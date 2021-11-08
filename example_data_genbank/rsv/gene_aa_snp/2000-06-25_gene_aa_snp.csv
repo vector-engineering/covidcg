@@ -1,6 +1,15 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 AF162135,G,233,D,S
 AF162135,G,238,Y,H
 AF162135,G,248,H,Q
 AF162135,G,268,R,K
 AF162135,G,298,Y,H
+=======
+AF162135,G,238,D,S
+AF162135,G,243,Y,H
+AF162135,G,253,H,Q
+AF162135,G,273,R,K
+AF162135,G,303,Y,H
+AF162135,G,305,K,E
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

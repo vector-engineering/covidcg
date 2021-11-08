@@ -1,5 +1,15 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 LG167695,F,111,H,K
 LG167695,F,149,F,V
 LG167695,F,195,L,S
 LG167695,F,528,L,P
+=======
+LG167695,F,80,E,K
+LG167695,F,115,P,Q
+LG167695,F,116,P,A
+LG167695,F,153,V,G
+LG167695,F,192,L,V
+LG167695,F,393,I,V
+LG167695,F,461,M,V
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

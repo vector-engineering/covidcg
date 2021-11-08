@@ -1,2 +1,6 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 DM091208,N,117,A,S
+=======
+DM091208,N,122,A,S
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)

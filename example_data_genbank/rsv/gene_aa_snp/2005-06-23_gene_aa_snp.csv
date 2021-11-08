@@ -1,4 +1,5 @@
 Accession ID,gene,pos,ref,alt
+<<<<<<< HEAD
 AM040047,F,343,V,A
 AM040047,F,347,L,P
 AM040047,F,372,Q,R
@@ -19,3 +20,9 @@ AM040047,F,474,V,A
 AM040047,F,489,T,I
 AM040047,F,492,Y,C
 AM040047,F,506,T,M
+=======
+AM040047,F,393,I,V
+AM040047,F,398,V,I
+AM040047,F,399,D,G
+AM040047,F,461,M,V
+>>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
