@@ -22,10 +22,10 @@ def main():
     )
 
     parser.add_argument(
-        "--location-map",
+        "--metadata-map",
         type=str,
         required=True,
-        help="Path to location map JSON file",
+        help="Path to metadata map JSON file",
     )
 
     parser.add_argument(
@@ -155,9 +155,19 @@ def main():
     case_count_df.to_json(str(out_path / "case_count.json"), orient="records")
 
     case_df = pd.read_json(args.case_data).set_index("Accession ID")
-    case_df = case_df[["collection_date", "submission_date", "location_id"]]
-    location_map = pd.read_json(args.location_map)
-    case_df = case_df.join(location_map, on="location_id", how="left")
+
+    with open(args.metadata_map, "r") as fp:
+        metadata_map = json.loads(fp.read())
+
+    # Join locations onto case_data
+    loc_levels = ["region", "country", "division", "location"]
+    for loc_level in loc_levels:
+        case_df.loc[:, loc_level] = case_df[loc_level].map(
+            {int(k): v for k, v in metadata_map[loc_level].items()}
+        )
+        case_df.loc[case_df[loc_level].isna(), loc_level] = None
+
+    case_df = case_df[["collection_date", "submission_date"] + loc_levels]
 
     case_df["collection_date"] = pd.to_datetime(
         case_df["collection_date"], errors="coerce"

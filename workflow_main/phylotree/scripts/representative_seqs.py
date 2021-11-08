@@ -31,7 +31,6 @@ def date2float(isodate):
 def get_representative_seqs(
     case_data_path,
     metadata_map_path,
-    location_map_path,
     ref_seq_path,
     fasta_out_path,
     datefile_out_path,
@@ -44,14 +43,16 @@ def get_representative_seqs(
     dna_snp = metadata_map["dna_snp"]
     id_to_dna_snp = {v: k for k, v in dna_snp.items()}
 
-    # Load location map
-    location_map = pd.read_json(location_map_path)
-
     # Load data and select a representative sequence for each lineage
     # by choosing the last seen sequence from each lineage
     df = pd.read_json(case_data_path)
     df["collection_date"] = pd.to_datetime(df["collection_date"])
-    df = df.join(location_map, on="location_id")
+
+    # Join region string
+    # Map integer IDs to strings
+    df.loc[:, "region"] = df["region"].map(
+        {int(k): v for k, v in metadata_map["region"].items()}
+    )
 
     # https://github.com/cov-lineages/pango-designation
     # See: DOI 10.1038/s41564-020-0770-5, 10.1093/ve/veab064

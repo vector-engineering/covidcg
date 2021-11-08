@@ -3,8 +3,6 @@ import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { ASYNC_STATES } from '../constants/defs.json';
 
-import { getLocationIdsByNode } from '../utils/location';
-
 export class MetadataStore {
   // Map of metadata value ID --> metadata value string
   metadataMap;
@@ -36,9 +34,9 @@ export class MetadataStore {
       body: JSON.stringify({
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
       }),

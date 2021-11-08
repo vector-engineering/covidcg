@@ -41,7 +41,7 @@ app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
 
 # Load allowed CORS domains
-cors_domains = ['https://covidcg.org', config['prod_hostname']]
+cors_domains = ["https://covidcg.org", config["prod_hostname"]]
 if os.getenv("FLASK_ENV", "development") == "development":
     # Allow any connections from localhost in development
     cors_domains.append("http://localhost:{}".format(os.getenv("FRONTEND_PORT")))
@@ -59,8 +59,6 @@ load_users = [chunk for chunk in load_users.split(",") if chunk]
 load_users = [(chunk.split(":")[0], chunk.split(":")[1]) for chunk in load_users]
 for username, password in load_users:
     users[username] = generate_password_hash(password)
-
-
 
 
 @auth.verify_password
@@ -158,6 +156,26 @@ if os.getenv("FLASK_ENV", "development") == "development":
         conn_pool.putconn(conn)
 
 
+@app.route("/seed")
+def _seed():
+    if os.getenv("FLASK_ENV", "development") != "development":
+        return "no"
+
+    conn = get_conn_from_pool(connection_options, conn_pool)
+    with conn.cursor() as cur:
+        print("Seeding DB")
+        seed_database(conn)
+        insert_sequences(
+            conn,
+            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            filenames_as_dates=True,
+        )
+        conn.commit()
+        conn_pool.putconn(conn)
+
+    return "Done!"
+
+
 @app.route("/")
 @auth.login_required(optional=(not config["login_required"]))
 def index():
@@ -184,6 +202,7 @@ def get_sequences(conn):
     req = request.json
     if not req:
         return make_response(("No filter parameters given", 400))
+    # return query_and_aggregate(conn, req)
     return query_and_aggregate(conn, req)
 
 

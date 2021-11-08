@@ -110,8 +110,14 @@ __pycache__
 
 # BAM files are too large to track for example data
 example_data_genbank/bam/**
-# Don't need to track redundant fasta_raw files
-example_data_genbank/fasta_raw/**
+# Don't need to track redundant fasta_processed files
+example_data_genbank/fasta_processed/**
+
+**/.snakemake_timestamp
+example_data_genbank/status/**
+example_data_genbank/lineage_treetime/*.txt
+example_data_genbank/lineage_treetime/*.png
+example_data_genbank/lineage_treetime/*.pdf
 
 data
 data_genbank

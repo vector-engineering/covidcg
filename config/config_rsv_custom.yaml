@@ -59,6 +59,18 @@ surv_start_date_days_ago: 90
 surv_end_date_days_ago: 30
 
 # ---------------
+#    DATABASE
+# ---------------
+
+# Split mutation table partitions into periods of this length
+# See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+# Common options: 
+# 'D' calendar day frequency
+# 'W' weekly frequency
+# 'M' month end frequency
+mutation_partition_break: 'M'
+
+# ---------------
 #     SERVER
 # ---------------
 

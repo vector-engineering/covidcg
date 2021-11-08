@@ -6,7 +6,6 @@ import {
 } from '../utils/snpDataWorkerWrapper';
 import { downloadBlobURL } from '../utils/download';
 import { intToISO } from '../utils/date';
-import { getLocationIdsByNode } from '../utils/location';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 import {
@@ -45,8 +44,8 @@ export class DataStore {
   constructor() {}
 
   init() {
-    this.dataDate = asyncDataStoreInstance.data.data_date;
-    this.numSequences = asyncDataStoreInstance.data.num_sequences;
+    this.dataDate = asyncDataStoreInstance.data.stats.data_date;
+    this.numSequences = asyncDataStoreInstance.data.stats.num_sequences;
 
     if (
       rootStoreInstance.UIStore.activeTab === TABS.TAB_COMPARE_GROUPS ||
@@ -74,9 +73,7 @@ export class DataStore {
         selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -240,9 +237,7 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -298,9 +293,7 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),

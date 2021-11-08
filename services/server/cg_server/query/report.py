@@ -64,41 +64,38 @@ def generate_report(conn, req):
         # REGIONAL SINGLE SPIKE SNVs
         cur.execute(
             """
-            WITH snp_region_counts AS (
-                SELECT 
-                    seq_snp."snp_id",
-                    l."region",
-                    COUNT(seq_snp."sequence_id") AS "count"
-                FROM "sequence_gene_aa_snp" seq_snp
-                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."id"
-                INNER JOIN "location" l ON m."location_id" = l."id"
-                WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY seq_snp."snp_id", l."region"
+            WITH mutation_region_counts AS (
+                SELECT
+                    "region", "mutation_id", COUNT(*) as "count"
+                FROM (
+                    SELECT "region", UNNEST("mutations") as "mutation_id"
+                    FROM "sequence_gene_aa_snp" seq_snp
+                    WHERE
+                        "collection_date" >= %(start_date)s AND
+                        "collection_date" <= %(end_date)s
+                ) muts
+                GROUP BY "region", "mutation_id"
             ),
             region_counts AS (
-                SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
+                SELECT "region", COUNT("sequence_id")
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                    "collection_date" >= %(start_date)s AND
+                    "collection_date" <= %(end_date)s
+                GROUP BY "region"
             )
             SELECT
                 SUBSTRING(snp_def."snv_name" FROM 3) AS "name",
                 snp_def."pos",
                 snp_def."ref",
                 snp_def."alt",
-                snp_region_counts."region",
-                snp_region_counts."count",
-                ((snp_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
-            FROM snp_region_counts
-            INNER JOIN "gene_aa_snp" snp_def ON snp_region_counts."snp_id" = snp_def."id"
-            INNER JOIN region_counts ON region_counts."region" = snp_region_counts."region"
+                mr."value",
+                mutation_region_counts."count",
+                ((mutation_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
+            FROM mutation_region_counts
+            INNER JOIN "gene_aa_snp" snp_def ON mutation_region_counts."mutation_id" = snp_def."id"
+            INNER JOIN region_counts ON region_counts."region" = mutation_region_counts."region"
+            INNER JOIN "metadata_region" mr ON region_counts."region" = mr."id"
             WHERE snp_def."gene" = 'S'
             """,
             {"start_date": start_date, "end_date": end_date},
@@ -157,78 +154,106 @@ def generate_report(conn, req):
         # print(single_spike_snv_global)
 
         # REGIONAL SPIKE COOC SNVs
+
+        # First get map of IDs -> SNV names
+        cur.execute(
+            """
+            SELECT "id", SUBSTRING("snv_name" FROM 3) AS "name", "pos"
+            FROM gene_aa_snp
+            WHERE gene = 'S'
+            """
+        )
+        spike_snv_props = pd.DataFrame.from_records(
+            cur.fetchall(), columns=["id", "name", "pos"]
+        )
+        spike_snv_name_map = dict(
+            zip(spike_snv_props["id"].values, spike_snv_props["name"].values)
+        )
+        spike_snv_pos_map = dict(
+            zip(spike_snv_props["id"].values, spike_snv_props["pos"].values)
+        )
+
         cur.execute(
             """
             WITH seq_cooc AS (
-                SELECT
-                    m."id" AS "sequence_id",
-                    m."location_id",
-                    m."lineage",
-                    ARRAY_AGG(SUBSTRING(snp_def."snv_name", 3) ORDER BY snp_def."pos" ASC) as "snvs"
+                SELECT 
+                    seq_snp."sequence_id",
+                    seq_snp."region",
+                    ("mutations" & (
+                        SELECT ARRAY_AGG("id")
+                        FROM "gene_aa_snp"
+                        WHERE "gene" = 'S'
+                    )) as "mutations",
+                    m."lineage"
                 FROM "sequence_gene_aa_snp" seq_snp
-                INNER JOIN "gene_aa_snp" snp_def ON seq_snp."snp_id" = snp_def."id"
-                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."id"
-                WHERE 
-                    snp_def."gene" = 'S' AND
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY m."id"
+                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."sequence_id"
+                WHERE
+                    seq_snp."collection_date" >= %(start_date)s AND
+                    seq_snp."collection_date" <= %(end_date)s
             ),
             most_common_lineage AS (
-                SELECT DISTINCT ON ("cooc")
-                    "cooc",
+                SELECT DISTINCT ON ("mutations")
+                    "mutations",
                     "count",
                     "lineage"
                 FROM (
                     SELECT 
-                        ARRAY_TO_STRING("snvs", ':') as "cooc",
+                        "mutations",
                         "lineage",
                         COUNT("sequence_id") as "count"
                     FROM seq_cooc
-                    GROUP BY "snvs", "lineage"
+                    GROUP BY "mutations", "lineage"
                 ) cooc_lineage
-                ORDER BY "cooc", "count" DESC
+                ORDER BY "mutations", "count" DESC
             ),
             region_cooc_counts AS (
                 SELECT
-                    l."region",
-                    ARRAY_TO_STRING(seq_cooc."snvs", ':') AS "cooc",
+                    seq_cooc."region",
+                    "mutations",
                     COUNT(seq_cooc."sequence_id") AS "count"
                 FROM seq_cooc
-                INNER JOIN "location" l ON seq_cooc."location_id" = l."id"
-                GROUP BY seq_cooc."snvs", l."region"
+                GROUP BY seq_cooc."mutations", seq_cooc."region"
             ),
             region_counts AS (
                 SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
-                FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
-                WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                    seq_cooc."region",
+                    COUNT(seq_cooc."sequence_id") as "count"
+                FROM seq_cooc
+                GROUP BY seq_cooc."region"
             )
             SELECT
-                region_cooc_counts."region",
+                mr."value" as "region",
                 most_common_lineage."lineage",
-                region_cooc_counts."cooc",
+                region_cooc_counts."mutations",
                 region_cooc_counts."count",
                 (region_cooc_counts."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM region_cooc_counts
             INNER JOIN region_counts ON region_cooc_counts."region" = region_counts."region"
-            INNER JOIN most_common_lineage ON region_cooc_counts."cooc" = most_common_lineage."cooc"
+            INNER JOIN most_common_lineage ON region_cooc_counts."mutations" = most_common_lineage."mutations"
+            INNER JOIN metadata_region mr ON region_cooc_counts."region" = mr."id"
             ORDER BY region_cooc_counts."count" DESC
             """,
             {"start_date": start_date, "end_date": end_date},
         )
         cooc_spike_snv_region = pd.DataFrame.from_records(
-            cur.fetchall(), columns=["region", "lineage", "cooc", "count", "percent"]
+            cur.fetchall(),
+            columns=["region", "lineage", "mutations", "count", "percent"],
         )
+
+        # Sort mutations by position
+        cooc_spike_snv_region.loc[:, "mutations"] = cooc_spike_snv_region[
+            "mutations"
+        ].apply(lambda x: sorted(x, key=lambda _x: spike_snv_pos_map[_x]))
+
+        # Serialize list of mutation IDs
+        cooc_spike_snv_region.loc[:, "mutations"] = cooc_spike_snv_region[
+            "mutations"
+        ].apply(lambda x: ";".join([spike_snv_name_map[_x] for _x in x]))
+
         # Pivot
         cooc_spike_snv_region_pivot = pd.pivot_table(
             cooc_spike_snv_region,
-            index=["cooc", "lineage"],
+            index=["mutations", "lineage"],
             values=["count", "percent"],
             columns=["region"],
         ).fillna(0)
@@ -257,12 +282,11 @@ def generate_report(conn, req):
         cooc_spike_snv_region_pivot = cooc_spike_snv_region_pivot.sort_values(
             "sum_counts", ascending=False
         )
-
         # print(cooc_spike_snv_region_pivot)
 
         # GLOBAL SPIKE COOC SNVs
         cooc_spike_snv_global = (
-            cooc_spike_snv_region.groupby("cooc")
+            cooc_spike_snv_region.groupby("mutations")
             .agg(lineage=("lineage", "first"), count=("count", np.sum),)
             .sort_values("count", ascending=False)
             .assign(percent=lambda x: x["count"] / num_seqs)
@@ -275,34 +299,33 @@ def generate_report(conn, req):
             """
             WITH region_counts AS (
                 SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
+                    m."region",
+                    COUNT(m."sequence_id") as "count"
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
                     m."collection_date" >= %(start_date)s AND
                     m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                GROUP BY m."region"
             ),
             group_counts AS (
                 SELECT
-                    l."region",
+                    m."region",
                     m."lineage",
-                    COUNT(m."id") AS "count"
+                    COUNT(m."sequence_id") AS "count"
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
                     m."collection_date" >= %(start_date)s AND
                     m."collection_date" <= %(end_date)s
-                GROUP BY l."region", m."lineage"
+                GROUP BY m."region", m."lineage"
             )
             SELECT
-                g."region",
+                mr."value" as "region",
                 g."lineage",
                 g."count",
                 (g."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM group_counts g
             INNER JOIN region_counts ON g."region" = region_counts."region"
+            INNER JOIN metadata_region mr ON g."region" = mr."id"
             """,
             {"start_date": start_date, "end_date": end_date},
         )
