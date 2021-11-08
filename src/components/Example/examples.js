@@ -1,20 +1,7 @@
-import { getGene } from '../../utils/gene_protein';
-import { getLocationByNameAndLevel } from '../../utils/location';
-import { queryPrimers } from '../../utils/primer';
-import { todayISO } from '../../utils/date';
-
-import {
-  GROUP_SNV,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-  NORM_MODES,
-  COUNT_MODES,
-  DATE_BINS,
-  TABS,
-  MIN_DATE,
-} from '../../constants/defs.json';
 import { config } from '../../config';
+import sars2 from './examples.sars2';
 
+<<<<<<< HEAD
 import GlobalLineagesImage from '../../assets/analysis_screens/global_lineages.png';
 // import XinfadiImage from '../../assets/analysis_screens/xinfadi.png';
 import IcelandImage from '../../assets/analysis_screens/iceland.png';
@@ -272,3 +259,15 @@ export const getExampleItems = ({ selectTree }) => {
     },
   ];
 };
+=======
+export function getExampleItems({ selectTree }) {
+  switch (config.virus) {
+    case 'rsv':
+      return [];
+    case 'sars2':
+      return sars2(selectTree);
+    default:
+      return import('./examples.sars2');
+  }
+}
+>>>>>>> fe26b85 (Frontend loads for rsvg)
