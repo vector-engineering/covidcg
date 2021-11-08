@@ -3,11 +3,7 @@
 # ------------------
 
 # Virus this config is written for
-<<<<<<< HEAD
 virus: "sars2"
-=======
-virus: "SARS-CoV-2"
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
@@ -16,13 +12,10 @@ data_folder: "example_data_genbank/SARS-CoV-2"
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
 static_data_folder: "static_data/SARS-CoV-2"
-<<<<<<< HEAD
 
 # Path to folder with data to use in development
 # This path is relative to the project root
 example_data_folder: "example_data_genbank/SARS-CoV-2"
-=======
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
 
 # Database for this virus
 postgres_db: "cg_dev"
@@ -73,9 +66,9 @@ group_cols:
 # see: workflow_main/scripts/surveillance.py
 surv_min_combo_count: 50
 surv_min_single_count: 50
-surv_start_date: '2020-01-01' # Overrides days ago
+surv_start_date: "2020-01-01" # Overrides days ago
 surv_start_date_days_ago: 240 # Not used
-surv_end_date: '2020-03-01' # Overrides days ago
+surv_end_date: "2020-03-01" # Overrides days ago
 surv_end_date_days_ago: 30 # Not used
 
 # ---------------
@@ -84,11 +77,11 @@ surv_end_date_days_ago: 30 # Not used
 
 # Split mutation table partitions into periods of this length
 # See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-# Common options: 
+# Common options:
 # 'D' calendar day frequency
 # 'W' weekly frequency
 # 'M' month end frequency
-mutation_partition_break: 'M'
+mutation_partition_break: "M"
 
 # ---------------
 #     SERVER

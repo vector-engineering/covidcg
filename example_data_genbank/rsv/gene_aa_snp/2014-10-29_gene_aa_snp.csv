@@ -1,6 +1,10 @@
 Accession ID,gene,pos,ref,alt
 <<<<<<< HEAD
+<<<<<<< HEAD
 KM406324,N,216,H,Y
 =======
 KM406324,N,221,H,Y
 >>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
+=======
+KM406324,N,216,H,Y
+>>>>>>> ef9dbb4 (Server and postgres working for RSVG)

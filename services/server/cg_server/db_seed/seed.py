@@ -370,7 +370,7 @@ def seed_database(conn, schema="public"):
                     submission_date  TIMESTAMP  NOT NULL,
                     {metadata_col_defs},
                     mutations        INTEGER[]  NOT NULL
-                ) 
+                )
                 PARTITION BY RANGE(collection_date);
                 """.format(
                     table_name=table_name, metadata_col_defs=metadata_col_defs
@@ -452,8 +452,7 @@ def seed_database(conn, schema="public"):
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
-<<<<<<< HEAD
-            [Json(stats)],
+            ["stats", Json(stats),],
         )
 
         # Country score
@@ -470,31 +469,14 @@ def seed_database(conn, schema="public"):
             )
             with (data_path / "country_score.json").open("r") as fp:
                 country_score = json.loads(fp.read())
-
             cur.execute(
                 """
-                INSERT INTO "country_score" (value) VALUES (%s)
+                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
                 """,
-                [Json(country_score)],
+                ["country_score", Json(country_score)],
             )
-
-        # Geo select tree
-        # Just dump this as a JSON string in a table
-        cur.execute('DROP TABLE IF EXISTS "geo_select_tree";')
-=======
-            ["stats", Json(stats),],
-        )
-        with (data_path / "country_score.json").open("r") as fp:
-            country_score = json.loads(fp.read())
-        cur.execute(
-            """
-            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-            """,
-            ["country_score", Json(country_score)],
-        )
         with (data_path / "geo_select_tree.json").open("r") as fp:
             geo_select_tree = json.loads(fp.read())
->>>>>>> 2abfcea (V2.3 performance (#433))
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);

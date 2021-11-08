@@ -1,5 +1,8 @@
 Accession ID,gene,pos,ref,alt
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ef9dbb4 (Server and postgres working for RSVG)
 MG640052,M,99,I,T
 MG640052,M,104,V,I
 MG640052,M,107,D,Y
@@ -152,6 +155,7 @@ MG640094,M,176,P,T
 MG640094,M,180,K,R
 MG640094,M,183,D,A
 MG640094,M,201,N,Y
+<<<<<<< HEAD
 =======
 MG640052,M,102,I,T
 MG640052,M,107,V,I
@@ -306,3 +310,5 @@ MG640094,M,183,K,R
 MG640094,M,186,D,A
 MG640094,M,204,N,Y
 >>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
+=======
+>>>>>>> ef9dbb4 (Server and postgres working for RSVG)
