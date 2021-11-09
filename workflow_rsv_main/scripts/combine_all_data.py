@@ -24,7 +24,6 @@ def combine_all_data(
     genotypes,
     # Output
     metadata_map,
-    location_map,
     case_data,
     case_data_csv,
     # Parameters
@@ -69,10 +68,8 @@ def combine_all_data(
     # for col in group_cols:
     #     df = df.loc[~pd.isnull(df[col]), :]
 
-    # Join genotypes to main data frame
-    df = df.join(
-        genotype_df[["genotype"]], on="Accession ID", how="inner", sort=False
-    )
+    # Add known genotypes to df
+    df = df.replace(df["genotype"], genotype_df["genotype"])
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences
@@ -86,57 +83,23 @@ def combine_all_data(
         protein_aa_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
     ).rename(columns={"snp_id": "protein_aa_snp_str"})
 
-    # Process location metadata
-    # Create complete location column from the separate parts
-    # This time with no padding
-    loc_str = df["region"].str.cat(
-        [
-            df["country"].astype(str),
-            df["division"].astype(str),
-            df["location"].astype(str),
-        ],
-        sep="/",
-    )
-    loc_str.name = "loc_str"
-
-    unique_locations = loc_str.drop_duplicates().sort_values(ignore_index=True)
-
-    # Location data is stored in one column, "region/country/division/location"
-    location_map_df = pd.concat(
-        [
-            unique_locations,
-            (
-                unique_locations.str.split("/", expand=True).iloc[
-                    :, :4
-                ]  # Only take 4 columns
-                # Rename columns
-                .rename(
-                    columns={0: "region", 1: "country", 2: "division", 3: "location"}
-                )
-            ),
-        ],
-        axis=1,
-    )
-
-    # Save location map
-    location_map_df.drop(columns=["loc_str"]).to_json(location_map, orient="records")
-
-    # Map location IDs back to taxon_locations dataframe
-    df["location_id"] = loc_str.map(
-        pd.Series(location_map_df.index.values, index=unique_locations.values,)
-    )
-    # Drop original location columns
-    df = df.drop(columns=["region", "country", "division", "location"])
-
     # Factorize some more metadata columns
     metadata_maps = {}
 
     # Metadata cols passed in as kwarg, and defined
     # in config.yaml as "metadata_cols"
-    for i, col in enumerate(metadata_cols):
-        factor = pd.factorize(df[col])
-        df[col] = factor[0]
-        metadata_maps[col] = pd.Series(factor[1]).to_dict()
+    for col in metadata_cols:
+        factor, labels = pd.factorize(df[col])
+        df.loc[:, col] = factor
+        metadata_maps[col] = pd.Series(labels).to_dict()
+
+    # Special processing for locations - leave missing data as -1
+    for col in ["region", "country", "division", "location"]:
+        missing_inds = df[col] == "-1"
+        factor, labels = pd.factorize(df.loc[~missing_inds, col])
+        df.loc[~missing_inds, col] = factor
+        metadata_maps[col] = pd.Series(labels).to_dict()
+        df.loc[:, col] = df[col].astype(int)
 
     # Add SNP maps into the metadata map
     metadata_maps["dna_snp"] = dna_snp_map.to_dict()

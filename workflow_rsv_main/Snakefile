@@ -176,7 +176,6 @@ rule combine_all_data:
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        location_map = os.path.join(data_folder, "location_map.json"),
         case_data = os.path.join(data_folder, "case_data.json"),
         case_data_csv = os.path.join(data_folder, "case_data.csv")
     run:
@@ -191,15 +190,16 @@ rule combine_all_data:
 rule build_location_tree:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map,
+        metadata_map = rules.combine_all_data.output.metadata_map,
         emoji_map_file = os.path.join(
-            static_data_folder, "..", "country_to_emoji.xls"
+            static_data_folder, "country_to_emoji.xls"
         )
     output:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
+    threads: workflow.cores / 2
     run:
         geo_select_tree = build_location_tree(
-            input.case_data, input.location_map, input.emoji_map_file,
+            input.case_data, input.metadata_map, input.emoji_map_file,
             output.geo_select_tree
         )
 
@@ -262,8 +262,7 @@ rule assemble_data_package:
         case_data = rules.combine_all_data.output.case_data,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")
     run:
@@ -275,12 +274,11 @@ rule assemble_data_package:
 rule build_full_dataframe:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         full_df = os.path.join(data_folder, 'data_complete.csv')
     run:
         build_full_dataframe(
-            input.case_data, input.metadata_map, input.location_map,
+            input.case_data, input.metadata_map,
             output.full_df
         )

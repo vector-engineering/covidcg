@@ -15,7 +15,6 @@ def assemble_data_package(
     geo_select_tree,
     group_consensus_snps,
     metadata_map,
-    location_map,
     data_package_out,
 ):
     data_package = {"data_date": datetime.date.today().isoformat()}
@@ -28,8 +27,6 @@ def assemble_data_package(
         data_package["group_consensus_snps"] = json.loads(fp.read())
     with open(metadata_map, "r") as fp:
         data_package["metadata_map"] = json.loads(fp.read())
-    with open(location_map, "r") as fp:
-        data_package["location_map"] = json.loads(fp.read())
 
     with gzip.open(data_package_out, "wt") as fp:
         fp.write(json.dumps(data_package))
