@@ -64,8 +64,7 @@ def clean_metadata(metadata_in, metadata_out):
         columns={
             "genbank_accession": "Accession ID",
             "submitted": "submission_date",
-            "collected": "collection_date",
-            "serotype": "genotype"
+            "collected": "collection_date"
         }
     )
     df = df.set_index("Accession ID")
@@ -135,8 +134,7 @@ def clean_metadata(metadata_in, metadata_out):
         "isolation_source",
         "biosample_accession",
         "authors",
-        "publications",
-        "genotype"
+        "publications"
     ]
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")

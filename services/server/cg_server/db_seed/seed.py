@@ -266,8 +266,13 @@ def seed_database(conn, schema="public"):
         # print(case_data.columns)
 
         # Partition settings
+        delta = 31
+        if config["mutation_partition_break"] == "Y":
+            delta *= 12
+
         min_date = case_data["collection_date"].min()
-        max_date = case_data["collection_date"].max() + pd.Timedelta(31, unit="D")
+        max_date = case_data["collection_date"].max() + pd.Timedelta(delta, unit="D")
+
         partition_dates = [
             d.isoformat()
             for d in pd.period_range(
@@ -314,6 +319,7 @@ def seed_database(conn, schema="public"):
         for i in range(len(partition_dates) - 1):
             start = partition_dates[i]
             end = partition_dates[i + 1]
+            print(start, end)
             cur.execute(
                 """
                 CREATE TABLE "{partition_table_name}" PARTITION OF "metadata"

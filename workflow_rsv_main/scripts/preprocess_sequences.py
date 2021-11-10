@@ -12,31 +12,10 @@ import re
 from pathlib import Path
 
 
-def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
+def preprocess_sequences(input_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
-    1. Filter against nextstrain exclusion list
-	2. Can't have more than 5% ambiguous NT
+    1. Can't have more than 5% ambiguous NT
     """
-
-    # print("\nPreprocessing sequences")
-    # Get latest nextstrain exclusion file
-    # print("Using nextstrain exclusion list: {}".format(nextstrain_exclusion_file))
-    # Load lines, ignoring comments and empty lines
-    exclude_taxons = []
-    with Path(nextstrain_exclusion_file).open("r") as fp:
-        for line in fp.readlines():
-            # Exclude comments
-            if line[0] == "#":
-                continue
-
-            # Strip whitespace
-            line = re.sub(r"\s+", "", line).strip()
-
-            # Exclude empty lines
-            if not line:
-                continue
-
-            exclude_taxons.append(line)
 
     num_excluded = 0
     fp_in = gzip.open(input_file, "rt")
@@ -57,10 +36,7 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
                         num_ambiguous += 1
 
                 if (
-                    # 1: Check against nextstrain exclusion list
-                    (cur_entry in exclude_taxons)
-                    or
-                    # 2: Can't have more than 5% ambiguous (N) NT
+                    # 1: Can't have more than 5% ambiguous (N) NT
                     num_ambiguous > math.floor(len(cur_seq) * 0.05)
                 ):
                     num_excluded += 1

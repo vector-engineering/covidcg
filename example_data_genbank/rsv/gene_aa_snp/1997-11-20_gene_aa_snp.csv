@@ -1,8 +1,4 @@
 Accession ID,gene,pos,ref,alt
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ef9dbb4 (Server and postgres working for RSVG)
 U50362,NS2,55,K,R
 U50363,NS2,55,K,R
 U50362,N,267,V,I
@@ -22,37 +18,3 @@ U50362,L,1700,H,Y
 U50363,L,329,C,Y
 U50363,L,841,Q,L
 U50363,L,1700,H,Y
-<<<<<<< HEAD
-=======
-U50362,NS2,66,N,D
-U50363,NS2,66,N,D
-U50362,N,272,V,I
-U50363,N,272,V,I
-U50362,P,176,I,V
-U50362,P,251,T,N
-U50363,P,176,I,V
-U50363,P,251,T,N
-U50362,F,116,P,A
-U50362,F,153,V,G
-U50362,F,192,L,V
-U50362,F,232,E,A
-U50362,F,393,I,V
-U50362,F,461,M,V
-U50362,F,537,T,I
-U50363,F,116,P,A
-U50363,F,153,V,G
-U50363,F,192,L,V
-U50363,F,232,E,A
-U50363,F,393,I,V
-U50363,F,461,M,V
-U50363,F,537,T,I
-U50362,M2,268,N,K
-U50363,M2,268,N,K
-U50362,L,332,V,I
-U50362,L,797,C,Y
-U50363,L,332,V,I
-U50363,L,797,C,Y
-U50363,L,844,K,_
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
-=======
->>>>>>> ef9dbb4 (Server and postgres working for RSVG)

@@ -1,19 +1,4 @@
 Accession ID,gene,pos,ref,alt
-<<<<<<< HEAD
-<<<<<<< HEAD
 X02221,F,111,H,Q
 X02221,F,149,F,V
 X02221,F,352,T,S
-=======
-X02221,F,116,P,A
-X02221,F,153,V,G
-X02221,F,192,L,V
-X02221,F,356,Y,F
-X02221,F,393,I,V
-X02221,F,461,M,V
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
-=======
-X02221,F,111,H,Q
-X02221,F,149,F,V
-X02221,F,352,T,S
->>>>>>> ef9dbb4 (Server and postgres working for RSVG)

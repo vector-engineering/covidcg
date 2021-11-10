@@ -15,13 +15,11 @@ services:
       - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
-<<<<<<< HEAD
-=======
       - POSTGRES_DB=cg_dev
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
+      - FRONTEND_PORT=3000
     # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
     command: "flask run --host 0.0.0.0 --port=5000"
     ports:

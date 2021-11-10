@@ -1,13 +1,3 @@
 Accession ID,gene,pos,ref,alt
-<<<<<<< HEAD
-<<<<<<< HEAD
 HE803083,N,324,V,I
 HE803084,N,324,V,I
-=======
-HE803083,N,329,V,I
-HE803084,N,329,V,I
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
-=======
-HE803083,N,324,V,I
-HE803084,N,324,V,I
->>>>>>> ef9dbb4 (Server and postgres working for RSVG)

@@ -24,7 +24,7 @@ def get_consensus_snps(
     group_key: str
         - 'lineage' or 'clade'
     consensus_fraction: float
-        - Fraction of taxons that need to have a SNP for it to be considered 
+        - Fraction of taxons that need to have a SNP for it to be considered
           a consensus SNP for a lineage/clade
     min_reporting_fraction: float
         - ...

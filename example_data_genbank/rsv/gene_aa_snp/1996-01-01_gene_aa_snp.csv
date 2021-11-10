@@ -1,13 +1,3 @@
 Accession ID,gene,pos,ref,alt
-<<<<<<< HEAD
-<<<<<<< HEAD
 U27298,L,27,S,G
 U27298,L,1059,N,D
-=======
-U27298,L,29,I,M
-U27298,L,797,C,Y
->>>>>>> bdf8095 (Finalized workflow_rsv_main, ready to move on to server)
-=======
-U27298,L,27,S,G
-U27298,L,1059,N,D
->>>>>>> ef9dbb4 (Server and postgres working for RSVG)

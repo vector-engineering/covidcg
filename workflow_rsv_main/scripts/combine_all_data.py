@@ -69,7 +69,7 @@ def combine_all_data(
     #     df = df.loc[~pd.isnull(df[col]), :]
 
     # Add known genotypes to df
-    df = df.replace(df["genotype"], genotype_df["genotype"])
+    df = df.join(genotype_df[["genotype"]], on="Accession ID", how="inner", sort=False,)
 
     # Join SNPs to main dataframe
     # inner join to exclude filtered out sequences

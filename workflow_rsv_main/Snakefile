@@ -55,13 +55,10 @@ rule preprocess_sequences:
     """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
-        nextstrain_exclude = os.path.join(
-            static_data_folder, "nextstrain_exclude_20210915.txt"
-        )
     output:
         fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     run:
-        preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
+        preprocess_sequences(input.fasta, output.fasta)
 
 rule align_sequences:
     input:
