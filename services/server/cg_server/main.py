@@ -7,7 +7,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import os
 import psycopg2
-import re
 
 from flask import Flask, request, make_response
 from flask_cors import CORS, cross_origin
@@ -95,18 +94,19 @@ if os.getenv("FLASK_ENV", "development") == "development":
             );
             """
         )
+        exists = cur.fetchone()[0]
 
-        if not cur.fetchone()[0]:
-            print("Seeding DB")
-            seed_database(conn)
-            insert_sequences(
-                conn,
-                os.getenv("DATA_PATH", project_root / config["data_folder"]),
-                filenames_as_dates=True,
-            )
+    if not exists:
+        print("Seeding DB")
+        seed_database(conn)
+        insert_sequences(
+            conn,
+            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            filenames_as_dates=True,
+        )
 
-        conn.commit()
-        conn_pool.putconn(conn)
+    conn.commit()
+    conn_pool.putconn(conn)
 
 
 @app.route("/seed")
@@ -115,16 +115,16 @@ def _seed():
         return "no"
 
     conn = get_conn_from_pool(connection_options, conn_pool)
-    with conn.cursor() as cur:
-        print("Seeding DB")
-        seed_database(conn)
-        insert_sequences(
-            conn,
-            os.getenv("DATA_PATH", project_root / config["data_folder"]),
-            filenames_as_dates=True,
-        )
-        conn.commit()
-        conn_pool.putconn(conn)
+
+    print("Seeding DB")
+    seed_database(conn)
+    insert_sequences(
+        conn,
+        os.getenv("DATA_PATH", project_root / config["data_folder"]),
+        filenames_as_dates=True,
+    )
+    conn.commit()
+    conn_pool.putconn(conn)
 
     return "Done!"
 

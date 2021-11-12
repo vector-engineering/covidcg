@@ -61,7 +61,9 @@ def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
 
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
-        cur.execute("CREATE EXTENSION IF NOT EXISTS intarray;")
+
+        cur.execute("DROP EXTENSION IF EXISTS intarray;")
+        cur.execute("CREATE EXTENSION intarray;")
 
         print("Writing metadata maps...", end="", flush=True)
 
@@ -121,7 +123,9 @@ def seed_database(conn, schema="public"):
         cur.execute('CREATE INDEX "ix_dna_mutation_pos" ON "dna_mutation"("pos");')
 
         # AA mutations
-        gene_aa_mutation = process_aa_mutations(metadata_map["gene_aa_mutation"], "gene", genes)
+        gene_aa_mutation = process_aa_mutations(
+            metadata_map["gene_aa_mutation"], "gene", genes
+        )
         cur.execute('DROP TABLE IF EXISTS "gene_aa_mutation";')
         cur.execute(
             """
@@ -139,9 +143,15 @@ def seed_database(conn, schema="public"):
             """
         )
         df_to_sql(cur, gene_aa_mutation, "gene_aa_mutation", index_label="id")
-        cur.execute('CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");')
-        cur.execute('CREATE INDEX "ix_gene_aa_mutation_nt_pos" ON "gene_aa_mutation"("nt_pos");')
-        cur.execute('CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");')
+        cur.execute(
+            'CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");'
+        )
+        cur.execute(
+            'CREATE INDEX "ix_gene_aa_mutation_nt_pos" ON "gene_aa_mutation"("nt_pos");'
+        )
+        cur.execute(
+            'CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");'
+        )
 
         protein_aa_mutation = process_aa_mutations(
             metadata_map["protein_aa_mutation"], "protein", proteins
@@ -163,7 +173,9 @@ def seed_database(conn, schema="public"):
             """
         )
         df_to_sql(cur, protein_aa_mutation, "protein_aa_mutation", index_label="id")
-        cur.execute('CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");')
+        cur.execute(
+            'CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");'
+        )
         cur.execute(
             'CREATE INDEX "ix_protein_aa_mutation_nt_pos" ON "protein_aa_mutation"("nt_pos");'
         )
@@ -359,7 +371,9 @@ def seed_database(conn, schema="public"):
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for mutation_field in mutation_fields:
             mutation_col = mutation_field + "_mutation_str"
-            table_name = "sequence_{mutation_field}_mutation".format(mutation_field=mutation_field)
+            table_name = "sequence_{mutation_field}_mutation".format(
+                mutation_field=mutation_field
+            )
             cur.execute(
                 'DROP TABLE IF EXISTS "{table_name}";'.format(table_name=table_name)
             )
