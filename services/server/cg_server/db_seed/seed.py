@@ -21,7 +21,7 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
+data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
 static_data_path = Path(
     os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
 )
@@ -61,6 +61,7 @@ def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
 
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
+        cur.execute("CREATE EXTENSION IF NOT EXISTS intarray;")
 
         cur.execute("DROP EXTENSION IF EXISTS intarray;")
         cur.execute("CREATE EXTENSION intarray;")
@@ -279,8 +280,13 @@ def seed_database(conn, schema="public"):
         # print(case_data.columns)
 
         # Partition settings
+        delta = 31
+        if config["mutation_partition_break"] == "Y":
+            delta *= 12
+
         min_date = case_data["collection_date"].min()
-        max_date = case_data["collection_date"].max() + pd.Timedelta(31, unit="D")
+        max_date = case_data["collection_date"].max() + pd.Timedelta(delta, unit="D")
+
         partition_dates = [
             d.isoformat()
             for d in pd.period_range(
@@ -385,7 +391,7 @@ def seed_database(conn, schema="public"):
                     submission_date  TIMESTAMP  NOT NULL,
                     {metadata_col_defs},
                     mutations        INTEGER[]  NOT NULL
-                ) 
+                )
                 PARTITION BY RANGE(collection_date);
                 """.format(
                     table_name=table_name, metadata_col_defs=metadata_col_defs
@@ -469,14 +475,15 @@ def seed_database(conn, schema="public"):
             """,
             ["stats", Json(stats),],
         )
-        with (data_path / "country_score.json").open("r") as fp:
-            country_score = json.loads(fp.read())
-        cur.execute(
-            """
-            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-            """,
-            ["country_score", Json(country_score)],
-        )
+        if config["virus"] == "sars2":
+            with (data_path / "country_score.json").open("r") as fp:
+                country_score = json.loads(fp.read())
+            cur.execute(
+                """
+                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+                """,
+                ["country_score", Json(country_score)],
+            )
         with (data_path / "geo_select_tree.json").open("r") as fp:
             geo_select_tree = json.loads(fp.read())
         cur.execute(
@@ -549,4 +556,3 @@ def seed_database(conn, schema="public"):
         )
 
         print("done")
-

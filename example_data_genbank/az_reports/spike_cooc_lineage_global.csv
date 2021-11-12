@@ -1,4 +1,4 @@
-spike_mutation,lineage,count,freq
+spike_snv,lineage,count,freq
 D614G,B.1,9470,13.714500876163996
 S477N:D614G,D.2,8662,12.544351276592664
 D614G,B.1.2,6470,9.369886026270438

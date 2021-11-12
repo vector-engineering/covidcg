@@ -2,6 +2,9 @@
 #       GLOBAL
 # ------------------
 
+# Virus this config is written for
+virus: "sars2"
+
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
 data_folder: "data"
@@ -10,6 +13,12 @@ data_folder: "data"
 # This path is relative to the project root
 static_data_folder: "static_data"
 
+# Path to folder with data to use in development
+# This path is relative to the project root
+example_data_folder: "example_data_genbank/SARS-CoV-2"
+
+# Database for this virus
+postgres_db: "cg_dev"
 # ------------------
 #       INGEST
 # ------------------
@@ -86,11 +95,11 @@ surv_end_date_days_ago: 30
 
 # Split mutation table partitions into periods of this length
 # See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-# Common options: 
+# Common options:
 # 'D' calendar day frequency
 # 'W' weekly frequency
 # 'M' month end frequency
-mutation_partition_break: 'M'
+mutation_partition_break: "M"
 
 # ---------------
 #     SERVER

@@ -16,14 +16,10 @@ import {
 
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
-import { getExampleItems } from './examples';
-
 const ExampleList = observer(() => {
-  const { configStore, plotSettingsStore, UIStore, locationDataStore } =
-    useStores();
+  const { configStore, plotSettingsStore, UIStore, exampleStore } = useStores();
 
-  const selectTree = locationDataStore.selectTree;
-  const exampleItems = getExampleItems({ selectTree });
+  const exampleItems = exampleStore.examples;
 
   const onExampleClick = (title, e) => {
     e.preventDefault();

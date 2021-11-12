@@ -46,4 +46,3 @@ def build_full_dataframe(case_data, metadata_map, df_out):
         df[col] = df[col].map(mmap)
 
     df.to_csv(df_out)
-

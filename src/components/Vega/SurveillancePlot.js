@@ -127,6 +127,8 @@ const SurveillanceLegend = observer(
       legendTitleText = 'Spike mutations (Co-occuring)';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
       legendTitleText = 'Spike mutations (Single)';
+    } else if (plotSettingsStore.surveillanceMode === 'genotype') {
+      legendTitleText = 'Genotype';
     }
 
     return (
@@ -480,8 +482,9 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   <option value={'lineage'}>Lineage</option>
-                  <option value={'spike_combo'}>Spike Co-occuring Mutations</option>
-                  <option value={'spike_single'}>Spike Single Mutations</option>
+                  <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
+                  <option value={'spike_single'}>Spike Single SNVs</option>
+                  <option value={'genotype'}>Genotype</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}

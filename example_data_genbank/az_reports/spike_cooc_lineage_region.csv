@@ -1,4 +1,4 @@
-spike_mutation,lineage,sum_counts,Africa count,Asia count,Europe count,North America count,Oceania count,South America count,Africa freq,Asia freq,Europe freq,North America freq,Oceania freq,South America freq
+spike_snv,lineage,sum_counts,Africa count,Asia count,Europe count,North America count,Oceania count,South America count,Africa freq,Asia freq,Europe freq,North America freq,Oceania freq,South America freq
 D614G,B.1,9470,280,246,1008,7449,356,131,31.180400890868597,11.826923076923077,19.74921630094044,15.544982157390596,2.8066855881425417,35.79234972677596
 S477N:D614G,D.2,8662,0,0,0,0,8662,0,0.0,0.0,0.0,0.0,68.29076001261431,0.0
 D614G,B.1.2,6470,2,1,1,6464,2,0,0.22271714922048996,0.04807692307692308,0.01959247648902821,13.489430079926542,0.015767896562598548,0.0

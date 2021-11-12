@@ -48,9 +48,9 @@ def generate_report(conn, req):
         # fetch it explicitly
         cur.execute(
             """
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM "metadata"
-        WHERE 
+        WHERE
             "collection_date" >= %(start_date)s AND
             "collection_date" <= %(end_date)s
         """,
@@ -175,7 +175,7 @@ def generate_report(conn, req):
         cur.execute(
             """
             WITH seq_cooc AS (
-                SELECT 
+                SELECT
                     seq_mut."sequence_id",
                     seq_mut."region",
                     ("mutations" & (
@@ -196,7 +196,7 @@ def generate_report(conn, req):
                     "count",
                     "lineage"
                 FROM (
-                    SELECT 
+                    SELECT
                         "mutations",
                         "lineage",
                         COUNT("sequence_id") as "count"
@@ -214,7 +214,7 @@ def generate_report(conn, req):
                 GROUP BY seq_cooc."mutations", seq_cooc."region"
             ),
             region_counts AS (
-                SELECT 
+                SELECT
                     seq_cooc."region",
                     COUNT(seq_cooc."sequence_id") as "count"
                 FROM seq_cooc
@@ -299,7 +299,7 @@ def generate_report(conn, req):
         cur.execute(
             """
             WITH region_counts AS (
-                SELECT 
+                SELECT
                     m."region",
                     COUNT(m."sequence_id") as "count"
                 FROM "metadata" m
@@ -400,4 +400,3 @@ def generate_report(conn, req):
         as_attachment=True,
         attachment_filename="test.xlsx",
     )
-

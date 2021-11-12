@@ -227,9 +227,9 @@ def query_and_aggregate(conn, req):
     Returns
     -------
     res: pandas.DataFrame
-        - Dataframe with 4 columns: "location", "collection_date", 
+        - Dataframe with 4 columns: "location", "collection_date",
         "group_id", "counts"
-        - Each row represents sequences aggregated by location, 
+        - Each row represents sequences aggregated by location,
           collection_date, and group_id
         - In "mutation" mode, "group_id" represents co-occurring mutations,
           and is structured as a list of mutation IDs (integers)
@@ -277,20 +277,20 @@ def query_and_aggregate(conn, req):
                     sql.SQL(
                         """
                     SELECT
-                        sm."location", 
-                        sm."collection_date", 
-                        sm."mutations", 
+                        sm."location",
+                        sm."collection_date",
+                        sm."mutations",
                         COUNT(*) as "count"
                     FROM (
-                        SELECT 
-                            sst."collection_date", 
+                        SELECT
+                            sst."collection_date",
                             locdef."value" AS "location",
                             (sst.mutations & (
                                 SELECT ARRAY_AGG("id")
                                 FROM {mutation_table}
                                 {mutation_filter}
                             )) as "mutations"
-                        FROM {sequence_mutation_table} sst 
+                        FROM {sequence_mutation_table} sst
                         INNER JOIN {loc_def_table} locdef ON sst.{loc_level_col} = locdef.id
                         WHERE {sequence_where_filter}
                     ) sm
@@ -309,10 +309,10 @@ def query_and_aggregate(conn, req):
                 main_query.append(
                     sql.SQL(
                         """
-                    SELECT 
-                        locdef."value" as "location", 
-                        m."collection_date", 
-                        m.{group_key}, 
+                    SELECT
+                        locdef."value" as "location",
+                        m."collection_date",
+                        m.{group_key},
                         COUNT(m."sequence_id") as "count"
                     FROM "metadata" m
                     INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"

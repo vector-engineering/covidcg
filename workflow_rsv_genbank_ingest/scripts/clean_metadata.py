@@ -52,7 +52,9 @@ def clean_metadata(metadata_in, metadata_out):
     #   biosample_accession,
     #   title,
     #   authors,
-    #   publications
+    #   publications,
+    #   serotype,
+    #   protein_names
 
     # Remove some unnecessary columns
     df = df.drop(columns=["title", "length"])
@@ -62,7 +64,7 @@ def clean_metadata(metadata_in, metadata_out):
         columns={
             "genbank_accession": "Accession ID",
             "submitted": "submission_date",
-            "collected": "collection_date",
+            "collected": "collection_date"
         }
     )
     df = df.set_index("Accession ID")
@@ -132,7 +134,7 @@ def clean_metadata(metadata_in, metadata_out):
         "isolation_source",
         "biosample_accession",
         "authors",
-        "publications",
+        "publications"
     ]
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
