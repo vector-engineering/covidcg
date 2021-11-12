@@ -8,7 +8,6 @@ import {
   LOW_FREQ_FILTER_TYPES,
 } from '../constants/defs.json';
 
-import { rootStoreInstance } from './rootStore';
 import { initialValueStoreInstance } from '../components/App';
 
 export class PlotSettingsStore {

@@ -38,14 +38,14 @@ def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
     # Count global SNV frequencies
     # Collapse list of lists into one list, then count individual
     # occurrences, then cast to a regular dict
-    global_group_counts["dna_snp"] = dict(
-        Counter(list(chain.from_iterable(case_df["dna_snp_str"])))
+    global_group_counts["dna_mutation"] = dict(
+        Counter(list(chain.from_iterable(case_df["dna_mutation_str"])))
     )
-    global_group_counts["gene_aa_snp"] = dict(
-        Counter(list(chain.from_iterable(case_df["gene_aa_snp_str"])))
+    global_group_counts["gene_aa_mutation"] = dict(
+        Counter(list(chain.from_iterable(case_df["gene_aa_mutation_str"])))
     )
-    global_group_counts["protein_aa_snp"] = dict(
-        Counter(list(chain.from_iterable(case_df["protein_aa_snp_str"])))
+    global_group_counts["protein_aa_mutation"] = dict(
+        Counter(list(chain.from_iterable(case_df["protein_aa_mutation_str"])))
     )
 
     with open(out_global_group_counts, "w") as fp:
