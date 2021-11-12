@@ -6,7 +6,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import json
-import numpy as np
 import pandas as pd
 
 from itertools import chain
@@ -24,22 +23,19 @@ def get_consensus_mutations(
     group_key: str
         - 'lineage' or 'clade'
     consensus_fraction: float
-        - Fraction of taxons that need to have a SNP for it to be considered 
-          a consensus SNP for a lineage/clade
+        - Fraction of taxons that need to have a mutation for it to be considered 
+          a consensus mutation for a lineage/clade
     min_reporting_fraction: float
         - ...
 
     Returns
     -------
-    group_snp_df: pandas.DataFrame
+    group_mutation_df: pandas.DataFrame
     """
-
-    group_snp_df = []
-    unique_groups = sorted(case_df[group_key].unique())
 
     collapsed_mutations = (
         case_df.groupby(group_key)[
-            ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+            ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
         # (and calling like 100K+ mem allocs)
@@ -72,7 +68,7 @@ def get_consensus_mutations(
 
     # Do this column-by-column because for some reason pandas applymap()
     # misses the first column. I have no idea why...
-    for col in ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]:
+    for col in ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]:
         collapsed_mutations[col] = collapsed_mutations[col].apply(count_consensus)
 
     def mutations_to_df(field):
@@ -82,9 +78,9 @@ def get_consensus_mutations(
         )
         return _df
 
-    collapsed_dna_mutations = mutations_to_df("dna_snp_str")
-    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_snp_str")
-    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_snp_str")
+    collapsed_dna_mutations = mutations_to_df("dna_mutation_str")
+    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_mutation_str")
+    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_mutation_str")
 
     return (
         # CONSENSUS MUTATIONS
@@ -93,9 +89,9 @@ def get_consensus_mutations(
                 lambda x: [mut[0] for mut in x if mut[2] > consensus_fraction]
             ).rename(
                 columns={
-                    "dna_snp_str": "dna_snp_ids",
-                    "gene_aa_snp_str": "gene_aa_snp_ids",
-                    "protein_aa_snp_str": "protein_aa_snp_ids",
+                    "dna_mutation_str": "dna_mutation_ids",
+                    "gene_aa_mutation_str": "gene_aa_mutation_ids",
+                    "protein_aa_mutation_str": "protein_aa_mutation_ids",
                 }
             )
         ).to_dict(orient="index"),

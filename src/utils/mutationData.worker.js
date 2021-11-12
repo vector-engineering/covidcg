@@ -36,7 +36,7 @@ function processSelectedMutations({
   const aggLocationSelectedMutationsDateObj = {};
 
   const matchGroupName = Array.from(selectedGroupIds)
-    .map((id) => intToMutationMap[id].snp_str)
+    .map((id) => intToMutationMap[id].mutation_str)
     .join(' + ');
 
   // const validGroupMap = {};
@@ -191,7 +191,7 @@ function processCooccurrenceData({
   selectedMutationCombinations.forEach((combi) => {
     // Make an entry for this combination
     const combiKey = combi
-      .map((mutationId) => intToMutationMap[mutationId].snp_str)
+      .map((mutationId) => intToMutationMap[mutationId].mutation_str)
       .join(' + ');
     mutationCooccurrence[combiKey] = {};
     mutationCombinationCounts[combiKey] = 0;
@@ -208,9 +208,9 @@ function processCooccurrenceData({
       row.group_id.forEach((mutationId) => {
         // Only check for mutations that aren't in this combination
         if (!combi.includes(mutationId)) {
-          !(intToMutationMap[mutationId].snp_str in mutationCooccurrence[combiKey]) &&
-            (mutationCooccurrence[combiKey][intToMutationMap[mutationId].snp_str] = 0);
-          mutationCooccurrence[combiKey][intToMutationMap[mutationId].snp_str] += row.counts;
+          !(intToMutationMap[mutationId].mutation_str in mutationCooccurrence[combiKey]) &&
+            (mutationCooccurrence[combiKey][intToMutationMap[mutationId].mutation_str] = 0);
+          mutationCooccurrence[combiKey][intToMutationMap[mutationId].mutation_str] += row.counts;
         }
         // } else {
         //   !('None' in mutationCooccurrence[combiKey]) &&

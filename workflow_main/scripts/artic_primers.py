@@ -13,8 +13,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from cg_scripts.fasta import read_fasta_file
-from cg_scripts.util import reverse_complement
+from scripts.fasta import read_fasta_file
+from scripts.util import reverse_complement
 
 reference_sequence_path = os.path.join("../static_data", "reference.fasta")
 

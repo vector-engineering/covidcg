@@ -1,15 +1,15 @@
 /*
- * Load SNP data, and map integers -> SNP strings
+ * Load mutation data, and map integers -> mutation strings
  */
 
 import { getGene, getProtein } from '../utils/gene_protein';
 import { formatMutation } from '../utils/mutationUtils';
 import { memoize } from '../utils/func';
-import { snpColorArray } from '../constants/colors';
+import { mutationColorArray } from '../constants/colors';
 import { GROUPS, DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
 
-export class SnpDataStore {
+export class MutationDataStore {
   intToDnaMutationMap;
   intToGeneAaMutationMap;
   intToProteinAaMutationMap;
@@ -20,13 +20,13 @@ export class SnpDataStore {
 
   constructor() {
     this.intToDnaMutationMap = {
-      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+      '-1': { mutation_str: GROUPS.REFERENCE_GROUP },
     };
     this.intToGeneAaMutationMap = {
-      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+      '-1': { mutation_str: GROUPS.REFERENCE_GROUP },
     };
     this.intToProteinAaMutationMap = {
-      '-1': { snp_str: GROUPS.REFERENCE_GROUP },
+      '-1': { mutation_str: GROUPS.REFERENCE_GROUP },
     };
     this.dnaMutationMap = {};
     this.geneAaMutationMap = {};
@@ -36,17 +36,17 @@ export class SnpDataStore {
   }
 
   init() {
-    this.dnaMutationMap = asyncDataStoreInstance.data.metadata_map.dna_snp;
-    this.geneAaMutationMap = asyncDataStoreInstance.data.metadata_map.gene_aa_snp;
+    this.dnaMutationMap = asyncDataStoreInstance.data.metadata_map.dna_mutation;
+    this.geneAaMutationMap = asyncDataStoreInstance.data.metadata_map.gene_aa_mutation;
     this.proteinAaMutationMap =
-      asyncDataStoreInstance.data.metadata_map.protein_aa_snp;
+      asyncDataStoreInstance.data.metadata_map.protein_aa_mutation;
     // debugger;
 
     //mutation -> color map
     let mutationColorInd = 0;
     const _getMutationColor = memoize(() => {
-      const color = snpColorArray[mutationColorInd++];
-      if (mutationColorInd === snpColorArray.length) {
+      const color = mutationColorArray[mutationColorInd++];
+      if (mutationColorInd === mutationColorArray.length) {
         mutationColorInd = 0;
       }
       return color;
@@ -66,14 +66,14 @@ export class SnpDataStore {
       this.mutationColorMap[mut] = _getMutationColor(mut);
     });
 
-    //remap so its integer -> SNP
+    //remap so its integer -> mutation
     let mutationId, split, aaRangeInd;
 
     Object.keys(this.dnaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.dnaMutationMap[mut]);
       this.intToDnaMutationMap[mutationId] = {};
       // Store the entire mutation string
-      this.intToDnaMutationMap[mutationId]['snp_str'] = mut;
+      this.intToDnaMutationMap[mutationId]['mutation_str'] = mut;
 
       // Each mut is broken up by pos|ref|alt
       split = mut.split('|');
@@ -90,7 +90,7 @@ export class SnpDataStore {
       mutationId = parseInt(this.geneAaMutationMap[mut]);
       this.intToGeneAaMutationMap[mutationId] = {};
       // Store the entire mutation string
-      this.intToGeneAaMutationMap[mutationId]['snp_str'] = mut;
+      this.intToGeneAaMutationMap[mutationId]['mutation_str'] = mut;
 
       // Each mutation is broken up by gene|pos|ref|alt
       split = mut.split('|');
@@ -123,7 +123,7 @@ export class SnpDataStore {
       mutationId = parseInt(this.proteinAaMutationMap[mut]);
       this.intToProteinAaMutationMap[mutationId] = {};
       // Store the entire mutation string
-      this.intToProteinAaMutationMap[mutationId]['snp_str'] = mut;
+      this.intToProteinAaMutationMap[mutationId]['mutation_str'] = mut;
 
       // Each mutation is broken up by gene|pos|ref|alt
       split = mut.split('|');
