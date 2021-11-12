@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def combine_lineages(lineages, lineage_out):
-    # Dump all SNP chunks into a text buffer
+    # Dump all mutation chunks into a text buffer
     df_io = io.StringIO()
     for i, chunk in enumerate(lineages):
 

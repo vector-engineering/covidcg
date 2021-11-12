@@ -342,7 +342,7 @@ const RelatedProjectsTab = () => {
                 </b>
               </p>
               <p>
-                &quot;Visualisation tool providing the distribution of SNPs and
+                &quot;Visualisation tool providing the distribution of mutations and
                 homoplasies across an alignment of 23,090 high coverage,
                 complete, SARS-CoV-2 assemblies, downloaded on the 4th of June
                 2020. Supporting information is available in{' '}

@@ -30,7 +30,7 @@ import { queryReferenceSequence } from '../../utils/reference';
 import {
   DNA_OR_AA,
   COORDINATE_MODES,
-  GROUP_SNV,
+  GROUP_MUTATION,
 } from '../../constants/defs.json';
 
 const genes = getAllGenes();
@@ -156,11 +156,11 @@ const CoordinateSelect = observer(
     });
 
     // Disable "All Genes" and "All Proteins" option
-    // when in AA mode and non-SNP grouping
+    // when in AA mode and non-mutation grouping
     // useEffect(() => {
     //   let _geneOptionElements = state.geneOptionElements;
     //   let _proteinOptionElements = state.proteinOptionElements;
-    //   if (groupKey !== GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
+    //   if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
     //   }
     // }, [groupKey, dnaOrAa]);
 
@@ -702,20 +702,20 @@ const CoordinateSelect = observer(
         <span className="title">
           Genomic Coordinates
           <QuestionButton
-            data-tip='<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p><p>These options are only enabled when in "SNV" mode.</p>'
+            data-tip='<p>When grouping by mutation, only show mutations within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus mutations within the given genomic coordinates.</p><p>These options are only enabled when in "Mutation" mode.</p>'
             data-html="true"
             data-for="main-tooltip"
           />
         </span>
-        {groupKey !== GROUP_SNV && (
+        {groupKey !== GROUP_MUTATION && (
           <ModeSelectForm>
             <HintText>
-              Switch to &quot;SNV&quot; under &quot;Group sequences by&quot; in
+              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
               order to enable Genomic Coordinate filtering.
             </HintText>
           </ModeSelectForm>
         )}
-        {groupKey === GROUP_SNV && renderMainForm()}
+        {groupKey === GROUP_MUTATION && renderMainForm()}
       </SelectContainer>
     );
   }

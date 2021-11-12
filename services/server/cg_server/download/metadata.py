@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""Download metadata and SNVs from selected sequences
+"""Download metadata and mutations from selected sequences
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
@@ -22,7 +22,9 @@ def download_metadata(conn, req):
 
         # Fields that the user wants
         selected_fields = req.get("selected_fields", [])
-        snv_format = req.get("snv_format", constants["SNV_FORMAT"]["POS_REF_ALT"])
+        mutation_format = req.get(
+            "mutation_format", constants["MUTATION_FORMAT"]["POS_REF_ALT"]
+        )
 
         sequence_cols = [
             "Accession ID",
@@ -70,20 +72,22 @@ def download_metadata(conn, req):
                 )
             )
 
-        snv_id_to_pos_maps = {}
-        snv_id_to_name_maps = {}
+        mutation_id_to_pos_map = {}
+        mutation_id_to_name_map = {}
 
-        for snv_field in ["dna", "gene_aa", "protein_aa"]:
-            if snv_field not in selected_fields:
+        for mutation_field in ["dna", "gene_aa", "protein_aa"]:
+            if mutation_field not in selected_fields:
                 continue
 
-            snv_table = "sequence_{}_snp".format(snv_field)
+            mutation_table = "sequence_{}_mutation".format(mutation_field)
 
-            sequence_cols.append(snv_field + "_snp")
+            sequence_cols.append(mutation_field + "_mutation")
             sequence_cols_expr.append(
-                sql.SQL("""{snv_table_short}."mutations" AS {snp_col} """).format(
-                    snv_table_short=sql.Identifier(snv_field),
-                    snp_col=sql.Identifier(snv_field + "_mutations"),
+                sql.SQL(
+                    """{mutation_table_short}."mutations" AS {mutation_col} """
+                ).format(
+                    mutation_table_short=sql.Identifier(mutation_field),
+                    mutation_col=sql.Identifier(mutation_field + "_mutations"),
                 )
             )
 
@@ -92,41 +96,41 @@ def download_metadata(conn, req):
                     """
                 INNER JOIN (
                     SELECT "sequence_id", "mutations"
-                    FROM {snv_table}
-                ) {snv_table_short} ON {snv_table_short}."sequence_id" = m."sequence_id"
+                    FROM {mutation_table}
+                ) {mutation_table_short} ON {mutation_table_short}."sequence_id" = m."sequence_id"
                 """
                 ).format(
-                    snv_table_short=sql.Identifier(snv_field),
-                    snv_table=sql.Identifier(snv_table),
+                    mutation_table_short=sql.Identifier(mutation_field),
+                    mutation_table=sql.Identifier(mutation_table),
                 )
             )
 
             # Get ID -> name map
-            snv_agg_field = "snp_str"
-            if snv_format == constants["SNV_FORMAT"]["POS_REF_ALT"]:
-                snv_agg_field = "snp_str"
-            elif snv_format == constants["SNV_FORMAT"]["REF_POS_ALT"]:
-                snv_agg_field = "snv_name"
+            mutation_agg_field = "mutation_str"
+            if mutation_format == constants["MUTATION_FORMAT"]["POS_REF_ALT"]:
+                mutation_agg_field = "mutation_str"
+            elif mutation_format == constants["MUTATION_FORMAT"]["REF_POS_ALT"]:
+                mutation_agg_field = "mutation_name"
 
             cur.execute(
                 sql.SQL(
                     """
-                SELECT "id", "pos", {snv_agg_field}
-                FROM {snp_table}
+                SELECT "id", "pos", {mutation_agg_field}
+                FROM {mutation_table}
                 """
                 ).format(
-                    snv_agg_field=sql.Identifier(snv_agg_field),
-                    snp_table=sql.Identifier(snv_field + "_snp"),
+                    mutation_agg_field=sql.Identifier(mutation_agg_field),
+                    mutation_table=sql.Identifier(mutation_field + "_mutation"),
                 )
             )
-            snv_props = pd.DataFrame.from_records(
+            mutation_props = pd.DataFrame.from_records(
                 cur.fetchall(), columns=["id", "pos", "name"]
             )
-            snv_id_to_pos_maps[snv_field] = dict(
-                zip(snv_props["id"].values, snv_props["pos"].values)
+            mutation_id_to_pos_map[mutation_field] = dict(
+                zip(mutation_props["id"].values, mutation_props["pos"].values)
             )
-            snv_id_to_name_maps[snv_field] = dict(
-                zip(snv_props["id"].values, snv_props["name"].values)
+            mutation_id_to_name_map[mutation_field] = dict(
+                zip(mutation_props["id"].values, mutation_props["name"].values)
             )
 
         query = sql.SQL(
@@ -149,22 +153,22 @@ def download_metadata(conn, req):
         res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols,)
 
         # Replace mutation IDs with names
-        for snv_field in ["dna", "gene_aa", "protein_aa"]:
-            if snv_field not in selected_fields:
+        for mutation_field in ["dna", "gene_aa", "protein_aa"]:
+            if mutation_field not in selected_fields:
                 continue
 
-            snv_field_col = snv_field + "_snp"
+            mutation_field_col = mutation_field + "_mutation"
 
-            pos_map = snv_id_to_pos_maps[snv_field]
-            name_map = snv_id_to_name_maps[snv_field]
+            pos_map = mutation_id_to_pos_map[mutation_field]
+            name_map = mutation_id_to_name_map[mutation_field]
 
             # Sort mutations by position
-            res_df.loc[:, snv_field_col] = res_df[snv_field_col].apply(
+            res_df.loc[:, mutation_field_col] = res_df[mutation_field_col].apply(
                 lambda x: sorted(x, key=lambda _x: pos_map[_x])
             )
 
             # Serialize list of mutation IDs
-            res_df.loc[:, snv_field_col] = res_df[snv_field_col].apply(
+            res_df.loc[:, mutation_field_col] = res_df[mutation_field_col].apply(
                 lambda x: ";".join([name_map[_x] for _x in x])
             )
 

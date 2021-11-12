@@ -70,5 +70,13 @@
   {
     "name": "B.1.621",
     "level": "VOI"
+  },
+  {
+    "name": "A.Y",
+    "level": "VOI"
+  },
+  {
+    "name": "4.2",
+    "level": "VOI"
   }
 ]

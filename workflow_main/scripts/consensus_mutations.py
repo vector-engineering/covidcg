@@ -6,14 +6,13 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import json
-import numpy as np
 import pandas as pd
 
 from itertools import chain
 from collections import Counter
 
 
-def get_consensus_snps(
+def get_consensus_mutations(
     case_df, group_key, consensus_fraction=0.9, min_reporting_fraction=0.05
 ):
     """Generalized for lineages/clades
@@ -24,46 +23,43 @@ def get_consensus_snps(
     group_key: str
         - 'lineage' or 'clade'
     consensus_fraction: float
-        - Fraction of taxons that need to have a SNP for it to be considered 
-          a consensus SNP for a lineage/clade
+        - Fraction of taxons that need to have a mutation for it to be considered 
+          a consensus mutation for a lineage/clade
     min_reporting_fraction: float
         - ...
 
     Returns
     -------
-    group_snp_df: pandas.DataFrame
+    group_mutation_df: pandas.DataFrame
     """
 
-    group_snp_df = []
-    unique_groups = sorted(case_df[group_key].unique())
-
-    collapsed_snvs = (
+    collapsed_mutations = (
         case_df.groupby(group_key)[
-            ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]
+            ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
         # (and calling like 100K+ mem allocs)
         # Just make an iterator over each element of the nested lists
         # Also, package the number of isolates per lineage in with the
         # iterator so we can use a single aggregate function later
-        # to determine which SNVs are consensus SNVs
+        # to determine which mutations are consensus mutations
         .agg(list).applymap(lambda x: (len(x), chain.from_iterable(x)))
     )
 
     # For a given number of isolates per group, and the iterator
-    # over all SNVs in that group, get the consensus SNVs
+    # over all mutations in that group, get the consensus mutations
     def count_consensus(pkg):
         # Unbundle the input tuple
         n_isolates, it = pkg
-        snvs = list(it)
+        mutations = list(it)
         # Count unique occurrences
-        counts = dict(Counter(snvs))
+        counts = dict(Counter(mutations))
         # Base the minimum frequency off of the required consensus fraction
         # and the number of genomes for this group
         min_freq = int(min_reporting_fraction * n_isolates)
 
-        # Return all SNVs which pass the min_freq threshold, sorted
-        # in ascending order by SNV ID
+        # Return all mutations which pass the min_freq threshold, sorted
+        # in ascending order by mutation ID
         # Also include the counts and the fraction of counts relative to
         # the number of genomes for this group
         return sorted(
@@ -72,47 +68,47 @@ def get_consensus_snps(
 
     # Do this column-by-column because for some reason pandas applymap()
     # misses the first column. I have no idea why...
-    for col in ["dna_snp_str", "gene_aa_snp_str", "protein_aa_snp_str"]:
-        collapsed_snvs[col] = collapsed_snvs[col].apply(count_consensus)
+    for col in ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]:
+        collapsed_mutations[col] = collapsed_mutations[col].apply(count_consensus)
 
-    def snvs_to_df(field):
-        _df = collapsed_snvs[field].explode()
+    def mutations_to_df(field):
+        _df = collapsed_mutations[field].explode()
         _df = pd.DataFrame.from_records(
-            _df, columns=["snv_id", "count", "fraction"], index=_df.index
+            _df, columns=["mutation_id", "count", "fraction"], index=_df.index
         )
         return _df
 
-    collapsed_dna_snvs = snvs_to_df("dna_snp_str")
-    collapsed_gene_aa_snvs = snvs_to_df("gene_aa_snp_str")
-    collapsed_protein_aa_snvs = snvs_to_df("protein_aa_snp_str")
+    collapsed_dna_mutations = mutations_to_df("dna_mutation_str")
+    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_mutation_str")
+    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_mutation_str")
 
     return (
-        # CONSENSUS SNVS
+        # CONSENSUS MUTATIONS
         (
-            collapsed_snvs.applymap(
-                lambda x: [snv[0] for snv in x if snv[2] > consensus_fraction]
+            collapsed_mutations.applymap(
+                lambda x: [mut[0] for mut in x if mut[2] > consensus_fraction]
             ).rename(
                 columns={
-                    "dna_snp_str": "dna_snp_ids",
-                    "gene_aa_snp_str": "gene_aa_snp_ids",
-                    "protein_aa_snp_str": "protein_aa_snp_ids",
+                    "dna_mutation_str": "dna_mutation_ids",
+                    "gene_aa_mutation_str": "gene_aa_mutation_ids",
+                    "protein_aa_mutation_str": "protein_aa_mutation_ids",
                 }
             )
         ).to_dict(orient="index"),
-        # SNV FREQUENCIES PER GROUP
+        # MUTATION FREQUENCIES PER GROUP
         {
             "dna": (
-                collapsed_dna_snvs.reset_index()
+                collapsed_dna_mutations.reset_index()
                 .rename(columns={group_key: "group"})
                 .to_dict(orient="records")
             ),
             "gene_aa": (
-                collapsed_gene_aa_snvs.reset_index()
+                collapsed_gene_aa_mutations.reset_index()
                 .rename(columns={group_key: "group"})
                 .to_dict(orient="records")
             ),
             "protein_aa": (
-                collapsed_protein_aa_snvs.reset_index()
+                collapsed_protein_aa_mutations.reset_index()
                 .rename(columns={group_key: "group"})
                 .to_dict(orient="records")
             ),
@@ -120,7 +116,7 @@ def get_consensus_snps(
     )
 
 
-def get_all_consensus_snps(
+def get_all_consensus_mutations(
     case_data,
     consensus_out,
     frequencies_out,
@@ -128,9 +124,9 @@ def get_all_consensus_snps(
     consensus_fraction=0.9,
     min_reporting_fraction=0.05,
 ):
-    """For each lineage and clade, get the lineage/clade-defining SNVs,
+    """For each lineage and clade, get the lineage/clade-defining mutations,
     on both the NT and AA level
-    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    Lineage/clade-defining mutations are defined as mutations which occur in
     >= [consensus_fraction] of sequences within that lineage/clade.
     [consensus_fraction] is a parameter which can be adjusted here
     """
@@ -147,7 +143,7 @@ def get_all_consensus_snps(
     # group_cols is defined under the "group_cols" field
     # in the config.yaml file
     for group in group_cols:
-        group_consensus, group_frequencies = get_consensus_snps(
+        group_consensus, group_frequencies = get_consensus_mutations(
             case_df,
             group,
             consensus_fraction=consensus_fraction,

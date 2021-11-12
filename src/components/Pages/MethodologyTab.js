@@ -86,12 +86,12 @@ const MethodologyTab = () => {
 
         <ContentSection>
           <a id="alignment"></a>
-          <span className="section-title">SNV Assignments</span>
+          <span className="section-title">Mutation Assignments</span>
 
           <div className="content-block">
             <div className="content-text">
               <p>
-                SNVs at the nucleotide and amino acid level will be determined
+                Mutations at the nucleotide and amino acid level will be determined
                 by aligning each sequence to the{' '}
                 <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/MN996528">
                   WIV04 reference sequence
@@ -102,8 +102,8 @@ const MethodologyTab = () => {
                   NC_045512.2
                 </ExternalLink>{' '}
                 except for the length of the poly-A tail) using bowtie2.
-                Spurious SNVs and probable sequencing errors are filtered out
-                prior to downstream analysis. SNVs involving ambiguous base
+                Spurious mutations and probable sequencing errors are filtered out
+                prior to downstream analysis. Mutations involving ambiguous base
                 calls are ignored.
               </p>
             </div>
@@ -122,8 +122,8 @@ const MethodologyTab = () => {
                   pangolin
                 </ExternalLink>{' '}
                 tool), and clades will be provided by GISAID. In accordance with
-                pangolin, SNVs present in &gt;90% of sequences within each
-                lineage/clade will be assigned as lineage/clade-defining SNVs.
+                pangolin, mutations present in &gt;90% of sequences within each
+                lineage/clade will be assigned as lineage/clade-defining mutations.
               </p>
             </div>
           </div>

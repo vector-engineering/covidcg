@@ -1,20 +1,20 @@
 # coding: utf-8
 
-"""Extract AA SNPs from NT SNPs
+"""Extract AA mutations from NT mutations
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 
-import json
-import numpy as np
 import pandas as pd
 
 from scripts.fasta import read_fasta_file
 from scripts.util import translate
 
 
-def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="gene"):
+def extract_aa_mutations(
+    dna_mutation_file, gene_or_protein_file, reference_file, mode="gene"
+):
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
@@ -34,27 +34,30 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
     else:
         gene_or_protein_df = gene_or_protein_df.set_index("name")
 
-    dna_snp_df = pd.read_csv(dna_snp_file).fillna("")
-    # Filter out any big SNPs in the 5' or 3' UTR
-    dna_snp_df = dna_snp_df.loc[
-        (dna_snp_df["pos"] < 29675) & (dna_snp_df["pos"] > 265), :
+    dna_mutation_df = pd.read_csv(dna_mutation_file).fillna("")
+    # Filter out any big mutations in the 5' or 3' UTR
+    dna_mutation_df = dna_mutation_df.loc[
+        (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
     ].reset_index(drop=True)
     # Filter out any frameshifting indels
-    dna_snp_df = dna_snp_df.loc[
-        ((dna_snp_df["ref"].str.len() == 1) & (dna_snp_df["alt"].str.len() == 1))
-        | (
-            (dna_snp_df["ref"].str.len() > 1)
-            & (dna_snp_df["alt"].str.len() == 0)
-            & (dna_snp_df["ref"].str.len() % 3 == 0)
+    dna_mutation_df = dna_mutation_df.loc[
+        (
+            (dna_mutation_df["ref"].str.len() == 1)
+            & (dna_mutation_df["alt"].str.len() == 1)
         )
         | (
-            (dna_snp_df["alt"].str.len() > 1)
-            & (dna_snp_df["ref"].str.len() == 0)
-            & (dna_snp_df["alt"].str.len() % 3 == 0)
+            (dna_mutation_df["ref"].str.len() > 1)
+            & (dna_mutation_df["alt"].str.len() == 0)
+            & (dna_mutation_df["ref"].str.len() % 3 == 0)
+        )
+        | (
+            (dna_mutation_df["alt"].str.len() > 1)
+            & (dna_mutation_df["ref"].str.len() == 0)
+            & (dna_mutation_df["alt"].str.len() % 3 == 0)
         )
     ].reset_index(drop=True)
 
-    aa_snps = []
+    aa_mutations = []
     aa_seqs = {}
 
     for ref_name, ref_row in gene_or_protein_df.iterrows():
@@ -64,7 +67,7 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
         aa_seqs[ref_name] = []
 
         for segment in ref_row["segments"]:
-            # Get the region in coordinates to translate/look for SNPs in
+            # Get the region in coordinates to translate/look for mutations in
             segment_start = segment[0]
             segment_end = segment[1]
             segment_len = ((segment_end - segment_start) // 3) + 1
@@ -74,66 +77,66 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                 translate(ref_seq[segment_start - 1 : segment_end])
             )
 
-            # Get all NT SNPs in this segment
-            segment_snp_df = (
-                dna_snp_df.loc[
-                    (dna_snp_df["pos"] >= segment_start)
-                    & (dna_snp_df["pos"] <= segment_end),
+            # Get all NT mutations in this segment
+            segment_mutation_df = (
+                dna_mutation_df.loc[
+                    (dna_mutation_df["pos"] >= segment_start)
+                    & (dna_mutation_df["pos"] <= segment_end),
                     :,
                 ]
                 .copy()
                 .sort_values(["Accession ID", "pos"])
             )
 
-            segment_snp_df["codon_ind_start"] = (
-                segment_snp_df["pos"] - segment_start
+            segment_mutation_df["codon_ind_start"] = (
+                segment_mutation_df["pos"] - segment_start
             ) // 3
-            segment_snp_df["codon_ind_end"] = (
-                segment_snp_df["pos"]
-                + segment_snp_df["ref"].apply(
+            segment_mutation_df["codon_ind_end"] = (
+                segment_mutation_df["pos"]
+                + segment_mutation_df["ref"].apply(
                     lambda x: 0 if len(x) == 0 else len(x) - 1
                 )
                 - segment_start
             ) // 3
 
-            # For each NT SNP in this segment:
+            # For each NT mutation in this segment:
             i = 0
-            while i < len(segment_snp_df):
-                cur_snp = segment_snp_df.iloc[i, :]
+            while i < len(segment_mutation_df):
+                cur_mutation = segment_mutation_df.iloc[i, :]
 
-                # Look ahead in the SNV list (ordered by position)
-                # for any other SNVs within this codon
+                # Look ahead in the mutation list (ordered by position)
+                # for any other mutations within this codon
                 j = i + 1
-                snps = [cur_snp]
-                codon_ind_start = cur_snp["codon_ind_start"]
-                codon_ind_end = cur_snp["codon_ind_end"]
+                mutations = [cur_mutation]
+                codon_ind_start = cur_mutation["codon_ind_start"]
+                codon_ind_end = cur_mutation["codon_ind_end"]
 
-                if j < len(segment_snp_df):
-                    new_snp = segment_snp_df.iloc[j]
+                if j < len(segment_mutation_df):
+                    new_mutation = segment_mutation_df.iloc[j]
                     while (
-                        new_snp["codon_ind_start"] <= codon_ind_end
-                        and new_snp["Accession ID"] == cur_snp["Accession ID"]
+                        new_mutation["codon_ind_start"] <= codon_ind_end
+                        and new_mutation["Accession ID"] == cur_mutation["Accession ID"]
                     ):
-                        snps.append(new_snp)
+                        mutations.append(new_mutation)
                         # Update end position
-                        codon_ind_end = new_snp["codon_ind_end"]
+                        codon_ind_end = new_mutation["codon_ind_end"]
                         j += 1
-                        if j < len(segment_snp_df):
-                            new_snp = segment_snp_df.iloc[j]
+                        if j < len(segment_mutation_df):
+                            new_mutation = segment_mutation_df.iloc[j]
                         else:
                             break
 
-                # Increment our counter so we don't reprocess any grouped SNVs
+                # Increment our counter so we don't reprocess any grouped mutations
                 i = j
 
                 # Get region start/end, 0-indexed
                 region_start = segment_start + (codon_ind_start * 3) - 1
                 region_end = segment_start + (codon_ind_end * 3) + 2
 
-                # Position of the SNP inside the region (0-indexed)
+                # Position of the mutation inside the region (0-indexed)
                 pos_inside_region = []
-                for snp in snps:
-                    pos_inside_region.append(snp["pos"] - region_start - 1)
+                for mut in mutations:
+                    pos_inside_region.append(mut["pos"] - region_start - 1)
 
                 # Get the reference sequence of the region
                 region_seq = list(ref_seq[region_start:region_end])
@@ -142,37 +145,37 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                 ref_aa = list(translate("".join(region_seq)))
                 # print(region_seq, ref_aa)
 
-                # print([snp['pos'] for snp in snps])
+                # print([mut['pos'] for mut in mutations])
                 # print(region_seq, ref_aa)
 
-                for k, snp in enumerate(snps):
+                for k, mut in enumerate(mutations):
 
                     # Make sure the reference matches
-                    if len(snp["ref"]) > 0:
-                        ref_snp_seq = "".join(
+                    if len(mut["ref"]) > 0:
+                        ref_mutation_seq = "".join(
                             initial_region_seq[
                                 pos_inside_region[k] : (
-                                    pos_inside_region[k] + len(snp["ref"])
+                                    pos_inside_region[k] + len(mut["ref"])
                                 )
                             ]
                         )
-                        if not ref_snp_seq == snp["ref"]:
+                        if not ref_mutation_seq == mut["ref"]:
                             print(
-                                "REF MISMATCH:\n\tReference sequence:\t{}\n\tSNP sequence\t\t{}\n".format(
-                                    ref_snp_seq, snp["ref"],
+                                "REF MISMATCH:\n\tReference sequence:\t{}\n\tMutation sequence\t\t{}\n".format(
+                                    ref_mutation_seq, mut["ref"],
                                 )
                             )
                             continue
 
                     # Remove the reference base(s)
-                    if len(snp["ref"]) > 0:
+                    if len(mut["ref"]) > 0:
                         region_seq = (
                             region_seq[: pos_inside_region[k]]
-                            + region_seq[(pos_inside_region[k] + len(snp["ref"])) :]
+                            + region_seq[(pos_inside_region[k] + len(mut["ref"])) :]
                         )
                     # Add the alt base(s)
-                    if len(snp["alt"]) > 0:
-                        for base in list(snp["alt"])[::-1]:
+                    if len(mut["alt"]) > 0:
+                        for base in list(mut["alt"])[::-1]:
                             region_seq.insert(pos_inside_region[k], base)
 
                 # Translate the new region
@@ -220,9 +223,9 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
                 if overrun > 0:
                     ref_aa = ref_aa[:-overrun]
 
-                aa_snps.append(
+                aa_mutations.append(
                     (
-                        cur_snp["Accession ID"],
+                        cur_mutation["Accession ID"],
                         ref_name,
                         pos,
                         "".join(ref_aa),
@@ -236,12 +239,12 @@ def extract_aa_snps(dna_snp_file, gene_or_protein_file, reference_file, mode="ge
     # END FOR GENE/PROTEIN
 
     if mode == "gene":
-        aa_snp_df = pd.DataFrame.from_records(
-            aa_snps, columns=["Accession ID", "gene", "pos", "ref", "alt"]
+        aa_mutation_df = pd.DataFrame.from_records(
+            aa_mutations, columns=["Accession ID", "gene", "pos", "ref", "alt"]
         )
     else:
-        aa_snp_df = pd.DataFrame.from_records(
-            aa_snps, columns=["Accession ID", "protein", "pos", "ref", "alt"]
+        aa_mutation_df = pd.DataFrame.from_records(
+            aa_mutations, columns=["Accession ID", "protein", "pos", "ref", "alt"]
         )
 
-    return aa_snp_df
+    return aa_mutation_df

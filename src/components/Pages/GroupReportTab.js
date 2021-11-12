@@ -91,14 +91,14 @@ const GroupReportTab = observer(() => {
             <li>
               Residues are colored by the mutation frequencies in the selected
               Protein, for the selected{' '}
-              {groupDataStore.getGroupSnvTypePrettyName()}, projected onto the
+              {groupDataStore.getGroupMutationTypePrettyName()}, projected onto the
               given PDB ID
             </li>
             <li>
-              It is up to the user to ensure that the given Protein and its SNVs
+              It is up to the user to ensure that the given Protein and its mutations
               match up with the provided PDB ID. We do not check for
               compatibility, so it is possible to, for example, erroneously map
-              nsp12 SNVs onto a Spike structure.
+              nsp12 mutations onto a Spike structure.
             </li>
             <li>
               More structures available at the{' '}

@@ -1,22 +1,22 @@
 // eslint-disable-next-line import/default
-import Worker from './snpData.worker.js';
-const snpDataWorker = new Worker();
+import Worker from './mutationData.worker.js';
+const mutationDataWorker = new Worker();
 
 const callbacks = {};
-snpDataWorker.onmessage = (e) => {
+mutationDataWorker.onmessage = (e) => {
   callbacks[e.data.type](e.data);
 };
 
-export const processSelectedSnvs = (pkg, callback) => {
-  const type = 'processSelectedSnvs';
+export const processSelectedMutations = (pkg, callback) => {
+  const type = 'processSelectedMutations';
   callbacks[type] = callback;
   pkg.type = type;
-  snpDataWorker.postMessage(pkg);
+  mutationDataWorker.postMessage(pkg);
 };
 
 export const processCooccurrenceData = (pkg, callback) => {
   const type = 'processCooccurrenceData';
   callbacks[type] = callback;
   pkg.type = type;
-  snpDataWorker.postMessage(pkg);
+  mutationDataWorker.postMessage(pkg);
 };

@@ -7,7 +7,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import os
 import psycopg2
-import re
 
 from flask import Flask, request, make_response
 from flask_cors import CORS, cross_origin
@@ -25,7 +24,7 @@ from cg_server.query import (
     query_initial,
     query_metadata,
     query_country_score,
-    query_group_snv_frequencies,
+    query_group_mutation_frequencies,
     query_and_aggregate,
     generate_report,
 )
@@ -95,18 +94,19 @@ if os.getenv("FLASK_ENV", "development") == "development":
             );
             """
         )
+        exists = cur.fetchone()[0]
 
-        if not cur.fetchone()[0]:
-            print("Seeding DB")
-            seed_database(conn)
-            insert_sequences(
-                conn,
-                os.getenv("DATA_PATH", project_root / config["data_folder"]),
-                filenames_as_dates=True,
-            )
+    if not exists:
+        print("Seeding DB")
+        seed_database(conn)
+        insert_sequences(
+            conn,
+            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            filenames_as_dates=True,
+        )
 
-        conn.commit()
-        conn_pool.putconn(conn)
+    conn.commit()
+    conn_pool.putconn(conn)
 
 
 @app.route("/seed")
@@ -115,16 +115,16 @@ def _seed():
         return "no"
 
     conn = get_conn_from_pool(connection_options, conn_pool)
-    with conn.cursor() as cur:
-        print("Seeding DB")
-        seed_database(conn)
-        insert_sequences(
-            conn,
-            os.getenv("DATA_PATH", project_root / config["data_folder"]),
-            filenames_as_dates=True,
-        )
-        conn.commit()
-        conn_pool.putconn(conn)
+
+    print("Seeding DB")
+    seed_database(conn)
+    insert_sequences(
+        conn,
+        os.getenv("DATA_PATH", project_root / config["data_folder"]),
+        filenames_as_dates=True,
+    )
+    conn.commit()
+    conn_pool.putconn(conn)
 
     return "Done!"
 
@@ -167,12 +167,12 @@ def _get_metadata(conn):
     return query_metadata(conn, req)
 
 
-@app.route("/group_snv_frequencies", methods=["POST"])
+@app.route("/group_mutation_frequencies", methods=["POST"])
 @cross_origin(origins=cors_domains)
 @handle_db_errors(options=connection_options, conn_pool=conn_pool)
-def get_group_snv_frequencies(conn):
+def get_group_mutation_frequencies(conn):
     req = request.json
-    return query_group_snv_frequencies(conn, req)
+    return query_group_mutation_frequencies(conn, req)
 
 
 @app.route("/download_metadata", methods=["POST"])

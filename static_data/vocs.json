@@ -62,40 +62,7 @@
     "ECDC": "VOI",
     "PHE": "VOI"
   },
-  "R.1": {
-    "WHO": "Other"
-  },
-  "B.1.466.2": {
-    "WHO": "Other"
-  },
-  "B.1.1.318": {
-    "WHO": "Other",
-    "ECDC": "Other",
-    "PHE": "VOI"
-  },
-  "B.1.1.519": {
-    "WHO": "Other"
-  },
-  "C.36.3": {
-    "WHO": "Other",
-    "PHE": "VOI"
-  },
-  "B.1.214.2": {
-    "WHO": "Other"
-  },
-  "B.1.427": {
-    "WHO": "Other"
-  },
-  "B.1.429": {
-    "WHO": "Other"
-  },
-  "B.1.1.523": {
-    "WHO": "Other"
-  },
-  "B.1.619": {
-    "WHO": "Other"
-  },
-  "B.1.620": {
+  "AZ.5": {
     "WHO": "Other"
   },
   "C.1.2": {
@@ -114,6 +81,10 @@
   },
   "C.36": {
     "ECDC": "Other"
+  },
+  "B.1.1.318": {
+    "ECDC": "Other",
+    "PHE": "VOI"
   },
   "AY.4.2": {
     "ECDC": "Other"
@@ -137,6 +108,15 @@
     "PHE": "VOI"
   },
   "AV.1": {
+    "PHE": "VOI"
+  },
+  "C.36.3": {
+    "PHE": "VOI"
+  },
+  "A.Y": {
+    "PHE": "VOI"
+  },
+  "4.2": {
     "PHE": "VOI"
   }
 }

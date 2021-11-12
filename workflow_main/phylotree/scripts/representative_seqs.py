@@ -40,8 +40,8 @@ def get_representative_seqs(
     # Load DNA mutation ID map
     with open(metadata_map_path, "r") as fp:
         metadata_map = json.loads(fp.read())
-    dna_snp = metadata_map["dna_snp"]
-    id_to_dna_snp = {v: k for k, v in dna_snp.items()}
+    dna_mutation = metadata_map["dna_mutation"]
+    id_to_dna_mutation = {v: k for k, v in dna_mutation.items()}
 
     # Load data and select a representative sequence for each lineage
     # by choosing the last seen sequence from each lineage
@@ -71,7 +71,7 @@ def get_representative_seqs(
             )
         ]
         .drop_duplicates("lineage", keep="first")[
-            ["Accession ID", "collection_date", "lineage", "dna_snp_str"]
+            ["Accession ID", "collection_date", "lineage", "dna_mutation_str"]
         ]
         .set_index("Accession ID")
         # Join first and last collection dates
@@ -112,14 +112,14 @@ def get_representative_seqs(
     # Ignore insertions, since this would require a true MSA
     reps["sequence"] = ref_seq
     for accession_id, row in reps.iterrows():
-        dna_snps = row["dna_snp_str"]
+        dna_mutations = row["dna_mutation_str"]
         seq = list(ref_seq)
 
-        for snp in dna_snps:
-            snp = id_to_dna_snp[snp].split("|")
-            pos = int(snp[0])
-            ref = snp[1]
-            alt = snp[2]
+        for mut in dna_mutations:
+            mut = id_to_dna_mutation[mut].split("|")
+            pos = int(mut[0])
+            ref = mut[1]
+            alt = mut[2]
 
             # Skip insertions
             if ref == "-" or len(alt) > len(ref):
@@ -150,4 +150,4 @@ def get_representative_seqs(
         fp.close()
 
     # Write dataframe for future
-    reps.drop(columns=["dna_snp_str"]).to_csv(table_out_path)
+    reps.drop(columns=["dna_mutation_str"]).to_csv(table_out_path)

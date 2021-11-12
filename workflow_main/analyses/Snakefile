@@ -26,8 +26,8 @@ rule az_reports:
         metadata_map = os.path.join(data_folder, "metadata_map.json")
     output:
         report_out = directory(az_report_out),
-        spike_snv_global = os.path.join(az_report_out, 'spike_snv_global.csv'),
-        spike_snv_region = os.path.join(az_report_out, 'spike_snv_region.csv'),
+        spike_mutation_global = os.path.join(az_report_out, 'spike_mutation_global.csv'),
+        spike_mutation_region = os.path.join(az_report_out, 'spike_mutation_region.csv'),
         spike_cooc_global = os.path.join(az_report_out, 'spike_cooc_global.csv'),
         spike_cooc_region = os.path.join(az_report_out, 'spike_cooc_region.csv'),
         lineage_global = os.path.join(az_report_out, 'lineage_global.csv'),
@@ -114,8 +114,8 @@ rule global_seq_data:
 rule additional_analyses:
     input:
         # AZ REPORTS
-        rules.az_reports.output.spike_snv_global,
-        rules.az_reports.output.spike_snv_region,
+        rules.az_reports.output.spike_mutation_global,
+        rules.az_reports.output.spike_mutation_region,
         rules.az_reports.output.spike_cooc_global,
         rules.az_reports.output.spike_cooc_region,
         rules.az_reports.output.lineage_global,

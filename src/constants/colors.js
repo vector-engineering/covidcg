@@ -64,7 +64,7 @@ export const coolColors = [
 
 // from https://personal.sron.nl/~pault/#sec:qualitative
 // 'vibrant', then 'muted'
-export const snpColorArray = [
+export const mutationColorArray = [
   '#0077bb',
   '#33bbee',
   '#009988',

@@ -5,12 +5,12 @@ import { useStores } from '../../stores/connect';
 import {
   DNA_OR_AA,
   COORDINATE_MODES,
-  GROUP_SNV,
+  GROUP_MUTATION,
   ASYNC_STATES,
 } from '../../constants/defs.json';
 import { config } from '../../config';
 
-import { formatSnv } from '../../utils/snpUtils';
+import { formatMutation } from '../../utils/mutationUtils';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
@@ -133,12 +133,12 @@ const StatusBox = observer(() => {
 
   let selectedGroups = <b>None</b>;
   if (configStore.selectedGroups.length > 0) {
-    if (configStore.groupKey === GROUP_SNV) {
+    if (configStore.groupKey === GROUP_MUTATION) {
       selectedGroups = configStore.selectedGroups
         .map((group) => {
           return (
             <b key={group.group}>
-              {formatSnv(group.group, configStore.dnaOrAa)}
+              {formatMutation(group.group, configStore.dnaOrAa)}
             </b>
           );
         })

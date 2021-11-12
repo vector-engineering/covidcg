@@ -5,14 +5,14 @@ import { updateURLFromParams } from '../utils/updateQueryParam';
 
 export const initialValues = {
   caseDataState: ASYNC_STATES.STARTED,
-  snvDataState: ASYNC_STATES.STARTED,
+  mutationDataState: ASYNC_STATES.STARTED,
   cooccurrenceDataState: ASYNC_STATES.STARTED,
   downloadState: ASYNC_STATES.UNINITIALIZED,
 
   globalSequencingDataState: ASYNC_STATES.UNINITIALIZED,
   metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
 
-  groupSnvFrequencyState: ASYNC_STATES.UNINITIALIZED,
+  groupMutationFrequencyState: ASYNC_STATES.UNINITIALIZED,
 
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
@@ -20,7 +20,7 @@ export const initialValues = {
 
 export class UIStore {
   @observable caseDataState = initialValues.caseDataState;
-  @observable snvDataState = initialValues.snvDataState;
+  @observable mutationDataState = initialValues.mutationDataState;
   @observable cooccurrenceDataState = initialValues.cooccurrenceDataState;
   @observable downloadState = initialValues.downloadState;
 
@@ -28,7 +28,7 @@ export class UIStore {
   // i.e., metadata key (integer) => metadata value (string)
   @observable metadataFieldState = initialValues.metadataFieldState;
 
-  @observable groupSnvFrequencyState = initialValues.groupSnvFrequencyState;
+  @observable groupMutationFrequencyState = initialValues.groupMutationFrequencyState;
 
   @observable activeTab = initialValues.activeTab;
   @observable keysPressed = initialValues.keysPressed;
@@ -60,16 +60,16 @@ export class UIStore {
   };
 
   @action
-  onSnvDataStarted = () => {
-    this.snvDataState = ASYNC_STATES.STARTED;
+  onMutationDataStarted = () => {
+    this.mutationDataState = ASYNC_STATES.STARTED;
   };
   @action
-  onSnvDataFinished = () => {
-    this.snvDataState = ASYNC_STATES.SUCCEEDED;
+  onMutationDataFinished = () => {
+    this.mutationDataState = ASYNC_STATES.SUCCEEDED;
   };
   @action
-  onSnvDataErr = () => {
-    this.snvDataState = ASYNC_STATES.FAILED;
+  onMutationDataErr = () => {
+    this.mutationDataState = ASYNC_STATES.FAILED;
   };
 
   @action
@@ -125,16 +125,16 @@ export class UIStore {
   };
 
   @action
-  onGroupSnvFrequencyStarted = () => {
-    this.groupSnvFrequencyState = ASYNC_STATES.STARTED;
+  onGroupMutationFrequencyStarted = () => {
+    this.groupMutationFrequencyState = ASYNC_STATES.STARTED;
   };
   @action
-  onGroupSnvFrequencyFinished = () => {
-    this.groupSnvFrequencyState = ASYNC_STATES.SUCCEEDED;
+  onGroupMutationFrequencyFinished = () => {
+    this.groupMutationFrequencyState = ASYNC_STATES.SUCCEEDED;
   };
   @action
-  onGroupSnvFrequencyErr = () => {
-    this.groupSnvFrequencyState = ASYNC_STATES.FAILED;
+  onGroupMutationFrequencyErr = () => {
+    this.groupMutationFrequencyState = ASYNC_STATES.FAILED;
   };
 
   @action
@@ -159,12 +159,12 @@ export class UIStore {
       rootStoreInstance.globalSequencingDataStore.fetchGlobalSequencingData();
     } else if (
       this.activeTab === TABS.TAB_GROUP_REPORT &&
-      (this.groupSnvFrequencyState !== ASYNC_STATES.SUCCEEDED ||
-        this.groupSnvFrequencyState === ASYNC_STATES.STARTED)
+      (this.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED ||
+        this.groupMutationFrequencyState === ASYNC_STATES.STARTED)
     ) {
-      rootStoreInstance.groupDataStore.fetchGroupSnvFrequencyData({
+      rootStoreInstance.groupDataStore.fetchGroupMutationFrequencyData({
         group: rootStoreInstance.groupDataStore.activeGroupType,
-        snvType: rootStoreInstance.groupDataStore.groupSnvType,
+        mutationType: rootStoreInstance.groupDataStore.groupMutationType,
         consensusThreshold: 0,
       });
     }

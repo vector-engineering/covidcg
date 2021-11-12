@@ -57,6 +57,8 @@ def flush_chunk(cur, buffer):
 
 def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False):
 
+    print("INSERTING SEQUENCES")
+
     # Get all fasta files
     fasta_path = Path(data_path) / "fasta_processed"
 

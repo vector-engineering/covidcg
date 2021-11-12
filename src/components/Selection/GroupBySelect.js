@@ -12,7 +12,7 @@ import {
 } from './GroupBySelect.styles';
 
 import {
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
 } from '../../constants/defs.json';
@@ -92,11 +92,11 @@ const GroupBySelect = observer(
                 <input
                   className="radio-input"
                   type="radio"
-                  value={GROUP_SNV}
-                  checked={groupKey === GROUP_SNV}
+                  value={GROUP_MUTATION}
+                  checked={groupKey === GROUP_MUTATION}
                   onChange={handleGroupKeyChange}
                 />
-                <span>SNV</span>
+                <span>Mutation</span>
               </label>
             </div>
           </div>
@@ -149,7 +149,7 @@ const GroupBySelect = observer(
           <span className="form-title">
             Group sequences by
             <QuestionButton
-              data-tip={`<p>For "SNV", count SNVs <i>independently</i> across all selected sequences. i.e., the sum of all SNV counts may exceed the total number of selected sequences, as sequences may have multiple SNVs.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment</p>`}
+              data-tip={`<p>For "Mutation", count mutations <i>independently</i> across all selected sequences. i.e., the sum of all mutation counts may exceed the total number of selected sequences, as sequences may have multiple mutations.</p><p>For any other mode, e.g., "Lineage", aggregate sequences by their "Lineage" assignment. In this case, the sum of all lineage counts will equal the total number of selected sequences, as a sequence has one and only one "Lineage" assignment</p>`}
               data-html="true"
               data-place="right"
               data-for="main-tooltip"
@@ -159,13 +159,13 @@ const GroupBySelect = observer(
         </RadioForm>
         <RadioForm>
           <span className="form-title">Mutation format</span>
-          {groupKey !== GROUP_SNV && (
+          {groupKey !== GROUP_MUTATION && (
             <HintText>
-              Switch to &quot;SNV&quot; under &quot;Group sequences by&quot; in
+              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
               order to enable Mutation Formatting
             </HintText>
           )}
-          {groupKey === GROUP_SNV && renderDnaOrAaSelect()}
+          {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
         </RadioForm>
       </SelectContainer>
     );

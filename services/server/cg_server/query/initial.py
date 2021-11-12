@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """Send initial data package to front-end
-Consists of SNV definitions, etc
+Consists of mutation definitions, etc
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
