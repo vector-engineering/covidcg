@@ -232,7 +232,7 @@ function processCooccurrenceData({
           .split(' + ')
           .map((mut) => formatMutation(mut, dnaOrAa))
           .join(' + '),
-        mutation: mut,
+        mutation: mutation,
         mutationName: formatMutation(mutation, dnaOrAa),
         color: mutationColorMap[mutation],
         count: mutationCooccurrence[combi][mutation],

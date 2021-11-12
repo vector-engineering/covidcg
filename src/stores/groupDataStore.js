@@ -237,7 +237,7 @@ export class GroupDataStore {
   }
 
   @action
-  async downloadgroupMutationFrequencyData({ group, mutationType, consensusThreshold }) {
+  async downloadGroupMutationFrequencyData({ group, mutationType, consensusThreshold }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupMutationFrequencyData({
       group,
