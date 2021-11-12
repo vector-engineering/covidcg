@@ -127,6 +127,8 @@ const SurveillanceLegend = observer(
       legendTitleText = 'Spike SNVs (Co-occuring)';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
       legendTitleText = 'Spike SNVs (Single)';
+    } else if (plotSettingsStore.surveillanceMode === 'genotype') {
+      legendTitleText = 'Genotype';
     }
 
     return (
@@ -429,6 +431,8 @@ const SurveillancePlot = observer(({ width }) => {
     groupName = 'Co-occuring SNVs';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
     groupName = 'Single SNVs';
+  } else if (plotSettingsStore.surveillanceMode === 'genotype') {
+    groupName = 'Genotypes';
   }
 
   return (
@@ -482,6 +486,7 @@ const SurveillancePlot = observer(({ width }) => {
                   <option value={'lineage'}>Lineage</option>
                   <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
                   <option value={'spike_single'}>Spike Single SNVs</option>
+                  <option value={'genotype'}>Genotype</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}
