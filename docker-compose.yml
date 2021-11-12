@@ -9,7 +9,7 @@ services:
       - LOGINS=user1:pass1,user2:pass2
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
-      - CONFIGFILE=/opt/config/config_genbank.yaml
+      - CONFIGFILE=/opt/config/config_genbank_example.yaml
       - CONSTANTSFILE=/opt/constants/defs.json
       - DATA_PATH=/data
       - STATIC_DATA_PATH=/opt/static_data

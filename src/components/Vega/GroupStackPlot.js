@@ -8,7 +8,7 @@ import {
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
-  GROUP_SNV,
+  GROUP_MUTATION,
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
 } from '../../constants/defs.json';
@@ -38,8 +38,8 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   const handleSelected = (...args) => {
-    // Ignore selections in SNV mode
-    if (configStore.groupKey === GROUP_SNV) {
+    // Ignore selections in mutation mode
+    if (configStore.groupKey === GROUP_MUTATION) {
       return;
     }
     configStore.updateSelectedGroups(args[1]);
@@ -66,11 +66,11 @@ const GroupStackPlot = observer(({ width }) => {
     // console.log('GROUP STACK PROCESS DATA');
     // console.log(dataStore.aggGroupDate);
 
-    if (configStore.groupKey === GROUP_SNV) {
-      return toJS(dataStore.aggSelectedSnvsDate);
+    if (configStore.groupKey === GROUP_MUTATION) {
+      return toJS(dataStore.aggSelectedMutationsDate);
     }
 
-    // For non-SNV mode, we'll need some additional fields:
+    // For non-mutation mode, we'll need some additional fields:
     // 1) color of group
     // 2) name of group (same as group id)
     // Also collapse low-frequency groups based on settings
@@ -145,8 +145,8 @@ const GroupStackPlot = observer(({ width }) => {
   // Update internal selected groups copy
   useEffect(() => {
     // console.log('SELECTED GROUPS');
-    // Skip this update if we're in SNV mode
-    if (configStore.groupKey === GROUP_SNV) {
+    // Skip this update if we're in mutation mode
+    if (configStore.groupKey === GROUP_MUTATION) {
       return;
     }
 
@@ -160,10 +160,10 @@ const GroupStackPlot = observer(({ width }) => {
   }, [configStore.selectedGroups]);
 
   const refreshData = () => {
-    // Skip unless the SNV data finished processing
+    // Skip unless the mutation data finished processing
     if (
-      configStore.groupKey === GROUP_SNV &&
-      UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
+      configStore.groupKey === GROUP_MUTATION &&
+      UIStore.mutationDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;
     }
@@ -184,7 +184,7 @@ const GroupStackPlot = observer(({ width }) => {
   // Refresh data on mount (i.e., tab change) or when data state changes
   useEffect(refreshData, [
     UIStore.caseDataState,
-    UIStore.snvDataState,
+    UIStore.mutationDataState,
     plotSettingsStore.groupStackLowFreqFilter,
     plotSettingsStore.groupStackLowFreqValue,
   ]);
@@ -286,10 +286,10 @@ const GroupStackPlot = observer(({ width }) => {
   }
   detailYLabel += 'Sequences by ' + configStore.getGroupLabel();
 
-  // Hide the detail view in SNV mode when there's no selections
+  // Hide the detail view in mutation mode when there's no selections
   // Also disable the plot options when the detail panel is hidden
   const hideDetail =
-    configStore.groupKey === GROUP_SNV &&
+    configStore.groupKey === GROUP_MUTATION &&
     configStore.selectedGroups.length === 0;
   const detailHeight = hideDetail ? 0 : 280;
   const height = hideDetail ? 60 : 380;
@@ -358,7 +358,7 @@ const GroupStackPlot = observer(({ width }) => {
               </label>
             </OptionSelectContainer>
           </PlotOptionsRow>
-          {configStore.groupKey !== GROUP_SNV && (
+          {configStore.groupKey !== GROUP_MUTATION && (
             <PlotOptionsRow>
               <LowFreqFilter
                 lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
@@ -397,7 +397,7 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            disableSelectionColoring: configStore.groupKey === GROUP_SNV,
+            disableSelectionColoring: configStore.groupKey === GROUP_MUTATION,
             detailHeight,
             hoverBar: state.hoverGroup,
             stackOffset,

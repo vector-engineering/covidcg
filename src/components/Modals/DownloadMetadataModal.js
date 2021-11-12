@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import {
   ASYNC_STATES,
-  SNV_FORMAT,
+  MUTATION_FORMAT,
   GEO_LEVELS,
 } from '../../constants/defs.json';
 
@@ -76,7 +76,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
       initialSelectedGroupings,
       initialSelectedLocationFields
     ),
-    snvFormat: SNV_FORMAT.POS_REF_ALT,
+    mutationFormat: MUTATION_FORMAT.POS_REF_ALT,
   });
 
   const confirmDownload = () => {
@@ -96,10 +96,10 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     });
   };
 
-  const handleSnvFormatChange = (event) => {
+  const handleMutationFormatChange = (event) => {
     setState({
       ...state,
-      snvFormat: event.target.value,
+      mutationFormat: event.target.value,
     });
   };
 
@@ -211,13 +211,13 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
         </Row>
         <Row>
           <RadioForm>
-            <FormTitle>SNV Format:</FormTitle>
+            <FormTitle>Mutation Format:</FormTitle>
             <Radio>
               <input
                 type="radio"
-                value={SNV_FORMAT.POS_REF_ALT}
-                checked={state.snvFormat === SNV_FORMAT.POS_REF_ALT}
-                onChange={handleSnvFormatChange}
+                value={MUTATION_FORMAT.POS_REF_ALT}
+                checked={state.mutationFormat === MUTATION_FORMAT.POS_REF_ALT}
+                onChange={handleMutationFormatChange}
               />
               &lt;Position&gt;|&lt;Reference&gt;|&lt;Alternate&gt; (i.e.,
               &quot;S|614|D|G&quot;)
@@ -225,9 +225,9 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
             <Radio>
               <input
                 type="radio"
-                value={SNV_FORMAT.REF_POS_ALT}
-                checked={state.snvFormat === SNV_FORMAT.REF_POS_ALT}
-                onChange={handleSnvFormatChange}
+                value={MUTATION_FORMAT.REF_POS_ALT}
+                checked={state.mutationFormat === MUTATION_FORMAT.REF_POS_ALT}
+                onChange={handleMutationFormatChange}
               />
               &lt;Reference&gt;&lt;Position&gt;&lt;Alternate&gt; (i.e.,
               &quot;S:D614G&quot;)
@@ -248,7 +248,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
             {locationCheckboxes}
           </CheckboxForm>
           <CheckboxForm>
-            <FormTitle>SNVs</FormTitle>
+            <FormTitle>Mutations</FormTitle>
             <Checkbox>
               <input
                 name="dna"

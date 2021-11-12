@@ -3,7 +3,7 @@
     "LOCAL_COUNTS": "local",
     "GROUP_COUNTS": "group"
   },
-  "GROUP_SNV": "snv",
+  "GROUP_MUTATION": "mutation",
   "DNA_OR_AA": {
     "DNA": "DNA",
     "AA": "AA"
@@ -84,7 +84,7 @@
     "TAB_RELATED": "related_projects",
     "TAB_GLOBAL_SEQUENCES": "global_sequencing"
   },
-  "SNV_FORMAT": {
+  "MUTATION_FORMAT": {
     "POS_REF_ALT": "pos_ref_alt",
     "REF_POS_ALT": "ref_pos_alt"
   },
@@ -95,17 +95,56 @@
     "LOCATION": "location"
   },
   "DEGENERATES": {
-    "R": ["A", "G"],
-    "Y": ["C", "T"],
-    "S": ["G", "C"],
-    "W": ["A", "T"],
-    "K": ["G", "T"],
-    "M": ["A", "C"],
-    "B": ["C", "G", "T"],
-    "D": ["A", "G", "T"],
-    "H": ["A", "C", "T"],
-    "V": ["A", "C", "G"],
-    "N": ["A", "C", "G", "T"]
+    "R": [
+      "A",
+      "G"
+    ],
+    "Y": [
+      "C",
+      "T"
+    ],
+    "S": [
+      "G",
+      "C"
+    ],
+    "W": [
+      "A",
+      "T"
+    ],
+    "K": [
+      "G",
+      "T"
+    ],
+    "M": [
+      "A",
+      "C"
+    ],
+    "B": [
+      "C",
+      "G",
+      "T"
+    ],
+    "D": [
+      "A",
+      "G",
+      "T"
+    ],
+    "H": [
+      "A",
+      "C",
+      "T"
+    ],
+    "V": [
+      "A",
+      "C",
+      "G"
+    ],
+    "N": [
+      "A",
+      "C",
+      "G",
+      "T"
+    ]
   },
   "TREE_COLOR_MODES": {
     "COLOR_REGION": "colorRegion",

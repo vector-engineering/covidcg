@@ -21,7 +21,7 @@ import {
   GROUPS,
   DNA_OR_AA,
 } from '../../constants/defs.json';
-import { formatSnv } from '../../utils/snpUtils';
+import { formatMutation } from '../../utils/mutationUtils';
 
 const PlotContainer = styled.div``;
 
@@ -34,7 +34,7 @@ const CooccurrencePlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadSnvCooccurrence();
+      dataStore.downloadMutationCooccurrence();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -59,8 +59,8 @@ const CooccurrencePlot = observer(({ width }) => {
     );
     // console.log(curSelectedGroups);
 
-    // Some of the groups might be multiple SNVs, where the
-    // group string is the two SNVs separated by ' + '
+    // Some of the groups might be multiple mutations, where the
+    // group string is the two mutations separated by ' + '
     // So break those up and then combine into one big list
     // Also make sure we don't process "Reference" or "Other"
     // Array -> Set -> Array to remove duplicates
@@ -103,13 +103,13 @@ const CooccurrencePlot = observer(({ width }) => {
 
   const getCooccurrenceData = () => {
     // console.log('GET COOCCURRENCE DATA');
-    let newCooccurrenceData = toJS(dataStore.snvCooccurrence);
+    let newCooccurrenceData = toJS(dataStore.mutationCooccurrence);
     newCooccurrenceData = aggregate({
       data: newCooccurrenceData,
-      groupby: ['combi', 'snv', 'snvName'],
-      fields: ['combiName', 'snvName', 'color', 'count'],
+      groupby: ['combi', 'mutation', 'mutationName'],
+      fields: ['combiName', 'mutationName', 'color', 'count'],
       ops: ['max', 'max', 'max', 'sum'],
-      as: ['combiName', 'snvName', 'color', 'count'],
+      as: ['combiName', 'mutationName', 'color', 'count'],
     });
 
     return newCooccurrenceData;
@@ -134,7 +134,7 @@ const CooccurrencePlot = observer(({ width }) => {
   }, [configStore.hoverGroup]);
 
   const refreshData = () => {
-    // Only update once the SNV data finished processing
+    // Only update once the mutation data finished processing
     if (UIStore.cooccurrenceDataState !== ASYNC_STATES.SUCCEEDED) {
       return;
     }
@@ -172,18 +172,18 @@ const CooccurrencePlot = observer(({ width }) => {
     return (
       <EmptyPlot height={70}>
         <p>
-          No SNVs selected. Please select one or more SNVs from the legend,
+          No mutations selected. Please select one or more mutations from the legend,
           frequency plot, or table.
         </p>
       </EmptyPlot>
     );
-  } else if (dataStore.snvCooccurrence.length === 0) {
+  } else if (dataStore.mutationCooccurrence.length === 0) {
     return (
       <EmptyPlot height={70}>
         <p>
-          No SNVs that co-occur with selected SNVs{' '}
+          No mutations that co-occur with selected mutations{' '}
           {configStore.selectedGroups
-            .map((item) => formatSnv(item.group, configStore.dnaOrAa))
+            .map((item) => formatMutation(item.group, configStore.dnaOrAa))
             .join(', ')}
         </p>
       </EmptyPlot>
@@ -194,23 +194,23 @@ const CooccurrencePlot = observer(({ width }) => {
   let stackOffset, xLabel, xFormat;
   if (plotSettingsStore.cooccurrenceNormMode === NORM_MODES.NORM_COUNTS) {
     stackOffset = 'zero';
-    xLabel = 'SNV Frequency';
+    xLabel = 'Mutation Frequency';
     xFormat = 's';
   } else if (
     plotSettingsStore.cooccurrenceNormMode === NORM_MODES.NORM_PERCENTAGES
   ) {
     stackOffset = 'normalize';
-    xLabel = 'SNV Frequency (Normalized)';
+    xLabel = 'Mutation Frequency (Normalized)';
     xFormat = 's';
   }
 
   // Subtitle text
-  const maxShownSnvs = 4;
+  const maxShownMutations = 4;
   let subtitle = configStore.selectedGroups
-    .slice(0, maxShownSnvs)
-    .map((item) => formatSnv(item.group, configStore.dnaOrAa))
+    .slice(0, maxShownMutations)
+    .map((item) => formatMutation(item.group, configStore.dnaOrAa))
     .join(', ');
-  if (configStore.selectedGroups.length > maxShownSnvs) {
+  if (configStore.selectedGroups.length > maxShownMutations) {
     subtitle += ', ...';
   } else {
     subtitle += '';
@@ -220,9 +220,9 @@ const CooccurrencePlot = observer(({ width }) => {
     <PlotContainer>
       <PlotOptions>
         <PlotTitle>
-          <span className="title">Co-occurring SNVs of {subtitle}</span>
+          <span className="title">Co-occurring mutations of {subtitle}</span>
         </PlotTitle>
-        Show SNVs as{' '}
+        Show mutations as{' '}
         <OptionSelectContainer>
           <label>
             <select

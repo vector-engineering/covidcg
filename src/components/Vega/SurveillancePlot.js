@@ -60,24 +60,24 @@ const LegendItem = ({
 
   let groupText = legendItem.group;
 
-  // For co-occurring Spike SNVs (spike_combo mode),
+  // For co-occurring Spike mutations (spike_combo mode),
   // try to break up long strings by comma so that they're
   // more readable in this compact format
   if (surveillanceMode === 'spike_combo') {
     let charCounter = 0;
     let curEntry = '';
     groupText = [];
-    legendItem.group.split(',').forEach((snv, i) => {
-      charCounter += snv.length;
+    legendItem.group.split(',').forEach((mutation, i) => {
+      charCounter += mutation.length;
       if (charCounter > maxCharsPerLine) {
         groupText.push(
           <span key={`${legendItem.group}-${i}`}>{curEntry}</span>
         );
         groupText.push(<br key={`${legendItem.group}-${i}-break`} />);
-        charCounter = snv.length;
+        charCounter = mutation.length;
         curEntry = '';
       }
-      curEntry += snv;
+      curEntry += mutation;
       if (i < legendItem.group.split(',').length - 1) {
         curEntry += ',';
       }
@@ -124,9 +124,9 @@ const SurveillanceLegend = observer(
     if (plotSettingsStore.surveillanceMode === 'lineage') {
       legendTitleText = 'Lineages';
     } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText = 'Spike SNVs (Co-occuring)';
+      legendTitleText = 'Spike mutations (Co-occuring)';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText = 'Spike SNVs (Single)';
+      legendTitleText = 'Spike mutations (Single)';
     } else if (plotSettingsStore.surveillanceMode === 'genotype') {
       legendTitleText = 'Genotype';
     }
@@ -428,11 +428,9 @@ const SurveillancePlot = observer(({ width }) => {
   if (plotSettingsStore.surveillanceMode === 'lineage') {
     groupName = 'Lineages';
   } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-    groupName = 'Co-occuring SNVs';
+    groupName = 'Co-occuring mutations';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-    groupName = 'Single SNVs';
-  } else if (plotSettingsStore.surveillanceMode === 'genotype') {
-    groupName = 'Genotypes';
+    groupName = 'Single mutations';
   }
 
   return (

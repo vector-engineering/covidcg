@@ -2,7 +2,7 @@
 
 import { aggregate } from './transform';
 
-import { LOW_FREQ_FILTER_TYPES, GROUP_SNV } from '../constants/defs.json';
+import { LOW_FREQ_FILTER_TYPES, GROUP_MUTATION } from '../constants/defs.json';
 
 /**
  * Collapse data aggregated by location, group, and date into
@@ -68,7 +68,7 @@ export function removeSubsetLocations({
  * And the goal is to collapse them into:
  * [{ date, group, count, etc ... }]
  *
- * In SNV mode, the `group_id` field will be an array of SNV ids
+ * In mutation mode, the `group_id` field will be an array of mutation ids
  * i.e., [1, 2, 3, ...]
  * In any other mode, the `group_id` field will be a string of the group name
  *
@@ -79,7 +79,7 @@ export function aggregateGroupDate({
   aggSequencesUniqueLocationGroupDate,
   groupKey,
 }) {
-  if (groupKey === GROUP_SNV) {
+  if (groupKey === GROUP_MUTATION) {
     // Same as below, except we first have to serialize our co-occurring mutations
     // into a hashable string, and then unpack it afterwards
     const aggGroupDate = aggregate({
@@ -134,27 +134,27 @@ export function aggregateGroupDate({
  */
 export function countGroups({ aggLocationGroupDate, groupKey }) {
   // Two main modes of data:
-  // In SNV mode, the `group_id` is a list of SNV IDs
+  // In mutation mode, the `group_id` is a list of mutation IDs
   // (co-occurring mutations, i.e., [1, 2, 3, ...])
   // In all other modes, `group_id` will be a string
   let aggSequencesGroup;
-  if (groupKey === GROUP_SNV) {
+  if (groupKey === GROUP_MUTATION) {
     // Go through the list record by record and
-    // tally up counts for each SNV ID
-    const snvIdCounts = new Map();
+    // tally up counts for each mutation ID
+    const mutationIdCounts = new Map();
     aggLocationGroupDate.forEach((record) => {
-      record.group_id.forEach((snvId) => {
-        if (!snvIdCounts.has(snvId)) {
-          snvIdCounts.set(snvId, 0);
+      record.group_id.forEach((mutationId) => {
+        if (!mutationIdCounts.has(mutationId)) {
+          mutationIdCounts.set(mutationId, 0);
         }
-        snvIdCounts.set(snvId, snvIdCounts.get(snvId) + record.counts);
+        mutationIdCounts.set(mutationId, mutationIdCounts.get(mutationId) + record.counts);
       });
     });
 
     // Convert Object to an array of records
-    // [{ snv_id, counts }]
-    aggSequencesGroup = Array.from(snvIdCounts.keys()).map((snvId) => {
-      return { group_id: snvId, counts: snvIdCounts.get(snvId) };
+    // [{ mutation_id, counts }]
+    aggSequencesGroup = Array.from(mutationIdCounts.keys()).map((mutationId) => {
+      return { group_id: mutationId, counts: mutationIdCounts.get(mutationId) };
     });
   } else {
     // Collapse data by group only, using the group_id string
@@ -194,7 +194,7 @@ export function getValidGroups({
 }
 
 /**
- * Count the groups/SNVs per location, and per location-date pair
+ * Count the groups/mutations per location, and per location-date pair
  *
  * Input is structured as: [{ location, date, group, count }, ...]
  */
@@ -265,32 +265,32 @@ export function getLocationCounts({ aggLocationGroupDate }) {
 
 /**
  * Expand aggLocationGroupDate into
- * single SNV data
+ * single mutation data
  * i.e., transform data where each row represents
- * a co-occurring SNV, into data where each row represents
- * individual SNVs
+ * a co-occurring mutation, into data where each row represents
+ * individual mutations
  */
-export function expandSingleSnvData({ aggLocationGroupDate }) {
-  const singleSnvList = [];
+export function expandSingleMutationData({ aggLocationGroupDate }) {
+  const singleMutationList = [];
 
   aggLocationGroupDate.forEach((record) => {
-    record.group_id.forEach((snvId) => {
-      singleSnvList.push({
+    record.group_id.forEach((mutationId) => {
+      singleMutationList.push({
         location: record.location,
         collection_date: record.collection_date,
-        group_id: snvId,
+        group_id: mutationId,
         counts: record.counts,
       });
     });
   });
 
-  const aggLocationSingleSnvDate = aggregate({
-    data: singleSnvList,
+  const aggLocationSingleMutationDate = aggregate({
+    data: singleMutationList,
     groupby: ['location', 'collection_date', 'group_id'],
     fields: ['counts'],
     ops: ['sum'],
     as: ['counts'],
   });
 
-  return aggLocationSingleSnvDate;
+  return aggLocationSingleMutationDate;
 }

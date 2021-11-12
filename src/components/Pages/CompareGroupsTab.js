@@ -14,7 +14,7 @@ import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
 
-import { GROUP_SNV, DNA_OR_AA, TABS } from '../../constants/defs.json';
+import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
@@ -25,7 +25,7 @@ const CompareGroupsTab = observer(() => {
   const [ref, { width }] = useDimensions();
 
   const renderEntropyPlot = () => {
-    if (configStore.groupKey !== GROUP_SNV) {
+    if (configStore.groupKey !== GROUP_MUTATION) {
       return null;
     }
 
@@ -66,7 +66,7 @@ const CompareGroupsTab = observer(() => {
   };
 
   const renderCooccurrencePlot = () => {
-    if (configStore.groupKey !== GROUP_SNV) {
+    if (configStore.groupKey !== GROUP_MUTATION) {
       return null;
     }
 
@@ -83,19 +83,19 @@ const CompareGroupsTab = observer(() => {
               (labels on the y-axis).
             </li>
             <li>
-              SNVs are counted per-co-occurrence, i.e., one matching sequence
-              may count towards multiple SNVs. Only the relative counts between
-              co-occurring SNVs within the same bar should be interpreted – the
-              sum of all SNV counts per bar is not meaningful.
+              Mutations are counted per-co-occurrence, i.e., one matching sequence
+              may count towards multiple mutations. Only the relative counts between
+              co-occurring mutations within the same bar should be interpreted – the
+              sum of all mutation counts per bar is not meaningful.
             </li>
             <li>
-              <i>Click</i> on a SNV bar, or on a SNV y-axis label, to select or
-              deselect a SNV. If the SNV is already selected, then clicking will
+              <i>Click</i> on a mutation bar, or on a mutation y-axis label, to select or
+              deselect a mutation. If the mutation is already selected, then clicking will
               deselect it. If it is not already selected, then clicking on the
-              SNV will add it to the existing selection.
+              mutation will add it to the existing selection.
             </li>
             <li>
-              SNV frequencies can be shown as raw counts{' '}
+              Mutation frequencies can be shown as raw counts{' '}
               <SelectBoxText>Counts</SelectBoxText>, or counts normalized
               between each selected {configStore.getGroupLabel()}s or
               combination of {configStore.getGroupLabel()}s{' '}
@@ -121,10 +121,10 @@ const CompareGroupsTab = observer(() => {
               The plot shows sequences grouped by their respective{' '}
               <b>{configStore.getGroupLabel()}</b> and plotted over time.
             </li>
-            {configStore.groupKey === GROUP_SNV && (
+            {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In <b>SNV Mode</b>, sequences are split into two groups: those
-                that have the SNV (or combination of SNVs), and those that
+                In <b>Mutation Mode</b>, sequences are split into two groups: those
+                that have the mutation (or combination of mutations), and those that
                 don&apos;t.
               </li>
             )}
@@ -166,7 +166,7 @@ const CompareGroupsTab = observer(() => {
         }
       >
         <VegaStackedBars width={width - 150} />
-        {configStore.groupKey !== GROUP_SNV && (
+        {configStore.groupKey !== GROUP_MUTATION && (
           <LocationGroupPlot width={width - 250} />
         )}
       </AccordionWrapper>

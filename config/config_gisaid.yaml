@@ -30,8 +30,8 @@ chunk_size: 100000
 #       ANALYSIS
 # --------------------
 
-# SNPs with less than this number of global occurrences will be ignored
-snp_count_threshold: 3
+# Mutations with less than this number of global occurrences will be ignored
+mutation_count_threshold: 3
 
 # Threshold of prevalence to report a mutation as being a consensus
 # mutation for a group (e.g., clade, lineage)

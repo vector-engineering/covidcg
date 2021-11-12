@@ -8,7 +8,7 @@ import { ISOToInt, intToISO } from '../../utils/date';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   MIN_DATE,
 } from '../../constants/defs.json';
@@ -74,9 +74,9 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   const changeGrouping = (groupKey, dnaOrAa) => {
     let selectedGene = pending.selectedGene;
     let selectedProtein = pending.selectedProtein;
-    // If we switched to non-SNP grouping in AA-mode,
+    // If we switched to non-mutation grouping in AA-mode,
     // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (groupKey !== GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
+    if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
       if (selectedGene.name === 'All Genes') {
         // Switch back to S gene
         selectedGene = getGene('S');
@@ -122,7 +122,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   const getCoordinateMode = (coordinateMode) => {
     let { dnaOrAa, residueCoordinates } = pending;
-    // If we switched to a coordinate mode that doesn't support AA SNPs,
+    // If we switched to a coordinate mode that doesn't support AA mutations,
     // then switch off of it now
     if (
       dnaOrAa === DNA_OR_AA.AA &&
