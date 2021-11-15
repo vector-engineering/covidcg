@@ -317,7 +317,7 @@ def query_and_aggregate(conn, req):
                     FROM "metadata" m
                     INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"
                     WHERE {sequence_where_filter}
-                    GROUP BY locdef."value", m."collection_date", m."lineage"
+                    GROUP BY locdef."value", m."collection_date", m.{group_key}
                     """
                     ).format(
                         group_key=sql.Identifier(group_key),
