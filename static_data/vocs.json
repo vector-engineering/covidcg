@@ -89,11 +89,7 @@
     "ECDC": "Other",
     "PHE": "VOI"
   },
-<<<<<<< Updated upstream
-  "AY.4.2": {
-=======
   "B.1.640": {
->>>>>>> Stashed changes
     "ECDC": "Other"
   },
   "AY.1": {
