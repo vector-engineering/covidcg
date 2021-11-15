@@ -8,6 +8,10 @@
     "level": "VOC"
   },
   {
+    "name": "P.1",
+    "level": "VOC"
+  },
+  {
     "name": "B.1.617.2",
     "level": "VOC"
   },
@@ -20,23 +24,15 @@
     "level": "VOC"
   },
   {
-    "name": "B.1.1.7",
-    "level": "VOC"
-  },
-  {
-    "name": "P.1",
-    "level": "VOC"
-  },
-  {
-    "name": "B.1.617.1",
+    "name": "A.Y",
     "level": "VOI"
   },
   {
-    "name": "B.1.617.3",
+    "name": "4.2",
     "level": "VOI"
   },
   {
-    "name": "A.23.1",
+    "name": "P.2",
     "level": "VOI"
   },
   {
@@ -48,11 +44,15 @@
     "level": "VOI"
   },
   {
-    "name": "P.2",
+    "name": "P.3",
     "level": "VOI"
   },
   {
-    "name": "P.3",
+    "name": "B.1.617.1",
+    "level": "VOI"
+  },
+  {
+    "name": "B.1.617.3",
     "level": "VOI"
   },
   {
