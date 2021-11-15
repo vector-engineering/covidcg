@@ -8,6 +8,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import pandas as pd
 from psycopg2 import sql
 from cg_server.constants import constants
+from cg_server.config import config
 
 
 def build_coordinate_filters(
@@ -306,6 +307,12 @@ def query_and_aggregate(conn, req):
                     )
                 )
             else:
+                group_col = ""
+                if config["virus"] == "sars2":
+                    group_col = "lineage"
+                elif config["virus"] == "rsv":
+                    group_col = "genotype"
+
                 main_query.append(
                     sql.SQL(
                         """
@@ -317,13 +324,14 @@ def query_and_aggregate(conn, req):
                     FROM "metadata" m
                     INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"
                     WHERE {sequence_where_filter}
-                    GROUP BY locdef."value", m."collection_date", m."lineage"
+                    GROUP BY locdef."value", m."collection_date", m.{group_col}
                     """
                     ).format(
                         group_key=sql.Identifier(group_key),
                         loc_level_col=sql.Identifier(loc_level),
                         loc_def_table=sql.Identifier("metadata_" + loc_level),
                         sequence_where_filter=sequence_where_filter,
+                        group_col=sql.Identifier(group_col)
                     )
                 )
 

@@ -2,7 +2,7 @@
 
 """Database connection
 
-Authors: 
+Authors:
     - Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
     - David Favela - Vector Engineering Team (dfavela@broadinstitute.org)
 """
@@ -17,7 +17,8 @@ from cg_server.config import config, project_root
 from cg_server.db_seed import seed_database, insert_sequences
 
 from flask import make_response
-from psycopg2 import pool
+from psycopg2 import pool, sql
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from random import random
 
 connection_options = {
@@ -29,9 +30,27 @@ connection_options = {
 if port := os.getenv("POSTGRES_PORT", None):
     connection_options["port"] = port
 
-conn_pool = pool.SimpleConnectionPool(
-    1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
-)
+conn_pool = None
+
+try:
+    conn_pool = pool.SimpleConnectionPool(
+        1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
+    )
+except psycopg2.OperationalError:
+    # Database does not exist so make it
+    conn = psycopg2.connect(user=connection_options["user"],
+                            password=connection_options["password"],
+                            host=connection_options["host"])
+    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cur = conn.cursor()
+    cur.execute(sql.SQL("CREATE DATABASE {}").format(
+        sql.Identifier(connection_options["dbname"]))
+    )
+    conn.close()
+
+    conn_pool = pool.SimpleConnectionPool(
+        1, os.getenv("POSTGRES_MAX_CONN", 20), **connection_options
+    )
 
 
 def get_conn_from_pool(connection_options=connection_options, conn_pool=conn_pool):
@@ -111,3 +130,4 @@ if os.getenv("FLASK_ENV", "development") == "development":
             os.getenv("DATA_PATH", project_root / config["data_folder"]),
             filenames_as_dates=True,
         )
+        conn.commit()

@@ -2,6 +2,7 @@ import { getGene, getProtein } from '../utils/gene_protein';
 import { intToISO, ISOToInt } from '../utils/date';
 
 import {
+  GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
   NORM_MODES,
@@ -18,7 +19,7 @@ const lastNDays = 30; // By default, show only the last 1 month
 export default function values() {
   return {
     configStore: {
-      groupKey: 'snv',
+      groupKey: GROUP_MUTATION,
       dnaOrAa: DNA_OR_AA.AA,
 
       // Select the Spike gene and nsp13 protein by default

@@ -74,7 +74,7 @@ rule align_sequences:
         """
 
 rule extract_dna_mutations:
-    """Find SNVs on the NT level for each sequence
+    """Find mutations on the NT level for each sequence
     """
     input:
         reference = reference_sequence_path,
@@ -116,7 +116,7 @@ rule process_genes_and_proteins:
 
 
 rule extract_aa_mutations:
-    """Using the NT SNVs, translate genes/proteins and find SNVs
+    """Using the NT mutations, translate genes/proteins and find mutations
     on the AA level, for genes
     """
     input:
@@ -217,20 +217,20 @@ rule write_reference_files:
 
 
 rule consensus_mutations:
-    """For each lineage and clade, get the lineage/clade-defining SNVs,
+    """For each lineage and clade, get the lineage/clade-defining mutations,
     on both the NT and AA level
-    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    Lineage/clade-defining mutations are defined as mutations which occur in
     >= [consensus_fraction] of sequences within that lineage/clade.
     [consensus_fraction] is a parameter which can be adjusted here
     """
     input:
         case_data = rules.combine_all_data.output.case_data
     output:
-        group_consensus_snvs = os.path.join(data_folder, "group_consensus_mutations.json"),
-        group_snv_frequencies = os.path.join(data_folder, "group_snv_frequencies.json")
+        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
+        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
     run:
         get_all_consensus_mutations(
-            input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
+            input.case_data, output.group_consensus_mutations, output.group_mutation_frequencies,
             group_cols=list(config["group_cols"].keys()),
             consensus_fraction=config["consensus_fraction"],
             min_reporting_fraction=config['min_reporting_fraction']
@@ -258,7 +258,7 @@ rule assemble_data_package:
     input:
         case_data = rules.combine_all_data.output.case_data,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_snvs,
+        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
         metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")

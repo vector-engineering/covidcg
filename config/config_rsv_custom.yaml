@@ -50,6 +50,9 @@ group_cols:
     name: "genotype"
     title: "Genotype"
     description: ""
+    link:
+      title: "(RSV Factsheet)"
+      href: "https://www.cdc.gov/rsv/references.html#factsheet"
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
@@ -68,7 +71,7 @@ surv_end_date_days_ago: 30
 # 'D' calendar day frequency
 # 'W' weekly frequency
 # 'M' month end frequency
-mutation_partition_break: "M"
+mutation_partition_break: "Y"
 
 # ---------------
 #     SERVER
