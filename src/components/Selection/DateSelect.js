@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { intToISO } from '../../utils/date';
 import { MIN_DATE } from '../../constants/defs.json';
+import { config } from '../../config';
 
 import {
   Container,
@@ -12,6 +13,8 @@ import {
 } from './DateSelect.styles';
 
 import QuestionButton from '../Buttons/QuestionButton';
+
+const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const DEFAULT_PRESET_OPTION = 'date-preset-default';
 const PRESET_START = 'preset-start';
@@ -104,7 +107,7 @@ const DateSelect = observer(
           );
         }
       } else if (option === PRESET_START) {
-        startDate = MIN_DATE;
+        startDate = min_date;
       }
 
       updateDateRange(startDate, intToISO(endDate));
@@ -140,7 +143,7 @@ const DateSelect = observer(
               id="start"
               name="date-range-start"
               value={startDate}
-              min={MIN_DATE}
+              min={min_date}
               max={maxDateISO}
               onChange={handleStartChange}
             />
@@ -153,7 +156,7 @@ const DateSelect = observer(
               id="end"
               name="date-range-end"
               value={endDate}
-              min={MIN_DATE}
+              min={min_date}
               max={maxDateISO}
               onChange={handleEndChange}
             />

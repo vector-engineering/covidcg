@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import PropTypes from 'prop-types';
+import { config } from '../../config';
 
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
@@ -28,6 +29,8 @@ import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
 const headerHeight = 120;
 const treePlotHeight = 12000;
+
+const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 // https://cssgradient.io/
 const VIRIDIS_GRADIENT =

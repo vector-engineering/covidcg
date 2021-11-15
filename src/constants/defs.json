@@ -15,7 +15,7 @@
     "COORD_CUSTOM": "custom",
     "COORD_SEQUENCE": "sequence"
   },
-  "MIN_DATE": "2019-12-15",
+  "MIN_DATE": { "SARS2": "2019-12-15", "RSV": "1996-01-01" },
   "PLOT_DOWNLOAD_OPTIONS": {
     "DOWNLOAD_DATA": "Plot Data",
     "DOWNLOAD_PNG": "PNG",
@@ -95,56 +95,17 @@
     "LOCATION": "location"
   },
   "DEGENERATES": {
-    "R": [
-      "A",
-      "G"
-    ],
-    "Y": [
-      "C",
-      "T"
-    ],
-    "S": [
-      "G",
-      "C"
-    ],
-    "W": [
-      "A",
-      "T"
-    ],
-    "K": [
-      "G",
-      "T"
-    ],
-    "M": [
-      "A",
-      "C"
-    ],
-    "B": [
-      "C",
-      "G",
-      "T"
-    ],
-    "D": [
-      "A",
-      "G",
-      "T"
-    ],
-    "H": [
-      "A",
-      "C",
-      "T"
-    ],
-    "V": [
-      "A",
-      "C",
-      "G"
-    ],
-    "N": [
-      "A",
-      "C",
-      "G",
-      "T"
-    ]
+    "R": ["A", "G"],
+    "Y": ["C", "T"],
+    "S": ["G", "C"],
+    "W": ["A", "T"],
+    "K": ["G", "T"],
+    "M": ["A", "C"],
+    "B": ["C", "G", "T"],
+    "D": ["A", "G", "T"],
+    "H": ["A", "C", "T"],
+    "V": ["A", "C", "G"],
+    "N": ["A", "C", "G", "T"]
   },
   "TREE_COLOR_MODES": {
     "COLOR_REGION": "colorRegion",
