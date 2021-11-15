@@ -20,6 +20,10 @@
     "level": "VOI"
   },
   {
+    "name": "AY.4.2",
+    "level": "VOI"
+  },
+  {
     "name": "C.36",
     "level": "Other"
   },
@@ -52,7 +56,7 @@
     "level": "Other"
   },
   {
-    "name": "AY.4.2",
+    "name": "B.1.640",
     "level": "Other"
   }
 ]
