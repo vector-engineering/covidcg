@@ -369,6 +369,13 @@ def seed_database(conn, schema="public"):
                     field=field
                 )
             )
+        for grouping in config["group_cols"].keys():
+            cur.execute(
+                'CREATE INDEX "ix_metadata_{grouping}" ON "metadata"("{grouping}");'.format(
+                    grouping=grouping
+                )
+            )
+
         print("done")
 
         print("Writing sequence mutations...", end="", flush=True)
@@ -390,11 +397,14 @@ def seed_database(conn, schema="public"):
                     collection_date  TIMESTAMP  NOT NULL,
                     submission_date  TIMESTAMP  NOT NULL,
                     {metadata_col_defs},
+                    {grouping_col_defs},
                     mutations        INTEGER[]  NOT NULL
                 )
                 PARTITION BY RANGE(collection_date);
                 """.format(
-                    table_name=table_name, metadata_col_defs=metadata_col_defs
+                    table_name=table_name,
+                    metadata_col_defs=metadata_col_defs,
+                    grouping_col_defs=grouping_col_defs,
                 )
             )
 
@@ -415,7 +425,10 @@ def seed_database(conn, schema="public"):
                 )
 
             mutation_df = case_data[
-                ["collection_date", "submission_date"] + metadata_cols + [mutation_col]
+                ["collection_date", "submission_date"]
+                + metadata_cols
+                + grouping_cols
+                + [mutation_col]
             ]
             mutation_df = mutation_df.loc[~mutation_df[mutation_col].isna()]
             # Serialize list of integers
@@ -447,6 +460,12 @@ def seed_database(conn, schema="public"):
                 cur.execute(
                     'CREATE INDEX "ix_{table_name}_{field}" ON "{table_name}"("{field}");'.format(
                         table_name=table_name, field=field
+                    )
+                )
+            for grouping in config["group_cols"].keys():
+                cur.execute(
+                    'CREATE INDEX "ix_{table_name}_{grouping}" ON "{table_name}"("{grouping}");'.format(
+                        table_name=table_name, grouping=grouping
                     )
                 )
 
