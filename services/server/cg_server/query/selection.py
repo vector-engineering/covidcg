@@ -349,12 +349,6 @@ def query_and_aggregate(conn, req):
                     )
                 )
             else:
-                group_col = ""
-                if config["virus"] == "sars2":
-                    group_col = "lineage"
-                elif config["virus"] == "rsv":
-                    group_col = "genotype"
-
                 main_query.append(
                     sql.SQL(
                         """
@@ -373,7 +367,6 @@ def query_and_aggregate(conn, req):
                         loc_level_col=sql.Identifier(loc_level),
                         loc_def_table=sql.Identifier("metadata_" + loc_level),
                         sequence_where_filter=sequence_where_filter,
-                        group_col=sql.Identifier(group_col)
                     )
                 )
 
