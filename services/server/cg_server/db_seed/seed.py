@@ -529,7 +529,7 @@ def seed_database(conn, schema="public"):
             """,
             ["surv_group_regression", Json(surv_group_regression)],
         )
-        with (data_path / "surveillance" / "group_counts2.json") as fp:
+        with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
             group_counts2 = json.loads(fp.read())
         cur.execute(
             """
@@ -537,7 +537,7 @@ def seed_database(conn, schema="public"):
             """,
             ["group_counts2", Json(group_counts2)],
         )
-        with (data_path / "surveillance" / "group_regression2.json") as fp:
+        with (data_path / "surveillance" / "group_regression2.json").open("r") as fp:
             group_regression2 = json.loads(fp.read())
         cur.execute(
             """
