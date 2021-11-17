@@ -26,6 +26,5 @@ def force_seed(conn):
         os.getenv("DATA_PATH", project_root / config["data_folder"]),
         filenames_as_dates=True,
     )
-    conn.commit()
 
     return "Done!"
