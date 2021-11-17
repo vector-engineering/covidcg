@@ -26,5 +26,6 @@ def force_seed(conn):
         os.path.join(os.getenv("DATA_PATH", project_root / config["data_folder"]), config["virus"]),
         filenames_as_dates=True,
     )
+    conn.commit()
 
     return "Done!"

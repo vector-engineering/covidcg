@@ -529,6 +529,22 @@ def seed_database(conn, schema="public"):
             """,
             ["surv_group_regression", Json(surv_group_regression)],
         )
+        with (data_path / "surveillance" / "group_counts2.json") as fp:
+            group_counts2 = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["group_counts2", Json(group_counts2)],
+        )
+        with (data_path / "surveillance" / "group_regression2.json") as fp:
+            group_regression2 = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["group_regression2", Json(group_regression2)],
+        )
 
         if config["virus"] == "sars2":
             with (data_path / "vocs" / "vocs.json").open("r") as fp:
