@@ -57,8 +57,8 @@ rule surveillance_data:
         min_single_count = config['surv_min_single_count']
     threads: workflow.cores / 2
     output:
-        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.csv'),
-        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
+        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.json'),
+        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.json'),
     shell:
         """
         python3 analyses/scripts/surveillance.py --case-data {input.case_data} --metadata-map {input.metadata_map} {params.start_date} {params.end_date} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}

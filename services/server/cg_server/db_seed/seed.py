@@ -393,7 +393,7 @@ def seed_database(conn, schema="public"):
                     {metadata_col_defs},
                     {grouping_col_defs},
                     mutations        INTEGER[]  NOT NULL
-                ) 
+                )
                 PARTITION BY RANGE(collection_date);
                 """.format(
                     table_name=table_name,
@@ -486,7 +486,7 @@ def seed_database(conn, schema="public"):
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
-            ["stats", Json(stats),],
+            ["stats", Json(stats)],
         )
         with (data_path / "country_score.json").open("r") as fp:
             country_score = json.loads(fp.read())
@@ -503,6 +503,22 @@ def seed_database(conn, schema="public"):
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
             ["geo_select_tree", Json(geo_select_tree)],
+        )
+        with (data_path / "surveillance" / "group_counts2.json") as fp:
+            group_counts2 = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["group_counts2", Json(group_counts2)],
+        )
+        with (data_path / "surveillance" / "group_regression2.json") as fp:
+            group_regression2 = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["group_regression2", Json(group_regression2)],
         )
 
         # Metadata map
@@ -568,4 +584,3 @@ def seed_database(conn, schema="public"):
         )
 
         print("done")
-
