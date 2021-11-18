@@ -314,7 +314,7 @@ SurveillanceSettings.propTypes = {
 };
 
 const SurveillancePlot = observer(({ width }) => {
-  const { plotSettingsStore } = useStores();
+  const { plotSettingsStore, surveillanceDataStore } = useStores();
   const vegaRef = useRef();
   const hiddenLink = useRef();
 
@@ -358,12 +358,17 @@ const SurveillancePlot = observer(({ width }) => {
     plotSettingsStore.setSurveillanceLegendHover(legendHover);
   };
 
+  console.log(surveillanceDataStore.surv_group_counts);
+  console.log(surveillanceDataStore.surv_group_regression);
+
   const [state, setState] = useState({
     dataListeners: {
       valid_groups_color: handleValidGroups,
       tooltip_group: handleHoverGroups,
     },
     data: {
+      group_reg: surveillanceDataStore.surv_group_regression,
+      group_counts: surveillanceDataStore.surv_group_counts,
       hover_legend: [],
     },
     signalListeners: {},
@@ -482,9 +487,10 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   <option value={'lineage'}>Lineage</option>
-                  <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
-                  <option value={'spike_single'}>Spike Single SNVs</option>
-                  <option value={'genotype'}>Genotype</option>
+                  <option value={'spike_combo'}>
+                    Spike Co-occuring Mutations
+                  </option>
+                  <option value={'spike_single'}>Spike Single Mutations</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}

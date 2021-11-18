@@ -255,7 +255,7 @@ def main():
         axis=0,
         ignore_index=True,
     )
-    all_counts.to_csv(out_path / "group_counts2.csv", index=False)
+    all_counts.to_json(out_path / "group_counts2.json", orient='records')
 
     # DO REGRESSIONS
 
@@ -313,7 +313,7 @@ def main():
         axis=0,
         ignore_index=True,
     )
-    all_regression.to_csv(out_path / "group_regression2.csv", index=False)
+    all_regression.to_json(out_path / "group_regression2.json", orient='records')
 
 
 if __name__ == "__main__":

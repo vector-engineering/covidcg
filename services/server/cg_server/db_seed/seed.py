@@ -492,7 +492,7 @@ def seed_database(conn, schema="public"):
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
-            ["stats", Json(stats),],
+            ["stats", Json(stats)],
         )
         if config["virus"] == "sars2":
             with (data_path / "country_score.json").open("r") as fp:
@@ -510,6 +510,22 @@ def seed_database(conn, schema="public"):
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
             ["geo_select_tree", Json(geo_select_tree)],
+        )
+        with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
+            surv_group_counts = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["surv_group_counts", Json(surv_group_counts)],
+        )
+        with (data_path / "surveillance" / "group_regression2.json").open("r") as fp:
+            surv_group_regression = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["surv_group_regression", Json(surv_group_regression)],
         )
 
         # Metadata map

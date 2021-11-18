@@ -11,6 +11,7 @@ import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
 import { ExampleStore } from './exampleStore';
+import { SurveillanceDataStore } from './surveillanceDataStore';
 
 class RootStore {
   UIStore;
@@ -27,6 +28,7 @@ class RootStore {
   globalSequencingDataStore;
   groupDataStore;
 
+  surveillanceDataStore;
   exampleStore;
 
   constructor() {
@@ -45,6 +47,7 @@ class RootStore {
     this.groupDataStore = new GroupDataStore();
 
     this.exampleStore = new ExampleStore();
+    this.surveillanceDataStore = new SurveillanceDataStore();
   }
 
   init() {
@@ -61,6 +64,8 @@ class RootStore {
 
     this.globalSequencingDataStore.init();
     this.groupDataStore.init();
+
+    this.surveillanceDataStore.init();
 
     this.dataStore.init();
 
