@@ -358,9 +358,6 @@ const SurveillancePlot = observer(({ width }) => {
     plotSettingsStore.setSurveillanceLegendHover(legendHover);
   };
 
-  console.log(surveillanceDataStore.surv_group_counts);
-  console.log(surveillanceDataStore.surv_group_regression);
-
   const [state, setState] = useState({
     dataListeners: {
       valid_groups_color: handleValidGroups,

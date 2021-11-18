@@ -39,6 +39,8 @@ CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
 
+# Additional analyses module
+include: "analyses/Snakefile"
 
 rule all:
     input:

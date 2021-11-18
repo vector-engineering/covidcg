@@ -1,0 +1,42 @@
+# coding: utf-8
+
+"""Additional analyses
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+import datetime
+import os
+
+data_folder = os.path.join("..", config["data_folder"])
+# static_data_folder = os.path.join("..", config["data_folder"])
+
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
+
+rule surveillance_data:
+    input:
+        case_data = os.path.join(data_folder, "case_data.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+    params:
+        out_folder = os.path.join(data_folder, 'surveillance'),
+        start_date = (
+            ('--start-date ' + config['surv_start_date'])
+            if 'surv_start_date' in config else ''
+        ),
+        end_date = (
+            ('--end-date ' + config['surv_end_date'])
+            if 'surv_end_date' in config else ''
+        ),
+        start_date_days_ago = config.get('surv_start_date_days_ago', 30),
+        end_date_days_ago = config.get('surv_end_date_days_ago', 30),
+        min_combo_count = config['surv_min_combo_count'],
+        min_single_count = config['surv_min_single_count']
+    threads: workflow.cores / 2
+    output:
+        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.json'),
+        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.json'),
+    shell:
+        """
+        python3 analyses/scripts/surveillance.py --case-data {input.case_data} --metadata-map {input.metadata_map} {params.start_date} {params.end_date} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
+        """
