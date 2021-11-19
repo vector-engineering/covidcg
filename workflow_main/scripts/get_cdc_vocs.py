@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-import re
 import argparse
 import json
 import requests
@@ -15,12 +14,13 @@ def get_cdc_vocs():
 
     vocPage = requests.get(url)
     soup = BeautifulSoup(vocPage.content, 'html.parser')
+    lineageRowArr = None
 
     # Get VBM table
-    vbmTable = soup.find('table', class_='table table-bordered nein-scroll')
+    table = soup.find('table', class_='table table-bordered nein-scroll')
     level = 'Other'
 
-    vbmRows = vbmTable.find_all('tr')
+    vbmRows = table.find_all('tr')
 
     for i, row in enumerate(vbmRows):
         if i > 0:
@@ -33,30 +33,40 @@ def get_cdc_vocs():
                 variant_list.append(variant)
 
             if len(vbmVariantArr) > 1:
+                # Logic for CDC claiming whole lineages as VBMs
+                # i.e. "B.1.617.2 and descendant lineages"
                 if "lineages" in vbmVariantArr[1].strip():
-                    # Get all covid lineages
-                    covLinURL = "https://cov-lineages.org/lineage_list.html"
-                    covLinPage = requests.get(covLinURL)
-                    covLinSoup = BeautifulSoup(covLinPage.content, 'html.parser')
-                    lineageTable = covLinSoup.find('table', class_='table')
-                    lineageRowArr = lineageTable.find_all('tr')
+                    if lineageRowArr is None:
+                        # Get all covid lineages
+                        covLinURL = "https://cov-lineages.org/lineage_list.html"
+                        covLinPage = requests.get(covLinURL)
+                        covLinSoup = BeautifulSoup(covLinPage.content, 'html.parser')
+                        lineageTable = covLinSoup.find('table', class_='table')
+                        lineageRowArr = lineageTable.find_all('tr')
 
-                    # Get target lineage
-                    # i.e. the Q if vbmVariantArr[1] = 'Q lineages'
                     target = vbmVariantArr[1].strip().split(' ')[0]
-
                     if target == "descendent":
                         target = vbmNameArr[0]
 
-                    for i, lineageRow in enumerate(lineageRowArr):
-                        if i == 0:
-                            continue
-                        currLineage = lineageRow.find_all('td')[0].text
-                        if (len(currLineage) > len(target) and currLineage[0:len(target) + 1] == target + "."):
-                            variant = {"name": currLineage, "level": level}
-                            variant_list.append(variant)
+                    variant_list = get_all_lineages(target, variant_list,
+                                                    level, lineageRowArr)
+
 
     # Get VOC table
+    table = soup.find('div', class_='mb-0 pt-3')
+    level = 'VOC'
+
+    vocRows = table.find_all('p')
+    vocArr = list(vocRows[1].stripped_strings)
+    name = vocArr[1].split(' ')[0]
+    variant = {"name": name, "level": level}
+    variant_list.append(variant)
+
+    # The CDC classifies all AY lineages as VOCs but we cannot display 120
+    # buttons in the columns we have so we're just writing a note instead
+
+    # variant_list = get_all_lineages(vocArr[1].split(' ')[-1], variant_list,
+    #                                level, lineageRowArr)
 
     return variant_list
 
@@ -72,8 +82,21 @@ def clean_text(str):
     return arr
 
 
+def get_all_lineages(target, variant_list, level, lineageRowArr):
+    for i, lineageRow in enumerate(lineageRowArr):
+        if i == 0:
+            continue
+        currLineage = lineageRow.find_all('td')[0].text
+        if (len(currLineage) > len(target) and
+           currLineage[0:len(target) + 1] == target + "."):
+            variant = {"name": currLineage, "level": level}
+            variant_list.append(variant)
+
+    return variant_list
+
+
 def main():
-    print(get_cdc_vocs())
+    print(len(get_cdc_vocs()))
 #    parser = argparse.ArgumentParser()
 #
 #    parser.add_argument("-o", "--output", required=True, type=str,
