@@ -51,7 +51,6 @@ def get_cdc_vocs():
                     variant_list = get_all_lineages(target, variant_list,
                                                     level, lineageRowArr)
 
-
     # Get VOC table
     table = soup.find('div', class_='mb-0 pt-3')
     level = 'VOC'
@@ -96,17 +95,16 @@ def get_all_lineages(target, variant_list, level, lineageRowArr):
 
 
 def main():
-    print(len(get_cdc_vocs()))
-#    parser = argparse.ArgumentParser()
-#
-#    parser.add_argument("-o", "--output", required=True, type=str,
-#                        help="Path to output file")
-#    args = parser.parse_args()
-#
-#    variant_list = get_cdc_vocs()
-#
-#    with open(args.output, 'w') as fp:
-#        fp.write(json.dumps(variant_list, indent=2))
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-o", "--output", required=True, type=str,
+                        help="Path to output file")
+    args = parser.parse_args()
+
+    variant_list = get_cdc_vocs()
+
+    with open(args.output, 'w') as fp:
+        fp.write(json.dumps(variant_list, indent=2))
 
 
 if __name__ == "__main__":
