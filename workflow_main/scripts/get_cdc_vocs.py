@@ -49,7 +49,7 @@ def get_cdc_vocs():
                         target = vbmNameArr[0]
 
                     variant_list = get_all_lineages(target, variant_list,
-                                                    level, lineageRowArr)
+                                                    "Other", lineageRowArr)
 
     # Get VOC table
     table = soup.find('div', class_='mb-0 pt-3')
@@ -58,7 +58,7 @@ def get_cdc_vocs():
     vocRows = table.find_all('p')
     vocArr = list(vocRows[1].stripped_strings)
     name = vocArr[1].split(' ')[0]
-    variant = {"name": name, "level": level}
+    variant = {"name": name, "level": "VOC"}
     variant_list.append(variant)
 
     # The CDC classifies all AY lineages as VOCs but we cannot display 120
