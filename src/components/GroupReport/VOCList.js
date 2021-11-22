@@ -126,20 +126,22 @@ const VOCList = observer(() => {
   // Other Variants
   const otherItems = filterItems('Other');
   const maxVOCsInCol = 15;
+
   const otherArr = [];
   let tempArr = [];
   for (let i = 0; i < otherItems.length; i++) {
     // Construct arrays of len = maxVOCsInCol
     tempArr.push(otherItems[i]);
-    if ((i > 0 && i % maxVOCsInCol === 0) || i === otherItems.length - 1) {
+    if (
+      tempArr.length === maxVOCsInCol ||
+      (i === otherItems.length - 1 && tempArr.length > 0)
+    ) {
       otherArr.push(
         <GridItem key={'otherGridItems-' + otherArr.length}>{tempArr}</GridItem>
       );
       tempArr = [];
     }
   }
-
-  console.log(otherArr);
 
   return (
     <VOCListContainer>
