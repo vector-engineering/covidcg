@@ -147,7 +147,7 @@ const VOCList = observer(() => {
     <VOCListContainer>
       <OrgLegend />
       <VOCItemGrid>
-        <VOCGridTitle>Variants of Concern</VOCGridTitle>
+        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
         <VOCGridTitle>Variants of Interest</VOCGridTitle>
         <VOCGridTitle colSpan={otherArr.length}>
           Other Variants Being Monitored
@@ -156,6 +156,10 @@ const VOCList = observer(() => {
         <GridItem key={'voiGridItems'}>{voiItems}</GridItem>
         {otherArr}
       </VOCItemGrid>
+      <p>
+        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
+        VOCs.
+      </p>
     </VOCListContainer>
   );
 });
