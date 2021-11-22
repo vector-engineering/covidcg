@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { asyncDataStoreInstance } from '../App';
 
-import VOC_LIST from '../../../static_data/vocs.json';
 import { OrgLegend } from './OrgLegend';
 
 import {
@@ -91,6 +91,8 @@ const VOCList = observer(() => {
     //            org2: level, ...
     //           }
     // }
+
+    const VOC_LIST = asyncDataStoreInstance.data.vocs;
 
     const items = [];
     Object.keys(VOC_LIST)
