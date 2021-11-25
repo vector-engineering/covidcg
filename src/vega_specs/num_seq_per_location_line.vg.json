@@ -118,7 +118,25 @@
                             },
                             "strokeWidth": {
                                 "value": 2
+                            },
+                            "tooltip": {
+                                "signal": "{title: timeFormat(datum.x, '%b %d'),'Location': datum.c, 'Sequences Per Location': datum.y}"
                             }
+                        },
+                        "update": {
+                            "fill": {
+                                "field": "category",
+                                "scale": "color"
+                            },
+                            "opacity": [
+                                {
+                                    "test": "datum.category == tooltip || tooltip == null",
+                                    "value": 1.0
+                                },
+                                {
+                                    "value": 0.5
+                                }
+                            ]
                         }
                     }
                 }
