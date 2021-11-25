@@ -4,17 +4,14 @@ import styled from 'styled-components';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { aggregate } from '../../utils/transform';
 import { throttle, debounce } from '../../utils/func';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
-import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
+import { PlotOptions } from './Plot.styles';
 
-import { config } from '../../config';
 import {
-    GROUP_SNV,
     ASYNC_STATES,
 } from '../../constants/defs.json';
 import initialSpec from '../../vega_specs/num_seq_per_location_line.vg.json';
@@ -27,7 +24,6 @@ const NumSeqPerLocationLine = observer(({ width }) => {
         dataStore,
         configStore,
         UIStore,
-        plotSettingsStore,
     } = useStores();
 
     const handleHoverLocation = (...args) => {
@@ -48,8 +44,8 @@ const NumSeqPerLocationLine = observer(({ width }) => {
         let dateTransformedData = [];
         // Get list of date for each key and iterate through all lists.
         // Potentially optimizable.
-        dat.forEach((value, key, map) => {
-            value.forEach((amount, date, map) => {
+        dat.forEach((value, key) => {
+            value.forEach((amount, date) => {
                 // Convert date from unix time stamp to human readable, vega useable.
                 dateTransformedData.push({ 'c': key, 'x': date, 'y': amount });
             });

@@ -1,24 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { aggregate } from '../../utils/transform';
 import { throttle, debounce } from '../../utils/func';
 
 import EmptyPlot from '../Common/EmptyPlot';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
-import { PlotOptions, OptionCheckboxContainer } from './Plot.styles';
+import { PlotOptions } from './Plot.styles';
 
-import { config } from '../../config';
 import {
-    GROUP_SNV,
     ASYNC_STATES,
 } from '../../constants/defs.json';
 import initialSpec from '../../vega_specs/num_seq_per_location_bar.vg.json';
-import computeSpecChanges from '../../react_vega/utils/computeSpecChanges';
 
 const PlotContainer = styled.div``;
 
@@ -28,7 +23,6 @@ const NumSeqPerLocationBar = observer(({ width }) => {
         dataStore,
         configStore,
         UIStore,
-        plotSettingsStore,
     } = useStores();
 
     const handleHoverLocation = (...args) => {
