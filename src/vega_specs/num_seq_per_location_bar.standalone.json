@@ -140,6 +140,9 @@
                     "y2": {
                         "scale": "yscale",
                         "value": 0
+                    },
+                    "tooltip": {
+                        "signal": "{'title': datum.category, 'Total Sequences': datum.amount}"
                     }
                 },
                 "update": {
