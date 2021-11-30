@@ -91,7 +91,9 @@ const EntropyPlot = observer(({ width }) => {
         );
 
         record.mutation = mutation.mutation_str;
-        record.color = mutationDataStore.getMutationColor(mutation.mutation_str);
+        record.color = mutationDataStore.getMutationColor(
+          mutation.mutation_str
+        );
         record.mutationName = mutation.name;
         record.pos = mutation.pos;
         return record;
@@ -128,7 +130,7 @@ const EntropyPlot = observer(({ width }) => {
     let numRows = 1;
 
     let geneProteinObj = null;
-    
+
     // Logic for Primer track
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       if (configStore.selectedPrimers.length > 0) {
@@ -266,13 +268,12 @@ const EntropyPlot = observer(({ width }) => {
       if (configStore.selectedPrimers.length > 0) {
         const selectedPrimers = configStore.selectedPrimers;
         selectedPrimers[0].row = 0;
-        let curRow = 0;
-        selectedPrimers.forEach((primerToPlace, i) => {
+        selectedPrimers.forEach((primerToPlace) => {
           let overlaps = true;
           let curRow = 0;
           while (overlaps) {
             const primersInRow = selectedPrimers.filter(
-              (primer) => primer.hasOwnProperty('row') && primer.row === curRow
+              (primer) => primer.row && primer.row === curRow
             );
 
             for (const primer of primersInRow) {

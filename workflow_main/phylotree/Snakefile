@@ -32,7 +32,6 @@ rule get_representative_sequences:
         representatives = os.path.join(data_folder, "lineage_representatives.fa"),
         datefile = os.path.join(data_folder, "lineage_representative_dates.csv"),
         table = os.path.join(data_folder, 'lineage_representative_table.csv')
-    threads: workflow.cores / 2
     run:
         get_representative_seqs(
             input.case_data, input.metadata_map, input.ref_seq,
@@ -85,7 +84,6 @@ rule build_phylotree_graph:
         representative_table = rules.get_representative_sequences.output.table
     output:
         graph_table = os.path.join(data_folder, 'lineage_tree_graph.json')
-    threads: workflow.cores / 2
     run:
         build_graph_table(
             input.case_data,
