@@ -355,6 +355,30 @@ export class DataStore {
     downloadBlobURL(url, 'aggregate_sequences.csv');
   }
 
+  downloadAggGroup() {
+    let csvString = `${rootStoreInstance.configStore.getGroupLabel()},count,percent\n`;
+    let intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+
+    this.groupCounts.forEach((row) => {
+      // Group
+      if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+        csvString += `"${intToMutationMap[row.group_id].mutation_str}",`;
+      } else {
+        csvString += `"${row.group_id}",`;
+      }
+
+      // Counts
+      csvString += `${row.counts},`;
+      // Percent
+      csvString += `${row.counts / this.numSequencesAfterAllFiltering}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(url, `group_counts.csv`);
+  }
+
   downloadAggGroupDate() {
     // Write to a CSV string
     let csvString = `collection_date,"${rootStoreInstance.configStore.getGroupLabel()}",count\n`;

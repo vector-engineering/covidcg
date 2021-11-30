@@ -13,7 +13,7 @@ import { mutationHeatmapToPymolScript } from '../utils/pymol';
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
+  selectedGroups: ['B.1.1.529', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
   groupMutationType: 'protein_aa',
 };
 
