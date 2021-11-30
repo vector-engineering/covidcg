@@ -292,11 +292,11 @@ rule build_full_dataframe:
 
 rule update_vocs:
     output:
-        voc_list = os.path.join(static_data_folder, "vocs.json"),
-        cdc_list = os.path.join(static_data_folder, "CDC.json"),
-        who_list = os.path.join(static_data_folder, "WHO.json"),
-        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
-        phe_list = os.path.join(static_data_folder, "PHE.json"),
+        voc_list = os.path.join(data_folder, "vocs", "vocs.json"),
+        cdc_list = os.path.join(data_folder, "vocs", "CDC.json"),
+        who_list = os.path.join(data_folder, "vocs", "WHO.json"),
+        ecdc_list = os.path.join(data_folder, "vocs", "ECDC.json"),
+        phe_list = os.path.join(data_folder, "vocs", "PHE.json"),
         status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """

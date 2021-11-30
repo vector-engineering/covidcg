@@ -1,0 +1,56 @@
+[
+  {
+    "name": "B.1.1.7",
+    "level": "VOC",
+    "who_label": "Alpha"
+  },
+  {
+    "name": "B.1.351",
+    "level": "VOC",
+    "who_label": "Beta"
+  },
+  {
+    "name": "P.1",
+    "level": "VOC",
+    "who_label": "Gamma"
+  },
+  {
+    "name": "B.1.617.2",
+    "level": "VOC",
+    "who_label": "Delta"
+  },
+  {
+    "name": "C.37",
+    "level": "VOI",
+    "who_label": "Lambda"
+  },
+  {
+    "name": "B.1.621",
+    "level": "VOI",
+    "who_label": "Mu"
+  },
+  {
+    "name": "AZ.5",
+    "level": "Other"
+  },
+  {
+    "name": "C.1.2",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.617.1",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.526",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.525",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.630",
+    "level": "Other"
+  }
+]

@@ -393,7 +393,7 @@ def seed_database(conn, schema="public"):
                     {metadata_col_defs},
                     {grouping_col_defs},
                     mutations        INTEGER[]  NOT NULL
-                ) 
+                )
                 PARTITION BY RANGE(collection_date);
                 """.format(
                     table_name=table_name,
@@ -504,6 +504,14 @@ def seed_database(conn, schema="public"):
             """,
             ["geo_select_tree", Json(geo_select_tree)],
         )
+        with (data_path / "vocs" / "vocs.json").open("r") as fp:
+            vocs = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["vocs", Json(vocs)],
+        )
 
         # Metadata map
         table_queries = []
@@ -568,4 +576,3 @@ def seed_database(conn, schema="public"):
         )
 
         print("done")
-
