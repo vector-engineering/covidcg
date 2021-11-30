@@ -33,6 +33,7 @@ const serializeCoordinates = (coordinateRanges) => {
 
 const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
+  GROUP_COUNTS: 'Group Counts',
   CONSENSUS_MUTATIONS: 'Consensus Mutations',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
   SELECTED_GENOMES: 'Selected Genomes',
@@ -64,6 +65,8 @@ const StatusBox = observer(() => {
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
       dataStore.downloadAggSequences();
+    } else if (option === DOWNLOAD_OPTIONS.GROUP_COUNTS) {
+      dataStore.downloadAggGroup();
     } else if (option === DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS) {
       showModal('downloadConsensusMutations');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
@@ -154,6 +157,7 @@ const StatusBox = observer(() => {
 
   const downloadOptions = [
     DOWNLOAD_OPTIONS.AGGREGATE_DATA,
+    DOWNLOAD_OPTIONS.GROUP_COUNTS,
     DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS,
   ];
   if (config.allow_metadata_download) {
