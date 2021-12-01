@@ -24,10 +24,7 @@ const HomeTab = observer(() => {
       {showBanner && (
         <PubBanner>
           <p>
-            COVID CG is{' '}
-            <ExternalLink href="https://doi.org/10.7554/eLife.63409">
-              published in eLife
-            </ExternalLink>
+            COVID CG may not contain sequences submitted to GISAID after 2021-11-24. We are working on incorporating the missing data.
           </p>
           <CloseButton onClick={setShowBanner.bind(this, false)}>
             Dismiss
