@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import useDimensions from 'react-use-dimensions';
 
-import ExternalLink from '../Common/ExternalLink';
+// import ExternalLink from '../Common/ExternalLink';
 
 import SurveillancePlot from '../Vega/SurveillancePlot';
 import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
@@ -11,17 +11,17 @@ import ExampleList from '../Example/ExampleList';
 import {
   HomeTabContainer,
   HomeTabContent,
-  PubBanner,
-  CloseButton,
+  // PubBanner,
+  // CloseButton,
 } from './HomeTab.styles';
 
 const HomeTab = observer(() => {
   const [ref, { width }] = useDimensions();
-  const [showBanner, setShowBanner] = useState(true);
+  // const [showBanner, setShowBanner] = useState(true);
 
   return (
     <HomeTabContainer ref={ref}>
-      {showBanner && (
+      {/* {showBanner && (
         <PubBanner>
           <p>
             COVID CG may not contain sequences submitted to GISAID after 2021-11-24. We are working on incorporating the missing data.
@@ -30,7 +30,7 @@ const HomeTab = observer(() => {
             Dismiss
           </CloseButton>
         </PubBanner>
-      )}
+      )} */}
       <HomeTabContent>
         <SurveillancePlot width={width - 150} />
         <div style={{ height: '15px' }} />
