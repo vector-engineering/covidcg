@@ -22,10 +22,15 @@ const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
 import { HomePageDiv, PlotContainer } from './HomePage.styles';
+import {
+  PubBanner,
+  CloseButton,
+} from './HomeTab.styles';
 
 const HomePage = observer(() => {
   const { UIStore } = useStores();
   const [showAsyncError, setShowAsyncError] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
 
   const showFetchErrorModal = () => {
     setShowAsyncError(true);
@@ -117,7 +122,19 @@ const HomePage = observer(() => {
         />
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>
+          <React.Suspense fallback={<div />}>
+          {showBanner && (
+              <PubBanner>
+                <p>
+                  COVID CG may not contain sequences submitted to GISAID after 2021-11-24. Omicron variant sequences may not be present. We are working on incorporating the missing data.
+                </p>
+                <CloseButton onClick={setShowBanner.bind(this, false)}>
+                  Dismiss
+                </CloseButton>
+              </PubBanner>
+            )}
+            {renderTab()}
+          </React.Suspense>
         </PlotContainer>
       </HomePageDiv>
     </>
