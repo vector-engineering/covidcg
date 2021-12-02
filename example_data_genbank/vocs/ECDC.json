@@ -12,6 +12,10 @@
     "level": "VOC"
   },
   {
+    "name": "B.1.1.529",
+    "level": "VOC"
+  },
+  {
     "name": "B.1.621",
     "level": "VOI"
   },
