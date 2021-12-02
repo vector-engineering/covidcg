@@ -120,7 +120,7 @@ const StructuralViewer = observer(() => {
   const applyHeatmap = ({ ref }) => {
     const mutations = groupDataStore.groupMutationFrequency[
       groupDataStore.activeGroupType
-    ]['protein_aa']
+    ]['protein_aa']['0']
       .filter(
         (groupMutation) =>
           groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&

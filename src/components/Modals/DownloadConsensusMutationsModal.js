@@ -54,7 +54,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     groupDataStore.downloadGroupMutationFrequencyData({
       group: state.group,
       mutationType: state.mutationType,
-      consensusThreshold: state.consensusThreshold,
+      consensusThreshold: parseFloat(state.consensusThreshold),
     });
   };
 

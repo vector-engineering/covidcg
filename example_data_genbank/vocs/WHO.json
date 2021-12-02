@@ -20,6 +20,11 @@
     "who_label": "Delta"
   },
   {
+    "name": "B.1.1.529",
+    "level": "VOC",
+    "who_label": "Omicron*"
+  },
+  {
     "name": "C.37",
     "level": "VOI",
     "who_label": "Lambda"
@@ -51,6 +56,10 @@
   },
   {
     "name": "B.1.630",
+    "level": "Other"
+  },
+  {
+    "name": "B.1.640",
     "level": "Other"
   }
 ]

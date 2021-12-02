@@ -86,6 +86,13 @@ export class GroupDataStore {
       )
     ) {
       return false;
+    } else if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[this.activeGroupType][this.groupMutationType],
+        '0'
+      )
+    ) {
+      return false;
     } else {
       return true;
     }
@@ -185,11 +192,15 @@ export class GroupDataStore {
       Object.prototype.hasOwnProperty.call(
         this.groupMutationFrequency[group],
         mutationType
+      ) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[group][mutationType],
+        consensusThreshold.toString()
       )
     ) {
       // eslint-disable-next-line no-unused-vars
       return new Promise((resolve, reject) => {
-        resolve(this.groupMutationFrequency[group][mutationType]);
+        resolve(this.groupMutationFrequency[group][mutationType][consensusThreshold.toString()]);
       });
     }
 
@@ -218,7 +229,12 @@ export class GroupDataStore {
         ) {
           this.groupMutationFrequency[group] = {};
         }
-        this.groupMutationFrequency[group][mutationType] = pkg;
+        if (
+          !Object.prototype.hasOwnProperty.call(this.groupMutationFrequency[group], mutationType)
+        ) {
+          this.groupMutationFrequency[group][mutationType] = {};
+        }
+        this.groupMutationFrequency[group][mutationType][consensusThreshold.toString()] = pkg;
 
         rootStoreInstance.UIStore.onGroupMutationFrequencyFinished();
 
@@ -252,7 +268,7 @@ export class GroupDataStore {
   }
 
   getStructureMutations() {
-    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'].filter(
+    return this.groupMutationFrequency[this.activeGroupType]['protein_aa']['0'].filter(
       (groupMutation) =>
         groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&

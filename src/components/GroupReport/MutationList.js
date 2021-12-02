@@ -198,7 +198,7 @@ const MutationListContent = observer(() => {
   // Select group mutations from the selected groups
   const groupMutationFrequency = groupDataStore.groupMutationFrequency[
     groupDataStore.activeGroupType
-  ][groupDataStore.groupMutationType].filter((groupMutation) =>
+  ][groupDataStore.groupMutationType]['0'].filter((groupMutation) =>
     groupDataStore.selectedGroups.includes(groupMutation.name)
   );
   // console.log(groupMutationFrequency);

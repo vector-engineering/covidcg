@@ -393,9 +393,6 @@ const CoordinateSelect = observer(
     }, [selectedPrimers]);
 
     const onPrimerSelect = (currentNode, selectedNodes) => {
-      // console.log(currentNode);
-      // console.log(selectedNodes);
-
       let selectedPrimers = [];
       selectedNodes.forEach((node) => {
         if (node.level === 'group') {
@@ -420,6 +417,22 @@ const CoordinateSelect = observer(
       updateSelectedPrimers(selectedPrimers);
     };
 
+    // Maintain tree expansion state
+    const onPrimerTreeNodeToggle = (currentNode) => {
+      const primerTreeData = state.primerTreeData.slice();
+
+      primerTreeData.forEach((node) => {
+        if (node.value === currentNode.value) {
+          node.expanded = currentNode.expanded;
+        }
+      });
+
+      setState({
+        ...state,
+        primerTreeData,
+      });
+    }
+
     // This component needs to be in a memoized function
     // since it manages its own local state. It should never be re-rendered
     // forcefully
@@ -433,11 +446,13 @@ const CoordinateSelect = observer(
           keepChildrenOnSearch={true}
           showPartiallySelected={true}
           inlineSearchInput={true}
+          showDropdown="always"
           texts={{
             placeholder: 'Search...',
             noMatches: 'No matches found',
           }}
           onChange={onPrimerSelect}
+          onNodeToggle={onPrimerTreeNodeToggle}
         />
       );
     }, [state.primerTreeData]);
