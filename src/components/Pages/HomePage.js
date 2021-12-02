@@ -126,7 +126,7 @@ const HomePage = observer(() => {
           {showBanner && (
               <PubBanner>
                 <p>
-                  COVID CG may not contain sequences submitted to GISAID after 2021-11-24. Omicron variant sequences may not be present. We are working on incorporating the missing data.
+                  COVID CG contains most but not all sequences submitted after 2021-11-24, some recently posted sequences may be missing. We are working to address this issue.
                 </p>
                 <CloseButton onClick={setShowBanner.bind(this, false)}>
                   Dismiss
