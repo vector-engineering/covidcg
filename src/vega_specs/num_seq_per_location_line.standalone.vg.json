@@ -25,6 +25,20 @@
                     "update": "null"
                 }
             ]
+        },
+        {
+            "name": "hoverLocation",
+            "value": null,
+            "on": [
+                {
+                    "events": "@yAxisLabels:mouseover!",
+                    "update": "{location: datum.value}"
+                },
+                {
+                    "events": "@yAxisLabels:mouseout!",
+                    "update": "null"
+                }
+            ]
         }
     ],
     "data": [
@@ -131,6 +145,17 @@
             "encode": {
                 "labels": {
                     "update": {
+                        "x2": [
+                            {
+                                "test": "hoverLocation && hoverLocation.location === datum.location",
+                                "scale": "xscale",
+                                "value": 1
+                            },
+                            {
+                                "scale": "xscale",
+                                "value": 0
+                            }
+                        ],
                         "angle": {
                             "value": -50
                         },
@@ -184,7 +209,7 @@
                                 "value": 2
                             },
                             "tooltip": {
-                                "signal": "{title: timeFormat(datum.x, '%b %d'),'Location': datum.c, 'Sequences Per Location': datum.y}"
+                                "signal": "{title: datum.c,'Date': timeFormat(datum.x, '%b %d'), 'Sequences Per Location': datum.y}"
                             }
                         },
                         "update": {

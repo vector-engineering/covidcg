@@ -47,6 +47,20 @@
                     "update": "null"
                 }
             ]
+        },
+        {
+            "name": "hoverLocation",
+            "value": {},
+            "on": [
+                {
+                    "events": "rect:mouseover",
+                    "update": "datum.category"
+                },
+                {
+                    "events": "rect:mouseout",
+                    "update": "null"
+                }
+            ]
         }
     ],
     "scales": [
@@ -140,7 +154,7 @@
                     },
                     "opacity": [
                         {
-                            "test": "datum.category == tooltip || tooltip == null",
+                            "test": "datum.category == tooltip || tooltip == null || datum.category == hoverLocation",
                             "value": 1.0
                         },
                         {

@@ -80,6 +80,7 @@ const NumSeqPerLocationLine = observer(({ width }) => {
     }, [configStore.hoverGroup]);
 
     useEffect(() => {
+        console.log(configStore.hoverLocation);
         setState({
             ...state,
             hoverLocation: { location: configStore.hoverLocation },
@@ -141,7 +142,6 @@ const NumSeqPerLocationLine = observer(({ width }) => {
             </EmptyPlot>
         );
     }
-
     return (
         <PlotContainer>
             <PlotOptions>
@@ -152,6 +152,9 @@ const NumSeqPerLocationLine = observer(({ width }) => {
                     ref={vegaRef}
                     data={state.data}
                     spec={state.spec}
+                    signals={{
+                        hoverLocation: state.hoverLocation
+                    }}
                     signalListeners={state.signalListeners}
                     dataListeners={state.dataListeners}
                     //width={width}

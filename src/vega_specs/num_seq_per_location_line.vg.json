@@ -25,63 +25,26 @@
                     "update": "null"
                 }
             ]
+        },
+        {
+            "name": "hoverLocation",
+            "value": null,
+            "on": [
+                {
+                    "events": "line:mouseover",
+                    "update": "datum.c"
+                },
+                {
+                    "events": "line:mouseout",
+                    "update": "null"
+                }
+            ]
         }
     ],
     "data": [
         {
             "name": "line_data",
-            "values": [
-                {
-                    "c": "USA",
-                    "x": 1,
-                    "y": "28"
-                },
-                {
-                    "c": "USA",
-                    "x": 2,
-                    "y": "20"
-                },
-                {
-                    "c": "USA",
-                    "x": 3,
-                    "y": "18"
-                },
-                {
-                    "c": "USA",
-                    "x": 4,
-                    "y": "21"
-                },
-                {
-                    "c": "USA",
-                    "x": 5,
-                    "y": "15"
-                },
-                {
-                    "c": "Japan",
-                    "x": 1,
-                    "y": "11"
-                },
-                {
-                    "c": "Japan",
-                    "x": 2,
-                    "y": "4"
-                },
-                {
-                    "c": "Japan",
-                    "x": 3,
-                    "y": "8"
-                },
-                {
-                    "c": "Japan",
-                    "x": 4,
-                    "y": "9"
-                },
-                {
-                    "c": "Japan",
-                    "x": 5,
-                    "y": "2"
-                }
-            ],
+            "values": [],
             "transform": [
                 {
                     "type": "collect",
@@ -184,13 +147,13 @@
                                 "value": 2
                             },
                             "tooltip": {
-                                "signal": "{title: timeFormat(datum.x, '%b %d'),'Location': datum.c, 'Sequences Per Location': datum.y}"
+                                "signal": "{title: datum.c,'Date': timeFormat(datum.x, '%b %d'), 'Sequences Per Location': datum.y}"
                             }
                         },
                         "update": {
                             "opacity": [
                                 {
-                                    "test": "datum.c == hov || hov == null",
+                                    "test": "datum.c == hov || hov == null || datum.c == hoverLocation",
                                     "value": 1
                                 },
                                 {

@@ -26,16 +26,13 @@ const NumSeqPerLocationBar = observer(({ width }) => {
     } = useStores();
 
     const handleHoverLocation = (...args) => {
+        console.log(args);
         // Don't fire the action if there's no change
         let hoverLocation = args[1] === null ? null : args[1]['location'];
         if (hoverLocation === configStore.hoverLocation) {
             return;
         }
         configStore.updateHoverLocation(hoverLocation);
-    };
-
-    const handleHoverGroup = (...args) => {
-        configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
     };
 
     const processLocation = () => {
@@ -52,23 +49,15 @@ const NumSeqPerLocationBar = observer(({ width }) => {
         data: {
             bar_data: []
         },
-        hoverGroup: null,
         hoverLocation: null,
         spec: JSON.parse(JSON.stringify(initialSpec)),
         signalListeners: {
-            hoverLocation: throttle(handleHoverLocation, 100),
-            hoverGroup: debounce(handleHoverGroup, 100),
+            hoverLocation: throttle(handleHoverLocation, 100)
         }
     });
 
     useEffect(() => {
-        setState({
-            ...state,
-            hoverGroup: { group: configStore.hoverGroup },
-        });
-    }, [configStore.hoverGroup]);
-
-    useEffect(() => {
+        console.log(configStore.hoverLocation);
         setState({
             ...state,
             hoverLocation: { location: configStore.hoverLocation },
@@ -141,6 +130,9 @@ const NumSeqPerLocationBar = observer(({ width }) => {
                     ref={vegaRef}
                     data={state.data}
                     spec={state.spec}
+                    signals={{
+                        hoverLocation: state.hoverLocation
+                    }}
                     signalListeners={state.signalListeners}
                     dataListeners={state.dataListeners}
                     //width={width}
