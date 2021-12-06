@@ -246,12 +246,12 @@ const EntropyPlot = observer(({ width }) => {
     return xRange;
   };
 
-  const checkIfPrimersOverlap = (primer1, primer2) => {
-    return (
-      (primer1.Start < primer2.End && primer1.End > primer2.End) ||
-      (primer1.Start < primer2.Start && primer1.End > primer2.Start)
-    );
-  };
+  // const checkIfPrimersOverlap = (primer1, primer2) => {
+  //   return (
+  //     (primer1.Start < primer2.End && primer1.End > primer2.End) ||
+  //     (primer1.Start < primer2.Start && primer1.End > primer2.Start)
+  //   );
+  // };
 
   const getDomains = () => {
     // Apply domains
@@ -269,20 +269,20 @@ const EntropyPlot = observer(({ width }) => {
         const selectedPrimers = configStore.selectedPrimers;
         selectedPrimers[0].row = 0;
         selectedPrimers.forEach((primerToPlace) => {
-          let overlaps = true;
+          // let overlaps = true;
           let curRow = 0;
-          while (overlaps) {
-            const primersInRow = selectedPrimers.filter(
-              (primer) => primer.row && primer.row === curRow
-            );
+          // while (overlaps) {
+          //   const primersInRow = selectedPrimers.filter(
+          //     (primer) => primer.row && primer.row === curRow
+          //   );
 
-            for (const primer of primersInRow) {
-              overlaps = checkIfPrimersOverlap(primer, primerToPlace);
-              if (!overlaps) break;
-            }
+          //   for (const primer of primersInRow) {
+          //     overlaps = checkIfPrimersOverlap(primer, primerToPlace);
+          //     if (!overlaps) break;
+          //   }
 
-            if (overlaps) curRow += 1;
-          }
+          //   if (overlaps) curRow += 1;
+          // }
           primerToPlace.row = curRow;
           primerToPlace.ranges = [[primerToPlace.Start, primerToPlace.End]];
           primerToPlace.name = primerToPlace.Name;
