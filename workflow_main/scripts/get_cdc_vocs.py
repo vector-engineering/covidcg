@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 
 
 def get_cdc_vocs():
-    url = ('https://www.cdc.gov/coronavirus/2019-ncov/'
-           'variants/variant-info.html')
+    url = ('https://www.cdc.gov/coronavirus/2019-ncov'
+           '/variants/variant-classifications.html')
     variant_list = []
 
     vocPage = requests.get(url)
@@ -52,14 +52,38 @@ def get_cdc_vocs():
                                                     "Other", lineageRowArr)
 
     # Get VOC table
-    table = soup.find('div', class_='mb-0 pt-3')
+    tables = soup.find_all('div', class_='col-md-12 p-3')
     level = 'VOC'
 
-    vocRows = table.find_all('p')
-    vocArr = list(vocRows[1].stripped_strings)
-    name = vocArr[1].split(' ')[0]
-    variant = {"name": name, "level": "VOC"}
-    variant_list.append(variant)
+    for table in tables:
+        vocRows = table.find_all('p')
+
+        if (len(vocRows) < 2):
+            continue
+        vocStr = clean_text(vocRows[1].text)[0]
+        vocArr = vocStr.split(".")
+        firstLetters = ""
+        for i in range(len(vocArr[0]) - 1, -1, -1):
+            if vocArr[0][i].isalpha():
+                firstLetters += vocArr[0][i]
+            else:
+                break
+        name = firstLetters[::-1]
+        for i in range(1, len(vocArr)):
+            if i == len(vocArr) - 1:
+                name += "."
+                for j in range(len(vocArr[i])):
+                    if vocArr[i][j].isnumeric():
+                        name += vocArr[i][j]
+                    else:
+                        break
+            else:
+                name += "."
+                name += vocArr[i]
+        if "." not in name:
+            continue
+        variant = {"name": name, "level": "VOC"}
+        variant_list.append(variant)
 
     # The CDC classifies all AY lineages as VOCs but we cannot display 120
     # buttons in the columns we have so we're just writing a note instead
@@ -88,7 +112,7 @@ def get_all_lineages(target, variant_list, level, lineageRowArr):
         currLineage = lineageRow.find_all('td')[0].text
         if (len(currLineage) > len(target) and
            currLineage[0:len(target) + 1] == target + "."):
-            variant = {"name": currLineage, "level": level}
+            variant = {"name": currLineage.strip(), "level": level}
             variant_list.append(variant)
 
     return variant_list
