@@ -39,10 +39,7 @@
     },
     {
       "name": "xRange",
-      "value": [
-        0,
-        1200
-      ]
+      "value": [0, 1200]
     },
     {
       "name": "xLabel",
@@ -195,15 +192,9 @@
           "type": "lookup",
           "from": "table",
           "key": "mutation",
-          "values": [
-            "color"
-          ],
-          "fields": [
-            "group"
-          ],
-          "as": [
-            "color"
-          ]
+          "values": ["color"],
+          "fields": ["group"],
+          "as": ["color"]
         }
       ]
     },
@@ -563,10 +554,7 @@
         {
           "name": "domainYScale",
           "type": "linear",
-          "domain": [
-            0,
-            5
-          ],
+          "domain": [0, 5],
           "range": {
             "signal": "domainPlotYRange"
           }
@@ -604,6 +592,14 @@
               "x2": {
                 "scale": "xOverview",
                 "field": "end"
+              },
+              "y": {
+                "scale": "domainYScale",
+                "field": "rowTop"
+              },
+              "y2": {
+                "scale": "domainYScale",
+                "field": "rowBottom"
               },
               "tooltip": {
                 "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
@@ -664,6 +660,13 @@
                 "scale": "xOverview",
                 "field": "datum.start"
               },
+              "yc": {
+                "scale": "domainYScale",
+                "field": "datum.yCenter"
+              },
+              "dy": {
+                "value": 3
+              },
               "tooltip": {
                 "signal": "datum.tooltip"
               },
@@ -683,12 +686,6 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {
-                "value": -5
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              },
               "fill": {
                 "value": "#333"
               },
@@ -702,6 +699,9 @@
               },
               "x2": {
                 "signal": "brush[1]"
+              },
+              "height": {
+                "signal": "domainPlotHeight"
               }
             }
           }
@@ -711,12 +711,6 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {
-                "value": -5
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              },
               "width": {
                 "value": 0
               },
@@ -727,6 +721,9 @@
             "update": {
               "x": {
                 "signal": "brush[0]"
+              },
+              "height": {
+                "signal": "domainPlotHeight"
               }
             }
           }
@@ -736,12 +733,6 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "y": {
-                "value": -5
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              },
               "width": {
                 "value": 0
               },
@@ -752,6 +743,9 @@
             "update": {
               "x": {
                 "signal": "brush[1]"
+              },
+              "height": {
+                "signal": "domainPlotHeight"
               }
             }
           }
