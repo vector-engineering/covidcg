@@ -259,6 +259,7 @@ export function applyTheme(plugin, modelRef, theme) {
     Bootstrap.Tree.Selection.byRef(modelRef)
       .subtree()
       .ofType(Bootstrap.Entity.Molecule.Visual)
+      .filter((node) => node.parent.props.label == 'Polymer')
   );
   for (const v of visuals) {
     plugin.command(Bootstrap.Command.Visual.UpdateBasicTheme, {
