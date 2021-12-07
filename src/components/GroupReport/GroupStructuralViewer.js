@@ -4,7 +4,11 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import './../../styles/litemol.min.css';
 
-import { colorHeatmap, getMoleculeAssemblies } from '../LiteMol/litemolutils';
+import {
+  colorHeatmap,
+  getMoleculeAssemblies,
+  CreateMacromoleculeVisual,
+} from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
@@ -25,10 +29,8 @@ import {
 
 const proteins = getAllProteins();
 
-const Core = LiteMol.Core;
 const Bootstrap = LiteMol.Bootstrap;
 const Transformer = Bootstrap.Entity.Transformer;
-const Visualization = LiteMol.Visualization;
 
 const numColors = reds.length;
 
@@ -124,7 +126,8 @@ const StructuralViewer = observer(() => {
       .filter(
         (groupMutation) =>
           groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&
-          groupMutation.protein === plotSettingsStore.reportStructureActiveProtein
+          groupMutation.protein ===
+            plotSettingsStore.reportStructureActiveProtein
       )
       // Convert fractional frequencies to colors
       .slice()
@@ -158,25 +161,6 @@ const StructuralViewer = observer(() => {
     plugin.clear();
 
     const pdbId = plotSettingsStore.reportStructurePdbId.toLowerCase();
-
-    const selectionColors = Bootstrap.Immutable.Map()
-      .set('Uniform', Visualization.Color.fromHex(0xaaaaaa))
-      .set('Selection', Visualization.Theme.Default.SelectionColor)
-      .set('Highlight', Visualization.Theme.Default.HighlightColor);
-    const _style = {
-      type: 'Surface',
-      params: {
-        probeRadius: 0,
-        density: 1.25,
-        smoothing: 3,
-        isWireframe: false,
-      },
-      theme: {
-        template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,
-        colors: selectionColors,
-        transparency: { alpha: 1.0 },
-      },
-    };
 
     // good example: https://github.com/dsehnal/LiteMol/blob/master/src/Viewer/App/Examples.ts
     const modelAction = plugin
@@ -224,26 +208,11 @@ const StructuralViewer = observer(() => {
         });
       }
 
-      vizAction = vizAction
-        .then(
-          Transformer.Molecule.CreateSelectionFromQuery,
-          {
-            query: Core.Structure.Query.nonHetPolymer(),
-            name: 'Polymer',
-            silent: true,
-          },
-          {}
-        )
-        .then(
-          Transformer.Molecule.CreateVisual,
-          { style: _style },
-          { ref: 'Polymer' }
-        );
-      // .then(Transformer.Molecule.CreateMacromoleculeVisual, {
-      //   polymer: true,
-      //   het: true,
-      //   water: false,
-      // });
+      vizAction = vizAction.then(CreateMacromoleculeVisual, {
+        polymer: true,
+        het: true,
+        water: false,
+      });
 
       plugin.applyTransform(vizAction).then(() => {
         applyHeatmap({ ref: assemblies.length > 0 ? 'assembly' : 'model' });
@@ -301,7 +270,8 @@ const StructuralViewer = observer(() => {
       <StructuralViewerHeader>
         <OptionSelectContainer>
           <label>
-            Displaying mutations for {groupDataStore.getActiveGroupTypePrettyName()}
+            Displaying mutations for{' '}
+            {groupDataStore.getActiveGroupTypePrettyName()}
             <select
               value={plotSettingsStore.reportStructureActiveGroup}
               onChange={onChangeStructureActiveGroup}
