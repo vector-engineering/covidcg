@@ -38,23 +38,19 @@ function compileResiduesByIndices(indices) {
       { count, residueStartIndex, residueEndIndex } = chains,
       fragments = new Query.FragmentSeqBuilder(ctx);
 
-    // console.log(
-    //   seqNumber,
-    //   authSeqNumber,
-    //   insCode,
-    //   atomStartIndex,
-    //   atomEndIndex
-    // );
-    // console.log(entityId, count, residueStartIndex, residueEndIndex);
+    // console.log(authSeqNumber, atomStartIndex, atomEndIndex);
+    // console.log(count, residueStartIndex, residueEndIndex);
 
     const seqSource = authSeqNumber;
 
-    for (let cI = 0; cI < count; cI++) {
-      let i = residueStartIndex[cI],
-        last = residueEndIndex[cI];
+    // For each chain
+    for (let chainI = 0; chainI < count; chainI++) {
+      // Get the residue indices for this chain
+      let i = residueStartIndex[chainI],
+        lastResidueIndex = residueEndIndex[chainI];
 
       let indicesI = 0;
-      while (i < last && indicesI < indices.length - 1) {
+      while (i < lastResidueIndex && indicesI <= indices.length - 1) {
         // If the current residue index is below the
         // active query residue index, then increment the current
         // residue counter
@@ -381,6 +377,7 @@ export const CreateMacromoleculeVisual = Tree.Transformer.action(
       !p.polymer && !p.het && !p.water
         ? ['Select at least one component']
         : void 0,
+    // eslint-disable-next-line no-unused-vars
     defaultParams: (_ctx) => ({ polymer: true, het: true, water: true }),
   },
   (_context, a, t) => {
