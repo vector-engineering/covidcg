@@ -437,10 +437,8 @@ const polymerSurfaceStyle = {
 const polymerCartoonStyle = {
   type: 'Cartoons',
   params: {
-    probeRadius: 0,
-    density: 1.25,
-    smoothing: 3,
-    isWireframe: false,
+    detail: 'Very High',
+    showDirectionCone: false,
   },
   theme: {
     template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,
