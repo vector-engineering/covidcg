@@ -25,7 +25,7 @@ const GroupReportTab = observer(() => {
   useEffect(() => {
     ReactTooltip.rebuild();
   }, []);
-  
+
   const renderHeader = () => {
     return (
       <AccordionWrapper
@@ -45,7 +45,7 @@ const GroupReportTab = observer(() => {
             <li>
               Variants of Concern are being most closely monitored, followed by
               Variants of Interest (called Variants Under Investigation by the
-              UK PHE).
+              UK HSA).
             </li>
             <li>
               Any other, organization-specific classifications are collectively
@@ -53,9 +53,8 @@ const GroupReportTab = observer(() => {
             </li>
             <li>
               If a square next to a lineage is colored in, that organization has
-              given the lineage whichever classification it is below. (i.e.
-              B.1.1.7 has been labeled a Variant of Concern by the WHO, CDC, and
-              PHE but another classification by the ECDC).
+              given the lineage whichever classification it is below. Different
+              organizations may give the same lineage different classifications.
             </li>
           </ul>
         }
@@ -91,12 +90,12 @@ const GroupReportTab = observer(() => {
             <li>
               Residues are colored by the mutation frequencies in the selected
               Protein, for the selected{' '}
-              {groupDataStore.getGroupMutationTypePrettyName()}, projected onto the
-              given PDB ID
+              {groupDataStore.getGroupMutationTypePrettyName()}, projected onto
+              the given PDB ID
             </li>
             <li>
-              It is up to the user to ensure that the given Protein and its mutations
-              match up with the provided PDB ID. We do not check for
+              It is up to the user to ensure that the given Protein and its
+              mutations match up with the provided PDB ID. We do not check for
               compatibility, so it is possible to, for example, erroneously map
               nsp12 mutations onto a Spike structure.
             </li>
