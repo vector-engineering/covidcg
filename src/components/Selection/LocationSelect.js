@@ -95,7 +95,7 @@ const LocationSelect = observer(
 
     // Maintain tree expansion state
     const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-      console.log(currentNode);
+      // console.log(currentNode);
       const data = Object.assign({}, state.data);
       
       // Recursively go through and find the node to expand

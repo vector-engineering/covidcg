@@ -1,9 +1,13 @@
 import LiteMol from 'litemol';
 
+import { LITEMOL_STYLES } from '../../constants/defs';
+
 const Core = LiteMol.Core;
 const Visualization = LiteMol.Visualization;
 const Bootstrap = LiteMol.Bootstrap;
 const Query = Core.Structure.Query;
+const Tree = Bootstrap.Tree;
+const Transformer = Bootstrap.Entity.Transformer;
 
 // const Builder = Query.Builder;
 // const Compiler = Query.Compiler;
@@ -36,23 +40,19 @@ function compileResiduesByIndices(indices) {
       { count, residueStartIndex, residueEndIndex } = chains,
       fragments = new Query.FragmentSeqBuilder(ctx);
 
-    // console.log(
-    //   seqNumber,
-    //   authSeqNumber,
-    //   insCode,
-    //   atomStartIndex,
-    //   atomEndIndex
-    // );
-    // console.log(entityId, count, residueStartIndex, residueEndIndex);
+    // console.log(authSeqNumber, atomStartIndex, atomEndIndex);
+    // console.log(count, residueStartIndex, residueEndIndex);
 
     const seqSource = authSeqNumber;
 
-    for (let cI = 0; cI < count; cI++) {
-      let i = residueStartIndex[cI],
-        last = residueEndIndex[cI];
+    // For each chain
+    for (let chainI = 0; chainI < count; chainI++) {
+      // Get the residue indices for this chain
+      let i = residueStartIndex[chainI],
+        lastResidueIndex = residueEndIndex[chainI];
 
       let indicesI = 0;
-      while (i < last && indicesI < indices.length - 1) {
+      while (i < lastResidueIndex && indicesI <= indices.length - 1) {
         // If the current residue index is below the
         // active query residue index, then increment the current
         // residue counter
@@ -259,6 +259,7 @@ export function applyTheme(plugin, modelRef, theme) {
     Bootstrap.Tree.Selection.byRef(modelRef)
       .subtree()
       .ofType(Bootstrap.Entity.Molecule.Visual)
+      .filter((node) => node.parent.props.label == 'Polymer')
   );
   for (const v of visuals) {
     plugin.command(Bootstrap.Command.Visual.UpdateBasicTheme, {
@@ -297,3 +298,177 @@ export const getMoleculeAssemblies = ({ plugin }) => {
     molecule.props.molecule.models[0].data.assemblyInfo.assemblies;
   return assemblies.map((asm) => asm.name);
 };
+
+const selectionColors = Bootstrap.Immutable.Map()
+  .set('Uniform', Visualization.Color.fromHex(0xaaaaaa))
+  .set('Selection', Visualization.Theme.Default.SelectionColor)
+  .set('Highlight', Visualization.Theme.Default.HighlightColor);
+
+const polymerSurfaceStyle = {
+  type: 'Surface',
+  params: {
+    probeRadius: 0,
+    density: 1.25,
+    smoothing: 3,
+    isWireframe: false,
+  },
+  theme: {
+    template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,
+    colors: selectionColors,
+    transparency: { alpha: 1.0 },
+  },
+};
+
+const polymerCartoonStyle = {
+  type: 'Cartoons',
+  params: {
+    probeRadius: 0,
+    density: 1.25,
+    smoothing: 3,
+    isWireframe: false,
+  },
+  theme: {
+    template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,
+    colors: selectionColors,
+    transparency: { alpha: 1.0 },
+  },
+};
+
+// const ligandStyle = {
+//   type: 'BallsAndSticks',
+//     params: {
+//       useVDW: true,
+//       vdwScaling: 0.25,
+//       bondRadius: 0.13,
+//       detail: 'Automatic'
+//     },
+//     theme: {
+//       template: Bootstrap.Visualization.Molecule.Default.ElementSymbolThemeTemplate,
+//       colors: Bootstrap.Visualization.Molecule.Default.ElementSymbolThemeTemplate.colors,
+//       transparency: { alpha: 1.0 }
+//     },
+// };
+
+// const waterStyle = {
+//   type: 'BallsAndSticks',
+//   params: {
+//     useVDW: false,
+//     atomRadius: 0.23,
+//     bondRadius: 0.09,
+//     detail: 'Automatic'
+//   },
+//   theme: {
+//     template: Bootstrap.Visualization.Molecule.Default.ElementSymbolThemeTemplate,
+//     colors: Bootstrap.Visualization.Molecule.Default.ElementSymbolThemeTemplate.colors,
+//     transparency: { alpha: 0.25 }
+//   },
+// };
+
+export const CreateMacromoleculeVisual = Tree.Transformer.action(
+  {
+    id: 'molecule-create-macromolecule-visual',
+    name: 'Macromolecule Visual',
+    description:
+      'Create a visual of a molecule that is split into polymer, HET, and water parts.',
+    from: [
+      Bootstrap.Entity.Molecule.Selection,
+      Bootstrap.Entity.Molecule.Model,
+    ],
+    to: [Bootstrap.Entity.Action],
+    validateParams: (p) =>
+      !p.polymer && !p.het && !p.water
+        ? ['Select at least one component']
+        : void 0,
+    // eslint-disable-next-line no-unused-vars
+    defaultParams: (_ctx) => ({
+      polymer: true,
+      het: true,
+      water: true,
+      style: LITEMOL_STYLES.SURFACE,
+    }),
+  },
+  (_context, a, t) => {
+    let g = Tree.Transform.build().add(
+      a,
+      Bootstrap.Entity.Transformer.Basic.CreateGroup,
+      { label: 'Group', description: 'Macromolecule' },
+      { ref: t.params.groupRef }
+    );
+
+    if (t.params.polymer) {
+      let polymerStyle;
+      if (t.params.style === LITEMOL_STYLES.SURFACE) {
+        polymerStyle = polymerSurfaceStyle;
+      } else if (t.params.style === LITEMOL_STYLES.CARTOON) {
+        polymerStyle = polymerCartoonStyle;
+      }
+
+      g.then(
+        Transformer.Molecule.CreateSelectionFromQuery,
+        {
+          query: Core.Structure.Query.nonHetPolymer(),
+          name: 'Polymer',
+          silent: true,
+        },
+        { isBinding: true }
+      ).then(
+        Transformer.Molecule.CreateVisual,
+        {
+          style: polymerStyle,
+        },
+        { ref: t.params.polymerRef }
+      );
+    }
+
+    if (t.params.het) {
+      g.then(
+        Transformer.Molecule.CreateSelectionFromQuery,
+        { query: Core.Structure.Query.hetGroups(), name: 'HET', silent: true },
+        { isBinding: true }
+      ).then(
+        Transformer.Molecule.CreateVisual,
+        {
+          style:
+            Bootstrap.Visualization.Molecule.Default.ForType.get(
+              'BallsAndSticks'
+            ),
+        },
+        { ref: t.params.hetRef }
+      );
+    }
+
+    if (t.params.water) {
+      let style = {
+        type: 'BallsAndSticks',
+        params: {
+          useVDW: false,
+          atomRadius: 0.23,
+          bondRadius: 0.09,
+          detail: 'Automatic',
+        },
+        theme: {
+          template: Visualization.Molecule.Default.ElementSymbolThemeTemplate,
+          colors:
+            Bootstrap.Visualization.Molecule.Default.ElementSymbolThemeTemplate
+              .colors,
+          transparency: { alpha: 0.25 },
+        },
+      };
+
+      g.then(
+        Transformer.Molecule.CreateSelectionFromQuery,
+        {
+          query: Core.Structure.Query.entities({ type: 'water' }),
+          name: 'Water',
+          silent: true,
+        },
+        { isBinding: true }
+      ).then(
+        Transformer.Molecule.CreateVisual,
+        { style },
+        { ref: t.params.waterRef }
+      );
+    }
+    return g;
+  }
+);
