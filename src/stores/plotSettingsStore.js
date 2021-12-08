@@ -39,7 +39,7 @@ export const initialValues = {
 
   // GROUP REPORT TAB
   reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
-  reportConsensusThreshold: 0.7,
+  reportConsensusThreshold: 0.1,
   reportMutationListHideEmpty: true,
   reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
   reportStructureActiveProtein: 'S',
