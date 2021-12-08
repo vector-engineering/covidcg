@@ -378,6 +378,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   } else if (pending.selectedLocationNodes.length === 0) {
     invalid = true;
     invalidReason = 'No locations selected';
+  } else if (
+    pending.coordinateMode === COORDINATE_MODES.COORD_PRIMER &&
+    pending.selectedPrimers.length === 0
+  ) {
+    invalid = true;
+    invalidReason = 'No primers selected';
   }
   // When our request goes through, close the modal
   useEffect(() => {
