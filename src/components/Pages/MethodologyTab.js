@@ -39,9 +39,9 @@ const MethodologyTab = () => {
                     Nextstrain exclusion list
                   </ExternalLink>
                 </li>
-                <li>
+                {/* <li>
                   Isolates from non-humans (animals, enviornmental samples, etc)
-                </li>
+                </li> */}
                 <li>Less than 29700 bases</li>
                 <li>&gt; 5% ambiguous base calls (N)</li>
               </ul>
@@ -91,8 +91,8 @@ const MethodologyTab = () => {
           <div className="content-block">
             <div className="content-text">
               <p>
-                Mutations at the nucleotide and amino acid level will be determined
-                by aligning each sequence to the{' '}
+                Mutations at the nucleotide and amino acid level will be
+                determined by aligning each sequence to the{' '}
                 <ExternalLink href="https://www.ncbi.nlm.nih.gov/nuccore/MN996528">
                   WIV04 reference sequence
                 </ExternalLink>{' '}
@@ -102,9 +102,9 @@ const MethodologyTab = () => {
                   NC_045512.2
                 </ExternalLink>{' '}
                 except for the length of the poly-A tail) using bowtie2.
-                Spurious mutations and probable sequencing errors are filtered out
-                prior to downstream analysis. Mutations involving ambiguous base
-                calls are ignored.
+                Spurious mutations and probable sequencing errors are filtered
+                out prior to downstream analysis. Mutations involving ambiguous
+                base calls are ignored.
               </p>
             </div>
           </div>
@@ -123,7 +123,8 @@ const MethodologyTab = () => {
                 </ExternalLink>{' '}
                 tool), and clades will be provided by GISAID. In accordance with
                 pangolin, mutations present in &gt;90% of sequences within each
-                lineage/clade will be assigned as lineage/clade-defining mutations.
+                lineage/clade will be assigned as lineage/clade-defining
+                mutations.
               </p>
             </div>
           </div>
