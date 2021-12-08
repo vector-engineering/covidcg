@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { PYMOL_SCRIPT_TYPES } from '../../constants/defs';
+
 import Modal from 'react-modal';
 // import ReactTooltip from 'react-tooltip';
 // import QuestionButton from '../Buttons/QuestionButton';
@@ -31,6 +33,7 @@ const NOOP = () => {};
 const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
   const { groupDataStore } = useStores();
   const [state, setState] = useState({
+    scriptType: PYMOL_SCRIPT_TYPES.SCRIPT,
     selectIndividualMutations: true,
     selectAllMutations: true,
     includeDomains: true,
@@ -45,6 +48,13 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
 
   const confirmDownload = () => {
     groupDataStore.downloadStructurePymolScript(state);
+  };
+
+  const onChangeScriptType = (event) => {
+    setState({
+      ...state,
+      scriptType: event.target.value,
+    });
   };
 
   const toggleSelectIndividualMutations = (event) => {
@@ -98,7 +108,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
   }
 
   return (
-    <Wrapper width={600} height={400}>
+    <Wrapper width={600} height={500}>
       <HeaderContainer>
         <HeaderRow>
           <TitleContainer>
@@ -123,15 +133,58 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       <Content>
         <Row>
           <Info>
-            To load this script into PyMOL, open the downloaded .py file with
-            PyMOL. (Windows: Open With → Choose another app → Select PyMOL, Mac
-            OSX: Open With → Other... → Select PyMOL.app)
+            Select "Script" to download a complete Python script, which will 1)
+            load the model, 2) select mutations, and 3) color mutations by
+            frequency
           </Info>
           <Info>
-            Or, you can first open the PyMOL application and then load this
-            script with <code>load path/to/script.py</code>
+            Select "Commands" to download a list of PyMOL commands that executes
+            the same functions as the script. Select this option if you wish to
+            modify certain operations of the script, i.e., adapt Spike mutations
+            onto another model of Spike bound to an antibody
           </Info>
         </Row>
+        <Row>
+          <CheckboxInput>
+            <input
+              type="radio"
+              value={PYMOL_SCRIPT_TYPES.SCRIPT}
+              checked={state.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT}
+              onChange={onChangeScriptType}
+            />
+            Script
+          </CheckboxInput>
+          <CheckboxInput>
+            <input
+              type="radio"
+              value={PYMOL_SCRIPT_TYPES.COMMANDS}
+              checked={state.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS}
+              onChange={onChangeScriptType}
+            />
+            Commands
+          </CheckboxInput>
+        </Row>
+        {state.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT && (
+          <Row>
+            <Info>
+              To load this script into PyMOL, open the downloaded .py file with
+              PyMOL. (Windows: Open With → Choose another app → Select PyMOL,
+              Mac OSX: Open With → Other... → Select PyMOL.app)
+            </Info>
+            <Info>
+              Or, you can first open the PyMOL application and then load this
+              script with <code>load path/to/script.py</code>
+            </Info>
+          </Row>
+        )}
+        {state.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS && (
+          <Row>
+            <Info>
+              To run these commands, paste the commands from the downloaded file
+              into the PyMOL console
+            </Info>
+          </Row>
+        )}
         <Row>
           <CheckboxInput>
             <input

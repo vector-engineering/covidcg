@@ -154,5 +154,9 @@
   "LITEMOL_STYLES": {
     "SURFACE": "surface",
     "CARTOON": "cartoon"
+  },
+  "PYMOL_SCRIPT_TYPES": {
+    "COMMANDS": "commands",
+    "SCRIPT": "script"
   }
 }

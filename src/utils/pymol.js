@@ -19,9 +19,9 @@ export function mutationHeatmapToPymolScript({
   let individualMutationSelections = '';
   if (selectIndividualMutations) {
     mutations.forEach((mut) => {
-      individualMutationSelections += `cmd.select('${mut.ref}${mut.pos.toString()}${
-        mut.alt
-      }', 'resi ${mut.pos.toString()}')\n`;
+      individualMutationSelections += `cmd.select('${
+        mut.ref
+      }${mut.pos.toString()}${mut.alt}', 'resi ${mut.pos.toString()}')\n`;
     });
   }
 
@@ -67,7 +67,7 @@ cmd.fetch(pdb_name, name=pdb_name)
 cmd.remove('solvent')
 cmd.remove('hydrogens')
 # Clean up the rest... remove all non-protein atoms (PyMOL 2.1+ only)
-cmd.remove('(not polymer.protein)')
+# cmd.remove('(not polymer.protein)')
 
 # Hide cartoon and show surface
 cmd.hide('cartoon')
@@ -91,4 +91,64 @@ ${domainSelection}
   });
 
   return script;
+}
+
+export function mutationHeatmapToPymolCommands({
+  activeProtein,
+  pdbId,
+  mutations,
+  selectIndividualMutations,
+  selectAllMutations,
+  includeDomains,
+  baseColor,
+  useAssembly,
+  assemblyName,
+}) {
+  let commands = `
+delete all
+${useAssembly ? `set assembly, ${assemblyName})` : ''}
+fetch ${pdbId}
+
+remove solvent
+remove hydrogens
+
+as surface
+
+color 0x${baseColor.substr(1)}
+`;
+
+  if (selectIndividualMutations) {
+    mutations.forEach((mut) => {
+      commands += `select '${mut.ref}${mut.pos.toString()}${
+        mut.alt
+      }, resi ${mut.pos.toString()}\n`;
+    });
+  }
+
+  if (selectAllMutations) {
+    commands += `select all_mutations, resi ${mutations
+      .map((mut) => mut.pos.toString())
+      .join(' or resi ')}\n`;
+  }
+
+  if (includeDomains) {
+    const domains = proteins.find(
+      (protein) => protein.name === activeProtein
+    ).domains;
+    domains.forEach((domain) => {
+      const domainSelectionName = domain.name.toLowerCase().replace(' ', '_');
+      const domainResiSelection = domain.ranges
+        .map((range) => `${range[0]}-${range[1]}`)
+        .join(' or resi ');
+      commands += `select ${domainSelectionName}, resi ${domainResiSelection}\n`;
+    });
+  }
+
+  mutations.forEach((mut) => {
+    const colorInd = Math.floor((mut.fraction - 0.001) * numColors);
+    // PyMOL needs colors in "0xRRGGBB" instead of "#RRGGBB"
+    commands += `color 0x${reds[colorInd].substr(1)}, resi ${mut.pos}\n`;
+  });
+
+  return commands;
 }
