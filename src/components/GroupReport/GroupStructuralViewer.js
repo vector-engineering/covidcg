@@ -10,6 +10,7 @@ import {
   CreateMacromoleculeVisual,
 } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
+import { LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 import defaultStructures from '../../../static_data/default_structures.json';
@@ -45,7 +46,7 @@ const StructuralViewer = observer(() => {
     validPdbId: true,
     pdbIdChanged: false,
     assemblies: [],
-    activeAssembly: null,
+    activeAssembly: '',
   });
   const pluginRef = useRef(null);
 
@@ -65,6 +66,7 @@ const StructuralViewer = observer(() => {
   const onChangeStructureActiveGroup = (event) => {
     plotSettingsStore.setReportStructureActiveGroup(event.target.value);
   };
+
   const onChangeReportStructureActiveProtein = (event) => {
     const newProtein = event.target.value;
 
@@ -87,6 +89,7 @@ const StructuralViewer = observer(() => {
       pdbIdChanged: true,
     });
   };
+
   const onChangePdbId = (event) => {
     const newPdbId = event.target.value;
     let validPdbId = true;
@@ -102,6 +105,15 @@ const StructuralViewer = observer(() => {
       pdbIdChanged: newPdbId != plotSettingsStore.reportStructurePdbId,
     });
   };
+
+  const onChangeActiveAssembly = (event) => {
+    loadModel({ useAssembly: event.target.value });
+  };
+
+  const onChangeProteinStyle = (event) => {
+    plotSettingsStore.setReportStructureProteinStyle(event.target.value);
+  };
+
   const applyChanges = () => {
     plotSettingsStore.setReportStructureActiveProtein(state.activeProtein);
     plotSettingsStore.setReportStructurePdbId(state.pdbId);
@@ -154,7 +166,7 @@ const StructuralViewer = observer(() => {
     colorHeatmap({ plugin, entries: heatmapEntries, ref });
   };
 
-  const loadModel = () => {
+  const loadModel = ({ useAssembly } = { useAssembly: '' }) => {
     if (!plugin) {
       return;
     }
@@ -189,22 +201,29 @@ const StructuralViewer = observer(() => {
 
       // If an assembly exists, then display that instead
       // of the asymmetric unit
-      // TODO: use the assembly information to allow the user
-      // to select the chosen assembly, or the asymmetric unit
       const assemblies = getMoleculeAssemblies({ plugin });
+
       if (assemblies.length > 0) {
-        vizAction = vizAction.then(
-          Transformer.Molecule.CreateAssembly,
-          { name: assemblies[0] },
-          { ref: 'assembly' }
-        );
+        // If no assembly is selected, then default to the first assembly
+        if (useAssembly === '') {
+          useAssembly = assemblies[0];
+        }
+
+        // If user decides to display the asymmetric unit,
+        // then skip the assembly process
+        if (useAssembly !== 'asym') {
+          vizAction = vizAction.then(
+            Transformer.Molecule.CreateAssembly,
+            { name: assemblies[0] },
+            { ref: 'assembly' }
+          );
+        }
 
         // TODO: remove the original model from the tree?
-
         setState({
           ...state,
           assemblies,
-          activeAssembly: assemblies[0],
+          activeAssembly: useAssembly,
         });
       }
 
@@ -212,10 +231,16 @@ const StructuralViewer = observer(() => {
         polymer: true,
         het: true,
         water: false,
+        style: plotSettingsStore.reportStructureProteinStyle,
       });
 
       plugin.applyTransform(vizAction).then(() => {
-        applyHeatmap({ ref: assemblies.length > 0 ? 'assembly' : 'model' });
+        applyHeatmap({
+          ref:
+            assemblies.length > 0 && useAssembly !== 'asym'
+              ? 'assembly'
+              : 'model',
+        });
       });
     });
 
@@ -228,11 +253,17 @@ const StructuralViewer = observer(() => {
     plugin,
     plotSettingsStore.reportStructurePdbId,
     plotSettingsStore.reportStructureActiveProtein,
+    plotSettingsStore.reportStructureProteinStyle,
   ]);
 
   useEffect(() => {
     if (!plugin) return;
-    applyHeatmap({ ref: state.assemblies.length > 0 ? 'assembly' : 'model' });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+    });
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
   const proteinOptionItems = [];
@@ -260,6 +291,15 @@ const StructuralViewer = observer(() => {
       </EmptyPlot>
     );
   }
+
+  const assemblyOptionItems = [];
+  state.assemblies.forEach((assembly) => {
+    assemblyOptionItems.push(
+      <option key={`assembly-option-${assembly}`} value={assembly}>
+        {assembly}
+      </option>
+    );
+  });
 
   return (
     <StructuralViewerContainer>
@@ -311,6 +351,32 @@ const StructuralViewer = observer(() => {
         <ConfirmButton onClick={showDownloadPymolScriptModal}>
           Download PyMOL Script
         </ConfirmButton>
+      </StructuralViewerHeader>
+      <StructuralViewerHeader>
+        <OptionSelectContainer>
+          <label>
+            Assembly
+            <select
+              value={state.activeAssembly}
+              onChange={onChangeActiveAssembly}
+            >
+              <option value="asym">Asymmetric Unit</option>
+              {assemblyOptionItems}
+            </select>
+          </label>
+        </OptionSelectContainer>
+        <OptionSelectContainer>
+          <label>
+            Protein Style
+            <select
+              value={plotSettingsStore.reportStructureProteinStyle}
+              onChange={onChangeProteinStyle}
+            >
+              <option value={LITEMOL_STYLES.SURFACE}>Surface</option>
+              <option value={LITEMOL_STYLES.CARTOON}>Cartoon</option>
+            </select>
+          </label>
+        </OptionSelectContainer>
       </StructuralViewerHeader>
       <LiteMolContainer>
         <LiteMolPlugin

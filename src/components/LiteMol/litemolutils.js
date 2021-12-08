@@ -1,5 +1,7 @@
 import LiteMol from 'litemol';
 
+import { LITEMOL_STYLES } from '../../constants/defs';
+
 const Core = LiteMol.Core;
 const Visualization = LiteMol.Visualization;
 const Bootstrap = LiteMol.Bootstrap;
@@ -378,7 +380,12 @@ export const CreateMacromoleculeVisual = Tree.Transformer.action(
         ? ['Select at least one component']
         : void 0,
     // eslint-disable-next-line no-unused-vars
-    defaultParams: (_ctx) => ({ polymer: true, het: true, water: true }),
+    defaultParams: (_ctx) => ({
+      polymer: true,
+      het: true,
+      water: true,
+      style: LITEMOL_STYLES.SURFACE,
+    }),
   },
   (_context, a, t) => {
     let g = Tree.Transform.build().add(
@@ -389,6 +396,13 @@ export const CreateMacromoleculeVisual = Tree.Transformer.action(
     );
 
     if (t.params.polymer) {
+      let polymerStyle;
+      if (t.params.style === LITEMOL_STYLES.SURFACE) {
+        polymerStyle = polymerSurfaceStyle;
+      } else if (t.params.style === LITEMOL_STYLES.CARTOON) {
+        polymerStyle = polymerCartoonStyle;
+      }
+
       g.then(
         Transformer.Molecule.CreateSelectionFromQuery,
         {
@@ -400,7 +414,7 @@ export const CreateMacromoleculeVisual = Tree.Transformer.action(
       ).then(
         Transformer.Molecule.CreateVisual,
         {
-          style: polymerSurfaceStyle,
+          style: polymerStyle,
         },
         { ref: t.params.polymerRef }
       );
