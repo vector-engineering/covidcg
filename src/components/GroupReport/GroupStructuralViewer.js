@@ -248,6 +248,7 @@ const StructuralViewer = observer(() => {
   };
 
   useEffect(() => {
+    if (!plugin) return;
     loadModel();
   }, [
     plugin,
