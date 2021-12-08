@@ -390,13 +390,20 @@ export const getMoleculeEntities = ({ plugin }) => {
         // Antibody-like
         /heavy\schain/gi,
         /light\schain/gi,
-        /[FN]ab/g,
+        /[FNM]ab/g,
         // polynucleicacids
         /[DR]NA$/g,
       ];
       e.checked = descriptionBlacklist.every((regex) => {
         return e.pdbx_description.search(regex) === -1;
       });
+      // Disable ribonucleotide types
+      const typeBlacklist = ['polyribonucleotide'];
+      e.checked =
+        e.checked &&
+        typeBlacklist.every((t) => {
+          return e.poly_type !== t;
+        });
 
       return e;
     })
