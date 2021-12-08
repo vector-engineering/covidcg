@@ -274,6 +274,8 @@ const EntropyPlot = observer(({ width }) => {
       return configStore.selectedProtein.domains.length > 0
         ? configStore.selectedProtein.domains
         : nullDomain;
+    } else {
+      return [];
     }
   };
 
