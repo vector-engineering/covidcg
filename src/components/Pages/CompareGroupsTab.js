@@ -83,16 +83,18 @@ const CompareGroupsTab = observer(() => {
               (labels on the y-axis).
             </li>
             <li>
-              Mutations are counted per-co-occurrence, i.e., one matching sequence
-              may count towards multiple mutations. Only the relative counts between
-              co-occurring mutations within the same bar should be interpreted – the
-              sum of all mutation counts per bar is not meaningful.
+              Mutations are counted per-co-occurrence, i.e., one matching
+              sequence may count towards multiple mutations. Only the relative
+              counts between co-occurring mutations within the same bar should
+              be interpreted – the sum of all mutation counts per bar is not
+              meaningful.
             </li>
             <li>
-              <i>Click</i> on a mutation bar, or on a mutation y-axis label, to select or
-              deselect a mutation. If the mutation is already selected, then clicking will
-              deselect it. If it is not already selected, then clicking on the
-              mutation will add it to the existing selection.
+              <i>Click</i> on a mutation bar, or on a mutation y-axis label, to
+              select or deselect a mutation. If the mutation is already
+              selected, then clicking will deselect it. If it is not already
+              selected, then clicking on the mutation will add it to the
+              existing selection.
             </li>
             <li>
               Mutation frequencies can be shown as raw counts{' '}
@@ -123,9 +125,9 @@ const CompareGroupsTab = observer(() => {
             </li>
             {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In <b>Mutation Mode</b>, sequences are split into two groups: those
-                that have the mutation (or combination of mutations), and those that
-                don&apos;t.
+                In <b>Mutation Mode</b>, sequences are split into two groups:
+                those that have the mutation (or combination of mutations), and
+                those that don&apos;t.
               </li>
             )}
             <li>
