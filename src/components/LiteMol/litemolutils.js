@@ -36,13 +36,11 @@ function queryAtomsByChains(chainIds) {
 function compileAtomsByChains(chainIds) {
   return (ctx) => {
     let { chains } = ctx.structure.data,
-      { asymId, count, atomStartIndex, atomEndIndex } = chains,
+      { authAsymId, count, atomStartIndex, atomEndIndex } = chains,
       fragments = new Query.FragmentSeqBuilder(ctx);
 
-    // console.log(ctx.structure.data);
-
     for (let chainI = 0; chainI < count; chainI++) {
-      const chainAsymId = asymId[chainI];
+      const chainAsymId = authAsymId[chainI];
 
       if (chainIds.includes(chainAsymId)) {
         fragments.add(
