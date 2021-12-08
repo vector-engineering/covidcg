@@ -7,6 +7,7 @@ import './../../styles/litemol.min.css';
 import {
   colorHeatmap,
   getMoleculeAssemblies,
+  getMoleculeEntities,
   CreateMacromoleculeVisual,
 } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
@@ -18,6 +19,7 @@ import defaultStructures from '../../../static_data/default_structures.json';
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
+import StructureEntities from './StructureEntities';
 import {
   StructuralViewerContainer,
   LiteMolContainer,
@@ -46,6 +48,7 @@ const StructuralViewer = observer(() => {
     validPdbId: true,
     pdbIdChanged: false,
     assemblies: [],
+    entities: [],
     activeAssembly: '',
   });
   const pluginRef = useRef(null);
@@ -114,6 +117,20 @@ const StructuralViewer = observer(() => {
     plotSettingsStore.setReportStructureProteinStyle(event.target.value);
   };
 
+  const onChangeEntities = (entities) => {
+    setState({
+      ...state,
+      entities,
+    });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+      entities,
+    });
+  };
+
   const applyChanges = () => {
     plotSettingsStore.setReportStructureActiveProtein(state.activeProtein);
     plotSettingsStore.setReportStructurePdbId(state.pdbId);
@@ -131,7 +148,7 @@ const StructuralViewer = observer(() => {
     groupDataStore.downloadStructureMutationData();
   };
 
-  const applyHeatmap = ({ ref }) => {
+  const applyHeatmap = ({ ref, entities }) => {
     const mutations = groupDataStore.groupMutationFrequency[
       groupDataStore.activeGroupType
     ]['protein_aa']['0']
@@ -163,7 +180,14 @@ const StructuralViewer = observer(() => {
       });
     });
 
-    colorHeatmap({ plugin, entries: heatmapEntries, ref });
+    const ignoreChains = [];
+    entities.forEach((entity) => {
+      if (!entity.checked) {
+        ignoreChains.push(...entity.chains);
+      }
+    });
+
+    colorHeatmap({ plugin, entries: heatmapEntries, ref, ignoreChains });
   };
 
   const loadModel = ({ useAssembly } = { useAssembly: '' }) => {
@@ -208,6 +232,7 @@ const StructuralViewer = observer(() => {
         if (useAssembly === '') {
           useAssembly = assemblies[0];
         }
+        //useAssembly = 'asym';
 
         // If user decides to display the asymmetric unit,
         // then skip the assembly process
@@ -218,14 +243,16 @@ const StructuralViewer = observer(() => {
             { ref: 'assembly' }
           );
         }
-
-        // TODO: remove the original model from the tree?
-        setState({
-          ...state,
-          assemblies,
-          activeAssembly: useAssembly,
-        });
       }
+
+      const entities = getMoleculeEntities({ plugin });
+
+      setState({
+        ...state,
+        assemblies,
+        entities,
+        activeAssembly: useAssembly,
+      });
 
       vizAction = vizAction.then(CreateMacromoleculeVisual, {
         polymer: true,
@@ -240,6 +267,7 @@ const StructuralViewer = observer(() => {
             assemblies.length > 0 && useAssembly !== 'asym'
               ? 'assembly'
               : 'model',
+          entities: entities,
         });
       });
     });
@@ -264,6 +292,7 @@ const StructuralViewer = observer(() => {
         state.assemblies.length > 0 && state.activeAssembly !== 'asym'
           ? 'assembly'
           : 'model',
+      entities: state.entities,
     });
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
@@ -379,6 +408,10 @@ const StructuralViewer = observer(() => {
           </label>
         </OptionSelectContainer>
       </StructuralViewerHeader>
+      <StructureEntities
+        entities={state.entities}
+        onChangeEntities={onChangeEntities}
+      />
       <LiteMolContainer>
         <LiteMolPlugin
           height={500}
