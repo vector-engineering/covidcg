@@ -117,6 +117,7 @@ const StructuralViewer = observer(() => {
 
   const onChangeActiveAssembly = (event) => {
     loadModel({ useAssembly: event.target.value });
+    plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
   };
 
   const onChangeProteinStyle = (event) => {
@@ -135,6 +136,7 @@ const StructuralViewer = observer(() => {
           : 'model',
       entities,
     });
+    plotSettingsStore.setReportStructureEntities(entities);
   };
 
   const applyChanges = () => {
@@ -280,6 +282,11 @@ const StructuralViewer = observer(() => {
           entities: entities,
         });
       });
+
+      // Update store so other components have this info
+      plotSettingsStore.setReportStructureAssemblies(assemblies);
+      plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
+      plotSettingsStore.setReportStructureEntities(entities);
     });
 
     modelAction;

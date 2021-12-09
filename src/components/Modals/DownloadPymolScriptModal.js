@@ -38,8 +38,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
     selectAllMutations: true,
     includeDomains: true,
     baseColor: '#FFFFFF',
-    useAssembly: false,
-    assemblyName: '',
+    ignoreColor: '#AAAAAA',
   });
 
   // useEffect(() => {
@@ -84,28 +83,15 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       baseColor: event.target.value,
     });
   };
-
-  const toggleUseAssembly = (event) => {
+  const onChangeIgnoreColor = (event) => {
     setState({
       ...state,
-      useAssembly: event.target.checked,
-    });
-  };
-
-  const onChangeAssemblyName = (event) => {
-    setState({
-      ...state,
-      assemblyName: event.target.value,
+      ignoreColor: event.target.value,
     });
   };
 
   let invalid = false;
   let invalidReason = '';
-
-  if (state.useAssembly && state.assemblyName.length === 0) {
-    invalid = true;
-    invalidReason = 'Please enter an assembly name';
-  }
 
   return (
     <Wrapper width={600} height={500}>
@@ -220,7 +206,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
         </Row>
         <Row>
           <TextInput>
-            Protein Base Color
+            Heatmap Base Color
             <input
               type="color"
               placeholder="#RRGGBB"
@@ -231,26 +217,18 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
           </TextInput>
         </Row>
         <Row>
-          <CheckboxInput>
+          <TextInput>
+            Non-heatmap Base Color
+            <br />
+            (for chains where heatmap is not applied)
             <input
-              type="checkbox"
-              name="download-pymol-script-use-assembly"
-              checked={state.useAssembly}
-              onChange={toggleUseAssembly}
+              type="color"
+              placeholder="#RRGGBB"
+              value={state.ignoreColor}
+              onChange={onChangeIgnoreColor}
             />
-            Use a biological assembly (leave unchecked for asymmetric unit)
-          </CheckboxInput>
-          {state.useAssembly && (
-            <TextInput>
-              Assembly Name
-              <input
-                type="text"
-                placeholder="i.e., 1"
-                value={state.assemblyName}
-                onChange={onChangeAssemblyName}
-              />
-            </TextInput>
-          )}
+            <span style={{ marginLeft: 5 }}>{state.ignoreColor}</span>
+          </TextInput>
         </Row>
       </Content>
     </Wrapper>

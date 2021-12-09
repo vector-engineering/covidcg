@@ -49,6 +49,10 @@ export const initialValues = {
   reportStructureActiveGroup: 'B.1.1.529',
   // reportStructureActiveGroup: 'B.1.351',
   reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
+
+  reportStructureAssemblies: [],
+  reportStructureActiveAssembly: '',
+  reportStructureEntities: [],
 };
 
 export class PlotSettingsStore {
@@ -196,6 +200,10 @@ export class PlotSettingsStore {
   @observable reportStructureProteinStyle =
     initialValues.reportStructureProteinStyle;
 
+  reportStructureAssemblies = initialValues.reportStructureAssemblies;
+  reportStructureActiveAssembly = initialValues.reportStructureActiveAssembly;
+  reportStructureEntities = initialValues.reportStructureEntities;
+
   @action
   setReportTreeColorMode = (mode) => {
     this.reportTreeColorMode = mode;
@@ -241,6 +249,19 @@ export class PlotSettingsStore {
   @action
   setReportStructureProteinStyle = (style) => {
     this.reportStructureProteinStyle = style;
+  };
+
+  @action
+  setReportStructureAssemblies = (assemblies) => {
+    this.reportStructureAssemblies = assemblies;
+  };
+  @action
+  setReportStructureActiveAssembly = (assembly) => {
+    this.reportStructureActiveAssembly = assembly;
+  };
+  @action
+  setReportStructureEntities = (entities) => {
+    this.reportStructureEntities = entities;
   };
 
   @action

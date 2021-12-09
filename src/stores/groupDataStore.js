@@ -324,15 +324,23 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    let script;
+    let script, outfile;
     if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
       script = mutationHeatmapToPymolCommands({
         activeProtein:
           rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
         pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
         mutations: this.getStructureMutations(),
         ...opts,
       });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
     } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
       script = mutationHeatmapToPymolScript({
         activeProtein:
@@ -340,16 +348,20 @@ export class GroupDataStore {
         activeGroup:
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
         pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
         mutations: this.getStructureMutations(),
         ...opts,
       });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
     }
     const blob = new Blob([script]);
     const url = URL.createObjectURL(blob);
-    const outfile =
-      opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS
-        ? `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`
-        : `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
     downloadBlobURL(url, outfile);
   }
 }
