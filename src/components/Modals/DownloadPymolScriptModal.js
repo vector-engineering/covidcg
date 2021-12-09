@@ -119,15 +119,15 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       <Content>
         <Row>
           <Info>
-            Select "Script" to download a complete Python script, which will 1)
-            load the model, 2) select mutations, and 3) color mutations by
-            frequency
+            Select &quot;Script&quot; to download a complete Python script,
+            which will 1) load the model, 2) select mutations, and 3) color
+            mutations by frequency
           </Info>
           <Info>
-            Select "Commands" to download a list of PyMOL commands that executes
-            the same functions as the script. Select this option if you wish to
-            modify certain operations of the script, i.e., adapt Spike mutations
-            onto another model of Spike bound to an antibody
+            Select &quot;Commands&quot; to download a list of PyMOL commands
+            that executes the same functions as the script. Select this option
+            if you wish to modify certain operations of the script, i.e., adapt
+            Spike mutations onto another model of Spike bound to an antibody
           </Info>
         </Row>
         <Row>

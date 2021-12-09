@@ -117,7 +117,7 @@ const StructuralViewer = observer(() => {
 
   const onChangeActiveAssembly = (event) => {
     loadModel({ useAssembly: event.target.value });
-    plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
+    plotSettingsStore.setReportStructureActiveAssembly(event.target.value);
   };
 
   const onChangeProteinStyle = (event) => {

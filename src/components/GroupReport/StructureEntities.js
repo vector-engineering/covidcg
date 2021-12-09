@@ -43,12 +43,12 @@ StructureEntityItem.propTypes = {
   poly_type: PropTypes.string,
   seq: PropTypes.string,
   chains: PropTypes.arrayOf(PropTypes.string).isRequired,
-  applyHeatmap: PropTypes.bool,
+  checked: PropTypes.bool,
   changeApplyHeatmap: PropTypes.func.isRequired,
 };
 StructureEntityItem.defaultProps = {
   poly_type: null,
-  applyHeatmap: true,
+  checked: true,
 };
 
 const StructureEntities = ({ entities, onChangeEntities }) => {
