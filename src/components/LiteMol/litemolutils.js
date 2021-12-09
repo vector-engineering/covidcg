@@ -29,6 +29,34 @@ const Transformer = Bootstrap.Entity.Transformer;
 //   }
 // }
 
+function queryAtomsByChains(chainIds) {
+  return Query.Builder.build(() => compileAtomsByChains(chainIds));
+}
+
+function compileAtomsByChains(chainIds) {
+  return (ctx) => {
+    let { chains } = ctx.structure.data,
+      { authAsymId, count, atomStartIndex, atomEndIndex } = chains,
+      fragments = new Query.FragmentSeqBuilder(ctx);
+
+    for (let chainI = 0; chainI < count; chainI++) {
+      const chainAsymId = authAsymId[chainI];
+
+      if (chainIds.includes(chainAsymId)) {
+        fragments.add(
+          Query.Fragment.ofIndexRange(
+            ctx,
+            atomStartIndex[chainI],
+            atomEndIndex[chainI]
+          )
+        );
+      }
+    }
+
+    return fragments.getSeq();
+  };
+}
+
 function queryResiduesByIndices(indices) {
   return Query.Builder.build(() => compileResiduesByIndices(indices));
 }
@@ -209,7 +237,7 @@ class ColorMapper {
   }
 }
 
-export function createTheme(model, colorDef) {
+export function createTheme(model, colorDef, ignoreChains) {
   const mapper = new ColorMapper();
   mapper.addColor(colorDef.base);
   const map = new Uint8Array(model.data.atoms.count);
@@ -229,6 +257,18 @@ export function createTheme(model, colorDef) {
     // ).compile();
     const query = queryResiduesByIndices(e.indices).compile();
     const colorIndex = mapper.addColor(e.color);
+    for (const f of query(model.queryContext).fragments) {
+      for (const a of f.atomIndices) {
+        map[a] = colorIndex;
+      }
+    }
+  }
+
+  const ignoreChainColor = { r: 150, g: 150, b: 150 };
+  const colorIndex = mapper.addColor(ignoreChainColor);
+  // console.log(ignoreChains);
+  if (ignoreChains.length > 0) {
+    const query = queryAtomsByChains(ignoreChains).compile();
     for (const f of query(model.queryContext).fragments) {
       for (const a of f.atomIndices) {
         map[a] = colorIndex;
@@ -261,6 +301,7 @@ export function applyTheme(plugin, modelRef, theme) {
       .ofType(Bootstrap.Entity.Molecule.Visual)
       .filter((node) => node.parent.props.label == 'Polymer')
   );
+
   for (const v of visuals) {
     plugin.command(Bootstrap.Command.Visual.UpdateBasicTheme, {
       visual: v,
@@ -269,7 +310,7 @@ export function applyTheme(plugin, modelRef, theme) {
   }
 }
 
-export const colorHeatmap = ({ plugin, entries, ref }) => {
+export const colorHeatmap = ({ plugin, entries, ref, ignoreChains }) => {
   const model = plugin.selectEntities(ref)[0];
   if (!model) return;
 
@@ -283,7 +324,7 @@ export const colorHeatmap = ({ plugin, entries, ref }) => {
     entries,
   };
 
-  const theme = createTheme(model.props.model, coloring);
+  const theme = createTheme(model.props.model, coloring, ignoreChains);
 
   // instead of "polymer-visual", "model" or any valid ref can be used: all "child" visuals will be colored.
   applyTheme(plugin, ref, theme);
@@ -297,6 +338,80 @@ export const getMoleculeAssemblies = ({ plugin }) => {
   const assemblies =
     molecule.props.molecule.models[0].data.assemblyInfo.assemblies;
   return assemblies.map((asm) => asm.name);
+};
+
+export const getMoleculeEntities = ({ plugin }) => {
+  const molecule = plugin.selectEntities('molecule')[0];
+  if (!molecule) return [];
+
+  // See: https://github.com/dsehnal/LiteMol/blob/2ce0190a9b369841c1c3ee7322c2f5dda3e7800e/src/lib/Core/lib/CIFTools.js
+  //      https://github.com/dsehnal/LiteMol/blob/2ce0190a9b369841c1c3ee7322c2f5dda3e7800e/src/lib/Core/lib/CIFTools.d.ts
+  const categoryMap =
+    molecule.parent.props.dictionary.dataBlocks[0].categoryMap;
+
+  const entity = categoryMap.get('_entity').toJSON().rows;
+  const entityPoly = categoryMap.get('_entity_poly').toJSON().rows;
+
+  // console.log(entity, entityPoly);
+
+  const entityObjs = entity
+    .map((e) => {
+      e = Object.assign({}, e);
+
+      // Skip over non-polymers. We won't be coloring het groups anyways
+      if (e.type !== 'polymer') {
+        return null;
+      }
+
+      // Find the corresponding chains and polymer type from the entityPoly rows
+      const poly = entityPoly.find((p) => p.entity_id === e.id);
+
+      // If no poly object found, break out
+      if (poly === undefined) {
+        return null;
+      }
+
+      // Attach chain and polymer type information
+      // and also the sequence I guess
+      e.chains = poly.pdbx_strand_id.split(',');
+      e.poly_type = poly.type;
+      // Check for key ownership just in case... maybe this polymer is DNA or something
+      if (
+        Object.prototype.hasOwnProperty.call(poly, 'pdbx_seq_one_letter_code')
+      ) {
+        e.seq = poly.pdbx_seq_one_letter_code;
+      }
+
+      // Apply heatmap by default?
+      e.checked = true;
+
+      // Disable some entities by default
+      const descriptionBlacklist = [
+        // Antibody-like
+        /heavy\schain/gi,
+        /light\schain/gi,
+        /[FNM]ab/g,
+        // polynucleicacids
+        /[DR]NA$/g,
+      ];
+      e.checked = descriptionBlacklist.every((regex) => {
+        return e.pdbx_description.search(regex) === -1;
+      });
+      // Disable ribonucleotide types
+      const typeBlacklist = ['polyribonucleotide'];
+      e.checked =
+        e.checked &&
+        typeBlacklist.every((t) => {
+          return e.poly_type !== t;
+        });
+
+      return e;
+    })
+    .filter((e) => e !== null);
+
+  // console.log(entityObjs);
+
+  return entityObjs;
 };
 
 const selectionColors = Bootstrap.Immutable.Map()
@@ -322,10 +437,8 @@ const polymerSurfaceStyle = {
 const polymerCartoonStyle = {
   type: 'Cartoons',
   params: {
-    probeRadius: 0,
-    density: 1.25,
-    smoothing: 3,
-    isWireframe: false,
+    detail: 'Very High',
+    showDirectionCone: false,
   },
   theme: {
     template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,

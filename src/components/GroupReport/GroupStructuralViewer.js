@@ -7,6 +7,7 @@ import './../../styles/litemol.min.css';
 import {
   colorHeatmap,
   getMoleculeAssemblies,
+  getMoleculeEntities,
   CreateMacromoleculeVisual,
 } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
@@ -15,9 +16,11 @@ import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 import defaultStructures from '../../../static_data/default_structures.json';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
+import StructureEntities from './StructureEntities';
 import {
   StructuralViewerContainer,
   LiteMolContainer,
@@ -35,6 +38,11 @@ const Transformer = Bootstrap.Entity.Transformer;
 
 const numColors = reds.length;
 
+const DOWNLOAD_OPTIONS = {
+  DOWNLOAD_DATA: 'Download Data',
+  DOWNLOAD_PYMOL: 'Download PyMOL Script',
+};
+
 const StructuralViewer = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
   const [plugin, setPlugin] = useState(null);
@@ -46,6 +54,7 @@ const StructuralViewer = observer(() => {
     validPdbId: true,
     pdbIdChanged: false,
     assemblies: [],
+    entities: [],
     activeAssembly: '',
   });
   const pluginRef = useRef(null);
@@ -108,10 +117,26 @@ const StructuralViewer = observer(() => {
 
   const onChangeActiveAssembly = (event) => {
     loadModel({ useAssembly: event.target.value });
+    plotSettingsStore.setReportStructureActiveAssembly(event.target.value);
   };
 
   const onChangeProteinStyle = (event) => {
     plotSettingsStore.setReportStructureProteinStyle(event.target.value);
+  };
+
+  const onChangeEntities = (entities) => {
+    setState({
+      ...state,
+      entities,
+    });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+      entities,
+    });
+    plotSettingsStore.setReportStructureEntities(entities);
   };
 
   const applyChanges = () => {
@@ -127,11 +152,15 @@ const StructuralViewer = observer(() => {
     });
   };
 
-  const downloadData = () => {
-    groupDataStore.downloadStructureMutationData();
+  const handleDownloadSelect = (downloadOption) => {
+    if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      groupDataStore.downloadStructureMutationData();
+    } else if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL) {
+      showDownloadPymolScriptModal();
+    }
   };
 
-  const applyHeatmap = ({ ref }) => {
+  const applyHeatmap = ({ ref, entities }) => {
     const mutations = groupDataStore.groupMutationFrequency[
       groupDataStore.activeGroupType
     ]['protein_aa']['0']
@@ -163,7 +192,14 @@ const StructuralViewer = observer(() => {
       });
     });
 
-    colorHeatmap({ plugin, entries: heatmapEntries, ref });
+    const ignoreChains = [];
+    entities.forEach((entity) => {
+      if (!entity.checked) {
+        ignoreChains.push(...entity.chains);
+      }
+    });
+
+    colorHeatmap({ plugin, entries: heatmapEntries, ref, ignoreChains });
   };
 
   const loadModel = ({ useAssembly } = { useAssembly: '' }) => {
@@ -208,6 +244,7 @@ const StructuralViewer = observer(() => {
         if (useAssembly === '') {
           useAssembly = assemblies[0];
         }
+        //useAssembly = 'asym';
 
         // If user decides to display the asymmetric unit,
         // then skip the assembly process
@@ -218,14 +255,16 @@ const StructuralViewer = observer(() => {
             { ref: 'assembly' }
           );
         }
-
-        // TODO: remove the original model from the tree?
-        setState({
-          ...state,
-          assemblies,
-          activeAssembly: useAssembly,
-        });
       }
+
+      const entities = getMoleculeEntities({ plugin });
+
+      setState({
+        ...state,
+        assemblies,
+        entities,
+        activeAssembly: useAssembly,
+      });
 
       vizAction = vizAction.then(CreateMacromoleculeVisual, {
         polymer: true,
@@ -240,14 +279,21 @@ const StructuralViewer = observer(() => {
             assemblies.length > 0 && useAssembly !== 'asym'
               ? 'assembly'
               : 'model',
+          entities: entities,
         });
       });
+
+      // Update store so other components have this info
+      plotSettingsStore.setReportStructureAssemblies(assemblies);
+      plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
+      plotSettingsStore.setReportStructureEntities(entities);
     });
 
     modelAction;
   };
 
   useEffect(() => {
+    if (!plugin) return;
     loadModel();
   }, [
     plugin,
@@ -263,6 +309,7 @@ const StructuralViewer = observer(() => {
         state.assemblies.length > 0 && state.activeAssembly !== 'asym'
           ? 'assembly'
           : 'model',
+      entities: state.entities,
     });
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
@@ -320,8 +367,15 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <div className="spacer"></div>
-        <ConfirmButton onClick={downloadData}>Download Data</ConfirmButton>
+        <div className="spacer" />
+        <DropdownButton
+          text={'Download'}
+          options={[
+            DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL,
+          ]}
+          onSelect={handleDownloadSelect}
+        />
       </StructuralViewerHeader>
       <StructuralViewerHeader>
         <OptionInputContainer>
@@ -330,11 +384,6 @@ const StructuralViewer = observer(() => {
             <input type="text" value={state.pdbId} onChange={onChangePdbId} />
           </label>
           {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
-          {(state.pdbIdChanged || state.activeProteinChanged) && (
-            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
-              Apply
-            </ConfirmButton>
-          )}
         </OptionInputContainer>
         <OptionSelectContainer>
           <label>
@@ -347,10 +396,11 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <div className="spacer"></div>
-        <ConfirmButton onClick={showDownloadPymolScriptModal}>
-          Download PyMOL Script
-        </ConfirmButton>
+        {(state.pdbIdChanged || state.activeProteinChanged) && (
+          <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
+            Apply
+          </ConfirmButton>
+        )}
       </StructuralViewerHeader>
       <StructuralViewerHeader>
         <OptionSelectContainer>
@@ -378,6 +428,10 @@ const StructuralViewer = observer(() => {
           </label>
         </OptionSelectContainer>
       </StructuralViewerHeader>
+      <StructureEntities
+        entities={state.entities}
+        onChangeEntities={onChangeEntities}
+      />
       <LiteMolContainer>
         <LiteMolPlugin
           height={500}
