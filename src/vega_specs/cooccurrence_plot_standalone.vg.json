@@ -11,7 +11,7 @@
     { "name": "innerPadding", "value": 0.2 },
     { "name": "outerPadding", "value": 0.1 },
     { "name": "stackOffset", "value": "normalize" },
-    { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
+    { "name": "xLabel", "value": "Co-occuring Mutations (Normalized)" },
     { "name": "xFormat", "value": "s" },
     { "name": "dna", "value": false },
     { "name": "posField", "update": "dna ? 0 : 1" },
@@ -21,7 +21,7 @@
       "on": [
         {
           "events": "rect:mouseover!",
-          "update": "{group: datum.snv}"
+          "update": "{group: datum.mutation}"
         },
         {
           "events": "rect:mouseout!",
@@ -66,7 +66,7 @@
       "on": [
         {
           "events": "@combibars:click",
-          "update": "{group: datum.snv}",
+          "update": "{group: datum.mutation}",
           "force": true
         },
         {
@@ -97,21 +97,21 @@
         "parse": {
           "combi": "string",
           "combiName": "string",
-          "snv": "string",
+          "mutation": "string",
           "count": "number",
-          "snvName": "string"
+          "mutationName": "string"
         }
       },
-      "values": [{"combi":"N|183|S|Y","combiName":"N · S183Y","snv":"N|147|G|S","snvName":"N · G147S","color":"#0077bb","count":1},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|203|R|K","snvName":"N · R203K","color":"#117733","count":42},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R","combiName":"N · G204R","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|204|G|R","snvName":"N · G204R","color":"#cc6677","count":42},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|366|T|I","snvName":"N · T366I","color":"#009988","count":2},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|1510|P|S","snvName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","snv":"N|232|S|T","snvName":"N · S232T","color":"#ddcc77","count":1}],
+      "values": [{"combi":"N|183|S|Y","combiName":"N · S183Y","mutation":"N|147|G|S","mutationName":"N · G147S","color":"#0077bb","count":1},{"combi":"N|204|G|R","combiName":"N · G204R","mutation":"N|203|R|K","mutationName":"N · R203K","color":"#117733","count":42},{"combi":"N|204|G|R","combiName":"N · G204R","mutation":"N|366|T|I","mutationName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R","combiName":"N · G204R","mutation":"N|1510|P|S","mutationName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","mutation":"N|366|T|I","mutationName":"N · T366I","color":"#009988","count":2},{"combi":"N|204|G|R + N|203|R|K","combiName":"N · G204R + N · R203K","mutation":"N|1510|P|S","mutationName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","mutation":"N|204|G|R","mutationName":"N · G204R","color":"#cc6677","count":42},{"combi":"N|203|R|K","combiName":"N · R203K","mutation":"N|366|T|I","mutationName":"N · T366I","color":"#009988","count":2},{"combi":"N|203|R|K","combiName":"N · R203K","mutation":"N|1510|P|S","mutationName":"N · P1510S","color":"#ee3377","count":1},{"combi":"N|203|R|K","combiName":"N · R203K","mutation":"N|232|S|T","mutationName":"N · S232T","color":"#ddcc77","count":1}],
       "transform": [
         {
           "type": "formula",
-          "expr": "dna ? 'NT' : split(datum.snv, '|')[0]",
+          "expr": "dna ? 'NT' : split(datum.mutation, '|')[0]",
           "as": "gene_protein"
         },
         {
           "type": "formula",
-          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "expr": "parseInt(split(datum.mutation, '|')[posField])",
           "as": "pos"
         },
         {
@@ -243,7 +243,7 @@
             },
             "update": {
               "tooltip": {
-                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
+                "signal": "{title: datum.mutationName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
               },
               "y": { "scale": "yscale", "field": "combi" },
               "height": { "scale": "yscale", "band": 1 },
@@ -251,21 +251,21 @@
               "x2": { "scale": "xscale", "field": "y0" },
               "fillOpacity": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 0.7
                 },
                 { "value": 1.0 }
               ],
               "stroke": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": "#333"
                 },
                 { "value": "transparent" }
               ],
               "zindex": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 3
                 },
                 { "value": 1 }

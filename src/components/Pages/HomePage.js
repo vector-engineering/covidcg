@@ -117,7 +117,9 @@ const HomePage = observer(() => {
         />
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>
+          <React.Suspense fallback={<div />}>
+            {renderTab()}
+          </React.Suspense>
         </PlotContainer>
       </HomePageDiv>
     </>

@@ -13,7 +13,7 @@ import LocationDatePlot from '../Vega/LocationDatePlot';
 import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
 import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
 
-import { GROUP_SNV } from '../../constants/defs.json';
+import { GROUP_MUTATION } from '../../constants/defs.json';
 
 const CompareLocationsTabContainer = styled.div`
   padding-top: 10px;
@@ -36,9 +36,9 @@ const CompareLocationsTab = observer(() => {
               selected <b>{configStore.getGroupLabel()}s</b>, between the
               selected locations.
             </li>
-            {configStore.groupKey === GROUP_SNV && (
+            {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In SNV mode, matching sequences are defined as sequences having
+                In mutation mode, matching sequences are defined as sequences having
                 the selected {configStore.getGroupLabel()}s or combination of{' '}
                 {configStore.getGroupLabel()}s.
               </li>
@@ -134,12 +134,12 @@ const CompareLocationsTab = observer(() => {
               This plot shows the cumulative proportion of{' '}
               <b>{configStore.getGroupLabel()}s</b> per location.
             </li>
-            {configStore.groupKey === GROUP_SNV && (
+            {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In SNV mode, sequences are shown as counts and not proportions.
+                In mutation mode, sequences are shown as counts and not proportions.
                 This is because sequences can be counted multiple times, as a
-                single sequence may have multiple SNVs. The relevant data is the
-                relative difference between the SNVs – the height of all bars is
+                single sequence may have multiple mutations. The relevant data is the
+                relative difference between the mutations – the height of all bars is
                 not meaningful.
               </li>
             )}

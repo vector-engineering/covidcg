@@ -20,17 +20,18 @@ const urls = {
     'https://www.gov.uk/government/publications/covid-19-variants-genomically-confirmed-case-numbers',
 };
 
-const Org = ({ name, color }) => {
+const Org = ({ nameToDisplay, name, color }) => {
   return (
-    <OrgItem key={'org-' + name}>
+    <OrgItem key={'orgitem-' + name}>
       <OrgBadge color={color} />
       <ExternalLink showIcon={false} href={urls[name]}>
-        <OrgName>{name}</OrgName>
+        <OrgName>{nameToDisplay}</OrgName>
       </ExternalLink>
     </OrgItem>
   );
 };
 Org.propTypes = {
+  nameToDisplay: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
 };
@@ -38,7 +39,18 @@ Org.propTypes = {
 export const OrgLegend = () => {
   const orgs = [];
   Object.keys(colors).forEach((key) => {
-    orgs.push(<Org key={'org-' + key} name={key} color={colors[key]} />);
+    let nameToDisplay = key;
+    if (nameToDisplay === 'PHE') {
+      nameToDisplay = 'UKHSA';
+    }
+    orgs.push(
+      <Org
+        key={'org-' + key}
+        nameToDisplay={nameToDisplay}
+        name={key}
+        color={colors[key]}
+      />
+    );
   });
 
   return (

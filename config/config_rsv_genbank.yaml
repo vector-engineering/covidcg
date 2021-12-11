@@ -21,8 +21,8 @@ chunk_size: 100000
 #       ANALYSIS
 # --------------------
 
-# SNPs with less than this number of global occurrences will be ignored
-snp_count_threshold: 3
+# Mutations with less than this number of global occurrences will be ignored
+mutation_count_threshold: 3
 
 # Threshold of prevalence to report a mutation as being a consensus
 # mutation for a group (e.g., clade, lineage)
@@ -56,6 +56,18 @@ surv_min_combo_count: 50
 surv_min_single_count: 50
 surv_start_date_days_ago: 90
 surv_end_date_days_ago: 30
+
+# ---------------
+#    DATABASE
+# ---------------
+
+# Split mutation table partitions into periods of this length
+# See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+# Common options: 
+# 'D' calendar day frequency
+# 'W' weekly frequency
+# 'M' month end frequency
+mutation_partition_break: 'M'
 
 # ---------------
 #     SERVER

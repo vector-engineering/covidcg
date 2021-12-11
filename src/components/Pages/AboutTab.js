@@ -62,7 +62,7 @@ const AboutTab = () => {
                   resource.
                 </li>
                 <li>
-                  <b>SNV Type Heat Map:</b> What are the mutations that
+                  <b>Mutation Type Heat Map:</b> What are the mutations that
                   distinguish my lineage or variant from the original SARS-CoV-2
                   genome? How frequently do specific mutations occur in that
                   lineage or variant as compared to other lineages? This

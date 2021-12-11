@@ -60,24 +60,24 @@ const LegendItem = ({
 
   let groupText = legendItem.group;
 
-  // For co-occurring Spike SNVs (spike_combo mode),
+  // For co-occurring Spike mutations (spike_combo mode),
   // try to break up long strings by comma so that they're
   // more readable in this compact format
   if (surveillanceMode === 'spike_combo') {
     let charCounter = 0;
     let curEntry = '';
     groupText = [];
-    legendItem.group.split(',').forEach((snv, i) => {
-      charCounter += snv.length;
+    legendItem.group.split(',').forEach((mutation, i) => {
+      charCounter += mutation.length;
       if (charCounter > maxCharsPerLine) {
         groupText.push(
           <span key={`${legendItem.group}-${i}`}>{curEntry}</span>
         );
         groupText.push(<br key={`${legendItem.group}-${i}-break`} />);
-        charCounter = snv.length;
+        charCounter = mutation.length;
         curEntry = '';
       }
-      curEntry += snv;
+      curEntry += mutation;
       if (i < legendItem.group.split(',').length - 1) {
         curEntry += ',';
       }
@@ -124,9 +124,9 @@ const SurveillanceLegend = observer(
     if (plotSettingsStore.surveillanceMode === 'lineage') {
       legendTitleText = 'Lineages';
     } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText = 'Spike SNVs (Co-occuring)';
+      legendTitleText = 'Spike mutations (Co-occuring)';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText = 'Spike SNVs (Single)';
+      legendTitleText = 'Spike mutations (Single)';
     }
 
     return (
@@ -426,9 +426,9 @@ const SurveillancePlot = observer(({ width }) => {
   if (plotSettingsStore.surveillanceMode === 'lineage') {
     groupName = 'Lineages';
   } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-    groupName = 'Co-occuring SNVs';
+    groupName = 'Co-occuring mutations';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-    groupName = 'Single SNVs';
+    groupName = 'Single mutations';
   }
 
   return (
@@ -480,8 +480,8 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   <option value={'lineage'}>Lineage</option>
-                  <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
-                  <option value={'spike_single'}>Spike Single SNVs</option>
+                  <option value={'spike_combo'}>Spike Co-occuring Mutations</option>
+                  <option value={'spike_single'}>Spike Single Mutations</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}

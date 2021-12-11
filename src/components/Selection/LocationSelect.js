@@ -51,14 +51,22 @@ const LocationSelect = observer(
       });
 
       if (allRegions) {
-        // Add any regions not already in selectedNodeObjs
+        // Add any regions not already in selectedNodeObjs, and remove self
         state.data.children.forEach((region) => {
           if (!selectedNodeObjs.includes(region)) {
             selectedNodeObjs.push(region);
           }
         });
+        // Remove self
+        selectedNodeObjs = selectedNodeObjs.filter((node) => {
+          return node.value != 'All';
+        });
       }
+      
       updateSelectedLocationNodes(selectedNodeObjs);
+      // Have to update the store's version as well, since
+      // we didn't directly click on these new nodes
+      locationDataStore.setSelectedNodes(selectedNodeObjs);
     };
     const treeSelectOnAction = (node, action) => {
       // console.log('onAction::', action, node);
@@ -84,9 +92,32 @@ const LocationSelect = observer(
         locationDataStore.setSelectedNodes(selectedNodeObjs);
       }
     };
-    // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-    //   console.log('onNodeToggle::', currentNode);
-    // };
+
+    // Maintain tree expansion state
+    const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+      // console.log(currentNode);
+      const data = Object.assign({}, state.data);
+      
+      // Recursively go through and find the node to expand
+      const traverseAndExpand = (node) => {
+        if (node.path === currentNode.path) {
+          node.expanded = currentNode.expanded;
+        }
+
+        if ('children' in node) {
+          node.children.forEach((child) => {
+            traverseAndExpand(child);
+          });
+        }
+      };
+      traverseAndExpand(data);
+
+      setState({
+        ...state,
+        data,
+      });
+    };
+
     const onLocationNodeDeselect = (node_path) => {
       let selectedNodeObjs = selectedLocationNodes.filter(
         (node) => node.path !== node_path
@@ -115,7 +146,7 @@ const LocationSelect = observer(
           }}
           onChange={treeSelectOnChange}
           onAction={treeSelectOnAction}
-          // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+          onNodeToggle={treeSelectOnNodeToggleCurrentNode}
         />
       ),
       [state.data]

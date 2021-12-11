@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
-import { GROUP_SNV } from '../../constants/defs.json';
+import { GROUP_MUTATION } from '../../constants/defs.json';
 import { useStores } from '../../stores/connect';
-import { formatSnv } from '../../utils/snpUtils';
+import { formatMutation } from '../../utils/mutationUtils';
 import { reds } from '../../constants/colors';
 
 import {
@@ -113,8 +113,8 @@ const TableLegendItem = observer(
       >
         <ColorBar color={item.color} />
         <GroupNameContainer data-group={item.group}>
-          {configStore.groupKey === GROUP_SNV
-            ? formatSnv(item.group, configStore.dnaOrAa)
+          {configStore.groupKey === GROUP_MUTATION
+            ? formatMutation(item.group, configStore.dnaOrAa)
             : item.group}
         </GroupNameContainer>
         <PercentageCell

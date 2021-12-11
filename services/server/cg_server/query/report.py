@@ -8,17 +8,14 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import io
 import pandas as pd
 import numpy as np
-import psycopg2
-
-from psycopg2 import sql
 from flask import send_file
 
 
 def generate_report(conn, req):
     """Generate a Spike mutation and lineage report
     This report will consist of:
-    1) Single Spike SNV frequencies, both global and regional
-    2) Co-occurring Spike SNV frequencies, both global and regional
+    1) Single Spike mutation frequencies, both global and regional
+    2) Co-occurring Spike mutation frequencies, both global and regional
     3) PANGO lineage frequencies, both global and regional
 
     Fetch the more complex data (regional data) from the database,
@@ -61,89 +58,88 @@ def generate_report(conn, req):
         )
         num_seqs = cur.fetchone()[0]
 
-        # REGIONAL SINGLE SPIKE SNVs
+        # REGIONAL SINGLE SPIKE MUTATIONS
         cur.execute(
             """
-            WITH snp_region_counts AS (
-                SELECT 
-                    seq_snp."snp_id",
-                    l."region",
-                    COUNT(seq_snp."sequence_id") AS "count"
-                FROM "sequence_gene_aa_snp" seq_snp
-                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."id"
-                INNER JOIN "location" l ON m."location_id" = l."id"
-                WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY seq_snp."snp_id", l."region"
+            WITH mutation_region_counts AS (
+                SELECT
+                    "region", "mutation_id", COUNT(*) as "count"
+                FROM (
+                    SELECT "region", UNNEST("mutations") as "mutation_id"
+                    FROM "sequence_gene_aa_mutation" seq_mut
+                    WHERE
+                        "collection_date" >= %(start_date)s AND
+                        "collection_date" <= %(end_date)s
+                ) muts
+                GROUP BY "region", "mutation_id"
             ),
             region_counts AS (
-                SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
+                SELECT "region", COUNT("sequence_id")
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                    "collection_date" >= %(start_date)s AND
+                    "collection_date" <= %(end_date)s
+                GROUP BY "region"
             )
             SELECT
-                SUBSTRING(snp_def."snv_name" FROM 3) AS "name",
-                snp_def."pos",
-                snp_def."ref",
-                snp_def."alt",
-                snp_region_counts."region",
-                snp_region_counts."count",
-                ((snp_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
-            FROM snp_region_counts
-            INNER JOIN "gene_aa_snp" snp_def ON snp_region_counts."snp_id" = snp_def."id"
-            INNER JOIN region_counts ON region_counts."region" = snp_region_counts."region"
-            WHERE snp_def."gene" = 'S'
+                SUBSTRING(mutation_def."mutation_name" FROM 3) AS "name",
+                mutation_def."pos",
+                mutation_def."ref",
+                mutation_def."alt",
+                mr."value",
+                mutation_region_counts."count",
+                ((mutation_region_counts."count"::REAL / region_counts."count"::REAL) * 100) AS "percent"
+            FROM mutation_region_counts
+            INNER JOIN "gene_aa_mutation" mutation_def ON mutation_region_counts."mutation_id" = mutation_def."id"
+            INNER JOIN region_counts ON region_counts."region" = mutation_region_counts."region"
+            INNER JOIN "metadata_region" mr ON region_counts."region" = mr."id"
+            WHERE mutation_def."gene" = 'S'
             """,
             {"start_date": start_date, "end_date": end_date},
         )
-        single_spike_snv_region = pd.DataFrame.from_records(
+        single_spike_mutation_region = pd.DataFrame.from_records(
             cur.fetchall(),
-            columns=["snv", "pos", "ref", "alt", "region", "count", "percent"],
+            columns=["mutation", "pos", "ref", "alt", "region", "count", "percent"],
         )
         # Pivot
-        single_spike_snv_region_pivot = pd.pivot_table(
-            single_spike_snv_region,
-            index=["snv", "pos", "ref", "alt"],
+        single_spike_mutation_region_pivot = pd.pivot_table(
+            single_spike_mutation_region,
+            index=["mutation", "pos", "ref", "alt"],
             values=["count", "percent"],
             columns=["region"],
         ).fillna(0)
         # Collapse column multi-index
-        single_spike_snv_region_pivot.columns = [
+        single_spike_mutation_region_pivot.columns = [
             "{}_{}".format(a, b)
             for a, b in zip(
-                single_spike_snv_region_pivot.columns.get_level_values(0),
-                single_spike_snv_region_pivot.columns.get_level_values(1),
+                single_spike_mutation_region_pivot.columns.get_level_values(0),
+                single_spike_mutation_region_pivot.columns.get_level_values(1),
             )
         ]
         # Cast count columns to integers
         count_cols = [
-            col for col in single_spike_snv_region_pivot.columns if "count" in col
+            col for col in single_spike_mutation_region_pivot.columns if "count" in col
         ]
         for col in count_cols:
-            single_spike_snv_region_pivot.loc[:, col] = single_spike_snv_region_pivot[
-                col
-            ].astype(int)
-        single_spike_snv_region_pivot = single_spike_snv_region_pivot.reset_index()
+            single_spike_mutation_region_pivot.loc[
+                :, col
+            ] = single_spike_mutation_region_pivot[col].astype(int)
+        single_spike_mutation_region_pivot = (
+            single_spike_mutation_region_pivot.reset_index()
+        )
 
         # Compute sum counts and sort on it
-        single_spike_snv_region_pivot.insert(
-            4, "sum_counts", single_spike_snv_region_pivot[count_cols].sum(axis=1)
+        single_spike_mutation_region_pivot.insert(
+            4, "sum_counts", single_spike_mutation_region_pivot[count_cols].sum(axis=1)
         )
-        single_spike_snv_region_pivot = single_spike_snv_region_pivot.sort_values(
+        single_spike_mutation_region_pivot = single_spike_mutation_region_pivot.sort_values(
             "sum_counts", ascending=False
         )
-        # print(single_spike_snv_region_pivot)
+        # print(single_spike_mutation_region_pivot)
 
-        # GLOBAL SPIKE SINGLE SNVs
-        single_spike_snv_global = (
-            single_spike_snv_region.groupby("snv")
+        # GLOBAL SPIKE SINGLE MUTATIONS
+        single_spike_mutation_global = (
+            single_spike_mutation_region.groupby("mutation")
             .agg(
                 pos=("pos", "first"),
                 ref=("ref", "first"),
@@ -154,155 +150,183 @@ def generate_report(conn, req):
             .assign(percent=lambda x: x["count"] / num_seqs)
             .reset_index()
         )
-        # print(single_spike_snv_global)
+        # print(single_spike_mutation_global)
 
-        # REGIONAL SPIKE COOC SNVs
+        # REGIONAL SPIKE COOC MUTATIONS
+
+        # First get map of IDs -> mutation names
+        cur.execute(
+            """
+            SELECT "id", SUBSTRING("mutation_name" FROM 3) AS "name", "pos"
+            FROM gene_aa_mutation
+            WHERE gene = 'S'
+            """
+        )
+        spike_mutation_props = pd.DataFrame.from_records(
+            cur.fetchall(), columns=["id", "name", "pos"]
+        )
+        spike_mutation_name_map = dict(
+            zip(spike_mutation_props["id"].values, spike_mutation_props["name"].values)
+        )
+        spike_mutation_pos_map = dict(
+            zip(spike_mutation_props["id"].values, spike_mutation_props["pos"].values)
+        )
+
         cur.execute(
             """
             WITH seq_cooc AS (
-                SELECT
-                    m."id" AS "sequence_id",
-                    m."location_id",
-                    m."lineage",
-                    ARRAY_AGG(SUBSTRING(snp_def."snv_name", 3) ORDER BY snp_def."pos" ASC) as "snvs"
-                FROM "sequence_gene_aa_snp" seq_snp
-                INNER JOIN "gene_aa_snp" snp_def ON seq_snp."snp_id" = snp_def."id"
-                INNER JOIN "metadata" m ON seq_snp."sequence_id" = m."id"
-                WHERE 
-                    snp_def."gene" = 'S' AND
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY m."id"
+                SELECT 
+                    seq_mut."sequence_id",
+                    seq_mut."region",
+                    ("mutations" & (
+                        SELECT ARRAY_AGG("id")
+                        FROM "gene_aa_mutation"
+                        WHERE "gene" = 'S'
+                    )) as "mutations",
+                    m."lineage"
+                FROM "sequence_gene_aa_mutation" seq_mut
+                INNER JOIN "metadata" m ON seq_mut."sequence_id" = m."sequence_id"
+                WHERE
+                    seq_mut."collection_date" >= %(start_date)s AND
+                    seq_mut."collection_date" <= %(end_date)s
             ),
             most_common_lineage AS (
-                SELECT DISTINCT ON ("cooc")
-                    "cooc",
+                SELECT DISTINCT ON ("mutations")
+                    "mutations",
                     "count",
                     "lineage"
                 FROM (
                     SELECT 
-                        ARRAY_TO_STRING("snvs", ':') as "cooc",
+                        "mutations",
                         "lineage",
                         COUNT("sequence_id") as "count"
                     FROM seq_cooc
-                    GROUP BY "snvs", "lineage"
+                    GROUP BY "mutations", "lineage"
                 ) cooc_lineage
-                ORDER BY "cooc", "count" DESC
+                ORDER BY "mutations", "count" DESC
             ),
             region_cooc_counts AS (
                 SELECT
-                    l."region",
-                    ARRAY_TO_STRING(seq_cooc."snvs", ':') AS "cooc",
+                    seq_cooc."region",
+                    "mutations",
                     COUNT(seq_cooc."sequence_id") AS "count"
                 FROM seq_cooc
-                INNER JOIN "location" l ON seq_cooc."location_id" = l."id"
-                GROUP BY seq_cooc."snvs", l."region"
+                GROUP BY seq_cooc."mutations", seq_cooc."region"
             ),
             region_counts AS (
                 SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
-                FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
-                WHERE
-                    m."collection_date" >= %(start_date)s AND
-                    m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                    seq_cooc."region",
+                    COUNT(seq_cooc."sequence_id") as "count"
+                FROM seq_cooc
+                GROUP BY seq_cooc."region"
             )
             SELECT
-                region_cooc_counts."region",
+                mr."value" as "region",
                 most_common_lineage."lineage",
-                region_cooc_counts."cooc",
+                region_cooc_counts."mutations",
                 region_cooc_counts."count",
                 (region_cooc_counts."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM region_cooc_counts
             INNER JOIN region_counts ON region_cooc_counts."region" = region_counts."region"
-            INNER JOIN most_common_lineage ON region_cooc_counts."cooc" = most_common_lineage."cooc"
+            INNER JOIN most_common_lineage ON region_cooc_counts."mutations" = most_common_lineage."mutations"
+            INNER JOIN metadata_region mr ON region_cooc_counts."region" = mr."id"
             ORDER BY region_cooc_counts."count" DESC
             """,
             {"start_date": start_date, "end_date": end_date},
         )
-        cooc_spike_snv_region = pd.DataFrame.from_records(
-            cur.fetchall(), columns=["region", "lineage", "cooc", "count", "percent"]
+        cooc_spike_mutation_region = pd.DataFrame.from_records(
+            cur.fetchall(),
+            columns=["region", "lineage", "mutations", "count", "percent"],
         )
+
+        # Sort mutations by position
+        cooc_spike_mutation_region.loc[:, "mutations"] = cooc_spike_mutation_region[
+            "mutations"
+        ].apply(lambda x: sorted(x, key=lambda _x: spike_mutation_pos_map[_x]))
+
+        # Serialize list of mutation IDs
+        cooc_spike_mutation_region.loc[:, "mutations"] = cooc_spike_mutation_region[
+            "mutations"
+        ].apply(lambda x: ";".join([spike_mutation_name_map[_x] for _x in x]))
+
         # Pivot
-        cooc_spike_snv_region_pivot = pd.pivot_table(
-            cooc_spike_snv_region,
-            index=["cooc", "lineage"],
+        cooc_spike_mutation_region_pivot = pd.pivot_table(
+            cooc_spike_mutation_region,
+            index=["mutations", "lineage"],
             values=["count", "percent"],
             columns=["region"],
         ).fillna(0)
         # Collapse column multi-index
-        cooc_spike_snv_region_pivot.columns = [
+        cooc_spike_mutation_region_pivot.columns = [
             "{}_{}".format(a, b)
             for a, b in zip(
-                cooc_spike_snv_region_pivot.columns.get_level_values(0),
-                cooc_spike_snv_region_pivot.columns.get_level_values(1),
+                cooc_spike_mutation_region_pivot.columns.get_level_values(0),
+                cooc_spike_mutation_region_pivot.columns.get_level_values(1),
             )
         ]
         # Cast count columns to integers
         count_cols = [
-            col for col in cooc_spike_snv_region_pivot.columns if "count" in col
+            col for col in cooc_spike_mutation_region_pivot.columns if "count" in col
         ]
         for col in count_cols:
-            cooc_spike_snv_region_pivot.loc[:, col] = cooc_spike_snv_region_pivot[
-                col
-            ].astype(int)
-        cooc_spike_snv_region_pivot = cooc_spike_snv_region_pivot.reset_index()
+            cooc_spike_mutation_region_pivot.loc[
+                :, col
+            ] = cooc_spike_mutation_region_pivot[col].astype(int)
+        cooc_spike_mutation_region_pivot = (
+            cooc_spike_mutation_region_pivot.reset_index()
+        )
 
         # Compute sum counts and sort on it
-        cooc_spike_snv_region_pivot.insert(
-            2, "sum_counts", cooc_spike_snv_region_pivot[count_cols].sum(axis=1)
+        cooc_spike_mutation_region_pivot.insert(
+            2, "sum_counts", cooc_spike_mutation_region_pivot[count_cols].sum(axis=1)
         )
-        cooc_spike_snv_region_pivot = cooc_spike_snv_region_pivot.sort_values(
+        cooc_spike_mutation_region_pivot = cooc_spike_mutation_region_pivot.sort_values(
             "sum_counts", ascending=False
         )
+        # print(cooc_spike_mutation_region_pivot)
 
-        # print(cooc_spike_snv_region_pivot)
-
-        # GLOBAL SPIKE COOC SNVs
-        cooc_spike_snv_global = (
-            cooc_spike_snv_region.groupby("cooc")
+        # GLOBAL SPIKE COOC MUTATIONS
+        cooc_spike_mutation_global = (
+            cooc_spike_mutation_region.groupby("mutations")
             .agg(lineage=("lineage", "first"), count=("count", np.sum),)
             .sort_values("count", ascending=False)
             .assign(percent=lambda x: x["count"] / num_seqs)
             .reset_index()
         )
-        # print(cooc_spike_snv_global)
+        # print(cooc_spike_mutation_global)
 
         # REGIONAL LINEAGE COUNTS
         cur.execute(
             """
             WITH region_counts AS (
                 SELECT 
-                    l."region",
-                    COUNT(m."id") as "count"
+                    m."region",
+                    COUNT(m."sequence_id") as "count"
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
                     m."collection_date" >= %(start_date)s AND
                     m."collection_date" <= %(end_date)s
-                GROUP BY l."region"
+                GROUP BY m."region"
             ),
             group_counts AS (
                 SELECT
-                    l."region",
+                    m."region",
                     m."lineage",
-                    COUNT(m."id") AS "count"
+                    COUNT(m."sequence_id") AS "count"
                 FROM "metadata" m
-                INNER JOIN "location" l ON m."location_id" = l."id"
                 WHERE
                     m."collection_date" >= %(start_date)s AND
                     m."collection_date" <= %(end_date)s
-                GROUP BY l."region", m."lineage"
+                GROUP BY m."region", m."lineage"
             )
             SELECT
-                g."region",
+                mr."value" as "region",
                 g."lineage",
                 g."count",
                 (g."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM group_counts g
             INNER JOIN region_counts ON g."region" = region_counts."region"
+            INNER JOIN metadata_region mr ON g."region" = mr."id"
             """,
             {"start_date": start_date, "end_date": end_date},
         )
@@ -352,12 +376,16 @@ def generate_report(conn, req):
 
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
-        single_spike_snv_global.to_excel(writer, index=False, sheet_name="SAV_Global")
-        single_spike_snv_region_pivot.to_excel(
+        single_spike_mutation_global.to_excel(
+            writer, index=False, sheet_name="SAV_Global"
+        )
+        single_spike_mutation_region_pivot.to_excel(
             writer, index=False, sheet_name="SAV_Regional"
         )
-        cooc_spike_snv_global.to_excel(writer, index=False, sheet_name="Cooc_Global")
-        cooc_spike_snv_region_pivot.to_excel(
+        cooc_spike_mutation_global.to_excel(
+            writer, index=False, sheet_name="Cooc_Global"
+        )
+        cooc_spike_mutation_region_pivot.to_excel(
             writer, index=False, sheet_name="Cooc_Regional"
         )
         lineage_global.to_excel(writer, index=False, sheet_name="Lineage_Global")

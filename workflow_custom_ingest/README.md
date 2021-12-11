@@ -17,7 +17,7 @@ To make use of this data please do the following:
    > cp -r test-data/data_custom ../
    ```
 
-2. Review the configuration settings in [config/config_custom.yaml](../config/config_custom.yaml). In particular, for this test you may want to change `snp_count_threshold` to `0` (so that covidcg does not remove any low-frequency SNVs since the test dataset is very small).
+2. Review the configuration settings in [config/config_custom.yaml](../config/config_custom.yaml). In particular, for this test you may want to change `mutation_count_threshold` to `0` (so that covidcg does not remove any low-frequency mutations since the test dataset is very small).
 
 3. Run the workflow in `workflow_custom_ingest` to assign lineages with pangolin and clean up the metadata.
 
@@ -25,7 +25,7 @@ To make use of this data please do the following:
    > snakemake --cores 1 --use-conda
    ```
 
-4. Run main workflow to call SNVs/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
+4. Run main workflow to call mutations/combine all metadata together (see the [Main covidcg instructions](../README.md#main-analysis) for more details).
 
    ```bash
    > cd ../workflow_main

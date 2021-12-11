@@ -1,16 +1,15 @@
 import { action, toJS } from 'mobx';
 import { hostname } from '../config';
 import {
-  processSelectedSnvs,
+  processSelectedMutations,
   processCooccurrenceData,
-} from '../utils/snpDataWorkerWrapper';
+} from '../utils/mutationDataWorkerWrapper';
 import { downloadBlobURL } from '../utils/download';
 import { intToISO } from '../utils/date';
-import { getLocationIdsByNode } from '../utils/location';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
 import {
-  GROUP_SNV,
+  GROUP_MUTATION,
   GROUPS,
   DNA_OR_AA,
   COORDINATE_MODES,
@@ -22,7 +21,7 @@ import {
   aggregateGroupDate,
   countGroups,
   getLocationCounts,
-  expandSingleSnvData,
+  expandSingleMutationData,
 } from '../utils/data';
 
 export class DataStore {
@@ -31,11 +30,11 @@ export class DataStore {
   numSequencesAfterAllFiltering;
   aggLocationGroupDate = [];
   aggGroupDate = [];
-  aggLocationSingleSnvDate = [];
+  aggLocationSingleMutationDate = [];
 
-  aggLocationSelectedSnvsDate = [];
-  aggSelectedSnvsDate = [];
-  snvCooccurrence = [];
+  aggLocationSelectedMutationsDate = [];
+  aggSelectedMutationsDate = [];
+  mutationCooccurrence = [];
 
   countsPerLocationDateMap = new Map();
   cumulativeCountsPerLocationDateMap = new Map();
@@ -45,8 +44,8 @@ export class DataStore {
   constructor() {}
 
   init() {
-    this.dataDate = asyncDataStoreInstance.data.data_date;
-    this.numSequences = asyncDataStoreInstance.data.num_sequences;
+    this.dataDate = asyncDataStoreInstance.data.stats.data_date;
+    this.numSequences = asyncDataStoreInstance.data.stats.num_sequences;
 
     if (
       rootStoreInstance.UIStore.activeTab === TABS.TAB_COMPARE_GROUPS ||
@@ -74,9 +73,7 @@ export class DataStore {
         selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -151,21 +148,21 @@ export class DataStore {
         }));
 
         // Expand aggLocationGroupDate into
-        // single SNV data
+        // single mutation data
         // i.e., transform data where each row represents
-        // a co-occurring SNV, into data where each row represents
-        // individual SNVs
-        if (rootStoreInstance.configStore.groupKey === GROUP_SNV) {
-          this.aggLocationSingleSnvDate = expandSingleSnvData({
+        // a co-occurring mutation, into data where each row represents
+        // individual mutations
+        if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+          this.aggLocationSingleMutationDate = expandSingleMutationData({
             aggLocationGroupDate: this.aggLocationGroupDate,
           });
-          // console.log(this.aggLocationSingleSnvDate);
+          // console.log(this.aggLocationSingleMutationDate);
         }
 
         rootStoreInstance.UIStore.onCaseDataStateFinished();
 
-        if (rootStoreInstance.configStore.groupKey === GROUP_SNV) {
-          this.processSelectedSnvs();
+        if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+          this.processSelectedMutations();
         }
       })
       .catch((err) => {
@@ -182,27 +179,27 @@ export class DataStore {
   };
 
   @action
-  processSelectedSnvs = () => {
-    rootStoreInstance.UIStore.onSnvDataStarted();
-    const { snvColorMap } = rootStoreInstance.snpDataStore;
+  processSelectedMutations = () => {
+    rootStoreInstance.UIStore.onMutationDataStarted();
+    const { mutationColorMap } = rootStoreInstance.mutationDataStore;
 
     this.processCooccurrenceData();
-    processSelectedSnvs(
+    processSelectedMutations(
       {
         selectedGroupIds: rootStoreInstance.configStore.getSelectedGroupIds(),
-        intToSnvMap: rootStoreInstance.configStore.getIntToSnvMap(),
+        intToMutationMap: rootStoreInstance.configStore.getIntToMutationMap(),
         dnaOrAa: toJS(rootStoreInstance.configStore.dnaOrAa),
         countsPerLocationMap: this.countsPerLocationMap,
         // validGroups: this.validGroups,
         aggLocationGroupDate: this.aggLocationGroupDate,
         aggGroupDate: this.aggGroupDate,
-        // SNV data
-        snvColorMap,
+        // Mutation data
+        mutationColorMap,
       },
-      ({ aggLocationSelectedSnvsDate, aggSelectedSnvsDate }) => {
-        this.aggLocationSelectedSnvsDate = aggLocationSelectedSnvsDate;
-        this.aggSelectedSnvsDate = aggSelectedSnvsDate;
-        rootStoreInstance.UIStore.onSnvDataFinished();
+      ({ aggLocationSelectedMutationsDate, aggSelectedMutationsDate }) => {
+        this.aggLocationSelectedMutationsDate = aggLocationSelectedMutationsDate;
+        this.aggSelectedMutationsDate = aggSelectedMutationsDate;
+        rootStoreInstance.UIStore.onMutationDataFinished();
       }
     );
   };
@@ -211,26 +208,26 @@ export class DataStore {
   processCooccurrenceData = () => {
     rootStoreInstance.UIStore.onCooccurrenceDataStarted();
 
-    const { snvColorMap } = rootStoreInstance.snpDataStore;
+    const { mutationColorMap } = rootStoreInstance.mutationDataStore;
 
     processCooccurrenceData(
       {
         selectedGroupIds: rootStoreInstance.configStore.getSelectedGroupIds(),
-        intToSnvMap: rootStoreInstance.configStore.getIntToSnvMap(),
+        intToMutationMap: rootStoreInstance.configStore.getIntToMutationMap(),
         dnaOrAa: toJS(rootStoreInstance.configStore.dnaOrAa),
         aggSequencesGroup: this.aggSequencesGroup,
-        // SNV data
-        snvColorMap,
+        // mutation data
+        mutationColorMap,
       },
-      ({ snvCooccurrence }) => {
-        this.snvCooccurrence = snvCooccurrence;
+      ({ mutationCooccurrence }) => {
+        this.mutationCooccurrence = mutationCooccurrence;
         rootStoreInstance.UIStore.onCooccurrenceDataFinished();
       }
     );
   };
 
   @action
-  downloadSelectedSequenceMetadata = ({ selectedFields, snvFormat }) => {
+  downloadSelectedSequenceMetadata = ({ selectedFields, mutationFormat }) => {
     rootStoreInstance.UIStore.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
@@ -240,9 +237,7 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -254,7 +249,7 @@ export class DataStore {
         selected_fields: Object.keys(selectedFields).filter(
           (field) => selectedFields[field]
         ),
-        snv_format: snvFormat,
+        mutation_format: mutationFormat,
       }),
     })
       .then((res) => {
@@ -298,9 +293,7 @@ export class DataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        location_ids: getLocationIdsByNode(
-          toJS(rootStoreInstance.configStore.selectedLocationNodes)
-        ),
+        ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -338,15 +331,15 @@ export class DataStore {
   downloadAggSequences() {
     let csvString = `location,collection_date,${rootStoreInstance.configStore.getGroupLabel()},count\n`;
 
-    let intToSnvMap = rootStoreInstance.configStore.getIntToSnvMap();
+    let intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
     this.aggLocationGroupDate.forEach((row) => {
       // Location data, date
       csvString += `"${row.location}","${intToISO(row.collection_date)}",`;
 
       // Group
-      if (rootStoreInstance.configStore.groupKey === GROUP_SNV) {
+      if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
         csvString += `"${row.group_id
-          .map((snvId) => intToSnvMap[snvId].snp_str)
+          .map((mutationId) => intToMutationMap[mutationId].mutation_str)
           .join(';')}",`;
       } else {
         csvString += `"${row.group_id}",`;
@@ -362,21 +355,45 @@ export class DataStore {
     downloadBlobURL(url, 'aggregate_sequences.csv');
   }
 
+  downloadAggGroup() {
+    let csvString = `${rootStoreInstance.configStore.getGroupLabel()},count,percent\n`;
+    let intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+
+    this.groupCounts.forEach((row) => {
+      // Group
+      if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+        csvString += `"${intToMutationMap[row.group_id].mutation_str}",`;
+      } else {
+        csvString += `"${row.group_id}",`;
+      }
+
+      // Counts
+      csvString += `${row.counts},`;
+      // Percent
+      csvString += `${row.counts / this.numSequencesAfterAllFiltering}\n`;
+    });
+
+    const blob = new Blob([csvString]);
+    const url = URL.createObjectURL(blob);
+
+    downloadBlobURL(url, `group_counts.csv`);
+  }
+
   downloadAggGroupDate() {
     // Write to a CSV string
     let csvString = `collection_date,"${rootStoreInstance.configStore.getGroupLabel()}",count\n`;
     this.aggGroupDate.forEach((row) => {
       let groupName;
-      // If we're in SNV mode, then we have to map SNV IDs back
-      // to a co-occurring SNV string representation
-      if (rootStoreInstance.configStore.groupKey === GROUP_SNV) {
+      // If we're in mutation mode, then we have to map mutation IDs back
+      // to a co-occurring mutation string representation
+      if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
         groupName = row.group_id
           .map(
-            (snvId) =>
-              rootStoreInstance.snpDataStore.intToSnv(
+            (mutationId) =>
+              rootStoreInstance.mutationDataStore.intToMutation(
                 rootStoreInstance.configStore.dnaOrAa,
                 rootStoreInstance.configStore.coordinateMode,
-                snvId
+                mutationId
               ).name
           )
           .join(';');
@@ -397,17 +414,17 @@ export class DataStore {
 
   downloadAggLocationGroupDate() {
     let locationData;
-    if (rootStoreInstance.configStore.groupKey === GROUP_SNV) {
-      locationData = toJS(this.aggLocationSingleSnvDate);
-      // Get SNV data
+    if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+      locationData = toJS(this.aggLocationSingleMutationDate);
+      // Get mutation data
       locationData.forEach((record) => {
-        let snv = rootStoreInstance.snpDataStore.intToSnv(
+        let mutation = rootStoreInstance.mutationDataStore.intToMutation(
           rootStoreInstance.configStore.dnaOrAa,
           rootStoreInstance.configStore.coordinateMode,
           record.group_id
         );
-        record.group_name = snv.name;
-        record.group = snv.snp_str;
+        record.group_name = mutation.name;
+        record.group = mutation.mutation_str;
       });
     } else {
       locationData = toJS(this.aggLocationGroupDate);
@@ -427,8 +444,8 @@ export class DataStore {
     downloadBlobURL(url, 'data_agg_location_group_date.csv');
   }
 
-  downloadSnvFrequencies() {
-    let csvString = 'snv,';
+  downloadMutationFrequencies() {
+    let csvString = 'mutation,';
     let fields = [];
     if (rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (
@@ -448,26 +465,26 @@ export class DataStore {
     csvString += 'pos,ref,alt,counts\n';
     fields.push('pos', 'ref', 'alt');
 
-    let snv;
+    let mutation;
 
     // groupCounts is a list of records
     // [{group_id: int, group: str, counts: int, color: str, group_name: str}]
     this.groupCounts
       .sort((a, b) => b.counts - a.counts) // Sort by counts, descending order
       .forEach((record) => {
-        snv = rootStoreInstance.snpDataStore.intToSnv(
+        mutation = rootStoreInstance.mutationDataStore.intToMutation(
           rootStoreInstance.configStore.dnaOrAa,
           rootStoreInstance.configStore.coordinateMode,
           record.group_id
         );
 
-        // Add SNV fields
-        if (snv.snp_str === GROUPS.REFERENCE_GROUP) {
-          csvString += snv.snp_str + ',';
+        // Add mutation fields
+        if (mutation.mutation_str === GROUPS.REFERENCE_GROUP) {
+          csvString += mutation.mutation_str + ',';
           csvString += fields.slice().fill('').join(',');
         } else {
           csvString +=
-            snv.name + ',' + fields.map((field) => snv[field]).join(',');
+            mutation.name + ',' + fields.map((field) => mutation[field]).join(',');
         }
         // Add counts
         csvString += `,${record.counts}\n`;
@@ -477,11 +494,11 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(url, 'snv_frequencies.csv');
+    downloadBlobURL(url, 'mutation_frequencies.csv');
   }
 
-  downloadSnvCooccurrence() {
-    let csvString = 'selected_snvs,cooccurs_with,';
+  downloadMutationCooccurrence() {
+    let csvString = 'selected_mutations,cooccurs_with,';
     let fields = [];
     if (rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (
@@ -501,14 +518,14 @@ export class DataStore {
     csvString += 'pos,ref,alt,count,selected_count,fraction\n';
     fields.push('pos', 'ref', 'alt');
 
-    // Have to convert SNV string into integer, then into SNV object
-    const snvToIntMap = rootStoreInstance.configStore.getSnvToIntMap();
-    const intToSnvMap = rootStoreInstance.configStore.getIntToSnvMap();
-    let snv;
+    // Have to convert mutation string into integer, then into mutation object
+    const mutationToIntMap = rootStoreInstance.configStore.getMutationToIntMap();
+    const intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+    let mutation;
 
-    this.snvCooccurrence
+    this.mutationCooccurrence
       .sort((a, b) => {
-        // Group by the SNV combination, then sort by counts, descending order
+        // Group by the mutation combination, then sort by counts, descending order
         if (a.combi < b.combi) {
           return -1;
         } else if (a.combi > b.combi) {
@@ -518,11 +535,11 @@ export class DataStore {
         }
       })
       .forEach((row) => {
-        // Add combination and co-occuring SNV name
-        csvString += `${row.combiName},${row.snvName},`;
-        // Add SNV fields
-        snv = intToSnvMap[snvToIntMap[row.snv]];
-        csvString += fields.map((field) => snv[field]).join(',');
+        // Add combination and co-occuring mutation name
+        csvString += `${row.combiName},${row.mutationName},`;
+        // Add mutation fields
+        mutation = intToMutationMap[mutationToIntMap[row.mutation]];
+        csvString += fields.map((field) => mutation[field]).join(',');
 
         // Add counts and fraction
         csvString += `,${row.count},${row.combiCount},${row.fraction}\n`;
@@ -531,7 +548,7 @@ export class DataStore {
     const blob = new Blob([csvString]);
     const url = URL.createObjectURL(blob);
 
-    downloadBlobURL(url, 'snv_cooccurrence.csv');
+    downloadBlobURL(url, 'mutation_cooccurrence.csv');
   }
 
   downloadCountryScoreData() {

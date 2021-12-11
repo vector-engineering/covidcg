@@ -13,7 +13,7 @@ import {
   DATE_BINS,
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
-  GROUP_SNV,
+  GROUP_MUTATION,
   ASYNC_STATES,
 } from '../../constants/defs.json';
 
@@ -26,7 +26,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 
 import initialSpec from '../../vega_specs/location_date.vg.json';
-import { formatSnv } from '../../utils/snpUtils';
+import { formatMutation } from '../../utils/mutationUtils';
 
 const PlotContainer = styled.div``;
 
@@ -52,12 +52,12 @@ const LocationDatePlot = observer(({ width }) => {
     //console.log('PROCESS LOCATION DATE DATA');
 
     let locationData;
-    if (configStore.groupKey === GROUP_SNV) {
-      if (dataStore.aggLocationSelectedSnvsDate === undefined) {
+    if (configStore.groupKey === GROUP_MUTATION) {
+      if (dataStore.aggLocationSelectedMutationsDate === undefined) {
         return [];
       }
 
-      locationData = toJS(dataStore.aggLocationSelectedSnvsDate);
+      locationData = toJS(dataStore.aggLocationSelectedMutationsDate);
     } else {
       if (dataStore.aggLocationGroupDate === undefined) {
         return [];
@@ -74,7 +74,7 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
-    if (configStore.groupKey === GROUP_SNV) {
+    if (configStore.groupKey === GROUP_MUTATION) {
       // Filter out 'All Other Sequences' group
       locationData = locationData.filter((row) => {
         return row.group !== GROUPS.ALL_OTHER_GROUP;
@@ -219,8 +219,8 @@ const LocationDatePlot = observer(({ width }) => {
 
   const refreshData = () => {
     if (
-      configStore.groupKey === GROUP_SNV &&
-      UIStore.snvDataState !== ASYNC_STATES.SUCCEEDED
+      configStore.groupKey === GROUP_MUTATION &&
+      UIStore.mutationDataState !== ASYNC_STATES.SUCCEEDED
     ) {
       return;
     }
@@ -238,7 +238,7 @@ const LocationDatePlot = observer(({ width }) => {
   // Refresh data on mount (i.e., tab change) or when data state changes
   useEffect(refreshData, [
     UIStore.caseDataState,
-    UIStore.snvDataState,
+    UIStore.mutationDataState,
     configStore.selectedGroups,
   ]);
   useEffect(refreshData, []);
@@ -285,7 +285,7 @@ const LocationDatePlot = observer(({ width }) => {
   }
 
   if (
-    configStore.groupKey === GROUP_SNV &&
+    configStore.groupKey === GROUP_MUTATION &&
     state.data.location_data.length === 0
   ) {
     return (
@@ -309,7 +309,7 @@ const LocationDatePlot = observer(({ width }) => {
   if (plotSettingsStore.locationDateNormMode === NORM_MODES.NORM_PERCENTAGES) {
     yLabel += '% ';
   }
-  if (configStore.groupKey === GROUP_SNV) {
+  if (configStore.groupKey === GROUP_MUTATION) {
     yLabel += 'Sequences with this ' + configStore.getGroupLabel();
   } else {
     yLabel += 'Sequences by ' + configStore.getGroupLabel();
@@ -343,9 +343,9 @@ const LocationDatePlot = observer(({ width }) => {
     plotTitle += ' by Month';
   }
   if (configStore.selectedGroups.length > 0) {
-    if (configStore.groupKey === GROUP_SNV) {
+    if (configStore.groupKey === GROUP_MUTATION) {
       plotTitle += ` (${configStore.selectedGroups
-        .map((group) => formatSnv(group.group, configStore.dnaOrAa))
+        .map((group) => formatMutation(group.group, configStore.dnaOrAa))
         .join(' & ')})`;
     } else {
       plotTitle += ` (${configStore.selectedGroups
@@ -428,7 +428,7 @@ const LocationDatePlot = observer(({ width }) => {
             cumulative:
               plotSettingsStore.locationDateCountMode ===
               COUNT_MODES.COUNT_CUMULATIVE,
-            skipFiltering: configStore.groupKey === GROUP_SNV,
+            skipFiltering: configStore.groupKey === GROUP_MUTATION,
             hoverLocation: state.hoverLocation,
             yLabel,
           }}

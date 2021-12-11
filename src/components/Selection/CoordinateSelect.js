@@ -30,7 +30,7 @@ import { queryReferenceSequence } from '../../utils/reference';
 import {
   DNA_OR_AA,
   COORDINATE_MODES,
-  GROUP_SNV,
+  GROUP_MUTATION,
 } from '../../constants/defs.json';
 
 const genes = getAllGenes();
@@ -156,11 +156,11 @@ const CoordinateSelect = observer(
     });
 
     // Disable "All Genes" and "All Proteins" option
-    // when in AA mode and non-SNP grouping
+    // when in AA mode and non-mutation grouping
     // useEffect(() => {
     //   let _geneOptionElements = state.geneOptionElements;
     //   let _proteinOptionElements = state.proteinOptionElements;
-    //   if (groupKey !== GROUP_SNV && dnaOrAa === DNA_OR_AA.AA) {
+    //   if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
     //   }
     // }, [groupKey, dnaOrAa]);
 
@@ -393,9 +393,6 @@ const CoordinateSelect = observer(
     }, [selectedPrimers]);
 
     const onPrimerSelect = (currentNode, selectedNodes) => {
-      // console.log(currentNode);
-      // console.log(selectedNodes);
-
       let selectedPrimers = [];
       selectedNodes.forEach((node) => {
         if (node.level === 'group') {
@@ -420,6 +417,22 @@ const CoordinateSelect = observer(
       updateSelectedPrimers(selectedPrimers);
     };
 
+    // Maintain tree expansion state
+    const onPrimerTreeNodeToggle = (currentNode) => {
+      const primerTreeData = state.primerTreeData.slice();
+
+      primerTreeData.forEach((node) => {
+        if (node.value === currentNode.value) {
+          node.expanded = currentNode.expanded;
+        }
+      });
+
+      setState({
+        ...state,
+        primerTreeData,
+      });
+    }
+
     // This component needs to be in a memoized function
     // since it manages its own local state. It should never be re-rendered
     // forcefully
@@ -433,11 +446,13 @@ const CoordinateSelect = observer(
           keepChildrenOnSearch={true}
           showPartiallySelected={true}
           inlineSearchInput={true}
+          showDropdown="always"
           texts={{
             placeholder: 'Search...',
             noMatches: 'No matches found',
           }}
           onChange={onPrimerSelect}
+          onNodeToggle={onPrimerTreeNodeToggle}
         />
       );
     }, [state.primerTreeData]);
@@ -702,20 +717,20 @@ const CoordinateSelect = observer(
         <span className="title">
           Genomic Coordinates
           <QuestionButton
-            data-tip='<p>When grouping by SNV, only show SNVs within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus SNVs within the given genomic coordinates.</p><p>These options are only enabled when in "SNV" mode.</p>'
+            data-tip='<p>When grouping by mutation, only show mutations within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus mutations within the given genomic coordinates.</p><p>These options are only enabled when in "Mutation" mode.</p>'
             data-html="true"
             data-for="main-tooltip"
           />
         </span>
-        {groupKey !== GROUP_SNV && (
+        {groupKey !== GROUP_MUTATION && (
           <ModeSelectForm>
             <HintText>
-              Switch to &quot;SNV&quot; under &quot;Group sequences by&quot; in
+              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
               order to enable Genomic Coordinate filtering.
             </HintText>
           </ModeSelectForm>
         )}
-        {groupKey === GROUP_SNV && renderMainForm()}
+        {groupKey === GROUP_MUTATION && renderMainForm()}
       </SelectContainer>
     );
   }
