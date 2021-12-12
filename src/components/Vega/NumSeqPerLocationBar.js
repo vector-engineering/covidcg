@@ -26,9 +26,8 @@ const NumSeqPerLocationBar = observer(({ width }) => {
     } = useStores();
 
     const handleHoverLocation = (...args) => {
-        console.log(args);
         // Don't fire the action if there's no change
-        let hoverLocation = args[1] === null ? null : args[1]['location'];
+        let hoverLocation = args[1] === null ? null : args[1];
         if (hoverLocation === configStore.hoverLocation) {
             return;
         }
@@ -36,7 +35,6 @@ const NumSeqPerLocationBar = observer(({ width }) => {
     };
 
     const processLocation = () => {
-        //console.log('LOCATION GROUP PLOT PROCESS DATA');
         let dat = dataStore.countsPerLocationMap;
         let locationData = [];
         for (var country in dat) {
@@ -57,7 +55,7 @@ const NumSeqPerLocationBar = observer(({ width }) => {
     });
 
     useEffect(() => {
-        console.log(configStore.hoverLocation);
+        console.log('Bar chart configstore hov loc', configStore.hoverLocation);
         setState({
             ...state,
             hoverLocation: { location: configStore.hoverLocation },

@@ -28,15 +28,11 @@ const NumSeqPerLocationLine = observer(({ width }) => {
 
     const handleHoverLocation = (...args) => {
         // Don't fire the action if there's no change
-        let hoverLocation = args[1] === null ? null : args[1]['location'];
+        let hoverLocation = args[1] === null ? null : args[1];
         if (hoverLocation === configStore.hoverLocation) {
             return;
         }
         configStore.updateHoverLocation(hoverLocation);
-    };
-
-    const handleHoverGroup = (...args) => {
-        configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);
     };
 
     const processLocation = () => {
@@ -54,8 +50,7 @@ const NumSeqPerLocationLine = observer(({ width }) => {
             let textA = a.c.toUpperCase();
             let textB = b.c.toUpperCase();
             return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
-        });9
-        console.log(dateTransformedData);
+        });
         return dateTransformedData;
     };
 
@@ -63,24 +58,15 @@ const NumSeqPerLocationLine = observer(({ width }) => {
         data: {
             line_data: []
         },
-        hoverGroup: null,
         hoverLocation: null,
         spec: JSON.parse(JSON.stringify(initialSpec)),
         signalListeners: {
-            hoverLocation: throttle(handleHoverLocation, 100),
-            hoverGroup: debounce(handleHoverGroup, 100),
+            hoverLocation: throttle(handleHoverLocation, 100)
         }
     });
 
     useEffect(() => {
-        setState({
-            ...state,
-            hoverGroup: { group: configStore.hoverGroup },
-        });
-    }, [configStore.hoverGroup]);
-
-    useEffect(() => {
-        console.log(configStore.hoverLocation);
+        console.log('line config store', configStore.hoverLocation);
         setState({
             ...state,
             hoverLocation: { location: configStore.hoverLocation },
