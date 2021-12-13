@@ -79,7 +79,9 @@
         {
             "name": "color",
             "type": "ordinal",
-            "range": "category",
+            "range": {
+                "scheme": "category10"
+            },
             "domain": {
                 "data": "line_data",
                 "field": "c"
