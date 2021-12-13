@@ -92,9 +92,32 @@ const LocationSelect = observer(
         locationDataStore.setSelectedNodes(selectedNodeObjs);
       }
     };
-    // const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
-    //   console.log('onNodeToggle::', currentNode);
-    // };
+
+    // Maintain tree expansion state
+    const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
+      // console.log(currentNode);
+      const data = Object.assign({}, state.data);
+      
+      // Recursively go through and find the node to expand
+      const traverseAndExpand = (node) => {
+        if (node.path === currentNode.path) {
+          node.expanded = currentNode.expanded;
+        }
+
+        if ('children' in node) {
+          node.children.forEach((child) => {
+            traverseAndExpand(child);
+          });
+        }
+      };
+      traverseAndExpand(data);
+
+      setState({
+        ...state,
+        data,
+      });
+    };
+
     const onLocationNodeDeselect = (node_path) => {
       let selectedNodeObjs = selectedLocationNodes.filter(
         (node) => node.path !== node_path
@@ -123,7 +146,7 @@ const LocationSelect = observer(
           }}
           onChange={treeSelectOnChange}
           onAction={treeSelectOnAction}
-          // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+          onNodeToggle={treeSelectOnNodeToggleCurrentNode}
         />
       ),
       [state.data]

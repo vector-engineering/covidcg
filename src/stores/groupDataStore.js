@@ -6,14 +6,24 @@ import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
-import { GROUPS } from '../constants/defs.json';
+import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import { mutationHeatmapToPymolScript } from '../utils/pymol';
+import {
+  mutationHeatmapToPymolScript,
+  mutationHeatmapToPymolCommands,
+} from '../utils/pymol';
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
+  selectedGroups: [
+    'B.1.1.529',
+    'AY.4',
+    'B.1.617.2',
+    'B.1.1.7',
+    'B.1.351',
+    'P.2',
+  ],
   groupMutationType: 'protein_aa',
 };
 
@@ -83,6 +93,15 @@ export class GroupDataStore {
       !Object.prototype.hasOwnProperty.call(
         this.groupMutationFrequency[this.activeGroupType],
         this.groupMutationType
+      )
+    ) {
+      return false;
+    } else if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[this.activeGroupType][
+          this.groupMutationType
+        ],
+        '0'
       )
     ) {
       return false;
@@ -178,18 +197,33 @@ export class GroupDataStore {
   }
 
   @action
-  async fetchGroupMutationFrequencyData({ group, mutationType, consensusThreshold }) {
+  async fetchGroupMutationFrequencyData({
+    group,
+    mutationType,
+    consensusThreshold,
+  }) {
     // Skip the download if we already have the requested data
     if (
-      Object.prototype.hasOwnProperty.call(this.groupMutationFrequency, group) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency,
+        group
+      ) &&
       Object.prototype.hasOwnProperty.call(
         this.groupMutationFrequency[group],
         mutationType
+      ) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[group][mutationType],
+        consensusThreshold.toString()
       )
     ) {
       // eslint-disable-next-line no-unused-vars
       return new Promise((resolve, reject) => {
-        resolve(this.groupMutationFrequency[group][mutationType]);
+        resolve(
+          this.groupMutationFrequency[group][mutationType][
+            consensusThreshold.toString()
+          ]
+        );
       });
     }
 
@@ -214,11 +248,24 @@ export class GroupDataStore {
       })
       .then((pkg) => {
         if (
-          !Object.prototype.hasOwnProperty.call(this.groupMutationFrequency, group)
+          !Object.prototype.hasOwnProperty.call(
+            this.groupMutationFrequency,
+            group
+          )
         ) {
           this.groupMutationFrequency[group] = {};
         }
-        this.groupMutationFrequency[group][mutationType] = pkg;
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            this.groupMutationFrequency[group],
+            mutationType
+          )
+        ) {
+          this.groupMutationFrequency[group][mutationType] = {};
+        }
+        this.groupMutationFrequency[group][mutationType][
+          consensusThreshold.toString()
+        ] = pkg;
 
         rootStoreInstance.UIStore.onGroupMutationFrequencyFinished();
 
@@ -237,7 +284,11 @@ export class GroupDataStore {
   }
 
   @action
-  async downloadGroupMutationFrequencyData({ group, mutationType, consensusThreshold }) {
+  async downloadGroupMutationFrequencyData({
+    group,
+    mutationType,
+    consensusThreshold,
+  }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupMutationFrequencyData({
       group,
@@ -252,7 +303,9 @@ export class GroupDataStore {
   }
 
   getStructureMutations() {
-    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'].filter(
+    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'][
+      '0'
+    ].filter(
       (groupMutation) =>
         groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
@@ -271,20 +324,44 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    const script = mutationHeatmapToPymolScript({
-      activeProtein:
-        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-      activeGroup:
-        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
-      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-      mutations: this.getStructureMutations(),
-      ...opts,
-    });
+    let script, outfile;
+    if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
+      script = mutationHeatmapToPymolCommands({
+        activeProtein:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+        mutations: this.getStructureMutations(),
+        ...opts,
+      });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
+    } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
+      script = mutationHeatmapToPymolScript({
+        activeProtein:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        activeGroup:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
+        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+        mutations: this.getStructureMutations(),
+        ...opts,
+      });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
+    }
     const blob = new Blob([script]);
     const url = URL.createObjectURL(blob);
-    downloadBlobURL(
-      url,
-      `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`
-    );
+    downloadBlobURL(url, outfile);
   }
 }

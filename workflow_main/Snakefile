@@ -194,7 +194,6 @@ rule build_location_tree:
         )
     output:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
-    threads: workflow.cores / 2
     run:
         geo_select_tree = build_location_tree(
             input.case_data, input.metadata_map, input.emoji_map_file,
@@ -232,7 +231,6 @@ rule consensus_mutations:
     output:
         group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
         group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
-    threads: workflow.cores / 2
     run:
         get_all_consensus_mutations(
             input.case_data, output.group_consensus_mutations, output.group_mutation_frequencies,
@@ -252,7 +250,6 @@ rule global_group_counts:
         global_group_counts = os.path.join(
             data_folder, "global_group_counts.json"
         )
-    threads: workflow.cores / 2
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
@@ -272,7 +269,6 @@ rule assemble_data_package:
         metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")
-    threads: workflow.cores / 2
     run:
         assemble_data_package(
             **input,
@@ -285,18 +281,17 @@ rule build_full_dataframe:
         metadata_map = rules.combine_all_data.output.metadata_map
     output:
         full_df = os.path.join(data_folder, 'data_complete.csv')
-    threads: workflow.cores / 2
     run:
         build_full_dataframe(input.case_data, input.metadata_map, output.full_df)
 
 
 rule update_vocs:
     output:
-        voc_list = os.path.join(static_data_folder, "vocs.json"),
-        cdc_list = os.path.join(static_data_folder, "CDC.json"),
-        who_list = os.path.join(static_data_folder, "WHO.json"),
-        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
-        phe_list = os.path.join(static_data_folder, "PHE.json"),
+        voc_list = os.path.join(data_folder, "vocs", "vocs.json"),
+        cdc_list = os.path.join(data_folder, "vocs", "CDC.json"),
+        who_list = os.path.join(data_folder, "vocs", "WHO.json"),
+        ecdc_list = os.path.join(data_folder, "vocs", "ECDC.json"),
+        phe_list = os.path.join(data_folder, "vocs", "PHE.json"),
         status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """

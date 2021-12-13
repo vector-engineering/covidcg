@@ -8,6 +8,7 @@ import { ISOToInt } from '../../utils/date';
 import { TREE_COLOR_MODES, MIN_DATE } from '../../constants/defs.json';
 
 import QuestionButton from '../Buttons/QuestionButton';
+import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import ExternalLink from '../Common/ExternalLink';
 import GradientLegend from './GradientLegend';
@@ -27,7 +28,7 @@ import {
 // import legendSpec from '../../vega_specs/group_tree_legend_v2.vg.json';
 import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
-const headerHeight = 120;
+const headerHeight = 135;
 const treePlotHeight = 12000;
 
 const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
@@ -38,10 +39,16 @@ const VIRIDIS_GRADIENT =
 const INFERNO_GRADIENT =
   'linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(26,11,64,1) 11%, rgba(74,11,106,1) 22%, rgba(120,28,109,1) 33%, rgba(164,44,96,1) 44%, rgba(207,68,70,1) 55%, rgba(237,104,37,1) 66%, rgba(251,155,6,1) 77%, rgba(247,209,60,1) 88%, rgba(252,254,164,1) 100%);';
 
+const DOWNLOAD_OPTIONS = {
+  JSON: 'JSON',
+  NEWICK: 'Newick',
+};
+
 const GroupTreePlot = observer(({ width }) => {
   // const vegaLegendRef = useRef();
   const vegaRef = useRef();
   const treeContainerRef = useRef();
+  const hiddenLink = useRef();
   const [treeContainerDimensions, setTreeContainerDimensions] = useState();
   const { groupDataStore, plotSettingsStore } = useStores();
 
@@ -92,6 +99,18 @@ const GroupTreePlot = observer(({ width }) => {
 
   const onChangeTreeColorMode = (event) => {
     plotSettingsStore.setReportTreeColorMode(event.target.value);
+  };
+
+  const handleDownloadSelect = (option) => {
+    if (option === DOWNLOAD_OPTIONS.JSON) {
+      hiddenLink.current.href =
+        'https://storage.googleapis.com/ve-public/lineage_tree_graph.json';
+      hiddenLink.current.click();
+    } else if (option === DOWNLOAD_OPTIONS.NEWICK) {
+      hiddenLink.current.href =
+        'https://storage.googleapis.com/ve-public/lineage_representatives_cleaned.nwk';
+      hiddenLink.current.click();
+    }
   };
 
   // Update internal selected groups copy
@@ -218,6 +237,13 @@ const GroupTreePlot = observer(({ width }) => {
 
   return (
     <TreePlotContainer width={width}>
+      <a
+        ref={hiddenLink}
+        href=""
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ visibility: 'hidden' }}
+      />
       <Header headerHeight={headerHeight}>
         <HeaderRow>
           <Title>Time-Scaled Tree</Title>
@@ -234,6 +260,19 @@ const GroupTreePlot = observer(({ width }) => {
               CoVizu
             </ExternalLink>
           </SubTitle>
+        </HeaderRow>
+        <HeaderRow>
+          <DropdownButton
+            text={'Download'}
+            options={[DOWNLOAD_OPTIONS.JSON, DOWNLOAD_OPTIONS.NEWICK]}
+            onSelect={handleDownloadSelect}
+            style={{
+              padding: '2px 10px',
+              paddingRight: '18px',
+              marginBottom: '2px',
+            }}
+            direction={'left'}
+          />
         </HeaderRow>
         <SelectContainer>
           <label>

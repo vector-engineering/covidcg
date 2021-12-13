@@ -392,9 +392,9 @@ export class ConfigStore {
       return config.group_cols[groupKey].title;
     } else if (groupKey === GROUP_MUTATION) {
       if (dnaOrAa === DNA_OR_AA.DNA) {
-        return 'NT mutation';
+        return 'NT Mutation';
       } else {
-        return 'AA mutation';
+        return 'AA Mutation';
       }
     }
   }

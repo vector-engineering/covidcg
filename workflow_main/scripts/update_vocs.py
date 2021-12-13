@@ -23,19 +23,45 @@ def update_vocs(voc_files):
                 name = clean_text(variant['name'])
                 if isinstance(name, list):
                     for n in name:
-                        if n not in variant_dict:
-                            variant_dict[n] = {}
-                        variant_dict[n][org] = variant['level']
-                        if org == 'who' and variant['who_label']:
-                            variant_dict[n]['who_label'] = variant['who_label']
+                        variant_dict = addVariantToDict(variant_dict,
+                                                        variant,
+                                                        n, org)
                 else:
-                    if name not in variant_dict:
-                        variant_dict[name] = {}
-                    variant_dict[name][org] = variant['level']
-                    if org == 'who' and variant['who_label']:
-                        variant_dict[name]['who_label'] = variant['who_label']
+                    variant_dict = addVariantToDict(variant_dict, variant,
+                                                    name, org)
 
     return variant_dict
+
+
+def addVariantToDict(variant_dict, variant, name, org):
+    if name not in variant_dict:
+        # Initialize variant into dict
+        variant_dict[name] = {}
+        variant_dict[name][org] = variant['level']
+    elif org in variant_dict[name]:
+        # If variant already in dict and org already in variant
+        # Keep the highest level a variant is given per org
+        if compareLevels(variant['level'], variant_dict[name][org]):
+            variant_dict[name][org] = variant['level']
+    else:
+        # If variant in dict but org not in variant
+        variant_dict[name][org] = variant['level']
+
+    if org == 'who' and variant['who_label']:
+        variant_dict[name]['who_label'] = variant['who_label']
+
+    return variant_dict
+
+
+def compareLevels(newLvl, currLvl):
+    if currLvl == "VOC":
+        # Never overwrite VOC assignment
+        return False
+
+    if newLvl == "VOC" or (newLvl == "VOI" and currLvl == "Other"):
+        return True
+    else:
+        return False
 
 
 def main():

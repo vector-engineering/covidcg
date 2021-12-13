@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { PYMOL_SCRIPT_TYPES } from '../../constants/defs';
+
 import Modal from 'react-modal';
 // import ReactTooltip from 'react-tooltip';
 // import QuestionButton from '../Buttons/QuestionButton';
@@ -31,12 +33,12 @@ const NOOP = () => {};
 const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
   const { groupDataStore } = useStores();
   const [state, setState] = useState({
+    scriptType: PYMOL_SCRIPT_TYPES.SCRIPT,
     selectIndividualMutations: true,
     selectAllMutations: true,
     includeDomains: true,
     baseColor: '#FFFFFF',
-    useAssembly: false,
-    assemblyName: '',
+    ignoreColor: '#AAAAAA',
   });
 
   // useEffect(() => {
@@ -45,6 +47,13 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
 
   const confirmDownload = () => {
     groupDataStore.downloadStructurePymolScript(state);
+  };
+
+  const onChangeScriptType = (event) => {
+    setState({
+      ...state,
+      scriptType: event.target.value,
+    });
   };
 
   const toggleSelectIndividualMutations = (event) => {
@@ -74,31 +83,18 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       baseColor: event.target.value,
     });
   };
-
-  const toggleUseAssembly = (event) => {
+  const onChangeIgnoreColor = (event) => {
     setState({
       ...state,
-      useAssembly: event.target.checked,
-    });
-  };
-
-  const onChangeAssemblyName = (event) => {
-    setState({
-      ...state,
-      assemblyName: event.target.value,
+      ignoreColor: event.target.value,
     });
   };
 
   let invalid = false;
   let invalidReason = '';
 
-  if (state.useAssembly && state.assemblyName.length === 0) {
-    invalid = true;
-    invalidReason = 'Please enter an assembly name';
-  }
-
   return (
-    <Wrapper width={600} height={400}>
+    <Wrapper width={600} height={500}>
       <HeaderContainer>
         <HeaderRow>
           <TitleContainer>
@@ -123,15 +119,58 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       <Content>
         <Row>
           <Info>
-            To load this script into PyMOL, open the downloaded .py file with
-            PyMOL. (Windows: Open With → Choose another app → Select PyMOL, Mac
-            OSX: Open With → Other... → Select PyMOL.app)
+            Select &quot;Script&quot; to download a complete Python script,
+            which will 1) load the model, 2) select mutations, and 3) color
+            mutations by frequency
           </Info>
           <Info>
-            Or, you can first open the PyMOL application and then load this
-            script with <code>load path/to/script.py</code>
+            Select &quot;Commands&quot; to download a list of PyMOL commands
+            that executes the same functions as the script. Select this option
+            if you wish to modify certain operations of the script, i.e., adapt
+            Spike mutations onto another model of Spike bound to an antibody
           </Info>
         </Row>
+        <Row>
+          <CheckboxInput>
+            <input
+              type="radio"
+              value={PYMOL_SCRIPT_TYPES.SCRIPT}
+              checked={state.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT}
+              onChange={onChangeScriptType}
+            />
+            Script
+          </CheckboxInput>
+          <CheckboxInput>
+            <input
+              type="radio"
+              value={PYMOL_SCRIPT_TYPES.COMMANDS}
+              checked={state.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS}
+              onChange={onChangeScriptType}
+            />
+            Commands
+          </CheckboxInput>
+        </Row>
+        {state.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT && (
+          <Row>
+            <Info>
+              To load this script into PyMOL, open the downloaded .py file with
+              PyMOL. (Windows: Open With → Choose another app → Select PyMOL,
+              Mac OSX: Open With → Other... → Select PyMOL.app)
+            </Info>
+            <Info>
+              Or, you can first open the PyMOL application and then load this
+              script with <code>load path/to/script.py</code>
+            </Info>
+          </Row>
+        )}
+        {state.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS && (
+          <Row>
+            <Info>
+              To run these commands, paste the commands from the downloaded file
+              into the PyMOL console
+            </Info>
+          </Row>
+        )}
         <Row>
           <CheckboxInput>
             <input
@@ -167,7 +206,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
         </Row>
         <Row>
           <TextInput>
-            Protein Base Color
+            Heatmap Base Color
             <input
               type="color"
               placeholder="#RRGGBB"
@@ -178,26 +217,18 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
           </TextInput>
         </Row>
         <Row>
-          <CheckboxInput>
+          <TextInput>
+            Non-heatmap Base Color
+            <br />
+            (for chains where heatmap is not applied)
             <input
-              type="checkbox"
-              name="download-pymol-script-use-assembly"
-              checked={state.useAssembly}
-              onChange={toggleUseAssembly}
+              type="color"
+              placeholder="#RRGGBB"
+              value={state.ignoreColor}
+              onChange={onChangeIgnoreColor}
             />
-            Use a biological assembly (leave unchecked for asymmetric unit)
-          </CheckboxInput>
-          {state.useAssembly && (
-            <TextInput>
-              Assembly Name
-              <input
-                type="text"
-                placeholder="i.e., 1"
-                value={state.assemblyName}
-                onChange={onChangeAssemblyName}
-              />
-            </TextInput>
-          )}
+            <span style={{ marginLeft: 5 }}>{state.ignoreColor}</span>
+          </TextInput>
         </Row>
       </Content>
     </Wrapper>

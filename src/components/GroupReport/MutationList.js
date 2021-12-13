@@ -198,7 +198,7 @@ const MutationListContent = observer(() => {
   // Select group mutations from the selected groups
   const groupMutationFrequency = groupDataStore.groupMutationFrequency[
     groupDataStore.activeGroupType
-  ][groupDataStore.groupMutationType].filter((groupMutation) =>
+  ][groupDataStore.groupMutationType]['0'].filter((groupMutation) =>
     groupDataStore.selectedGroups.includes(groupMutation.name)
   );
   // console.log(groupMutationFrequency);
@@ -261,17 +261,23 @@ const MutationListContent = observer(() => {
       // Unique mutations
       .filter(
         (v, i, a) =>
-          a.findIndex((element) => element.mutation_name === v.mutation_name) === i
+          a.findIndex(
+            (element) => element.mutation_name === v.mutation_name
+          ) === i
       )
       .map((featureMutation) => {
         // Find fractional frequencies for each group
         const freqs = [];
         groupDataStore.selectedGroups.forEach((group) => {
           const matchingMutation = groupFeatureMutations.find(
-            (mut) => mut.mutation_name === featureMutation.mutation_name && mut.name === group
+            (mut) =>
+              mut.mutation_name === featureMutation.mutation_name &&
+              mut.name === group
           );
           // 0 if the mutation record isn't found
-          freqs.push(matchingMutation === undefined ? 0 : matchingMutation.fraction);
+          freqs.push(
+            matchingMutation === undefined ? 0 : matchingMutation.fraction
+          );
         });
 
         return {
@@ -301,7 +307,9 @@ const MutationListContent = observer(() => {
         <MutationListRow
           key={`group-mut-empty-${feature.name}`}
           segmentName={feature.name}
-          segmentColor={mutationColorArray[feature_i % mutationColorArray.length]}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
@@ -317,7 +325,9 @@ const MutationListContent = observer(() => {
         <MutationListRow
           key={`group-mut-empty-${feature.name}`}
           segmentName={feature.name}
-          segmentColor={mutationColorArray[feature_i % mutationColorArray.length]}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
@@ -336,7 +346,9 @@ const MutationListContent = observer(() => {
         <MutationListRow
           key={`group-mut-${feature.name}-${mut.mutation_name}`}
           segmentName={feature.name}
-          segmentColor={mutationColorArray[feature_i % mutationColorArray.length]}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
           name={mutName}
           frequency={mut.frequency}
           firstRow={i === 0}
@@ -402,7 +414,7 @@ const MutationList = observer(() => {
   };
   const handleDownloadSelect = (option) => {
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      groupDataStore.downloadgroupMutationFrequencyData({
+      groupDataStore.downloadGroupMutationFrequencyData({
         group: groupDataStore.activeGroupType,
         mutationType: groupDataStore.groupMutationType,
         consensusThreshold: 0,
@@ -441,24 +453,24 @@ const MutationList = observer(() => {
         <HelpText show={state.showHelp}>
           <ul>
             <li>
-              Use &quot;Mutation Type&quot; to toggle between nucleotide and amino
-              acid mutation formats
+              Use &quot;Mutation Type&quot; to toggle between nucleotide and
+              amino acid mutation formats
             </li>
             <li>
-              &quot;Consensus Threshold&quot; hides low-prevalence mutations. Mutations
-              with less than this fraction of prevalence in <i>all</i> selected{' '}
-              {groupDataStore.getGroupMutationTypePrettyName()}s will be filtered
-              out.
+              &quot;Consensus Threshold&quot; hides low-prevalence mutations.
+              Mutations with less than this fraction of prevalence in <i>all</i>{' '}
+              selected {groupDataStore.getGroupMutationTypePrettyName()}s will
+              be filtered out.
             </li>
             <li>
               Note: We define ORF1a and ORF1ab as separate genes. In
-              &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a will
-              also be listed in ORF1ab. By default, ORF1a is hidden to avoid
-              this confusion.
+              &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
+              will also be listed in ORF1ab. By default, ORF1a is hidden to
+              avoid this confusion.
             </li>
             <li>
-              Switch to &quot;Protein AA&quot; mode to see mutations in the context
-              of proteins (i.e., NSPs)
+              Switch to &quot;Protein AA&quot; mode to see mutations in the
+              context of proteins (i.e., NSPs)
             </li>
           </ul>
         </HelpText>

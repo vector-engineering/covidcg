@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { asyncDataStoreInstance } from '../App';
 
-import VOC_LIST from '../../../static_data/vocs.json';
 import { OrgLegend } from './OrgLegend';
 
 import {
@@ -92,6 +92,8 @@ const VOCList = observer(() => {
     //           }
     // }
 
+    const VOC_LIST = asyncDataStoreInstance.data.vocs;
+
     const items = [];
     Object.keys(VOC_LIST)
       .filter((lineage_name) => {
@@ -123,20 +125,41 @@ const VOCList = observer(() => {
 
   // Other Variants
   const otherItems = filterItems('Other');
-  const otherItems1 = otherItems.splice(0, parseInt(otherItems.length / 2));
+  const maxVOCsInCol = 15;
+
+  const otherArr = [];
+  let tempArr = [];
+  for (let i = 0; i < otherItems.length; i++) {
+    // Construct arrays of len = maxVOCsInCol
+    tempArr.push(otherItems[i]);
+    if (
+      tempArr.length === maxVOCsInCol ||
+      (i === otherItems.length - 1 && tempArr.length > 0)
+    ) {
+      otherArr.push(
+        <GridItem key={'otherGridItems-' + otherArr.length}>{tempArr}</GridItem>
+      );
+      tempArr = [];
+    }
+  }
 
   return (
     <VOCListContainer>
       <OrgLegend />
       <VOCItemGrid>
-        <VOCGridTitle>Variants of Concern</VOCGridTitle>
+        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
         <VOCGridTitle>Variants of Interest</VOCGridTitle>
-        <VOCGridTitle colSpan={2}>Other Variants Being Monitored</VOCGridTitle>
+        <VOCGridTitle colSpan={otherArr.length}>
+          Other Variants Being Monitored
+        </VOCGridTitle>
         <GridItem key={'vocGridItems'}>{vocItems}</GridItem>
         <GridItem key={'voiGridItems'}>{voiItems}</GridItem>
-        <GridItem key={'otherGridItems'}>{otherItems}</GridItem>
-        <GridItem key={'otherGridItems1'}>{otherItems1}</GridItem>
+        {otherArr}
       </VOCItemGrid>
+      <p>
+        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
+        VOCs.
+      </p>
     </VOCListContainer>
   );
 });

@@ -111,5 +111,13 @@
     "COLOR_REGION": "colorRegion",
     "COLOR_LATEST": "colorLatest",
     "COLOR_NUM_SEQUENCES": "colorNumSequences"
+  },
+  "LITEMOL_STYLES": {
+    "SURFACE": "surface",
+    "CARTOON": "cartoon"
+  },
+  "PYMOL_SCRIPT_TYPES": {
+    "COMMANDS": "commands",
+    "SCRIPT": "script"
   }
 }

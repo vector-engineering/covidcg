@@ -527,6 +527,14 @@ def seed_database(conn, schema="public"):
             """,
             ["surv_group_regression", Json(surv_group_regression)],
         )
+        with (data_path / "vocs" / "vocs.json").open("r") as fp:
+            vocs = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["vocs", Json(vocs)],
+        )
 
         # Metadata map
         table_queries = []

@@ -16,7 +16,8 @@ def get_ecdc_vocs():
     soup = BeautifulSoup(vocPage.content, 'html.parser')
 
     # Find all tables (VOC, VOI, and Other)
-    variantTables = soup.find_all('tbody')
+    variantTables = soup.find_all('table', class_='GridTable4-Accent61 table table-bordered table-striped')
+
     level_ind = 0
 
     for table in variantTables:
@@ -25,9 +26,11 @@ def get_ecdc_vocs():
             break
         level = level_order[level_ind]
         for row in table.find_all('tr'):
-            name = list(row.find_all('td')[1].stripped_strings)[0]
-            variant = {'name': name, 'level': level}
-            variant_list.append(variant)
+            if len(row.find_all('td')) > 1:
+                # Ignore invisible comment tds for omicron
+                name = list(row.find_all('td')[1].stripped_strings)[0]
+                variant = {'name': name, 'level': level}
+                variant_list.append(variant)
         level_ind += 1
 
     return variant_list
