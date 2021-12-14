@@ -54,7 +54,6 @@ rule all:
         os.path.join(data_folder, "data_package.json.gz"),
         os.path.join(data_folder, 'data_complete.csv'),
         # Webscraper data
-        os.path.join(static_data_folder, "vocs.json"),
         os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
         # Phylotree
         rules.build_phylotree_graph.output.graph_table,
@@ -82,12 +81,11 @@ rule align_sequences:
         fasta = rules.preprocess_sequences.output.fasta
     params:
         ref_seq = os.path.join(static_data_folder, 'reference.fasta')
-    threads: workflow.cores
     output:
         bam = os.path.join(data_folder, "bam", "{chunk}.bam")
     shell:
         """
-        minimap2 -t {threads} -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
 
 rule extract_dna_mutations:
