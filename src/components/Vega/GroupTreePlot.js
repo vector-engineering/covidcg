@@ -196,7 +196,7 @@ const GroupTreePlot = observer(({ width }) => {
       plotSettingsStore.reportTreeColorMode === TREE_COLOR_MODES.COLOR_LATEST
     ) {
       // A tick for each 6 months?
-      const startDate = ISOToInt(MIN_DATE);
+      const startDate = ISOToInt(min_date);
       const endDate = Date.now();
       // Overall date range in milliseconds
       const rangeMS = endDate - startDate;

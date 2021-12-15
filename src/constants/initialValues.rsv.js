@@ -26,6 +26,7 @@ export default function values() {
       selectedGene: getGene('F'),
       selectedProtein: getProtein('F'),
       selectedPrimers: [],
+      selectedReference: 'A',
       customCoordinates: [[8000, 12000]],
       customSequences: ['GACCCCAAAATCAGCGAAAT'],
       residueCoordinates: [[1, getGene('F').len_aa]],

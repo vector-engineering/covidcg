@@ -21,6 +21,9 @@ def assign_genotype(sam_file):
             all_genotypes.append([read.query_name, "A"])
         elif read.reference_name == "NC_001781.1":
             all_genotypes.append([read.query_name, "B"])
+        else:
+            print("Read does not have A or B reference")
+            continue
 
     samfile.close()
 

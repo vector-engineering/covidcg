@@ -25,8 +25,10 @@ const GroupBySelect = observer(
     coordinateMode,
     selectedGene,
     selectedProtein,
+    selectedReference,
     onGroupKeyChange,
     onDnaOrAaChange,
+    onReferenceChange,
   }) => {
     let handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
@@ -34,6 +36,10 @@ const GroupBySelect = observer(
 
     let handleDnaOrAaChange = (event) => {
       onDnaOrAaChange(event.target.value);
+    };
+
+    let handleReferenceChange = (event) => {
+      onReferenceChange(event.target.value);
     };
 
     let aaDisabledMessage = '';
@@ -143,6 +149,35 @@ const GroupBySelect = observer(
       );
     };
 
+    const renderRSVRefSelect = () => {
+      return (
+        <div className="radio-row">
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="RSVAChoice"
+              name="rsvAorB"
+              value="A"
+              checked={selectedReference === 'A'}
+              onChange={handleReferenceChange}
+            ></input>
+            <label htmlFor="RSVAChoice">RSV-A</label>
+          </div>
+          <div className="radio-item">
+            <input
+              type="radio"
+              id="RSVBChoice"
+              name="rsvAorB"
+              value="B"
+              checked={selectedReference === 'B'}
+              onChange={handleReferenceChange}
+            ></input>
+            <label htmlFor="RSVAChoice">RSV-B</label>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <SelectContainer>
         <RadioForm>
@@ -161,12 +196,18 @@ const GroupBySelect = observer(
           <span className="form-title">Mutation format</span>
           {groupKey !== GROUP_MUTATION && (
             <HintText>
-              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
-              order to enable Mutation Formatting
+              Switch to &quot;Mutation&quot; under &quot;Group sequences
+              by&quot; in order to enable Mutation Formatting
             </HintText>
           )}
           {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
         </RadioForm>
+        {config.virus === 'rsv' && (
+          <RadioForm>
+            <span className="form-title">Reference Sequence</span>
+            {renderRSVRefSelect()}
+          </RadioForm>
+        )}
       </SelectContainer>
     );
   }
@@ -180,6 +221,7 @@ GroupBySelect.propTypes = {
   // selectedProtein: PropTypes.object
   onGroupKeyChange: PropTypes.func,
   onDnaOrAaChange: PropTypes.func,
+  onReferenceChange: PropTypes.func,
 };
 GroupBySelect.defaultProps = {};
 

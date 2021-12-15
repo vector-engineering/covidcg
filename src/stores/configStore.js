@@ -13,7 +13,6 @@ import {
 } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
-import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
 import { queryPrimers } from '../utils/primer';
 import { arrayEqual } from '../utils/func';
@@ -28,15 +27,9 @@ import {
 } from '../constants/defs.json';
 import { config } from '../config';
 
-// import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
 import { initialValueStoreInstance } from '../components/App';
-
-// Define initial values
-
-const today = intToISO(new Date().getTime());
-const lastNDays = 30; // By default, show only the last 1 month
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -58,6 +51,7 @@ export class ConfigStore {
   @observable selectedGene = {};
   @observable selectedProtein = {};
   @observable selectedPrimers = [];
+  @observable selectedReference = '';
 
   @observable customCoordinates = [[]];
   @observable customSequences = [];
@@ -86,7 +80,7 @@ export class ConfigStore {
   init() {
     this.initialValues = initialValueStoreInstance.configStore;
 
-    Object.keys(this.initialValues).forEach((key, i) => {
+    Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
     });
 

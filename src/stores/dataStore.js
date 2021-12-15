@@ -74,8 +74,10 @@ export class DataStore {
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_reference: toJS(
+          rootStoreInstance.configStore.selectedReference
+        ),
+        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -103,11 +105,10 @@ export class DataStore {
         });
 
         // Count all sequences
-        this.numSequencesAfterAllFiltering =
-          this.aggSequencesUniqueLocationGroupDate.reduce(
-            (accumulator, record) => accumulator + record.counts,
-            0
-          );
+        this.numSequencesAfterAllFiltering = this.aggSequencesUniqueLocationGroupDate.reduce(
+          (accumulator, record) => accumulator + record.counts,
+          0
+        );
 
         // Count groups
         this.groupCounts = countGroups({
@@ -129,19 +130,21 @@ export class DataStore {
 
         // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
 
-        ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
-          aggregateGroupDate({
-            aggSequencesUniqueLocationGroupDate:
-              this.aggSequencesUniqueLocationGroupDate,
-            groupKey: rootStoreInstance.configStore.groupKey,
-          }));
+        ({
+          aggGroupDate: this.aggGroupDate,
+          aggGroup: this.aggSequencesGroup,
+        } = aggregateGroupDate({
+          aggSequencesUniqueLocationGroupDate: this
+            .aggSequencesUniqueLocationGroupDate,
+          groupKey: rootStoreInstance.configStore.groupKey,
+        }));
         // console.log(this.aggGroupDate);
         // console.log(this.aggSequencesGroup);
 
         ({
           countsPerLocationDateMap: this.countsPerLocationDateMap,
-          cumulativeCountsPerLocationDateMap:
-            this.cumulativeCountsPerLocationDateMap,
+          cumulativeCountsPerLocationDateMap: this
+            .cumulativeCountsPerLocationDateMap,
           countsPerLocationMap: this.countsPerLocationMap,
         } = getLocationCounts({
           aggLocationGroupDate: this.aggLocationGroupDate,
@@ -238,8 +241,7 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -294,8 +296,7 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -484,7 +485,9 @@ export class DataStore {
           csvString += fields.slice().fill('').join(',');
         } else {
           csvString +=
-            mutation.name + ',' + fields.map((field) => mutation[field]).join(',');
+            mutation.name +
+            ',' +
+            fields.map((field) => mutation[field]).join(',');
         }
         // Add counts
         csvString += `,${record.counts}\n`;

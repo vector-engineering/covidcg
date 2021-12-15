@@ -62,6 +62,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     selectedGene: configStore.selectedGene,
     selectedProtein: configStore.selectedProtein,
     selectedPrimers: configStore.selectedPrimers,
+    selectedReference: configStore.selectedReference,
     customCoordinates: configStore.customCoordinates,
     validCustomCoordinates: true,
     customSequences: configStore.customSequences,
@@ -106,6 +107,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     changeGrouping(groupKey, pending.dnaOrAa);
   const onDnaOrAaChange = (dnaOrAa) =>
     changeGrouping(pending.groupKey, dnaOrAa);
+
+  const onReferenceChange = (reference) => {
+    setPending({
+      ...pending,
+      selectedReference: reference,
+    });
+  };
 
   const getDefaultGeneResidueCoordinates = (selectedGene) => {
     let residueCoordinates = pending.residueCoordinates;
@@ -443,6 +451,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             {...pending}
             onGroupKeyChange={onGroupKeyChange}
             onDnaOrAaChange={onDnaOrAaChange}
+            onReferenceChange={onReferenceChange}
           />
           <CoordinateSelect
             {...pending}

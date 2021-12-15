@@ -6,7 +6,7 @@ import {
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
-  LITEMOL_STYLES,
+  // LITEMOL_STYLES,
 } from '../constants/defs.json';
 
 import { initialValueStoreInstance } from '../components/App';
@@ -42,25 +42,6 @@ export class PlotSettingsStore {
   @observable surveillanceSigMinR = 0.3;
   @observable surveillanceLegendHover = [];
 
-  // ----------------
-  // GROUP REPORT TAB
-  reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
-  reportConsensusThreshold: 0.1,
-  reportMutationListHideEmpty: true,
-  reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-  reportStructureActiveProtein: 'S',
-  // reportStructureActiveProtein: 'nsp5 - 3CLp',
-  reportStructurePdbId: '6ZGG',
-  // reportStructurePdbId: '7RFW',
-  reportStructureActiveGroup: 'B.1.1.529',
-  // reportStructureActiveGroup: 'B.1.351',
-  reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
-
-  reportStructureAssemblies: [],
-  reportStructureActiveAssembly: '',
-  reportStructureEntities: [],
-};
-
   @observable reportTreeColorMode = TREE_COLOR_MODES.COLOR_LATEST;
   @observable reportConsensusThreshold = 0.7;
   @observable reportMutationListHideEmpty = true;
@@ -73,7 +54,7 @@ export class PlotSettingsStore {
   init() {
     this.initialValues = initialValueStoreInstance.plotSettingsStore;
 
-    Object.keys(this.initialValues).forEach((key, i) => {
+    Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
     });
   }
@@ -195,23 +176,26 @@ export class PlotSettingsStore {
   // GROUP REPORT TAB
   // ----------------
 
-  @observable reportTreeColorMode = initialValues.reportTreeColorMode;
-  @observable reportConsensusThreshold = initialValues.reportConsensusThreshold;
-  @observable reportMutationListHideEmpty =
-    initialValues.reportMutationListHideEmpty;
-  @observable reportMutationListHidden = initialValues.reportMutationListHidden;
-  @observable reportStructureActiveProtein =
-    initialValues.reportStructureActiveProtein;
-  @observable reportStructurePdbId = initialValues.reportStructurePdbId;
+  @observable reportTreeColorMode = this.initialValues.reportTreeColorMode;
+  @observable reportConsensusThreshold = this.initialValues
+    .reportConsensusThreshold;
+  @observable reportMutationListHideEmpty = this.initialValues
+    .reportMutationListHideEmpty;
+  @observable reportMutationListHidden = this.initialValues
+    .reportMutationListHidden;
+  @observable reportStructureActiveProtein = this.initialValues
+    .reportStructureActiveProtein;
+  @observable reportStructurePdbId = this.initialValues.reportStructurePdbId;
   // Actively selected group for the structural viewer
-  @observable reportStructureActiveGroup =
-    initialValues.reportStructureActiveGroup;
-  @observable reportStructureProteinStyle =
-    initialValues.reportStructureProteinStyle;
+  @observable reportStructureActiveGroup = this.initialValues
+    .reportStructureActiveGroup;
+  @observable reportStructureProteinStyle = this.initialValues
+    .reportStructureProteinStyle;
 
-  reportStructureAssemblies = initialValues.reportStructureAssemblies;
-  reportStructureActiveAssembly = initialValues.reportStructureActiveAssembly;
-  reportStructureEntities = initialValues.reportStructureEntities;
+  reportStructureAssemblies = this.initialValues.reportStructureAssemblies;
+  reportStructureActiveAssembly = this.initialValues
+    .reportStructureActiveAssembly;
+  reportStructureEntities = this.initialValues.reportStructureEntities;
 
   @action
   setReportTreeColorMode = (mode) => {
