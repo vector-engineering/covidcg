@@ -53,11 +53,11 @@ metadata_cols:
 
 group_cols:
   genotype:
-    name: "genotype"
-    title: "Genotype"
+    name: "subtype"
+    title: "Subtype"
     description: ""
     link:
-      title: "(Genotype Descriptions)"
+      title: "(Subtype Descriptions)"
       href: "https://www.cdc.gov/rsv/references.html#factsheet"
 
 # Surveillance plot options
