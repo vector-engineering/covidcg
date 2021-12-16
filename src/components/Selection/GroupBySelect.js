@@ -205,7 +205,13 @@ const GroupBySelect = observer(
         {config.virus === 'rsv' && (
           <RadioForm>
             <span className="form-title">Reference Sequence</span>
-            {renderRSVRefSelect()}
+            {groupKey !== GROUP_MUTATION && (
+              <HintText>
+                Switch to &quot;Mutation&quot; under &quot;Group sequences
+                by&quot; in order to enable Reference Sequence Formatting
+              </HintText>
+            )}
+            {groupKey === GROUP_MUTATION && renderRSVRefSelect()}
           </RadioForm>
         )}
       </SelectContainer>

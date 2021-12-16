@@ -132,6 +132,7 @@ def build_sequence_where_filter(req):
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
 
     selected_reference = req.get("selected_reference", None)
+    group_key = req.get("group_key", None)
 
     selected_metadata_fields = req.get("selected_metadata_fields", None)
 
@@ -168,7 +169,7 @@ def build_sequence_where_filter(req):
         )
 
     if selected_reference:
-        if config['virus'] == "rsv":
+        if config['virus'] == "rsv" and group_key != "genotype":
             metadata_filters.append(
                 sql.SQL('"genotype" = {genotype}').format(
                     genotype=sql.Literal(selected_reference)
