@@ -83,14 +83,10 @@ export function aggregateGroupDate({
     // Same as below, except we first have to serialize our co-occurring mutations
     // into a hashable string, and then unpack it afterwards
     const aggGroupDate = aggregate({
-      data: aggSequencesUniqueLocationGroupDate
-        .filter((record) => {
-          return record.group_id ? true : false;
-        })
-        .map((record) => {
-          record.group_id_str = record.group_id.join(',');
-          return record;
-        }),
+      data: aggSequencesUniqueLocationGroupDate.map((record) => {
+        record.group_id_str = record.group_id.join(',');
+        return record;
+      }),
       groupby: ['collection_date', 'group_id_str'],
       fields: ['counts', 'group_id'],
       ops: ['sum', 'first'],
@@ -147,7 +143,6 @@ export function countGroups({ aggLocationGroupDate, groupKey }) {
     // tally up counts for each mutation ID
     const mutationIdCounts = new Map();
     aggLocationGroupDate.forEach((record) => {
-      if (!record.group_id) return;
       record.group_id.forEach((mutationId) => {
         if (!mutationIdCounts.has(mutationId)) {
           mutationIdCounts.set(mutationId, 0);
@@ -287,7 +282,6 @@ export function expandSingleMutationData({ aggLocationGroupDate }) {
   const singleMutationList = [];
 
   aggLocationGroupDate.forEach((record) => {
-    if (!record.group_id) return;
     record.group_id.forEach((mutationId) => {
       singleMutationList.push({
         location: record.location,
