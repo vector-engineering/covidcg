@@ -14,6 +14,8 @@ import {
   DropdownTab,
 } from './TabBar.styles';
 
+import { config } from '../../config';
+
 const TabBar = observer(({ activeTab, onTabChange }) => {
   const { configStore } = useStores();
 
@@ -62,30 +64,43 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Compare Locations</span>
       </a>
     </TabItem>,
-    <TabItem
-      key={TABS.TAB_GROUP_REPORT}
-      active={activeTab === TABS.TAB_GROUP_REPORT}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+  ];
+
+  if (config.virus === 'sars2') {
+    // Add CovidCG specific tabs
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GLOBAL_SEQUENCES}
+        active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
       >
-        <span>Lineage Reports</span>
-      </a>
-    </TabItem>,
-    <TabItem
-      key={TABS.TAB_GLOBAL_SEQUENCES}
-      active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+        >
+          <span>Global Sequencing Coverage</span>
+        </a>
+      </TabItem>
+    );
+
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GLOBAL_SEQUENCES}
+        active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
       >
-        <span>Global Sequencing Coverage</span>
-      </a>
-    </TabItem>,
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+        >
+          <span>Global Sequencing Coverage</span>
+        </a>
+      </TabItem>
+    );
+  }
+
+  // Add About Tab and DropdownButton last
+  tabs.push(
     <TabItem key={TABS.TAB_ABOUT} active={activeTab === TABS.TAB_ABOUT}>
       <a
         href="#"
@@ -94,7 +109,10 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       >
         <span>About COVID CG</span>
       </a>
-    </TabItem>,
+    </TabItem>
+  );
+
+  tabs.push(
     <DropdownButton
       key="tab-dropdown"
       button={DropdownTab}
@@ -103,8 +121,8 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       values={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
       onSelect={onMiscTabSelect}
       active={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED].includes(activeTab)}
-    />,
-  ];
+    />
+  );
 
   return (
     <TabBarContainer height={tabs.length * 30}>
