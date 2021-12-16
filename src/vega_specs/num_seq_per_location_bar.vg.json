@@ -40,7 +40,7 @@
             "on": [
                 {
                     "events": "rect:mouseover",
-                    "update": "datum.c"
+                    "update": "{location: datum.c}"
                 },
                 {
                     "events": "rect:mouseout",
@@ -140,7 +140,7 @@
                     },
                     "opacity": [
                         {
-                            "test": "datum.c == hoverLocation || hoverLocation == null",
+                            "test": "hoverLocation == null || datum.c == hoverLocation.location || hoverLocation.location == null",
                             "value": 1.0
                         },
                         {

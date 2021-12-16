@@ -13,26 +13,12 @@
     },
     "signals": [
         {
-            "name": "hov",
-            "value": null,
-            "on": [
-                {
-                    "events": "line:mouseover",
-                    "update": "datum.c"
-                },
-                {
-                    "events": "line:mouseout",
-                    "update": "null"
-                }
-            ]
-        },
-        {
             "name": "hoverLocation",
             "value": null,
             "on": [
                 {
                     "events": "line:mouseover",
-                    "update": "datum.c"
+                    "update": "{location: datum.c}"
                 },
                 {
                     "events": "line:mouseout",
@@ -44,7 +30,58 @@
     "data": [
         {
             "name": "line_data",
-            "values": [],
+            "values": [
+                {
+                    "c": "USA",
+                    "x": 1,
+                    "y": "28"
+                },
+                {
+                    "c": "USA",
+                    "x": 2,
+                    "y": "20"
+                },
+                {
+                    "c": "USA",
+                    "x": 3,
+                    "y": "18"
+                },
+                {
+                    "c": "USA",
+                    "x": 4,
+                    "y": "21"
+                },
+                {
+                    "c": "USA",
+                    "x": 5,
+                    "y": "15"
+                },
+                {
+                    "c": "Japan",
+                    "x": 1,
+                    "y": "11"
+                },
+                {
+                    "c": "Japan",
+                    "x": 2,
+                    "y": "4"
+                },
+                {
+                    "c": "Japan",
+                    "x": 3,
+                    "y": "8"
+                },
+                {
+                    "c": "Japan",
+                    "x": 4,
+                    "y": "9"
+                },
+                {
+                    "c": "Japan",
+                    "x": 5,
+                    "y": "2"
+                }
+            ],
             "transform": [
                 {
                     "type": "collect",
@@ -155,7 +192,7 @@
                         "update": {
                             "opacity": [
                                 {
-                                    "test": "datum.c == hoverLocation || hoverLocation == null",
+                                    "test": "hoverLocation == null || datum.c == hoverLocation.location || hoverLocation.location == null",
                                     "value": 1
                                 },
                                 {
