@@ -27,11 +27,19 @@ const NumSeqPerLocationLine = observer(({ width }) => {
     } = useStores();
 
     const handleHoverLocation = (...args) => {
+        let hoverLocation;
         // Don't fire the action if there's no change
-        let hoverLocation = args[1] === null ? null : args[1];
+        if (args[1] == null) {
+            hoverLocation = null;
+        } else if (args[1]['location'] === undefined) {
+            hoverLocation = null;
+        } else {
+            hoverLocation = args[1]['location'];
+        }
         if (hoverLocation === configStore.hoverLocation) {
             return;
         }
+        console.log('line hov', hoverLocation);
         configStore.updateHoverLocation(hoverLocation);
     };
 
@@ -66,7 +74,6 @@ const NumSeqPerLocationLine = observer(({ width }) => {
     });
 
     useEffect(() => {
-        console.log('line config store', configStore.hoverLocation);
         setState({
             ...state,
             hoverLocation: { location: configStore.hoverLocation },

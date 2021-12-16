@@ -155,7 +155,7 @@
                         "update": {
                             "opacity": [
                                 {
-                                    "test": "datum.c == hov || hov == null || datum.c == hoverLocation",
+                                    "test": "datum.c == hoverLocation || hoverLocation == null",
                                     "value": 1
                                 },
                                 {

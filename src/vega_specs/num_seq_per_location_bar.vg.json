@@ -19,7 +19,7 @@
                 {
                     "type": "collect",
                     "sort": {
-                        "field": "category"
+                        "field": "c"
                     }
                 }
             ]
@@ -35,26 +35,12 @@
             "value": "Number of Sequences"
         },
         {
-            "name": "tooltip",
-            "value": {},
-            "on": [
-                {
-                    "events": "rect:mouseover",
-                    "update": "datum.category"
-                },
-                {
-                    "events": "rect:mouseout",
-                    "update": "null"
-                }
-            ]
-        },
-        {
             "name": "hoverLocation",
-            "value": {},
+            "value": null,
             "on": [
                 {
                     "events": "rect:mouseover",
-                    "update": "datum.category"
+                    "update": "datum.c"
                 },
                 {
                     "events": "rect:mouseout",
@@ -69,7 +55,7 @@
             "type": "band",
             "domain": {
                 "data": "bar_data",
-                "field": "category"
+                "field": "c"
             },
             "range": "width",
             "padding": 0.05,
@@ -92,7 +78,7 @@
             },
             "domain": {
                 "data": "bar_data",
-                "field": "category"
+                "field": "c"
             }
         }
     ],
@@ -129,7 +115,7 @@
                 "enter": {
                     "x": {
                         "scale": "xscale",
-                        "field": "category"
+                        "field": "c"
                     },
                     "width": {
                         "scale": "xscale",
@@ -144,61 +130,21 @@
                         "value": 0
                     },
                     "tooltip": {
-                        "signal": "{'title': datum.category, 'Total Sequences': datum.amount}"
+                        "signal": "{'title': datum.c, 'Total Sequences': datum.amount}"
                     }
                 },
                 "update": {
                     "fill": {
-                        "field": "category",
+                        "field": "c",
                         "scale": "color"
                     },
                     "opacity": [
                         {
-                            "test": "datum.category == tooltip || tooltip == null || datum.category == hoverLocation",
+                            "test": "datum.c == hoverLocation || hoverLocation == null",
                             "value": 1.0
                         },
                         {
                             "value": 0.5
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "type": "text",
-            "encode": {
-                "enter": {
-                    "align": {
-                        "value": "center"
-                    },
-                    "baseline": {
-                        "value": "bottom"
-                    },
-                    "fill": {
-                        "value": "#333"
-                    }
-                },
-                "update": {
-                    "x": {
-                        "scale": "xscale",
-                        "signal": "tooltip.category",
-                        "band": 0.5
-                    },
-                    "y": {
-                        "scale": "yscale",
-                        "signal": "tooltip.amount",
-                        "offset": -2
-                    },
-                    "text": {
-                        "signal": "tooltip.amount"
-                    },
-                    "fillOpacity": [
-                        {
-                            "test": "datum === tooltip",
-                            "value": 0
-                        },
-                        {
-                            "value": 1
                         }
                     ]
                 }
