@@ -34,10 +34,12 @@ def extract_aa_mutations(dna_mutation_file, gene_or_protein_file, reference_file
         gene_or_protein_df = gene_or_protein_df.set_index("name")
 
     dna_mutation_df = pd.read_csv(dna_mutation_file).fillna("")
+    
     # Filter out any big mutations in the 5' or 3' UTR
-    dna_mutation_df = dna_mutation_df.loc[
-        (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
-    ].reset_index(drop=True)
+    # dna_mutation_df = dna_mutation_df.loc[
+    #    (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
+    # ].reset_index(drop=True)
+
     # Filter out any frameshifting indels
     dna_mutation_df = dna_mutation_df.loc[
         ((dna_mutation_df["ref"].str.len() == 1) & (dna_mutation_df["alt"].str.len() == 1))

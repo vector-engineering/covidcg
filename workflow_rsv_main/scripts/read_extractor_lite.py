@@ -80,6 +80,10 @@ class ReadExtractor:
         # Get the reference sequence
         self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
 
+        # Don't try to do anything if the reference is not in RefSeq
+        if len(self.reference_seq) == 0:
+            return
+
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
         https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignedSegment.cigartuples

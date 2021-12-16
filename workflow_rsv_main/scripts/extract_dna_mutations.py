@@ -9,7 +9,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import argparse
 import pandas as pd
 import pysam
-from pathlib import Path
 
 from scripts.fasta import read_fasta_file
 from scripts.read_extractor_lite import ReadExtractor

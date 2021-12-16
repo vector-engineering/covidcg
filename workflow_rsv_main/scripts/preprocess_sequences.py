@@ -9,8 +9,6 @@ import gzip
 import math
 import re
 
-from pathlib import Path
-
 
 def preprocess_sequences(input_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
