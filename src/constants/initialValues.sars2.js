@@ -78,6 +78,8 @@ export default function values() {
       surveillanceSigMinPercent: 0.02,
       surveillanceSigMinR: 0.3,
       surveillanceLegendHover: [],
+      surveillanceShowWarning: false,
+      surveillanceShowSettings: false,
 
       // GROUP REPORT TAB
       reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,

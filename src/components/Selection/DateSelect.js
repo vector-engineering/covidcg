@@ -27,7 +27,9 @@ const presetDateOptions = [
     Select a preset date range
   </option>,
   <option key={PRESET_START} value={PRESET_START}>
-    Since pandemic start
+    {config.virus === 'sars2'
+      ? 'Since pandemic start'
+      : 'Date of first sequence'}
   </option>,
   <option key={'separator-1'} disabled={true}>
     ──────────

@@ -59,11 +59,11 @@ export default function values() {
       groupStackLowFreqValue: 20,
       groupStackNormMode: NORM_MODES.NORM_COUNTS,
       groupStackCountMode: COUNT_MODES.COUNT_NEW,
-      groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+      groupStackDateBin: DATE_BINS.DATE_BIN_MONTH,
 
       locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
       locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-      locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
+      locationDateDateBin: DATE_BINS.DATE_BIN_MONTH,
 
       locationGroupHideReference: true,
 
@@ -77,8 +77,10 @@ export default function values() {
       surveillanceDisplayMinPercent: 0.01,
       surveillanceSigMinCounts: 10,
       surveillanceSigMinPercent: 0.02,
-      surveillanceSigMinR: 0.3,
+      surveillanceSigMinR: 0.15,
       surveillanceLegendHover: [],
+      surveillanceShowWarning: false,
+      surveillanceShowSettings: false,
 
       // GROUP REPORT TAB
       reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,

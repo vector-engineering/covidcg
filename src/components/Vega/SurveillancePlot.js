@@ -128,7 +128,7 @@ const SurveillanceLegend = observer(
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
       legendTitleText = 'Spike mutations (Single)';
     } else if (plotSettingsStore.surveillanceMode === 'genotype') {
-      legendTitleText = 'Genotype';
+      legendTitleText = 'Subtype';
     }
 
     return (
@@ -433,7 +433,13 @@ const SurveillancePlot = observer(({ width }) => {
     groupName = 'Co-occuring mutations';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
     groupName = 'Single mutations';
+  } else if (plotSettingsStore.surveillanceMode == 'genotype') {
+    groupName = 'Subtype';
   }
+
+  const getXLabelFormat = () => {
+    return config.virus === 'sars2' ? '%m-%d' : '%m-%y';
+  };
 
   return (
     <PlotContainer>
@@ -483,7 +489,12 @@ const SurveillancePlot = observer(({ width }) => {
                   value={plotSettingsStore.surveillanceMode}
                   onChange={onChangeMode}
                 >
-                  <option value={'lineage'}>Lineage</option>
+                  {config.virus === 'sars2' && (
+                    <option value={'lineage'}>Lineage</option>
+                  )}
+                  {config.virus === 'rsv' && (
+                    <option value={'genotype'}>Subtype</option>
+                  )}
                   <option value={'spike_combo'}>
                     Spike Co-occuring Mutations
                   </option>
@@ -541,6 +552,7 @@ const SurveillancePlot = observer(({ width }) => {
             sig_min_counts: plotSettingsStore.surveillanceSigMinCounts,
             sig_min_percent: plotSettingsStore.surveillanceSigMinPercent,
             sig_min_r: plotSettingsStore.surveillanceSigMinR,
+            xLabelFormat: getXLabelFormat(),
           }}
           dataListeners={state.dataListeners}
           width={width - 80}

@@ -30,6 +30,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     changeTab(tab);
   };
 
+  // The base tabs are the Example, Compare Groups, and Compare Locations tabs
   const tabs = [
     <TabItem key={TABS.TAB_EXAMPLE} active={activeTab === TABS.TAB_EXAMPLE}>
       <a
