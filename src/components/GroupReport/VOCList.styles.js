@@ -22,7 +22,7 @@ export const VOCTableToggle = styled.div`
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 10px solid #000000;
+  border-top: 10px solid #444444;
   cursor: pointer;
 
   ${(props) =>
@@ -40,7 +40,7 @@ export const VOCTableToggle = styled.div`
 export const VOCTableRow = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 1em;
+  margin-top: 0.5em;
 `;
 
 export const VOCTableContent = styled.div`
