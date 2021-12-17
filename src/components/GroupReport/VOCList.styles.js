@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const VOCGridTitle = styled.span`
   font-size: 1.5em;
@@ -16,6 +16,7 @@ export const VOCTableHeader = styled.div`
 `;
 
 export const VOCTableToggle = styled.div`
+  transform: rotate(0deg);
   margin: auto auto auto 10px;
   width: 0;
   height: 0;
@@ -23,6 +24,17 @@ export const VOCTableToggle = styled.div`
   border-right: 5px solid transparent;
   border-top: 10px solid #000000;
   cursor: pointer;
+
+  ${(props) =>
+    props.expanded &&
+    css`
+      transition-timing-function: ease-in-out;
+      transform: rotate(180deg);
+    `};
+
+  &:hover {
+    border-top: 10px solid #aaaaaa;
+  }
 `;
 
 export const VOCTableRow = styled.div`

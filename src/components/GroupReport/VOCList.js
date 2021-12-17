@@ -138,13 +138,10 @@ const VOCTable = observer(() => {
     const category = event.target.getAttribute('name');
 
     if (category === 'VOC') {
-      console.log('Clicked VOC');
       setState({ ...state, vocExpanded: !state.vocExpanded });
     } else if (category === 'VOI') {
-      console.log('Clicked VOI');
       setState({ ...state, voiExpanded: !state.voiExpanded });
     } else if (category === 'Other') {
-      console.log('Clicked Other');
       setState({ ...state, otherExpanded: !state.otherExpanded });
     }
   };
@@ -156,7 +153,11 @@ const VOCTable = observer(() => {
         <div>
           <VOCTableHeader>
             <VOCGridTitle>Variants of Concern *</VOCGridTitle>
-            <VOCTableToggle onClick={toggleExpand} name="VOC" />
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="VOC"
+              expanded={state.vocExpanded}
+            />
           </VOCTableHeader>
           {state.vocExpanded && <VOCTableContent>{vocItems}</VOCTableContent>}
           {!state.vocExpanded && <p>{vocItems.length} VOCs hidden...</p>}
@@ -166,7 +167,11 @@ const VOCTable = observer(() => {
         <div>
           <VOCTableHeader>
             <VOCGridTitle>Variants of Interest</VOCGridTitle>
-            <VOCTableToggle onClick={toggleExpand} name="VOI" />
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="VOI"
+              expanded={state.voiExpanded}
+            />
           </VOCTableHeader>
           {state.voiExpanded && <VOCTableContent>{voiItems}</VOCTableContent>}
           {!state.voiExpanded && <p>{voiItems.length} VOIs hidden...</p>}
@@ -176,7 +181,11 @@ const VOCTable = observer(() => {
         <div>
           <VOCTableHeader>
             <VOCGridTitle>Other Variants Being Monitored</VOCGridTitle>
-            <VOCTableToggle onClick={toggleExpand} name="Other" />
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="Other"
+              expanded={state.otherExpanded}
+            />
           </VOCTableHeader>
           {state.otherExpanded && (
             <VOCTableContent>{otherItems}</VOCTableContent>
