@@ -114,7 +114,7 @@ def main():
     df = df.loc[df["region"].isin(valid_regions)]
 
     df["collection_date"] = pd.to_datetime(df["collection_date"])
-    df["collection_week"] = df["collection_date"].dt.to_period("W")
+    df["collection_week"] = df["collection_date"].dt.to_period("M")
 
     location_counts = (
         df.groupby(["region", "collection_week"])
