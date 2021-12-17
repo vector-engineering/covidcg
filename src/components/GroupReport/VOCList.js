@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
@@ -9,11 +9,11 @@ import { OrgLegend } from './OrgLegend';
 import {
   VOCTableContainer,
   VOCTableRow,
-  VOCListContainer,
+  VOCTableHeader,
+  VOCTableToggle,
+  VOCTableContent,
   VOCGridTitle,
-  GridItem,
   VOCItemContainer,
-  VOCItemGrid,
   VOCItemName,
   VOCBadgeContainer,
   VOCBadge,
@@ -128,108 +128,69 @@ const VOCTable = observer(() => {
   // Other Variants
   const otherItems = filterItems('Other');
 
+  const [state, setState] = useState({
+    vocExpanded: true,
+    voiExpanded: true,
+    otherExpanded: false,
+  });
+
+  const toggleExpand = (event) => {
+    const category = event.target.getAttribute('name');
+
+    if (category === 'VOC') {
+      console.log('Clicked VOC');
+      setState({ ...state, vocExpanded: !state.vocExpanded });
+    } else if (category === 'VOI') {
+      console.log('Clicked VOI');
+      setState({ ...state, voiExpanded: !state.voiExpanded });
+    } else if (category === 'Other') {
+      console.log('Clicked Other');
+      setState({ ...state, otherExpanded: !state.otherExpanded });
+    }
+  };
+
   return (
     <VOCTableContainer>
       <OrgLegend />
       <VOCTableRow>
-        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
-        {vocItems}
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Variants of Concern *</VOCGridTitle>
+            <VOCTableToggle onClick={toggleExpand} name="VOC" />
+          </VOCTableHeader>
+          {state.vocExpanded && <VOCTableContent>{vocItems}</VOCTableContent>}
+          {!state.vocExpanded && <p>{vocItems.length} VOCs hidden...</p>}
+        </div>
       </VOCTableRow>
       <VOCTableRow>
-        <VOCGridTitle>Variants of Interest</VOCGridTitle>
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Variants of Interest</VOCGridTitle>
+            <VOCTableToggle onClick={toggleExpand} name="VOI" />
+          </VOCTableHeader>
+          {state.voiExpanded && <VOCTableContent>{voiItems}</VOCTableContent>}
+          {!state.voiExpanded && <p>{voiItems.length} VOIs hidden...</p>}
+        </div>
       </VOCTableRow>
       <VOCTableRow>
-        <VOCGridTitle>Other Variants Being Monitored</VOCGridTitle>
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Other Variants Being Monitored</VOCGridTitle>
+            <VOCTableToggle onClick={toggleExpand} name="Other" />
+          </VOCTableHeader>
+          {state.otherExpanded && (
+            <VOCTableContent>{otherItems}</VOCTableContent>
+          )}
+          {!state.otherExpanded && (
+            <p>{otherItems.length} variants hidden...</p>
+          )}
+        </div>
       </VOCTableRow>
       <p>
         * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
         VOCs.
       </p>
     </VOCTableContainer>
-  );
-});
-
-const VOCList = observer(() => {
-  const filterItems = (level) => {
-    // VOC_LIST is an object with lineages as its keys
-    // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
-    // Each organization's value is the level (VOC, VOI, Other) assigned to the lineage
-
-    // {lineage: {
-    //            org1: level,
-    //            org2: level, ...
-    //           }
-    // }
-
-    const VOC_LIST = asyncDataStoreInstance.data.vocs;
-
-    const items = [];
-    Object.keys(VOC_LIST)
-      .filter((lineage_name) => {
-        return Object.values(VOC_LIST[lineage_name]).some((v) => v === level);
-      })
-      .forEach((lineage_name) => {
-        let org_dict = VOC_LIST[lineage_name];
-        let orgArr = Object.keys(org_dict).filter((org) => {
-          return org_dict[org] === level;
-        });
-
-        items.push(
-          <VOCItem
-            key={`${level}-item-${lineage_name}`}
-            name={lineage_name}
-            orgArr={orgArr}
-          />
-        );
-      });
-    return items;
-  };
-
-  // Variants of Concern (VOC)
-  const vocItems = filterItems('VOC');
-
-  // Variants of Interest (VOI)
-  // The PHE calls this same level (one below VOC) VUI
-  const voiItems = filterItems('VOI');
-
-  // Other Variants
-  const otherItems = filterItems('Other');
-  const maxVOCsInCol = 15;
-
-  const otherArr = [];
-  let tempArr = [];
-  for (let i = 0; i < otherItems.length; i++) {
-    // Construct arrays of len = maxVOCsInCol
-    tempArr.push(otherItems[i]);
-    if (
-      tempArr.length === maxVOCsInCol ||
-      (i === otherItems.length - 1 && tempArr.length > 0)
-    ) {
-      otherArr.push(
-        <GridItem key={'otherGridItems-' + otherArr.length}>{tempArr}</GridItem>
-      );
-      tempArr = [];
-    }
-  }
-
-  return (
-    <VOCListContainer>
-      <OrgLegend />
-      <VOCItemGrid>
-        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
-        <VOCGridTitle>Variants of Interest</VOCGridTitle>
-        <VOCGridTitle colSpan={otherArr.length}>
-          Other Variants Being Monitored
-        </VOCGridTitle>
-        <GridItem key={'vocGridItems'}>{vocItems}</GridItem>
-        <GridItem key={'voiGridItems'}>{voiItems}</GridItem>
-        {otherArr}
-      </VOCItemGrid>
-      <p>
-        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
-        VOCs.
-      </p>
-    </VOCListContainer>
   );
 });
 

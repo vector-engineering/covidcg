@@ -1,54 +1,49 @@
 import styled from 'styled-components';
 
 export const VOCGridTitle = styled.span`
-  font-size: 1em;
-  grid-row: 1;
-  font-weight: bold;
-  text-align: center;
-  grid-column: span ${({ colSpan }) => colSpan};
-`;
-VOCGridTitle.defaultProps = {
-  colSpan: 1,
-};
-
-export const GridItem = styled.div`
-  padding-left: 10px;
+  font-size: 1.5em;
 `;
 
 export const VOCTableContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  width: 100%;
+`;
+
+export const VOCTableHeader = styled.div`
+  display: flex;
+  flex-direciton: column;
+`;
+
+export const VOCTableToggle = styled.div`
+  margin: auto auto auto 10px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid #000000;
+  cursor: pointer;
 `;
 
 export const VOCTableRow = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: 1em;
 `;
 
-export const VOCListContainer = styled.div`
+export const VOCTableContent = styled.div`
   display: flex;
-  flex-direction: column;
-  padding: 10px;
-  overflow: hidden;
-  font-weight: normal;
-`;
-
-export const VOCItemGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto;
-  grid-column-gap: 10px;
-  justify-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
 `;
 
 export const VOCItemContainer = styled.div`
-  display: grid;
-  grid-template-columns: 11px 1fr;
-  grid-gap: 5px
+  display: flex;
+  flex-direction: row;
   align-items: center;
   background-color: ${({ selected }) => (selected ? '#009988' : '#eeeeee')};
-  margin-top: 5px;
-  padding: 1px 5px;
+  margin: 5px;
+  padding: 5px 5px;
   font-size: 0.85em;
   border-radius: 5px;
 
