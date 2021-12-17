@@ -15,6 +15,16 @@ export const GridItem = styled.div`
   padding-left: 10px;
 `;
 
+export const VOCTableContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+export const VOCTableRow = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const VOCListContainer = styled.div`
   display: flex;
   flex-direction: column;

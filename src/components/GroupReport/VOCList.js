@@ -7,6 +7,8 @@ import { asyncDataStoreInstance } from '../App';
 import { OrgLegend } from './OrgLegend';
 
 import {
+  VOCTableContainer,
+  VOCTableRow,
   VOCListContainer,
   VOCGridTitle,
   GridItem,
@@ -79,6 +81,73 @@ VOCItem.propTypes = {
   name: PropTypes.string.isRequired,
   orgArr: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
+
+const VOCTable = observer(() => {
+  const filterItems = (level) => {
+    // VOC_LIST is an object with lineages as its keys
+    // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
+    // Each organization's value is the level (VOC, VOI, Other) assigned to the lineage
+
+    // {lineage: {
+    //            org1: level,
+    //            org2: level, ...
+    //           }
+    // }
+
+    const VOC_LIST = asyncDataStoreInstance.data.vocs;
+
+    const items = [];
+    Object.keys(VOC_LIST)
+      .filter((lineage_name) => {
+        return Object.values(VOC_LIST[lineage_name]).some((v) => v === level);
+      })
+      .forEach((lineage_name) => {
+        let org_dict = VOC_LIST[lineage_name];
+        let orgArr = Object.keys(org_dict).filter((org) => {
+          return org_dict[org] === level;
+        });
+
+        items.push(
+          <VOCItem
+            key={`${level}-item-${lineage_name}`}
+            name={lineage_name}
+            orgArr={orgArr}
+          />
+        );
+      });
+    return items;
+  };
+
+  // Variants of Concern (VOC)
+  const vocItems = filterItems('VOC');
+
+  // Variants of Interest (VOI)
+  // The PHE calls this same level (one below VOC) VUI
+  const voiItems = filterItems('VOI');
+
+  // Other Variants
+  const otherItems = filterItems('Other');
+
+  return (
+    <VOCTableContainer>
+      <OrgLegend />
+      <VOCTableRow>
+        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
+        {vocItems}
+      </VOCTableRow>
+      <VOCTableRow>
+        <VOCGridTitle>Variants of Interest</VOCGridTitle>
+      </VOCTableRow>
+      <VOCTableRow>
+        <VOCGridTitle>Other Variants Being Monitored</VOCGridTitle>
+      </VOCTableRow>
+      <p>
+        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
+        VOCs.
+      </p>
+    </VOCTableContainer>
+  );
+});
 
 const VOCList = observer(() => {
   const filterItems = (level) => {
@@ -164,4 +233,4 @@ const VOCList = observer(() => {
   );
 });
 
-export default VOCList;
+export default VOCTable;
