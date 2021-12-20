@@ -11,7 +11,7 @@ import pandas as pd
 from scripts.util import human_format
 
 
-def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree_out):
+def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree_out):
     """Build tree for ReactDropdownTreeSelect
 
     data
@@ -63,28 +63,38 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
     }
     """
 
-    df = pd.read_json(case_data).set_index("Accession ID")
-    with open(location_map, "r") as fp:
-        location_map_df = pd.DataFrame(json.loads(fp.read()))
+    loc_levels = ["region", "country", "division", "location"]
+    df = pd.read_json(case_data)
+    df = df[["Accession ID"] + loc_levels]
 
-    # Join location data back to main dataframe
-    df = df.join(location_map_df, on="location_id")
+    with open(metadata_map, "r") as fp:
+        metadata_map = json.loads(fp.read())
 
-    # Set unspecified locations to None so that they don't get
-    # caught up in the groupby
-    df.loc[df["region"] == "-1", "region"] = None
-    df.loc[df["country"] == "-1", "country"] = None
-    df.loc[df["division"] == "-1", "division"] = None
-    df.loc[df["location"] == "-1", "location"] = None
+    loc_level_id_cols = [col + "_id" for col in loc_levels]
+    for i, loc_level in enumerate(loc_levels):
+        # Make separate column for integer ID
+        df[loc_level_id_cols[i]] = df[loc_level]
+        # Map integer IDs to strings
+        mmap = {int(k): v for k, v in metadata_map[loc_level].items()}
+        df.loc[:, loc_level] = df[loc_level].apply(
+            lambda x: mmap[x] if x >= 0 else None
+        )
+
+    # Get unique locations
+    unique_locations_df = df.drop_duplicates(loc_level_id_cols)
 
     # Count sequences per grouping level
-    region_counts = dict(df.groupby("region")["location_id"].count())
-    country_counts = dict(df.groupby(["region", "country"])["location_id"].count())
+    region_counts = dict(df.groupby("region_id")["Accession ID"].count())
+    country_counts = dict(
+        df.groupby(["region_id", "country_id"])["Accession ID"].count()
+    )
     division_counts = dict(
-        df.groupby(["region", "country", "division"])["location_id"].count()
+        df.groupby(["region_id", "country_id", "division_id"])["Accession ID"].count()
     )
     location_counts = dict(
-        df.groupby(["region", "country", "division", "location"])["location_id"].count()
+        df.groupby(["region_id", "country_id", "division_id", "location_id"])[
+            "Accession ID"
+        ].count()
     )
 
     # Load country -> emoji map
@@ -95,29 +105,29 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
     )
 
     # Root node
-    select_tree = {"label": "All", "value": "All", "children": []}
+    select_tree = {"label": "All", "value": "All", "value_txt": "All", "children": []}
 
-    for i, loc in location_map_df.iterrows():
+    for i, loc in unique_locations_df.iterrows():
         # Add region node
-        if loc["region"] == "-1":
+        if loc["region_id"] == -1:
             continue
 
         region_node = [
-            c for c in select_tree["children"] if c["value"] == loc["region"]
+            c for c in select_tree["children"] if c["value"] == loc["region_id"]
         ]
         if region_node:
             region_node = region_node[0]
         else:
             region_node = {
                 "label": loc["region"],
-                "value": loc["region"],
+                "value": loc["region_id"],
+                "value_txt": loc["region"],
                 "level": "region",
-                "location_id": i,
                 "actions": [
                     {
                         "className": "fa fa-info",
-                        "title": str(region_counts[loc["region"]]) + " sequences",
-                        "text": human_format(region_counts[loc["region"]]),
+                        "title": str(region_counts[loc["region_id"]]) + " sequences",
+                        "text": human_format(region_counts[loc["region_id"]]),
                     }
                 ],
                 "children": [],
@@ -125,11 +135,11 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
             select_tree["children"].append(region_node)
 
         # Add country --> region
-        if loc["country"] == "-1":
+        if loc["country_id"] == -1:
             continue
 
         country_node = [
-            c for c in region_node["children"] if c["value"] == loc["country"]
+            c for c in region_node["children"] if c["value"] == loc["country_id"]
         ]
         if country_node:
             country_node = country_node[0]
@@ -146,17 +156,19 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
 
             country_node = {
                 "label": country_emoji + loc["country"],
-                "value": loc["country"],
-                "region": loc["region"],
+                "value": loc["country_id"],
+                "value_txt": loc["country"],
+                "region": loc["region_id"],
                 "level": "country",
-                "location_id": i,
                 "actions": [
                     {
                         "className": "fa fa-info",
-                        "title": str(country_counts[(loc["region"], loc["country"])])
+                        "title": str(
+                            country_counts[(loc["region_id"], loc["country_id"])]
+                        )
                         + " sequences",
                         "text": human_format(
-                            country_counts[(loc["region"], loc["country"])]
+                            country_counts[(loc["region_id"], loc["country_id"])]
                         ),
                     }
                 ],
@@ -165,34 +177,42 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
             region_node["children"].append(country_node)
 
         # Add division --> country
-        if loc["division"] == "-1":
+        if loc["division_id"] == -1:
             continue
 
         division_node = [
-            c for c in country_node["children"] if c["value"] == loc["division"]
+            c for c in country_node["children"] if c["value"] == loc["division_id"]
         ]
         if division_node:
             division_node = division_node[0]
         else:
             division_node = {
                 "label": loc["division"],
-                "value": loc["division"],
-                "region": loc["region"],
-                "country": loc["country"],
+                "value": loc["division_id"],
+                "value_txt": loc["division"],
+                "region": loc["region_id"],
+                "country": loc["country_id"],
                 "level": "division",
-                "location_id": i,
                 "actions": [
                     {
                         "className": "fa fa-info",
                         "title": str(
                             division_counts[
-                                (loc["region"], loc["country"], loc["division"])
+                                (
+                                    loc["region_id"],
+                                    loc["country_id"],
+                                    loc["division_id"],
+                                )
                             ]
                         )
                         + " sequences",
                         "text": human_format(
                             division_counts[
-                                (loc["region"], loc["country"], loc["division"])
+                                (
+                                    loc["region_id"],
+                                    loc["country_id"],
+                                    loc["division_id"],
+                                )
                             ]
                         ),
                     }
@@ -202,33 +222,33 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
             country_node["children"].append(division_node)
 
         # Add location --> division
-        if loc["location"] == "-1":
+        if loc["location_id"] == -1:
             continue
 
         location_node = [
-            c for c in division_node["children"] if c["value"] == loc["location"]
+            c for c in division_node["children"] if c["value"] == loc["location_id"]
         ]
         if location_node:
             location_node = location_node[0]
         else:
             location_node = {
                 "label": loc["location"],
-                "value": loc["location"],
-                "region": loc["region"],
-                "country": loc["country"],
-                "division": loc["division"],
+                "value": loc["location_id"],
+                "value_txt": loc["location"],
+                "region": loc["region_id"],
+                "country": loc["country_id"],
+                "division": loc["division_id"],
                 "level": "location",
-                "location_id": i,
                 "actions": [
                     {
                         "className": "fa fa-info",
                         "title": str(
                             location_counts[
                                 (
-                                    loc["region"],
-                                    loc["country"],
-                                    loc["division"],
-                                    loc["location"],
+                                    loc["region_id"],
+                                    loc["country_id"],
+                                    loc["division_id"],
+                                    loc["location_id"],
                                 )
                             ]
                         )
@@ -236,10 +256,10 @@ def build_location_tree(case_data, location_map, emoji_map_file, geo_select_tree
                         "text": human_format(
                             location_counts[
                                 (
-                                    loc["region"],
-                                    loc["country"],
-                                    loc["division"],
-                                    loc["location"],
+                                    loc["region_id"],
+                                    loc["country_id"],
+                                    loc["division_id"],
+                                    loc["location_id"],
                                 )
                             ]
                         ),

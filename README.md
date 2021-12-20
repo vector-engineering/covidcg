@@ -159,7 +159,7 @@ $ CONFIGFILE=../../config/config_genbank.yaml ./serve.sh # Run Flask server in d
 
 Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Pipeline Installation](#Pipeline-Installation)).
 
-Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts SNVs, and compiles data for display in the web application.
+Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts mutations, and compiles data for display in the web application.
 
 Configuration of the pipeline is defined in the `config/config_[workflow].yaml` files.
 
@@ -213,7 +213,7 @@ cd workflow_main
 snakemake --configfile ../config/config_genbank.yaml
 ```
 
-This pipeline will align sequences to the reference sequence with `minimap2`, extract SNVs on both the NT and AA level, and combine all metadata and SNV information into one file: `data_package.json.gz`.
+This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information into one file: `data_package.json.gz`.
 
 To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in the `data_package_url` field in the `config/config_[workflow]` file that you are using.
 

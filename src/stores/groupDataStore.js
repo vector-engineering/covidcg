@@ -6,29 +6,32 @@ import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
-import { GROUPS } from '../constants/defs.json';
+import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import { mutationHeatmapToPymolScript } from '../utils/pymol';
+import {
+  mutationHeatmapToPymolScript,
+  mutationHeatmapToPymolCommands,
+} from '../utils/pymol';
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
-  groupSnvType: 'protein_aa',
+  selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
+  groupMutationType: 'protein_aa',
 };
 
 export class GroupDataStore {
   // Actively selected group type in the report tab
   @observable activeGroupType = initialValues.activeGroupType;
   @observable selectedGroups = initialValues.selectedGroups;
-  @observable groupSnvType = initialValues.groupSnvType;
+  @observable groupMutationType = initialValues.groupMutationType;
 
   groups;
   @observable groupSelectTree;
-  groupSnvFrequency;
+  groupMutationFrequency;
 
   constructor() {
-    this.groupSnvFrequency = {};
+    this.groupMutationFrequency = {};
     // Provided by the server
     // Array of records { name: string, color: string }
     this.groups = {};
@@ -74,15 +77,24 @@ export class GroupDataStore {
   hasGroupFrequencyData() {
     if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupSnvFrequency,
+        this.groupMutationFrequency,
         this.activeGroupType
       )
     ) {
       return false;
     } else if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupSnvFrequency[this.activeGroupType],
-        this.groupSnvType
+        this.groupMutationFrequency[this.activeGroupType],
+        this.groupMutationType
+      )
+    ) {
+      return false;
+    } else if (
+      !Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[this.activeGroupType][
+          this.groupMutationType
+        ],
+        '0'
       )
     ) {
       return false;
@@ -97,29 +109,29 @@ export class GroupDataStore {
 
     // If we don't have the data for this combo yet, then fetch it now
     if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupSnvFrequencyData({
+      this.fetchGroupMutationFrequencyData({
         group: this.activeGroupType,
-        snvType: this.groupSnvType,
+        mutationType: this.groupMutationType,
         consensusThreshold: 0,
       });
     }
   };
 
   @action
-  updateGroupSnvType = (groupSnvType) => {
-    this.groupSnvType = groupSnvType;
+  updateGroupMutationType = (groupMutationType) => {
+    this.groupMutationType = groupMutationType;
 
     // If we don't have the data for this combo yet, then fetch it now
     if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupSnvFrequencyData({
+      this.fetchGroupMutationFrequencyData({
         group: this.activeGroupType,
-        snvType: this.groupSnvType,
+        mutationType: this.groupMutationType,
         consensusThreshold: 0,
       });
     }
 
     // Hide ORF1a in NT/gene_aa mode by default
-    if (groupSnvType === 'dna' || groupSnvType === 'gene_aa') {
+    if (groupMutationType === 'dna' || groupMutationType === 'gene_aa') {
       rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
         'ORF1a',
       ]);
@@ -163,12 +175,12 @@ export class GroupDataStore {
     return config.group_cols[this.activeGroupType].title;
   }
 
-  getGroupSnvTypePrettyName() {
-    if (this.groupSnvType === 'dna') {
+  getGroupMutationTypePrettyName() {
+    if (this.groupMutationType === 'dna') {
       return 'NT';
-    } else if (this.groupSnvType === 'gene_aa') {
+    } else if (this.groupMutationType === 'gene_aa') {
       return 'Gene AA';
-    } else if (this.groupSnvType === 'protein_aa') {
+    } else if (this.groupMutationType === 'protein_aa') {
       return 'Protein AA';
     }
   }
@@ -178,23 +190,38 @@ export class GroupDataStore {
   }
 
   @action
-  async fetchGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
+  async fetchGroupMutationFrequencyData({
+    group,
+    mutationType,
+    consensusThreshold,
+  }) {
     // Skip the download if we already have the requested data
     if (
-      Object.prototype.hasOwnProperty.call(this.groupSnvFrequency, group) &&
       Object.prototype.hasOwnProperty.call(
-        this.groupSnvFrequency[group],
-        snvType
+        this.groupMutationFrequency,
+        group
+      ) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[group],
+        mutationType
+      ) &&
+      Object.prototype.hasOwnProperty.call(
+        this.groupMutationFrequency[group][mutationType],
+        consensusThreshold.toString()
       )
     ) {
       // eslint-disable-next-line no-unused-vars
       return new Promise((resolve, reject) => {
-        resolve(this.groupSnvFrequency[group][snvType]);
+        resolve(
+          this.groupMutationFrequency[group][mutationType][
+            consensusThreshold.toString()
+          ]
+        );
       });
     }
 
-    rootStoreInstance.UIStore.onGroupSnvFrequencyStarted();
-    return fetch(hostname + '/group_snv_frequencies', {
+    rootStoreInstance.UIStore.onGroupMutationFrequencyStarted();
+    return fetch(hostname + '/group_mutation_frequencies', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -202,7 +229,7 @@ export class GroupDataStore {
       },
       body: JSON.stringify({
         group,
-        snv_type: snvType,
+        mutation_type: mutationType,
         consensus_threshold: consensusThreshold,
       }),
     })
@@ -214,13 +241,26 @@ export class GroupDataStore {
       })
       .then((pkg) => {
         if (
-          !Object.prototype.hasOwnProperty.call(this.groupSnvFrequency, group)
+          !Object.prototype.hasOwnProperty.call(
+            this.groupMutationFrequency,
+            group
+          )
         ) {
-          this.groupSnvFrequency[group] = {};
+          this.groupMutationFrequency[group] = {};
         }
-        this.groupSnvFrequency[group][snvType] = pkg;
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            this.groupMutationFrequency[group],
+            mutationType
+          )
+        ) {
+          this.groupMutationFrequency[group][mutationType] = {};
+        }
+        this.groupMutationFrequency[group][mutationType][
+          consensusThreshold.toString()
+        ] = pkg;
 
-        rootStoreInstance.UIStore.onGroupSnvFrequencyFinished();
+        rootStoreInstance.UIStore.onGroupMutationFrequencyFinished();
 
         return pkg;
       })
@@ -232,16 +272,20 @@ export class GroupDataStore {
             console.error(errMsg);
           });
         }
-        rootStoreInstance.UIStore.onGroupSnvFrequencyErr();
+        rootStoreInstance.UIStore.onGroupMutationFrequencyErr();
       });
   }
 
   @action
-  async downloadGroupSnvFrequencyData({ group, snvType, consensusThreshold }) {
+  async downloadGroupMutationFrequencyData({
+    group,
+    mutationType,
+    consensusThreshold,
+  }) {
     rootStoreInstance.UIStore.onDownloadStarted();
-    this.fetchGroupSnvFrequencyData({
+    this.fetchGroupMutationFrequencyData({
       group,
-      snvType,
+      mutationType,
       consensusThreshold,
     }).then((pkg) => {
       rootStoreInstance.UIStore.onDownloadFinished();
@@ -251,18 +295,20 @@ export class GroupDataStore {
     });
   }
 
-  getStructureSnvs() {
-    return this.groupSnvFrequency[this.activeGroupType]['protein_aa'].filter(
-      (groupSnv) =>
-        groupSnv.name ===
+  getStructureMutations() {
+    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'][
+      '0'
+    ].filter(
+      (groupMutation) =>
+        groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
-        groupSnv.protein ===
+        groupMutation.protein ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveProtein
     );
   }
 
   downloadStructureMutationData() {
-    const blob = new Blob([JSON.stringify(this.getStructureSnvs())]);
+    const blob = new Blob([JSON.stringify(this.getStructureMutations())]);
     const url = URL.createObjectURL(blob);
     downloadBlobURL(
       url,
@@ -271,20 +317,44 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    const script = mutationHeatmapToPymolScript({
-      activeProtein:
-        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-      activeGroup:
-        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
-      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-      snvs: this.getStructureSnvs(),
-      ...opts,
-    });
+    let script, outfile;
+    if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
+      script = mutationHeatmapToPymolCommands({
+        activeProtein:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+        mutations: this.getStructureMutations(),
+        ...opts,
+      });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
+    } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
+      script = mutationHeatmapToPymolScript({
+        activeProtein:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        activeGroup:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
+        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+        proteinStyle:
+          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+        assemblies:
+          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+        activeAssembly:
+          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+        mutations: this.getStructureMutations(),
+        ...opts,
+      });
+      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
+    }
     const blob = new Blob([script]);
     const url = URL.createObjectURL(blob);
-    downloadBlobURL(
-      url,
-      `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`
-    );
+    downloadBlobURL(url, outfile);
   }
 }

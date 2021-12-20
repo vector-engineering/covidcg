@@ -6,7 +6,7 @@ import { format } from 'd3-format';
 
 import { config } from '../../config';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
-import { reds, snpColorArray } from '../../constants/colors';
+import { reds, mutationColorArray } from '../../constants/colors';
 import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
 import GroupSearch from './GroupSearch';
@@ -88,7 +88,7 @@ const MutationListRow = observer(
     name,
     frequency,
     firstRow,
-    numSnvsPerSegment,
+    numMutationsPerSegment,
     emptyRow,
   }) => {
     const { plotSettingsStore } = useStores();
@@ -115,7 +115,7 @@ const MutationListRow = observer(
         {firstRow && (
           <MutationRowBar
             onClick={toggleHiddenFeature.bind(this, segmentName)}
-            rowSpan={numSnvsPerSegment}
+            rowSpan={numMutationsPerSegment}
             barColor={segmentColor}
           >
             {segmentName}
@@ -135,14 +135,14 @@ MutationListRow.propTypes = {
   name: PropTypes.string,
   frequency: PropTypes.arrayOf(PropTypes.number),
   firstRow: PropTypes.bool,
-  numSnvsPerSegment: PropTypes.number,
+  numMutationsPerSegment: PropTypes.number,
   emptyRow: PropTypes.bool,
 };
 MutationListRow.defaultProps = {
   name: '',
   frequency: [],
   firstRow: false,
-  numSnvsPerSegment: 1,
+  numMutationsPerSegment: 1,
   emptyRow: false,
 };
 
@@ -177,9 +177,9 @@ DeleteButtonContainer.propTypes = {
 const MutationListContent = observer(() => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
-  // console.log(UIStore.groupSnvFrequencyState);
+  // console.log(UIStore.groupMutationFrequencyState);
 
-  if (UIStore.groupSnvFrequencyState !== ASYNC_STATES.SUCCEEDED) {
+  if (UIStore.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
     return (
       <div
         style={{
@@ -195,13 +195,13 @@ const MutationListContent = observer(() => {
     );
   }
 
-  // Select group SNVs from the selected groups
-  const groupSnvFrequency = groupDataStore.groupSnvFrequency[
+  // Select group mutations from the selected groups
+  const groupMutationFrequency = groupDataStore.groupMutationFrequency[
     groupDataStore.activeGroupType
-  ][groupDataStore.groupSnvType].filter((groupSnv) =>
-    groupDataStore.selectedGroups.includes(groupSnv.name)
+  ][groupDataStore.groupMutationType]['0'].filter((groupMutation) =>
+    groupDataStore.selectedGroups.includes(groupMutation.name)
   );
-  // console.log(groupSnvFrequency);
+  // console.log(groupMutationFrequency);
 
   // Restructure so that we have it in a matrix-ish format
   /*
@@ -229,69 +229,75 @@ const MutationListContent = observer(() => {
     }
   };
 
-  // Use genes to group NT and gene_aa SNVs, and proteins for protein_aa SNVs
+  // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
   const features =
-    groupDataStore.groupSnvType === 'protein_aa' ? proteins : genes;
+    groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
 
   features.forEach((feature, feature_i) => {
-    // Get all SNVs for this gene, then sort by position/alt
-    const groupFeatureSnvs = groupSnvFrequency
-      .filter((groupSnv) => {
-        if (groupDataStore.groupSnvType === 'dna') {
-          // Include NT SNVs in this gene if it is contained in
+    // Get all mutations for this gene, then sort by position/alt
+    const groupFeatureMutations = groupMutationFrequency
+      .filter((groupMutation) => {
+        if (groupDataStore.groupMutationType === 'dna') {
+          // Include NT mutations in this gene if it is contained in
           // any of the gene's NT segments
           // (Most genes will have one segment)
           return feature.segments.some(
             (featureNTRange) =>
-              groupSnv.pos >= featureNTRange[0] &&
-              groupSnv.pos <= featureNTRange[1]
+              groupMutation.pos >= featureNTRange[0] &&
+              groupMutation.pos <= featureNTRange[1]
           );
-        } else if (groupDataStore.groupSnvType === 'gene_aa') {
-          return groupSnv.gene === feature.name;
-        } else if (groupDataStore.groupSnvType === 'protein_aa') {
-          return groupSnv.protein === feature.name;
+        } else if (groupDataStore.groupMutationType === 'gene_aa') {
+          return groupMutation.gene === feature.name;
+        } else if (groupDataStore.groupMutationType === 'protein_aa') {
+          return groupMutation.protein === feature.name;
         }
       })
       .sort(sortByPosThenAlt);
-    // console.log(feature.name, groupFeatureSnvs);
+    // console.log(feature.name, groupFeatureMutations);
 
     // Make list of records to insert into master "matrix"
-    const featureSnvRecords = groupFeatureSnvs
+    const featureMutationRecords = groupFeatureMutations
       .slice()
-      // Unique SNVs
+      // Unique mutations
       .filter(
         (v, i, a) =>
-          a.findIndex((element) => element.snv_name === v.snv_name) === i
+          a.findIndex(
+            (element) => element.mutation_name === v.mutation_name
+          ) === i
       )
-      .map((featureSnv) => {
+      .map((featureMutation) => {
         // Find fractional frequencies for each group
         const freqs = [];
         groupDataStore.selectedGroups.forEach((group) => {
-          const matchingSnv = groupFeatureSnvs.find(
-            (snv) => snv.snv_name === featureSnv.snv_name && snv.name === group
+          const matchingMutation = groupFeatureMutations.find(
+            (mut) =>
+              mut.mutation_name === featureMutation.mutation_name &&
+              mut.name === group
           );
-          // 0 if the SNV record isn't found
-          freqs.push(matchingSnv === undefined ? 0 : matchingSnv.fraction);
+          // 0 if the mutation record isn't found
+          freqs.push(
+            matchingMutation === undefined ? 0 : matchingMutation.fraction
+          );
         });
 
         return {
-          snv_name: featureSnv.snv_name,
-          pos: featureSnv.pos,
-          ref: featureSnv.ref,
-          alt: featureSnv.alt,
+          mutation_name: featureMutation.mutation_name,
+          pos: featureMutation.pos,
+          ref: featureMutation.ref,
+          alt: featureMutation.alt,
           frequency: freqs,
         };
       })
-      // Filter out SNVs that have all mutation frequencies below the threshold
+      // Filter out mutations that have all mutation frequencies below the threshold
       .filter((row) => {
         return row.frequency.some(
           (freq) => freq > plotSettingsStore.reportConsensusThreshold
         );
       });
-    // console.log(feature.name, featureSnvRecords);
+    // console.log(feature.name, featureMutationRecords);
 
-    // Push empty row for segments without SNVs
-    if (featureSnvRecords.length === 0) {
+    // Push empty row for segments without mutations
+    if (featureMutationRecords.length === 0) {
       // Push nothing if we're hiding empty features
       if (plotSettingsStore.reportMutationListHideEmpty) {
         return;
@@ -299,9 +305,11 @@ const MutationListContent = observer(() => {
 
       rowItems.push(
         <MutationListRow
-          key={`group-snv-empty-${feature.name}`}
+          key={`group-mut-empty-${feature.name}`}
           segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
@@ -315,32 +323,36 @@ const MutationListContent = observer(() => {
     ) {
       rowItems.push(
         <MutationListRow
-          key={`group-snv-empty-${feature.name}`}
+          key={`group-mut-empty-${feature.name}`}
           segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
           firstRow={true}
           frequency={new Array(groupDataStore.selectedGroups.length)}
           emptyRow={true}
-          name={`${featureSnvRecords.length} SNVs hidden...`}
+          name={`${featureMutationRecords.length} mutations hidden...`}
         />
       );
       return;
     }
 
-    featureSnvRecords.forEach((snv, i) => {
-      const snvName =
-        groupDataStore.groupSnvType === 'dna'
-          ? snv.snv_name
-          : snv.snv_name.split(':')[1];
+    featureMutationRecords.forEach((mut, i) => {
+      const mutName =
+        groupDataStore.groupMutationType === 'dna'
+          ? mut.mutation_name
+          : mut.mutation_name.split(':')[1];
       rowItems.push(
         <MutationListRow
-          key={`group-snv-${feature.name}-${snv.snv_name}`}
+          key={`group-mut-${feature.name}-${mut.mutation_name}`}
           segmentName={feature.name}
-          segmentColor={snpColorArray[feature_i % snpColorArray.length]}
-          name={snvName}
-          frequency={snv.frequency}
+          segmentColor={
+            mutationColorArray[feature_i % mutationColorArray.length]
+          }
+          name={mutName}
+          frequency={mut.frequency}
           firstRow={i === 0}
-          numSnvsPerSegment={featureSnvRecords.length}
+          numMutationsPerSegment={featureMutationRecords.length}
         />
       );
     });
@@ -391,8 +403,8 @@ const MutationList = observer(() => {
   // const onChangeActiveGroupType = (event) => {
   //   groupDataStore.updateActiveGroupType(event.target.value);
   // };
-  const onChangeGroupSnvType = (event) => {
-    groupDataStore.updateGroupSnvType(event.target.value);
+  const onChangeGroupMutationType = (event) => {
+    groupDataStore.updateGroupMutationType(event.target.value);
   };
   const onChangeConsensusThreshold = (event) => {
     plotSettingsStore.setReportConsensusThreshold(event.target.value);
@@ -402,9 +414,9 @@ const MutationList = observer(() => {
   };
   const handleDownloadSelect = (option) => {
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      groupDataStore.downloadGroupSnvFrequencyData({
+      groupDataStore.downloadGroupMutationFrequencyData({
         group: groupDataStore.activeGroupType,
-        snvType: groupDataStore.groupSnvType,
+        mutationType: groupDataStore.groupMutationType,
         consensusThreshold: 0,
       });
     }
@@ -441,24 +453,24 @@ const MutationList = observer(() => {
         <HelpText show={state.showHelp}>
           <ul>
             <li>
-              Use &quot;SNV Type&quot; to toggle between nucleotide and amino
-              acid mutation formats
+              Use &quot;Mutation Type&quot; to toggle between nucleotide and
+              amino acid mutation formats
             </li>
             <li>
-              &quot;Consensus Threshold&quot; hides low-prevalence SNVs. SNVs
-              with less than this fraction of prevalence in <i>all</i> selected{' '}
-              {groupDataStore.getGroupSnvTypePrettyName()}s will be filtered
-              out.
+              &quot;Consensus Threshold&quot; hides low-prevalence mutations.
+              Mutations with less than this fraction of prevalence in <i>all</i>{' '}
+              selected {groupDataStore.getGroupMutationTypePrettyName()}s will
+              be filtered out.
             </li>
             <li>
               Note: We define ORF1a and ORF1ab as separate genes. In
-              &quot;NT&quot; or &quot;Gene AA&quot; mode, an SNV in ORF1a will
-              also be listed in ORF1ab. By default, ORF1a is hidden to avoid
-              this confusion.
+              &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
+              will also be listed in ORF1ab. By default, ORF1a is hidden to
+              avoid this confusion.
             </li>
             <li>
-              Switch to &quot;Protein AA&quot; mode to see SNVs in the context
-              of proteins (i.e., NSPs)
+              Switch to &quot;Protein AA&quot; mode to see mutations in the
+              context of proteins (i.e., NSPs)
             </li>
           </ul>
         </HelpText>
@@ -476,10 +488,10 @@ const MutationList = observer(() => {
         </OptionSelectContainer> */}
         <OptionSelectContainer>
           <label>
-            SNV Type
+            Mutation Type
             <select
-              value={groupDataStore.groupSnvType}
-              onChange={onChangeGroupSnvType}
+              value={groupDataStore.groupMutationType}
+              onChange={onChangeGroupMutationType}
             >
               <option value={'dna'}>NT</option>
               <option value={'gene_aa'}>Gene AA</option>
@@ -517,10 +529,10 @@ const MutationList = observer(() => {
               onChange={onChangeHideEmpty}
             />
             Hide{' '}
-            {groupDataStore.groupSnvType === 'protein_aa'
+            {groupDataStore.groupMutationType === 'protein_aa'
               ? 'Proteins'
               : 'Genes'}{' '}
-            without SNVs
+            without mutations
           </label>
         </OptionCheckboxContainer>
       </MutationListHeader>

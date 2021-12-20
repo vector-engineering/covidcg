@@ -4,15 +4,23 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import './../../styles/litemol.min.css';
 
-import { colorHeatmap, getMoleculeAssemblies } from '../LiteMol/litemolutils';
+import {
+  colorHeatmap,
+  getMoleculeAssemblies,
+  getMoleculeEntities,
+  CreateMacromoleculeVisual,
+} from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
+import { LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 import defaultStructures from '../../../static_data/default_structures.json';
 
+import DropdownButton from '../Buttons/DropdownButton';
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
+import StructureEntities from './StructureEntities';
 import {
   StructuralViewerContainer,
   LiteMolContainer,
@@ -25,12 +33,15 @@ import {
 
 const proteins = getAllProteins();
 
-const Core = LiteMol.Core;
 const Bootstrap = LiteMol.Bootstrap;
 const Transformer = Bootstrap.Entity.Transformer;
-const Visualization = LiteMol.Visualization;
 
 const numColors = reds.length;
+
+const DOWNLOAD_OPTIONS = {
+  DOWNLOAD_DATA: 'Download Data',
+  DOWNLOAD_PYMOL: 'Download PyMOL Script',
+};
 
 const StructuralViewer = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
@@ -43,7 +54,8 @@ const StructuralViewer = observer(() => {
     validPdbId: true,
     pdbIdChanged: false,
     assemblies: [],
-    activeAssembly: null,
+    entities: [],
+    activeAssembly: '',
   });
   const pluginRef = useRef(null);
 
@@ -63,6 +75,7 @@ const StructuralViewer = observer(() => {
   const onChangeStructureActiveGroup = (event) => {
     plotSettingsStore.setReportStructureActiveGroup(event.target.value);
   };
+
   const onChangeReportStructureActiveProtein = (event) => {
     const newProtein = event.target.value;
 
@@ -85,6 +98,7 @@ const StructuralViewer = observer(() => {
       pdbIdChanged: true,
     });
   };
+
   const onChangePdbId = (event) => {
     const newPdbId = event.target.value;
     let validPdbId = true;
@@ -100,6 +114,31 @@ const StructuralViewer = observer(() => {
       pdbIdChanged: newPdbId != plotSettingsStore.reportStructurePdbId,
     });
   };
+
+  const onChangeActiveAssembly = (event) => {
+    loadModel({ useAssembly: event.target.value });
+    plotSettingsStore.setReportStructureActiveAssembly(event.target.value);
+  };
+
+  const onChangeProteinStyle = (event) => {
+    plotSettingsStore.setReportStructureProteinStyle(event.target.value);
+  };
+
+  const onChangeEntities = (entities) => {
+    setState({
+      ...state,
+      entities,
+    });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+      entities,
+    });
+    plotSettingsStore.setReportStructureEntities(entities);
+  };
+
   const applyChanges = () => {
     plotSettingsStore.setReportStructureActiveProtein(state.activeProtein);
     plotSettingsStore.setReportStructurePdbId(state.pdbId);
@@ -113,33 +152,38 @@ const StructuralViewer = observer(() => {
     });
   };
 
-  const downloadData = () => {
-    groupDataStore.downloadStructureMutationData();
+  const handleDownloadSelect = (downloadOption) => {
+    if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+      groupDataStore.downloadStructureMutationData();
+    } else if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL) {
+      showDownloadPymolScriptModal();
+    }
   };
 
-  const applyHeatmap = ({ ref }) => {
-    const snvs = groupDataStore.groupSnvFrequency[
+  const applyHeatmap = ({ ref, entities }) => {
+    const mutations = groupDataStore.groupMutationFrequency[
       groupDataStore.activeGroupType
-    ]['protein_aa']
+    ]['protein_aa']['0']
       .filter(
-        (groupSnv) =>
-          groupSnv.name === plotSettingsStore.reportStructureActiveGroup &&
-          groupSnv.protein === plotSettingsStore.reportStructureActiveProtein
+        (groupMutation) =>
+          groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&
+          groupMutation.protein ===
+            plotSettingsStore.reportStructureActiveProtein
       )
       // Convert fractional frequencies to colors
       .slice()
-      .map((snv) => {
-        snv.colorInd = Math.floor((snv.fraction - 0.001) * numColors);
-        return snv;
+      .map((mut) => {
+        mut.colorInd = Math.floor((mut.fraction - 0.001) * numColors);
+        return mut;
       })
       .sort((a, b) => a.pos - b.pos);
 
     // For each color level, build a list of residues
     const heatmapEntries = [];
     reds.forEach((color, i) => {
-      let indices = snvs
-        .filter((snv) => snv.colorInd == i)
-        .map((snv) => snv.pos);
+      let indices = mutations
+        .filter((mut) => mut.colorInd == i)
+        .map((mut) => mut.pos);
       if (indices.length === 0) return;
 
       heatmapEntries.push({
@@ -148,35 +192,23 @@ const StructuralViewer = observer(() => {
       });
     });
 
-    colorHeatmap({ plugin, entries: heatmapEntries, ref });
+    const ignoreChains = [];
+    entities.forEach((entity) => {
+      if (!entity.checked) {
+        ignoreChains.push(...entity.chains);
+      }
+    });
+
+    colorHeatmap({ plugin, entries: heatmapEntries, ref, ignoreChains });
   };
 
-  const loadModel = () => {
+  const loadModel = ({ useAssembly } = { useAssembly: '' }) => {
     if (!plugin) {
       return;
     }
     plugin.clear();
 
     const pdbId = plotSettingsStore.reportStructurePdbId.toLowerCase();
-
-    const selectionColors = Bootstrap.Immutable.Map()
-      .set('Uniform', Visualization.Color.fromHex(0xaaaaaa))
-      .set('Selection', Visualization.Theme.Default.SelectionColor)
-      .set('Highlight', Visualization.Theme.Default.HighlightColor);
-    const _style = {
-      type: 'Surface',
-      params: {
-        probeRadius: 0,
-        density: 1.25,
-        smoothing: 3,
-        isWireframe: false,
-      },
-      theme: {
-        template: Bootstrap.Visualization.Molecule.Default.UniformThemeTemplate,
-        colors: selectionColors,
-        transparency: { alpha: 1.0 },
-      },
-    };
 
     // good example: https://github.com/dsehnal/LiteMol/blob/master/src/Viewer/App/Examples.ts
     const modelAction = plugin
@@ -205,65 +237,80 @@ const StructuralViewer = observer(() => {
 
       // If an assembly exists, then display that instead
       // of the asymmetric unit
-      // TODO: use the assembly information to allow the user
-      // to select the chosen assembly, or the asymmetric unit
       const assemblies = getMoleculeAssemblies({ plugin });
+
       if (assemblies.length > 0) {
-        vizAction = vizAction.then(
-          Transformer.Molecule.CreateAssembly,
-          { name: assemblies[0] },
-          { ref: 'assembly' }
-        );
+        // If no assembly is selected, then default to the first assembly
+        if (useAssembly === '') {
+          useAssembly = assemblies[0];
+        }
+        //useAssembly = 'asym';
 
-        // TODO: remove the original model from the tree?
-
-        setState({
-          ...state,
-          assemblies,
-          activeAssembly: assemblies[0],
-        });
+        // If user decides to display the asymmetric unit,
+        // then skip the assembly process
+        if (useAssembly !== 'asym') {
+          vizAction = vizAction.then(
+            Transformer.Molecule.CreateAssembly,
+            { name: assemblies[0] },
+            { ref: 'assembly' }
+          );
+        }
       }
 
-      vizAction = vizAction
-        .then(
-          Transformer.Molecule.CreateSelectionFromQuery,
-          {
-            query: Core.Structure.Query.nonHetPolymer(),
-            name: 'Polymer',
-            silent: true,
-          },
-          {}
-        )
-        .then(
-          Transformer.Molecule.CreateVisual,
-          { style: _style },
-          { ref: 'Polymer' }
-        );
-      // .then(Transformer.Molecule.CreateMacromoleculeVisual, {
-      //   polymer: true,
-      //   het: true,
-      //   water: false,
-      // });
+      const entities = getMoleculeEntities({ plugin });
+
+      setState({
+        ...state,
+        assemblies,
+        entities,
+        activeAssembly: useAssembly,
+      });
+
+      vizAction = vizAction.then(CreateMacromoleculeVisual, {
+        polymer: true,
+        het: true,
+        water: false,
+        style: plotSettingsStore.reportStructureProteinStyle,
+      });
 
       plugin.applyTransform(vizAction).then(() => {
-        applyHeatmap({ ref: assemblies.length > 0 ? 'assembly' : 'model' });
+        applyHeatmap({
+          ref:
+            assemblies.length > 0 && useAssembly !== 'asym'
+              ? 'assembly'
+              : 'model',
+          entities: entities,
+        });
       });
+
+      // Update store so other components have this info
+      plotSettingsStore.setReportStructureAssemblies(assemblies);
+      plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
+      plotSettingsStore.setReportStructureEntities(entities);
     });
 
     modelAction;
   };
 
   useEffect(() => {
+    if (!plugin) return;
     loadModel();
   }, [
     plugin,
     plotSettingsStore.reportStructurePdbId,
     plotSettingsStore.reportStructureActiveProtein,
+    plotSettingsStore.reportStructureProteinStyle,
   ]);
 
   useEffect(() => {
     if (!plugin) return;
-    applyHeatmap({ ref: state.assemblies.length > 0 ? 'assembly' : 'model' });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+      entities: state.entities,
+    });
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
   const proteinOptionItems = [];
@@ -292,6 +339,15 @@ const StructuralViewer = observer(() => {
     );
   }
 
+  const assemblyOptionItems = [];
+  state.assemblies.forEach((assembly) => {
+    assemblyOptionItems.push(
+      <option key={`assembly-option-${assembly}`} value={assembly}>
+        {assembly}
+      </option>
+    );
+  });
+
   return (
     <StructuralViewerContainer>
       <DownloadPymolScriptModal
@@ -301,7 +357,8 @@ const StructuralViewer = observer(() => {
       <StructuralViewerHeader>
         <OptionSelectContainer>
           <label>
-            Displaying SNVs for {groupDataStore.getActiveGroupTypePrettyName()}
+            Displaying mutations for{' '}
+            {groupDataStore.getActiveGroupTypePrettyName()}
             <select
               value={plotSettingsStore.reportStructureActiveGroup}
               onChange={onChangeStructureActiveGroup}
@@ -310,8 +367,15 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <div className="spacer"></div>
-        <ConfirmButton onClick={downloadData}>Download Data</ConfirmButton>
+        <div className="spacer" />
+        <DropdownButton
+          text={'Download'}
+          options={[
+            DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+            DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL,
+          ]}
+          onSelect={handleDownloadSelect}
+        />
       </StructuralViewerHeader>
       <StructuralViewerHeader>
         <OptionInputContainer>
@@ -320,11 +384,6 @@ const StructuralViewer = observer(() => {
             <input type="text" value={state.pdbId} onChange={onChangePdbId} />
           </label>
           {!state.validPdbId && <InvalidText>Invalid PDB ID</InvalidText>}
-          {(state.pdbIdChanged || state.activeProteinChanged) && (
-            <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
-              Apply
-            </ConfirmButton>
-          )}
         </OptionInputContainer>
         <OptionSelectContainer>
           <label>
@@ -337,11 +396,42 @@ const StructuralViewer = observer(() => {
             </select>
           </label>
         </OptionSelectContainer>
-        <div className="spacer"></div>
-        <ConfirmButton onClick={showDownloadPymolScriptModal}>
-          Download PyMOL Script
-        </ConfirmButton>
+        {(state.pdbIdChanged || state.activeProteinChanged) && (
+          <ConfirmButton disabled={!state.validPdbId} onClick={applyChanges}>
+            Apply
+          </ConfirmButton>
+        )}
       </StructuralViewerHeader>
+      <StructuralViewerHeader>
+        <OptionSelectContainer>
+          <label>
+            Assembly
+            <select
+              value={state.activeAssembly}
+              onChange={onChangeActiveAssembly}
+            >
+              <option value="asym">Asymmetric Unit</option>
+              {assemblyOptionItems}
+            </select>
+          </label>
+        </OptionSelectContainer>
+        <OptionSelectContainer>
+          <label>
+            Protein Style
+            <select
+              value={plotSettingsStore.reportStructureProteinStyle}
+              onChange={onChangeProteinStyle}
+            >
+              <option value={LITEMOL_STYLES.SURFACE}>Surface</option>
+              <option value={LITEMOL_STYLES.CARTOON}>Cartoon</option>
+            </select>
+          </label>
+        </OptionSelectContainer>
+      </StructuralViewerHeader>
+      <StructureEntities
+        entities={state.entities}
+        onChangeEntities={onChangeEntities}
+      />
       <LiteMolContainer>
         <LiteMolPlugin
           height={500}

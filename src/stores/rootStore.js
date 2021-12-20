@@ -5,7 +5,7 @@ import { DataStore } from './dataStore';
 import { UIStore } from './UIStore';
 import { ConfigStore } from './configStore';
 import { PlotSettingsStore } from './plotSettingsStore';
-import { SnpDataStore } from './snpData';
+import { MutationDataStore } from './mutationData';
 import { LocationDataStore } from './locationDataStore';
 import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
@@ -18,7 +18,7 @@ class RootStore {
   plotSettingsStore;
   metadataStore;
   locationDataStore;
-  snpDataStore;
+  mutationDataStore;
 
   configStore;
   dataStore;
@@ -33,7 +33,7 @@ class RootStore {
     this.plotSettingsStore = new PlotSettingsStore();
     this.metadataStore = new MetadataStore();
     this.locationDataStore = new LocationDataStore();
-    this.snpDataStore = new SnpDataStore();
+    this.mutationDataStore = new MutationDataStore();
 
     this.configStore = new ConfigStore();
     this.dataStore = new DataStore();
@@ -50,7 +50,7 @@ class RootStore {
     this.plotSettingsStore.init();
     this.metadataStore.init();
     this.locationDataStore.init();
-    this.snpDataStore.init();
+    this.mutationDataStore.init();
 
     this.configStore.init();
 

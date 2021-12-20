@@ -7,14 +7,19 @@ import sys
 
 from pathlib import Path
 
+# workflow_main/scripts/push_to_database.py
 cg_server_path = str(
-    Path(__file__).absolute().parent.parent.parent / "services" / "server"
+    Path(__file__).resolve().parent.parent.parent / "services" / "server"
 )
 # print(cg_server_path)
 sys.path.append(cg_server_path)
 
 from cg_server.config import config
 from cg_server.db_seed import insert_sequences, seed_database
+
+# workflow_main/scripts/push_to_database.py
+project_root = Path(__file__).resolve().parent.parent.parent
+data_path = project_root / config["data_folder"]
 
 
 def main():
@@ -37,9 +42,7 @@ def main():
             cur.execute('CREATE SCHEMA "new";')
 
         seed_database(conn, schema="new")
-        insert_sequences(
-            conn, config["data_folder"], schema="new", filenames_as_dates=True
-        )
+        #insert_sequences(conn, data_path, schema="new", filenames_as_dates=True)
 
         print("Committing changes...", end="", flush=True)
         conn.commit()
@@ -50,6 +53,9 @@ def main():
             cur.execute('DROP SCHEMA IF EXISTS "old" CASCADE;')
             cur.execute('ALTER SCHEMA "public" RENAME TO "old";')
             cur.execute('ALTER SCHEMA "new" RENAME TO "public";')
+
+            cur.execute('DROP EXTENSION IF EXISTS intarray;')
+            cur.execute('CREATE EXTENSION intarray WITH SCHEMA "public";')
         conn.commit()
         print("done")
 

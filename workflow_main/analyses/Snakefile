@@ -23,36 +23,35 @@ az_report_out = os.path.join(data_folder, 'az_reports')
 rule az_reports:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
-        metadata_map = os.path.join(data_folder, "metadata_map.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json")
     output:
         report_out = directory(az_report_out),
-        spike_snv_global = os.path.join(az_report_out, 'spike_snv_global.csv'),
-        spike_snv_region = os.path.join(az_report_out, 'spike_snv_region.csv'),
+        spike_mutation_global = os.path.join(az_report_out, 'spike_mutation_global.csv'),
+        spike_mutation_region = os.path.join(az_report_out, 'spike_mutation_region.csv'),
         spike_cooc_global = os.path.join(az_report_out, 'spike_cooc_global.csv'),
         spike_cooc_region = os.path.join(az_report_out, 'spike_cooc_region.csv'),
         lineage_global = os.path.join(az_report_out, 'lineage_global.csv'),
         lineage_region = os.path.join(az_report_out, 'lineage_region.csv'),
     run:
-        generate_az_reports(
-            input.case_data, input.metadata_map, input.location_map,
-            output.report_out
-        )
+        generate_az_reports(input.case_data, input.metadata_map, output.report_out)
 
 
 rule surveillance_data:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
     params:
         out_folder = os.path.join(data_folder, 'surveillance'),
         start_date = (
             ('--start-date ' + config['surv_start_date'])
             if 'surv_start_date' in config else ''
         ),
-        start_date_days_ago = config['surv_start_date_days_ago'],
-        end_date_days_ago = config['surv_end_date_days_ago'],
+        end_date = (
+            ('--end-date ' + config['surv_end_date'])
+            if 'surv_end_date' in config else ''
+        ),
+        start_date_days_ago = config.get('surv_start_date_days_ago', 30),
+        end_date_days_ago = config.get('surv_end_date_days_ago', 30),
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
     output:
@@ -60,7 +59,7 @@ rule surveillance_data:
         group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.csv'),
     shell:
         """
-        python3 analyses/scripts/surveillance.py --case-data {input.case_data} --location-map {input.location_map} --metadata-map {input.metadata_map} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
+        python3 analyses/scripts/surveillance.py --case-data {input.case_data} --metadata-map {input.metadata_map} {params.start_date} {params.end_date} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
         """
 
 
@@ -71,12 +70,12 @@ rule global_sequencing_efforts:
     """
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
     output:
         country_score = os.path.join(data_folder, "country_score.json")
     run:
         global_sequencing_efforts(
-            input.case_data, input.location_map,
+            input.case_data, input.metadata_map,
             output.country_score
         )
 
@@ -94,7 +93,7 @@ rule create_standalone_map_spec:
 rule global_seq_data:
     input:
         case_data = os.path.join(data_folder, "case_data.json"),
-        location_map = os.path.join(data_folder, "location_map.json"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
     params:
         out_folder = os.path.join(data_folder, 'new_global_data')
     output:
@@ -104,15 +103,15 @@ rule global_seq_data:
         iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
     shell:
         """
-        python3 analyses/scripts/global_seq_data.py --case-data {input.case_data} --location-map {input.location_map} -o {params.out_folder}
+        python3 analyses/scripts/global_seq_data.py --case-data {input.case_data} --metadata-map {input.metadata_map} -o {params.out_folder}
         """
 
 
 rule additional_analyses:
     input:
         # AZ REPORTS
-        rules.az_reports.output.spike_snv_global,
-        rules.az_reports.output.spike_snv_region,
+        rules.az_reports.output.spike_mutation_global,
+        rules.az_reports.output.spike_mutation_region,
         rules.az_reports.output.spike_cooc_global,
         rules.az_reports.output.spike_cooc_region,
         rules.az_reports.output.lineage_global,

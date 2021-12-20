@@ -4,24 +4,50 @@
   "width": 500,
   "padding": 5,
   "autosize": "pad",
-
   "signals": [
-    { "name": "combiLabelsSignal", "update": "data('combi_labels')" },
-    { "name": "rangeStep", "value": 20 },
-    { "name": "innerPadding", "value": 0.2 },
-    { "name": "outerPadding", "value": 0.1 },
-    { "name": "stackOffset", "value": "normalize" },
-    { "name": "xLabel", "value": "Co-occuring SNVs (Normalized)" },
-    { "name": "xFormat", "value": "s" },
-    { "name": "dna", "value": false },
-    { "name": "posField", "update": "dna ? 0 : 1" },
+    {
+      "name": "combiLabelsSignal",
+      "update": "data('combi_labels')"
+    },
+    {
+      "name": "rangeStep",
+      "value": 20
+    },
+    {
+      "name": "innerPadding",
+      "value": 0.2
+    },
+    {
+      "name": "outerPadding",
+      "value": 0.1
+    },
+    {
+      "name": "stackOffset",
+      "value": "normalize"
+    },
+    {
+      "name": "xLabel",
+      "value": "Co-occuring Mutations (Normalized)"
+    },
+    {
+      "name": "xFormat",
+      "value": "s"
+    },
+    {
+      "name": "dna",
+      "value": false
+    },
+    {
+      "name": "posField",
+      "update": "dna ? 0 : 1"
+    },
     {
       "name": "hoverGroup",
       "value": null,
       "on": [
         {
           "events": "rect:mouseover!",
-          "update": "{group: datum.snv}"
+          "update": "{group: datum.mutation}"
         },
         {
           "events": "rect:mouseout!",
@@ -29,7 +55,10 @@
         }
       ]
     },
-    { "name": "height", "update": "yExtent[1]" },
+    {
+      "name": "height",
+      "update": "yExtent[1]"
+    },
     {
       "name": "clearGroup",
       "value": true,
@@ -66,7 +95,7 @@
       "on": [
         {
           "events": "@combibars:click",
-          "update": "{group: datum.snv}",
+          "update": "{group: datum.mutation}",
           "force": true
         },
         {
@@ -77,19 +106,31 @@
       ]
     }
   ],
-
   "data": [
     {
       "name": "selectedGroups",
-      "values": [{ "group": "N|62|E|V" }],
+      "values": [
+        {
+          "group": "N|62|E|V"
+        }
+      ],
       "on": [
-        { "trigger": "clearGroup", "remove": true },
-        { "trigger": "!shiftGroup", "remove": true },
+        {
+          "trigger": "clearGroup",
+          "remove": true
+        },
+        {
+          "trigger": "!shiftGroup",
+          "remove": true
+        },
         {
           "trigger": "!shiftGroup && clickedGroups",
           "insert": "clickedGroups"
         },
-        { "trigger": "shiftGroup && clickedGroups", "toggle": "clickedGroups" }
+        {
+          "trigger": "shiftGroup && clickedGroups",
+          "toggle": "clickedGroups"
+        }
       ]
     },
     {
@@ -98,31 +139,41 @@
         "parse": {
           "combi": "string",
           "combiName": "string",
-          "snv": "string",
+          "mutation": "string",
           "count": "number",
-          "snvName": "string"
+          "mutationName": "string"
         }
       },
       "transform": [
         {
           "type": "formula",
-          "expr": "dna ? 'NT' : split(datum.snv, '|')[0]",
+          "expr": "dna ? 'NT' : split(datum.mutation, '|')[0]",
           "as": "gene_protein"
         },
         {
           "type": "formula",
-          "expr": "parseInt(split(datum.snv, '|')[posField])",
+          "expr": "parseInt(split(datum.mutation, '|')[posField])",
           "as": "pos"
         },
         {
           "type": "stack",
-          "groupby": ["combi"],
+          "groupby": [
+            "combi"
+          ],
           "sort": {
-            "field": ["gene_protein", "pos"],
-            "order": ["ascending", "ascending"]
+            "field": [
+              "gene_protein",
+              "pos"
+            ],
+            "order": [
+              "ascending",
+              "ascending"
+            ]
           },
           "field": "count",
-          "offset": { "signal": "stackOffset" }
+          "offset": {
+            "signal": "stackOffset"
+          }
         }
       ]
     },
@@ -132,7 +183,10 @@
       "transform": [
         {
           "type": "aggregate",
-          "groupby": ["combi", "combiName"]
+          "groupby": [
+            "combi",
+            "combiName"
+          ]
         },
         {
           "type": "formula",
@@ -153,19 +207,36 @@
     {
       "name": "combi_labels",
       "source": "combi_bars",
-      "transform": [{ "type": "project", "fields": ["combiName"] }]
+      "transform": [
+        {
+          "type": "project",
+          "fields": [
+            "combiName"
+          ]
+        }
+      ]
     }
   ],
-
   "scales": [
     {
       "name": "yscale",
       "type": "band",
       "round": true,
-      "range": { "step": { "signal": "rangeStep" } },
-      "domain": { "data": "combi_bars", "field": "combi" },
-      "paddingInner": { "signal": "innerPadding" },
-      "paddingOuter": { "signal": "outerPadding" }
+      "range": {
+        "step": {
+          "signal": "rangeStep"
+        }
+      },
+      "domain": {
+        "data": "combi_bars",
+        "field": "combi"
+      },
+      "paddingInner": {
+        "signal": "innerPadding"
+      },
+      "paddingOuter": {
+        "signal": "outerPadding"
+      }
     },
     {
       "name": "xscale",
@@ -173,24 +244,34 @@
       "range": "width",
       "nice": true,
       "zero": true,
-      "domain": { "data": "cooccurrence_data", "field": "y1" }
+      "domain": {
+        "data": "cooccurrence_data",
+        "field": "y1"
+      }
     },
     {
       "name": "yLabels",
       "type": "ordinal",
-      "domain": { "data": "combi_bars", "field": "combi" },
-      "range": { "signal": "combiLabelsSignal" }
+      "domain": {
+        "data": "combi_bars",
+        "field": "combi"
+      },
+      "range": {
+        "signal": "combiLabelsSignal"
+      }
     }
   ],
-
   "axes": [
     {
       "orient": "bottom",
       "scale": "xscale",
       "zindex": 1,
-      "format": { "signal": "xFormat" },
-
-      "title": { "signal": "xLabel" },
+      "format": {
+        "signal": "xFormat"
+      },
+      "title": {
+        "signal": "xLabel"
+      },
       "titleFontSize": 14,
       "titlePadding": 10
     },
@@ -202,71 +283,103 @@
       "labelFontSize": 14,
       "labelLimit": 400,
       "labelPadding": 4,
-
       "encode": {
         "labels": {
           "name": "yAxisLabels",
           "interactive": true,
           "update": {
-            "text": { "signal": "scale('yLabels', datum.value).combiName" },
-            "opacity": { "value": 1.0 }
+            "text": {
+              "signal": "scale('yLabels', datum.value).combiName"
+            },
+            "opacity": {
+              "value": 1.0
+            }
           },
           "hover": {
-            "opacity": { "value": 0.6 }
+            "opacity": {
+              "value": 0.6
+            }
           }
         }
       }
     }
   ],
-
   "marks": [
     {
       "name": "layer0",
       "type": "group",
       "encode": {
         "update": {
-          "width": { "signal": "width" },
-          "height": { "signal": "height" }
+          "width": {
+            "signal": "width"
+          },
+          "height": {
+            "signal": "height"
+          }
         }
       },
       "marks": [
         {
           "name": "combibars",
           "type": "rect",
-          "from": { "data": "cooccurrence_data" },
+          "from": {
+            "data": "cooccurrence_data"
+          },
           "encode": {
             "enter": {
-              "strokeWidth": { "value": 2 },
-              "fill": { "field": "color" }
+              "strokeWidth": {
+                "value": 2
+              },
+              "fill": {
+                "field": "color"
+              }
             },
             "update": {
               "tooltip": {
-                "signal": "{title: datum.snvName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
+                "signal": "{title: datum.mutationName, 'Co-occurs with': datum.combiName, 'Count': datum.count}"
               },
-              "y": { "scale": "yscale", "field": "combi" },
-              "height": { "scale": "yscale", "band": 1 },
-              "x": { "scale": "xscale", "field": "y1" },
-              "x2": { "scale": "xscale", "field": "y0" },
+              "y": {
+                "scale": "yscale",
+                "field": "combi"
+              },
+              "height": {
+                "scale": "yscale",
+                "band": 1
+              },
+              "x": {
+                "scale": "xscale",
+                "field": "y1"
+              },
+              "x2": {
+                "scale": "xscale",
+                "field": "y0"
+              },
               "fillOpacity": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 0.7
                 },
-                { "value": 1.0 }
+                {
+                  "value": 1.0
+                }
               ],
               "stroke": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": "#333"
                 },
-                { "value": "transparent" }
+                {
+                  "value": "transparent"
+                }
               ],
               "zindex": [
                 {
-                  "test": "hoverGroup && hoverGroup.group == datum.snv",
+                  "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 3
                 },
-                { "value": 1 }
+                {
+                  "value": 1
+                }
               ]
             }
           }

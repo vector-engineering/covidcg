@@ -29,7 +29,7 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, snpDataStore } = useStores();
+  const { configStore, dataStore, UIStore, mutationDataStore } = useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -43,7 +43,7 @@ const EntropyPlot = observer(({ width }) => {
     // TODO: use the plot options and configStore options to build a more descriptive filename
     //       something like new_lineages_by_day_S_2020-05-03-2020-05-15_NYC.png...
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      dataStore.downloadSnvFrequencies();
+      dataStore.downloadMutationFrequencies();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -73,27 +73,29 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const processData = () => {
-    let snvCounts = toJS(dataStore.groupCounts);
+    let mutationCounts = toJS(dataStore.groupCounts);
     // Input data from dataStore.groupCounts is in the form
-    // [{ group_id: snv_id, counts: int }]
+    // [{ group_id: mutation_id, counts: int }]
     // Before we pass this into Vega, we also need:
-    // 1) The color of each SNV
-    // 2) The human-readable name of each SNV
-    // 3) The position of the SNV
+    // 1) The color of each mutation
+    // 2) The human-readable name of each mutation
+    // 3) The position of the mutation
     // console.log('ENTROPY PROCESS DATA');
 
-    return snvCounts
+    return mutationCounts
       .map((record) => {
-        let snv = snpDataStore.intToSnv(
+        let mutation = mutationDataStore.intToMutation(
           configStore.dnaOrAa,
           configStore.coordinateMode,
           record.group_id
         );
 
-        record.snv = snv.snp_str;
-        record.color = snpDataStore.getSnvColor(snv.snp_str);
-        record.snvName = snv.name;
-        record.pos = snv.pos;
+        record.mutation = mutation.mutation_str;
+        record.color = mutationDataStore.getMutationColor(
+          mutation.mutation_str
+        );
+        record.mutationName = mutation.name;
+        record.pos = mutation.pos;
         return record;
       })
       .filter((record) => {
@@ -128,7 +130,7 @@ const EntropyPlot = observer(({ width }) => {
     let numRows = 1;
 
     let geneProteinObj = null;
-    
+
     // Logic for Primer track
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       if (configStore.selectedPrimers.length > 0) {
@@ -140,6 +142,8 @@ const EntropyPlot = observer(({ width }) => {
         });
 
         return numRows * heightConst;
+      } else {
+        return heightConst;
       }
     }
 
@@ -244,13 +248,6 @@ const EntropyPlot = observer(({ width }) => {
     return xRange;
   };
 
-  const checkIfPrimersOverlap = (primer1, primer2) => {
-    return (
-      (primer1.Start < primer2.End && primer1.End > primer2.End) ||
-      (primer1.Start < primer2.Start && primer1.End > primer2.Start)
-    );
-  };
-
   const getDomains = () => {
     // Apply domains
     const xRange = getXRange();
@@ -261,39 +258,6 @@ const EntropyPlot = observer(({ width }) => {
         row: 0,
       },
     ];
-
-    if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
-      if (configStore.selectedPrimers.length > 0) {
-        const selectedPrimers = configStore.selectedPrimers;
-        selectedPrimers[0].row = 0;
-        let curRow = 0;
-        selectedPrimers.forEach((primerToPlace, i) => {
-          let overlaps = true;
-          let curRow = 0;
-          while (overlaps) {
-            const primersInRow = selectedPrimers.filter(
-              (primer) => primer.hasOwnProperty('row') && primer.row === curRow
-            );
-
-            for (const primer of primersInRow) {
-              overlaps = checkIfPrimersOverlap(primer, primerToPlace);
-              if (!overlaps) break;
-            }
-
-            if (overlaps) curRow += 1;
-          }
-          primerToPlace.row = curRow;
-          primerToPlace.ranges = [[primerToPlace.Start, primerToPlace.End]];
-          primerToPlace.name = primerToPlace.Name;
-        });
-        configStore.selectedPrimers = selectedPrimers;
-        return selectedPrimers;
-      } else {
-        nullDomain.name = 'No Primers Selected';
-        return nullDomain;
-      }
-    }
-
     if (configStore.residueCoordinates.length === 0) {
       if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         return filterMap(geneMap, 'All Genes');
@@ -310,14 +274,78 @@ const EntropyPlot = observer(({ width }) => {
       return configStore.selectedProtein.domains.length > 0
         ? configStore.selectedProtein.domains
         : nullDomain;
+    } else {
+      return [];
     }
+  };
+
+  const checkIfPrimersOverlap = (primer1, primer2) => {
+    return (
+      (primer1.Start < primer2.End && primer1.End > primer2.End) ||
+      (primer1.Start < primer2.Start && primer1.End > primer2.Start)
+    );
+  };
+
+  const getPrimers = () => {
+    const selectedPrimers = configStore.selectedPrimers;
+
+    if (selectedPrimers.length) {
+      selectedPrimers[0].row = 0;
+      for (let i = 0; i < selectedPrimers.length; i++) {
+        let overlaps = true;
+        let curRow = 0;
+        const primerToPlace = selectedPrimers[i];
+
+        while (overlaps) {
+          const primersInRow = selectedPrimers.filter(
+            (primer) => primer.row && primer.row === curRow
+          );
+
+          if (primersInRow.length) {
+            for (const primer of primersInRow) {
+              overlaps = checkIfPrimersOverlap(primer, primerToPlace);
+              if (!overlaps) break;
+            }
+          } else {
+            overlaps = false;
+          }
+
+          if (overlaps) curRow += 1;
+        }
+
+        primerToPlace.row = curRow;
+        primerToPlace.ranges = [[primerToPlace.Start, primerToPlace.End]];
+        primerToPlace.name = primerToPlace.Name;
+        selectedPrimers[i] = primerToPlace;
+      }
+      return selectedPrimers;
+    } else {
+      const nullDomain = [
+        {
+          Institution: 'None',
+          Name: 'No Primers Selected',
+          ranges: [[0, 30000]],
+          row: 0,
+          Start: 0,
+          End: 30000,
+        },
+      ];
+      configStore.selectedPrimers = nullDomain;
+      return nullDomain;
+    }
+  };
+
+  const domainsToShow = () => {
+    return configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER
+      ? getPrimers()
+      : getDomains();
   };
 
   const [state, setState] = useState({
     showWarning: true,
     xRange: getXRange(),
     hoverGroup: null,
-    data: { domains: getDomains() },
+    data: { domains: domainsToShow() },
     domainPlotHeight: getDomainPlotHeight(),
     signalListeners: {
       hoverGroup: throttle(handleHoverGroup, 100),
@@ -360,7 +388,7 @@ const EntropyPlot = observer(({ width }) => {
       domainPlotHeight: getDomainPlotHeight(),
       data: {
         ...state.data,
-        domains: getDomains(),
+        domains: domainsToShow(),
         table: processData(),
       },
     });

@@ -9,7 +9,7 @@ import {
   ASYNC_STATES,
   GROUPS,
   COORDINATE_MODES,
-  GROUP_SNV,
+  GROUP_MUTATION,
   DNA_OR_AA,
   SORT_DIRECTIONS,
 } from '../../constants/defs.json';
@@ -29,11 +29,11 @@ const TableLegendContainer = styled.div`
 const comparer =
   ({ sortDirection, sortColumn, groupKey, dnaOrAa, coordinateMode }) =>
   (a, b) => {
-    // special sorting for snv group
-    // If in SNV mode, then sort by position IF:
+    // special sorting for mutation group
+    // If in mutation mode, then sort by position IF:
     // We're in DNA mode OR
     // We're comparing rows that have the same gene/protein
-    if (groupKey === GROUP_SNV) {
+    if (groupKey === GROUP_MUTATION) {
       let sameGeneOrProtein =
         a.gene_or_protein === b.gene_or_protein &&
         (coordinateMode === COORDINATE_MODES.COORD_GENE ||
@@ -64,7 +64,7 @@ const comparer =
   };
 
 const Legend = observer(() => {
-  const { dataStore, UIStore, configStore, groupDataStore, snpDataStore } =
+  const { dataStore, UIStore, configStore, groupDataStore, mutationDataStore } =
     useStores();
 
   const [state, setState] = useState({
@@ -128,40 +128,40 @@ const Legend = observer(() => {
 
     // groupCounts is structured as:
     // [{ group_id, counts }]
-    // Where group_id is either a SNV ID (in SNV mode)
+    // Where group_id is either a mutation ID (in mutation mode)
     // or a string representing e.g. a lineage
 
     // Get some additional data:
-    // 1) Group Name (get SNV name from SNV ID if in SNV mode)
+    // 1) Group Name (get mutation name from mutation ID if in mutation mode)
     // 2) Color
     // 3) Calculate percent based off counts and total sequences
-    // 4) SNV gene/protein (for sorting SNVs - AA SNV mode only)
-    // 5) SNV position (for sorting SNVs - SNV mode only)
-    if (configStore.groupKey === GROUP_SNV) {
+    // 4) mutation gene/protein (for sorting mutations - AA mutation mode only)
+    // 5) mutation position (for sorting mutations - mutation mode only)
+    if (configStore.groupKey === GROUP_MUTATION) {
       legendItems.forEach((record) => {
-        let snv = snpDataStore.intToSnv(
+        let mut = mutationDataStore.intToMutation(
           configStore.dnaOrAa,
           configStore.coordinateMode,
           record.group_id
         );
-        record.group = snv.snp_str;
-        record.group_name = snv.name;
-        record.color = snv.color;
+        record.group = mut.mutation_str;
+        record.group_name = mut.name;
+        record.color = mut.color;
         record.percent =
           record.counts / dataStore.numSequencesAfterAllFiltering;
-        record.pos = snv.pos;
+        record.pos = mut.pos;
         // If we're in DNA mode, then leave this null
         // Otherwise, get the gene or protein, depending on our AA mode
         record.gene_or_protein =
           configStore.dnaOrAa === DNA_OR_AA.DNA
             ? null
             : configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
-            ? snv.gene
-            : snv.protein;
+            ? mut.gene
+            : mut.protein;
       });
     } else {
       legendItems.forEach((record) => {
-        // For non-SNV groups, the name is the same as the ID
+        // For non-mutation groups, the name is the same as the ID
         record.group = record.group_id;
         record.group_name = record.group_id;
         record.color = groupDataStore.getGroupColor(

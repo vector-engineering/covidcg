@@ -13,9 +13,9 @@ from scripts.assemble_data_package import assemble_data_package
 from scripts.build_full_dataframe import build_full_dataframe
 from scripts.build_location_tree import build_location_tree
 from scripts.combine_all_data import combine_all_data
-from scripts.consensus_snps import get_all_consensus_snps
-from scripts.extract_aa_snps import extract_aa_snps
-from scripts.extract_dna_snps import extract_dna_snps
+from scripts.consensus_mutations import get_all_consensus_mutations
+from scripts.extract_aa_mutations import extract_aa_mutations
+from scripts.extract_dna_mutations import extract_dna_mutations
 from scripts.global_group_counts import global_group_counts
 from scripts.preprocess_sequences import preprocess_sequences
 from scripts.write_reference_files import write_reference_files
@@ -82,7 +82,7 @@ rule align_sequences:
         fasta = rules.preprocess_sequences.output.fasta
     params:
         ref_seq = os.path.join(static_data_folder, 'reference.fasta')
-    threads: workflow.cores / 2
+    threads: workflow.cores
     output:
         bam = os.path.join(data_folder, "bam", "{chunk}.bam")
     shell:
@@ -90,17 +90,17 @@ rule align_sequences:
         minimap2 -t {threads} -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
 
-rule extract_dna_snps:
-    """Find SNVs on the NT level for each sequence
+rule extract_dna_mutations:
+    """Find mutations on the NT level for each sequence
     """
     input:
         reference = reference_sequence_path,
         bam = rules.align_sequences.output.bam
     output:
-        dna_snp = os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv")
+        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
     run:
-        dna_snp_df = extract_dna_snps(input.bam, input.reference)
-        dna_snp_df.to_csv(output.dna_snp, index=False)
+        dna_mutation_df = extract_dna_mutations(input.bam, input.reference)
+        dna_mutation_df.to_csv(output.dna_mutation, index=False)
 
 
 rule process_genes_and_proteins:
@@ -120,36 +120,36 @@ rule process_genes_and_proteins:
         """
 
 
-rule extract_aa_snps:
-    """Using the NT SNVs, translate genes/proteins and find SNVs
+rule extract_aa_mutations:
+    """Using the NT mutations, translate genes/proteins and find mutations
     on the AA level, for genes
     """
     input:
-        dna_snp = rules.extract_dna_snps.output.dna_snp,
+        dna_mutation = rules.extract_dna_mutations.output.dna_mutation,
         reference = reference_sequence_path,
         genes_file = rules.process_genes_and_proteins.output.genes,
         proteins_file = rules.process_genes_and_proteins.output.proteins
     output:
-        gene_aa_snp = os.path.join(
-            data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"
+        gene_aa_mutation = os.path.join(
+            data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
         ),
-        protein_aa_snp = os.path.join(
-            data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"
+        protein_aa_mutation = os.path.join(
+            data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"
         )
     run:
-        extract_aa_snps(
-            input.dna_snp,
+        extract_aa_mutations(
+            input.dna_mutation,
             input.genes_file,
             input.reference,
             mode="gene"
-        ).to_csv(output.gene_aa_snp, index=False)
+        ).to_csv(output.gene_aa_mutation, index=False)
 
-        extract_aa_snps(
-            input.dna_snp,
+        extract_aa_mutations(
+            input.dna_mutation,
             input.proteins_file,
             input.reference,
             mode="protein"
-        ).to_csv(output.protein_aa_snp, index=False)
+        ).to_csv(output.protein_aa_mutation, index=False)
 
 
 rule combine_all_data:
@@ -159,28 +159,27 @@ rule combine_all_data:
     input:
         processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
         metadata = os.path.join(data_folder, "metadata.csv"),
-        dna_snp_files = expand(
-            os.path.join(data_folder, "dna_snp", "{chunk}_dna_snp.csv"),
+        dna_mutation_files = expand(
+            os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
             chunk=CHUNKS
         ),
-        gene_aa_snp_files = expand(
-            os.path.join(data_folder, "gene_aa_snp", "{chunk}_gene_aa_snp.csv"),
+        gene_aa_mutation_files = expand(
+            os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"),
             chunk=CHUNKS
         ),
-        protein_aa_snp_files = expand(
-            os.path.join(data_folder, "protein_aa_snp", "{chunk}_protein_aa_snp.csv"),
+        protein_aa_mutation_files = expand(
+            os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
             chunk=CHUNKS
         )
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        location_map = os.path.join(data_folder, "location_map.json"),
         case_data = os.path.join(data_folder, "case_data.json"),
         case_data_csv = os.path.join(data_folder, "case_data.csv")
     run:
         combine_all_data(
             **input, **output,
-            count_threshold=config["snp_count_threshold"],
+            count_threshold=config["mutation_count_threshold"],
             group_cols=list(config["group_cols"].keys()),
             metadata_cols=list(config["metadata_cols"].keys())
         )
@@ -189,7 +188,7 @@ rule combine_all_data:
 rule build_location_tree:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        location_map = rules.combine_all_data.output.location_map,
+        metadata_map = rules.combine_all_data.output.metadata_map,
         emoji_map_file = os.path.join(
             static_data_folder, "country_to_emoji.xls"
         )
@@ -197,7 +196,7 @@ rule build_location_tree:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
     run:
         geo_select_tree = build_location_tree(
-            input.case_data, input.location_map, input.emoji_map_file,
+            input.case_data, input.metadata_map, input.emoji_map_file,
             output.geo_select_tree
         )
 
@@ -220,21 +219,21 @@ rule write_reference_files:
         )
 
 
-rule consensus_snps:
-    """For each lineage and clade, get the lineage/clade-defining SNVs,
+rule consensus_mutations:
+    """For each lineage and clade, get the lineage/clade-defining mutations,
     on both the NT and AA level
-    Lineage/clade-defining SNVs are defined as SNVs which occur in
+    Lineage/clade-defining mutations are defined as mutations which occur in
     >= [consensus_fraction] of sequences within that lineage/clade.
     [consensus_fraction] is a parameter which can be adjusted here
     """
     input:
         case_data = rules.combine_all_data.output.case_data
     output:
-        group_consensus_snvs = os.path.join(data_folder, "group_consensus_snps.json"),
-        group_snv_frequencies = os.path.join(data_folder, "group_snv_frequencies.json")
+        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
+        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
     run:
-        get_all_consensus_snps(
-            input.case_data, output.group_consensus_snvs, output.group_snv_frequencies,
+        get_all_consensus_mutations(
+            input.case_data, output.group_consensus_mutations, output.group_mutation_frequencies,
             group_cols=list(config["group_cols"].keys()),
             consensus_fraction=config["consensus_fraction"],
             min_reporting_fraction=config['min_reporting_fraction']
@@ -266,9 +265,8 @@ rule assemble_data_package:
         country_score = rules.global_sequencing_efforts.output.country_score,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
         global_group_counts = rules.global_group_counts.output.global_group_counts,
-        group_consensus_snps = rules.consensus_snps.output.group_consensus_snvs,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         data_package = os.path.join(data_folder, "data_package.json.gz")
     run:
@@ -280,24 +278,20 @@ rule assemble_data_package:
 rule build_full_dataframe:
     input:
         case_data = rules.combine_all_data.output.case_data,
-        metadata_map = rules.combine_all_data.output.metadata_map,
-        location_map = rules.combine_all_data.output.location_map
+        metadata_map = rules.combine_all_data.output.metadata_map
     output:
         full_df = os.path.join(data_folder, 'data_complete.csv')
     run:
-        build_full_dataframe(
-            input.case_data, input.metadata_map, input.location_map,
-            output.full_df
-        )
+        build_full_dataframe(input.case_data, input.metadata_map, output.full_df)
 
 
 rule update_vocs:
     output:
-        voc_list = os.path.join(static_data_folder, "vocs.json"),
-        cdc_list = os.path.join(static_data_folder, "CDC.json"),
-        who_list = os.path.join(static_data_folder, "WHO.json"),
-        ecdc_list = os.path.join(static_data_folder, "ECDC.json"),
-        phe_list = os.path.join(static_data_folder, "PHE.json"),
+        voc_list = os.path.join(data_folder, "vocs", "vocs.json"),
+        cdc_list = os.path.join(data_folder, "vocs", "CDC.json"),
+        who_list = os.path.join(data_folder, "vocs", "WHO.json"),
+        ecdc_list = os.path.join(data_folder, "vocs", "ECDC.json"),
+        phe_list = os.path.join(data_folder, "vocs", "PHE.json"),
         status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """

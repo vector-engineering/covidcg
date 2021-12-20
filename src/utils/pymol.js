@@ -1,35 +1,71 @@
 import { reds } from '../constants/colors';
 import { getAllProteins } from './gene_protein';
+import { LITEMOL_STYLES } from '../constants/defs';
 
 const numColors = reds.length;
 const proteins = getAllProteins();
+
+const chainExclusion = (chains) => {
+  if (chains.length > 0) {
+    return `and not (${chains
+      .map((chain) => {
+        return `chain ${chain}`;
+      })
+      .join(' or ')})`;
+  } else {
+    return '';
+  }
+};
 
 export function mutationHeatmapToPymolScript({
   activeProtein,
   activeGroup,
   pdbId,
-  snvs,
-  selectIndividualSNVs,
-  selectAllSNVs,
+  proteinStyle,
+  mutations,
+  activeAssembly,
+  entities,
+  selectIndividualMutations,
+  selectAllMutations,
   includeDomains,
   baseColor,
-  useAssembly,
-  assemblyName,
+  ignoreColor,
 }) {
-  let individualSnvSelections = '';
-  if (selectIndividualSNVs) {
-    snvs.forEach((snv) => {
-      individualSnvSelections += `cmd.select('${snv.ref}${snv.pos.toString()}${
-        snv.alt
-      }', 'resi ${snv.pos.toString()}')\n`;
+  let assemblyCmd = '';
+  if (activeAssembly !== '' && activeAssembly !== 'asym') {
+    assemblyCmd = `cmd.set('assembly', ${activeAssembly})`;
+  }
+
+  let proteinStyleCmd = '';
+  if (proteinStyle === LITEMOL_STYLES.SURFACE) {
+    proteinStyleCmd += 'cmd.hide("cartoon")';
+    proteinStyleCmd += 'cmd.show("surface")';
+  }
+
+  // Get chains to hide
+  const hideChains = [];
+  entities.forEach((entity) => {
+    if (!entity.checked) {
+      hideChains.push(...entity.chains);
+    }
+  });
+
+  let individualMutationSelections = '';
+  if (selectIndividualMutations) {
+    mutations.forEach((mut) => {
+      individualMutationSelections += `cmd.select("${
+        mut.ref
+      }${mut.pos.toString()}${
+        mut.alt
+      }", "resi ${mut.pos.toString()} ${chainExclusion(hideChains)}")\n`;
     });
   }
 
-  let allSnvSelection = '';
-  if (selectAllSNVs) {
-    allSnvSelection = `cmd.select('all_snvs', 'resi ${snvs
-      .map((snv) => snv.pos.toString())
-      .join(' or resi ')}')\n`;
+  let allMutationsSelection = '';
+  if (selectAllMutations) {
+    allMutationsSelection = `cmd.select("all_mutations", "(resi ${mutations
+      .map((mut) => mut.pos.toString())
+      .join(' or resi ')}) ${chainExclusion(hideChains)}")\n`;
   }
 
   let domainSelection = '';
@@ -38,13 +74,39 @@ export function mutationHeatmapToPymolScript({
       (protein) => protein.name === activeProtein
     ).domains;
     domains.forEach((domain) => {
-      const domainSelectionName = domain.name.toLowerCase().replace(' ', '_');
+      const domainSelectionName = domain.name
+        .toLowerCase()
+        .replaceAll(/\s/g, '_');
       const domainResiSelection = domain.ranges
         .map((range) => `${range[0]}-${range[1]}`)
         .join(' or resi ');
-      domainSelection += `cmd.select('${domainSelectionName}', 'resi ${domainResiSelection}')\n`;
+
+      domainSelection += `cmd.select("${domainSelectionName}", "resi ${domainResiSelection} ${chainExclusion(
+        hideChains
+      )}")\n`;
     });
   }
+
+  let colorCode = '';
+  mutations.forEach((mut) => {
+    const colorInd = Math.floor((mut.fraction - 0.001) * numColors);
+    // PyMOL needs colors in "0xRRGGBB" instead of "#RRGGBB"
+    colorCode += `cmd.color("0x${reds[colorInd].substr(1)}", "resi ${
+      mut.pos
+    } ${chainExclusion(hideChains)}")\n`;
+  });
+
+  // Hide entities
+  let hideEntityCode = '';
+  entities.forEach((entity) => {
+    if (!entity.checked) {
+      entity.chains.forEach((chain) => {
+        hideEntityCode += `cmd.color("0x${ignoreColor.substr(
+          1
+        )}", "chain ${chain}")\n`;
+      });
+    }
+  });
 
   let script = `#!/usr/bin/env python3
 # coding: utf-8
@@ -55,40 +117,148 @@ export function mutationHeatmapToPymolScript({
 
 from pymol import cmd, stored
 
-pdb_name = '${pdbId}'
+pdb_name = "${pdbId}"
 
-cmd.delete('all')
+cmd.delete("all")
 
-${useAssembly ? `cmd.set('assembly', ${assemblyName})` : ''}
+${assemblyCmd}
 
 cmd.fetch(pdb_name, name=pdb_name)
 
 # Get rid of water/hydrogens in the structure
-cmd.remove('solvent')
-cmd.remove('hydrogens')
+cmd.remove("solvent")
+cmd.remove("hydrogens")
 # Clean up the rest... remove all non-protein atoms (PyMOL 2.1+ only)
-cmd.remove('(not polymer.protein)')
+# cmd.remove("(not polymer.protein)")
 
-# Hide cartoon and show surface
-cmd.hide('cartoon')
-cmd.show('surface')
+${proteinStyleCmd}
 
 # Default color
-cmd.color('0x${baseColor.substr(1)}')
+cmd.color("0x${baseColor.substr(1)}", "polymer.protein")
 
 # Create selections
-${individualSnvSelections}
-${allSnvSelection}
+${individualMutationSelections}
+${allMutationsSelection}
 ${domainSelection}
 
 # RESI COLORING CODE
+${colorCode}
+
+# HIDE ENTITY CODE
+${hideEntityCode}
 `;
 
-  snvs.forEach((snv) => {
-    const colorInd = Math.floor((snv.fraction - 0.001) * numColors);
-    // PyMOL needs colors in "0xRRGGBB" instead of "#RRGGBB"
-    script += `cmd.color('0x${reds[colorInd].substr(1)}', 'resi ${snv.pos}')\n`;
+  return script;
+}
+
+export function mutationHeatmapToPymolCommands({
+  activeProtein,
+  pdbId,
+  proteinStyle,
+  mutations,
+  activeAssembly,
+  entities,
+  selectIndividualMutations,
+  selectAllMutations,
+  includeDomains,
+  baseColor,
+  ignoreColor,
+}) {
+  let assemblyCmd = '';
+  if (activeAssembly !== '' && activeAssembly !== 'asym') {
+    assemblyCmd = `set assembly, ${activeAssembly}`;
+  }
+
+  let proteinStyleCmd = '';
+  if (proteinStyle === LITEMOL_STYLES.SURFACE) {
+    proteinStyleCmd += 'as surface';
+  }
+
+  // Get chains to hide
+  const hideChains = [];
+  entities.forEach((entity) => {
+    if (!entity.checked) {
+      hideChains.push(...entity.chains);
+    }
   });
 
-  return script;
+  let selectIndividualMutationsCmd = '';
+  if (selectIndividualMutations) {
+    mutations.forEach((mut) => {
+      selectIndividualMutationsCmd += `select ${mut.ref}${mut.pos.toString()}${
+        mut.alt
+      }, resi ${mut.pos.toString()} ${chainExclusion(hideChains)}\n`;
+    });
+  }
+
+  let selectAllMutationsCmd = '';
+  if (selectAllMutations) {
+    selectAllMutationsCmd += `select all_mutations, resi ${mutations
+      .map((mut) => mut.pos.toString())
+      .join(' or resi ')} ${chainExclusion(hideChains)}\n`;
+  }
+
+  let includeDomainsCmd = '';
+  if (includeDomains) {
+    const domains = proteins.find(
+      (protein) => protein.name === activeProtein
+    ).domains;
+    domains.forEach((domain) => {
+      const domainSelectionName = domain.name
+        .toLowerCase()
+        .replaceAll(/\s/g, '_');
+      const domainResiSelection = domain.ranges
+        .map((range) => `${range[0]}-${range[1]}`)
+        .join(' or resi ');
+      includeDomainsCmd += `select ${domainSelectionName}, resi ${domainResiSelection} ${chainExclusion(
+        hideChains
+      )}\n`;
+    });
+  }
+
+  let colorMutationsCmd = '';
+  mutations.forEach((mut) => {
+    const colorInd = Math.floor((mut.fraction - 0.001) * numColors);
+    // PyMOL needs colors in "0xRRGGBB" instead of "#RRGGBB"
+    colorMutationsCmd += `color 0x${reds[colorInd].substr(1)}, resi ${
+      mut.pos
+    } ${chainExclusion(hideChains)}\n`;
+  });
+
+  // Hide entities
+  let hideEntityCmd = '';
+  entities.forEach((entity) => {
+    if (!entity.checked) {
+      entity.chains.forEach((chain) => {
+        hideEntityCmd += `color 0x${ignoreColor.substr(1)}, chain ${chain}\n`;
+      });
+    }
+  });
+
+  const commands = `
+delete all
+
+${assemblyCmd}
+
+fetch ${pdbId}
+
+remove solvent
+remove hydrogens
+
+${proteinStyleCmd}
+
+color 0x${baseColor.substr(1)}, polymer.protein
+
+${selectIndividualMutationsCmd}
+
+${selectAllMutationsCmd}
+
+${includeDomainsCmd}
+
+${colorMutationsCmd}
+
+${hideEntityCmd}
+`;
+
+  return commands;
 }

@@ -60,24 +60,24 @@ const LegendItem = ({
 
   let groupText = legendItem.group;
 
-  // For co-occurring Spike SNVs (spike_combo mode),
+  // For co-occurring Spike mutations (spike_combo mode),
   // try to break up long strings by comma so that they're
   // more readable in this compact format
   if (surveillanceMode === 'spike_combo') {
     let charCounter = 0;
     let curEntry = '';
     groupText = [];
-    legendItem.group.split(',').forEach((snv, i) => {
-      charCounter += snv.length;
+    legendItem.group.split(',').forEach((mutation, i) => {
+      charCounter += mutation.length;
       if (charCounter > maxCharsPerLine) {
         groupText.push(
           <span key={`${legendItem.group}-${i}`}>{curEntry}</span>
         );
         groupText.push(<br key={`${legendItem.group}-${i}-break`} />);
-        charCounter = snv.length;
+        charCounter = mutation.length;
         curEntry = '';
       }
-      curEntry += snv;
+      curEntry += mutation;
       if (i < legendItem.group.split(',').length - 1) {
         curEntry += ',';
       }
@@ -124,9 +124,9 @@ const SurveillanceLegend = observer(
     if (plotSettingsStore.surveillanceMode === 'lineage') {
       legendTitleText = 'Lineages';
     } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText = 'Spike SNVs (Co-occuring)';
+      legendTitleText = 'Spike mutations (Co-occuring)';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText = 'Spike SNVs (Single)';
+      legendTitleText = 'Spike mutations (Single)';
     }
 
     return (
@@ -141,6 +141,174 @@ SurveillanceLegend.propTypes = {
   legendItems: PropTypes.arrayOf(PropTypes.object),
   legendHover: PropTypes.arrayOf(PropTypes.string),
   setLegendHover: PropTypes.func,
+};
+
+const SurveillanceSettings = observer(
+  ({ groupName, vegaRef, refreshValidGroups }) => {
+    const { plotSettingsStore } = useStores();
+
+    // Build tooltips once we're mounted
+    useEffect(() => {
+      ReactTooltip.rebuild();
+    }, []);
+
+    const onChangeSortField = (e) => {
+      const oldSortField = plotSettingsStore.surveillanceSortField;
+      const newSortField = e.target.value;
+
+      plotSettingsStore.setSurveillanceSortField(newSortField);
+
+      // Manually trigger a refresh on the legend data
+      if (oldSortField !== newSortField) {
+        vegaRef.current.runWhenComplete(refreshValidGroups);
+      }
+    };
+    const onChangeSortDirection = (e) => {
+      const oldSortDirection = plotSettingsStore.surveillanceSortDirection;
+      const newSortDirection = e.target.value;
+
+      plotSettingsStore.setSurveillanceSortDirection(e.target.value);
+
+      // Manually trigger a refresh on the legend data
+      // console.log(oldSortDirection, newSortDirection);
+      if (oldSortDirection !== newSortDirection) {
+        vegaRef.current.runWhenComplete(refreshValidGroups);
+      }
+    };
+    const onChangeDisplayMinCounts = (e) => {
+      plotSettingsStore.setSurveillanceDisplayMinCounts(e.target.value);
+    };
+    const onChangeDisplayMinPercent = (e) => {
+      plotSettingsStore.setSurveillanceDisplayMinPercent(e.target.value);
+    };
+    const onChangeSigMinCounts = (e) => {
+      plotSettingsStore.setSurveillanceSigMinCounts(e.target.value);
+    };
+    const onChangeSigMinPercent = (e) => {
+      plotSettingsStore.setSurveillanceSigMinPercent(e.target.value);
+    };
+    const onChangeSigMinR = (e) => {
+      plotSettingsStore.setSurveillanceSigMinR(e.target.value);
+    };
+
+    return (
+      <div>
+        <OptionsRow>
+          Sort by{' '}
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.surveillanceSortField}
+                onChange={onChangeSortField}
+              >
+                <option value={'group'}>Name</option>
+                <option value={'counts'}>Counts</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.surveillanceSortDirection}
+                onChange={onChangeSortDirection}
+              >
+                <option value={SORT_DIRECTIONS.SORT_ASC}>Ascending</option>
+                <option value={SORT_DIRECTIONS.SORT_DESC}>Descending</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+        </OptionsRow>
+        <OptionsRow>
+          <span>Displayed {groupName}</span>
+          <QuestionButton
+            data-tip={`<p>To improve readability, ${groupName} which do not meet these conditions in any of the six continents are removed from the plots. For example, if one ${groupName} fails these conditions in 5 continents but passes in the last one, it will still be shown. If one ${groupName} fails these conditions in all 6 continents, it will be excluded.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p>`}
+            data-html="true"
+            data-place="right"
+            data-for="main-tooltip"
+            style={{ marginRight: 8 }}
+          />
+          <OptionInputContainer>
+            <label>
+              Min Counts
+              <input
+                type="number"
+                value={plotSettingsStore.surveillanceDisplayMinCounts}
+                onChange={onChangeDisplayMinCounts}
+                min={0}
+                step={1}
+              />
+            </label>
+          </OptionInputContainer>
+          <OptionInputContainer>
+            <label>
+              Min Percent
+              <input
+                type="number"
+                value={plotSettingsStore.surveillanceDisplayMinPercent}
+                onChange={onChangeDisplayMinPercent}
+                min={0}
+                max={1}
+                step={0.01}
+              />
+            </label>
+          </OptionInputContainer>
+        </OptionsRow>
+        <OptionsRow>
+          <span>Highlighted {groupName}</span>
+          <QuestionButton
+            data-tip={`<p>Choose ${groupName} to highlight and display in the legend. ${groupName} which pass these conditions in at least one of six continents will be highlighted. Non-highlighted ${groupName} are still displayed but not colored.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p><p>Min Correlation is defined as the minimum Pearson correlation of the % sequences of this ${groupName}. For the correlation calculations, the last ${config.surv_end_date_days_ago} days from today are omitted, to reduce noise in this metric.</p>`}
+            data-html="true"
+            data-place="right"
+            data-for="main-tooltip"
+            style={{ marginRight: 8 }}
+          />
+          <OptionInputContainer>
+            <label>
+              Min Counts
+              <input
+                type="number"
+                value={plotSettingsStore.surveillanceSigMinCounts}
+                onChange={onChangeSigMinCounts}
+                min={0}
+                step={1}
+              />
+            </label>
+          </OptionInputContainer>
+          <OptionInputContainer>
+            <label>
+              Min Percent
+              <input
+                type="number"
+                value={plotSettingsStore.surveillanceSigMinPercent}
+                onChange={onChangeSigMinPercent}
+                min={0}
+                max={1}
+                step={0.01}
+              />
+            </label>
+          </OptionInputContainer>
+          <OptionInputContainer>
+            <label>
+              Min Correlation
+              <input
+                type="number"
+                value={plotSettingsStore.surveillanceSigMinR}
+                onChange={onChangeSigMinR}
+                min={-1}
+                max={1}
+                step={0.01}
+              />
+            </label>
+          </OptionInputContainer>
+        </OptionsRow>
+      </div>
+    );
+  }
+);
+SurveillanceSettings.propTypes = {
+  groupName: PropTypes.string.isRequired,
+  vegaRef: PropTypes.object.isRequired,
+  refreshValidGroups: PropTypes.func.isRequired,
 };
 
 const SurveillancePlot = observer(({ width }) => {
@@ -189,7 +357,6 @@ const SurveillancePlot = observer(({ width }) => {
   };
 
   const [state, setState] = useState({
-    showWarning: true,
     dataListeners: {
       valid_groups_color: handleValidGroups,
       tooltip_group: handleHoverGroups,
@@ -199,21 +366,16 @@ const SurveillancePlot = observer(({ width }) => {
     },
     signalListeners: {},
     legendItems: [],
-    showSettings: false,
   });
 
   const onToggleShowSettings = () => {
-    setState({
-      ...state,
-      showSettings: !state.showSettings,
-    });
+    plotSettingsStore.setSurveillanceShowSettings(
+      !plotSettingsStore.surveillanceShowSettings
+    );
   };
 
   const onDismissWarning = () => {
-    setState({
-      ...state,
-      showWarning: false,
-    });
+    plotSettingsStore.setSurveillanceShowWarning(false);
   };
 
   const handleDownloadSelect = (option) => {
@@ -234,44 +396,6 @@ const SurveillancePlot = observer(({ width }) => {
 
   const onChangeMode = (e) => {
     plotSettingsStore.setSurveillanceMode(e.target.value);
-  };
-  const onChangeSortField = (e) => {
-    const oldSortField = plotSettingsStore.surveillanceSortField;
-    const newSortField = e.target.value;
-
-    plotSettingsStore.setSurveillanceSortField(newSortField);
-
-    // Manually trigger a refresh on the legend data
-    if (oldSortField !== newSortField) {
-      vegaRef.current.runWhenComplete(refreshValidGroups);
-    }
-  };
-  const onChangeSortDirection = (e) => {
-    const oldSortDirection = plotSettingsStore.surveillanceSortDirection;
-    const newSortDirection = e.target.value;
-
-    plotSettingsStore.setSurveillanceSortDirection(e.target.value);
-
-    // Manually trigger a refresh on the legend data
-    console.log(oldSortDirection, newSortDirection);
-    if (oldSortDirection !== newSortDirection) {
-      vegaRef.current.runWhenComplete(refreshValidGroups);
-    }
-  };
-  const onChangeDisplayMinCounts = (e) => {
-    plotSettingsStore.setSurveillanceDisplayMinCounts(e.target.value);
-  };
-  const onChangeDisplayMinPercent = (e) => {
-    plotSettingsStore.setSurveillanceDisplayMinPercent(e.target.value);
-  };
-  const onChangeSigMinCounts = (e) => {
-    plotSettingsStore.setSurveillanceSigMinCounts(e.target.value);
-  };
-  const onChangeSigMinPercent = (e) => {
-    plotSettingsStore.setSurveillanceSigMinPercent(e.target.value);
-  };
-  const onChangeSigMinR = (e) => {
-    plotSettingsStore.setSurveillanceSigMinR(e.target.value);
   };
 
   const setLegendHover = (group) => {
@@ -302,9 +426,9 @@ const SurveillancePlot = observer(({ width }) => {
   if (plotSettingsStore.surveillanceMode === 'lineage') {
     groupName = 'Lineages';
   } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-    groupName = 'Co-occuring SNVs';
+    groupName = 'Co-occuring mutations';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-    groupName = 'Single SNVs';
+    groupName = 'Single mutations';
   }
 
   return (
@@ -336,7 +460,10 @@ const SurveillancePlot = observer(({ width }) => {
         left. Hover over lineages in the legend, or near them in the plots, to
         highlight the lineage across all plots.
       </HelpText>
-      <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
+      <WarningBox
+        show={plotSettingsStore.surveillanceShowWarning}
+        onDismiss={onDismissWarning}
+      >
         Inconsistent sampling in the underlying data can result in missing data
         and artefacts in this visualization. Increased prevalence of lineages{' '}
         <b>does not</b>, on its own, suggest an increase in transmissibility.
@@ -353,14 +480,14 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   <option value={'lineage'}>Lineage</option>
-                  <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
-                  <option value={'spike_single'}>Spike Single SNVs</option>
+                  <option value={'spike_combo'}>Spike Co-occuring Mutations</option>
+                  <option value={'spike_single'}>Spike Single Mutations</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}
             <CollapseButton onClick={onToggleShowSettings}>
-              {state.showSettings ? 'Hide' : 'Show'} Settings{' '}
-              <span className="caret"></span>
+              {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
+              Settings <span className="caret"></span>
             </CollapseButton>
             <div className="spacer"></div>
             <DropdownButton
@@ -375,121 +502,12 @@ const SurveillancePlot = observer(({ width }) => {
               onSelect={handleDownloadSelect}
             />
           </OptionsRow>
-          {state.showSettings && (
-            <>
-              <OptionsRow>
-                Sort by{' '}
-                <OptionSelectContainer>
-                  <label>
-                    <select
-                      value={plotSettingsStore.surveillanceSortField}
-                      onChange={onChangeSortField}
-                    >
-                      <option value={'group'}>Name</option>
-                      <option value={'counts'}>Counts</option>
-                    </select>
-                  </label>
-                </OptionSelectContainer>
-                <OptionSelectContainer>
-                  <label>
-                    <select
-                      value={plotSettingsStore.surveillanceSortDirection}
-                      onChange={onChangeSortDirection}
-                    >
-                      <option value={SORT_DIRECTIONS.SORT_ASC}>
-                        Ascending
-                      </option>
-                      <option value={SORT_DIRECTIONS.SORT_DESC}>
-                        Descending
-                      </option>
-                    </select>
-                  </label>
-                </OptionSelectContainer>
-              </OptionsRow>
-              <OptionsRow>
-                <span>Displayed {groupName}</span>
-                <QuestionButton
-                  data-tip={`<p>To improve readability, ${groupName} which do not meet these conditions in any of the six continents are removed from the plots. For example, if one ${groupName} fails these conditions in 5 continents but passes in the last one, it will still be shown. If one ${groupName} fails these conditions in all 6 continents, it will be excluded.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p>`}
-                  data-html="true"
-                  data-place="right"
-                  data-for="main-tooltip"
-                  style={{ marginRight: 8 }}
-                />
-                <OptionInputContainer>
-                  <label>
-                    Min Counts
-                    <input
-                      type="number"
-                      value={plotSettingsStore.surveillanceDisplayMinCounts}
-                      onChange={onChangeDisplayMinCounts}
-                      min={0}
-                      step={1}
-                    />
-                  </label>
-                </OptionInputContainer>
-                <OptionInputContainer>
-                  <label>
-                    Min Percent
-                    <input
-                      type="number"
-                      value={plotSettingsStore.surveillanceDisplayMinPercent}
-                      onChange={onChangeDisplayMinPercent}
-                      min={0}
-                      max={1}
-                      step={0.01}
-                    />
-                  </label>
-                </OptionInputContainer>
-              </OptionsRow>
-              <OptionsRow>
-                <span>Highlighted {groupName}</span>
-                <QuestionButton
-                  data-tip={`<p>Choose ${groupName} to highlight and display in the legend. ${groupName} which pass these conditions in at least one of six continents will be highlighted. Non-highlighted ${groupName} are still displayed but not colored.</p><p>Min Counts is defined as the minimum number of sequences with this ${groupName} in a given continent on a given week</p><p>Min Percent is defined as the minimum percent of sequences with this ${groupName} in a given continent on a given week</p><p>Min Correlation is defined as the minimum Pearson correlation of the % sequences of this ${groupName}. For the correlation calculations, the last ${config.surv_end_date_days_ago} days from today are omitted, to reduce noise in this metric.</p>`}
-                  data-html="true"
-                  data-place="right"
-                  data-for="main-tooltip"
-                  style={{ marginRight: 8 }}
-                />
-                <OptionInputContainer>
-                  <label>
-                    Min Counts
-                    <input
-                      type="number"
-                      value={plotSettingsStore.surveillanceSigMinCounts}
-                      onChange={onChangeSigMinCounts}
-                      min={0}
-                      step={1}
-                    />
-                  </label>
-                </OptionInputContainer>
-                <OptionInputContainer>
-                  <label>
-                    Min Percent
-                    <input
-                      type="number"
-                      value={plotSettingsStore.surveillanceSigMinPercent}
-                      onChange={onChangeSigMinPercent}
-                      min={0}
-                      max={1}
-                      step={0.01}
-                    />
-                  </label>
-                </OptionInputContainer>
-                <OptionInputContainer>
-                  <label>
-                    Min Correlation
-                    <input
-                      type="number"
-                      value={plotSettingsStore.surveillanceSigMinR}
-                      onChange={onChangeSigMinR}
-                      min={-1}
-                      max={1}
-                      step={0.01}
-                    />
-                  </label>
-                </OptionInputContainer>
-              </OptionsRow>
-            </>
+          {plotSettingsStore.surveillanceShowSettings && (
+            <SurveillanceSettings
+              groupName={groupName}
+              vegaRef={vegaRef}
+              refreshValidGroups={refreshValidGroups}
+            />
           )}
         </OptionsColumn>
       </PlotOptions>

@@ -5,17 +5,14 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-# import json
-
-# from flask import make_response
-
 
 def query_country_score(conn):
     with conn.cursor() as cur:
         cur.execute(
             """
             SELECT "value"
-            FROM "country_score"
+            FROM "jsons"
+            WHERE "key" = 'country_score'
             """
         )
         return {"country_score": cur.fetchone()[0]}

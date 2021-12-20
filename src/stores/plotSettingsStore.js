@@ -6,6 +6,7 @@ import {
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
+  LITEMOL_STYLES,
 } from '../constants/defs.json';
 
 export const initialValues = {
@@ -25,6 +26,8 @@ export const initialValues = {
 
   // SURVEILLANCE PLOT
   surveillanceMode: 'lineage',
+  surveillanceShowWarning: true,
+  surveillanceShowSettings: false,
   surveillanceSortField: 'counts', // 'group' or 'counts'
   surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
   surveillanceDisplayMinCounts: 5,
@@ -36,12 +39,20 @@ export const initialValues = {
 
   // GROUP REPORT TAB
   reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
-  reportConsensusThreshold: 0.7,
+  reportConsensusThreshold: 0.1,
   reportMutationListHideEmpty: true,
   reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
   reportStructureActiveProtein: 'S',
+  // reportStructureActiveProtein: 'nsp5 - 3CLp',
   reportStructurePdbId: '6ZGG',
-  reportStructureActiveGroup: 'B.1.617.2',
+  // reportStructurePdbId: '7RFW',
+  reportStructureActiveGroup: 'BA.1',
+  // reportStructureActiveGroup: 'B.1.351',
+  reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
+
+  reportStructureAssemblies: [],
+  reportStructureActiveAssembly: '',
+  reportStructureEntities: [],
 };
 
 export class PlotSettingsStore {
@@ -111,6 +122,8 @@ export class PlotSettingsStore {
   // -----------------
 
   @observable surveillanceMode = initialValues.surveillanceMode;
+  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
+  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
   @observable surveillanceSortField = initialValues.surveillanceSortField;
   @observable surveillanceSortDirection =
     initialValues.surveillanceSortDirection;
@@ -127,6 +140,14 @@ export class PlotSettingsStore {
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
+  };
+  @action
+  setSurveillanceShowWarning = (show) => {
+    this.surveillanceShowWarning = show;
+  };
+  @action
+  setSurveillanceShowSettings = (show) => {
+    this.surveillanceShowSettings = show;
   };
   @action
   setSurveillanceSortField = (field) => {
@@ -176,6 +197,12 @@ export class PlotSettingsStore {
   // Actively selected group for the structural viewer
   @observable reportStructureActiveGroup =
     initialValues.reportStructureActiveGroup;
+  @observable reportStructureProteinStyle =
+    initialValues.reportStructureProteinStyle;
+
+  reportStructureAssemblies = initialValues.reportStructureAssemblies;
+  reportStructureActiveAssembly = initialValues.reportStructureActiveAssembly;
+  reportStructureEntities = initialValues.reportStructureEntities;
 
   @action
   setReportTreeColorMode = (mode) => {
@@ -218,6 +245,23 @@ export class PlotSettingsStore {
   @action
   setReportStructureActiveGroup = (group) => {
     this.reportStructureActiveGroup = group;
+  };
+  @action
+  setReportStructureProteinStyle = (style) => {
+    this.reportStructureProteinStyle = style;
+  };
+
+  @action
+  setReportStructureAssemblies = (assemblies) => {
+    this.reportStructureAssemblies = assemblies;
+  };
+  @action
+  setReportStructureActiveAssembly = (assembly) => {
+    this.reportStructureActiveAssembly = assembly;
+  };
+  @action
+  setReportStructureEntities = (entities) => {
+    this.reportStructureEntities = entities;
   };
 
   @action

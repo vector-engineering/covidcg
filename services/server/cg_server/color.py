@@ -69,7 +69,7 @@ coolColors = [
 
 # from https://personal.sron.nl/~pault/#sec:qualitative
 # 'vibrant', then 'muted'
-snv_colors = [
+mutation_colors = [
     "#0077bb",
     "#33bbee",
     "#009988",
@@ -134,10 +134,10 @@ def get_categorical_colormap(groups):
     return colormap
 
 
-def get_snv_colors(snvs):
+def get_mutation_colors(mutations):
 
     colors = []
-    for i, snv in enumerate(snvs):
-        colors.append(snv_colors[i % len(snv_colors)])
+    for i in range(len(mutations)):
+        colors.append(mutation_colors[i % len(mutation_colors)])
 
     return colors

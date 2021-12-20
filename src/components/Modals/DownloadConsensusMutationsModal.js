@@ -41,7 +41,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
   const sentRequest = useRef();
   const [state, setState] = useState({
     group: Object.keys(config.group_cols)[0],
-    snvType: 'gene_aa',
+    mutationType: 'gene_aa',
     consensusThreshold: 0.9,
   });
 
@@ -51,10 +51,10 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
 
   const confirmDownload = () => {
     sentRequest.current = true;
-    groupDataStore.downloadGroupSnvFrequencyData({
+    groupDataStore.downloadGroupMutationFrequencyData({
       group: state.group,
-      snvType: state.snvType,
-      consensusThreshold: state.consensusThreshold,
+      mutationType: state.mutationType,
+      consensusThreshold: parseFloat(state.consensusThreshold),
     });
   };
 
@@ -86,10 +86,10 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     });
   };
 
-  const onChangeSnvType = (e) => {
+  const onChangeMutationType = (e) => {
     setState({
       ...state,
-      snvType: e.target.value,
+      mutationType: e.target.value,
     });
   };
 
@@ -150,7 +150,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
         <Row>
           <SelectInput>
             Mutation Type{' '}
-            <select onChange={onChangeSnvType} value={state.snvType}>
+            <select onChange={onChangeMutationType} value={state.mutationType}>
               <option value="dna">NT</option>
               <option value="gene_aa">AA (Gene)</option>
               <option value="protein_aa">AA (Protein)</option>

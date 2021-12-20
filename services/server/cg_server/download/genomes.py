@@ -13,11 +13,10 @@ import tempfile
 from flask import make_response, send_file
 from psycopg2 import sql
 
-from cg_server.query.selection import create_sequence_temp_table
+from cg_server.query import build_sequence_location_where_filter
 
 
 def download_genomes(conn, req):
-
     if req["compress"]:
         fp = tempfile.NamedTemporaryFile(mode="w+b", delete=True, suffix=".fa.gz")
     else:
@@ -25,16 +24,17 @@ def download_genomes(conn, req):
 
     try:
         with conn.cursor() as cur:
-            temp_table_name = create_sequence_temp_table(cur, req)
+            sequence_where_filter = build_sequence_location_where_filter(req)
 
             cur.execute(
                 sql.SQL(
                     """
-                    SELECT q."Accession ID", s."sequence"
-                    FROM {temp_table_name} q
-                    JOIN "sequence" s on q."id" = s."sequence_id";
+                    SELECT m."Accession ID", s."sequence"
+                    FROM metadata m
+                    INNER JOIN "sequence" s on m."sequence_id" = s."sequence_id"
+                    WHERE {sequence_where_filter};
                     """
-                ).format(temp_table_name=sql.Identifier(temp_table_name))
+                ).format(sequence_where_filter=sequence_where_filter)
             )
 
             if req["compress"]:
@@ -47,7 +47,9 @@ def download_genomes(conn, req):
                 counter += 1
                 # print(counter)
                 for seq in seqs:
-                    fasta_file.write((">" + seq[0] + "\n" + seq[1] + '\n').encode('utf-8'))
+                    fasta_file.write(
+                        (">" + seq[0] + "\n" + seq[1] + "\n").encode("utf-8")
+                    )
 
             if req["compress"]:
                 fasta_file.close()
