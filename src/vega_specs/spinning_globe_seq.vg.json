@@ -1,9 +1,8 @@
 {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
     "description": "An interactive world map supporting pan and zoom.",
-    "width": 900,
-    "height": 600,
-    "autosize": "fit-x",
+    "width": 400,
+    "height": 300,
     "signals": [
         {
             "name": "tx",
@@ -12,19 +11,6 @@
         {
             "name": "ty",
             "update": "height / 2"
-        },
-        {
-            "name": "scale",
-            "value": 100,
-            "on": [
-                {
-                    "events": {
-                        "type": "wheel",
-                        "consume": true
-                    },
-                    "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 100, 3000)"
-                }
-            ]
         },
         {
             "name": "angles",
@@ -123,7 +109,7 @@
         {
             "name": "projection",
             "type": "orthographic",
-            "scale": 300,
+            "scale": 150,
             "rotate": [
                 {
                     "signal": "tick"
@@ -155,7 +141,7 @@
         },
         {
             "name": "world",
-            "url": "data/world-110m.json",
+            "url": "https://raw.githubusercontent.com/vega/datalib/master/test/data/world-110m.json",
             "format": {
                 "type": "topojson",
                 "feature": "countries"
@@ -271,21 +257,6 @@
                     "projection": "projection"
                 }
             ]
-        }
-    ],
-    "legends": [
-        {
-            "title": "Log2 sequences per 1000 cases",
-            "fill": "color",
-            "orient": "bottom",
-            "offset": 5,
-            "type": "gradient",
-            "gradientLength": 400,
-            "gradientThickness": 12,
-            "titlePadding": 10,
-            "titleOrient": "left",
-            "titleAnchor": "end",
-            "direction": "horizontal"
         }
     ],
     "config": {

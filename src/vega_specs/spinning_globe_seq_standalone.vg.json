@@ -3915,7 +3915,7 @@
         },
         {
             "name": "world",
-            "url": "data/world-110m.json",
+            "url": "https://raw.githubusercontent.com/vega/datalib/master/test/data/world-110m.json",
             "format": {
                 "type": "topojson",
                 "feature": "countries"
