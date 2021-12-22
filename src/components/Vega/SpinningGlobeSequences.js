@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-// import { useStores } from '../../stores/connect';
+import { useStores } from '../../stores/connect';
 
 import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
 
@@ -12,7 +12,8 @@ import ExternalLink from '../Common/ExternalLink';
 import initialSpec from '../../vega_specs/spinning_globe_seq.vg.json';
 import { StatusText } from '../Sidebar/StatusBox.styles';
 
-const PlotContainer = styled.div``;
+const PlotContainer = styled.div`
+width: 100%;`;
 
 const PlotTitle = styled.div`
   display: flex;
@@ -57,7 +58,9 @@ const SpinningGlobeSequences = ({ width }) => {
     );
 
     // Generates data to be passed into the globe.
-    genData = () => {
+    const genData = () => {
+        let d = dataStore;
+        console.log(JSON.stringify(dataStore));
 
     };
 
@@ -65,6 +68,7 @@ const SpinningGlobeSequences = ({ width }) => {
     const hiddenLink = useRef();
     // const { dataStore } = useStores();
 
+    genData();
     return (
         <PlotContainer>
             <a
@@ -80,29 +84,11 @@ const SpinningGlobeSequences = ({ width }) => {
                 </PlotTitle>
                 <div className="spacer"></div>
             </PlotOptions>
-            <HelpText>
-                The number of genomic sequence and associate data are shared via the
-                GISAID Initiative (
-                <ExternalLink href="https://doi.org/10.1002/gch2.1018">
-                    Elbe et al, 2017, <i>Wiley Global Challenges</i>
-                </ExternalLink>
-                ) and case data is obtained from{' '}
-                <ExternalLink href="https://github.com/CSSEGISandData/COVID-19">
-                    JHU CSSE COVID-19 Data
-                </ExternalLink>{' '}
-                (
-                <ExternalLink href="https://doi.org/10.1016/S1473-3099(20)30120-1">
-                    Dong et al, 2020, <i>Lancet Inf Dis.</i>
-                </ExternalLink>
-                ). Data from cases and sequences are grouped by month to reduce noise.
-                Regions with &gt;20 sequences per 1000 cases are colored the same in the
-                left map.
-            </HelpText>
             <VegaEmbed
                 ref={vegaRef}
                 spec={initialSpec}
                 data={state.data}
-                width={width}
+                width={window.width}
                 actions={false}
             />
         </PlotContainer>
