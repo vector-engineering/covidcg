@@ -1,0 +1,298 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "An interactive world map supporting pan and zoom.",
+    "width": 900,
+    "height": 600,
+    "autosize": "fit-x",
+    "signals": [
+        {
+            "name": "tx",
+            "update": "width / 2"
+        },
+        {
+            "name": "ty",
+            "update": "height / 2"
+        },
+        {
+            "name": "scale",
+            "value": 100,
+            "on": [
+                {
+                    "events": {
+                        "type": "wheel",
+                        "consume": true
+                    },
+                    "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 100, 3000)"
+                }
+            ]
+        },
+        {
+            "name": "angles",
+            "value": [
+                0,
+                0
+            ],
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "[rotateX, centerY]"
+                }
+            ]
+        },
+        {
+            "name": "cloned",
+            "value": null,
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "copy('projection')"
+                }
+            ]
+        },
+        {
+            "name": "start",
+            "value": null,
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "invert(cloned, xy())"
+                }
+            ]
+        },
+        {
+            "name": "drag",
+            "value": null,
+            "on": [
+                {
+                    "events": "[mousedown, window:mouseup] > window:mousemove",
+                    "update": "invert(cloned, xy())"
+                }
+            ]
+        },
+        {
+            "name": "delta",
+            "value": null,
+            "on": [
+                {
+                    "events": {
+                        "signal": "drag"
+                    },
+                    "update": "[drag[0] - start[0], start[1] - drag[1]]"
+                }
+            ]
+        },
+        {
+            "name": "tick",
+            "init": "0",
+            "on": [
+                {
+                    "events": {
+                        "type": "timer",
+                        "throttle": 25
+                    },
+                    "update": "tick + 0.25"
+                }
+            ]
+        },
+        {
+            "name": "rotateX",
+            "value": 0,
+            "on": [
+                {
+                    "events": {
+                        "signal": "delta"
+                    },
+                    "update": "angles[0] + delta[0]"
+                }
+            ]
+        },
+        {
+            "name": "centerY",
+            "value": 0,
+            "on": [
+                {
+                    "events": {
+                        "signal": "delta"
+                    },
+                    "update": "clamp(angles[1] + delta[1], -60, 60)"
+                }
+            ]
+        }
+    ],
+    "projections": [
+        {
+            "name": "projection",
+            "type": "orthographic",
+            "scale": 300,
+            "rotate": [
+                {
+                    "signal": "tick"
+                },
+                0,
+                0
+            ],
+            "center": [
+                0,
+                {
+                    "signal": "centerY"
+                }
+            ],
+            "translate": [
+                {
+                    "signal": "tx"
+                },
+                {
+                    "signal": "ty"
+                }
+            ]
+        }
+    ],
+    "data": [
+        {
+            "name": "scores",
+            "values": [
+            ]
+        },
+        {
+            "name": "world",
+            "url": "data/world-110m.json",
+            "format": {
+                "type": "topojson",
+                "feature": "countries"
+            },
+            "transform": [
+                {
+                    "type": "lookup",
+                    "from": "scores",
+                    "key": "UID",
+                    "fields": [
+                        "id"
+                    ],
+                    "values": [
+                        "sequences_per_case",
+                        "Country_Region"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "sequences_per_1000cases",
+                    "expr": "log(datum.sequences_per_case * 1000) / LN2"
+                }
+            ]
+        },
+        {
+            "name": "graticule",
+            "transform": [
+                {
+                    "type": "graticule",
+                    "step": [
+                        15,
+                        15
+                    ]
+                }
+            ]
+        }
+    ],
+    "scales": [
+        {
+            "name": "color",
+            "type": "quantize",
+            "domain": [
+                0,
+                9
+            ],
+            "range": {
+                "scheme": "blues",
+                "count": 9
+            }
+        }
+    ],
+    "marks": [
+        {
+            "type": "shape",
+            "clip": true,
+            "from": {
+                "data": "graticule"
+            },
+            "encode": {
+                "enter": {
+                    "strokeWidth": {
+                        "value": 1
+                    },
+                    "stroke": {
+                        "value": "#ddd"
+                    },
+                    "fill": {
+                        "value": null
+                    }
+                }
+            },
+            "transform": [
+                {
+                    "type": "geoshape",
+                    "projection": "projection"
+                }
+            ]
+        },
+        {
+            "type": "shape",
+            "clip": true,
+            "from": {
+                "data": "world"
+            },
+            "encode": {
+                "enter": {
+                    "tooltip": {
+                        "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(pow(2, datum.sequences_per_1000cases), '.3')}"
+                    },
+                    "strokeWidth": {
+                        "value": 0.5
+                    },
+                    "stroke": {
+                        "value": "#bbb"
+                    }
+                },
+                "update": {
+                    "fill": [
+                        {
+                            "test": "datum.sequences_per_case === null",
+                            "value": "#AAA"
+                        },
+                        {
+                            "scale": "color",
+                            "field": "sequences_per_1000cases"
+                        }
+                    ]
+                }
+            },
+            "transform": [
+                {
+                    "type": "geoshape",
+                    "projection": "projection"
+                }
+            ]
+        }
+    ],
+    "legends": [
+        {
+            "title": "Log2 sequences per 1000 cases",
+            "fill": "color",
+            "orient": "bottom",
+            "offset": 5,
+            "type": "gradient",
+            "gradientLength": 400,
+            "gradientThickness": 12,
+            "titlePadding": 10,
+            "titleOrient": "left",
+            "titleAnchor": "end",
+            "direction": "horizontal"
+        }
+    ],
+    "config": {
+        "legend": {
+            "layout": {
+                "anchor": "middle"
+            }
+        }
+    }
+}
