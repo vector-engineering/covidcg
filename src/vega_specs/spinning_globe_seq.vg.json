@@ -74,9 +74,9 @@
                 {
                     "events": {
                         "type": "timer",
-                        "throttle": 25
+                        "throttle": 50
                     },
-                    "update": "tick + 0.25"
+                    "update": "tick + 0.5"
                 }
             ]
         },
@@ -135,8 +135,50 @@
     ],
     "data": [
         {
-            "name": "scores",
-            "values": [
+            "name": "sequences",
+            "url": "https://storage.googleapis.com/ve-public/new_global_data/sequences_per_month.json",
+            "format": {
+                "parse": {
+                    "month": "date"
+                }
+            }
+        },
+        {
+            "name": "total_sequences",
+            "source": "sequences",
+            "transform": [
+                {
+                    "type": "aggregate",
+                    "groupby": [
+                        "country"
+                    ],
+                    "fields": [
+                        "new_sequences"
+                    ],
+                    "ops": [
+                        "sum"
+                    ],
+                    "as": [
+                        "sequences"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mapping",
+            "values": [],
+            "transform": [
+                {
+                    "type": "lookup",
+                    "from": "total_sequences",
+                    "key": "country",
+                    "fields": [
+                        "Country_Region"
+                    ],
+                    "values": [
+                        "sequences"
+                    ]
+                }
             ]
         },
         {
@@ -149,20 +191,14 @@
             "transform": [
                 {
                     "type": "lookup",
-                    "from": "scores",
+                    "from": "mapping",
                     "key": "UID",
                     "fields": [
                         "id"
                     ],
                     "values": [
-                        "sequences_per_case",
-                        "Country_Region"
+                        "sequences"
                     ]
-                },
-                {
-                    "type": "formula",
-                    "as": "sequences_per_1000cases",
-                    "expr": "log(datum.sequences_per_case * 1000) / LN2"
                 }
             ]
         },
@@ -228,9 +264,6 @@
             },
             "encode": {
                 "enter": {
-                    "tooltip": {
-                        "signal": "{'Country': datum['Country_Region'], 'Sequences per 1000 cases': format(pow(2, datum.sequences_per_1000cases), '.3')}"
-                    },
                     "strokeWidth": {
                         "value": 0.5
                     },
@@ -241,12 +274,12 @@
                 "update": {
                     "fill": [
                         {
-                            "test": "datum.sequences_per_case === null",
+                            "test": "datum.sequences === null",
                             "value": "#AAA"
                         },
                         {
                             "scale": "color",
-                            "field": "sequences_per_1000cases"
+                            "field": "sequences"
                         }
                     ]
                 }

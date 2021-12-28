@@ -1,4 +1,4 @@
-[{
+let scores = [{
     "Country_Region": "Afghanistan",
     "median_turnaround_days": null,
     "min_turnaround_days": null,
@@ -3739,7 +3739,7 @@
     "Population": 1404676330.0
 },
 {
-    "Country_Region": "US",
+    "Country_Region": "USA",
     "median_turnaround_days": 55.0,
     "min_turnaround_days": 3.0,
     "max_turnaround_days": 151.0,
@@ -3757,4 +3757,6 @@
     "Long_": -100.0,
     "Combined_Key": "US",
     "Population": 329466283.0
-}]
+}];
+
+export default scores;

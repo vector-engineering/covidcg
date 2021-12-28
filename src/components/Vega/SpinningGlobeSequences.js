@@ -10,8 +10,8 @@ import { PlotOptions } from './Plot.styles';
 import ExternalLink from '../Common/ExternalLink';
 
 import initialSpec from '../../vega_specs/spinning_globe_seq.vg.json';
-import { StatusText } from '../Sidebar/StatusBox.styles';
 
+import scores from '../../vega_specs/map_scores';
 const PlotContainer = styled.div`
 width: 100%;`;
 
@@ -52,7 +52,7 @@ const SpinningGlobeSequences = ({ width }) => {
 
     const [state, setState] = useState({
         data: {
-            scores: []
+            mapping: scores
         }
         }
     );

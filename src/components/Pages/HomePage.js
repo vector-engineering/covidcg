@@ -22,7 +22,7 @@ const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
 import { HomePageDiv, PlotContainer } from './HomePage.styles';
-import MobileHomePage from './MobileHomePage';
+import MobileHomePage from '../Mobile/MobileHomePage';
 
 const HomePage = observer(() => {
   const { UIStore } = useStores();
