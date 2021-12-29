@@ -4,9 +4,7 @@ import useDimensions from 'react-use-dimensions';
 
 import ExternalLink from '../Common/ExternalLink';
 
-import SurveillancePlot from '../Vega/SurveillancePlot';
-import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
-import ExampleList from '../Example/ExampleList';
+import MobileGlobalSeqPlot from '../Vega/MobileGlobalSeqPlot';
 
 import {
     MobileHomeContainer,
@@ -23,7 +21,10 @@ const MobileHomePage = observer(() => {
 
 
     return (
-        <SpinningGlobeSequences width={500}></SpinningGlobeSequences>
+        <MobileHomeContainer>
+            <SpinningGlobeSequences width={500}></SpinningGlobeSequences>
+            <MobileGlobalSeqPlot></MobileGlobalSeqPlot>
+        </MobileHomeContainer>
     );
 });
 
