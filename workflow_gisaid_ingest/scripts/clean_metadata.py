@@ -409,6 +409,11 @@ def clean_passage_metadata(df):
             "Origina;",
             "Originale",
             "origianl",
+            "Original, clinical sample",
+            "Originall",
+            "origina",
+            "Human",
+            "direct sequencing",
         ]
         # "Vero": ["Vero cells"],
         # "Vero P1": [
