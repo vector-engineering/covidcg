@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
@@ -7,11 +7,13 @@ import { asyncDataStoreInstance } from '../App';
 import { OrgLegend } from './OrgLegend';
 
 import {
-  VOCListContainer,
+  VOCTableContainer,
+  VOCTableRow,
+  VOCTableHeader,
+  VOCTableToggle,
+  VOCTableContent,
   VOCGridTitle,
-  GridItem,
   VOCItemContainer,
-  VOCItemGrid,
   VOCItemName,
   VOCBadgeContainer,
   VOCBadge,
@@ -80,7 +82,7 @@ VOCItem.propTypes = {
   orgArr: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-const VOCList = observer(() => {
+const VOCTable = observer(() => {
   const filterItems = (level) => {
     // VOC_LIST is an object with lineages as its keys
     // Each lineage is an object with organizations (WHO, CDC, etc) as its keys
@@ -125,43 +127,80 @@ const VOCList = observer(() => {
 
   // Other Variants
   const otherItems = filterItems('Other');
-  const maxVOCsInCol = 15;
 
-  const otherArr = [];
-  let tempArr = [];
-  for (let i = 0; i < otherItems.length; i++) {
-    // Construct arrays of len = maxVOCsInCol
-    tempArr.push(otherItems[i]);
-    if (
-      tempArr.length === maxVOCsInCol ||
-      (i === otherItems.length - 1 && tempArr.length > 0)
-    ) {
-      otherArr.push(
-        <GridItem key={'otherGridItems-' + otherArr.length}>{tempArr}</GridItem>
-      );
-      tempArr = [];
+  const [state, setState] = useState({
+    vocExpanded: true,
+    voiExpanded: true,
+    otherExpanded: false,
+  });
+
+  const toggleExpand = (event) => {
+    const category = event.target.getAttribute('name');
+
+    if (category === 'VOC') {
+      setState({ ...state, vocExpanded: !state.vocExpanded });
+    } else if (category === 'VOI') {
+      setState({ ...state, voiExpanded: !state.voiExpanded });
+    } else if (category === 'Other') {
+      setState({ ...state, otherExpanded: !state.otherExpanded });
     }
-  }
+  };
 
   return (
-    <VOCListContainer>
+    <VOCTableContainer>
       <OrgLegend />
-      <VOCItemGrid>
-        <VOCGridTitle>Variants of Concern *</VOCGridTitle>
-        <VOCGridTitle>Variants of Interest</VOCGridTitle>
-        <VOCGridTitle colSpan={otherArr.length}>
-          Other Variants Being Monitored
-        </VOCGridTitle>
-        <GridItem key={'vocGridItems'}>{vocItems}</GridItem>
-        <GridItem key={'voiGridItems'}>{voiItems}</GridItem>
-        {otherArr}
-      </VOCItemGrid>
+      <VOCTableRow>
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Variants of Concern *</VOCGridTitle>
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="VOC"
+              expanded={state.vocExpanded}
+            />
+          </VOCTableHeader>
+          {state.vocExpanded && <VOCTableContent>{vocItems}</VOCTableContent>}
+          {!state.vocExpanded && <p>{vocItems.length} VOCs hidden...</p>}
+        </div>
+      </VOCTableRow>
+      <VOCTableRow>
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Variants of Interest</VOCGridTitle>
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="VOI"
+              expanded={state.voiExpanded}
+            />
+          </VOCTableHeader>
+          {state.voiExpanded && <VOCTableContent>{voiItems}</VOCTableContent>}
+          {!state.voiExpanded && <p>{voiItems.length} VOIs hidden...</p>}
+        </div>
+      </VOCTableRow>
+      <VOCTableRow>
+        <div>
+          <VOCTableHeader>
+            <VOCGridTitle>Other Variants Being Monitored</VOCGridTitle>
+            <VOCTableToggle
+              onClick={toggleExpand}
+              name="Other"
+              expanded={state.otherExpanded}
+            />
+          </VOCTableHeader>
+          {state.otherExpanded && (
+            <VOCTableContent>{otherItems}</VOCTableContent>
+          )}
+          {!state.otherExpanded && (
+            <p>{otherItems.length} variants hidden...</p>
+          )}
+        </div>
+      </VOCTableRow>
       <p>
         * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
         VOCs.
       </p>
-    </VOCListContainer>
+    </VOCTableContainer>
   );
 });
 
-export default VOCList;
+export default VOCTable;
