@@ -109,11 +109,16 @@ rule global_seq_data:
 # Mobile data rules.
 rule mobile:
     input:
-        case_data = os.path.join(data_folder, "case_data.json")
+        case_data = os.path.join(data_folder, "case_data.json"),
+        metadata_map = os.path.join(data_folder, 'metadata_map.json')
     params:
         out_folder = os.path.join(data_folder, 'mobile_data')
     output:
         dominant_sequences = os.path.join(data_folder, "mobile_data", "dominant_sequences.json")
+    shell: 
+        """
+        python3 analyses/scripts/dominant_sequences.py --case-data {input.case_data} --metadata-map {input.metadata_map} -o {params.out_folder}
+        """
 
 rule additional_analyses:
     input:
@@ -135,7 +140,7 @@ rule additional_analyses:
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
         # Mobile site-specific data.
-        rules.mobile.dominant_sequence,
+        rules.mobile.output.dominant_sequences,
     output:
         done = touch(os.path.join(
             data_folder, "status", "additional_analyses_" + today_str + ".done"

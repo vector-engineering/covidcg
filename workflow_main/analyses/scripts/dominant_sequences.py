@@ -16,11 +16,11 @@ def dominant_sequences():
     parser.add_argument(
         "--case-data", type=str, required=True, help="Path to case data JSON file",
     )
-    parser.add_argument("--metadata", type=str, required=True, 
+    parser.add_argument("--metadata-map", type=str, required=True, 
         help="Path to metadata mapping JSON file.")
     args = parser.parse_args()
     out_path = Path(args.output)
-    with open(args.metadata, "r") as fp:
+    with open(args.metadata_map, "r") as fp:
             metadata_map = json.loads(fp.read())
     case_df = pd.read_json(args.case_data).set_index('Accession ID')
     case_df = case_df[['country', 'collection_date', 'lineage']]
@@ -29,7 +29,9 @@ def dominant_sequences():
         if c in metadata_map:
             case_df[c] = case_df[c].astype(str).replace(metadata_map[c])
     case_df = case_df.groupby(['country', 'lineage']).count()
-    case_df.to_csv(str(out_path / "sequences_per_month.json"))
+    # Rename count column.
+    case_df = case_df.rename({'collection_date': 'count'}, axis='columns')
+    case_df.to_json(str(out_path / "dominant_sequences.json"))
 
     # Export data
     #case_df.to_json(out_path + 'dominant_sequences.json')
