@@ -23,6 +23,14 @@ def dominant_sequences():
     with open(args.metadata_map, "r") as fp:
             metadata_map = json.loads(fp.read())
     case_df = pd.read_json(args.case_data).set_index('Accession ID')
+    # Join locations onto case_data
+    
+    loc_levels = ["region", "country", "division", "location"]
+    for loc_level in loc_levels:
+        case_df.loc[:, loc_level] = case_df[loc_level].map(
+            {int(k): v for k, v in metadata_map[loc_level].items()}
+        )
+        case_df.loc[case_df[loc_level].isna(), loc_level] = None
     case_df = case_df[['country', 'collection_date', 'lineage']]
     # Iterate over columns and apply mapping.
     for c in case_df:
