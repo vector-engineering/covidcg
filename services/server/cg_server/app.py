@@ -51,7 +51,7 @@ if os.getenv("FLASK_ENV", "development") == "development":
 
         insert_sequences(
             conn,
-            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            os.path.join(os.getenv("DATA_PATH", project_root / config["data_folder"]), config["virus"]),
             filenames_as_dates=True,
         )
         conn.commit()

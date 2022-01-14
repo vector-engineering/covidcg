@@ -90,7 +90,7 @@ mutation_partition_break: "Y"
 login_required: false
 
 dev_hostname: "http://localhost:5000"
-prod_hostname: "https://genbank.rsvg.org"
+prod_hostname: "https://rsv.covidcg.org"
 # prod_hostname: "http://localhost:8080"
 
 # ----------------------
