@@ -1,6 +1,6 @@
 {
   "name": "covidcg",
-  "version": "2.4.5-rsvdev0",
+  "version": "2.4.5-rsvdev1",
   "description": "",
   "engines": {
     "node": ">=8",
@@ -29,6 +29,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@sentry/react": "6.2.3",
+    "@sentry/tracing": "6.2.3",
+    "@sentry/webpack-plugin": "1.14.2",
     "d3-format": "3.0.0",
     "litemol": "2.4.2",
     "mobx": "5.15.4",
@@ -50,16 +53,14 @@
     "react-use-dimensions": "1.2.1",
     "react-virtualized-auto-sizer": "1.0.3",
     "react-window": "1.8.6",
+    "string-replace-loader": "2.3.0",
     "styled-components": "5.1.1",
-    "@sentry/react": "6.2.3",
-    "@sentry/tracing": "6.2.3",
-    "@sentry/webpack-plugin": "1.14.2",
     "vega": "5.20.2",
     "vega-embed": "6.10.0",
     "vega-lite": "4.12.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.6.4",
+    "@babel/cli": "7.16.8",
     "@babel/core": "7.6.4",
     "@babel/node": "7.6.3",
     "@babel/plugin-proposal-class-properties": "7.5.5",

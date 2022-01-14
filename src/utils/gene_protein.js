@@ -1,5 +1,6 @@
-import genes from '../../static_data/genes_processed.json';
-import proteins from '../../static_data/proteins_processed.json';
+//__VIRUS__ is replaced with config.virus at build time
+import genes from '../../static_data/__VIRUS__/genes_processed.json';
+import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
 
 /* function processFeatures(features) {
   return features.map((feature) => {
@@ -25,10 +26,8 @@ import proteins from '../../static_data/proteins_processed.json';
   });
 } */
 
-let processedGenes = genes;
-
 export function getAllGenes() {
-  return processedGenes;
+  return genes;
 }
 
 export const geneMap = {
@@ -38,7 +37,7 @@ export const geneMap = {
     domains: [],
   },
 };
-processedGenes.forEach((gene) => {
+genes.forEach((gene) => {
   geneMap[gene.name] = gene;
 });
 
@@ -47,10 +46,8 @@ export function getGene(gene) {
   return geneMap[gene];
 }
 
-let processedProteins = proteins;
-
 export function getAllProteins() {
-  return processedProteins;
+  return proteins;
 }
 
 export const proteinMap = {
@@ -60,7 +57,7 @@ export const proteinMap = {
     domains: [],
   },
 };
-processedProteins.forEach((protein) => {
+proteins.forEach((protein) => {
   proteinMap[protein.name] = protein;
 });
 

@@ -11,7 +11,7 @@ import {
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
-} from '../constants/defs.json';
+} from './defs.json';
 
 const today = intToISO(new Date().getTime());
 const lastNDays = 30; // By default, show only the last 1 month

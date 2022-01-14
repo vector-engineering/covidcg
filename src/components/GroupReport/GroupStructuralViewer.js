@@ -14,7 +14,7 @@ import { reds } from '../../constants/colors';
 import { LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
-import defaultStructures from '../../../static_data/default_structures.json';
+import defaultStructures from '../../../static_data/__VIRUS__/default_structures.json';
 
 import DropdownButton from '../Buttons/DropdownButton';
 import EmptyPlot from '../Common/EmptyPlot';

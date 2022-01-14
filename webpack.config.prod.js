@@ -61,6 +61,16 @@ export default {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
+        loader: 'string-replace-loader',
+        options: {
+          search: /__VIRUS__/,
+          replace: configfile['virus'],
+          flags: 'g',
+        },
+      },
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
         use: ['babel-loader'],
       },
       {

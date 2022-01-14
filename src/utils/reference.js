@@ -1,8 +1,7 @@
-import refSeq from '../../static_data/reference.json';
 import { DEGENERATES } from '../constants/defs.json';
-
 import { reverseComplement } from './string';
 import { memoize } from './func';
+import refSeq from '../../static_data/__VIRUS__/reference.json';
 
 const reverseComplementRefSeq = reverseComplement(refSeq.ref_seq);
 

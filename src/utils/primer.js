@@ -5,7 +5,7 @@ let primerSelectTree = [];
 let instObj = null;
 
 if (config.virus === 'sars2') {
-  import('../../static_data/primers.json').then((mod) => {
+  import('../../static_data/__VIRUS__/primers.json').then((mod) => {
     const primers = mod.default;
     if (primers && primers.length > 0) {
       // Build primer tree - with Institutions as the roots
