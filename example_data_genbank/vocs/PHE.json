@@ -32,6 +32,10 @@
     "level": "VOI"
   },
   {
+    "name": "B.1.1.529",
+    "level": "VOC"
+  },
+  {
     "name": "P.2",
     "level": "VOI"
   },
@@ -53,10 +57,6 @@
   },
   {
     "name": "B.1.617.3",
-    "level": "VOI"
-  },
-  {
-    "name": "AV.1",
     "level": "VOI"
   },
   {
