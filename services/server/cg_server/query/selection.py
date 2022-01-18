@@ -7,6 +7,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import pandas as pd
 from psycopg2 import sql
+from cg_server.config import config
 from cg_server.constants import constants
 
 
@@ -113,6 +114,10 @@ def build_sequence_where_filter(req):
         - Structured as { metadata_field: [metadata_values] }
         - Keys are a metadata field, as a string
         - Values are a list of metadata value IDs (integers)
+    selected_groups: dict
+        - Strucutred as { group_key: [group_vals] }
+        - Key are group types, i.e., "lineage"
+        - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
 
     Returns
     -------
@@ -130,7 +135,8 @@ def build_sequence_where_filter(req):
     subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
 
-    selected_metadata_fields = req.get("selected_metadata_fields", None)
+    selected_metadata_fields = req.get("selected_metadata_fields", {})
+    selected_groups = req.get("selected_groups", {})
 
     # Construct submission date filters
     if subm_start_date is None and subm_end_date is None:
@@ -170,14 +176,39 @@ def build_sequence_where_filter(req):
     else:
         metadata_filters = sql.SQL("")
 
+    group_filters = []
+    for group_key, group_vals in selected_groups.items():
+        # Skip if no group values provided
+        if not group_vals:
+            continue
+
+        # Skip if group key is not valid
+        if group_key not in config["group_cols"].keys():
+            continue
+
+        group_filters.append(
+            sql.SQL("{field} IN {vals}").format(
+                field=sql.Identifier(group_key),
+                vals=sql.Literal(tuple([str(val) for val in group_vals])),
+            )
+        )
+
+    if group_filters:
+        group_filters = sql.SQL(" AND ").join(group_filters)
+        group_filters = sql.Composed([group_filters, sql.SQL(" AND ")])
+    else:
+        group_filters = sql.SQL("")
+
     sequence_where_filter = sql.SQL(
         """
         {metadata_filters}
+        {group_filters}
         "collection_date" >= {start_date} AND "collection_date" <= {end_date}
         {submission_date_filter}
         """
     ).format(
         metadata_filters=metadata_filters,
+        group_filters=group_filters,
         start_date=sql.Literal(start_date),
         end_date=sql.Literal(end_date),
         submission_date_filter=submission_date_filter,
