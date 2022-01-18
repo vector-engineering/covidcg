@@ -46,7 +46,7 @@ export const initialValues = {
   // reportStructureActiveProtein: 'nsp5 - 3CLp',
   reportStructurePdbId: '6ZGG',
   // reportStructurePdbId: '7RFW',
-  reportStructureActiveGroup: 'B.1.1.529',
+  reportStructureActiveGroup: 'BA.1',
   // reportStructureActiveGroup: 'B.1.351',
   reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
 
