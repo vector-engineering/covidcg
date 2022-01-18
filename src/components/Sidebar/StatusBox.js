@@ -144,7 +144,9 @@ const StatusBox = observer(() => {
             (1000 * 60 * 60 * 24)}{' '}
           days)
         </Line>
-        <Line>Genome selection: {genomeSelection}</Line>
+        {configStore.groupKey === GROUP_MUTATION && (
+          <Line>Genome selection: {genomeSelection}</Line>
+        )}
         <Line>
           Selected {configStore.getGroupLabel()}s: {selectedGroups}
         </Line>
