@@ -39,6 +39,18 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       </a>
     </TabItem>,
     <TabItem
+      key={TABS.TAB_GROUP_REPORT}
+      active={activeTab === TABS.TAB_GROUP_REPORT}
+    >
+      <a
+        href="#"
+        className="tab-link"
+        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+      >
+        <span>Lineage Reports</span>
+      </a>
+    </TabItem>,
+    <TabItem
       key={TABS.TAB_COMPARE_GROUPS}
       active={activeTab === TABS.TAB_COMPARE_GROUPS}
     >
@@ -60,18 +72,6 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         onClick={changeTab.bind(this, TABS.TAB_COMPARE_LOCATIONS)}
       >
         <span>Compare Locations</span>
-      </a>
-    </TabItem>,
-    <TabItem
-      key={TABS.TAB_GROUP_REPORT}
-      active={activeTab === TABS.TAB_GROUP_REPORT}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
-      >
-        <span>Lineage Reports</span>
       </a>
     </TabItem>,
     <TabItem
