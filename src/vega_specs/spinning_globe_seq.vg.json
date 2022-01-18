@@ -108,7 +108,7 @@
     "projections": [
         {
             "name": "projection",
-            "type": "orthographic",
+            "type": "mercator",
             "scale": 150,
             "rotate": [
                 {

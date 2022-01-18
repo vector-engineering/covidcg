@@ -21,6 +21,7 @@ from cg_server.query import (
 
 
 @app.route("/init")
+@cross_origin(origins=cors_domains)
 @get_db_connection()
 def init(conn):
     return query_initial(conn)

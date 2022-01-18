@@ -24,6 +24,8 @@ cors_domains = ["https://covidcg.org", config["prod_hostname"]]
 if os.getenv("FLASK_ENV", "development") == "development":
     # Allow any connections from localhost in development
     cors_domains.append("http://localhost:{}".format(os.getenv("FRONTEND_PORT")))
+    cors_domains.append("http://http://35.238.101.142:{}".format(os.getenv("FRONTEND_PORT")))
+cors_domains.append('*')
 
 # CORS config
 CORS(app, origins=cors_domains)

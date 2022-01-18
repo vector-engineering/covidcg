@@ -45,6 +45,8 @@ const HelpText = styled.p`
   line-height: normal;
 `;
 
+// TODO: in-spec: stop scrolling when interacted with.
+
 const SpinningGlobeSequences = ({ width }) => {
     const {
         dataStore

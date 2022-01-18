@@ -22,8 +22,8 @@ const MobileHomePage = observer(() => {
 
     return (
         <MobileHomeContainer>
-            <SpinningGlobeSequences width={500}></SpinningGlobeSequences>
-            <MobileGlobalSeqPlot></MobileGlobalSeqPlot>
+            <SpinningGlobeSequences width={400}></SpinningGlobeSequences>
+            <MobileGlobalSeqPlot width={400}></MobileGlobalSeqPlot>
         </MobileHomeContainer>
     );
 });

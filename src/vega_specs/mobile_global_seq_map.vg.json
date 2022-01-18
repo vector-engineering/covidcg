@@ -321,7 +321,7 @@
     {"name": "ty", "update": "mapHeight / 2"},
     {
       "name": "scale",
-      "value": 100,
+      "value": 150,
       "on": [
         {
           "events": "[mouseover, mouseout] > wheel!, > wheel!",
@@ -349,7 +349,7 @@
       "value": null,
       "on": [
         {
-          "events": "[touchstart, window:touchend] > window:touchmove, [touchstart, window:touchend] > window:touchmove",
+          "events": "[@seqMapRect:mousedown, window:mouseup] > window:mousemove, [@seqMap:mousedown, window:mouseup] > window:mousemove",
           "update": "invert(cloned, xy())"
         }
       ]
