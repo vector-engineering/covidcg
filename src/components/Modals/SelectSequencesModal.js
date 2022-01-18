@@ -45,12 +45,8 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const {
-    configStore,
-    UIStore,
-    locationDataStore,
-    metadataStore,
-  } = useStores();
+  const { configStore, UIStore, locationDataStore, metadataStore } =
+    useStores();
   const sentRequest = useRef(false);
 
   const [coordPending, setCoordPending] = useState({
@@ -169,9 +165,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     return { dnaOrAa, coordinateMode, residueCoordinates };
   };
   const updateCoordinateMode = (_coordinateMode) => {
-    const { dnaOrAa, coordinateMode, residueCoordinates } = getCoordinateMode(
-      _coordinateMode
-    );
+    const { dnaOrAa, coordinateMode, residueCoordinates } =
+      getCoordinateMode(_coordinateMode);
 
     setCoordPending({
       ...coordPending,
@@ -455,7 +450,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         <HeaderRow>
           <TitleContainer>
             <div className="title">
-              <h2>Select Sequences</h2>
+              <h2>Filter Sequences</h2>
             </div>
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
