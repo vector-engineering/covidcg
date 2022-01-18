@@ -18,8 +18,10 @@ def query_group_mutation_frequencies(conn, req):
         table_name = "{group}_frequency_{mutation_type}_mutation".format(
             group=group, mutation_type=mutation_type
         )
-        mutation_table_name = "{mutation_type}_mutation".format(mutation_type=mutation_type)
-        mutation_cols = ["pos", "ref", "alt", "mutation_name"]
+        mutation_table_name = "{mutation_type}_mutation".format(
+            mutation_type=mutation_type
+        )
+        mutation_cols = ["pos", "ref", "alt", "mutation_name", "mutation_str"]
         if mutation_type == "gene_aa":
             mutation_cols = ["gene",] + mutation_cols
         elif mutation_type == "protein_aa":
@@ -55,7 +57,7 @@ def query_group_mutation_frequencies(conn, req):
 
         res = pd.DataFrame.from_records(
             cur.fetchall(),
-            columns=["name", "count", "fraction", "mutation_id",] + mutation_cols,
+            columns=["name", "count", "fraction", "mutation_id"] + mutation_cols,
         )
 
     # print(res)

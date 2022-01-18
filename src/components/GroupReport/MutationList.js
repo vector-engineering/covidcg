@@ -6,8 +6,13 @@ import { format } from 'd3-format';
 
 import { config } from '../../config';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
+import { formatMutation } from '../../utils/mutationUtils';
 import { reds, mutationColorArray } from '../../constants/colors';
-import { ASYNC_STATES, PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
+import {
+  ASYNC_STATES,
+  PLOT_DOWNLOAD_OPTIONS,
+  DNA_OR_AA,
+} from '../../constants/defs.json';
 
 import GroupSearch from './GroupSearch';
 import EmptyPlot from '../Common/EmptyPlot';
@@ -261,9 +266,8 @@ const MutationListContent = observer(() => {
       // Unique mutations
       .filter(
         (v, i, a) =>
-          a.findIndex(
-            (element) => element.mutation_name === v.mutation_name
-          ) === i
+          a.findIndex((element) => element.mutation_str === v.mutation_str) ===
+          i
       )
       .map((featureMutation) => {
         // Find fractional frequencies for each group
@@ -271,7 +275,7 @@ const MutationListContent = observer(() => {
         groupDataStore.selectedGroups.forEach((group) => {
           const matchingMutation = groupFeatureMutations.find(
             (mut) =>
-              mut.mutation_name === featureMutation.mutation_name &&
+              mut.mutation_str === featureMutation.mutation_str &&
               mut.name === group
           );
           // 0 if the mutation record isn't found
@@ -281,7 +285,13 @@ const MutationListContent = observer(() => {
         });
 
         return {
-          mutation_name: featureMutation.mutation_name,
+          // mutation_name: featureMutation.mutation_name,
+          mutation_name: formatMutation(
+            featureMutation.mutation_str,
+            groupDataStore.groupMutationType === 'dna'
+              ? DNA_OR_AA.DNA
+              : DNA_OR_AA.AA
+          ),
           pos: featureMutation.pos,
           ref: featureMutation.ref,
           alt: featureMutation.alt,
@@ -342,6 +352,7 @@ const MutationListContent = observer(() => {
         groupDataStore.groupMutationType === 'dna'
           ? mut.mutation_name
           : mut.mutation_name.split(':')[1];
+
       rowItems.push(
         <MutationListRow
           key={`group-mut-${feature.name}-${mut.mutation_name}`}
