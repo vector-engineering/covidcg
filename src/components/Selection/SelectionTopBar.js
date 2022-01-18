@@ -16,7 +16,7 @@ import {
   StatusBlock,
 } from './SelectionTopBar.styles';
 
-const SelectionTopBar = observer(({}) => {
+const SelectionTopBar = observer(() => {
   const { UIStore, configStore, dataStore } = useStores();
 
   const [modalActive, setModalActive] = useState(false);
