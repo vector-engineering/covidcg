@@ -140,8 +140,8 @@ const GroupBySelect = observer(
               name="dnaOrAa"
               value={DNA_OR_AA.AA}
               checked={dnaOrAa === DNA_OR_AA.AA}
+              disabled={disabled || aaDisabled}
               onChange={handleDnaOrAaChange}
-              disabled={disabled}
             ></input>
             <label htmlFor="aaChoice">AA</label>
             <span className="disabled-text">{aaDisabledMessage}</span>
