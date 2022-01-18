@@ -45,11 +45,15 @@ Modal.setAppElement('#app');
 const NOOP = () => {};
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const { configStore, UIStore, locationDataStore, metadataStore } =
-    useStores();
+  const {
+    configStore,
+    UIStore,
+    locationDataStore,
+    metadataStore,
+  } = useStores();
   const sentRequest = useRef(false);
 
-  const [pending, setPending] = useState({
+  const [coordPending, setCoordPending] = useState({
     groupKey: configStore.groupKey,
     dnaOrAa: configStore.dnaOrAa,
     selectedGene: configStore.selectedGene,
@@ -62,7 +66,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     residueCoordinates: configStore.residueCoordinates,
     validResidueCoordinates: true,
     coordinateMode: configStore.coordinateMode,
+  });
+
+  const [locationPending, setLocationPending] = useState({
     selectedLocationNodes: configStore.selectedLocationNodes,
+  });
+
+  const [metaPending, setMetaPending] = useState({
     startDate: configStore.startDate,
     endDate: configStore.endDate,
     submStartDate: configStore.submStartDate,
@@ -70,6 +80,21 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     selectedMetadataFields: configStore.selectedMetadataFields,
     ageRange: configStore.ageRange,
   });
+
+  const [pending, setPending] = useState({
+    ...coordPending,
+    ...locationPending,
+    ...metaPending,
+  });
+
+  useEffect(() => {
+    setPending({
+      ...pending,
+      ...coordPending,
+      ...locationPending,
+      ...metaPending,
+    });
+  }, [coordPending, locationPending, metaPending]);
 
   const changeGrouping = (groupKey, dnaOrAa) => {
     let selectedGene = pending.selectedGene;
@@ -87,8 +112,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
       }
     }
 
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       groupKey,
       dnaOrAa,
       selectedGene,
@@ -144,10 +169,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     return { dnaOrAa, coordinateMode, residueCoordinates };
   };
   const updateCoordinateMode = (_coordinateMode) => {
-    const { dnaOrAa, coordinateMode, residueCoordinates } =
-      getCoordinateMode(_coordinateMode);
-    setPending({
-      ...pending,
+    const { dnaOrAa, coordinateMode, residueCoordinates } = getCoordinateMode(
+      _coordinateMode
+    );
+
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       residueCoordinates,
@@ -167,8 +194,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (selectedGene.name !== pending.selectedGene.name) {
       residueCoordinates = getDefaultGeneResidueCoordinates(selectedGene);
     }
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       selectedGene,
@@ -189,8 +216,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (selectedProtein.name !== pending.selectedProtein.name) {
       residueCoordinates = getDefaultProteinResidueCoordinates(selectedProtein);
     }
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       selectedProtein,
@@ -200,15 +227,15 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
 
   const updateResidueCoordinates = (residueCoordinates) => {
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       residueCoordinates,
       validResidueCoordinates: true,
     });
   };
   const updateValidResidueCoordinates = (valid) => {
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       validResidueCoordinates: valid,
     });
   };
@@ -220,8 +247,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_PRIMER
       ));
     }
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       selectedPrimers,
@@ -235,8 +262,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_CUSTOM
       ));
     }
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       customCoordinates,
@@ -244,8 +271,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     });
   };
   const updateValidCustomCoordinates = (valid) => {
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       validCustomCoordinates: valid,
     });
   };
@@ -257,8 +284,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_SEQUENCE
       ));
     }
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       dnaOrAa,
       coordinateMode,
       customSequences,
@@ -266,42 +293,45 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     });
   };
   const updateValidCustomSequences = (valid) => {
-    setPending({
-      ...pending,
+    setCoordPending({
+      ...coordPending,
       validCustomSequences: valid,
     });
   };
 
   const updateSelectedLocationNodes = (selectedLocationNodes) => {
-    setPending({
-      ...pending,
+    setLocationPending({
+      ...locationPending,
       selectedLocationNodes,
-      // Clear metadata fields
+    });
+
+    // Clear metadata fields
+    setMetaPending({
       selectedMetadataFields: {},
     });
   };
 
   const updateDateRange = (startDate, endDate) => {
-    setPending({
-      ...pending,
+    setMetaPending({
+      ...metaPending,
       startDate,
       endDate,
     });
   };
 
   const updateSubmDateRange = (submStartDate, submEndDate) => {
-    setPending({
-      ...pending,
+    setMetaPending({
+      ...metaPending,
       submStartDate,
       submEndDate,
     });
   };
 
   const updateSelectedMetadataFields = (field, options) => {
-    const { selectedMetadataFields } = pending;
+    const { selectedMetadataFields } = metaPending;
     selectedMetadataFields[field] = options;
-    setPending({
-      ...pending,
+    setMetaPending({
+      ...metaPending,
       selectedMetadataFields,
     });
   };
@@ -328,9 +358,23 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   };
 
   const applyDefault = () => {
-    setPending({
-      ...pending,
-      ...configStore.initialValues,
+    Object.keys(configStore.initialValues).forEach((key) => {
+      if (key in coordPending) {
+        setCoordPending({
+          ...coordPending,
+          [key]: configStore.initialValues[key],
+        });
+      } else if (key in locationPending) {
+        setLocationPending({
+          ...locationPending,
+          [key]: configStore.initialValues[key],
+        });
+      } else if (key in metaPending) {
+        setMetaPending({
+          ...metaPending,
+          [key]: configStore.initialValues[key],
+        });
+      }
     });
     // Have to manually trigger this to update the tree
     locationDataStore.setSelectedNodes(
