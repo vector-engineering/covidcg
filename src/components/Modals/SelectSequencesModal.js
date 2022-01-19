@@ -19,6 +19,7 @@ import LocationSelect from '../Selection/LocationSelect';
 import GroupBySelect from '../Selection/GroupBySelect';
 import CoordinateSelect from '../Selection/CoordinateSelect';
 import DateSelect from '../Selection/DateSelect';
+import GroupSelect from '../Selection/GroupSelect';
 import MetaFieldSelect from '../Selection/MetaFieldSelect';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
@@ -73,6 +74,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     endDate: configStore.endDate,
     submStartDate: configStore.submStartDate,
     submEndDate: configStore.submEndDate,
+    selectedGroupFields: configStore.selectedGroupFields,
     selectedMetadataFields: configStore.selectedMetadataFields,
     ageRange: configStore.ageRange,
   });
@@ -322,6 +324,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     });
   };
 
+  const updateSelectedGroupFields = (selectedGroupFields) => {
+    setMetaPending({
+      ...metaPending,
+      selectedGroupFields,
+    });
+  };
+
   const updateSelectedMetadataFields = (field, options) => {
     const { selectedMetadataFields } = metaPending;
     selectedMetadataFields[field] = options;
@@ -510,6 +519,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             endDate={pending.submEndDate}
             updateDateRange={updateSubmDateRange}
           />
+
+          <GroupSelect
+            {...pending}
+            updateSelectedGroupFields={updateSelectedGroupFields}
+          />
+
           <MetaFieldSelect
             {...pending}
             updateSelectedMetadataFields={updateSelectedMetadataFields}

@@ -2,11 +2,12 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import StyledDropdownTreeSelect from '../Common/StyledDropdownTreeSelect';
+
 import {
   GroupSearchContainer,
   GroupSearchHeader,
   GroupSearchTitle,
-  StyledDropdownTreeSelect,
 } from './GroupSearch.styles';
 
 const GroupSearch = observer(() => {

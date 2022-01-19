@@ -59,6 +59,9 @@ export const initialValues = {
   submStartDate: '',
   submEndDate: '',
 
+  // Group filtering (lineage filtering)
+  selectedGroupFields: {},
+
   selectedLocationNodes: [],
 
   hoverGroup: null,
@@ -103,6 +106,8 @@ export class ConfigStore {
 
   @observable submStartDate = initialValues.submStartDate;
   @observable submEndDate = initialValues.submEndDate;
+
+  @observable selectedGroupFields = initialValues.selectedGroupFields;
 
   @observable selectedLocationNodes = initialValues.selectedLocationNodes;
 
@@ -432,12 +437,12 @@ export class ConfigStore {
       region: [],
       country: [],
       division: [],
-      location: []
+      location: [],
     };
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });
-    return res
+    return res;
   }
 
   getCoordinateRanges() {
@@ -569,26 +574,29 @@ export class ConfigStore {
   };
 
   getSelectedGroupIds() {
-    const {
-      dnaMutationMap,
-      geneAaMutationMap,
-      proteinAaMutationMap,
-    } = rootStoreInstance.mutationDataStore;
+    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
+      rootStoreInstance.mutationDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       selectedGroupIds = this.selectedGroups
         .map((item) => dnaMutationMap[item.group])
-        .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
+        .map((mutationId) =>
+          mutationId === undefined ? -1 : parseInt(mutationId)
+        );
     } else if (this.dnaOrAa === DNA_OR_AA.AA) {
       if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
         selectedGroupIds = this.selectedGroups
           .map((item) => geneAaMutationMap[item.group])
-          .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
+          .map((mutationId) =>
+            mutationId === undefined ? -1 : parseInt(mutationId)
+          );
       } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
         selectedGroupIds = this.selectedGroups
           .map((item) => proteinAaMutationMap[item.group])
-          .map((mutationId) => (mutationId === undefined ? -1 : parseInt(mutationId)));
+          .map((mutationId) =>
+            mutationId === undefined ? -1 : parseInt(mutationId)
+          );
       }
     }
     // Array to Set
@@ -616,11 +624,8 @@ export class ConfigStore {
   }
 
   getMutationToIntMap() {
-    const {
-      dnaMutationMap,
-      geneAaMutationMap,
-      proteinAaMutationMap,
-    } = rootStoreInstance.mutationDataStore;
+    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
+      rootStoreInstance.mutationDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaMutationMap;

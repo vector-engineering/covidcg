@@ -6,7 +6,6 @@ import { getNodeFromPath } from '../../utils/location';
 
 import DeselectButton from '../Buttons/DeselectButton';
 import QuestionButton from '../Buttons/QuestionButton';
-import StyledDropdownTreeSelect from '../Common/StyledDropdownTreeSelect';
 
 import {
   ContainerDiv,
@@ -16,6 +15,7 @@ import {
   SelectedLocationsContainer,
   LocationItemContainer,
   LocationItemLabel,
+  StyledDropdownTreeSelect,
 } from './LocationSelect.styles';
 
 const LocationItem = ({ label, path, onDeselect }) => {
