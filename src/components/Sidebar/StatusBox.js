@@ -82,6 +82,20 @@ const StatusBox = observer(() => {
     );
   }
 
+  const selectedGroupFields = [];
+  Object.keys(configStore.selectedGroupFields).forEach((groupKey) => {
+    if (configStore.selectedGroupFields[groupKey].length === 0) {
+      return;
+    }
+
+    selectedGroupFields.push(
+      <Line key={`status-box-selected-group-fields-${groupKey}`}>
+        Selected {groupKey}s:{' '}
+        {configStore.selectedGroupFields[groupKey].join(', ')}
+      </Line>
+    );
+  });
+
   let selectedGroups = <b>None</b>;
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_MUTATION) {
@@ -144,6 +158,7 @@ const StatusBox = observer(() => {
             (1000 * 60 * 60 * 24)}{' '}
           days)
         </Line>
+        {selectedGroupFields}
         {configStore.groupKey === GROUP_MUTATION && (
           <Line>Genome selection: {genomeSelection}</Line>
         )}

@@ -77,6 +77,9 @@ export class DataStore {
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
