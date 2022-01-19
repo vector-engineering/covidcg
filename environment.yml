@@ -18,6 +18,7 @@ dependencies:
   - networkx=2.5.1
   - xlrd=2.0.1
   - minimap2=2.21
+  - scikit-learn=1.0
   - pip:
       - pysam==0.15.4
   # For pushing to database
