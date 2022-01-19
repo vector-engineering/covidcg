@@ -6,24 +6,27 @@
   "padding": 5,
 
   "signals": [
-    {"name": "mode", "value": "lineage"},
-    {"name": "sortField", "value": "group"},
-    {"name": "sortDirection", "value": "ascending"},
-    {"name": "display_min_counts", "value": 5},
-    {"name": "display_min_percent", "value": 0.01},
-    {"name": "sig_min_counts", "value": 10},
-    {"name": "sig_min_percent", "value": 0.05},
-    {"name": "sig_min_r", "value": 0.5},
+    { "name": "mode", "value": "lineage" },
+    { "name": "sortField", "value": "group" },
+    { "name": "sortDirection", "value": "ascending" },
+    { "name": "display_min_counts", "value": 5 },
+    { "name": "display_min_percent", "value": 0.01 },
+    { "name": "sig_min_counts", "value": 10 },
+    { "name": "sig_min_percent", "value": 0.05 },
+    { "name": "sig_min_r", "value": 0.5 },
 
-    {"name": "facet_width", "update": "width"},
-    {"name": "facet_x", "update": "0"},
+    { "name": "facet_width", "update": "width" },
+    { "name": "facet_x", "update": "0" },
 
-    {"name": "subplot_hpadding", "value": 90},
-    {"name": "subplot_width", "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"},
-    {"name": "subplot_range_x", "update": "[0, subplot_width]"},
-    {"name": "subplot_vpadding", "value": 100},
-    {"name": "subplot_height", "update": "(height - subplot_vpadding) / 2"},
-    {"name": "subplot_range_y", "update": "[subplot_height, 0]"},
+    { "name": "subplot_hpadding", "value": 90 },
+    {
+      "name": "subplot_width",
+      "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"
+    },
+    { "name": "subplot_range_x", "update": "[0, subplot_width]" },
+    { "name": "subplot_vpadding", "value": 100 },
+    { "name": "subplot_height", "update": "(height - subplot_vpadding) / 2" },
+    { "name": "subplot_range_y", "update": "[subplot_height, 0]" },
     {
       "name": "x_adjusted",
       "on": [
@@ -162,8 +165,8 @@
         {
           "type": "collect",
           "sort": {
-            "field": {"signal": "sortField"},
-            "order": {"signal": "sortDirection"}
+            "field": { "signal": "sortField" },
+            "order": { "signal": "sortDirection" }
           }
         },
         {
@@ -269,9 +272,7 @@
     },
     {
       "name": "annotation",
-      "values": [
-        {"start": -30, "end": 0}
-      ],
+      "values": [{ "start": -30, "end": 0 }],
       "transform": [
         {
           "type": "formula",
@@ -291,14 +292,14 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": {"data": "group_counts", "field": "collection_week"},
-      "range": {"signal": "subplot_range_x"}
+      "domain": { "data": "group_counts", "field": "collection_week" },
+      "range": { "signal": "subplot_range_x" }
     },
     {
       "name": "group_color",
       "type": "ordinal",
-      "domain": {"data": "valid_groups", "field": "group"},
-      "range": {"scheme": "tableau20"}
+      "domain": { "data": "valid_groups", "field": "group" },
+      "range": { "scheme": "tableau20" }
     }
   ],
 
@@ -308,22 +309,22 @@
       "type": "group",
       "encode": {
         "update": {
-          "x": {"signal": "facet_x"},
-          "y": {"value": 0},
-          "width": {"signal": "facet_width"},
-          "height": {"signal": "height"}
+          "x": { "signal": "facet_x" },
+          "y": { "value": 0 },
+          "width": { "signal": "facet_width" },
+          "height": { "signal": "height" }
         }
       },
       "signals": [
-        {"name": "width", "update": "facet_width"},
-        {"name": "height", "update": "height"}
+        { "name": "width", "update": "facet_width" },
+        { "name": "height", "update": "height" }
       ],
-      
+
       "layout": {
         "columns": 3,
         "padding": {
-          "row": {"signal": "subplot_vpadding"},
-          "column": {"signal": "subplot_hpadding"}
+          "row": { "signal": "subplot_vpadding" },
+          "column": { "signal": "subplot_hpadding" }
         },
         "bounds": "flush"
       },
@@ -333,15 +334,15 @@
           "name": "region_grid",
           "type": "group",
           "encode": {
-          "update": {
-            "x": {"value": 0},
-            "width": {"signal": "subplot_width"},
-            "height": {"signal": "subplot_height"}
-          } 
+            "update": {
+              "x": { "value": 0 },
+              "width": { "signal": "subplot_width" },
+              "height": { "signal": "subplot_height" }
+            }
           },
           "signals": [
-            {"name": "width", "update": "subplot_width"},
-            {"name": "height", "update": "subplot_height"}
+            { "name": "width", "update": "subplot_width" },
+            { "name": "height", "update": "subplot_height" }
           ],
           "from": {
             "facet": {
@@ -352,17 +353,17 @@
           },
 
           "title": {
-            "text": {"signal": "parent.region"},
+            "text": { "signal": "parent.region" },
             "anchor": "start",
             "frame": "group"
           },
-          
+
           "scales": [
             {
               "name": "percentY",
               "type": "linear",
-              "domain": {"data": "group_per_region", "field": "percent"},
-              "range": {"signal": "subplot_range_y"}
+              "domain": { "data": "group_per_region", "field": "percent" },
+              "range": { "signal": "subplot_range_y" }
             }
           ],
           "axes": [
@@ -399,8 +400,7 @@
                   "groupby": "group"
                 }
               },
-              "signals": [
-              ],
+              "signals": [],
               "data": [
                 {
                   "name": "valid_group_date",
@@ -449,68 +449,72 @@
               "marks": [
                 {
                   "type": "line",
-                  "from": {"data": "valid_group_date"},
+                  "from": { "data": "valid_group_date" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "dateX", "field": "collection_week"},
-                      "y": {"scale": "percentY", "field": "percent"},
-                      "stroke": {"scale": "group_color", "field": "group"},
-                      "strokeWidth": {"value": 2},
+                      "x": { "scale": "dateX", "field": "collection_week" },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "stroke": { "scale": "group_color", "field": "group" },
+                      "strokeWidth": { "value": 2 },
                       "strokeOpacity": [
                         {
                           "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
                           "value": 1.0
                         },
-                        {"value": 0.3}
+                        { "value": 0.3 }
                       ],
-                      "zindex": {"value": 2}
+                      "zindex": { "value": 2 }
                     }
                   }
                 },
                 {
                   "type": "line",
-                  "from": {"data": "invalid_group_date"},
+                  "from": { "data": "invalid_group_date" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "dateX", "field": "collection_week"},
-                      "y": {"scale": "percentY", "field": "percent"},
-                      "stroke": {"value": "#aaa"},
+                      "x": { "scale": "dateX", "field": "collection_week" },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "stroke": { "value": "#aaa" },
                       "strokeWidth": [
                         {
                           "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
                           "value": 1.5
                         },
-                        {"value": 1.0}
+                        { "value": 1.0 }
                       ],
                       "strokeOpacity": [
                         {
                           "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
                           "value": 0.8
                         },
-                        {"value": 0.3}
+                        { "value": 0.3 }
                       ],
-                      "zindex": {"value": 1}
+                      "zindex": { "value": 1 }
                     }
                   }
                 },
                 {
                   "type": "text",
-                  "from": {"data": "label"},
+                  "from": { "data": "label" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "dateX", "field": "collection_week", "offset": 3},
-                      "y": {"scale": "percentY", "field": "percent"},
-                      "text": {"field": "group"},
+                      "x": {
+                        "scale": "dateX",
+                        "field": "collection_week",
+                        "offset": 3
+                      },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "text": { "field": "group" },
                       "fill": [
                         {
                           "test": "!indata('valid_groups', 'group', datum.group)",
                           "value": "#aaa"
                         },
-                        {"scale": "group_color", "field": "group"}
+                        { "scale": "group_color", "field": "group" }
                       ],
-                      "fontSize": {"value": 10},
-                      "fontWeight": {"value": "500"},
-                      "baseline": {"value": "middle"}
+                      "fontSize": { "value": 10 },
+                      "fontWeight": { "value": "500" },
+                      "baseline": { "value": "middle" }
                     }
                   }
                 }
@@ -518,7 +522,7 @@
             },
             {
               "type": "rect",
-              "from": {"data": "annotation"},
+              "from": { "data": "annotation" },
               "encode": {
                 "update": {
                   "x": {
@@ -529,7 +533,7 @@
                   "y": { "value": 0 },
                   "y2": { "signal": "height" },
                   "fill": { "value": "#CCC" },
-                  "opacity": {"value": 0.3}
+                  "opacity": { "value": 0.3 }
                 }
               }
             }
@@ -541,10 +545,10 @@
       "type": "group",
       "encode": {
         "update": {
-          "x": {"value": 900},
-          "y": {"value": 0},
-          "width": {"value": 100},
-          "height": {"signal": "height"}
+          "x": { "value": 900 },
+          "y": { "value": 0 },
+          "width": { "value": 100 },
+          "height": { "signal": "height" }
         }
       }
     }
