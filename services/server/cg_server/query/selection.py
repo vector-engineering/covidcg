@@ -114,7 +114,7 @@ def build_sequence_where_filter(req):
         - Structured as { metadata_field: [metadata_values] }
         - Keys are a metadata field, as a string
         - Values are a list of metadata value IDs (integers)
-    selected_groups: dict
+    selected_group_fields: dict
         - Strucutred as { group_key: [group_vals] }
         - Key are group types, i.e., "lineage"
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
@@ -136,7 +136,7 @@ def build_sequence_where_filter(req):
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
 
     selected_metadata_fields = req.get("selected_metadata_fields", {})
-    selected_groups = req.get("selected_groups", {})
+    selected_group_fields = req.get("selected_group_fields", {})
 
     # Construct submission date filters
     if subm_start_date is None and subm_end_date is None:
@@ -177,7 +177,7 @@ def build_sequence_where_filter(req):
         metadata_filters = sql.SQL("")
 
     group_filters = []
-    for group_key, group_vals in selected_groups.items():
+    for group_key, group_vals in selected_group_fields.items():
         # Skip if no group values provided
         if not group_vals:
             continue

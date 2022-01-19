@@ -221,6 +221,15 @@ export class ConfigStore {
           this.urlParams.set(key, TABS.TAB_EXAMPLE);
           this[key] = TABS.TAB_EXAMPLE;
         }
+      }
+      // selectedGroupFields
+      else if (Object.keys(config['group_cols']).includes(key)) {
+        if (
+          !Object.prototype.hasOwnProperty.call(this.selectedGroupFields, key)
+        ) {
+          this.selectedGroupFields[key] = [];
+        }
+        this.selectedGroupFields[key].push(value);
       } else {
         // Invalid field, remove it from the url
         this.urlParams.delete(key);
@@ -332,6 +341,12 @@ export class ConfigStore {
           } else {
             this.urlParams.set(field, primer.Institution + '_' + primer.Name);
           }
+        });
+      } else if (field === 'selectedGroupFields') {
+        Object.keys(pending[field]).forEach((groupKey) => {
+          pending[field][groupKey].forEach((group) => {
+            this.urlParams.append(groupKey, group);
+          });
         });
       } else {
         this.urlParams.set(field, String(pending[field]));

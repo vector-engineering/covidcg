@@ -50,7 +50,7 @@ GroupSelectedItem.propTypes = {
 
 const GroupSelect = observer(
   ({ selectedGroupFields, updateSelectedGroupFields }) => {
-    console.log(selectedGroupFields);
+    // console.log(selectedGroupFields);
 
     const { groupDataStore } = useStores();
 
