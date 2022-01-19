@@ -2,6 +2,16 @@
 
 ## Metadata mappings
 
+Much of the input to the API and output from the API is encoded into integers for faster query times. For example, mutations from the aggregate data API are returned as integer IDs instead of human-readable mutations. To map these back from IDs, first get the metadata map with:
+
+```
+curl https://covidcg.org/init
+```
+
+This map contains integer mappings that the server is currently using, for mutations and all other metadata.
+
+**Update your metadata map every time before running a real query. The metadata mappings change every day**
+
 ## Aggregate data
 
 ### Mutation mode
