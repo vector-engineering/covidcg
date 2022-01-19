@@ -4,16 +4,40 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { getNodeFromPath } from '../../utils/location';
 
+import DeselectButton from '../Buttons/DeselectButton';
 import QuestionButton from '../Buttons/QuestionButton';
-import LocationItem from './LocationItem';
+import StyledDropdownTreeSelect from '../Common/StyledDropdownTreeSelect';
+
 import {
   ContainerDiv,
   DropdownHeader,
   Title,
   UnselectButton,
-  StyledDropdownTreeSelect,
   SelectedLocationsContainer,
+  LocationItemContainer,
+  LocationItemLabel,
 } from './LocationSelect.styles';
+
+const LocationItem = ({ label, path, onDeselect }) => {
+  const handleDeselect = (e) => {
+    e.preventDefault();
+    onDeselect(path);
+  };
+
+  return (
+    <LocationItemContainer>
+      <LocationItemLabel>{label}</LocationItemLabel>
+      <DeselectButton title={'Deselect'} onClick={handleDeselect}>
+        ×
+      </DeselectButton>
+    </LocationItemContainer>
+  );
+};
+LocationItem.propTypes = {
+  label: PropTypes.string.isRequired,
+  path: PropTypes.string,
+  onDeselect: PropTypes.func.isRequired,
+};
 
 const LocationSelect = observer(
   ({ selectedLocationNodes, updateSelectedLocationNodes }) => {
@@ -62,7 +86,7 @@ const LocationSelect = observer(
           return node.value != 'All';
         });
       }
-      
+
       updateSelectedLocationNodes(selectedNodeObjs);
       // Have to update the store's version as well, since
       // we didn't directly click on these new nodes
@@ -97,7 +121,7 @@ const LocationSelect = observer(
     const treeSelectOnNodeToggleCurrentNode = (currentNode) => {
       // console.log(currentNode);
       const data = Object.assign({}, state.data);
-      
+
       // Recursively go through and find the node to expand
       const traverseAndExpand = (node) => {
         if (node.path === currentNode.path) {
