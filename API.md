@@ -1,4 +1,20 @@
-## COVID CG API
+# COVID CG API
+
+- [COVID CG API](#covid-cg-api)
+- [Data enabling COVID CG](#data-enabling-covid-cg)
+- [Metadata mappings](#metadata-mappings)
+- [Aggregate data](#aggregate-data)
+  - [Mutation mode](#mutation-mode)
+  - [Group mode (lineage mode)](#group-mode-lineage-mode)
+- [Lineage mutation frequencies](#lineage-mutation-frequencies)
+
+## Data enabling COVID CG
+
+We are extremely grateful to the [GISAID Initiative](https://www.gisaid.org/) and all its data contributors, i.e. the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based.
+
+Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’s innovative contribution to global health. _Global Challenges_, 1:33-46. DOI:[10.1002/gch2.1018](https://doi.org/10.1002/gch2.1018) PMCID: [31565258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/)
+
+Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
 
 ## Metadata mappings
 
