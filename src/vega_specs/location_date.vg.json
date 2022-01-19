@@ -322,7 +322,14 @@
     {
       "orient": "bottom",
       "scale": "xscale",
-      "format": "%m-%d",
+      "format": {
+        "year": "%Y",
+        "quarter": "%m-%d",
+        "month": "%m-%d",
+        "week": "%m-%d",
+        "date": "%m-%d",
+        "hours": " "
+      },
       "zindex": 0,
 
       "grid": true,
