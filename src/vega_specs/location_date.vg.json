@@ -423,11 +423,11 @@
           "fill": [
             {
               "test": "datum.id % 2 === 0",
-              "value": "#fff"
+              "value": "transparent"
             },
             { "value": "#ddd" }
           ],
-          "opacity": [{ "value": 0.5 }]
+          "opacity": [{ "value": 0.2 }]
         }
       }
     },
