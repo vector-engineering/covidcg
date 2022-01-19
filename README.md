@@ -18,7 +18,6 @@ Table of Contents
   - [Ingestion](#ingestion)
   - [Main Analysis](#main-analysis)
 - [About the project](#about-the-project)
-
 - [Citing COVID CG](#citing-covid-cg)
   - [License](#license)
   - [Contributing](#contributing)
@@ -224,7 +223,7 @@ snakemake --configfile ../config/config_genbank.yaml
 
 This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information into one file: `data_package.json.gz`.
 
-To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in the `data_package_url` field in the `config/config_[workflow]` file that you are using.
+The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
 
 ---
 
