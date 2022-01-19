@@ -117,7 +117,7 @@ const LocationGroupPlot = observer(({ width }) => {
       record.location_counts = dataStore.countsPerLocationMap[record.location];
     });
 
-    //console.log(JSON.stringify(locationData));
+    // console.log(JSON.stringify(locationData));
 
     return locationData;
   };
