@@ -344,6 +344,7 @@ export class ConfigStore {
         });
       } else if (field === 'selectedGroupFields') {
         Object.keys(pending[field]).forEach((groupKey) => {
+          this.urlParams.delete(groupKey);
           pending[field][groupKey].forEach((group) => {
             this.urlParams.append(groupKey, group);
           });
