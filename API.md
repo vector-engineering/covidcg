@@ -205,7 +205,7 @@ curl --header "Content-Type: application/json" --request POST --data '{
   "start_date": "2021-12-01",
   "end_date": "2022-01-01",
   "selected_group_fields": { "lineage": ["BA.1"] }
-}' http://localhost:5000/group_mutation_frequencies_dynamic
+}' https://covidcg.org/group_mutation_frequencies_dynamic
 ```
 
 #### Parameters
