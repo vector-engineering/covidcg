@@ -28,6 +28,7 @@ export class DataStore {
   dataDate;
   numSequences;
   numSequencesAfterAllFiltering;
+  timeToFetch;
   aggLocationGroupDate = [];
   aggGroupDate = [];
   aggLocationSingleMutationDate = [];
@@ -59,6 +60,8 @@ export class DataStore {
   fetchData = () => {
     rootStoreInstance.UIStore.onCaseDataStateStarted();
 
+    const startTime = Date.now();
+
     fetch(hostname + '/data', {
       method: 'POST',
       headers: {
@@ -74,6 +77,9 @@ export class DataStore {
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -90,6 +96,10 @@ export class DataStore {
         return res.json();
       })
       .then((res) => {
+        // Time to fetch data, in seconds
+        const endTime = Date.now();
+        this.timeToFetch = (endTime - startTime) / 1000;
+
         this.aggLocationGroupDate = res;
 
         // console.log(this.aggLocationGroupDate);
@@ -197,7 +207,8 @@ export class DataStore {
         mutationColorMap,
       },
       ({ aggLocationSelectedMutationsDate, aggSelectedMutationsDate }) => {
-        this.aggLocationSelectedMutationsDate = aggLocationSelectedMutationsDate;
+        this.aggLocationSelectedMutationsDate =
+          aggLocationSelectedMutationsDate;
         this.aggSelectedMutationsDate = aggSelectedMutationsDate;
         rootStoreInstance.UIStore.onMutationDataFinished();
       }
@@ -484,7 +495,9 @@ export class DataStore {
           csvString += fields.slice().fill('').join(',');
         } else {
           csvString +=
-            mutation.name + ',' + fields.map((field) => mutation[field]).join(',');
+            mutation.name +
+            ',' +
+            fields.map((field) => mutation[field]).join(',');
         }
         // Add counts
         csvString += `,${record.counts}\n`;
@@ -519,8 +532,10 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert mutation string into integer, then into mutation object
-    const mutationToIntMap = rootStoreInstance.configStore.getMutationToIntMap();
-    const intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+    const mutationToIntMap =
+      rootStoreInstance.configStore.getMutationToIntMap();
+    const intToMutationMap =
+      rootStoreInstance.configStore.getIntToMutationMap();
     let mutation;
 
     this.mutationCooccurrence

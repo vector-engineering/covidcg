@@ -5,6 +5,7 @@
 Table of Contents
 
 - [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
+- [Data enabling COVID CG](#data-enabling-covid-cg)
 - [Installation](#installation)
   - [Dependency changes](#dependency-changes)
   - [Database refresh](#database-refresh)
@@ -17,10 +18,17 @@ Table of Contents
   - [Ingestion](#ingestion)
   - [Main Analysis](#main-analysis)
 - [About the project](#about-the-project)
-- [Data enabling COVID CG](#data-enabling-covid-cg)
 - [Citing COVID CG](#citing-covid-cg)
   - [License](#license)
   - [Contributing](#contributing)
+
+## Data enabling COVID CG
+
+We are extremely grateful to the [GISAID Initiative](https://www.gisaid.org/) and all its data contributors, i.e. the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based.
+
+Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’s innovative contribution to global health. _Global Challenges_, 1:33-46. DOI:[10.1002/gch2.1018](https://doi.org/10.1002/gch2.1018) PMCID: [31565258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/)
+
+Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
 
 ## Installation
 
@@ -215,7 +223,7 @@ snakemake --configfile ../config/config_genbank.yaml
 
 This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information into one file: `data_package.json.gz`.
 
-To pass this data onto the front-end application, host the `data_package.json.gz` file on an accessible endpoint, then specify that endpoint in the `data_package_url` field in the `config/config_[workflow]` file that you are using.
+The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
 
 ---
 
@@ -232,12 +240,6 @@ This project is developed by the [Vector Engineering Lab](https://vector.enginee
 Contact the authors by email: [covidcg@broadinstitute.org](mailto:covidcg@broadinstitute.org)
 
 Python/snakemake scripts were run and tested on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 412 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL2 (48 threads, 128 GB RAM)
-
-## Data enabling COVID CG
-
-We are extremely grateful to the [GISAID Initiative](https://www.gisaid.org/) and all its data contributors, i.e. the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based.
-
-Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’s innovative contribution to global health. _Global Challenges_, 1:33-46. DOI:[10.1002/gch2.1018](https://doi.org/10.1002/gch2.1018) PMCID: [31565258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/)
 
 ## Citing COVID CG
 

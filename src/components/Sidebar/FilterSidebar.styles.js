@@ -1,16 +1,9 @@
 import styled from 'styled-components';
 
-import Button from '../Buttons/Button';
-
-export const Container = styled.div`
-  width: 430px;
-  display: flex;
-  height: 100vh;
-  overflow-y: hidden;
-`;
-
 export const FilterSidebarContainer = styled.div`
+  grid-row: 1/-1;
   width: 249px;
+  max-height: 100vh;
 
   background-color: #f8f8f8;
   //padding-right: 10px;
@@ -29,16 +22,4 @@ export const FilterSidebarContainer = styled.div`
       margin-bottom: 2px;
     }
   }
-`;
-
-export const SelectSequencesButton = styled(Button)`
-  margin: 5px;
-  font-size: 1rem;
-`;
-
-export const LegendSidebarContainer = styled.div`
-  width: 180px;
-  height: 100%;
-  border-right: 1px solid #aaa;
-  padding-bottom: 15px;
 `;

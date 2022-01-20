@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
 export const ContainerDiv = styled.div`
@@ -41,6 +40,20 @@ export const SelectedLocationsContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   padding: 5px 0px;
+`;
+
+export const LocationItemContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-right: 5px;
+`;
+
+export const LocationItemLabel = styled.span`
+  margin-right: 3px;
 `;
 
 export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`

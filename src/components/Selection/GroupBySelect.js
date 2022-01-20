@@ -27,6 +27,10 @@ const GroupBySelect = observer(
     selectedProtein,
     onGroupKeyChange,
     onDnaOrAaChange,
+
+    showExtraGroupText,
+    disabled,
+    direction,
   }) => {
     let handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
@@ -95,19 +99,21 @@ const GroupBySelect = observer(
                   value={GROUP_MUTATION}
                   checked={groupKey === GROUP_MUTATION}
                   onChange={handleGroupKeyChange}
+                  disabled={disabled}
                 />
                 <span>Mutation</span>
               </label>
             </div>
           </div>
-          {Object.keys(config.group_cols).includes(groupKey) && (
-            <>
-              {config.group_cols[groupKey].description}
-              <Link href={config.group_cols[groupKey].link.href}>
-                {config.group_cols[groupKey].link.title}
-              </Link>
-            </>
-          )}
+          {showExtraGroupText &&
+            Object.keys(config.group_cols).includes(groupKey) && (
+              <>
+                {config.group_cols[groupKey].description}
+                <Link href={config.group_cols[groupKey].link.href}>
+                  {config.group_cols[groupKey].link.title}
+                </Link>
+              </>
+            )}
         </>
       );
     };
@@ -123,6 +129,7 @@ const GroupBySelect = observer(
               value={DNA_OR_AA.DNA}
               checked={dnaOrAa === DNA_OR_AA.DNA}
               onChange={handleDnaOrAaChange}
+              disabled={disabled}
             ></input>
             <label htmlFor="dnaChoice">NT</label>
           </div>
@@ -133,7 +140,7 @@ const GroupBySelect = observer(
               name="dnaOrAa"
               value={DNA_OR_AA.AA}
               checked={dnaOrAa === DNA_OR_AA.AA}
-              disabled={aaDisabled}
+              disabled={disabled || aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
             <label htmlFor="aaChoice">AA</label>
@@ -144,8 +151,8 @@ const GroupBySelect = observer(
     };
 
     return (
-      <SelectContainer>
-        <RadioForm>
+      <SelectContainer direction={direction}>
+        <RadioForm direction={direction}>
           <span className="form-title">
             Group sequences by
             <QuestionButton
@@ -157,30 +164,42 @@ const GroupBySelect = observer(
           </span>
           {renderGroupKeySelect()}
         </RadioForm>
-        <RadioForm>
-          <span className="form-title">Mutation format</span>
-          {groupKey !== GROUP_MUTATION && (
-            <HintText>
-              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
-              order to enable Mutation Formatting
-            </HintText>
-          )}
-          {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
-        </RadioForm>
+        {/* Hide this entire block, when not in mutation mode and in compact mode */}
+        {(groupKey === GROUP_MUTATION || showExtraGroupText) && (
+          <RadioForm direction={direction}>
+            <span className="form-title">Mutation format</span>
+            {/* Hide mutation selection when not in mutation mode */}
+            {groupKey !== GROUP_MUTATION && (
+              <HintText>
+                Switch to &quot;Mutation&quot; under &quot;Group sequences
+                by&quot; in order to enable Mutation Formatting
+              </HintText>
+            )}
+            {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
+          </RadioForm>
+        )}
       </SelectContainer>
     );
   }
 );
 
 GroupBySelect.propTypes = {
-  // groupKey: PropTypes.string,
-  // dnaOrAa: PropTypes.string,
-  // coordinateMode: PropTypes.string,
-  // selectedGene: PropTypes.object,
-  // selectedProtein: PropTypes.object
+  groupKey: PropTypes.string,
+  dnaOrAa: PropTypes.string,
+  coordinateMode: PropTypes.string,
+  selectedGene: PropTypes.object,
+  selectedProtein: PropTypes.object,
   onGroupKeyChange: PropTypes.func,
   onDnaOrAaChange: PropTypes.func,
+
+  showExtraGroupText: PropTypes.bool,
+  disabled: PropTypes.bool,
+  direction: PropTypes.oneOf(['row', 'column']),
 };
-GroupBySelect.defaultProps = {};
+GroupBySelect.defaultProps = {
+  showExtraGroupText: true,
+  disabled: false,
+  direction: 'column',
+};
 
 export default GroupBySelect;

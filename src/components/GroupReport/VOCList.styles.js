@@ -16,7 +16,7 @@ export const VOCTableHeader = styled.div`
 `;
 
 export const VOCTableToggle = styled.div`
-  transform: rotate(0deg);
+  transform: rotate(180deg);
   margin: auto auto auto 10px;
   width: 0;
   height: 0;
@@ -29,7 +29,7 @@ export const VOCTableToggle = styled.div`
     props.expanded &&
     css`
       transition-timing-function: ease-in-out;
-      transform: rotate(180deg);
+      transform: rotate(0deg);
     `};
 
   &:hover {
