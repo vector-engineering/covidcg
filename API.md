@@ -6,7 +6,8 @@
 - [Aggregate data](#aggregate-data)
   - [Mutation mode](#mutation-mode)
   - [Group mode (lineage mode)](#group-mode-lineage-mode)
-- [Lineage mutation frequencies](#lineage-mutation-frequencies)
+- [Group mutation frequencies](#group-mutation-frequencies)
+- [Dynamic group mutation frequencies](#dynamic-group-mutation-frequencies)
 
 ## Data enabling COVID CG
 
