@@ -15,21 +15,13 @@ import {
 } from '../../constants/defs.json';
 import { config } from '../../config';
 
-import GlobalLineagesImage from '../../assets/analysis_screens/global_lineages.png';
-// import XinfadiImage from '../../assets/analysis_screens/xinfadi.png';
-import IcelandImage from '../../assets/analysis_screens/iceland.png';
-import D614GWestCoastImage from '../../assets/analysis_screens/d614g_west_coast.png';
-import D614GUSStatesImage from '../../assets/analysis_screens/d614g_us_states.png';
-import USCDCPrimerImage from '../../assets/analysis_screens/us_cdc_primer.png';
-import D614GEuropeNAImage from '../../assets/analysis_screens/d614g_europe_na.png';
-import N203204Image from '../../assets/analysis_screens/n_203_204_coocurrence.png';
-
 export const getExampleItems = ({ selectTree }) => {
   return [
     {
       title: 'Global Lineages',
       description: 'View the growth of the B lineage family over all locations',
-      image: GlobalLineagesImage,
+      image:
+        'https://storage.googleapis.com/ve-public/example/global_lineages.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -54,7 +46,7 @@ export const getExampleItems = ({ selectTree }) => {
     //   title: 'Lineages in China - Beijing Xinfadi Market',
     //   description:
     //     "New lineages in uncovered in early June in Beijing's Xinfadi Market may have been circulating in China in March",
-    //   image: XinfadiImage,
+    //   image: 'https://storage.googleapis.com/ve-public/example/xinfadi.png',
     //   settings: {
     //     plotSettings: {
     //       groupStackNormMode: NORM_MODES.NORM_COUNTS,
@@ -77,7 +69,7 @@ export const getExampleItems = ({ selectTree }) => {
       title: 'Lineages in Iceland',
       description:
         'Lineages sequenced in Iceland during the early stages of the pandemic',
-      image: IcelandImage,
+      image: 'https://storage.googleapis.com/ve-public/example/iceland.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_COUNTS,
@@ -104,7 +96,8 @@ export const getExampleItems = ({ selectTree }) => {
       title: 'Rise of Spike D614G mutation in West Coast USA',
       description:
         'The Spike D614G mutation has accumulated in frequency in the West Coast states of the USA',
-      image: D614GWestCoastImage,
+      image:
+        'https://storage.googleapis.com/ve-public/example/d614g_west_coast.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -134,7 +127,8 @@ export const getExampleItems = ({ selectTree }) => {
       title: 'Prevalence of Spike D614G in various US States',
       description:
         'The proportion of sequences with the Spike D614G mutation varies between US States',
-      image: D614GUSStatesImage,
+      image:
+        'https://storage.googleapis.com/ve-public/example/d614g_us_states.png',
       settings: {
         plotSettings: {
           locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -173,7 +167,8 @@ export const getExampleItems = ({ selectTree }) => {
       title: 'Diagnostics: NT mutations in US CDC qPCR primer/probe sequences',
       description:
         'Prevalence of any mutations present within the US CDC primer and probe sequences (N1 + N2), for sequences in the US',
-      image: USCDCPrimerImage,
+      image:
+        'https://storage.googleapis.com/ve-public/example/us_cdc_primer.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -218,7 +213,8 @@ export const getExampleItems = ({ selectTree }) => {
       title: 'Co-occurrence of R203K and G204R in N gene',
       description:
         'Two mutations in the N gene, R203K and G204R, co-occur with each other. These mutations are associated with the B.1.1 lineage.',
-      image: N203204Image,
+      image:
+        'https://storage.googleapis.com/ve-public/example/n_203_204_coocurrence.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -245,7 +241,8 @@ export const getExampleItems = ({ selectTree }) => {
     {
       title: 'Emergence of Spike D614G in Europe/North America',
       description: '',
-      image: D614GEuropeNAImage,
+      image:
+        'https://storage.googleapis.com/ve-public/example/d614g_europe_na.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
