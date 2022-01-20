@@ -131,10 +131,16 @@ curl --header "Content-Type: application/json" --request POST --data '{
 
 Same as mutation mode, except `group_key` is set to `lineage` (PANGO lineage designation) or another grouping as defined by the `group_cols` setting in the config YAML file. The GISAID site has an additional `clade` phylogenetic grouping. Any fields relating to mutatins or genomic coordinates can be omitted in group mode.
 
-## Lineage mutation frequencies
+## Group mutation frequencies
+
+This function queries all mutations associated with a group (i.e., PANGO lineage) in all of our data. For more targeted queries, see [Dynamic group mutation frequencies](#dynamic-group-mutation-frequencies)
 
 ```
-curl --header "Content-Type: application/json" --request POST --data '{"group": "lineage", "mutation_type": "gene_aa", "consensus_threshold": 0.9}' https://covidcg.org/group_mutation_frequencies
+curl --header "Content-Type: application/json" --request POST --data '{
+  "group": "lineage",
+  "mutation_type": "gene_aa",
+  "consensus_threshold": 0.9
+}' https://covidcg.org/group_mutation_frequencies
 ```
 
 #### Parameters
@@ -187,3 +193,27 @@ Returns a JSON object, with the format:
   ...,
 ]
 ```
+
+## Dynamic group mutation frequencies
+
+```
+curl --header "Content-Type: application/json" --request POST --data '{
+  "group_key": "lineage",
+  "mutation_type": "gene_aa",
+  "consensus_threshold": 0.1,
+  "region": [0, 1, 2, 3, 4, 5],
+  "start_date": "2021-12-01",
+  "end_date": "2022-01-01",
+  "selected_group_fields": { "lineage": ["BA.1"] }
+}' http://localhost:5000/group_mutation_frequencies_dynamic
+```
+
+#### Parameters
+
+The `group`, `mutation_type`, and `consensus_threshold` parameters are the same as described in the above [Group mutation frequencies](#group-mutation-frequencies) function.
+
+Additional sequence filtering parameters can be provided. All options described in the [Aggregate data](#aggregate-data) are supported, except for `group_key`, `dna_or_aa`, `coordinate_mode`, `coordinate_ranges`, `selected_gene`, and `selected_protein`.
+
+#### Returns
+
+Return data is the same as the above [Group mutation frequencies](#group-mutation-frequencies) function.
