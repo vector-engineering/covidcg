@@ -69,6 +69,7 @@ export const VOCItemContainer = styled.div`
 export const VOCBadgeContainer = styled.div`
   display: grid;
   margin: auto;
+  margin-right: 5px;
   max-width: 11px;
   max-height: 11px;
   border: 1px solid black;
