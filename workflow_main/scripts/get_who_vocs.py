@@ -25,30 +25,15 @@ def get_who_vocs():
             break
         level = level_order[level_ind]
         for row in table.find_all('tr'):
-            label = ''
-            names = []
-            if level == 'VOC' or level == 'VOI':
-                # Find all of the pango lineages in each row of the table
-                names = list(row.find_all('td')[1].stripped_strings)
-                # Determine who label
-                label = list(row.find_all('td')[0].stripped_strings)[0]
-            else:
-                names = list(row.find_all('td')[0].stripped_strings)
+            # Find all of the pango lineages in each row of the table
+            names = list(row.find_all('td')[0].stripped_strings)
 
             for name in names:
                 # Strip any non alphanumeric char that is not a .
                 name = ''.join(e for e in name if e.isalnum() or e == '.')
                 # If the name is valid, add the variant
                 if name:
-                    variant = {}
-                    if label:
-                        variant = {
-                                   'name': name,
-                                   'level': level,
-                                   'who_label': label
-                                   }
-                    else:
-                        variant = {'name': name, 'level': level}
+                    variant = {'name': name, 'level': level}
                     variant_list.append(variant)
         level_ind += 1
 
