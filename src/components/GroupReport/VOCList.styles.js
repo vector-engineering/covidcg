@@ -66,16 +66,6 @@ export const VOCItemContainer = styled.div`
   }
 `;
 
-export const VOCItemName = styled.span`
-  margin-left: 5px;
-  color: ${({ selected }) => (selected ? 'white' : 'black')};
-
-  &:after {
-    margin-left: 5px;
-    content: ${({ whoLabel }) => (whoLabel ? JSON.stringify(whoLabel) : '')};
-  }
-`;
-
 export const VOCBadgeContainer = styled.div`
   display: grid;
   margin: auto;

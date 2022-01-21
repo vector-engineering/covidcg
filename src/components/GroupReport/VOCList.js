@@ -14,10 +14,11 @@ import {
   VOCTableContent,
   VOCGridTitle,
   VOCItemContainer,
-  VOCItemName,
   VOCBadgeContainer,
   VOCBadge,
 } from './VOCList.styles';
+
+import { LineageName } from '../Common/LineageName';
 
 export const colors = {
   WHO: '#88CCEE',
@@ -26,32 +27,6 @@ export const colors = {
   PHE: '#004488',
 };
 const coords = { WHO: [1, 1], CDC: [1, 2], ECDC: [2, 1], PHE: [2, 2] };
-
-const determineWHOLabel = (name) => {
-  const regExpressions = {
-    '^B.1.1.7.?': 'Alpha',
-    '^Q.?': 'Alpha',
-    '^B.1.351.?': 'Beta',
-    '^B.1.1.281.?': 'Gamma',
-    '^P.1.?': 'Gamma',
-    '^B.1.617.2.?': 'Delta',
-    '^AY.?': 'Delta',
-    '^B.1.1.529.?': 'Omicron',
-    '^BA.1.?': 'Omicron',
-    '^C.37.?': 'Lambda',
-    '^B.1.621.?': 'Mu',
-    '^BB.2.?': 'Mu',
-  };
-
-  for (let key of Object.keys(regExpressions)) {
-    const regEx = new RegExp(key, 'i');
-    if (name.match(regEx)) {
-      return regExpressions[key];
-    }
-  }
-
-  return null;
-};
 
 const VOCItem = observer(({ name, orgArr }) => {
   const { groupDataStore } = useStores();
@@ -96,14 +71,10 @@ const VOCItem = observer(({ name, orgArr }) => {
     );
   };
 
-  const label = determineWHOLabel(name);
-
   return (
     <VOCItemContainer onClick={onClick} selected={selected}>
       <VOCBadgeContainer>{badges}</VOCBadgeContainer>
-      <VOCItemName selected={selected} whoLabel={label}>
-        {name}
-      </VOCItemName>
+      <LineageName name={name} selected={selected} />
     </VOCItemContainer>
   );
 });
