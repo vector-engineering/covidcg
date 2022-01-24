@@ -65,25 +65,22 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Compare {configStore.getGroupLabel()}s</span>
       </a>
     </TabItem>,
+    <TabItem
+      key={TABS.TAB_COMPARE_LOCATIONS}
+      active={activeTab === TABS.TAB_COMPARE_LOCATIONS}
+    >
+      <a
+        href="#"
+        className="tab-link"
+        onClick={changeTab.bind(this, TABS.TAB_COMPARE_LOCATIONS)}
+      >
+        <span>Compare Locations</span>
+      </a>
+    </TabItem>,
   ];
 
   if (config.virus === 'sars2') {
     // Add CovidCG specific tabs
-    tabs.push(
-      <TabItem
-        key={TABS.TAB_GLOBAL_SEQUENCES}
-        active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
-      >
-        <a
-          href="#"
-          className="tab-link"
-          onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
-        >
-          <span>Global Sequencing Coverage</span>
-        </a>
-      </TabItem>
-    );
-
     tabs.push(
       <TabItem
         key={TABS.TAB_GLOBAL_SEQUENCES}
