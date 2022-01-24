@@ -1,6 +1,6 @@
 {
   "name": "covidcg",
-  "version": "2.4.5-rsvdev3",
+  "version": "2.5.0-rsvdev0",
   "description": "",
   "engines": {
     "node": ">=8",
