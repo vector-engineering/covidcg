@@ -1,73 +1,79 @@
 import styled from 'styled-components';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
-export const ContainerDiv = styled.div`
-  width: 100%;
-  height: 100%;
-
-  margin-top: 2px;
-  padding-top: 8px;
-
-  display: flex;
-  flex-direction: column;
-  // overflow-y: hidden;
-  overflow-y: scroll;
-`;
-
-export const DropdownHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  margin-left: 15px;
-`;
-
-export const Title = styled.span`
-  font-size: 1rem;
-  font-weight: 500;
-`;
-
-export const UnselectButton = styled.button`
-  display: ${({ show }) => (show ? 'block' : 'none')};
-  margin-left: 10px;
-`;
-UnselectButton.defaultProps = {
-  show: true,
-};
-
-export const SelectedLocationsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  padding: 5px 0px;
-`;
-
-export const LocationItemContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 1px 5px;
-  margin-right: 5px;
-`;
-
-export const LocationItemLabel = styled.span`
-  margin-right: 3px;
-`;
-
-export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
+const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
   margin-top: 3px;
   overflow-y: hidden;
 
+  ul.tag-list {
+    li:first-child {
+      span.placeholder:after {
+        content: 'None';
+        font-size: 0.9rem;
+        font-weight: normal;
+        font-style: italic;
+      }
+    }
+  }
+  .tag {
+    display: none;
+    // background-color: #ffffff;
+    // border: 1px solid #ccc;
+    // padding: 3px 6px;
+    // border-radius: 3px;
+    // display: inline-block;
+    // font-weight: normal;
+    // &:focus-within {
+    //   background-color: #e9e9e9;
+    //   border-color: #a0a0a0;
+    // }
+  }
   span.placeholder {
     background-color: #ffffff;
     font-size: 0em;
+  }
+  .tag-remove {
+    color: #a0a0a0;
+    font-size: 1.25em;
+    line-height: 100%;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    &:hover,
+    &:focus {
+      color: #ff5555;
+    }
+    &.disabled,
+    &.readOnly {
+      cursor: not-allowed;
+    }
   }
 
   .node > label {
     cursor: pointer;
     margin-left: 2px;
+  }
+
+  .tag-list {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+  }
+
+  .tag-item {
+    display: inline-block;
+    // margin: 4px;
+
+    .search {
+      border: none;
+      border-bottom: 1px solid #ccc;
+      outline: none;
+    }
+    &:last-child {
+      margin-right: 4px;
+    }
   }
 
   .node {
@@ -133,21 +139,39 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     height: 100%;
     flex-direction: column;
     display: flex;
-    // overflow: hidden;
     align-items: stretch;
+    overflow: hidden;
 
     a.dropdown-trigger {
-      display: none;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      &:focus {
+        outline: none;
+      }
+      &.arrow.top:after {
+        content: '▲';
+      }
+      &.arrow.bottom:after {
+        content: '▼';
+      }
     }
 
     .dropdown-content {
-      position: relative;
-      height: calc(100vh - 220px);
-      padding: 4px;
-      padding-left: 15px;
-      padding-right: 15px;
-      background-color: #f8f8f8;
+      position: absolute;
+      max-height: 50vh;
       overflow-y: scroll;
+
+      border: 1px solid #aaa;
+      padding: 0px 5px;
+      margin-top: 19px;
+
+      width: 160px;
+
+      background-color: #ffffff;
+
+      z-index: 1;
 
       input.search {
         font-size: 1em;
@@ -164,7 +188,7 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
         padding: 0;
         flex-direction: column;
         display: flex;
-        overflow-y: scroll;
+        overflow-y: hidden;
 
         i.toggle {
           font-family: monospace;
@@ -221,3 +245,5 @@ export const StyledDropdownTreeSelect = styled(DropdownTreeSelect)`
     }
   }
 `;
+
+export default StyledDropdownTreeSelect;

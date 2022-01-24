@@ -81,6 +81,9 @@ export class DataStore {
           rootStoreInstance.configStore.selectedReference
         ),
         selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -207,8 +210,7 @@ export class DataStore {
         mutationColorMap,
       },
       ({ aggLocationSelectedMutationsDate, aggSelectedMutationsDate }) => {
-        this.aggLocationSelectedMutationsDate =
-          aggLocationSelectedMutationsDate;
+        this.aggLocationSelectedMutationsDate = aggLocationSelectedMutationsDate;
         this.aggSelectedMutationsDate = aggSelectedMutationsDate;
         rootStoreInstance.UIStore.onMutationDataFinished();
       }
@@ -530,10 +532,8 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert mutation string into integer, then into mutation object
-    const mutationToIntMap =
-      rootStoreInstance.configStore.getMutationToIntMap();
-    const intToMutationMap =
-      rootStoreInstance.configStore.getIntToMutationMap();
+    const mutationToIntMap = rootStoreInstance.configStore.getMutationToIntMap();
+    const intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
     let mutation;
 
     this.mutationCooccurrence
