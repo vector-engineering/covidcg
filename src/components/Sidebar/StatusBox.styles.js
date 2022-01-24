@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 
-import Button from '../Buttons/Button';
-
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -9,6 +7,7 @@ export const Container = styled.div`
   overflow-y: scroll;
 
   padding: 5px 10px;
+  margin-top: 1rem;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   background-color: #fff;
@@ -16,13 +15,6 @@ export const Container = styled.div`
 
 export const StatusText = styled.div`
   font-size: 0.8rem;
-`;
-
-export const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 5px;
 `;
 
 export const Line = styled.p`
@@ -35,20 +27,4 @@ export const Sequence = styled.span`
   font-family: monospace;
   display: inline;
   margin: 0px;
-`;
-
-export const DownloadButton = styled(Button)`
-  background-color: #eee;
-  background-image: none;
-  color: #000;
-  border-color: #666;
-
-  .caret:after {
-    border-top-color: #666;
-  }
-
-  &:hover,
-  &:focus {
-    background-color: #ddd;
-  }
 `;

@@ -28,6 +28,7 @@ export class DataStore {
   dataDate;
   numSequences;
   numSequencesAfterAllFiltering;
+  timeToFetch;
   aggLocationGroupDate = [];
   aggGroupDate = [];
   aggLocationSingleMutationDate = [];
@@ -58,6 +59,8 @@ export class DataStore {
   @action
   fetchData = () => {
     rootStoreInstance.UIStore.onCaseDataStateStarted();
+
+    const startTime = Date.now();
 
     fetch(hostname + '/data', {
       method: 'POST',
@@ -92,6 +95,10 @@ export class DataStore {
         return res.json();
       })
       .then((res) => {
+        // Time to fetch data, in seconds
+        const endTime = Date.now();
+        this.timeToFetch = (endTime - startTime) / 1000;
+
         this.aggLocationGroupDate = res;
 
         // console.log(this.aggLocationGroupDate);
@@ -200,7 +207,8 @@ export class DataStore {
         mutationColorMap,
       },
       ({ aggLocationSelectedMutationsDate, aggSelectedMutationsDate }) => {
-        this.aggLocationSelectedMutationsDate = aggLocationSelectedMutationsDate;
+        this.aggLocationSelectedMutationsDate =
+          aggLocationSelectedMutationsDate;
         this.aggSelectedMutationsDate = aggSelectedMutationsDate;
         rootStoreInstance.UIStore.onMutationDataFinished();
       }
@@ -522,8 +530,10 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert mutation string into integer, then into mutation object
-    const mutationToIntMap = rootStoreInstance.configStore.getMutationToIntMap();
-    const intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+    const mutationToIntMap =
+      rootStoreInstance.configStore.getMutationToIntMap();
+    const intToMutationMap =
+      rootStoreInstance.configStore.getIntToMutationMap();
     let mutation;
 
     this.mutationCooccurrence

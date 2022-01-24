@@ -183,14 +183,9 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     const { dnaOrAa, coordinateMode, residueCoordinates } = getCoordinateMode(
       _coordinateMode
     );
-<<<<<<< HEAD
-    setPending({
-      ...pending,
-=======
 
     setCoordPending({
       ...coordPending,
->>>>>>> 5bfd2718 (Seperated pending changes by category (#490))
       dnaOrAa,
       coordinateMode,
       residueCoordinates,
@@ -471,7 +466,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         <HeaderRow>
           <TitleContainer>
             <div className="title">
-              <h2>Select Sequences</h2>
+              <h2>Filter Sequences</h2>
             </div>
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
