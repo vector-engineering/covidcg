@@ -1,7 +1,11 @@
 # coding: utf-8
 
 """Extract variable regions from an aligned segment, in a flexible
+<<<<<<< HEAD
 and mutation-tolerant manner
+=======
+and SNP-tolerant manner
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
 Modified and heavily trimmed down version of read_extractor.py (v0.1.0)
 from the variant_extractor project
@@ -52,8 +56,13 @@ class ReadExtractor:
         # Later when writing to disk we'll serialize this array as a semicolon-delimited string
         self.invalid_errors = []
 
+<<<<<<< HEAD
         # Store mutations
         self.dna_mutations = []
+=======
+        # Store SNPs
+        self.dna_snps = []
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
         # Read data from the pysam.AlignedSegment object into python variables
         self.load_read()
@@ -80,10 +89,13 @@ class ReadExtractor:
         # Get the reference sequence
         self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
 
+<<<<<<< HEAD
         # Don't try to do anything if the reference is not in RefSeq
         if len(self.reference_seq) == 0:
             return
 
+=======
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
         https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignedSegment.cigartuples
@@ -178,10 +190,17 @@ class ReadExtractor:
             ---------------------------------------------------
             """
 
+<<<<<<< HEAD
             # MATCH - can be match or mismatch (mutation)
             if op == 0 or op == 7 or op == 8:
 
                 # Check for mutations
+=======
+            # MATCH - can be match or mismatch (SNP)
+            if op == 0 or op == 7 or op == 8:
+
+                # Check for SNPs
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
                 # If the OP code is 0, then we have to check both the read
                 # and the reference to see if there's a mismatch
                 # If bowtie2 gave us the OP code of 8, then we know there's a mismatch
@@ -198,7 +217,11 @@ class ReadExtractor:
                     )
                     and
                     # If the reference has an X as the base, then
+<<<<<<< HEAD
                     # ignore any mutations at this position
+=======
+                    # ignore any SNPs at this position
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
                     (self.reference_seq[self.ref_i] != "X")
                 ):
                     # Add substitution information to mutation string
@@ -249,11 +272,19 @@ class ReadExtractor:
 
         # END WHILE
 
+<<<<<<< HEAD
     def get_dna_mutations(self):
         """Store list of NT mutations/indels"""
 
         # Join adjacent indels
         self.dna_mutations = []
+=======
+    def get_dna_snps(self):
+        """Store list of NT SNPs/indels"""
+
+        # Join adjacent indels
+        self.dna_snps = []
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
         i = 0
         while i < len(self.mutation_str):
             (query_name, pos, ref, alt) = self.mutation_str[i]
@@ -262,7 +293,11 @@ class ReadExtractor:
             # Offset the position back to 1-indexed, starting at the genome start
             pos = pos + 1
 
+<<<<<<< HEAD
             # If it's a mutation, then add and continue
+=======
+            # If it's a SNP, then add and continue
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
             if ref and alt:
                 i += 1
 
@@ -273,7 +308,11 @@ class ReadExtractor:
                 if alt not in ["A", "C", "G", "T"]:
                     continue
 
+<<<<<<< HEAD
                 self.dna_mutations.append((query_name, pos, ref, alt, self.read.reference_name))
+=======
+                self.dna_snps.append((query_name, pos, ref, alt, self.read.reference_name))
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -293,7 +332,11 @@ class ReadExtractor:
             # Get adjacent indels
             adj_muts = self.mutation_str[i:j]
             # Combine bases, but keep first position and type
+<<<<<<< HEAD
             self.dna_mutations.append(
+=======
+            self.dna_snps.append(
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
                 (
                     query_name,
                     pos,
@@ -315,5 +358,10 @@ class ReadExtractor:
         # so that we can collect additional mutations (if they exist)
         # Don't throw an error once we reach the end
         self.crawl_to(len(self.reference_seq))
+<<<<<<< HEAD
         self.get_dna_mutations()
         return self.dna_mutations
+=======
+        self.get_dna_snps()
+        return self.dna_snps
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))

@@ -31,6 +31,11 @@ import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
 import { initialValueStoreInstance } from '../components/App';
 
+// Define initial values
+
+const today = intToISO(new Date().getTime());
+const lastNDays = 30; // By default, show only the last 1 month
+
 const urlParams = new URLSearchParams(window.location.search);
 
 const defaultsFromParams = {};

@@ -489,16 +489,10 @@ const SurveillancePlot = observer(({ width }) => {
                   value={plotSettingsStore.surveillanceMode}
                   onChange={onChangeMode}
                 >
-                  {config.virus === 'sars2' && (
-                    <option value={'lineage'}>Lineage</option>
-                  )}
-                  {config.virus === 'rsv' && (
-                    <option value={'genotype'}>Subtype</option>
-                  )}
-                  <option value={'spike_combo'}>
-                    Spike Co-occuring Mutations
-                  </option>
-                  <option value={'spike_single'}>Spike Single Mutations</option>
+                  <option value={'lineage'}>Lineage</option>
+                  <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
+                  <option value={'spike_single'}>Spike Single SNVs</option>
+                  <option value={'genotype'}>Genotype</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}

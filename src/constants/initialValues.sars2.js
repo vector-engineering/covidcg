@@ -2,7 +2,10 @@ import { getGene, getProtein } from '../utils/gene_protein';
 import { intToISO, ISOToInt } from '../utils/date';
 
 import {
+<<<<<<< HEAD
   GROUP_MUTATION,
+=======
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
   DNA_OR_AA,
   COORDINATE_MODES,
   NORM_MODES,
@@ -19,7 +22,11 @@ const lastNDays = 30; // By default, show only the last 1 month
 export default function values() {
   return {
     configStore: {
+<<<<<<< HEAD
       groupKey: GROUP_MUTATION,
+=======
+      groupKey: 'snv',
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
       dnaOrAa: DNA_OR_AA.AA,
 
       // Select the Spike gene and nsp13 protein by default
@@ -78,8 +85,11 @@ export default function values() {
       surveillanceSigMinPercent: 0.02,
       surveillanceSigMinR: 0.3,
       surveillanceLegendHover: [],
+<<<<<<< HEAD
       surveillanceShowWarning: false,
       surveillanceShowSettings: false,
+=======
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
       // GROUP REPORT TAB
       reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,

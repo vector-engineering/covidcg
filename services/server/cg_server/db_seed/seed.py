@@ -504,6 +504,7 @@ def seed_database(conn, schema="public"):
             )
         with (data_path / "geo_select_tree.json").open("r") as fp:
             geo_select_tree = json.loads(fp.read())
+<<<<<<< HEAD
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
@@ -512,6 +513,8 @@ def seed_database(conn, schema="public"):
         )
         with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
             surv_group_counts = json.loads(fp.read())
+=======
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);

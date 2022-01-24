@@ -9,6 +9,11 @@ import gzip
 import math
 import re
 
+<<<<<<< HEAD
+=======
+from pathlib import Path
+
+>>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
 def preprocess_sequences(input_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
