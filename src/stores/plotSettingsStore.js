@@ -9,7 +9,6 @@ import {
   // LITEMOL_STYLES,
 } from '../constants/defs.json';
 
-import { rootStoreInstance } from './rootStore';
 import { initialValueStoreInstance } from '../components/App';
 
 export class PlotSettingsStore {

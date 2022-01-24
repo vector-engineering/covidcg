@@ -9,6 +9,10 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import argparse
 import pandas as pd
 import pysam
+<<<<<<< HEAD
+=======
+from pathlib import Path
+>>>>>>> 5cdb66c3 (Updated to work with new server layout)
 
 from scripts.fasta import read_fasta_file
 from scripts.read_extractor_lite import ReadExtractor

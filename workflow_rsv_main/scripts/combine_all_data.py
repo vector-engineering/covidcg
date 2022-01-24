@@ -1,40 +1,22 @@
 # coding: utf-8
 
-<<<<<<< HEAD
 """Combine metadata and mutation data, create metadata maps
-=======
-"""Combine metadata and SNP data, create metadata maps
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
-
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import json
-import numpy as np
 import pandas as pd
 
-from pathlib import Path
-
-<<<<<<< HEAD
 from scripts.process_mutations import process_mutations
-=======
-from scripts.process_snps import process_snps
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
 
 def combine_all_data(
     # Input
     processed_fasta_files,
     metadata,
-<<<<<<< HEAD
     dna_mutation_files,
     gene_aa_mutation_files,
     protein_aa_mutation_files,
-=======
-    dna_snp_files,
-    gene_aa_snp_files,
-    protein_aa_snp_files,
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
     genotypes,
     # Output
     metadata_map,
@@ -46,7 +28,6 @@ def combine_all_data(
     metadata_cols=[],
 ):
 
-<<<<<<< HEAD
     # Count mutations
     dna_mutation_group_df, dna_mutation_map = process_mutations(
         processed_fasta_files,
@@ -63,25 +44,9 @@ def combine_all_data(
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
         processed_fasta_files,
         protein_aa_mutation_files,
-=======
-    # Count SNPs
-    dna_snp_group_df, dna_snp_map = process_snps(
         processed_fasta_files,
-        dna_snp_files,
+        dna_mutation_files,
         mode="dna",
-        count_threshold=count_threshold,
-    )
-    gene_aa_snp_group_df, gene_aa_snp_map = process_snps(
-        processed_fasta_files,
-        gene_aa_snp_files,
-        mode="gene_aa",
-        count_threshold=count_threshold,
-    )
-    protein_aa_snp_group_df, protein_aa_snp_map = process_snps(
-        processed_fasta_files,
-        protein_aa_snp_files,
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
-        mode="protein_aa",
         count_threshold=count_threshold,
     )
 
@@ -104,7 +69,6 @@ def combine_all_data(
     # Add known genotypes to df
     df = df.join(genotype_df[["genotype"]], on="Accession ID", how="inner", sort=False,)
 
-<<<<<<< HEAD
     # Join mutations to main dataframe
     # inner join to exclude filtered out sequences
     df = df.join(
@@ -116,19 +80,6 @@ def combine_all_data(
     df = df.join(
         protein_aa_mutation_group_df[["mutation_id"]], on="Accession ID", how="inner", sort=False,
     ).rename(columns={"mutation_id": "protein_aa_mutation_str"})
-=======
-    # Join SNPs to main dataframe
-    # inner join to exclude filtered out sequences
-    df = df.join(
-        dna_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
-    ).rename(columns={"snp_id": "dna_snp_str"})
-    df = df.join(
-        gene_aa_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
-    ).rename(columns={"snp_id": "gene_aa_snp_str"})
-    df = df.join(
-        protein_aa_snp_group_df[["snp_id"]], on="Accession ID", how="inner", sort=False,
-    ).rename(columns={"snp_id": "protein_aa_snp_str"})
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
     # Factorize some more metadata columns
     metadata_maps = {}
@@ -148,17 +99,10 @@ def combine_all_data(
         metadata_maps[col] = pd.Series(labels).to_dict()
         df.loc[:, col] = df[col].astype(int)
 
-<<<<<<< HEAD
     # Add mutation maps into the metadata map
     metadata_maps["dna_mutation"] = dna_mutation_map.to_dict()
     metadata_maps["gene_aa_mutation"] = gene_aa_mutation_map.to_dict()
     metadata_maps["protein_aa_mutation"] = protein_aa_mutation_map.to_dict()
-=======
-    # Add SNP maps into the metadata map
-    metadata_maps["dna_snp"] = dna_snp_map.to_dict()
-    metadata_maps["gene_aa_snp"] = gene_aa_snp_map.to_dict()
-    metadata_maps["protein_aa_snp"] = protein_aa_snp_map.to_dict()
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
     # Write the metadata map to a JSON file
     with open(metadata_map, "w") as fp:
