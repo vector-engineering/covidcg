@@ -183,15 +183,7 @@ $ conda config --add channels conda-forge
 $ conda env create -f environment.yml
 ```
 
-If the conda environment is taking forever to resolve, it's probably because of `snakemake`. If so, you'll have to install packages manually (sorry for this! please let us know if this happens so we can update our environment file):
-
-```bash
-# Install python and snakemake first, let conda choose the specific snakemake version
-$ conda create -n covid-cg python=3.9 snakemake-minimal
-# Install dependencies manually
-$ conda install numpy scipy pandas bowtie2 samtools
-$ pip install pysam
-```
+For OSX M1 chips, use the alternative environment `environment_osx-arm64.yaml`. Some additional source compilation steps are required as not all ARM64 binaries are available on conda.
 
 ### Ingestion
 
