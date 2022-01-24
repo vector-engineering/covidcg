@@ -30,6 +30,7 @@ def update_vocs(voc_files):
                     variant_dict = addVariantToDict(variant_dict, variant,
                                                     name, org)
 
+    variant_dict = addSpecificVariants(variant_dict)
     return variant_dict
 
 
@@ -62,6 +63,21 @@ def compareLevels(newLvl, currLvl):
         return True
     else:
         return False
+
+
+def addSpecificVariants(variant_dict):
+    # Adds specific variants to the lineage reports tab that we want to
+    # highlight
+
+    if "BA.1" not in variant_dict:
+        variant_dict["BA.1"] = {
+            "who_label": "Omicron",
+            "CDC": "VOC",
+            "WHO": "VOC",
+            "ECDC": "VOC"
+        }
+
+    return variant_dict
 
 
 def main():
