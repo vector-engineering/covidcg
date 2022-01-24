@@ -358,6 +358,9 @@ const SurveillancePlot = observer(({ width }) => {
     plotSettingsStore.setSurveillanceLegendHover(legendHover);
   };
 
+  console.log(surveillanceDataStore.surv_group_counts);
+  console.log(surveillanceDataStore.surv_group_regression);
+
   const [state, setState] = useState({
     dataListeners: {
       valid_groups_color: handleValidGroups,
@@ -490,9 +493,16 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   <option value={'lineage'}>Lineage</option>
+<<<<<<< HEAD
                   <option value={'spike_combo'}>Spike Co-occuring SNVs</option>
                   <option value={'spike_single'}>Spike Single SNVs</option>
                   <option value={'genotype'}>Genotype</option>
+=======
+                  <option value={'spike_combo'}>
+                    Spike Co-occuring Mutations
+                  </option>
+                  <option value={'spike_single'}>Spike Single Mutations</option>
+>>>>>>> dcccfde4 (Surveillance Plot loads form surveillanceDataStore)
                 </select>
               </label>
             </OptionSelectContainer>{' '}
