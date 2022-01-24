@@ -24,7 +24,6 @@ project_root = Path(__file__).parent.parent.parent.parent.parent
 data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"])) / config["virus"]
 static_data_path = Path(os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])) / config["virus"]
 
-
 genes = pd.read_json(str(static_data_path / "genes_processed.json")).set_index("name")
 proteins = pd.read_json(str(static_data_path / "proteins_processed.json")).set_index(
     "name"
@@ -504,7 +503,6 @@ def seed_database(conn, schema="public"):
             )
         with (data_path / "geo_select_tree.json").open("r") as fp:
             geo_select_tree = json.loads(fp.read())
-<<<<<<< HEAD
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
@@ -513,8 +511,6 @@ def seed_database(conn, schema="public"):
         )
         with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
             surv_group_counts = json.loads(fp.read())
-=======
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);

@@ -11,8 +11,8 @@ services:
       - FLASK_ENV=development
       - CONFIGFILE=/opt/config/config_rsv_genbank.yaml
       - CONSTANTSFILE=/opt/constants/defs.json
-      - DATA_PATH=/data
-      - STATIC_DATA_PATH=/opt/static_data
+      - DATA_PATH=/data/rsv
+      - STATIC_DATA_PATH=/opt/static_data/rsv
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
       - POSTGRES_DB=rsvg_dev
