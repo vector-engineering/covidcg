@@ -175,7 +175,7 @@ def build_sequence_where_filter(req):
         )
 
     if selected_reference:
-        if config['virus'] == "rsv" and group_key != "genotype":
+        if config['virus'] == "rsv":
             metadata_filters.append(
                 sql.SQL('"genotype" = {genotype}').format(
                     genotype=sql.Literal(selected_reference)

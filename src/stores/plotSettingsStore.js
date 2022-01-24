@@ -42,10 +42,6 @@ export class PlotSettingsStore {
   @observable surveillanceSigMinR = 0.3;
   @observable surveillanceLegendHover = [];
 
-  // ----------------
-  // GROUP REPORT TAB
-  // ----------------
-
   @observable reportTreeColorMode = TREE_COLOR_MODES.COLOR_LATEST;
   @observable reportConsensusThreshold = 0.7;
   @observable reportMutationListHideEmpty = true;
@@ -179,6 +175,28 @@ export class PlotSettingsStore {
   // ----------------
   // GROUP REPORT TAB
   // ----------------
+
+  @observable reportTreeColorMode = this.initialValues.reportTreeColorMode;
+  @observable reportConsensusThreshold = this.initialValues
+    .reportConsensusThreshold;
+  @observable reportMutationListHideEmpty = this.initialValues
+    .reportMutationListHideEmpty;
+  @observable reportMutationListHidden = this.initialValues
+    .reportMutationListHidden;
+  @observable reportStructureActiveProtein = this.initialValues
+    .reportStructureActiveProtein;
+  @observable reportStructurePdbId = this.initialValues.reportStructurePdbId;
+  // Actively selected group for the structural viewer
+  @observable reportStructureActiveGroup = this.initialValues
+    .reportStructureActiveGroup;
+  @observable reportStructureProteinStyle = this.initialValues
+    .reportStructureProteinStyle;
+
+  reportStructureAssemblies = this.initialValues.reportStructureAssemblies;
+  reportStructureActiveAssembly = this.initialValues
+    .reportStructureActiveAssembly;
+  reportStructureEntities = this.initialValues.reportStructureEntities;
+
   @action
   setReportTreeColorMode = (mode) => {
     this.reportTreeColorMode = mode;

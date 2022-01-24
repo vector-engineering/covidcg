@@ -33,6 +33,7 @@ const GroupBySelect = observer(
     showExtraGroupText,
     disabled,
     direction,
+    onReferenceChange,
   }) => {
     let handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
@@ -248,6 +249,7 @@ GroupBySelect.defaultProps = {
   showExtraGroupText: true,
   disabled: false,
   direction: 'column',
+  onReferenceChange: PropTypes.func,
 };
 
 export default GroupBySelect;
