@@ -196,10 +196,7 @@ const VOCTable = observer(() => {
           )}
         </div>
       </VOCTableRow>
-      <p>
-        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
-        VOCs.
-      </p>
+      <p>* The WHO, CDC, and ECDC classify all descendents of VOCs as VOCs</p>
     </VOCTableContainer>
   );
 });
