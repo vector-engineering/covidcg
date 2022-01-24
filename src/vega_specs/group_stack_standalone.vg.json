@@ -23,6 +23,7 @@
       "name": "dateBin", "value": 86400000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group"
     },
+    { "name": "yearBin", "value": 31556952000 },
     {
       "name": "overviewYLabel", "value": "All Seqs",
       "comment": "Y-axis label of the overview (bottom) panel"
@@ -184,6 +185,39 @@
       ]
     },
     {
+      "name": "years",
+      "comment": "Groups cases by year, used to color the background of this plot by year",
+      "source": "cases_by_date_and_group",
+      "transform": [
+        {
+          "comment": "Bin observations by year",
+          "type": "bin",
+          "field": "day_start",
+          "extent": [
+            { "signal": "dateRangeStart" },
+            { "signal": "dateRangeEnd" }
+          ],
+          "step": { "signal": "yearBin" },
+          "as": ["year_start", "year_end"]
+        },
+        {
+          "comment": "Collapse to just year_starts and ends",
+          "type": "aggregate",
+          "groupby": ["year_start", "year_end"]
+        },
+        {
+          "comment": "Sort by year_start",
+          "type": "collect",
+          "sort": { "field": "year_start" }
+        },
+        {
+          "comment": "Assign each year an id",
+          "type": "identifier",
+          "as": "id"
+        }
+      ]
+    },
+    {
       "name": "cases_by_date",
       "source": "cases_by_date_and_group",
       "comment": "Collapse cases by date (ignore group), for the data in the overview (bottom) plot",
@@ -307,6 +341,31 @@
           ],
 
           "marks": [
+           {
+              "comment": "background rectangles which alternate colors",
+              "type": "rect",
+              "name": "yearBG",
+              "from": { "data": "years" },
+              "clip": true,
+              "interactive": false,
+              "encode": {
+                "update": {
+                  "zindex": [{ "value": 0 }],
+                  "x": { "scale": "x", "field": "year_start" },
+                  "x2": { "scale": "x", "field": "year_end" },
+                  "y": { "signal": "detailHeight" },
+                  "y2": { "value": 0 },
+                  "fill": [
+                    {
+                      "test": "datum.id % 2 === 0",
+                      "value": "#fff"
+                    },
+                    { "value": "#ddd" }
+                  ],
+                  "opacity": [{ "value": 0.5 }]
+                }
+              }
+            },
             {
               "type": "rect",
               "name": "detailbars",
