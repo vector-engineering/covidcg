@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -34,6 +35,12 @@ def update_vocs(voc_files):
 
 
 def addVariantToDict(variant_dict, variant, name, org):
+    # If the name does not start in a letter, have any number of
+    # '.'s followed by numbers, and end in a number
+    # This is a malformed lineage name, do nothing
+    if not re.match("^[A-Z]+(.[0-9])+$", name):
+        return variant_dict
+
     if name not in variant_dict:
         # Initialize variant into dict
         variant_dict[name] = {}
@@ -46,9 +53,6 @@ def addVariantToDict(variant_dict, variant, name, org):
     else:
         # If variant in dict but org not in variant
         variant_dict[name][org] = variant['level']
-
-    if org == 'who' and variant['who_label']:
-        variant_dict[name]['who_label'] = variant['who_label']
 
     return variant_dict
 

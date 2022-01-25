@@ -13,6 +13,7 @@ import {
   GroupNameContainer,
   PercentageContainer,
 } from './TableLegendItem.styles';
+import { LineageName } from '../Common/LineageName';
 
 const numColors = reds.length;
 
@@ -113,9 +114,11 @@ const TableLegendItem = observer(
       >
         <ColorBar color={item.color} />
         <GroupNameContainer data-group={item.group}>
-          {configStore.groupKey === GROUP_MUTATION
-            ? formatMutation(item.group, configStore.dnaOrAa)
-            : item.group}
+          {configStore.groupKey === GROUP_MUTATION ? (
+            formatMutation(item.group, configStore.dnaOrAa)
+          ) : (
+            <LineageName name={item.group}>{item.group}</LineageName>
+          )}
         </GroupNameContainer>
         <PercentageCell
           data-group={item.group}

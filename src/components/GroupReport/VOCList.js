@@ -14,10 +14,11 @@ import {
   VOCTableContent,
   VOCGridTitle,
   VOCItemContainer,
-  VOCItemName,
   VOCBadgeContainer,
   VOCBadge,
 } from './VOCList.styles';
+
+import { LineageName } from '../Common/LineageName';
 
 export const colors = {
   WHO: '#88CCEE',
@@ -73,7 +74,7 @@ const VOCItem = observer(({ name, orgArr }) => {
   return (
     <VOCItemContainer onClick={onClick} selected={selected}>
       <VOCBadgeContainer>{badges}</VOCBadgeContainer>
-      <VOCItemName selected={selected}>{name}</VOCItemName>
+      <LineageName name={name} selected={selected} />
     </VOCItemContainer>
   );
 });
@@ -195,10 +196,7 @@ const VOCTable = observer(() => {
           )}
         </div>
       </VOCTableRow>
-      <p>
-        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
-        VOCs.
-      </p>
+      <p>* The WHO, CDC, and ECDC classify all descendents of VOCs as VOCs</p>
     </VOCTableContainer>
   );
 });
