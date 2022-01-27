@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
@@ -8,73 +8,21 @@ import {
   GROUP_MUTATION,
   ASYNC_STATES,
 } from '../../constants/defs.json';
-import { config } from '../../config';
 
 import { formatMutation } from '../../utils/mutationUtils';
+import { ISOToInt } from '../../utils/date';
 
-import DropdownButton from '../Buttons/DropdownButton';
 import SkeletonElement from '../Common/SkeletonElement';
-import DownloadConsensusMutationsModal from '../Modals/DownloadConsensusMutationsModal';
-import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
-import DownloadGenomesModal from '../Modals/DownloadGenomesModal';
+import DownloadDataButton from './DownloadDataButton';
 
-import {
-  Container,
-  StatusText,
-  ButtonContainer,
-  Line,
-  Sequence,
-  DownloadButton,
-} from './StatusBox.styles';
+import { Container, StatusText, Line, Sequence } from './StatusBox.styles';
 
 const serializeCoordinates = (coordinateRanges) => {
   return coordinateRanges.map((coordRange) => coordRange.join('..')).join(', ');
 };
 
-const DOWNLOAD_OPTIONS = {
-  AGGREGATE_DATA: 'Aggregate Data',
-  GROUP_COUNTS: 'Group Counts',
-  CONSENSUS_MUTATIONS: 'Consensus Mutations',
-  SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
-  SELECTED_GENOMES: 'Selected Genomes',
-};
-
 const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
-
-  const [activeModals, setActiveModals] = useState({
-    downloadConsensusMutations: false,
-    downloadMetadata: false,
-    downloadGenomes: false,
-  });
-
-  const showModal = (modal) => {
-    setActiveModals({ ...activeModals, [modal]: true });
-  };
-  const hideModal = (modal) => {
-    // Don't hide the modal until the download has finished
-    if (
-      UIStore.downloadState !== ASYNC_STATES.SUCCEEDED &&
-      UIStore.downloadState !== ASYNC_STATES.FAILED
-    ) {
-      return;
-    }
-    setActiveModals({ ...activeModals, [modal]: false });
-  };
-
-  const handleDownloadSelect = (option) => {
-    if (option === DOWNLOAD_OPTIONS.AGGREGATE_DATA) {
-      dataStore.downloadAggSequences();
-    } else if (option === DOWNLOAD_OPTIONS.GROUP_COUNTS) {
-      dataStore.downloadAggGroup();
-    } else if (option === DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS) {
-      showModal('downloadConsensusMutations');
-    } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
-      showModal('downloadMetadata');
-    } else if (option === DOWNLOAD_OPTIONS.SELECTED_GENOMES) {
-      showModal('downloadGenomes');
-    }
-  };
 
   let genomeSelection = '';
   const residuesOrBases =
@@ -134,6 +82,20 @@ const StatusBox = observer(() => {
     );
   }
 
+  const selectedGroupFields = [];
+  Object.keys(configStore.selectedGroupFields).forEach((groupKey) => {
+    if (configStore.selectedGroupFields[groupKey].length === 0) {
+      return;
+    }
+
+    selectedGroupFields.push(
+      <Line key={`status-box-selected-group-fields-${groupKey}`}>
+        Selected {groupKey}s:{' '}
+        {configStore.selectedGroupFields[groupKey].join(', ')}
+      </Line>
+    );
+  });
+
   let selectedGroups = <b>None</b>;
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_MUTATION) {
@@ -155,18 +117,6 @@ const StatusBox = observer(() => {
     }
   }
 
-  const downloadOptions = [
-    DOWNLOAD_OPTIONS.AGGREGATE_DATA,
-    DOWNLOAD_OPTIONS.GROUP_COUNTS,
-    DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS,
-  ];
-  if (config.allow_metadata_download) {
-    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
-  }
-  if (config.allow_genome_download) {
-    downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_GENOMES);
-  }
-
   if (UIStore.caseDataState === ASYNC_STATES.STARTED) {
     return (
       <div
@@ -184,40 +134,17 @@ const StatusBox = observer(() => {
 
   return (
     <Container>
-      <ButtonContainer>
-        <DropdownButton
-          button={DownloadButton}
-          text={'Download'}
-          options={downloadOptions}
-          onSelect={handleDownloadSelect}
-          direction={'left'}
-        />
-      </ButtonContainer>
-      <DownloadConsensusMutationsModal
-        isOpen={activeModals.downloadConsensusMutations}
-        onRequestClose={hideModal.bind(this, 'downloadConsensusMutations')}
-      />
-      <DownloadMetadataModal
-        isOpen={activeModals.downloadMetadata}
-        onRequestClose={hideModal.bind(this, 'downloadMetadata')}
-      />
-      <DownloadGenomesModal
-        isOpen={activeModals.downloadGenomes}
-        onRequestClose={hideModal.bind(this, 'downloadGenomes')}
-      />
+      <DownloadDataButton />
       <StatusText>
         <Line>
-          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences selected.
+          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences fetched in{' '}
+          {dataStore.timeToFetch} s.
         </Line>
         <Line>
           Sequences grouped by <b>{configStore.getGroupLabel()}</b>.
         </Line>
         <Line>
-          Viewing mutations on the{' '}
-          <b>{configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'}</b> level.
-        </Line>
-        <Line>
-          Selected locations:{' '}
+          <b>{configStore.selectedLocationNodes.length}</b> selected locations:{' '}
           <b>
             {configStore.selectedLocationNodes
               .map((node) => node.label)
@@ -226,9 +153,15 @@ const StatusBox = observer(() => {
         </Line>
         <Line>
           Date range: <b>{configStore.startDate}</b> – 
-          <b>{configStore.endDate}</b>
+          <b>{configStore.endDate}</b> (
+          {(ISOToInt(configStore.endDate) - ISOToInt(configStore.startDate)) /
+            (1000 * 60 * 60 * 24)}{' '}
+          days)
         </Line>
-        <Line>Genome selection: {genomeSelection}</Line>
+        {selectedGroupFields}
+        {configStore.groupKey === GROUP_MUTATION && (
+          <Line>Genome selection: {genomeSelection}</Line>
+        )}
         <Line>
           Selected {configStore.getGroupLabel()}s: {selectedGroups}
         </Line>

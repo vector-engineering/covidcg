@@ -63,7 +63,7 @@ export const coolColors = [
 ];
 
 // from https://personal.sron.nl/~pault/#sec:qualitative
-// 'vibrant', then 'muted'
+// 'vibrant', then 'muted', then 'light'
 export const mutationColorArray = [
   '#0077bb',
   '#33bbee',
@@ -81,6 +81,16 @@ export const mutationColorArray = [
   '#cc6677',
   '#882255',
   '#aa4499',
+
+  '#77AADD',
+  '#99DDFF',
+  '#44BB99',
+  '#BBCC33',
+  '#AAAA00',
+  '#EEDD88',
+  '#EE8866',
+  '#FFAABB',
+  '#DDDDDD',
 ];
 
 // from https://personal.sron.nl/~pault/#sec:qualitative

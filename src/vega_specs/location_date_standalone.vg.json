@@ -24,6 +24,16 @@
       "value": 604800000,
       "comment": "Binning of observations by date, where date is in milliseconds. Default is 1 day (1000 * 60 * 60 * 24 = 86400000). This should never be less than a day. This is passed to the bin transform of cases_by_date_and_group. (1 week = 604800000)"
     },
+    {
+      "name": "yearStart",
+      "value": 1546300800000,
+      "comment": "January 1st, 2019 in milliseconds, unix epoch time. Used to demarcate years"
+    },
+    {
+      "name": "yearBin",
+      "value": 31557600000,
+      "comment": "milliseconds per year, used to color the background when multiple years are displayed"
+    },
     { "name": "cumulativeWindow", "update": "cumulative ? [null, 0] : [0, 0]"},
     { "name": "locationDateCountField", "update": "cumulative ? 'cumulative_location_date_count_agg' : 'location_date_count_agg'" },
     { "name": "yField", "update": "percentages ? 'counts_norm' : 'counts_agg'" },
@@ -203,6 +213,36 @@
         { "trigger": "!shift && clicked", "insert": "clicked" },
         { "trigger": "shift && clicked", "toggle": "clicked" }
       ]
+    },
+    {
+      "name": "years",
+      "comment": "Groups cases by year, used to color the background of this plot by year",
+      "source": "location_data",
+      "transform": [
+        {
+          "comment": "Bin observations by year. The start of extent is set to 01/01/2019",
+          "type": "bin",
+          "field": "day_start",
+          "extent": [{ "signal": "yearStart" }, { "signal": "dateRangeEnd" }],
+          "step": { "signal": "yearBin" },
+          "as": ["year_start", "year_end"]
+        },
+        {
+          "comment": "Collapse to just year_starts and ends",
+          "type": "aggregate",
+          "groupby": ["year_start", "year_end"]
+        },
+        {
+          "comment": "Sort by year_start",
+          "type": "collect",
+          "sort": { "field": "year_start" }
+        },
+        {
+          "comment": "Assign each year an id",
+          "type": "identifier",
+          "as": "id"
+        }
+      ]
     }
   ],
 
@@ -315,6 +355,31 @@
   ],
 
   "marks": [
+    {
+      "comment": "background rectangles which alternate colors",
+      "type": "rect",
+      "name": "yearBG",
+      "from": { "data": "years" },
+      "clip": true,
+      "interactive": false,
+      "encode": {
+        "update": {
+          "zindex": [{ "value": 0 }],
+          "x": { "scale": "xscale", "field": "year_start" },
+          "x2": { "scale": "xscale", "field": "year_end" },
+          "y": { "signal": "height" },
+          "y2": { "value": 0 },
+          "fill": [
+            {
+              "test": "datum.id % 2 === 0",
+              "value": "#fff"
+            },
+            { "value": "#ddd" }
+          ],
+          "opacity": [{ "value": 0.5 }]
+        }
+      }
+    },
     {
       "name": "layer0",
       "type": "group",

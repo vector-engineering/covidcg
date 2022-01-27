@@ -20,7 +20,7 @@ import TableLegend from './TableLegend';
 
 const TableLegendContainer = styled.div`
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 50px);
   overflow-y: hidden;
   overflow-x: hidden;
   border-left: 1px #eaeaea solid;

@@ -16,7 +16,7 @@ export const VOCTableHeader = styled.div`
 `;
 
 export const VOCTableToggle = styled.div`
-  transform: rotate(0deg);
+  transform: rotate(180deg);
   margin: auto auto auto 10px;
   width: 0;
   height: 0;
@@ -29,7 +29,7 @@ export const VOCTableToggle = styled.div`
     props.expanded &&
     css`
       transition-timing-function: ease-in-out;
-      transform: rotate(180deg);
+      transform: rotate(0deg);
     `};
 
   &:hover {
@@ -66,14 +66,10 @@ export const VOCItemContainer = styled.div`
   }
 `;
 
-export const VOCItemName = styled.span`
-  margin-left: 5px;
-  color: ${({ selected }) => (selected ? 'white' : 'black')};
-`;
-
 export const VOCBadgeContainer = styled.div`
   display: grid;
   margin: auto;
+  margin-right: 5px;
   max-width: 11px;
   max-height: 11px;
   border: 1px solid black;

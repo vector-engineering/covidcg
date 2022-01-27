@@ -416,6 +416,13 @@
     ]
   },
   {
+    "name": "orf2b",
+    "segments": [[21744, 21863]],
+    "protein_coding": 1,
+    "notes": "See: https://doi.org/10.1016/j.virol.2021.02.013. AKA S.iORF1",
+    "domains": []
+  },
+  {
     "name": "orf3a",
     "segments": [[25393, 26220]],
     "protein_coding": 1,
@@ -424,9 +431,30 @@
   },
   {
     "name": "orf3b",
+    "segments": [[25814,25879]],
+    "protein_coding": 1,
+    "notes": "See: https://doi.org/10.1016/j.virol.2021.02.013.",
+    "domains": []
+  },
+  {
+    "name": "orf3c",
+    "segments": [[25457,25582]],
+    "protein_coding": 1,
+    "notes": "See: https://doi.org/10.1016/j.virol.2021.02.013. AKA ORF3h, 3a.iORF1, ORF3b",
+    "domains": []
+  },
+  {
+    "name": "orf3d",
     "segments": [[25524, 25697]],
     "protein_coding": 1,
-    "notes": "Novel short protein",
+    "notes": "See: https://doi.org/10.1016/j.virol.2021.02.013. Novel short protein. AKA ORF3b, ORF3c",
+    "domains": []
+  },
+  {
+    "name": "orf3d-2",
+    "segments": [[25596, 25697]],
+    "protein_coding": 1,
+    "notes": "See: https://doi.org/10.1016/j.virol.2021.02.013. Novel short protein. AKA 3a.iORF2",
     "domains": []
   },
   {
@@ -582,7 +610,7 @@
     "name": "orf9b",
     "segments": [[28284, 28577]],
     "protein_coding": 1,
-    "notes": "virion-associated protein. Suppress host antiviral response",
+    "notes": "virion-associated protein. Suppress host antiviral response. AKA ORF9a, N.iORF1 ",
     "domains": [
       {
         "name": "Nuclear export signal",
@@ -594,7 +622,7 @@
     "name": "orf9c",
     "segments": [[28734, 28955]],
     "protein_coding": 1,
-    "notes": "Gordon et al., Nature, 2020 (doi: 10.1038/s41586-020-2286-9) Extended Data Fig. 1",
+    "notes": "Gordon et al., Nature, 2020 (doi: 10.1038/s41586-020-2286-9) Extended Data Fig. 1. AKA ORF9b, ORF14",
     "domains": []
   },
   {

@@ -6,6 +6,8 @@ import { onMobileDevice } from '../../utils/device';
 import ReactTooltip from 'react-tooltip';
 import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
+import Legend from '../Legend/Legend';
+import SelectionTopBar from '../Selection/SelectionTopBar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
 import { TABS, ASYNC_STATES } from '../../constants/defs.json';
@@ -23,6 +25,7 @@ const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
 import { HomePageDiv, PlotContainer } from './HomePage.styles';
 import MobileHomePage from '../Mobile/MobileHomePage';
+import { HomePageDiv, LegendContainer, PlotContainer } from './HomePage.styles';
 
 const HomePage = observer(() => {
   const { UIStore } = useStores();
@@ -118,10 +121,14 @@ const HomePage = observer(() => {
           borderColor="#888"
         />
         {showDefaultSidebar ? <DefaultSidebar /> : <FilterSidebar />}
+        {!showDefaultSidebar && (
+          <LegendContainer>
+            <Legend />
+          </LegendContainer>
+        )}
+        {!showDefaultSidebar && <SelectionTopBar />}
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
-          <React.Suspense fallback={<div />}>
-            {renderTab()}
-          </React.Suspense>
+          <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>
         </PlotContainer>
       </HomePageDiv>
     </>

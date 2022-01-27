@@ -3,8 +3,9 @@ import styled from 'styled-components';
 export const HomePageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 250px [col2] 180px [col3] auto [col4];
-  grid-template-rows: [row1] auto [row2];
+  grid-template-rows: [row1] 50px [row2] auto [row3];
   width: 100vw;
+  height: 100vh;
   position: relative;
   overflow-y: hidden;
 
@@ -20,10 +21,19 @@ export const HomePageDiv = styled.div`
   }
 `;
 
+export const LegendContainer = styled.div`
+  grid-row: 2/3;
+  width: 180px;
+  height: 100%;
+  border-right: 1px solid #aaa;
+  padding-bottom: 15px;
+`;
+
 export const PlotContainer = styled.div`
   grid-column: ${({ showDefaultSidebar }) =>
-    showDefaultSidebar ? 'col2 / col4' : 'col3 / col4'};
-  grid-row: row1 / row2;
+    showDefaultSidebar ? '2/-1' : '3/-1'};
+  grid-row: ${({ showDefaultSidebar }) =>
+    showDefaultSidebar ? '1/-1' : '2/-1'};
   display: flex;
   flex-direction: column;
   width: 100%;

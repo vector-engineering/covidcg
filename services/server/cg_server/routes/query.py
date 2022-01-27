@@ -17,6 +17,7 @@ from cg_server.query import (
     query_and_aggregate,
     query_metadata,
     query_group_mutation_frequencies,
+    query_group_mutation_frequencies_dynamic,
 )
 
 
@@ -59,3 +60,12 @@ def get_metadata_(conn):
 def get_group_mutation_frequencies(conn):
     req = request.json
     return query_group_mutation_frequencies(conn, req)
+
+
+@app.route("/group_mutation_frequencies_dynamic", methods=["POST"])
+@cross_origin(origins=cors_domains)
+@get_db_connection()
+def get_group_mutation_frequencies_dynamic(conn):
+    req = request.json
+    return query_group_mutation_frequencies_dynamic(conn, req)
+
