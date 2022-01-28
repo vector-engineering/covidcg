@@ -26,7 +26,11 @@ def get_who_vocs():
         level = level_order[level_ind]
         for row in table.find_all('tr'):
             # Find all of the pango lineages in each row of the table
-            names = list(row.find_all('td')[0].stripped_strings)
+            names = []
+            if level == 'Other':
+                names = list(row.find_all('td')[0].stripped_strings)
+            else:
+                names = list(row.find_all('td')[1].stripped_strings)
 
             for name in names:
                 # Strip any non alphanumeric char that is not a .
