@@ -122,6 +122,8 @@ rule mobile:
 
 rule additional_analyses:
     input:
+        # Mobile site-specific data.
+        rules.mobile.output.dominant_sequences,
         # AZ REPORTS
         rules.az_reports.output.spike_mutation_global,
         rules.az_reports.output.spike_mutation_region,
@@ -139,8 +141,6 @@ rule additional_analyses:
         rules.global_seq_data.output.sequences_per_month,
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
-        # Mobile site-specific data.
-        rules.mobile.output.dominant_sequences,
     output:
         done = touch(os.path.join(
             data_folder, "status", "additional_analyses_" + today_str + ".done"

@@ -40,7 +40,9 @@ def dominant_sequences():
     
     # Rename count column.
     case_df = case_df.rename({'collection_date': 'count'}, axis='columns')
-    case_df.to_json(str(out_path / "dominant_sequences.json"))
+    # Reset index so that country is available for every single row.
+    case_df = case_df.reset_index()
+    case_df.to_json(str(out_path / "dominant_sequences.json"), orient='records')
 
     # Export data
     #case_df.to_json(out_path + 'dominant_sequences.json')
