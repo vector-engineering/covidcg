@@ -134,49 +134,50 @@
         }
     ],
     "data": [
+        
         {
-            "name": "sequences",
-            "url": "https://storage.googleapis.com/ve-public/new_global_data/sequences_per_month.json",
-            "format": {
-                "parse": {
-                    "month": "date"
-                }
-            }
+            "name": "dominant_sequences",
+            "url": "https://storage.googleapis.com/ve-public/dominant_sequences.json",
+            "format": {"type": "json"}
         },
         {
-            "name": "total_sequences",
-            "source": "sequences",
+            "name": "top_lineages",
+            "url": "https://storage.googleapis.com/ve-public/dominant_sequences.json",
+            "format": {"type": "json"},
             "transform": [
                 {
                     "type": "aggregate",
-                    "groupby": [
-                        "country"
-                    ],
-                    "fields": [
-                        "new_sequences"
-                    ],
-                    "ops": [
-                        "sum"
-                    ],
-                    "as": [
-                        "sequences"
-                    ]
+                    "groupby": ["lineage"],
+                    "ops": ["sum"],
+                    "fields": ["count"],
+                    "as": ["totals"]
+                },
+                {      
+                    "type": "window",
+                    "sort": {"field": "count", "order": "descending"},
+                    "ops": ["row_number"], "as": ["rank"]
+                },
+                {
+                    "type": "filter",
+                    "expr": "datum.rank < 4 || datum.lineage == 'None'"
                 }
             ]
         },
+        
         {
-            "name": "mapping",
-            "values": [],
+            "name": "iso_lookup",
+            "url": "https://storage.googleapis.com/ve-public/new_global_data/iso_lookup.json",
+            "format":{"type": "json"},
             "transform": [
                 {
                     "type": "lookup",
-                    "from": "total_sequences",
+                    "from": "dominant_sequences",
                     "key": "country",
                     "fields": [
-                        "Country_Region"
+                        "country"
                     ],
                     "values": [
-                        "sequences"
+                        "lineage"
                     ]
                 }
             ]
@@ -191,25 +192,13 @@
             "transform": [
                 {
                     "type": "lookup",
-                    "from": "mapping",
+                    "from": "iso_lookup",
                     "key": "UID",
                     "fields": [
                         "id"
                     ],
                     "values": [
-                        "sequences"
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "graticule",
-            "transform": [
-                {
-                    "type": "graticule",
-                    "step": [
-                        15,
-                        15
+                        "lineage"
                     ]
                 }
             ]
@@ -218,44 +207,23 @@
     "scales": [
         {
             "name": "color",
-            "type": "quantize",
-            "domain": [
-                0,
-                9
-            ],
-            "range": {
-                "scheme": "blues",
-                "count": 9
-            }
+            "type": "ordinal",
+            "domain": {"data": "top_lineages", "field": "lineage"},
+            "range": {"scheme": "category20"}
+        }
+    ],
+    "legends": [
+        {
+        "fill": "color",
+        "title": "Dominant Sequences",
+        "orient": "bottom-right",
+        "encode": {
+            "symbols": {"enter": {"fillOpacity": {"value": 0.75}}},
+            "labels": {"update": {"text": {"field": "value"}}}
+        }
         }
     ],
     "marks": [
-        {
-            "type": "shape",
-            "clip": true,
-            "from": {
-                "data": "graticule"
-            },
-            "encode": {
-                "enter": {
-                    "strokeWidth": {
-                        "value": 1
-                    },
-                    "stroke": {
-                        "value": "#ddd"
-                    },
-                    "fill": {
-                        "value": null
-                    }
-                }
-            },
-            "transform": [
-                {
-                    "type": "geoshape",
-                    "projection": "projection"
-                }
-            ]
-        },
         {
             "type": "shape",
             "clip": true,
@@ -279,7 +247,7 @@
                         },
                         {
                             "scale": "color",
-                            "field": "sequences"
+                            "field": "lineage"
                         }
                     ]
                 }
