@@ -217,6 +217,7 @@
         "fill": "color",
         "title": "Dominant Sequences",
         "orient": "bottom-right",
+        "direction": "horizontal",
         "encode": {
             "symbols": {"enter": {"fillOpacity": {"value": 0.75}}},
             "labels": {"update": {"text": {"field": "value"}}}
@@ -259,12 +260,5 @@
                 }
             ]
         }
-    ],
-    "config": {
-        "legend": {
-            "layout": {
-                "anchor": "middle"
-            }
-        }
-    }
+    ]
 }
