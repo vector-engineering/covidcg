@@ -68,19 +68,6 @@
             ]
         },
         {
-            "name": "tick",
-            "init": "0",
-            "on": [
-                {
-                    "events": {
-                        "type": "timer",
-                        "throttle": 50
-                    },
-                    "update": "tick + 0.5"
-                }
-            ]
-        },
-        {
             "name": "rotateX",
             "value": 0,
             "on": [
@@ -110,15 +97,8 @@
             "name": "projection",
             "type": "mercator",
             "scale": 100,
-            "rotate": [
-                {
-                    "signal": "tick"
-                },
-                0,
-                0
-            ],
             "center": [
-                0,
+                -25,
                 {
                     "signal": "centerY"
                 }
