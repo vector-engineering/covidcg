@@ -1,32 +1,140 @@
 {
-  "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "A basic scatter plot example depicting automobile statistics.",
-  "width": 400,
-  "height": 350,
-  "data": [
-    {
-      "name": "iso_lookup",
-      "url": "https://storage.googleapis.com/ve-public/new_global_data/iso_lookup.json"
-    },
-    {
-      "name": "sequences",
-      "url": "https://storage.googleapis.com/ve-public/new_global_data/sequences_per_month.json",
-      "format": {"parse": {"month": "date"}}
-    },
-    {
-      "name": "total_sequences",
-      "source": "sequences",
-      "transform": [
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "An interactive world map supporting pan and zoom.",
+    "width": 400,
+    "height": 300,
+    "signals": [
         {
-          "type": "aggregate",
-          "groupby": ["country"],
-          "fields": ["new_sequences"],
-          "ops": ["sum"],
-          "as": ["sequences"]
+            "name": "tx",
+            "update": "width / 2"
+        },
+        {
+            "name": "ty",
+            "update": "height / 2"
+        },
+        {
+            "name": "angles",
+            "value": [
+                0,
+                0
+            ],
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "[rotateX, centerY]"
+                }
+            ]
+        },
+        {
+            "name": "cloned",
+            "value": null,
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "copy('projection')"
+                }
+            ]
+        },
+        {
+            "name": "start",
+            "value": null,
+            "on": [
+                {
+                    "events": "mousedown",
+                    "update": "invert(cloned, xy())"
+                }
+            ]
+        },
+        {
+            "name": "drag",
+            "value": null,
+            "on": [
+                {
+                    "events": "[mousedown, window:mouseup] > window:mousemove",
+                    "update": "invert(cloned, xy())"
+                }
+            ]
+        },
+        {
+            "name": "delta",
+            "value": null,
+            "on": [
+                {
+                    "events": {
+                        "signal": "drag"
+                    },
+                    "update": "[drag[0] - start[0], start[1] - drag[1]]"
+                }
+            ]
+        },
+        {
+            "name": "tick",
+            "init": "0",
+            "on": [
+                {
+                    "events": {
+                        "type": "timer",
+                        "throttle": 50
+                    },
+                    "update": "tick + 0.5"
+                }
+            ]
+        },
+        {
+            "name": "rotateX",
+            "value": 0,
+            "on": [
+                {
+                    "events": {
+                        "signal": "delta"
+                    },
+                    "update": "angles[0] + delta[0]"
+                }
+            ]
+        },
+        {
+            "name": "centerY",
+            "value": 0,
+            "on": [
+                {
+                    "events": {
+                        "signal": "delta"
+                    },
+                    "update": "clamp(angles[1] + delta[1], -60, 60)"
+                }
+            ]
         }
-      ]
-    },
-    {
+    ],
+    "projections": [
+        {
+            "name": "projection",
+            "type": "mercator",
+            "scale": 100,
+            "rotate": [
+                {
+                    "signal": "tick"
+                },
+                0,
+                0
+            ],
+            "center": [
+                0,
+                {
+                    "signal": "centerY"
+                }
+            ],
+            "translate": [
+                {
+                    "signal": "tx"
+                },
+                {
+                    "signal": "ty"
+                }
+            ]
+        }
+    ],
+    "data": [
+      {
       "name": "case_count",
       "url": "https://storage.googleapis.com/ve-public/new_global_data/case_count.json",
       "format": {"parse": {"month": "date"}}
@@ -44,529 +152,103 @@
         }
       ]
     },
-    {
-      "name": "turnaround",
-      "url": "https://storage.googleapis.com/ve-public/new_global_data/turnaround_per_month.json",
-      "format": {"parse": {"submission_month": "date"}}
-    },
-    {
-      "name": "sequences_and_cases",
-      "source": "total_cases",
-      "transform": [
         {
-          "type": "lookup",
-          "from": "total_sequences",
-          "key": "country",
-          "values": ["sequences"],
-          "fields": ["country"],
-          "default": 0
+            "name": "iso_lookup",
+            "url": "https://storage.googleapis.com/ve-public/new_global_data/iso_lookup.json",
+            "format":{"type": "json"},
+            "transform": [
+                {
+                    "type": "lookup",
+                    "from": "total_cases",
+                    "key": "country",
+                    "fields": [
+                        "country"
+                    ],
+                    "values": [
+                        "cases"
+                    ]
+                },
+                {"type": "formula", "as": "logx", "expr": "log(datum.cases) / LN10"}
+
+            ]
         },
         {
-          "type": "lookup",
-          "from": "iso_lookup",
-          "key": "country",
-          "values": ["UID", "Population"],
-          "fields": ["country"]
-        },
-        {
-          "type": "formula",
-          "expr": "(datum.sequences / datum.cases) * 1000",
-          "as": "seqs_per_1k_cases"
-        }
-      ]
-    },
-    {
-      "name": "source",
-      "url": "https://storage.googleapis.com/ve-public/a/df_ym.json",
-      "format": {"parse": {"date": "date"}}
-    },
-    {
-      "name": "world",
-      "url": "https://storage.googleapis.com/ve-public/world-110m-mod.json",
-      "format": {"type": "topojson", "feature": "countries"},
-      "transform": [
-          {      
-      "type": "filter",
-      "expr":"datum.id!=10"
-    },
-        {
-          "type": "lookup",
-          "from": "iso_lookup",
-          "key": "UID",
-          "fields": ["id"],
-          "values": ["country"]
-        },
-        {
-          "type": "lookup",
-          "from": "sequences_and_cases",
-          "key": "country",
-          "fields": ["country"],
-          "values": ["seqs_per_1k_cases", "sequences", "cases", "Population"]
-        }
-      ]
-    },
-    {
-      "name": "trackCountries",
-      "values": [
-        {"country": "USA"},
-        {"country": "United Kingdom"},
-        {"country": "China"},
-        {"country": "Australia"},
-        {"country": "Japan"},
-        {"country": "Denmark"},
-        {"country": "India"},
-        {"country": "New Zealand"}
-      ],
-      "on": [{"trigger": "active", "toggle": "{country: active.country}"}]
-    },
-    {
-      "name": "hover_country",
-      "values": [],
-      "on": [
-        { "trigger": "topRowHoverCountry", "insert": "{country: topRowHoverCountry, data: topRowHoverCountry}" },
-        {"trigger": "topRowHoverCountryClear", "remove": true}
-      ]
-    },
-    {
-      "name": "selected_sequences",
-      "source": "sequences",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "indata('trackCountries', 'country', datum.country) || indata('hover_country', 'country', datum.country)"
-        },
-        {
-          "type": "window",
-          "sort": {"field": "month"},
-          "groupby": ["country"],
-          "ops": ["sum"],
-          "fields": ["new_sequences"],
-          "as": ["sequences"],
-          "frame": [null, 0]
-        },
-        {
-          "type": "joinaggregate",
-          "groupby": ["country"],
-          "fields": ["sequences"],
-          "ops": ["max"],
-          "as": ["country_sequences"]
-        },
-        {
-          "type": "collect",
-          "sort": {
-            "field": ["country_sequences", "month"],
-            "order": ["descending", "ascending"]
-          }
-        }
-      ]
-    },
-    {
-      "name": "selected_cases",
-      "source": "case_count",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "indata('trackCountries', 'country', datum.country) || indata('hover_country', 'country', datum.country)"
-        },
-        {
-          "type": "joinaggregate",
-          "groupby": ["country"],
-          "fields": ["cumulative_cases"],
-          "ops": ["max"],
-          "as": ["country_cases"]
-        },
-        {
-          "type": "collect",
-          "sort": {
-            "field": ["country_cases", "month"],
-            "order": ["descending", "ascending"]
-          }
-        }
-      ]
-    },
-    {
-      "name": "selected_turnaround",
-      "source": "turnaround",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "indata('trackCountries', 'country', datum.country) || indata('hover_country', 'country', datum.country)"
-        },
-        {
-          "type": "joinaggregate",
-          "groupby": ["country"],
-          "fields": ["q50"],
-          "ops": ["median"],
-          "as": ["med_turnaround"]
-        },
-        {
-          "type": "collect",
-          "sort": {
-            "field": ["med_turnaround", "month"],
-            "order": ["ascending", "ascending"]
-          }
-        }
-      ]
-    },
-    {
-      "name": "hover_sequences",
-      "source": "selected_sequences",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "bottomRowMousePlot == 'sequences' && (abs(datum.month - time(bottomRowMouseX)) <= 1000 * 60 * 60 * 24 * 15) && (abs(datum.sequences - bottomRowMouseY) <= 20000)"
-        }
-      ]
-    },
-    {
-      "name": "hover_cases",
-      "source": "selected_cases",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "bottomRowMousePlot == 'cases' && (abs(datum.month - time(bottomRowMouseX)) <= 1000 * 60 * 60 * 24 * 15) && (abs(log(datum.cumulative_cases) - log(bottomRowMouseY)) <= 1)"
-        }
-      ]
-    },
-    {
-      "name": "hover_turnaround",
-      "source": "selected_turnaround",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "bottomRowMousePlot == 'turnaround' && (abs(datum.submission_month - time(bottomRowMouseX)) <= 1000 * 60 * 60 * 24 * 15) && (abs(datum.q50 - bottomRowMouseY) <= 15)"
-        }
-      ]
-    },
-    {
-      "name": "hover_legend",
-      "values": [],
-      "on": [
-        { "trigger": "bottomRowLegendHover", "insert": "bottomRowLegendHover" },
-        {"trigger": "bottomRowLegendClear", "remove": true}
-      ],
-      "transform": [
-        {
-          "type": "formula",
-          "expr": "datum.data",
-          "as": "country"
-        }
-      ]
-    },
-    {
-      "name": "hover_all",
-      "source": ["hover_country", "hover_sequences", "hover_cases", "hover_turnaround", "hover_legend"]
-    }
-  ],
-  "signals": [
-    {
-      "name": "topRowHoverCountry",
-      "on": [
-        {"events": "@point:mouseover", "update": "datum.country", "force": true},
-        {"events": "@seqMap:mouseover", "update": "datum.country", "force": true}
-      ]
-    },
-    {
-      "name": "topRowHoverCountryClear",
-      "value": true,
-      "on": [
-        {
-          "events": "@point:mouseout", 
-          "update": "true", 
-          "force": true
-        },
-        {
-          "events": "@seqMap:mouseout", 
-          "update": "true",
-          "force": true
-        }
-      ]
-    },
-    {
-      "name": "active",
-      "value": {},
-      "on": [
-        {"events": "@point:mousedown", "update": "datum"},
-        {"events": "@seqMap:mousedown", "update": "datum"},
-        {"events": "window:mouseup", "update": "{}"}
-      ]
-    },
-    {"name": "topRowHeight", "update": "height * (1/2)"},
-    {"name": "bottomRowYPadding", "value": 50},
-    {
-      "name": "bottomRowHeight",
-      "update": "height - topRowHeight - bottomRowYPadding"
-    },
-    {"name": "bottomRowY", "update": "topRowHeight + bottomRowYPadding"},
-    {"name": "bottomRowPlotPadding", "value": 75},
-    {
-      "name": "bottomRowPlotWidth",
-      "update": "((width - (bottomRowPlotPadding * 2)) / 3)"
-    },
-    {"name": "bottomRowXRange", "update": "[0, bottomRowPlotWidth]"},
-    {"name": "bottomRowYRange", "update": "[bottomRowHeight, 0]"},
-    {
-      "name": "casesPlotX",
-      "update": "bottomRowPlotWidth + bottomRowPlotPadding"
-    },
-    {
-      "name": "turnaroundPlotX",
-      "update": "(bottomRowPlotWidth * 2) + (bottomRowPlotPadding * 2)"
-    },
-    {"name": "mapPadding", "value": 120},
-    {"name": "mapX", "update": "width"},
-    {"name": "mapWidth", "update": "width"},
-    {"name": "mapHeight", "update": "topRowHeight"},
-    {"name": "tx", "update": "mapWidth / 2"},
-    {"name": "ty", "update": "mapHeight / 2"},
-    {
-      "name": "scale",
-      "value": 150,
-      "on": [
-        {
-          "events": "[mouseover, mouseout] > wheel!, > wheel!",
-          "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 70, 3000)"
-        }
-      ]
-    },
-    {
-      "name": "angles",
-      "value": [0, 0],
-      "on": [{"events": "touchdown", "update": "[rotateX, centerY]"}]
-    },
-    {
-      "name": "cloned",
-      "value": null,
-      "on": [{"events": "touchdown", "update": "copy('projection')"}]
-    },
-    {
-      "name": "start",
-      "value": null,
-      "on": [{"events": "touchdown", "update": "invert(cloned, xy())"}]
-    },
-    {
-      "name": "drag",
-      "value": null,
-      "on": [
-        {
-          "events": "[@seqMapRect:mousedown, window:mouseup] > window:mousemove, [@seqMap:mousedown, window:mouseup] > window:mousemove",
-          "update": "invert(cloned, xy())"
-        }
-      ]
-    },
-    {
-      "name": "delta",
-      "value": null,
-      "on": [
-        {
-          "events": {"signal": "drag"},
-          "update": "[drag[0] - start[0], start[1] - drag[1]]"
-        }
-      ]
-    },
-    {
-      "name": "rotateX",
-      "value": 0,
-      "on": [{"events": {"signal": "delta"}, "update": "angles[0] + delta[0]"}]
-    },
-    {
-      "name": "centerY",
-      "value": 50,
-      "on": [
-        {
-          "events": {"signal": "delta"},
-          "update": "clamp(angles[1] + delta[1], -60, 60)"
-        }
-      ]
-    },
-    {
-      "name": "bottomRowMousePlot",
-      "on": [
-        {
-          "events": "mousemove",
-          "update": "if(x() >= 0 && x() <= bottomRowPlotWidth, 'sequences', if(x() >= casesPlotX && x() <= casesPlotX + bottomRowPlotWidth, 'cases', if(x() >= turnaroundPlotX && x() <= turnaroundPlotX + bottomRowPlotWidth, 'turnaround', -1)))"
-        }
-      ]
-    },
-    {
-      "name": "bottomRowMouseX",
-      "on": [
-        {
-          "events": "mousemove",
-          "update": "if(bottomRowMousePlot == 'sequences', invert('sequencesX', x()), if(bottomRowMousePlot == 'cases', invert('casesX', x() - casesPlotX), if(bottomRowMousePlot == 'turnaround', invert('turnaroundX', x() - turnaroundPlotX), -1)))"
-        }
-      ]
-    },
-    {
-      "name": "bottomRowMouseY",
-      "on": [
-        {
-          "events": "mousemove",
-          "update": "if(bottomRowMousePlot == 'sequences', invert('sequencesY', y() - bottomRowY), if(bottomRowMousePlot == 'cases', invert('casesY', y() - bottomRowY), if(bottomRowMousePlot == 'turnaround', invert('turnaroundY', y() - bottomRowY), -1)))"
-        }
-      ]
-    },
-    {
-      "name": "bottomRowLegendHover",
-      "on": [
-        {
-          "events": "@country_legend_symbol:mouseover",
-          "update": "datum.value"
-        },
-        {
-          "events": "@country_legend_label:mouseover",
-          "update": "datum.value"
-        }
-      ]
-    },
-    {
-      "name": "bottomRowLegendClear",
-      "value": true,
-      "on": [
-        {
-          "events": "@country_legend_symbol:mouseout",
-          "update": "true",
-          "force": true
-        },
-        {
-          "events": "@country_legend_label:mouseout",
-          "update": "true",
-          "force": true
-        }
-      ]
-    }
-  ],
-  "scales": [
-    {
-      "name": "size",
-      "type": "linear",
-      "domain": [1000000, 100000000],
-      "range": [20, 200]
-    },
-    {
-      "name": "sequence_color",
-      "type": "quantize",
-      "domain": [0, 20],
-      "range": {"scheme": "yellowgreenblue", "count": 10}
-    },
-    {
-      "name": "country_color",
-      "type": "ordinal",
-      "domain": {"data": "selected_sequences", "field": "country"},
-      "range": {"scheme": "tableau10"}
-    },
-    {
-      "name": "sequencesX",
-      "type": "time",
-      "domain": {"data": "selected_sequences", "field": "month"},
-      "range": {"signal": "bottomRowXRange"}
-    },
-    {
-      "name": "sequencesY",
-      "type": "linear",
-      "round": true,
-      "nice": true,
-      "zero": true,
-      "domain": {"data": "selected_sequences", "field": "sequences"},
-      "range": {"signal": "bottomRowYRange"}
-    },
-    {
-      "name": "casesX",
-      "type": "time",
-      "domain": {"data": "selected_cases", "field": "month"},
-      "range": {"signal": "bottomRowXRange"}
-    },
-    {
-      "name": "casesY",
-      "type": "linear",
-      "domain": {"data": "selected_cases", "field": "cumulative_cases"},
-      "range": {"signal": "bottomRowYRange"}
-    },
-    {
-      "name": "turnaroundX",
-      "type": "time",
-      "domain": {
-        "data": "selected_turnaround",
-        "field": "submission_month"
-      },
-      "range": {"signal": "bottomRowXRange"}
-    },
-    {
-      "name": "turnaroundY",
-      "type": "linear",
-      "domain": {"data": "selected_turnaround", "field": "q50"},
-      "range": {"signal": "bottomRowYRange"}
-    }
-  ],
-  "projections": [
-    {
-      "name": "projection",
-      "type": "mercator",
-      "scale": {"signal": "scale"},
-      "rotate": [{"signal": "rotateX"}, 0, 0],
-      "center": [0, {"signal": "centerY"}],
-      "translate": [{"signal": "tx"}, {"signal": "ty"}]
-    }
-  ],
-  "marks": [
-    {
-        
-              "name": "seqMap",
-              "type": "shape",
-              "from": {"data": "world"},
-              "encode": {
-                "update": {
-                  "tooltip": {
-                    "signal": "{'Country': datum.country, 'Population': format(datum.Population, '.2s'), 'Cases': format(datum.cases, '.2s'), 'Sequences': format(datum.sequences, '.2s'),  'Sequences per 1000 cases': format(datum.seqs_per_1k_cases, '.2f')}"
-                  },
-                  "fill": [
-                    {
-                      "test": "datum.seqs_per_1k_cases === null || datum.seqs_per_1k_cases === 0",
-                      "value": "#AAA"
-                    },
-                    {"scale": "sequence_color", "field": "seqs_per_1k_cases"}
-                  ],
-                  "strokeWidth": [
-                    {
-                      "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
-                      "value": 1
-                    },
-                    {"value": 0.5}
-                  ],
-                  "stroke": [
-                    {
-                      "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
-                      "value": "#444"
-                    },
-                    {"value": "#bbb"}
-                  ],
-                  "zindex": [
-                    {
-                      "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
-                      "value": 1
-                    },
-                    {"value": 0}
-                  ]
+            "name": "world",
+            "url": "https://raw.githubusercontent.com/vega/datalib/master/test/data/world-110m.json",
+            "format": {
+                "type": "topojson",
+                "feature": "countries"
+            },
+            "transform": [
+                {
+                    "type": "lookup",
+                    "from": "iso_lookup",
+                    "key": "UID",
+                    "fields": [
+                        "id"
+                    ],
+                    "values": [
+                        "logx"
+                    ]
                 }
-              },
-              "transform": [{"type": "geoshape", "projection": "projection"}]
-            }
-    
-  ],
-  "legends": [
-            {
-              "title": ["Sequences per", "1K cases"],
-              "fill": "sequence_color",
-              "format": "d",
-              "orient": "bottom-left",
-              "offset": 5,
-              "type": "gradient",
-              "gradientLength": 250,
-              "gradientThickness": 12,
-              "titlePadding": 10,
-              "titleOrient": "left",
-              "titleAnchor": "end",
-              "direction": "horizontal"
-            }
-      ]
+            ]
+        }
+    ],
+    "scales": [
+        {
+          "name": "color",
+          "type": "quantize",
+          "domain": [0, 8],
+          "range": {"scheme": "yellowgreenblue", "count": 10}
+        }
+    ],
+    "legends": [
+        {
+        "fill": "color",
+        "title": "# of Sequences",
+        "orient": "bottom-right",
+        "direction": "horizontal",
+        "encode": {
+            "symbols": {"enter": {"fillOpacity": {"value": 0.75}}},
+            "labels": {"update": {"text": {"field": "logx"}}}
+        }
+        }
+    ],
+    "marks": [
+        {
+            "type": "shape",
+            "clip": true,
+            "from": {
+                "data": "world"
+            },
+            "encode": {
+                "enter": {
+                    "strokeWidth": {
+                        "value": 0.5
+                    },
+                    "stroke": {
+                        "value": "#bbb"
+                    }
+                },
+                "update": {
+                    "fill": [
+                        {
+                            "test": "datum.logx === null",
+                            "value": "#AAA"
+                        },
+                        {
+                            "scale": "color",
+                            "field": "logx"
+                        }
+                    ]
+                }
+            },
+            "transform": [
+                {
+                    "type": "geoshape",
+                    "projection": "projection"
+                }
+            ]
+        }
+    ]
 }
