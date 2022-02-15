@@ -55,7 +55,7 @@ def main():
             cur.execute('ALTER SCHEMA "new" RENAME TO "public";')
 
             cur.execute('DROP EXTENSION IF EXISTS intarray;')
-            cur.execute('CREATE EXTENSION intarray WITH SCHEMA "public";')
+            cur.execute('CREATE EXTENSION IF NOT EXISTS intarray WITH SCHEMA "public";')
         conn.commit()
         print("done")
 

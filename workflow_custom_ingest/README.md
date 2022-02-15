@@ -37,7 +37,7 @@ To make use of this data please do the following:
    ```bash
    > docker-compose build
    > docker-compose up -d
-   > curl http://localhost:5000/seed
+   > curl http://localhost:5001/seed
    ```
 
 ### Your own data
