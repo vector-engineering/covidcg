@@ -27,6 +27,7 @@ dependencies:
   - xlrd=2.0.1
   #- minimap2=2.21
   - scikit-learn=1.0
+  - openblas=0.3.18
   - pip:
       - pysam==0.18.0
   # For pushing to database

@@ -1,8 +1,8 @@
 name: covid-cg
 channels:
-  - conda-forge
   - defaults
   - bioconda
+  - conda-forge
 dependencies:
   - python=3.8.8
   - numpy=1.20.2
@@ -10,16 +10,16 @@ dependencies:
   - pandas=1.2.5
   - pip=20.1.1
   - snakemake-minimal=5.20.1
-  - samtools=1.10
+  #- samtools=1.10
   - bs4=4.9.3
   - biopython=1.78
-  - fasttree=2.1.10
+  #- fasttree=2.1.10
   - treetime=0.7.5
   - networkx=2.5.1
   - xlrd=2.0.1
-  - minimap2=2.21
+  #- minimap2=2.21
   - scikit-learn=1.0
   - pip:
       - pysam==0.15.4
   # For pushing to database
-  - psycopg2==2.8.4
+  - psycopg2==2.9.3
