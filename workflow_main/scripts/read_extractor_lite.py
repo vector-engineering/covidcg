@@ -17,6 +17,7 @@ class ReadExtractor:
     """
 
     RefSeq = ""
+    VALID_NUCLEOTIDES = ['A', 'T', 'C', 'G']
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -184,9 +185,8 @@ class ReadExtractor:
                         )
                     )
                     and
-                    # If the reference has an X as the base, then
-                    # ignore any mutations at this position
-                    (self.reference_seq[self.ref_i] != "X")
+                    # Ignore degenerate/non-canonical NTs
+                    self.read_seq[self.read_i] in self.VALID_NUCLEOTIDES
                 ):
                     # Add substitution information to mutation string
                     self.mutation_str.append(
@@ -271,14 +271,6 @@ class ReadExtractor:
             # If it's a mutation, then add and continue
             if ref and alt:
                 i += 1
-
-                # Actually, skip adding it if either the ref or the alt
-                # is an ambiguous base (N)
-                # This is useless data bloat and should be removed as
-                # early as possible
-                if alt not in ["A", "C", "G", "T"]:
-                    continue
-
                 self.dna_mutations.append((query_name, pos, ref, alt))
                 continue
 
@@ -298,6 +290,18 @@ class ReadExtractor:
 
             # Get adjacent indels
             adj_muts = self.mutation_str[i:j]
+
+            # Skip ahead to the end of the adjacent mutations
+            i = j
+
+            # For long insertions, if any base is degenerate/non-canonical,
+            # then throw out the entire insertion
+            if not all([
+                    c in self.VALID_NUCLEOTIDES or c == '' 
+                    for c in list(''.join([m[3] for m in adj_muts]))
+                ]):
+                continue
+
             # Combine bases, but keep first position and type
             self.dna_mutations.append(
                 (
@@ -307,8 +311,6 @@ class ReadExtractor:
                     "".join([m[3] for m in adj_muts]),
                 )
             )
-            # Skip ahead to the end of the adjacent mutations
-            i = j
 
     def process_all(self):
         """Do everything, return everything"""
