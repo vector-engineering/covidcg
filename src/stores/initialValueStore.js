@@ -2,17 +2,16 @@ import { observable, action, runInAction } from 'mobx';
 
 import { ASYNC_STATES } from '../constants/defs.json';
 
-export default class InitialValueStore {
+class InitialValueStore {
   @observable configStore = {};
   @observable plotSettingsStore = {};
+  @observable groupDataStore = {};
 
   @observable status = ASYNC_STATES.UNINITIALIZED;
 
   constructor() {
     this.getInitialValues();
   }
-
-  init() {}
 
   @action
   async getInitialValues() {
@@ -30,6 +29,7 @@ export default class InitialValueStore {
             runInAction(() => {
               this.configStore = allInitialValues.configStore;
               this.plotSettingsStore = allInitialValues.plotSettingsStore;
+              this.groupDataStore = allInitialValues.groupDataStore;
               this.status = ASYNC_STATES.SUCCEEDED;
             });
           });
@@ -49,3 +49,5 @@ export default class InitialValueStore {
       });
   }
 }
+
+export default InitialValueStore;

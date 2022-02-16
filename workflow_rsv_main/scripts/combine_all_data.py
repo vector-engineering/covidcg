@@ -44,9 +44,7 @@ def combine_all_data(
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
         processed_fasta_files,
         protein_aa_mutation_files,
-        processed_fasta_files,
-        dna_mutation_files,
-        mode="dna",
+        mode="protein_aa",
         count_threshold=count_threshold,
     )
 
@@ -67,7 +65,7 @@ def combine_all_data(
     #     df = df.loc[~pd.isnull(df[col]), :]
 
     # Add known genotypes to df
-    df = df.join(genotype_df[["genotype"]], on="Accession ID", how="inner", sort=False,)
+    df = df.join(genotype_df[["genotype", "subtype"]], on="Accession ID", how="inner", sort=False,)
 
     # Join mutations to main dataframe
     # inner join to exclude filtered out sequences

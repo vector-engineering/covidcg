@@ -11,8 +11,8 @@ services:
       - FLASK_ENV=development
       - CONFIGFILE=/opt/config/config_genbank_example.yaml
       - CONSTANTSFILE=/opt/constants/defs.json
-      - DATA_PATH=/data/sars2
-      - STATIC_DATA_PATH=/opt/static_data/sars2
+      - DATA_PATH=/data
+      - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
       - POSTGRES_HOST=db

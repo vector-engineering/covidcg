@@ -12,7 +12,7 @@ from analyses.scripts.az_report_generation import generate_az_reports
 from analyses.scripts.global_sequencing_efforts import global_sequencing_efforts
 from analyses.scripts.standalone_map_spec import standalone_map_spec
 
-data_folder = os.path.join("..", config["data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
 # static_data_folder = os.path.join("..", config["data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
@@ -61,7 +61,6 @@ rule surveillance_data:
         """
         python3 analyses/scripts/surveillance.py --case-data {input.case_data} --metadata-map {input.metadata_map} {params.start_date} {params.end_date} --start-date-days-ago {params.start_date_days_ago} --end-date-days-ago {params.end_date_days_ago} --min-combo-count {params.min_combo_count} --min-single-count {params.min_single_count} -o {params.out_folder}
         """
-
 
 
 rule global_sequencing_efforts:

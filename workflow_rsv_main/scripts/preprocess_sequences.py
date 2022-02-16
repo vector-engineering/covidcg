@@ -9,15 +9,11 @@ import gzip
 import math
 import re
 
-<<<<<<< HEAD
-=======
-from pathlib import Path
-
->>>>>>> e6dd8312 (Rsvg workflow main (#420))
 
 def preprocess_sequences(input_file, output_file):
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Can't have more than 5% ambiguous NT
+    2. Can't be shorter than 2878 NT (combined length of F and G)
     """
 
     num_excluded = 0
@@ -41,6 +37,9 @@ def preprocess_sequences(input_file, output_file):
                 if (
                     # 1: Can't have more than 5% ambiguous (N) NT
                     num_ambiguous > math.floor(len(cur_seq) * 0.05)
+                    or
+                    # 2: Can't be shorter than 2878 NT (combined length of F and G)
+                    len(cur_seq) < 2878
                 ):
                     num_excluded += 1
                 else:

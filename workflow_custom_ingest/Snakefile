@@ -10,7 +10,7 @@ from scripts.combine_lineages import combine_lineages
 
 configfile: "../config/config_custom.yaml"
 
-data_folder = os.path.join("..", config["data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
 # static_data_folder = os.path.join("..", config["static_data_folder"])
 
 CHUNKS, = glob_wildcards(os.path.join(
@@ -50,7 +50,7 @@ rule combine_lineages:
     run:
         combine_lineages(input.lineages, output.lineages)
 
-        
+
 rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """

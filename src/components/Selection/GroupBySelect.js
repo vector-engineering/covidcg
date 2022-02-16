@@ -33,7 +33,6 @@ const GroupBySelect = observer(
     showExtraGroupText,
     disabled,
     direction,
-    onReferenceChange,
   }) => {
     let handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
@@ -237,6 +236,7 @@ GroupBySelect.propTypes = {
   coordinateMode: PropTypes.string,
   selectedGene: PropTypes.object,
   selectedProtein: PropTypes.object,
+  selectedReference: PropTypes.string,
   onGroupKeyChange: PropTypes.func,
   onDnaOrAaChange: PropTypes.func,
   onReferenceChange: PropTypes.func,

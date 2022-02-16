@@ -70,10 +70,15 @@ def clean_metadata(metadata_in, metadata_out):
     df = df.set_index("Accession ID")
 
     # Remove sequences without region, collection date, or submission date
+    # Remove sequences without F and G proteins
     remove_rows = (
         (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
+        | ((df["protein_names"].str.contains('fusion')
+            | df["protein_names"].str.contains('F ')) &
+           df["protein_names"].str.contains('attachment')
+            | df["protein_names"].str.contains('G '))
     )
     df = df.loc[~remove_rows]
 

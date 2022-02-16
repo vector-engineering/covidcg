@@ -1,5 +1,6 @@
 import { getGene, getProtein } from '../utils/gene_protein';
 import { intToISO, ISOToInt } from '../utils/date';
+import { config } from '../config';
 
 import {
   GROUP_MUTATION,
@@ -90,6 +91,11 @@ export default function values() {
       reportStructureActiveProtein: 'F',
       reportStructurePdbId: '',
       reportStructureActiveGroup: 'A',
+    },
+    groupDataStore: {
+      activeGroupType: Object.keys(config['group_cols'])[0],
+      selectedGroups: ['A'],
+      groupMutationType: 'protein_aa',
     },
   };
 }

@@ -9,12 +9,7 @@ from the variant_extractor project
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import numpy as np
-import pandas as pd
-
-from collections import defaultdict
-
-from scripts.util import translate, reverse_complement
+from scripts.util import reverse_complement
 
 
 class ReadExtractor:
@@ -65,10 +60,6 @@ class ReadExtractor:
         # Nucleotide sequence of the read
         self.read_seq = self.read.get_forward_sequence()
 
-        # Don't try to do anything else if this read has no sequence
-        if not self.read_seq:
-            return
-
         # If reverse complement, flip the sequence and the quality scores
         if self.read.is_reverse:
             self.read_seq = reverse_complement(self.read_seq)
@@ -78,11 +69,7 @@ class ReadExtractor:
             return
 
         # Get the reference sequence
-        self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
-
-        # Don't try to do anything if the reference is not in RefSeq
-        if len(self.reference_seq) == 0:
-            return
+        self.reference_seq = ReadExtractor.RefSeq
 
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
@@ -178,9 +165,10 @@ class ReadExtractor:
             ---------------------------------------------------
             """
 
-<<<<<<< HEAD
-            # MATCH - can be match or mismatch (mutation)
+            # MATCH - can be match or mismatch
             if op == 0 or op == 7 or op == 8:
+
+                # Check for mutations
                 # If the OP code is 0, then we have to check both the read
                 # and the reference to see if there's a mismatch
                 # If bowtie2 gave us the OP code of 8, then we know there's a mismatch
@@ -216,9 +204,28 @@ class ReadExtractor:
             # Insertion or Soft Clip
             elif op == 1 or op == 4:
 
+                ins_nt = [self.read_seq[self.read_i]]
+
+                # Check ahead for more insertions
+                if (
+                    self.cigar_i < len(self.cigar_ops) - 1
+                    and self.read_i < len(self.read_seq) - 1
+                ):
+                    next_op = self.cigar_ops[self.cigar_i + 1]
+                    while (
+                        (next_op == 1 or next_op == 4)
+                        and self.cigar_i < len(self.cigar_ops) - 2
+                        and self.read_i < len(self.read_seq) - 2
+                    ):
+                        self.read_i += 1
+                        self.cigar_i += 1
+
+                        ins_nt.append(self.read_seq[self.read_i])
+                        next_op = self.cigar_ops[self.cigar_i + 1]
+
                 # Add insertion information to mutation string
                 self.mutation_str.append(
-                    (self.read.query_name, self.ref_i, "", self.read_seq[self.read_i])
+                    (self.read.query_name, self.ref_i, "", "".join(ins_nt))
                 )
 
                 self.read_i += 1
@@ -271,7 +278,8 @@ class ReadExtractor:
                 # early as possible
                 if alt not in ["A", "C", "G", "T"]:
                     continue
-                self.dna_mutations.append((query_name, pos, ref, alt, self.read.reference_name))
+
+                self.dna_mutations.append((query_name, pos, ref, alt))
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -297,7 +305,6 @@ class ReadExtractor:
                     pos,
                     "".join([m[2] for m in adj_muts]),
                     "".join([m[3] for m in adj_muts]),
-                    self.read.reference_name
                 )
             )
             # Skip ahead to the end of the adjacent mutations
@@ -305,9 +312,6 @@ class ReadExtractor:
 
     def process_all(self):
         """Do everything, return everything"""
-        # Skip read without read_seq
-        if not self.read_seq:
-            return None
 
         # Travel to the end of the read
         # so that we can collect additional mutations (if they exist)

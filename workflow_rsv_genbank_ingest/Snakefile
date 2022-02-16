@@ -16,8 +16,8 @@ configfile: "../config/config_rsv_genbank.yaml"
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
+# static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
 
 rule all:
     input:
@@ -137,7 +137,6 @@ rule copy_changed_files:
         ))
     run:
         copy_changed_files(input.changed_chunks, data_folder)
-
 
 rule clean_metadata:
     """Clean metadata

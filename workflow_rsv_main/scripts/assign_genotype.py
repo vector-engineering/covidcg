@@ -9,26 +9,23 @@ import pysam
 
 
 def assign_genotype(sam_file):
-    samfile = pysam.AlignmentFile(sam_file, "r")  # pylint: disable=no-member
-
+    samfile = pysam.AlignmentFile(sam_file, "r", check_sq=False)  # pylint: disable=no-member
     all_genotypes = []
     for read in samfile.fetch(until_eof=True):
-        # Skip if unmapped
-        if read.is_unmapped:
-            continue
-
-        if read.reference_name == "NC_038235.1":
-            all_genotypes.append([read.query_name, "A"])
-        elif read.reference_name == "NC_001781.1":
-            all_genotypes.append([read.query_name, "B"])
+        nameArr = read.query_name.split('_')
+        if nameArr[0] == 'RSVA':
+            print('Assigned A')
+            all_genotypes.append([read.reference_name, "A", nameArr[1]])
+        elif nameArr[0] == 'RSVB':
+            print('Assigned B')
+            all_genotypes.append([read.reference_name, "B", nameArr[1]])
         else:
-            print("Read does not have A or B reference")
-            continue
+            print("Reference not recognized for query: ", read.query_name, read.reference_name)
 
     samfile.close()
 
     genotype_df = pd.DataFrame.from_records(
-        all_genotypes, columns=["Accession ID", "genotype"]
+        all_genotypes, columns=["Accession ID", "subtype", "genotype"]
     )
 
     return genotype_df

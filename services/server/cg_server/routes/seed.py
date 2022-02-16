@@ -19,12 +19,13 @@ def force_seed(conn):
     if os.getenv("FLASK_ENV", "development") != "development":
         return "no"
 
-    print("Seeding DB")
+    print("Seeding DB from /force_seed")
     seed_database(conn)
     insert_sequences(
         conn,
         os.path.join(os.getenv("DATA_PATH", project_root / config["data_folder"]), config["virus"]),
         filenames_as_dates=True,
     )
+    conn.commit()
 
     return "Done!"

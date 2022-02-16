@@ -42,7 +42,9 @@ const SelectionTopBar = observer(() => {
   const onChangeDnaOrAa = (dnaOrAa) => {
     configStore.applyPendingChanges({ dnaOrAa });
   };
-
+  const onReferenceChange = (selectedReference) => {
+    configStore.applyPendingChanges({ selectedReference });
+  };
   const loading = UIStore.caseDataState === ASYNC_STATES.STARTED;
 
   let statusBox = (
@@ -74,8 +76,10 @@ const SelectionTopBar = observer(() => {
         coordinateMode={configStore.coordinateMode}
         selectedGene={configStore.selectedGene}
         selectedProtein={configStore.selectedProtein}
+        selectedReference={configStore.selectedReference}
         onGroupKeyChange={onChangeGroupKey}
         onDnaOrAaChange={onChangeDnaOrAa}
+        onReferenceChange={onReferenceChange}
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}

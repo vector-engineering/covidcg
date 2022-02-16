@@ -1,6 +1,6 @@
 [
   {
-    "name": "Rsvgs01",
+    "name": "5' UTR",
     "segments": [[1, 44]],
     "protein_coding": 0,
     "domains": []
@@ -21,13 +21,51 @@
     "name": "N",
     "segments": [[1140, 2315]],
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Disordered Region",
+        "ranges": [[1, 38]]
+      }
+    ]
   },
   {
     "name": "P",
     "segments": [[2348, 3073]],
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Nucleoprotein Binding Site",
+        "ranges": [[1, 30]]
+      },
+      {
+        "name": "Disordered Region 1",
+        "ranges": [[58, 78]]
+      },
+      {
+        "name": "PP1 Binding Site",
+        "ranges": [[81, 87]]
+      },
+      {
+        "name": "M2-1 Binding Site",
+        "ranges": [[90, 110]]
+      },
+      {
+        "name": "L Binding Site 1",
+        "ranges": [[120, 160]]
+      },
+      {
+        "name": "Disordered Region 2",
+        "ranges": [[200, 241]]
+      },
+      {
+        "name": "L Binding Site 2",
+        "ranges": [[216, 232]]
+      },
+      {
+        "name": "N-RNA Complex Binding Site",
+        "ranges": [[232, 241]]
+      }
+    ]
   },
   {
     "name": "M",
@@ -45,13 +83,39 @@
     "name": "G",
     "segments": [[4659, 5555]],
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Cytoplasmic",
+        "ranges": [[1, 42]]
+      },
+      {
+        "name": "Transmembrane, Helical",
+        "ranges": [[43, 63]]
+      },
+      {
+        "name": "Extracellular",
+        "ranges": [[64, 298]]
+      }
+    ]
   },
   {
     "name": "F",
     "segments": [[5632, 7356]],
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "Extracellular",
+        "ranges": [[26, 524]]
+      },
+      {
+        "name": "Transmembrane, Helical",
+        "ranges": [[525, 550]]
+      },
+      {
+        "name": "Cytoplasmic",
+        "ranges": [[551, 574]]
+      }
+    ]
   },
   {
     "name": "M2",
@@ -63,10 +127,19 @@
     "name": "L",
     "segments": [[8468, 14965]],
     "protein_coding": 1,
-    "domains": []
+    "domains": [
+      {
+        "name": "RdRp Catalytic",
+        "ranges": [[695, 879]]
+      },
+      {
+        "name": "2'-O-MTase",
+        "ranges": [[1822, 2010]]
+      }
+    ]
   },
   {
-    "name": "Rsvgs02",
+    "name": "3' UTR",
     "segments": [[15038, 15191]],
     "protein_coding": 0,
     "domains": []

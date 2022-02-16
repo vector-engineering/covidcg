@@ -9,11 +9,10 @@ import pandas as pd
 from psycopg2 import sql
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.config import config
 
 
 def build_coordinate_filters(
-    conn, dna_or_aa, coordinate_mode, coordinate_ranges, selected_gene, selected_protein,
+    conn, dna_or_aa, coordinate_mode, coordinate_ranges, selected_gene, selected_protein
 ):
     """Build SQL 'WHERE' expression to filter for mutations within the user-defined range
     Only valid in "mutation" mode, not in any other grouping mode
@@ -127,7 +126,6 @@ def build_sequence_where_filter(req):
           inline table expression or CTE
 
     """
-
     start_date = pd.to_datetime(req.get("start_date", None))
     end_date = pd.to_datetime(req.get("end_date", None))
 
@@ -135,11 +133,9 @@ def build_sequence_where_filter(req):
     subm_end_date = req.get("subm_end_date", "")
     subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
-
     selected_reference = req.get("selected_reference", None)
     group_key = req.get("group_key", None)
-
-    selected_metadata_fields = req.get("selected_metadata_fields", None)
+    selected_metadata_fields = req.get("selected_metadata_fields", {})
     selected_group_fields = req.get("selected_group_fields", {})
 
     # Construct submission date filters
@@ -174,11 +170,12 @@ def build_sequence_where_filter(req):
             )
         )
 
-    if selected_reference:
-        if config['virus'] == "rsv" and group_key != "genotype":
+    if config['virus'] == "rsv":
+        # Only display mutations in the currently selected reference
+        if group_key == "mutation":
             metadata_filters.append(
-                sql.SQL('"genotype" = {genotype}').format(
-                    genotype=sql.Literal(selected_reference)
+                sql.SQL('"subtype" = {subtype}').format(
+                    subtype=sql.Literal(selected_reference)
                 )
             )
 

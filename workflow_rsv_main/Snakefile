@@ -26,8 +26,8 @@ from scripts.write_reference_files import write_reference_files
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"
 
-data_folder = os.path.join("..", config["data_folder"])
-static_data_folder = os.path.join("..", config["static_data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
+static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
 
 reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
 gene_defs_path = os.path.join(static_data_folder, "genes.json")
@@ -55,6 +55,7 @@ rule all:
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
 	1. Can't have more than 5% ambiguous NT
+    2. Can't be shorter than 2878 NT (combined length of F and G)
     """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
@@ -62,6 +63,33 @@ rule preprocess_sequences:
         fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     run:
         preprocess_sequences(input.fasta, output.fasta)
+
+
+rule assign_genotypes:
+    """Assign a genotype to each sequences
+    """
+    input:
+        fasta = rules.preprocess_sequences.output.fasta
+    params:
+        ref_seq = os.path.join(static_data_folder, 'genotype_references.fasta')
+    output:
+        bam = os.path.join(data_folder, "genotypes", "bam", "{chunk}.bam")
+    shell:
+        """
+        minimap2 -t {threads} -x asm5 -a --sam-hit-only {input.fasta} {params.ref_seq} | samtools view -b > {output.bam}
+        """
+
+rule combine_genotypes:
+    """Read bam files and assign rsv genotype (A or B)
+    """
+    input:
+        bam = rules.assign_genotypes.output.bam
+    output:
+        genotypes = os.path.join(data_folder, "genotypes", "{chunk}_genotype.csv")
+    run:
+        genotype_df = assign_genotype(input.bam)
+        genotype_df.to_csv(output.genotypes, index=False)
+
 
 rule align_sequences:
     input:
@@ -87,18 +115,6 @@ rule extract_dna_mutations:
     run:
         dna_mutation_df = extract_dna_mutations(input.bam, input.reference)
         dna_mutation_df.to_csv(output.dna_mutation, index=False)
-        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
-
-rule assign_genotype:
-    """Read bam files and assign rsv genotype (A or B)
-    """
-    input:
-        bam = rules.align_sequences.output.bam
-    output:
-        genotypes = os.path.join(data_folder, "genotypes", "{chunk}_genotype.csv")
-    run:
-        genotype_df = assign_genotype(input.bam)
-        genotype_df.to_csv(output.genotypes, index=False)
 
 rule process_genes_and_proteins:
     """Calculate some additional columns on top of the human-generated
@@ -232,8 +248,6 @@ rule consensus_mutations:
             consensus_fraction=config["consensus_fraction"],
             min_reporting_fraction=config['min_reporting_fraction']
         )
-        group_consensus_snvs = os.path.join(data_folder, "group_consensus_mutations.json"),
-        group_snv_frequencies = os.path.join(data_folder, "group_snv_frequencies.json")
 
 rule global_group_counts:
     """Get the number of sequences in each group
@@ -246,7 +260,7 @@ rule global_group_counts:
     run:
         global_group_counts(
             input.case_data, output.global_group_counts,
-            group_cols=list(config["group_cols"].keys())
+            group_cols=config["group_cols"]
         )
 
 rule assemble_data_package:
@@ -256,6 +270,7 @@ rule assemble_data_package:
     input:
         case_data = rules.combine_all_data.output.case_data,
         geo_select_tree = rules.build_location_tree.output.geo_select_tree,
+        global_group_counts = rules.global_group_counts.output.global_group_counts,
         group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
         metadata_map = rules.combine_all_data.output.metadata_map
     output:

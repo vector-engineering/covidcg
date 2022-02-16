@@ -7,15 +7,15 @@ virus: "sars2"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "example_data_genbank/sars2"
+data_folder: "example_data_genbank"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
-static_data_folder: "static_data/sars2"
+static_data_folder: "static_data"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
-example_data_folder: "example_data_genbank/sars2"
+example_data_folder: "example_data_genbank"
 
 # Database for this virus
 postgres_db: "cg_dev"

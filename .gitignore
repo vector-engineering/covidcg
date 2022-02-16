@@ -110,15 +110,18 @@ filter_list.txt
 __pycache__
 
 # BAM files are too large to track for example data
-example_data_genbank/bam/**
+example_data_genbank/*/bam/**
 # Don't need to track redundant fasta_processed files
-example_data_genbank/fasta_processed/**
+example_data_genbank/*/fasta_processed/**
+# Don't track case_data or data_complete .csv
+case_data.csv
+data_complete.csv
 
 **/.snakemake_timestamp
-example_data_genbank/status/**
-example_data_genbank/lineage_treetime/*.txt
-example_data_genbank/lineage_treetime/*.png
-example_data_genbank/lineage_treetime/*.pdf
+example_data_genbank/*/status/**
+example_data_genbank/*/lineage_treetime/*.txt
+example_data_genbank/*/lineage_treetime/*.png
+example_data_genbank/*/lineage_treetime/*.pdf
 
 data
 data_genbank

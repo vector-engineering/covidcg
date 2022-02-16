@@ -64,7 +64,7 @@ export class ConfigStore {
   @observable submStartDate = '';
   @observable submEndDate = '';
 
-  @observable selectedGroupFields = [];
+  @observable selectedGroupFields = {};
 
   @observable selectedLocationNodes = [];
 

@@ -30,7 +30,6 @@ class RootStore {
 
   surveillanceDataStore;
   exampleStore;
-  surveillanceDataStore;
 
   constructor() {
     this.UIStore = new UIStore();

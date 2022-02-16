@@ -8,11 +8,12 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import datetime
 import os
 
-data_folder = os.path.join("..", config["data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
 # static_data_folder = os.path.join("..", config["data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
+
 
 rule surveillance_data:
     input:

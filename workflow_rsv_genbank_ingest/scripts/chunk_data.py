@@ -86,8 +86,6 @@ def chunk_data(data_feed, out_fasta, out_metadata, chunk_size=100000, processes=
         line_counter = 0
 
         feed_reader = csv.DictReader(fp_in, delimiter=",", quotechar='"')
-
-        ref_year = 1996
         for row in feed_reader:
 
             # Flush results if chunk is full
@@ -98,21 +96,15 @@ def chunk_data(data_feed, out_fasta, out_metadata, chunk_size=100000, processes=
                 # Reset sequence dictionary
                 fasta_by_subm_date = defaultdict(list)
 
+            # Add to metadata list
+            metadata_df.append({k: row[k] for k in row.keys() if k != "sequence"})
+
+            # Store sequence in dictionary
             # Chop off the "Z" at the end of the submission time string, then parse
             # as an ISO datetime format, then return just the year-month-day
             subm_date = datetime.datetime.fromisoformat(row["submitted"][:-1]).strftime(
                 "%Y-%m-%d"
             )
-
-            curr_year = int(subm_date.split('-')[0])
-            # Ignore submissions from before the reference was published
-            if curr_year < ref_year:
-                continue
-
-            # Add to metadata list
-            metadata_df.append({k: row[k] for k in row.keys() if k != "sequence"})
-
-            # Store sequence in dictionary
             fasta_by_subm_date[subm_date].append(
                 (row["genbank_accession"], row["sequence"])
             )

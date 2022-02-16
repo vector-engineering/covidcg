@@ -59,7 +59,6 @@ def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
 
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
-        cur.execute("CREATE EXTENSION IF NOT EXISTS intarray;")
 
         cur.execute("DROP EXTENSION IF EXISTS intarray;")
         cur.execute("CREATE EXTENSION intarray;")
@@ -280,7 +279,7 @@ def seed_database(conn, schema="public"):
         # Partition settings
         delta = 31
         if config["mutation_partition_break"] == "Y":
-            delta *= 12
+            delta = 365
 
         min_date = case_data["collection_date"].min()
         max_date = case_data["collection_date"].max() + pd.Timedelta(delta, unit="D")
@@ -508,22 +507,6 @@ def seed_database(conn, schema="public"):
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
             ["geo_select_tree", Json(geo_select_tree)],
-        )
-        with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
-            surv_group_counts = json.loads(fp.read())
-        cur.execute(
-            """
-            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-            """,
-            ["surv_group_counts", Json(surv_group_counts)],
-        )
-        with (data_path / "surveillance" / "group_regression2.json").open("r") as fp:
-            surv_group_regression = json.loads(fp.read())
-        cur.execute(
-            """
-            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-            """,
-            ["surv_group_regression", Json(surv_group_regression)],
         )
         with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
             surv_group_counts = json.loads(fp.read())

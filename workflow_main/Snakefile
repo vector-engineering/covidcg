@@ -24,8 +24,8 @@ from scripts.update_vocs import update_vocs
 # Force the user to define the configfile on the CLI
 # configfile: "../config.yaml"
 
-data_folder = os.path.join("..", config["data_folder"])
-static_data_folder = os.path.join("..", config["static_data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
+static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
 
 reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
 gene_defs_path = os.path.join(static_data_folder, "genes.json")

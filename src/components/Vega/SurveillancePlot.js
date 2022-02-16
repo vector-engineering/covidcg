@@ -124,10 +124,18 @@ const SurveillanceLegend = observer(
     if (plotSettingsStore.surveillanceMode === 'lineage') {
       legendTitleText = 'Lineages';
     } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText = 'Spike mutations (Co-occuring)';
+      legendTitleText =
+        config['virus'] === 'sars2'
+          ? 'Spike mutations (Co-occurring)'
+          : 'Fusion mutations {Co-occurring}';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText = 'Spike mutations (Single)';
+      legendTitleText =
+        config['virus'] === 'sars2'
+          ? 'Spike mutations (single)'
+          : 'Fusion mutations {single}';
     } else if (plotSettingsStore.surveillanceMode === 'genotype') {
+      legendTitleText = 'Genotype';
+    } else if (plotSettingsStore.surveillanceMode === 'subtype') {
       legendTitleText = 'Subtype';
     }
 
@@ -358,9 +366,6 @@ const SurveillancePlot = observer(({ width }) => {
     plotSettingsStore.setSurveillanceLegendHover(legendHover);
   };
 
-  console.log(surveillanceDataStore.surv_group_counts);
-  console.log(surveillanceDataStore.surv_group_regression);
-
   const [state, setState] = useState({
     dataListeners: {
       valid_groups_color: handleValidGroups,
@@ -437,6 +442,8 @@ const SurveillancePlot = observer(({ width }) => {
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
     groupName = 'Single mutations';
   } else if (plotSettingsStore.surveillanceMode == 'genotype') {
+    groupName = 'Genotype';
+  } else if (plotSettingsStore.surveillanceMode == 'subtype') {
     groupName = 'Subtype';
   }
 
@@ -493,15 +500,28 @@ const SurveillancePlot = observer(({ width }) => {
                   onChange={onChangeMode}
                 >
                   {config.virus === 'sars2' && (
-                    <option value={'lineage'}>Lineage</option>
+                    <>
+                      <option value={'lineage'}>Lineage</option>
+                      <option value={'spike_combo'}>
+                        Spike Co-occuring Mutations
+                      </option>
+                      <option value={'spike_single'}>
+                        Spike Single Mutations
+                      </option>
+                    </>
                   )}
                   {config.virus === 'rsv' && (
-                    <option value={'genotype'}>Subtype</option>
+                    <>
+                      <option value={'genotype'}>Genotype</option>
+                      <option value={'subtype'}>Subtype</option>
+                      <option value={'spike_combo'}>
+                        Fusion Co-occuring Mutations
+                      </option>
+                      <option value={'spike_single'}>
+                        Fusion Single Mutations
+                      </option>
+                    </>
                   )}
-                  <option value={'spike_combo'}>
-                    Spike Co-occuring Mutations
-                  </option>
-                  <option value={'spike_single'}>Spike Single Mutations</option>
                 </select>
               </label>
             </OptionSelectContainer>{' '}

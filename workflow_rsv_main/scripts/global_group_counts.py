@@ -35,7 +35,7 @@ def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
     for col in group_cols:
         global_group_counts[col] = case_df[col].value_counts().to_dict()
 
-    # Count global SNV frequencies
+    # Count global mutation frequencies
     # Collapse list of lists into one list, then count individual
     # occurrences, then cast to a regular dict
     global_group_counts["dna_mutation"] = dict(
