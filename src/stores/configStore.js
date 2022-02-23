@@ -313,6 +313,8 @@ export class ConfigStore {
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
 
+      console.log(field);
+
       // Update urlParams
       this.urlParams.delete(field);
 
@@ -348,6 +350,11 @@ export class ConfigStore {
           pending[field][groupKey].forEach((group) => {
             this.urlParams.append(groupKey, group);
           });
+        });
+      } else if (field === 'selectedGroups') {
+        this.urlParams.delete(field);
+        pending[field].forEach((group) => {
+          this.urlParams.append(group);
         });
       } else {
         this.urlParams.set(field, String(pending[field]));
@@ -590,8 +597,11 @@ export class ConfigStore {
   };
 
   getSelectedGroupIds() {
-    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
-      rootStoreInstance.mutationDataStore;
+    const {
+      dnaMutationMap,
+      geneAaMutationMap,
+      proteinAaMutationMap,
+    } = rootStoreInstance.mutationDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -640,8 +650,11 @@ export class ConfigStore {
   }
 
   getMutationToIntMap() {
-    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
-      rootStoreInstance.mutationDataStore;
+    const {
+      dnaMutationMap,
+      geneAaMutationMap,
+      proteinAaMutationMap,
+    } = rootStoreInstance.mutationDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaMutationMap;

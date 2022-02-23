@@ -11,3 +11,6 @@ pandas == 1.4.1
 numpy == 1.21.0
 pyyaml == 5.4
 openpyxl == 3.0.7
+
+# JSON API deprecated in itsdangerous 2.10 but is required for Flask 1.1.2
+itsdangerous == 2.0.1
