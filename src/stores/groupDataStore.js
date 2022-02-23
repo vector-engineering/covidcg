@@ -79,11 +79,14 @@ export class GroupDataStore {
     if (this.urlParams.has('selectedGroups')) {
       const allowedGroups = [];
 
-      this.urlParams.getAll('selectedGroups').forEach((group) => {
-        // If this is a valid group in the url, set selectedGroups
-        if (/^[A-Z]+(.[0-9])+$/.test(group)) {
-          allowedGroups.push(group);
-        }
+      this.urlParams.getAll('selectedGroups').forEach((str) => {
+        const groupArr = str.split(',');
+        groupArr.forEach((group) => {
+          // If this is a valid group in the url, set selectedGroups
+          if (/^[A-Z]+(.[0-9])+$/.test(group)) {
+            allowedGroups.push(group);
+          }
+        });
       });
 
       this.selectedGroups = allowedGroups;
@@ -91,7 +94,6 @@ export class GroupDataStore {
       this.urlParams.delete('selectedGroups');
       this.urlParams.set('selectedGroups', allowedGroups);
 
-      console.log(this.urlParams.getAll('selectedGroups'));
       updateURLFromParams(this.urlParams);
     }
   }
@@ -167,6 +169,18 @@ export class GroupDataStore {
   @action
   updateSelectedGroups = (selectedGroups) => {
     this.selectedGroups = selectedGroups;
+
+    // If the selected groups are the initialValues, don't show
+    const defaultGroups =
+      selectedGroups.sort().join('') ===
+      initialValues.selectedGroups.sort().join('');
+
+    if (selectedGroups.length && !defaultGroups) {
+      this.urlParams.set('selectedGroups', this.selectedGroups);
+    } else {
+      this.urlParams.delete('selectedGroups');
+    }
+    updateURLFromParams(this.urlParams);
 
     // Update the groupSelectTree as well
     const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
