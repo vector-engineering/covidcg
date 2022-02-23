@@ -175,7 +175,7 @@ export class ConfigStore {
           });
 
           this[key] = arr;
-        } else if (key === 'customSequences') {
+        } else if (key === 'customSequences' || key === 'selectedGroups') {
           // Store customSequences as an array of strings
           value = value.split(',');
           this[key] = value;
@@ -313,8 +313,6 @@ export class ConfigStore {
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
 
-      console.log(field);
-
       // Update urlParams
       this.urlParams.delete(field);
 
@@ -350,11 +348,6 @@ export class ConfigStore {
           pending[field][groupKey].forEach((group) => {
             this.urlParams.append(groupKey, group);
           });
-        });
-      } else if (field === 'selectedGroups') {
-        this.urlParams.delete(field);
-        pending[field].forEach((group) => {
-          this.urlParams.append(group);
         });
       } else {
         this.urlParams.set(field, String(pending[field]));

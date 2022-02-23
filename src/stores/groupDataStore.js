@@ -9,6 +9,7 @@ import { asyncDataStoreInstance } from '../components/App';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
+import { updateURLFromParams } from '../utils/updateQueryParam';
 import {
   mutationHeatmapToPymolScript,
   mutationHeatmapToPymolCommands,
@@ -72,6 +73,27 @@ export class GroupDataStore {
         this.groupColors[groupName][group.name] = group.color;
       });
     });
+
+    // Check url for selectedGroups
+    this.urlParams = new URLSearchParams(window.location.search);
+    if (this.urlParams.has('selectedGroups')) {
+      const allowedGroups = [];
+
+      this.urlParams.getAll('selectedGroups').forEach((group) => {
+        // If this is a valid group in the url, set selectedGroups
+        if (/^[A-Z]+(.[0-9])+$/.test(group)) {
+          allowedGroups.push(group);
+        }
+      });
+
+      this.selectedGroups = allowedGroups;
+
+      this.urlParams.delete('selectedGroups');
+      this.urlParams.set('selectedGroups', allowedGroups);
+
+      console.log(this.urlParams.getAll('selectedGroups'));
+      updateURLFromParams(this.urlParams);
+    }
   }
 
   hasGroupFrequencyData() {
