@@ -9,7 +9,6 @@ import { asyncDataStoreInstance } from '../components/App';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import { updateURLFromParams } from '../utils/updateQueryParam';
 import {
   mutationHeatmapToPymolScript,
   mutationHeatmapToPymolCommands,
@@ -93,8 +92,6 @@ export class GroupDataStore {
 
       this.urlParams.delete('selectedGroups');
       this.urlParams.set('selectedGroups', allowedGroups);
-
-      updateURLFromParams(this.urlParams);
     }
   }
 
@@ -180,7 +177,6 @@ export class GroupDataStore {
     } else {
       this.urlParams.delete('selectedGroups');
     }
-    updateURLFromParams(this.urlParams);
 
     // Update the groupSelectTree as well
     const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
