@@ -217,6 +217,12 @@
             "field": ["region", "group", "collection_week"],
             "order": ["ascending", "ascending", "ascending"]
           }
+        },
+        {
+          "type": "stack",
+          "groupby": ["collection_week", "region"],
+          "sort": {"field": "percent"},
+          "field": "percent"
         }
       ]
     },
@@ -362,7 +368,7 @@
             {
               "name": "percentY",
               "type": "linear",
-              "domain": { "data": "group_per_region", "field": "percent" },
+              "domain": { "data": "group_per_region", "field": "y1" },
               "range": { "signal": "subplot_range_y" }
             }
           ],
@@ -448,14 +454,15 @@
               ],
               "marks": [
                 {
-                  "type": "line",
+                  "type": "rect",
                   "from": { "data": "valid_group_date" },
                   "encode": {
                     "update": {
                       "x": { "scale": "dateX", "field": "collection_week" },
-                      "y": { "scale": "percentY", "field": "percent" },
+                      "y": { "scale": "percentY", "field": "y0" },
+                      "y2": {"scale": "percentY", "field": "y1"},
                       "stroke": { "scale": "group_color", "field": "group" },
-                      "strokeWidth": { "value": 2 },
+                      "strokeWidth": { "value": 8 },
                       "strokeOpacity": [
                         {
                           "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
@@ -467,32 +474,7 @@
                     }
                   }
                 },
-                {
-                  "type": "line",
-                  "from": { "data": "invalid_group_date" },
-                  "encode": {
-                    "update": {
-                      "x": { "scale": "dateX", "field": "collection_week" },
-                      "y": { "scale": "percentY", "field": "percent" },
-                      "stroke": { "value": "#aaa" },
-                      "strokeWidth": [
-                        {
-                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                          "value": 1.5
-                        },
-                        { "value": 1.0 }
-                      ],
-                      "strokeOpacity": [
-                        {
-                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                          "value": 0.8
-                        },
-                        { "value": 0.3 }
-                      ],
-                      "zindex": { "value": 1 }
-                    }
-                  }
-                },
+                
                 {
                   "type": "text",
                   "from": { "data": "label" },
