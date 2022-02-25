@@ -22,6 +22,7 @@ import QuestionButton from '../Buttons/QuestionButton';
 import WarningBox from '../Common/WarningBox';
 
 import initialSpec from '../../vega_specs/surveillance.vg.json';
+import stackedSpec from '../../vega_specs/surveillance_stacked.vg.json'
 
 import {
   PlotContainer,
@@ -364,6 +365,7 @@ const SurveillancePlot = observer(({ width }) => {
     data: {
       hover_legend: [],
     },
+    currSpec: initialSpec,
     signalListeners: {},
     legendItems: [],
   });
@@ -396,6 +398,22 @@ const SurveillancePlot = observer(({ width }) => {
 
   const onChangeMode = (e) => {
     plotSettingsStore.setSurveillanceMode(e.target.value);
+  };
+
+  const onChangeGraphMode = (e) => {
+    plotSettingsStore.setSurveillanceGraphMode(e.target.value);
+    let newSpec;
+    if (e.target.value === 'line') {
+      newSpec = initialSpec;
+    }
+    else {
+      newSpec = stackedSpec;
+    }
+    setState({
+      ...state,
+      currSpec: newSpec
+    });
+    console.log(state.currSpec);
   };
 
   const setLegendHover = (group) => {
@@ -484,6 +502,18 @@ const SurveillancePlot = observer(({ width }) => {
                   <option value={'spike_single'}>Spike Single Mutations</option>
                 </select>
               </label>
+            </OptionSelectContainer>
+            Graph Mode
+            <OptionSelectContainer>
+              <label>
+                <select
+                  value={plotSettingsStore.surveillanceGraphMode}
+                  onChange={onChangeGraphMode}
+                >
+                  <option value={'line'}>Line</option>
+                  <option value={'stacked_bar'}>Stacked Bar</option>
+                </select>
+              </label>
             </OptionSelectContainer>{' '}
             <CollapseButton onClick={onToggleShowSettings}>
               {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
@@ -519,7 +549,7 @@ const SurveillancePlot = observer(({ width }) => {
         />
         <VegaEmbed
           ref={vegaRef}
-          spec={initialSpec}
+          spec={state.currSpec}
           data={state.data}
           signals={{
             mode: plotSettingsStore.surveillanceMode,
