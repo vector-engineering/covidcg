@@ -217,12 +217,6 @@
             "field": ["region", "group", "collection_week"],
             "order": ["ascending", "ascending", "ascending"]
           }
-        },
-        {
-          "type": "stack",
-          "groupby": ["collection_week", "region"],
-          "sort": {"field": "percent"},
-          "field": "percent"
         }
       ]
     },
@@ -369,6 +363,8 @@
               "name": "percentY",
               "type": "linear",
               "domain": { "data": "group_per_region", "field": "y1" },
+              "domainMin": 0,
+              "domainMax": 1,
               "range": { "signal": "subplot_range_y" }
             }
           ],
@@ -415,6 +411,12 @@
                     {
                       "type": "filter",
                       "expr": "datum.valid || indata('valid_groups', 'group', datum.group)"
+                    },
+                    {
+                      "type": "stack",
+                      "groupby": ["collection_week"],
+                      "sort": {"field": "group"},
+                      "field": "percent"
                     }
                   ]
                 },
@@ -425,6 +427,12 @@
                     {
                       "type": "filter",
                       "expr": "!datum.valid && !indata('valid_groups', 'group', datum.group)"
+                    },
+                    {
+                      "type": "stack",
+                      "groupby": ["collection_week"],
+                      "sort": {"field": "group"},
+                      "field": "percent"
                     }
                   ]
                 },
