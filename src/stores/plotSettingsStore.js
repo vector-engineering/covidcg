@@ -36,6 +36,7 @@ export const initialValues = {
   surveillanceSigMinPercent: 0.02,
   surveillanceSigMinR: 0.3,
   surveillanceLegendHover: [],
+  surveillanceGraphMode: 'line',
 
   // GROUP REPORT TAB
   reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
@@ -136,6 +137,7 @@ export class PlotSettingsStore {
     initialValues.surveillanceSigMinPercent;
   @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
   @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
+  @observable surveillanceGraphMode = initialValues.surveillanceGraphMode;
 
   @action
   setSurveillanceMode = (mode) => {
@@ -180,6 +182,10 @@ export class PlotSettingsStore {
   @action
   setSurveillanceLegendHover = (hover) => {
     this.surveillanceLegendHover = hover;
+  };
+  @action
+  setSurveillanceGraphMode = (m) => {
+    this.surveillanceGraphMode = m;
   };
 
   // ----------------
