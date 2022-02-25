@@ -365,7 +365,7 @@ const SurveillancePlot = observer(({ width }) => {
     data: {
       hover_legend: [],
     },
-    currSpec: initialSpec,
+    currSpec: stackedSpec,
     signalListeners: {},
     legendItems: [],
   });
@@ -503,7 +503,9 @@ const SurveillancePlot = observer(({ width }) => {
                 </select>
               </label>
             </OptionSelectContainer>
-            Graph Mode
+            
+            { // TODO: Add choice if we want to.
+            /* Graph Mode
             <OptionSelectContainer>
               <label>
                 <select
@@ -514,7 +516,7 @@ const SurveillancePlot = observer(({ width }) => {
                   <option value={'stacked_bar'}>Stacked Bar</option>
                 </select>
               </label>
-            </OptionSelectContainer>{' '}
+            </OptionSelectContainer>{' '} */}
             <CollapseButton onClick={onToggleShowSettings}>
               {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
               Settings <span className="caret"></span>
