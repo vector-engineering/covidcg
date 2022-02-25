@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "A basic line chart example.",
+  "description": "Stacked bar chart for different regions of the world.",
   "width": 1000,
   "height": 350,
   "padding": 5,
