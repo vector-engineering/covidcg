@@ -392,9 +392,7 @@ const SurveillancePlot = observer(({ width }) => {
 
   const handleDownloadSelect = (option) => {
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      hiddenLink.current.href =
-        'https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv';
-      hiddenLink.current.click();
+      surveillanceDataStore.downloadGroupCounts();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
