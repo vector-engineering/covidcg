@@ -15,6 +15,8 @@ from flask import Flask
 from flask_gzip import Gzip
 from flask_cors import CORS
 
+from pathlib import Path
+
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
@@ -51,13 +53,13 @@ if os.getenv("FLASK_ENV", "development") == "development":
         )
         exists = cur.fetchone()[0]
 
-    #if not exists:
-    #    print("Seeding DB")
-    #    seed_database(conn)
-    #
-    #    insert_sequences(
-    #        conn,
-    #        os.getenv("DATA_PATH", project_root / config["data_folder"]) / config["virus"],
-    #        filenames_as_dates=True,
-    #    )
-    #    conn.commit()
+    if not exists:
+        print("Seeding DB")
+        seed_database(conn)
+
+        insert_sequences(
+            conn,
+            Path(os.getenv("DATA_PATH", project_root / config["data_folder"])) / config["virus"],
+            filenames_as_dates=True,
+        )
+        conn.commit()

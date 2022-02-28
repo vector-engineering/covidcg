@@ -36,7 +36,7 @@ def flush_chunk(cur, buffer):
         """
         COPY "temp_sequence" FROM STDIN WITH (FORMAT CSV);
         """,
-        buffer,
+        buffer
     )
     buffer.close()
 
@@ -178,4 +178,3 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
             CREATE INDEX "ix_sequence_sequence_id" ON "sequence"("sequence_id");
             """
         )
-
