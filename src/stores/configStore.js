@@ -496,7 +496,13 @@ export class ConfigStore {
       return toJS(this.customCoordinates);
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
       return this.customSequences.map((seq) => {
-        return queryReferenceSequence(seq);
+        if (config.virus === 'sars2') {
+          return queryReferenceSequence(seq);
+        } else if (config.virus === 'rsv') {
+          const key =
+            this.selectedReference === 'A' ? 'NC_038235.1' : 'NC_001781.1';
+          return queryReferenceSequence(seq, key);
+        }
       });
     }
   }

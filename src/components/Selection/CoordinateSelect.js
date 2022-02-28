@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react';
+import { useStores } from '../../stores/connect';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -26,6 +27,7 @@ import {
   getPrimersByGroup,
 } from '../../utils/primer';
 import { queryReferenceSequence } from '../../utils/reference';
+import { config } from '../../config';
 
 import {
   DNA_OR_AA,
@@ -63,6 +65,7 @@ const CoordinateSelect = observer(
     updateValidCustomSequences,
   }) => {
     // Create option elements
+    const { configStore } = useStores();
 
     // GENE
     let geneOptionElements = [];
@@ -336,7 +339,15 @@ const CoordinateSelect = observer(
       // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
         // Fails if any conditions are met
-        return seq.length === 0 || queryReferenceSequence(seq) === 0;
+        if (config.virus === 'sars2') {
+          return seq.length === 0 || queryReferenceSequence(seq) === 0;
+        } else if (config.virus === 'rsv') {
+          const key =
+            configStore.selectedReference === 'A'
+              ? 'NC_038235.1'
+              : 'NC_001781.1';
+          return seq.length === 0 || queryReferenceSequence(seq, key);
+        }
       });
 
       setState({
@@ -431,7 +442,7 @@ const CoordinateSelect = observer(
         ...state,
         primerTreeData,
       });
-    }
+    };
 
     // This component needs to be in a memoized function
     // since it manages its own local state. It should never be re-rendered
@@ -590,41 +601,43 @@ const CoordinateSelect = observer(
           </ModeRadioVertical>
 
           {/* PRIMER/PROBE SELECT */}
-          <ModeRadioVertical>
-            <ModeLabel>
-              <input
-                className="radio-input"
-                type="radio"
-                value={COORDINATE_MODES.COORD_PRIMER}
-                checked={coordinateMode === COORDINATE_MODES.COORD_PRIMER}
-                onChange={handleModeChange}
-              />
-              <span className="select-text">Primers/Probes</span>
-              {coordinateMode !== COORDINATE_MODES.COORD_PRIMER && (
-                <span className="hint-text">Select to show options</span>
+          {config.virus === 'sars2' && (
+            <ModeRadioVertical>
+              <ModeLabel>
+                <input
+                  className="radio-input"
+                  type="radio"
+                  value={COORDINATE_MODES.COORD_PRIMER}
+                  checked={coordinateMode === COORDINATE_MODES.COORD_PRIMER}
+                  onChange={handleModeChange}
+                />
+                <span className="select-text">Primers/Probes</span>
+                {coordinateMode !== COORDINATE_MODES.COORD_PRIMER && (
+                  <span className="hint-text">Select to show options</span>
+                )}
+              </ModeLabel>
+              {coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
+                <ExternalLink
+                  href="https://github.com/vector-engineering/covidcg/blob/master/static_data/primers.csv"
+                  style={{ marginLeft: '20px' }}
+                >
+                  Primer/probe definitions
+                </ExternalLink>
               )}
-            </ModeLabel>
-            {coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
-              <ExternalLink
-                href="https://github.com/vector-engineering/covidcg/blob/master/static_data/primers.csv"
-                style={{ marginLeft: '20px' }}
-              >
-                Primer/probe definitions
-              </ExternalLink>
-            )}
-            {coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
-              <PrimerSelectContainer
-                placeholderText={
-                  selectedPrimers.length === 0
-                    ? 'Select or search...'
-                    : selectedPrimers.length.toString() +
-                      ' primers/probes selected...'
-                }
-              >
-                {primerDropdown}
-              </PrimerSelectContainer>
-            )}
-          </ModeRadioVertical>
+              {coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
+                <PrimerSelectContainer
+                  placeholderText={
+                    selectedPrimers.length === 0
+                      ? 'Select or search...'
+                      : selectedPrimers.length.toString() +
+                        ' primers/probes selected...'
+                  }
+                >
+                  {primerDropdown}
+                </PrimerSelectContainer>
+              )}
+            </ModeRadioVertical>
+          )}
 
           {/* CUSTOM COORDS */}
           <ModeRadioVertical>
@@ -725,8 +738,8 @@ const CoordinateSelect = observer(
         {groupKey !== GROUP_MUTATION && (
           <ModeSelectForm>
             <HintText>
-              Switch to &quot;Mutation&quot; under &quot;Group sequences by&quot; in
-              order to enable Genomic Coordinate filtering.
+              Switch to &quot;Mutation&quot; under &quot;Group sequences
+              by&quot; in order to enable Genomic Coordinate filtering.
             </HintText>
           </ModeSelectForm>
         )}

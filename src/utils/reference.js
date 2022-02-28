@@ -5,25 +5,27 @@ import refSeq from '../../static_data/__VIRUS__/reference.json';
 
 const reverseComplementRefSeq = reverseComplement(refSeq.ref_seq);
 
-export function getReferenceSequence() {
-  return refSeq.ref_seq;
+export function getReferenceSequence(key = '') {
+  return key ? refSeq.ref_seq[key] : refSeq.ref_seq;
 }
-export function getReferenceSequenceReverseComplement() {
-  return reverseComplementRefSeq;
-}
-
-export function referenceSequenceIncludes(seq) {
-  return forRefSeqIncludes(seq) || revRefSeqIncludes(seq);
+export function getReferenceSequenceReverseComplement(key = '') {
+  return key ? reverseComplementRefSeq[key] : reverseComplementRefSeq;
 }
 
-const forRefSeqIncludes = memoize((seq) => {
-  return refSeq.ref_seq.includes(seq);
+export function referenceSequenceIncludes(seq, key = '') {
+  return forRefSeqIncludes(seq, key) || revRefSeqIncludes(seq, key);
+}
+
+const forRefSeqIncludes = memoize((seq, key = '') => {
+  return key ? refSeq.ref_seq[key].includes(seq) : refSeq.ref_seq.includes(seq);
 });
-const revRefSeqIncludes = memoize((seq) => {
-  return reverseComplementRefSeq.includes(seq);
+const revRefSeqIncludes = memoize((seq, key = '') => {
+  return key
+    ? reverseComplementRefSeq[key].includes(seq)
+    : reverseComplementRefSeq.includes(seq);
 });
 
-export const queryReferenceSequence = memoize((seq) => {
+export const queryReferenceSequence = memoize((seq, key = '') => {
   let ind = [];
   [...seq].forEach((char, i) => {
     // Check if char represents a nucleotide (NT)
@@ -87,34 +89,47 @@ export const queryReferenceSequence = memoize((seq) => {
       degenInd = 0;
       validNTArray = DEGENERATES[seq.charAt(ind[degenInd][0])];
       // Check the new seq
-      res = lookForSeq(newseq);
+      res = lookForSeq(newseq, key);
     }
     return res;
   } else {
     // No degenerate nucleotides, keep original logic
-    return lookForSeq(seq);
+    return lookForSeq(seq, key);
   }
 });
 
-const forRefSeqIndexOf = memoize((seq) => {
-  return refSeq.ref_seq.indexOf(seq);
+const forRefSeqIndexOf = memoize((seq, key = '') => {
+  return key ? refSeq.ref_seq[key].indexOf(seq) : refSeq.ref_seq.indexOf(seq);
 });
-const revRefSeqIndexOf = memoize((seq) => {
-  return reverseComplementRefSeq.indexOf(seq);
+const revRefSeqIndexOf = memoize((seq, key = '') => {
+  return key
+    ? reverseComplementRefSeq[key].indexOf(seq)
+    : reverseComplementRefSeq.indexOf(seq);
 });
 
 function replaceChar(str, ind, char) {
   return str.substr(0, ind) + char + str.substr(ind + 1);
 }
 
-const lookForSeq = memoize((seq) => {
-  if (forRefSeqIncludes(seq)) {
-    return [forRefSeqIndexOf(seq) + 1, forRefSeqIndexOf(seq) + seq.length];
-  } else if (revRefSeqIncludes(seq)) {
+const lookForSeq = memoize((seq, key = '') => {
+  if (forRefSeqIncludes(seq, key)) {
     return [
-      refSeq.ref_seq.length - revRefSeqIndexOf(seq) - seq.length + 1,
-      refSeq.ref_seq.length - revRefSeqIndexOf(seq),
+      forRefSeqIndexOf(seq, key) + 1,
+      forRefSeqIndexOf(seq, key) + seq.length,
     ];
+  } else if (revRefSeqIncludes(seq, key)) {
+    return key
+      ? [
+          refSeq.ref_seq[key].length -
+            revRefSeqIndexOf(seq, key) -
+            seq.length +
+            1,
+          refSeq.ref_seq[key].length - revRefSeqIndexOf(seq, key),
+        ]
+      : [
+          refSeq.ref_seq.length - revRefSeqIndexOf(seq) - seq.length + 1,
+          refSeq.ref_seq.length - revRefSeqIndexOf(seq),
+        ];
   } else {
     return 0;
   }

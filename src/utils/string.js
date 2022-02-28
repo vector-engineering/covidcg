@@ -25,8 +25,19 @@ const basePairMap = {
   G: 'C',
 };
 export function reverseComplement(str) {
-  return Array.from(str)
-    .reverse()
-    .map((char) => basePairMap[char])
-    .join('');
+  if (typeof str === 'object') {
+    const res = {};
+    Object.keys(str).forEach((key) => {
+      res[key] = Array.from(str[key])
+        .reverse()
+        .map((char) => basePairMap[char])
+        .join('');
+    });
+    return res;
+  } else {
+    return Array.from(str)
+      .reverse()
+      .map((char) => basePairMap[char])
+      .join('');
+  }
 }

@@ -28,8 +28,8 @@ export default function values() {
       selectedProtein: getProtein('F'),
       selectedPrimers: [],
       selectedReference: 'A',
-      customCoordinates: [[8000, 12000]],
-      customSequences: ['GACCCCAAAATCAGCGAAAT'],
+      customCoordinates: [[5648, 7550]],
+      customSequences: ['GGTGTTGGATCTGCAATCGC'],
       residueCoordinates: [[1, getGene('F').len_aa]],
 
       // Selecting the gene as the coordinate range by default
