@@ -41,18 +41,28 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Home</span>
       </a>
     </TabItem>,
-    <TabItem
-      key={TABS.TAB_GROUP_REPORT}
-      active={activeTab === TABS.TAB_GROUP_REPORT}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+  ];
+
+  // Lineage Reports tab should go second when it functions
+  if (config.virus === 'sars2') {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GROUP_REPORT}
+        active={activeTab === TABS.TAB_GROUP_REPORT}
       >
-        <span>Lineage Reports</span>
-      </a>
-    </TabItem>,
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+        >
+          <span>Lineage Reports</span>
+        </a>
+      </TabItem>
+    );
+  }
+
+  // Add Compare Groups/Locations
+  tabs.push(
     <TabItem
       key={TABS.TAB_COMPARE_GROUPS}
       active={activeTab === TABS.TAB_COMPARE_GROUPS}
@@ -76,11 +86,11 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       >
         <span>Compare Locations</span>
       </a>
-    </TabItem>,
-  ];
+    </TabItem>
+  );
 
+  // Add virus specific tabs
   if (config.virus === 'sars2') {
-    // Add CovidCG specific tabs
     tabs.push(
       <TabItem
         key={TABS.TAB_GLOBAL_SEQUENCES}
@@ -105,7 +115,8 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         className="tab-link"
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
-        <span>About COVID CG</span>
+        {config.virus === 'sars2' && <span>About COVID CG</span>}
+        {config.virus === 'rsv' && <span>About RSV CG</span>}
       </a>
     </TabItem>
   );
