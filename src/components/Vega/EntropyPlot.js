@@ -22,6 +22,8 @@ import {
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
+import { config } from '../../config';
+
 import { geneMap, proteinMap } from '../../utils/gene_protein';
 import { throttle } from '../../utils/func';
 
@@ -405,7 +407,12 @@ const EntropyPlot = observer(({ width }) => {
   } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     xLabel += 'AA residue';
   }
-  xLabel += ' (WIV04';
+  if (config.virus === 'sars2') {
+    xLabel += ' (WIV04';
+  } else {
+    xLabel +=
+      configStore.selectedReference === 'A' ? ' (NC_038235.1' : ' (NC_001781.1';
+  }
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     xLabel += ', ' + configStore.selectedGene.name + ' Gene';
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
