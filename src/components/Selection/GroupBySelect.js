@@ -214,7 +214,7 @@ const GroupBySelect = observer(
           </RadioForm>
         )}
         {config.virus === 'rsv' && (
-          <RadioForm>
+          <RadioForm direction={direction}>
             <span className="form-title">Reference Sequence</span>
             {groupKey !== GROUP_MUTATION && (
               <HintText>
