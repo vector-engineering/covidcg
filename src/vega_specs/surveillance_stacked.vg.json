@@ -206,9 +206,8 @@
           "expr": "!datum.hide"
         },
         {
-          "type": "formula",
-          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)",
-          "as": "valid"
+          "type": "filter",
+          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)"
         },
         {
           "type": "collect",
@@ -216,17 +215,8 @@
             "field": ["region", "group", "collection_week"],
             "order": ["ascending", "ascending", "ascending"]
           }
-        }
-      ]
-    },
-    {
-      "name": "valid_group_counts",
-      "source": "group_counts",
-      "transform": [
-        {"type": "filter",
-        "expr": "datum.valid"
         },
-                    {
+        {
                       "type": "stack",
                       "groupby": ["collection_week", "region"],
                       "sort": {"field": "group"},
@@ -306,7 +296,7 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": { "data": "valid_group_counts", "field": "collection_week" },
+      "domain": { "data": "group_counts", "field": "collection_week" },
       "range": { "signal": "subplot_range_x" }
     },
     {
@@ -361,7 +351,7 @@
           "from": {
             "facet": {
               "name": "group_per_region",
-              "data": "valid_group_counts",
+              "data": "group_counts",
               "groupby": "region"
             }
             
