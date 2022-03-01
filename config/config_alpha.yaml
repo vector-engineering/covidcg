@@ -101,7 +101,7 @@ mutation_partition_break: 'M'
 # which is structured as "user1:pass1,user2:pass2,..."
 login_required: true
 
-dev_hostname: "http://localhost:5000"
+dev_hostname: "http://localhost:5001"
 prod_hostname: "https://alpha.covidcg.org"
 # prod_hostname: "http://localhost:8080"
 
