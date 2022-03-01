@@ -106,24 +106,8 @@ rule global_seq_data:
         python3 analyses/scripts/global_seq_data.py --case-data {input.case_data} --metadata-map {input.metadata_map} -o {params.out_folder}
         """
 
-# Mobile data rules.
-rule mobile:
-    input:
-        case_data = os.path.join(data_folder, "case_data.json"),
-        metadata_map = os.path.join(data_folder, 'metadata_map.json')
-    params:
-        out_folder = os.path.join(data_folder, 'mobile_data')
-    output:
-        dominant_sequences = os.path.join(data_folder, "mobile_data", "dominant_sequences.json")
-    shell: 
-        """
-        python3 analyses/scripts/dominant_sequences.py --case-data {input.case_data} --metadata-map {input.metadata_map} -o {params.out_folder}
-        """
-
 rule additional_analyses:
     input:
-        # Mobile site-specific data.
-        rules.mobile.output.dominant_sequences,
         # AZ REPORTS
         rules.az_reports.output.spike_mutation_global,
         rules.az_reports.output.spike_mutation_region,
