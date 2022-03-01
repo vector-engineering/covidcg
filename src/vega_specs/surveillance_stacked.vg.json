@@ -4,7 +4,6 @@
   "width": 1000,
   "height": 350,
   "padding": 5,
-
   "signals": [
     { "name": "mode", "value": "lineage" },
     { "name": "sortField", "value": "group" },
@@ -221,6 +220,21 @@
       ]
     },
     {
+      "name": "valid_group_counts",
+      "source": "group_counts",
+      "transform": [
+        {"type": "filter",
+        "expr": "datum.valid"
+        },
+                    {
+                      "type": "stack",
+                      "groupby": ["collection_week", "region"],
+                      "sort": {"field": "group"},
+                      "field": "percent"
+                    }
+      ]
+    },
+    {
       "name": "max_percents",
       "source": "group_counts",
       "transform": [
@@ -292,7 +306,7 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": { "data": "group_counts", "field": "collection_week" },
+      "domain": { "data": "valid_group_counts", "field": "collection_week" },
       "range": { "signal": "subplot_range_x" }
     },
     {
@@ -347,9 +361,10 @@
           "from": {
             "facet": {
               "name": "group_per_region",
-              "data": "group_counts",
+              "data": "valid_group_counts",
               "groupby": "region"
             }
+            
           },
 
           "title": {
@@ -359,13 +374,6 @@
           },
 
           "scales": [
-            {
-              "name": "test_y",
-              "type": "linear",
-              "range": "height",
-              "nice": true, "zero": true,
-              "domain": {"data": "group_per_region", "field": "y1"}
-            },
             {
               "name": "percentY",
               "type": "linear",
@@ -418,12 +426,6 @@
                     {
                       "type": "filter",
                       "expr": "datum.valid || indata('valid_groups', 'group', datum.group)"
-                    },
-                    {
-                      "type": "stack",
-                      "groupby": ["collection_week"],
-                      "sort": {"field": "group"},
-                      "field": "percent"
                     }
                   ]
                 },
@@ -434,12 +436,6 @@
                     {
                       "type": "filter",
                       "expr": "!datum.valid && !indata('valid_groups', 'group', datum.group)"
-                    },
-                    {
-                      "type": "stack",
-                      "groupby": ["collection_week"],
-                      "sort": {"field": "group"},
-                      "field": "percent"
                     }
                   ]
                 },
@@ -477,7 +473,7 @@
                       "y": { "scale": "percentY", "field": "y0" },
                       "y2": {"scale": "percentY", "field": "y1"},
                       "stroke": { "scale": "group_color", "field": "group" },
-                      "strokeWidth": { "value":21},
+                      "strokeWidth": { "value":20},
                       "strokeOpacity": [
                         {
                           "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
@@ -487,12 +483,11 @@
                       ],
                       "zindex": { "value": 1 },
                       "tooltip": {
-                                "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p')}"
+                                "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p'), 'Date': datetime(datum.collection_week)}"
                             }
                     }
                   }
                 },
-                
                 {
                   "type": "text",
                   "from": { "data": "label" },
