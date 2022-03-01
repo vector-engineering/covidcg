@@ -23,7 +23,7 @@
       "name": "subplot_width",
       "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"
     },
-    { "name": "subplot_range_x", "update": "[0, subplot_width]" },
+    { "name": "subplot_range_x", "update": "[15, subplot_width - 15]" },
     { "name": "subplot_vpadding", "value": 100 },
     { "name": "subplot_height", "update": "(height - subplot_vpadding) / 2" },
     { "name": "subplot_range_y", "update": "[subplot_height, 0]" },
@@ -360,6 +360,13 @@
 
           "scales": [
             {
+              "name": "test_y",
+              "type": "linear",
+              "range": "height",
+              "nice": true, "zero": true,
+              "domain": {"data": "group_per_region", "field": "y1"}
+            },
+            {
               "name": "percentY",
               "type": "linear",
               "domain": { "data": "group_per_region", "field": "y1" },
@@ -470,7 +477,7 @@
                       "y": { "scale": "percentY", "field": "y0" },
                       "y2": {"scale": "percentY", "field": "y1"},
                       "stroke": { "scale": "group_color", "field": "group" },
-                      "strokeWidth": { "value": 8 },
+                      "strokeWidth": { "value":21},
                       "strokeOpacity": [
                         {
                           "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
@@ -478,7 +485,10 @@
                         },
                         { "value": 0.3 }
                       ],
-                      "zindex": { "value": 2 }
+                      "zindex": { "value": 1 },
+                      "tooltip": {
+                                "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p')}"
+                            }
                     }
                   }
                 },
