@@ -36,7 +36,7 @@ def flush_chunk(cur, buffer):
         """
         COPY "temp_sequence" FROM STDIN WITH (FORMAT CSV);
         """,
-        buffer
+        buffer,
     )
     buffer.close()
 

@@ -473,12 +473,14 @@ const MutationList = observer(() => {
               selected {groupDataStore.getGroupMutationTypePrettyName()}s will
               be filtered out.
             </li>
-            <li>
-              Note: We define ORF1a and ORF1ab as separate genes. In
-              &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
-              will also be listed in ORF1ab. By default, ORF1a is hidden to
-              avoid this confusion.
-            </li>
+            {config.virus === 'sars2' && (
+              <li>
+                Note: We define ORF1a and ORF1ab as separate genes. In
+                &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
+                will also be listed in ORF1ab. By default, ORF1a is hidden to
+                avoid this confusion.
+              </li>
+            )}
             <li>
               Switch to &quot;Protein AA&quot; mode to see mutations in the
               context of proteins (i.e., NSPs)

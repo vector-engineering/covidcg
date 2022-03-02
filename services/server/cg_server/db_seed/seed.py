@@ -534,6 +534,15 @@ def seed_database(conn, schema="public"):
                 """,
                 ["vocs", Json(vocs)],
             )
+        if config["virus"] == "rsv":
+            with (static_data_path / "genotypesBySubtype.json").open("r") as fp:
+                subtypes = json.loads(fp.read())
+            cur.execute(
+                """
+                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+                """,
+                ["genotypesBySubtype", Json(subtypes)],
+            )
 
         # Metadata map
         table_queries = []

@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { config } from '../../config';
+
 import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
@@ -59,7 +61,7 @@ const GroupReportTab = observer(() => {
           </ul>
         }
       >
-        <GroupReportHeader />
+        {config.virus === 'sars2' && <GroupReportHeader />}
       </AccordionWrapper>
     );
   };
@@ -116,7 +118,7 @@ const GroupReportTab = observer(() => {
   return (
     <GroupReportTabContainer>
       <GroupTreePlotContainer>
-        <GroupTreePlot width={250} />
+        {config.virus === 'sars2' && <GroupTreePlot width={250} />}
       </GroupTreePlotContainer>
       <MutationsContainer>{renderMutationList()}</MutationsContainer>
       <VOCContainer>{renderHeader()}</VOCContainer>

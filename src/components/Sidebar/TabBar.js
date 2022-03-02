@@ -41,25 +41,19 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Home</span>
       </a>
     </TabItem>,
-  ];
-
-  // Lineage Reports tab should go second when it functions
-  if (config.virus === 'sars2') {
-    tabs.push(
-      <TabItem
-        key={TABS.TAB_GROUP_REPORT}
-        active={activeTab === TABS.TAB_GROUP_REPORT}
+    <TabItem
+      key={TABS.TAB_GROUP_REPORT}
+      active={activeTab === TABS.TAB_GROUP_REPORT}
+    >
+      <a
+        href="#"
+        className="tab-link"
+        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
       >
-        <a
-          href="#"
-          className="tab-link"
-          onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
-        >
-          <span>Lineage Reports</span>
-        </a>
-      </TabItem>
-    );
-  }
+        <span>Lineage Reports</span>
+      </a>
+    </TabItem>,
+  ];
 
   // Add Compare Groups/Locations
   tabs.push(

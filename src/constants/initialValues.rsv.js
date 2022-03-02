@@ -94,7 +94,7 @@ export default function values() {
     },
     groupDataStore: {
       activeGroupType: Object.keys(config['group_cols'])[0],
-      selectedGroups: ['A'],
+      selectedGroups: ['ON1'],
       groupMutationType: 'protein_aa',
     },
   };

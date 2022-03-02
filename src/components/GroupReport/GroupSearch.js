@@ -2,6 +2,9 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { asyncDataStoreInstance } from '../App';
+import { config } from '../../config';
+
 import StyledDropdownTreeSelect from '../Common/StyledDropdownTreeSelect';
 
 import {
@@ -11,15 +14,22 @@ import {
 } from './GroupSearch.styles';
 
 const GroupSearch = observer(() => {
-  const { groupDataStore } = useStores();
+  const { groupDataStore, configStore } = useStores();
   const [state, setState] = useState({
     data: [],
   });
 
   useEffect(() => {
+    let data = groupDataStore.groupSelectTree[groupDataStore.activeGroupType];
+    if (config.virus === 'rsv') {
+      const allowedGroups = asyncDataStoreInstance.data.genotypesBySubtype;
+      data = data.filter((datum) =>
+        allowedGroups[configStore.selectedReference].includes(datum.label)
+      );
+    }
     setState({
       ...state,
-      data: groupDataStore.groupSelectTree[groupDataStore.activeGroupType],
+      data: data,
     });
   }, [groupDataStore.groupSelectTree]);
 
