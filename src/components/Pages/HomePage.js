@@ -23,8 +23,6 @@ const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
-import { HomePageDiv, PlotContainer } from './HomePage.styles';
-import MobileHomePage from '../Mobile/MobileHomePage';
 import { HomePageDiv, LegendContainer, PlotContainer } from './HomePage.styles';
 
 const HomePage = observer(() => {
