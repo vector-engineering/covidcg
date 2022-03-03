@@ -27,7 +27,10 @@ const MobileHomePage = observer(() => {
         <div>
             <BannerLogo src={CGLogo}></BannerLogo>
             <SpinningGlobeSequences width={width}></SpinningGlobeSequences>
+            <p>Shown above are the dominant lineages per country within the last X months. Only the top 3 lineages globally are plotted above, other lineages are shown as grey. Countries without sufficient data are colored white.
+</p>
             <MobileGlobalSeqPlot width={width}></MobileGlobalSeqPlot>
+            <p>Shown above are the number of SARS-CoV-2 genomes (sequenced viruses—not cases!) since the start of the pandemic</p>
         </div>
     );
 });

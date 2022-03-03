@@ -178,7 +178,7 @@
         {
           "name": "color",
           "type": "quantize",
-          "domain": [0, 8],
+          "domain": [4, 7],
           "range": {"scheme": "yellowgreenblue", "count": 10}
         }
     ],
