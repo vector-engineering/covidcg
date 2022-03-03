@@ -61,7 +61,7 @@ const GroupReportTab = observer(() => {
           </ul>
         }
       >
-        {config.virus === 'sars2' && <GroupReportHeader />}
+        <GroupReportHeader />
       </AccordionWrapper>
     );
   };
@@ -103,9 +103,16 @@ const GroupReportTab = observer(() => {
             </li>
             <li>
               More structures available at the{' '}
-              <ExternalLink href="https://www.rcsb.org/news?year=2020&article=5e74d55d2d410731e9944f52&feature=true">
-                RCSB COVID-19 resource page
-              </ExternalLink>
+              {config.virus === 'sars2' && (
+                <ExternalLink href="https://www.rcsb.org/news?year=2020&article=5e74d55d2d410731e9944f52&feature=true">
+                  RCSB COVID-19 resource page
+                </ExternalLink>
+              )}
+              {config.virus === 'rsv' && (
+                <ExternalLink href="https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entity_source_organism.taxonomy_lineage.name%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22Human%20orthopneumovirus%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_info%22%3A%7B%22query_id%22%3A%2201137f0f8877e0a3688f1412e8247ed6%22%7D%2C%22request_options%22%3A%7B%22pager%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%2C%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%7D%7D">
+                  RCSB website
+                </ExternalLink>
+              )}
             </li>
           </ul>
         }

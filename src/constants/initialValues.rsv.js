@@ -89,8 +89,8 @@ export default function values() {
       reportMutationListHideEmpty: true,
       reportMutationListHidden: [], // By default, hide none
       reportStructureActiveProtein: 'F',
-      reportStructurePdbId: '',
-      reportStructureActiveGroup: 'A',
+      reportStructurePdbId: '5UDE',
+      reportStructureActiveGroup: 'ON1',
     },
     groupDataStore: {
       activeGroupType: Object.keys(config['group_cols'])[0],
