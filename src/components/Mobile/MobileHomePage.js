@@ -5,12 +5,15 @@ import useDimensions from 'react-use-dimensions';
 import ExternalLink from '../Common/ExternalLink';
 
 import MobileGlobalSeqPlot from '../Vega/MobileGlobalSeqPlot';
+import CGLogo from '../../assets/images/cg_logo_v13.png';
+
 
 import {
     MobileHomeContainer,
     MobileHomeContent,
     PubBanner,
     CloseButton,
+    BannerLogo
 } from './MobileHomePage.styles';
 
 import SpinningGlobeSequences from '../Vega/SpinningGlobeSequences';
@@ -21,10 +24,11 @@ const MobileHomePage = observer(() => {
 
 
     return (
-        <MobileHomeContainer>
-            <SpinningGlobeSequences width={400}></SpinningGlobeSequences>
-            <MobileGlobalSeqPlot width={400}></MobileGlobalSeqPlot>
-        </MobileHomeContainer>
+        <div>
+            <BannerLogo src={CGLogo}></BannerLogo>
+            <SpinningGlobeSequences width={width}></SpinningGlobeSequences>
+            <MobileGlobalSeqPlot width={width}></MobileGlobalSeqPlot>
+        </div>
     );
 });
 

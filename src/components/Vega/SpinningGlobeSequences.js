@@ -72,20 +72,6 @@ const SpinningGlobeSequences = ({ width }) => {
 
     genData();
     return (
-        <PlotContainer>
-            <a
-                ref={hiddenLink}
-                href=""
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ visibility: 'hidden' }}
-            />
-            <PlotOptions>
-                <PlotTitle>
-                    <span className="title">Global Sequencing Effort</span>
-                </PlotTitle>
-                <div className="spacer"></div>
-            </PlotOptions>
             <VegaEmbed
                 ref={vegaRef}
                 spec={initialSpec}
@@ -93,7 +79,6 @@ const SpinningGlobeSequences = ({ width }) => {
                 width={window.width}
                 actions={false}
             />
-        </PlotContainer>
     );
 };
 SpinningGlobeSequences.propTypes = {

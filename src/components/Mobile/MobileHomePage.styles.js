@@ -33,3 +33,10 @@ export const PubBanner = styled.div`
 export const CloseButton = styled.button`
   margin-left: auto;
 `;
+
+export const BannerLogo = styled.img`
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+`;
