@@ -31,7 +31,7 @@ const GroupSearch = observer(() => {
       ...state,
       data: data,
     });
-  }, [groupDataStore.groupSelectTree]);
+  }, [groupDataStore.groupSelectTree, configStore.selectedReference]);
 
   const treeSelectOnChange = (_currentNode, selectedNodes) => {
     // console.log('onChange::', _currentNode, selectedNodes);

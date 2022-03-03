@@ -5,6 +5,7 @@ import { config } from '../../config';
 
 import VOCTable from './VOCList';
 import RSVGenotypeList from './RSVGenotypeList';
+import RSVReferenceToggle from '../Selection/RSVReferenceToggle';
 
 import { HeaderContainer, HeaderBoxRow } from './GroupReportHeader.styles';
 
@@ -13,7 +14,12 @@ const GroupReportHeader = observer(() => {
     <HeaderContainer>
       <HeaderBoxRow>
         {config.virus === 'sars2' && <VOCTable />}
-        {config.virus === 'rsv' && <RSVGenotypeList />}
+        {config.virus === 'rsv' && (
+          <div>
+            <RSVReferenceToggle />
+            <RSVGenotypeList />
+          </div>
+        )}
       </HeaderBoxRow>
     </HeaderContainer>
   );
