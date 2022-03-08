@@ -1,11 +1,12 @@
 import { getGene, getProtein } from '../utils/gene_protein';
-import { intToISO, ISOToInt } from '../utils/date';
+import { intToISO } from '../utils/date';
 import { config } from '../config';
 
 import {
   GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
+  MIN_DATE,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
@@ -15,7 +16,6 @@ import {
 } from './defs.json';
 
 const today = intToISO(new Date().getTime());
-const lastNDays = 30; // By default, show only the last 1 month
 
 export default function values() {
   return {
@@ -35,8 +35,8 @@ export default function values() {
       // Selecting the gene as the coordinate range by default
       coordinateMode: COORDINATE_MODES.COORD_GENE,
 
-      // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
-      startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
+      // RSV displays all data by default
+      startDate: MIN_DATE['RSV'],
       endDate: today,
 
       submStartDate: '',
