@@ -34,7 +34,8 @@ params = {
         #   Alphainfluenzavirus: 197911
         #   Betainfluenzavirus: 197912
         #   Gammainfluenzavirus: 197913
-        "VirusLineageId_ss:(197911 OR 197912 OR 197913)",  
+        # "VirusLineageId_ss:(197911 OR 197912 OR 197913)",  
+        "VirusLineageId_ss:(197911 OR 197912)",  
     ],
     # Unclear, but seems necessary.
     "q": "*:*",
