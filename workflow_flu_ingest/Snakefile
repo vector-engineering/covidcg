@@ -6,16 +6,13 @@ import gzip
 
 from pathlib import Path
 
-# Import scripts
-# from scripts.combine_lineages import combine_lineages
-
 configfile: "../config/config_flu_genbank.yaml"
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
 data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 rule all:
     input:
@@ -29,7 +26,9 @@ rule all:
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
-        
+        # Serotype assignments
+        os.path.join(data_folder, "serotype_assignments.csv"),
+        os.path.join(data_folder, 'metadata_virus+serotype.csv')
 
 
 rule download:
@@ -79,15 +78,15 @@ checkpoint chunk_sequences:
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp"))
     params:
-        chunk_size = config["chunk_size"]
+        chunk_size = 10000
+        # chunk_size = config["chunk_size"]
     shell:
         """
         python3 scripts/chunk_sequences.py \
             --feed {input.feed} \
             --metadata-in {input.metadata} \
             --out-fasta {output.fasta} \
-            --chunk-size {params.chunk_size} \
-            --processes {workflow.cores}
+            --chunk-size {params.chunk_size}
         """
 
 
@@ -101,6 +100,7 @@ def get_num_seqs(fasta_gz):
             if line[0] == '>':
                 num_seqs += 1
     return num_seqs
+
 
 def get_changed_chunks(wildcards):
     """Helper function for detecting which chunks have changed in terms of their contents 
@@ -166,46 +166,67 @@ checkpoint copy_changed_files:
         """
 
 
-# def get_chunks(wildcards):
-#     """Get all copied chunks from copy_changed_files, as input for the 
-#     lineage assignments. While some of these assignments will be wasted on
-#     sequences that will be filtered out downstream by the `preprocess_sequences`
-#     rule in `workflow_main`, I think it's still better to do this during the
-#     ingestion as the lineage/clade assignments are ingestion-specific
-#     """
 
-#     # Only do this to trigger the DAG recalculation
-#     checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
+rule assign_serotypes:
+    """Assign a genotype to each sequences
+    """
+    input:
+        fasta = os.path.join(data_folder, 'fasta_raw', '4_{chunk}.fa.gz')
+    params:
+        ref_seq = os.path.join(static_data_folder, 'references', '4.fa')
+    output:
+        bam = os.path.join(data_folder, "serotypes", "bam", "{chunk}.bam")
+    shell:
+        """
+        minimap2 -t {threads} -x asm20 -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+
+def get_serotype_bam_chunks(wildcards):
+    """Get all copied chunks from copy_changed_files, as input for the 
+    lineage assignments. While some of these assignments will be wasted on
+    sequences that will be filtered out downstream by the `preprocess_sequences`
+    rule in `workflow_main`, I think it's still better to do this during the
+    ingestion as the lineage/clade assignments are ingestion-specific
+    """
+
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
     
-#     return expand(
-#         os.path.join(data_folder, "lineages", "{chunk}.csv"),
-#         chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-#     )
+    return expand(
+        os.path.join(data_folder, "serotypes", "bam", "{chunk}.bam"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "4_{i}.fa.gz")).i
+    )
 
-# rule pangolin_lineages:
-#     """Assign a lineage to each sequence using pangolin
-#     """
-#     input:
-#         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
-#     output:
-#         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
-#         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
-#     conda: "envs/pangolin.yaml"
-#     shell:
-#         """
-#         # Pangolin can only use un-gzipped fasta files
-#         gunzip -c {input.fasta} > {output.fasta}
-#         pangolin --outfile {output.lineages} {output.fasta}
-#         """
 
-# rule combine_lineages:
-#     """Combine all lineage result chunks
-#     """
-#     input:
-#         lineages = get_chunks
-#     output:
-#         lineages = os.path.join(data_folder, "lineages.csv")
-#     run:
-#         combine_lineages(input.lineages, output.lineages)
+rule combine_serotype_assignments:
+    """Combine all lineage result chunks
+    """
+    input:
+        serotype_alignments = get_serotype_bam_chunks
+    output:
+        serotype_assignments = os.path.join(data_folder, "serotype_assignments.csv")
+    shell:
+        """
+        python3 scripts/assign_serotypes.py \
+            --in-bam {input.serotype_alignments} \
+            --out-csv {output.serotype_assignments}
+        """
+
+rule join_serotype_assignments:
+    """Join serotype assignments to main virus dataframe
+    """
+    input:
+        metadata_virus = rules.clean_metadata.output.metadata_virus,
+        serotype_assignments = rules.combine_serotype_assignments.output.serotype_assignments
+    output:
+        metadata_virus_plus_serotype = os.path.join(data_folder, 'metadata_virus+serotype.csv')
+    shell:
+        """
+        python3 scripts/join_serotype_assignments.py \
+            --metadata-virus {input.metadata_virus} \
+            --serotype-assignments {input.serotype_assignments} \
+            --out-metadata-virus {output.metadata_virus_plus_serotype}
+        """
 
     

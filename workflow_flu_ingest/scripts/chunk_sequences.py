@@ -13,23 +13,24 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import argparse
 import csv
 import gzip
-import multiprocessing as mp
 import pandas as pd
 import sys
 
 from collections import defaultdict
-from functools import partial
 from pathlib import Path
 
 
 csv.field_size_limit(sys.maxsize)
 
-
-def write_sequences(fasta_out_path, seqs):
-    # Mode 'at' is append, in text mode
-    with gzip.open(fasta_out_path, "at") as fp_out:
-        for seq in seqs:
-            fp_out.write('>{}|{}\n{}\n'.format(seq[0], seq[1], seq[2]))
+def flush_chunk(output_path, fasta_by_month_and_segment):
+    for (month, segment), seqs in fasta_by_month_and_segment.items():
+        # print(month, segment)
+        # Open the output fasta file for this month chunk
+        fasta_out_path = str(output_path / (str(segment) + '_' + month + ".fa.gz"))
+        # Mode 'at' is append, in text mode
+        with gzip.open(fasta_out_path, "at") as fp_out:
+            for seq in seqs:
+                fp_out.write('>{}|{}\n{}\n'.format(seq[0], seq[1], seq[2]))
 
 
 def main():
@@ -38,10 +39,8 @@ def main():
     parser.add_argument('--feed', type=str, required=True, help='Path to data feed csv file')
     parser.add_argument('--metadata-in', type=str, required=True, help='Path to metadata csv file')
     parser.add_argument('--out-fasta', type=str, required=True, help='Path to fasta output directory')
-    parser.add_argument('--chunk-size', type=int, default=100_000, 
-        help='Number of records to hold in RAM before flushing to disk (default: 100,000')
-    parser.add_argument('--processes', type=int, default=1, 
-        help='Number of processes to spawn when writing to disk (default: 1)')
+    parser.add_argument('--chunk-size', type=int, default=10_000, 
+        help='Number of records to hold in RAM before flushing to disk (default: 10,000')
 
     args = parser.parse_args()
 
@@ -64,41 +63,37 @@ def main():
     # Keep track of how far we're along the current chunk
     chunk_i = 0
 
-    def flush_chunk(fasta_by_subm_date_and_segment):
-        with mp.get_context("spawn").Pool(processes=args.processes) as pool:
-            for (date, segment), seqs in fasta_by_subm_date_and_segment.items():
-                # Open the output fasta file for this date chunk
-                fasta_out_path = str(output_path / (str(segment) + '_' + date + ".fa.gz"))
-                pool.apply_async(partial(write_sequences, fasta_out_path, seqs))
-
-            pool.close()
-            pool.join()
-
     with open(args.feed, "r", newline="") as fp_in:
         # Open up the initial fasta file for the first chunk
-        fasta_by_subm_date_and_segment = defaultdict(list)
+        fasta_by_month_and_segment = defaultdict(list)
 
         line_counter = 0
+        skip_counter = 0
 
         feed_reader = csv.DictReader(fp_in, delimiter=",", quotechar='"')
         for row in feed_reader:
 
             # Flush results if chunk is full
             if chunk_i == args.chunk_size:
-                flush_chunk(fasta_by_subm_date_and_segment)
+                print('Writing {} sequences'.format(chunk_i))
+                flush_chunk(output_path, fasta_by_month_and_segment)
                 # Reset chunk counter
                 chunk_i = 0
                 # Reset sequence dictionary
-                fasta_by_subm_date_and_segment = defaultdict(list)
+                fasta_by_month_and_segment = defaultdict(list)
 
             # If this entry isn't present in the cleaned metadata, then skip
             accession_id = row['genbank_accession']
             if accession_id not in metadata.index:
+                skip_counter += 1
                 continue
 
             # Store sequence in dictionary
-            fasta_by_subm_date_and_segment[
-                (metadata.at[accession_id, 'submission_date'], metadata.at[accession_id, 'segment'])
+            fasta_by_month_and_segment[
+                (
+                    # By month, not day
+                    metadata.at[accession_id, 'submission_date'][0:7], 
+                    metadata.at[accession_id, 'segment'])
             ].append(
                 (accession_id, metadata.at[accession_id, 'virus_name'], row["sequence"])
             )
@@ -109,7 +104,10 @@ def main():
             line_counter += 1
 
         # Flush the last chunk
-        flush_chunk(fasta_by_subm_date_and_segment)
+        print('Writing {} sequences'.format(chunk_i))
+        flush_chunk(output_path, fasta_by_month_and_segment)
+
+        print('Skipped {} sequences'.format(skip_counter))
 
 
 if __name__ == '__main__':

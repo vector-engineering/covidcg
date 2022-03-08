@@ -8,14 +8,14 @@ data_folder: "data_flu"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
-static_data_folder: "static_data"
+static_data_folder: "static_data/flu"
 
 # ------------------
 #       INGEST
 # ------------------
 
 # Number of genomes to load into memory before flushing to disk
-chunk_size: 100000
+chunk_size: 10000
 
 # --------------------
 #       ANALYSIS
