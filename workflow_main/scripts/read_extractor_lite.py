@@ -140,6 +140,9 @@ class ReadExtractor:
 
         while self.ref_i < destination:
 
+            if not self.cigar_ops or not self.read_seq:
+                return
+
             # If we've reached the end of the CIGAR string, break out
             if self.cigar_i >= len(self.cigar_ops) or self.read_i >= len(self.read_seq):
                 return
