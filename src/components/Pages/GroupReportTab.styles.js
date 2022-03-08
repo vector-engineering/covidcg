@@ -5,7 +5,7 @@ const MEDIAWIDTH = '1475px';
 export const GroupReportTabContainer = styled.div`
   display: grid;
   grid-template-rows: auto;
-  grid-template-columns: 250px repeat(2, minmax(100px, 1fr));
+  grid-template-columns: auto
   max-height: 100vh;
 
   @media (max-width: ${MEDIAWIDTH}) {

@@ -124,9 +124,11 @@ const GroupReportTab = observer(() => {
 
   return (
     <GroupReportTabContainer>
-      <GroupTreePlotContainer>
-        {config.virus === 'sars2' && <GroupTreePlot width={250} />}
-      </GroupTreePlotContainer>
+      {config.virus === 'sars2' && (
+        <GroupTreePlotContainer>
+          <GroupTreePlot width={250} />
+        </GroupTreePlotContainer>
+      )}
       <MutationsContainer>{renderMutationList()}</MutationsContainer>
       <VOCContainer>{renderHeader()}</VOCContainer>
       <StructuralViewerContainer>
