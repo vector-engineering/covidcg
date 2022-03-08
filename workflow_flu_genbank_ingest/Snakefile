@@ -61,7 +61,50 @@ rule clean_metadata:
             --metadata-out {output.metadata_clean} \
             --metadata-virus-out {output.metadata_virus}
         """
+
+
+rule write_ha_fasta:
+    input:
+        feed = rules.download.output.feed,
+        metadata = rules.clean_metadata.output.metadata_clean
+    output:
+        sequences = os.path.join(data_folder, 'ha.fa.gz')
+    shell:
+        """
+        python3 scripts/write_ha_fasta.py \
+            --feed {input.feed} --metadata-in {input.metadata} --out {params.sequences_out}
+        """
         
+
+rule assign_serotypes:
+    """Assign a serotype to each sequences
+    """
+    input:
+        fasta = rules.write_ha_fasta.output.sequences
+    params:
+        ref_seq = os.path.join(static_data_folder, 'serotype_references', '4.fa')
+    output:
+        bam = os.path.join(data_folder, "serotypes.bam")
+    shell:
+        """
+        minimap2 -t {threads} -x asm20 -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+rule join_serotype_assignments:
+    """Join serotype assignments to main virus dataframe
+    """
+    input:
+        serotype_alignment = rules.assign_serotypes.output.bam,
+        metadata_virus = rules.clean_metadata.output.metadata_virus
+    output:
+        metadata_virus_plus_serotype = os.path.join(data_folder, 'metadata_virus+serotype.csv')
+    shell:
+        """
+        python3 scripts/join_serotype_assignments.py \
+            --in-bam {input.serotype_alignment} \
+            --metadata-virus {input.metadata_virus} \
+            --out-metadata-virus {output.metadata_virus_plus_serotype}
+        """
 
 
 checkpoint chunk_sequences:
@@ -75,16 +118,17 @@ checkpoint chunk_sequences:
     input:
         feed = rules.download.output.feed,
         metadata = rules.clean_metadata.output.metadata_clean,
+        metadata_virus = rules.join_serotype_assignments.output.metadata_virus_plus_serotype,
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp"))
     params:
-        chunk_size = 10000
-        # chunk_size = config["chunk_size"]
+        chunk_size = config["chunk_size"]
     shell:
         """
         python3 scripts/chunk_sequences.py \
             --feed {input.feed} \
             --metadata-in {input.metadata} \
+            --metadata-virus-in {input.metadata_virus} \
             --out-fasta {output.fasta} \
             --chunk-size {params.chunk_size}
         """
@@ -164,69 +208,3 @@ checkpoint copy_changed_files:
         """
         python3 scripts/copy_changed_files.py --files {input} --data-folder {params.data_folder}
         """
-
-
-
-rule assign_serotypes:
-    """Assign a genotype to each sequences
-    """
-    input:
-        fasta = os.path.join(data_folder, 'fasta_raw', '4_{chunk}.fa.gz')
-    params:
-        ref_seq = os.path.join(static_data_folder, 'references', '4.fa')
-    output:
-        bam = os.path.join(data_folder, "serotypes", "bam", "{chunk}.bam")
-    shell:
-        """
-        minimap2 -t {threads} -x asm20 -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
-        """
-
-
-def get_serotype_bam_chunks(wildcards):
-    """Get all copied chunks from copy_changed_files, as input for the 
-    lineage assignments. While some of these assignments will be wasted on
-    sequences that will be filtered out downstream by the `preprocess_sequences`
-    rule in `workflow_main`, I think it's still better to do this during the
-    ingestion as the lineage/clade assignments are ingestion-specific
-    """
-
-    # Only do this to trigger the DAG recalculation
-    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
-    
-    return expand(
-        os.path.join(data_folder, "serotypes", "bam", "{chunk}.bam"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "4_{i}.fa.gz")).i
-    )
-
-
-rule combine_serotype_assignments:
-    """Combine all lineage result chunks
-    """
-    input:
-        serotype_alignments = get_serotype_bam_chunks
-    output:
-        serotype_assignments = os.path.join(data_folder, "serotype_assignments.csv")
-    shell:
-        """
-        python3 scripts/assign_serotypes.py \
-            --in-bam {input.serotype_alignments} \
-            --out-csv {output.serotype_assignments}
-        """
-
-rule join_serotype_assignments:
-    """Join serotype assignments to main virus dataframe
-    """
-    input:
-        metadata_virus = rules.clean_metadata.output.metadata_virus,
-        serotype_assignments = rules.combine_serotype_assignments.output.serotype_assignments
-    output:
-        metadata_virus_plus_serotype = os.path.join(data_folder, 'metadata_virus+serotype.csv')
-    shell:
-        """
-        python3 scripts/join_serotype_assignments.py \
-            --metadata-virus {input.metadata_virus} \
-            --serotype-assignments {input.serotype_assignments} \
-            --out-metadata-virus {output.metadata_virus_plus_serotype}
-        """
-
-    
