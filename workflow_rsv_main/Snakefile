@@ -76,7 +76,7 @@ rule assign_genotypes:
         bam = os.path.join(data_folder, "genotypes", "bam", "{chunk}.bam")
     shell:
         """
-        minimap2 -t {threads} -x asm5 -a --sam-hit-only {input.fasta} {params.ref_seq} | samtools view -b > {output.bam}
+        minimap2 -t {threads} -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
 
 rule combine_genotypes:

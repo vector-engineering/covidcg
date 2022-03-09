@@ -12,13 +12,11 @@ def assign_genotype(sam_file):
     samfile = pysam.AlignmentFile(sam_file, "r", check_sq=False)  # pylint: disable=no-member
     all_genotypes = []
     for read in samfile.fetch(until_eof=True):
-        nameArr = read.query_name.split('_')
+        nameArr = read.reference_name.split('_')
         if nameArr[0] == 'RSVA':
-            print('Assigned A')
-            all_genotypes.append([read.reference_name, "A", nameArr[1]])
+            all_genotypes.append([read.query_name, "A", nameArr[1]])
         elif nameArr[0] == 'RSVB':
-            print('Assigned B')
-            all_genotypes.append([read.reference_name, "B", nameArr[1]])
+            all_genotypes.append([read.query_name, "B", nameArr[1]])
         else:
             print("Reference not recognized for query: ", read.query_name, read.reference_name)
 
