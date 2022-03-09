@@ -5,7 +5,7 @@ const MEDIAWIDTH = '1475px';
 export const GroupReportTabContainer = styled.div`
   display: grid;
   grid-template-rows: auto;
-  grid-template-columns: auto
+  grid-template-columns: auto;
   max-height: 100vh;
 
   @media (max-width: ${MEDIAWIDTH}) {
@@ -36,6 +36,7 @@ export const MutationsContainer = styled.div`
 export const VOCContainer = styled.div`
   grid-column: 3;
   grid-row: 1;
+  max-width: fit-content;
 
   @media (max-width: ${MEDIAWIDTH}) {
     grid-column: 2;
