@@ -10,6 +10,7 @@ import { LocationDataStore } from './locationDataStore';
 import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
+import { URLMonitor } from './urlMonitor';
 
 class RootStore {
   UIStore;
@@ -26,6 +27,8 @@ class RootStore {
   globalSequencingDataStore;
   groupDataStore;
 
+  urlMonitor;
+
   constructor() {
     this.UIStore = new UIStore();
     this.router = new RouterStore();
@@ -40,6 +43,8 @@ class RootStore {
 
     this.globalSequencingDataStore = new GlobalSequencingDataStore();
     this.groupDataStore = new GroupDataStore();
+
+    this.urlMonitor = new URLMonitor();
   }
 
   init() {
@@ -58,6 +63,7 @@ class RootStore {
     this.groupDataStore.init();
 
     this.dataStore.init();
+    this.urlMonitor.init();
 
     const urlParams = new URLSearchParams(window.location.search);
 

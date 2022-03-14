@@ -5,17 +5,11 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import {
-  geneMap,
-  proteinMap,
-  getGene,
-  getProtein,
-} from '../utils/gene_protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
-import { queryPrimers } from '../utils/primer';
 import { arrayEqual } from '../utils/func';
 
 import {
@@ -23,7 +17,6 @@ import {
   DNA_OR_AA,
   COORDINATE_MODES,
   GEO_LEVELS,
-  TABS,
   GROUPS,
 } from '../constants/defs.json';
 import { config } from '../config';
@@ -129,115 +122,6 @@ export class ConfigStore {
         this[param] = defaultsFromParams[param];
       }
     });
-
-    this.urlParams = new URLSearchParams(window.location.search);
-
-    // Check to see what's in the URL
-    this.urlParams.forEach((value, key) => {
-      value = decodeURIComponent(value);
-      if (key in initialValues) {
-        if (key === 'selectedGene') {
-          // If the specified gene is in the geneMap get the gene
-          if (value in geneMap) {
-            this[key] = getGene(value);
-          } else {
-            // Else display default gene
-            this[key] = initialValues.selectedGene;
-            this.urlParams.set(key, initialValues.selectedGene.name);
-          }
-        } else if (key === 'selectedProtein') {
-          // If the specified protein is in the proteinMap get the protein
-          if (value in proteinMap) {
-            this[key] = getProtein(value);
-          } else {
-            // Else display default protein
-            this[key] = initialValues.selectedProtein;
-            this.urlParams.set(key, initialValues.selectedProtein.name);
-          }
-        } else if (key === 'ageRange' || key.includes('valid')) {
-          // AgeRange is not being used currently so ignore
-          // validity flags should not be set from the url
-          return;
-        } else if (
-          key === 'customCoordinates' ||
-          key === 'residueCoordinates'
-        ) {
-          // If coordinates are specified, save them as an array of numbers
-          // Coordinates can stay as a string in the URL
-          let arr = [];
-          value = value.split(',');
-          value.forEach((item, i) => {
-            value[i] = parseInt(item);
-
-            if (i % 2 === 1) {
-              arr.push([value[i - 1], value[i]]);
-            }
-          });
-
-          this[key] = arr;
-        } else if (key === 'customSequences' || key === 'selectedGroups') {
-          // Store customSequences as an array of strings
-          value = value.split(',');
-          this[key] = value;
-        } else if (key === 'selectedPrimers') {
-          value = value.split(',');
-          value.forEach((primerStr) => {
-            let queryObj = {
-              Institution: primerStr.split('_')[0],
-              Name: primerStr.split('_')[1],
-            };
-            const primer = queryPrimers(queryObj);
-            if (primer !== undefined) this[key].push(primer);
-          });
-        } else {
-          this[key] = value;
-        }
-      } else if (key.toUpperCase() in GEO_LEVELS) {
-        // If a location is specified, update selectedLocationNodes
-        value = value.split(',');
-
-        value.forEach((item) => {
-          const node = getLocationByNameAndLevel(
-            rootStoreInstance.locationDataStore.selectTree,
-            item,
-            key,
-            true
-          )[0];
-
-          if (
-            typeof node !== 'undefined' &&
-            !this.selectedLocationNodes.includes(node)
-          ) {
-            this.selectedLocationNodes.push(node);
-          }
-        });
-      } else if (key === 'tab') {
-        // Check if the specified tab value is valid (included in TABS)
-        // tab is read and activeTab is set from routes.js
-        if (Object.values(TABS).includes(value)) {
-          this[key] = value;
-        } else {
-          // If not valid, set to home
-          this.urlParams.set(key, TABS.TAB_EXAMPLE);
-          this[key] = TABS.TAB_EXAMPLE;
-        }
-      }
-      // selectedGroupFields
-      else if (Object.keys(config['group_cols']).includes(key)) {
-        if (
-          !Object.prototype.hasOwnProperty.call(this.selectedGroupFields, key)
-        ) {
-          this.selectedGroupFields[key] = [];
-        }
-        this.selectedGroupFields[key].push(value);
-      } else {
-        // Invalid field, remove it from the url
-        this.urlParams.delete(key);
-      }
-    });
-
-    // Update URL
-    updateURLFromParams(this.urlParams);
 
     const defaultSelectedLocationNodes = [
       getLocationByNameAndLevel(
