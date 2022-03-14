@@ -99,15 +99,13 @@ const GroupStackPlot = observer(({ width }) => {
       lowFreqFilterValue: plotSettingsStore.groupStackLowFreqValue,
     });
     let data = toJS(dataStore.aggLocationGroupDate);
-    
+
     // Filter focused locations
     const focusedLocations = state.focusLocationTree
       .filter((node) => node.checked)
       .map((node) => node.value);
-    data = data.filter((record) =>
-      focusedLocations.includes(record.location)
-    );
-    
+    data = data.filter((record) => focusedLocations.includes(record.location));
+
     data = data.map((record) => {
       if (!validGroups.includes(record.group_id)) {
         record.group = GROUPS.OTHER_GROUP;
@@ -153,13 +151,24 @@ const GroupStackPlot = observer(({ width }) => {
 
   // Update state based on the focused location dropdown select
   const focusLocationSelectOnChange = (event) => {
-    let focusLocationTree = state.focusLocationTree.slice();
+    const focusLocationTree = state.focusLocationTree.slice();
     focusLocationTree.forEach((node) => {
       if (node.value === event.value) {
         node.checked = event.checked;
       }
     });
 
+    setState({
+      ...state,
+      focusLocationTree,
+    });
+  };
+  // Deselect all focused locations
+  const deselectAllFocusedLocations = () => {
+    const focusLocationTree = state.focusLocationTree.slice().map((node) => {
+      node.checked = false;
+      return node;
+    });
     setState({
       ...state,
       focusLocationTree,
@@ -342,17 +351,20 @@ const GroupStackPlot = observer(({ width }) => {
   }
 
   const maxShownLocations = 4;
-  let selectedLocationsText =
-    '(' +
-    state.focusLocationTree
-      .filter((node) => node.checked)
-      .slice(0, maxShownLocations)
-      .map((node) => node.value)
-      .join(', ');
-  if (state.focusLocationTree.length > maxShownLocations) {
-    selectedLocationsText += ', ...)';
-  } else {
-    selectedLocationsText += ')';
+  let selectedLocationsText = '';
+  if (!state.focusLocationTree.every((node) => node.checked === false)) {
+    selectedLocationsText +=
+      '(' +
+      state.focusLocationTree
+        .filter((node) => node.checked)
+        .slice(0, maxShownLocations)
+        .map((node) => node.value)
+        .join(', ');
+    if (state.focusLocationTree.length > maxShownLocations) {
+      selectedLocationsText += ', ...)';
+    } else {
+      selectedLocationsText += ')';
+    }
   }
 
   // Set the stack offset mode
@@ -474,7 +486,19 @@ const GroupStackPlot = observer(({ width }) => {
               ></LowFreqFilter>
             </PlotOptionsRow>
           )}
-          <PlotOptionsRow>Only show locations:&nbsp;{focusLocationDropdownContainer}</PlotOptionsRow>
+          <PlotOptionsRow>
+            Only show locations:&nbsp;{focusLocationDropdownContainer}
+            {'  '}
+            <button
+              disabled={state.focusLocationTree.every(
+                (node) => node.checked === false
+              )}
+              onClick={deselectAllFocusedLocations}
+              style={{ marginLeft: 10 }}
+            >
+              Deselect all
+            </button>
+          </PlotOptionsRow>
           <PlotOptionsRow style={{ justifyContent: 'flex-end' }}>
             <DropdownButton
               text={'Download'}
