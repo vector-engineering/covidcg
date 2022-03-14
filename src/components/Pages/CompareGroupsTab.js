@@ -20,6 +20,7 @@ import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
+  padding-bottom: 50px;
 `;
 
 const CompareGroupsTab = observer(() => {
