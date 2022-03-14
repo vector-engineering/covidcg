@@ -245,7 +245,7 @@ const GroupStackPlot = observer(({ width }) => {
     '(' +
     configStore.selectedLocationNodes
       .slice(0, maxShownLocations)
-      .map((node) => node.value)
+      .map((node) => node.label)
       .join(', ');
   if (configStore.selectedLocationNodes.length > maxShownLocations) {
     selectedLocationsText += ', ...)';
