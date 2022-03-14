@@ -163,7 +163,7 @@ function processSelectedMutations({
   });
   // Convert dates back into ints
   aggSelectedMutationsDate.forEach((row) => {
-    row.date = parseInt(row.date);
+    row.collection_date = parseInt(row.collection_date);
   });
 
   return {
