@@ -1,6 +1,6 @@
 {
   "name": "covidcg",
-  "version": "2.5.0",
+  "version": "2.5.1-beta1",
   "description": "",
   "engines": {
     "node": ">=8",
