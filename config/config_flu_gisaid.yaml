@@ -1,0 +1,96 @@
+# ------------------
+#       GLOBAL
+# ------------------
+
+# Path to folder with downloaded and processed data
+# This path is relative to the project root
+data_folder: "data_gisaid_flu"
+
+# Path to folder with genome information (reference.fasta, genes.json, proteins.json)
+# This path is relative to the project root
+static_data_folder: "static_data/flu"
+
+# ------------------
+#       INGEST
+# ------------------
+
+# Number of genomes to load into memory before flushing to disk
+chunk_size: 10000
+
+# --------------------
+#       ANALYSIS
+# --------------------
+
+# Mutations with less than this number of global occurrences will be ignored
+mutation_count_threshold: 3
+
+# Threshold of prevalence to report a mutation as being a consensus
+# mutation for a group (e.g., clade, lineage)
+consensus_fraction: 0.9
+
+# Threshold of prevalence to report a mutation as being associated
+# with a group (e.g., clade, lineage)
+min_reporting_fraction: 0.05
+
+metadata_cols:
+  database:
+    title: "Database"
+  host:
+    title: "Host"
+  isolation_source:
+    title: "Isolation source"
+  authors:
+    title: "Authors"
+  publications:
+    title: "Publications"
+
+group_cols:
+  subtype:
+    name: "subtype"
+    title: "Subtype"
+    description: ""
+
+# Surveillance plot options
+# see: workflow_main/scripts/surveillance.py
+surv_min_combo_count: 50
+surv_min_single_count: 50
+surv_start_date_days_ago: 90
+surv_end_date_days_ago: 30
+
+# ---------------
+#    DATABASE
+# ---------------
+
+# Split mutation table partitions into periods of this length
+# See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+# Common options:
+# 'D' calendar day frequency
+# 'W' weekly frequency
+# 'M' month end frequency
+mutation_partition_break: "M"
+
+# ---------------
+#     SERVER
+# ---------------
+
+# Require a login for accessing the website
+# Users are provided to the app via. the "LOGINS" environment variable,
+# which is structured as "user1:pass1,user2:pass2,..."
+login_required: false
+
+dev_hostname: "http://localhost:5000"
+prod_hostname: "https://genbank.rsvg.org"
+# prod_hostname: "http://localhost:8080"
+
+# ----------------------
+#     VISUALIZATION
+# ----------------------
+
+show_logos:
+  GISAID: false
+  GenBank: true
+
+# Allow downloads of sequence metadata (before aggregation)
+allow_metadata_download: true
+# Allow downloads of raw genomes
+allow_genome_download: true
