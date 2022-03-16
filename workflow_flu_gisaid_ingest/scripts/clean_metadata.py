@@ -195,6 +195,8 @@ def clean_df(df):
     # Convert dates to datetime
     df.loc[:, "collection_date"] = pd.to_datetime(df["collection_date"], yearfirst=True)
     df.loc[:, "submission_date"] = pd.to_datetime(df["submission_date"], yearfirst=True)
+    # Backfill submission date with collection date
+    df.loc[:, 'submission_date'] = df['submission_date'].combine_first(df['collection_date'])
 
     # Enforce column order for easier concatenation later
     df = df[
@@ -287,7 +289,7 @@ def main():
     df = dfs.explode(["accession_ids", "segments"]).rename(
         columns={"accession_ids": "Accession ID", "segments": "segment",}
     )
-    df.to_csv(args.metadata_out, index=False)
+    df.to_csv(args.metadata_out)
 
 
 if __name__ == "__main__":
