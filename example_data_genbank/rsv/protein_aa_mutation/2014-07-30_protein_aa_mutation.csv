@@ -1,1 +1,8 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+HW525577,F,66,E,K,A
+HW525577,F,101,P,Q,A
+HW525577,F,102,P,A,A
+HW525577,F,139,V,G,A
+HW525577,F,178,L,V,A
+HW525577,F,379,I,V,A
+HW525577,F,447,M,V,A

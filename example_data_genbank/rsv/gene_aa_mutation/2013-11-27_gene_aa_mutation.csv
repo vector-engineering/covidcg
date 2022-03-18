@@ -1,1 +1,4 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+KF570003,F,207,I,V,A
+KF570004,F,207,I,V,A
+KF570005,F,207,I,V,A

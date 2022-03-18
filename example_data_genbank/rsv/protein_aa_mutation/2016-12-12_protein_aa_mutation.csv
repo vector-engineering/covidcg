@@ -1,1 +1,5 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+KX383936,N,84,R,K,A
+KX383936,N,216,H,Y,A
+KX383937,N,57,A,V,B
+KX383937,N,216,H,Y,B

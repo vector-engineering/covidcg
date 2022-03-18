@@ -1,1 +1,8 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+AF067125,F,139,V,G,A
+AF067125,F,152,V,I,A
+AF067125,F,178,L,V,A
+AF067125,F,213,S,R,A
+AF067125,F,379,I,V,A
+AF067125,F,447,M,V,A
+AF067125,F,515,N,H,A

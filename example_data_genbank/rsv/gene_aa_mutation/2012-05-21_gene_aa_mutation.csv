@@ -1,1 +1,5 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+JQ822101,N,89,R,K,A
+JQ822101,N,221,H,Y,A
+JQ822102,N,89,R,K,A
+JQ822102,N,221,H,Y,A

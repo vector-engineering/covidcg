@@ -1,2 +1,6 @@
-Accession ID,protein,pos,ref,alt
-AF013255,L,836,G,S
+Accession ID,protein,pos,ref,alt,subtype
+AF013255,F,218,E,G,B
+AF013255,L,822,R,K,B
+AF013255,L,1662,N,H,B
+AF013255,L,1886,L,I,B
+AF013255,L,2030,F,L,B

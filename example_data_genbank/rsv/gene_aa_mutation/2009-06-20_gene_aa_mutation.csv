@@ -1,1 +1,9 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+GQ144963,G,228,T,L,B
+GQ144963,G,240,P,T,B
+GQ144963,G,243,T,K,B
+GQ144963,G,262,L,S,B
+GQ144963,G,263,E,N,B
+GQ144963,G,299,N,K,B
+GQ144963,G,300,T,A,B
+GQ144963,G,301,Q,_,B

@@ -7,6 +7,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import pandas as pd
+import json
+from cg_server.config import config
 
 # from https://personal.sron.nl/~pault/#sec:qualitative
 # 'vibrant', then 'muted'
@@ -52,7 +54,7 @@ def process_dna_mutations(dna_mutation_dict):
     dna_mutation = dna_mutation.join(
         dna_mutation["mutation_str"]
         .str.split("|", expand=True)
-        .rename(columns={0: "pos", 1: "ref", 2: "alt"})
+        .rename(columns={0: "pos", 1: "ref", 2: "alt", 3: "subtype"})
     ).set_index("id")
     dna_mutation.loc[:, "pos"] = dna_mutation["pos"].astype(int)
     dna_mutation["color"] = get_mutation_colors(dna_mutation.index.values)
@@ -87,26 +89,55 @@ def process_aa_mutations(aa_mutation_dict, name, defs):
     aa_mutation = aa_mutation.join(
         aa_mutation["mutation_str"]
         .str.split("|", expand=True)
-        .rename(columns={0: name, 1: "pos", 2: "ref", 3: "alt"})
+        .rename(columns={0: name, 1: "pos", 2: "ref", 3: "alt", 4: "subtype"})
     ).set_index("id")
     aa_mutation.loc[:, "pos"] = aa_mutation["pos"].astype(int)
     aa_mutation["color"] = get_mutation_colors(aa_mutation.index.values)
     aa_mutation["mutation_name"] = aa_mutation["mutation_str"].apply(format_aa_mutation)
 
-    def get_nt_pos(dna_mutation):
-        segment_ind = [
-            i
-            for i, segment in enumerate(defs.at[dna_mutation[name], "aa_ranges"])
-            if dna_mutation["pos"] >= segment[0] and dna_mutation["pos"] <= segment[1]
-        ][0]
-        return defs.at[dna_mutation[name], "segments"][segment_ind][0] + (
-            (
-                dna_mutation["pos"]
-                - defs.at[dna_mutation[name], "aa_ranges"][segment_ind][0]
-            )
-            * 3
-        )
+    if config["virus"] == "rsv":
+        df_A = pd.read_json(json.dumps(defs["NC_038235.1"])).set_index("name")
+        df_B = pd.read_json(json.dumps(defs["NC_001781.1"])).set_index("name")
+        df_A = df_A[df_A["protein_coding"]]
+        df_B = df_B[df_B["protein_coding"]]
 
-    aa_mutation["nt_pos"] = aa_mutation.apply(get_nt_pos, axis=1)
+        pdDict = {"A": df_A, "B": df_B}
+
+    def get_nt_pos(dna_mutation):
+        if config["virus"] == "sars2":
+            segment_ind = [
+                i
+                for i, segment in enumerate(defs.at[dna_mutation[name], "aa_ranges"])
+                if dna_mutation["pos"] >= segment[0] and dna_mutation["pos"] <= segment[1]
+            ][0]
+            return defs.at[dna_mutation[name], "segments"][segment_ind][0] + (
+                (
+                    dna_mutation["pos"]
+                    - defs.at[dna_mutation[name], "aa_ranges"][segment_ind][0]
+                )
+                * 3
+            )
+        else:
+            curDefs = pdDict[dna_mutation["subtype"]]
+            segment_ind = [
+                i
+                for i, segment in enumerate(curDefs.at[dna_mutation[name], "aa_ranges"])
+                if dna_mutation["pos"] >= segment[0] and dna_mutation["pos"] <= segment[1]
+            ]
+
+            if not len(segment_ind):
+                return -1
+
+            segment_ind = segment_ind[0]
+            return curDefs.at[dna_mutation[name], "segments"][segment_ind][0] + (
+                (
+                    dna_mutation["pos"]
+                    - curDefs.at[dna_mutation[name], "aa_ranges"][segment_ind][0]
+                )
+                * 3
+            )
+
+    aa_mutation["nt_pos"] = aa_mutation.apply(get_nt_pos, axis=1).astype('int')
+    aa_mutation = aa_mutation[aa_mutation["nt_pos"] != -1]
 
     return aa_mutation

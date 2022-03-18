@@ -113,9 +113,9 @@ __pycache__
 example_data_genbank/*/bam/**
 # Don't need to track redundant fasta_processed files
 example_data_genbank/*/fasta_processed/**
-# Don't track case_data or data_complete .csv
-case_data.csv
-data_complete.csv
+# Case_data and data_complete files are too large in RSV
+case_data.*
+data_complete.*
 
 **/.snakemake_timestamp
 example_data_genbank/*/status/**

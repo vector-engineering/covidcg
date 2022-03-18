@@ -1,1 +1,10 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+EU475964,G,95,P,S,B
+EU475964,G,101,S,P,B
+EU475964,G,109,S,P,B
+EU475964,G,118,T,I,B
+EU475964,G,138,T,S,B
+EU475964,G,140,S,P,B
+EU475964,G,143,T,N,B
+EU475964,G,152,L,P,B
+EU475964,G,158,KP,,B

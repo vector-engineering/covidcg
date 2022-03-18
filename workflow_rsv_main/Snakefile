@@ -55,7 +55,6 @@ rule all:
 rule preprocess_sequences:
     """Filter out sequences (adapted from van Dorp et al, 2020)
 	1. Can't have more than 5% ambiguous NT
-    2. Can't be shorter than 2878 NT (combined length of F and G)
     """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
@@ -80,7 +79,7 @@ rule assign_genotypes:
         """
 
 rule combine_genotypes:
-    """Read bam files and assign rsv genotype (A or B)
+    """Read bam files and assign rsv subtype (A or B)
     """
     input:
         bam = rules.assign_genotypes.output.bam

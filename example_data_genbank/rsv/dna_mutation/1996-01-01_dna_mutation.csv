@@ -1,4 +1,4 @@
-Accession ID,pos,ref,alt
-U27298,8546,A,G
-U27298,10849,G,A
-U27298,11642,A,G
+Accession ID,pos,ref,alt,subtype
+U27298,8546,A,G,A
+U27298,10849,G,A,A
+U27298,11642,A,G,A

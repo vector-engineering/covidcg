@@ -1,1 +1,1 @@
-export const version = '2.5.0-rsvdev2';
+export const version = '2.5.0-rsvdev4';

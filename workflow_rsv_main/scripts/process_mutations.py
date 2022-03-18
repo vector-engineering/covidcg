@@ -122,14 +122,14 @@ def process_mutations(
     # Replace NaNs in the 'ref' and 'alt' column with '-'
     mutation_df.fillna("-", inplace=True)
 
-    groupby_cols = ["pos", "ref", "alt"]
+    groupby_cols = ["pos", "ref", "alt", "subtype"]
     if mode == "gene_aa":
         groupby_cols.insert(0, "gene")
     elif mode == "protein_aa":
         groupby_cols.insert(0, "protein")
 
     # Generate mutation strings for initial dataframes
-    # e.g., for DNA, its pos|ref|alt
+    # e.g., for DNA, its pos|ref|alt|subtype
     # mutation_df['mutation_str'] = np.nan
     mutation_df = mutation_df.assign(
         mutation_str=(

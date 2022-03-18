@@ -25,7 +25,7 @@ def extract_dna_mutations(sam_file, reference_file):
     all_dna_mutations = []
     for read in samfile.fetch(until_eof=True):
         # Skip if unmapped
-        if read.is_unmapped:
+        if read.is_unmapped or not read.get_forward_sequence():
             continue
 
         ReadExtractor.RefSeq = ref[read.reference_name]
@@ -36,10 +36,11 @@ def extract_dna_mutations(sam_file, reference_file):
         all_dna_mutations.extend(dna_mutations)
 
     samfile.close()
-
     dna_mutation_df = pd.DataFrame.from_records(
-        all_dna_mutations, columns=["Accession ID", "pos", "ref", "alt"]
+        all_dna_mutations, columns=["Accession ID", "pos", "ref", "alt", "subtype"]
     )
+    valid_subtype = ["A", "B"]
+    dna_mutation_df = dna_mutation_df[dna_mutation_df["subtype"].isin(valid_subtype)]
 
     # Fill NaN values
     dna_mutation_df["ref"].fillna("", inplace=True)

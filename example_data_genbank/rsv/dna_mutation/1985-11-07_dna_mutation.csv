@@ -1,1 +1,7 @@
-Accession ID,pos,ref,alt
+Accession ID,pos,ref,alt,subtype
+X02221,5964,C,G,A
+X02221,6076,T,G,A
+X02221,6192,C,G,A
+X02221,6685,A,T,A
+X02221,6795,A,G,A
+X02221,6999,A,G,A

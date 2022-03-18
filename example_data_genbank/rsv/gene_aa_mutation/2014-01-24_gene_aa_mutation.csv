@@ -1,1 +1,9 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+JC008430,F,70,G,E,A
+JC008430,F,106,T,S,A
+JC008430,F,143,C,W,A
+JC008430,F,182,S,C,A
+JC008430,F,190,_,Q,A
+JC008430,F,383,N,S,A
+JC008430,F,451,D,G,A
+JC008430,F,523,W,R,A

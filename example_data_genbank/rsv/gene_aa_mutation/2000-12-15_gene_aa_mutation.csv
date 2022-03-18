@@ -1,1 +1,3 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+AX047073,F,143,C,W,A
+AX047073,F,182,S,C,A

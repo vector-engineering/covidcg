@@ -1,1 +1,5 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+KX383936,N,89,R,K,A
+KX383936,N,221,H,Y,A
+KX383937,N,62,A,V,B
+KX383937,N,221,H,Y,B

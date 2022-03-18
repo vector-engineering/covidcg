@@ -1,1 +1,6 @@
-Accession ID,pos,ref,alt
+Accession ID,pos,ref,alt,subtype
+HB384531,1349,G,T,A
+HB384531,1358,G,A,A
+HB384531,1424,A,G,A
+HB384531,1457,A,G,A
+HB384531,1488,G,T,A

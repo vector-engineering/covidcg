@@ -33,7 +33,7 @@ rule surveillance_data:
         end_date_days_ago = config.get('surv_end_date_days_ago', 30),
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
-    threads: workflow.cores / 2
+    threads: workflow.cores
     output:
         group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.json'),
         group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.json'),

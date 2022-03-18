@@ -1,1 +1,3 @@
-Accession ID,pos,ref,alt
+Accession ID,pos,ref,alt,subtype
+AX047073,6076,T,G,A
+AX047073,6192,C,G,A

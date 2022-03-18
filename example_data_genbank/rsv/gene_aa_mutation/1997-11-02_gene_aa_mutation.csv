@@ -1,2 +1,5 @@
-Accession ID,gene,pos,ref,alt
-AF013255,L,836,G,S
+Accession ID,gene,pos,ref,alt,subtype
+AF013255,F,222,_,W,B
+AF013255,F,270,Y,H,B
+AF013255,L,825,D,N,B
+AF013255,L,1664,K,N,B

@@ -110,11 +110,19 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
       if (selectedGene.name === 'All Genes') {
         // Switch back to S gene
-        selectedGene = getGene('S');
+        if (config.virus === 'sars2') {
+          selectedGene = getGene('S');
+        } else {
+          selectedGene = getGene('F', configStore.selectedReference);
+        }
       }
       if (selectedProtein.name === 'All Proteins') {
         // Switch back to nsp12 protein
-        selectedProtein = getProtein('nsp12 - RdRp');
+        if (config.virus === 'sars2') {
+          selectedProtein = getProtein('nsp12 - RdRp');
+        } else {
+          selectedProtein = getProtein('F', configStore.selectedReference);
+        }
       }
     }
 

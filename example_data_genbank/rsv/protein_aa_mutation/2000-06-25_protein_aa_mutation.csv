@@ -1,1 +1,9 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+AF162135,G,219,P,L,B
+AF162135,G,223,T,L,B
+AF162135,G,237,L,P,B
+AF162135,G,238,T,K,B
+AF162135,G,257,L,S,B
+AF162135,G,258,E,K,B
+AF162135,G,296,Q,_,B
+AF162135,G,298,H,Y,B

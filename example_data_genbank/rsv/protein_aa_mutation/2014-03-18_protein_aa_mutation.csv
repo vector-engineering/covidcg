@@ -1,1 +1,7 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+KJ155694,F,66,E,K,A
+KJ155694,F,102,P,A,A
+KJ155694,F,139,V,G,A
+KJ155694,F,178,L,V,A
+KJ155694,F,379,I,V,A
+KJ155694,F,447,M,V,A

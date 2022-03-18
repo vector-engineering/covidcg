@@ -1,1 +1,9 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+KJ155694,F,70,G,E,A
+KJ155694,F,106,T,S,A
+KJ155694,F,143,C,W,A
+KJ155694,F,182,S,C,A
+KJ155694,F,190,_,Q,A
+KJ155694,F,383,N,S,A
+KJ155694,F,451,D,G,A
+KJ155694,F,523,W,R,A

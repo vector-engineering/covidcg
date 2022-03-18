@@ -1,147 +1,150 @@
-[
-  {
-    "name": "5' UTR",
-    "segments": [[1, 44]],
-    "protein_coding": 0,
-    "domains": []
-  },
-  {
-    "name": "NS1",
-    "segments": [[99, 518]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "NS2",
-    "segments": [[628, 1002]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "N",
-    "segments": [[1140, 2315]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Disordered Region",
-        "ranges": [[1, 38]]
-      }
-    ]
-  },
-  {
-    "name": "P",
-    "segments": [[2348, 3073]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Nucleoprotein Binding Site",
-        "ranges": [[1, 30]]
-      },
-      {
-        "name": "Disordered Region 1",
-        "ranges": [[58, 78]]
-      },
-      {
-        "name": "PP1 Binding Site",
-        "ranges": [[81, 87]]
-      },
-      {
-        "name": "M2-1 Binding Site",
-        "ranges": [[90, 110]]
-      },
-      {
-        "name": "L Binding Site 1",
-        "ranges": [[120, 160]]
-      },
-      {
-        "name": "Disordered Region 2",
-        "ranges": [[200, 241]]
-      },
-      {
-        "name": "L Binding Site 2",
-        "ranges": [[216, 232]]
-      },
-      {
-        "name": "N-RNA Complex Binding Site",
-        "ranges": [[232, 241]]
-      }
-    ]
-  },
-  {
-    "name": "M",
-    "segments": [[3233, 4003]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "SH",
-    "segments": [[4274, 4468]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "G",
-    "segments": [[4659, 5555]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Cytoplasmic",
-        "ranges": [[1, 42]]
-      },
-      {
-        "name": "Transmembrane, Helical",
-        "ranges": [[43, 63]]
-      },
-      {
-        "name": "Extracellular",
-        "ranges": [[64, 298]]
-      }
-    ]
-  },
-  {
-    "name": "F",
-    "segments": [[5632, 7356]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Extracellular",
-        "ranges": [[26, 524]]
-      },
-      {
-        "name": "Transmembrane, Helical",
-        "ranges": [[525, 550]]
-      },
-      {
-        "name": "Cytoplasmic",
-        "ranges": [[551, 574]]
-      }
-    ]
-  },
-  {
-    "name": "M2",
-    "segments": [[7576, 8160]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "L",
-    "segments": [[8468, 14965]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "RdRp Catalytic",
-        "ranges": [[695, 879]]
-      },
-      {
-        "name": "2'-O-MTase",
-        "ranges": [[1822, 2010]]
-      }
-    ]
-  },
-  {
-    "name": "3' UTR",
-    "segments": [[15038, 15191]],
-    "protein_coding": 0,
-    "domains": []
-  }
-]
+{
+  "NC_038235.1": [
+    {
+      "name": "5' UTR",
+      "segments": [[1, 44]],
+      "protein_coding": 0,
+      "domains": []
+    },
+    {
+      "name": "NS1",
+      "segments": [[45, 576]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "NS2",
+      "segments": [[596, 1098]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "N",
+      "segments": [[1125, 2327]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "P",
+      "segments": [[2329, 3242]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "M",
+      "segments": [[3252, 4209]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "SH",
+      "segments": [[4219, 4628]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "G",
+      "segments": [[4673, 5595]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "F",
+      "segments": [[5648, 7550]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "M2",
+      "segments": [[7597, 8557]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "L",
+      "segments": [[8489, 15067]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "3' UTR",
+      "segments": [[15068, 15222]],
+      "protein_coding": 0,
+      "domains": []
+    }
+  ],
+  "NC_001781.1": [
+    {
+      "name": "5' UTR",
+      "segments": [[1, 44]],
+      "protein_coding": 0,
+      "domains": []
+    },
+    {
+      "name": "NS1",
+      "segments": [[45, 577]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "NS2",
+      "segments": [[594, 1098]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "N",
+      "segments": [[1125, 2327]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "P",
+      "segments": [[2331, 3244]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "M",
+      "segments": [[3254, 4208]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "SH",
+      "segments": [[4218, 4630]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "G",
+      "segments": [[4675, 5600]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "F",
+      "segments": [[5653, 7552]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "M2",
+      "segments": [[7609, 8568]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "L",
+      "segments": [[8501, 15080]],
+      "protein_coding": 1,
+      "domains": []
+    },
+    {
+      "name": "3' UTR",
+      "segments": [[15081, 15225]],
+      "protein_coding": 0,
+      "domains": []
+    }
+  ]
+}

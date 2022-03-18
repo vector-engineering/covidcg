@@ -56,13 +56,13 @@ def main():
         "--min-combo-count",
         type=int,
         default=50,
-        help="Minimum counts for a spike mutation combo to be included in the dataset",
+        help="Minimum counts for a fusion mutation combo to be included in the dataset",
     )
     parser.add_argument(
         "--min-single-count",
         type=int,
         default=50,
-        help="Minimum counts for a single spike mutation to be included in the dataset",
+        help="Minimum counts for a single fusion mutation to be included in the dataset",
     )
 
     parser.add_argument(
@@ -82,23 +82,23 @@ def main():
 
     out_path = Path(args.output)
 
-    # Get Spike mutations
+    # Get fusion mutations
     gene_aa_mutation = pd.DataFrame.from_dict(
         metadata_map["gene_aa_mutation"], orient="index"
     ).reset_index()
     gene_aa_mutation.columns = ["mutation", "mutation_id"]
-    spike_mutations = gene_aa_mutation.loc[
-        gene_aa_mutation["mutation"].str.match(r"^S")
+    fusion_mutations = gene_aa_mutation.loc[
+        gene_aa_mutation["mutation"].str.match(r"^F")
     ]
-    spike_mutation_map = spike_mutations["mutation"].to_dict()
+    fusion_mutation_map = fusion_mutations["mutation"].to_dict()
 
     df = case_data[
         ["Accession ID", "collection_date", "genotype", "gene_aa_mutation_str", "region"]
     ]
 
-    # Filter for only mutations in spike
-    valid_mutation_ids = spike_mutations["mutation_id"].values
-    df["spike_aa_mutation"] = df["gene_aa_mutation_str"].apply(
+    # Filter for only mutations in fusion
+    valid_mutation_ids = fusion_mutations["mutation_id"].values
+    df["fusion_aa_mutation"] = df["gene_aa_mutation_str"].apply(
         lambda x: tuple([mut for mut in x if mut in valid_mutation_ids])
     )
 
@@ -147,53 +147,53 @@ def main():
         .rename(columns={"genotype": "group", 0: "counts"})
     )
 
-    # SPIKE MUTATION COMBO DATA
+    # fusion MUTATION COMBO DATA
 
-    spike_combo_mutation_counts = (
+    fusion_combo_mutation_counts = (
         df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", "spike_aa_mutation", "collection_week"])
+        .groupby(["region", "fusion_aa_mutation", "collection_week"])
         .size()
         .reset_index()
-        .rename(columns={0: "counts", "spike_aa_mutation": "group"})
+        .rename(columns={0: "counts", "fusion_aa_mutation": "group"})
     )
-    spike_combo_mutation_freq = (
-        df.groupby("spike_aa_mutation").size().sort_values(ascending=False)
+    fusion_combo_mutation_freq = (
+        df.groupby("fusion_aa_mutation").size().sort_values(ascending=False)
     )
-    spike_combo_mutation_counts = spike_combo_mutation_counts.loc[
-        spike_combo_mutation_counts["group"].isin(
-            spike_combo_mutation_freq.index[
-                spike_combo_mutation_freq >= args.min_combo_count
+    fusion_combo_mutation_counts = fusion_combo_mutation_counts.loc[
+        fusion_combo_mutation_counts["group"].isin(
+            fusion_combo_mutation_freq.index[
+                fusion_combo_mutation_freq >= args.min_combo_count
             ].values
         )
     ]
 
-    # SPIKE SINGLE MUTATION DATA
-    spike_single_mutation_counts = (
+    # fusion SINGLE MUTATION DATA
+    fusion_single_mutation_counts = (
         df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", "spike_aa_mutation", "collection_week"])
+        .groupby(["region", "fusion_aa_mutation", "collection_week"])
         .size()
         .reset_index()
-        .rename(columns={0: "counts", "spike_aa_mutation": "group"})
+        .rename(columns={0: "counts", "fusion_aa_mutation": "group"})
     )
-    spike_single_mutation_counts.loc[:, "group"] = spike_single_mutation_counts[
+    fusion_single_mutation_counts.loc[:, "group"] = fusion_single_mutation_counts[
         "group"
     ].apply(list)
-    spike_single_mutation_counts = (
-        spike_single_mutation_counts.explode("group")
+    fusion_single_mutation_counts = (
+        fusion_single_mutation_counts.explode("group")
         .assign(group=lambda x: x["group"].fillna(-1))
         .groupby(["region", "collection_week", "group"])
         .agg(counts=("counts", np.sum))
         .reset_index()
     )
-    spike_single_mutation_freq = (
-        spike_single_mutation_counts.groupby("group")["counts"]
+    fusion_single_mutation_freq = (
+        fusion_single_mutation_counts.groupby("group")["counts"]
         .sum()
         .sort_values(ascending=False)
     )
-    spike_single_mutation_counts = spike_single_mutation_counts.loc[
-        spike_single_mutation_counts["group"].isin(
-            spike_single_mutation_freq.index[
-                spike_single_mutation_freq >= args.min_single_count
+    fusion_single_mutation_counts = fusion_single_mutation_counts.loc[
+        fusion_single_mutation_counts["group"].isin(
+            fusion_single_mutation_freq.index[
+                fusion_single_mutation_freq >= args.min_single_count
             ]
         )
     ]
@@ -213,8 +213,8 @@ def main():
         return _df
 
     genotype_counts = calculate_percentages(genotype_counts)
-    spike_combo_mutation_counts = calculate_percentages(spike_combo_mutation_counts)
-    spike_single_mutation_counts = calculate_percentages(spike_single_mutation_counts)
+    fusion_combo_mutation_counts = calculate_percentages(fusion_combo_mutation_counts)
+    fusion_single_mutation_counts = calculate_percentages(fusion_single_mutation_counts)
 
     # MUTATION IDS TO MUTATION NAMES
     def mutation_ids_to_name(ids):
@@ -223,7 +223,7 @@ def main():
 
         mutations = []
         for mutation_id in ids:
-            split = spike_mutation_map[mutation_id].split("|")
+            split = fusion_mutation_map[mutation_id].split("|")
             # Tuple of position (for sorting), and the pretty mutation name
             mutations.append((int(split[1]), split[2] + split[1] + split[3]))
 
@@ -236,22 +236,22 @@ def main():
         if mutation_id == -1:
             return "Reference"
 
-        split = spike_mutation_map[mutation_id].split("|")
+        split = fusion_mutation_map[mutation_id].split("|")
         # Tuple of position (for sorting), and the pretty mutation name
         return split[2] + split[1] + split[3]
 
-    spike_combo_mutation_counts.loc[:, "group"] = spike_combo_mutation_counts[
+    fusion_combo_mutation_counts.loc[:, "group"] = fusion_combo_mutation_counts[
         "group"
     ].apply(mutation_ids_to_name)
-    spike_single_mutation_counts.loc[:, "group"] = spike_single_mutation_counts[
+    fusion_single_mutation_counts.loc[:, "group"] = fusion_single_mutation_counts[
         "group"
     ].apply(mutation_id_to_name)
 
     genotype_counts.insert(0, "type", "genotype")
-    spike_combo_mutation_counts.insert(0, "type", "spike_combo")
-    spike_single_mutation_counts.insert(0, "type", "spike_single")
+    fusion_combo_mutation_counts.insert(0, "type", "fusion_combo")
+    fusion_single_mutation_counts.insert(0, "type", "fusion_single")
     all_counts = pd.concat(
-        [genotype_counts, spike_combo_mutation_counts, spike_single_mutation_counts],
+        [genotype_counts, fusion_combo_mutation_counts, fusion_single_mutation_counts],
         axis=0,
         ignore_index=True,
     )
@@ -261,6 +261,7 @@ def main():
 
     def group_regression(_df):
         min_date = _df["collection_week"].dt.date.min().isoformat()
+        print("collection_week")
         _df = _df.set_index("collection_week").reindex(
             pd.date_range(min_date, end_date_iso, freq="7D", closed="left"),
             fill_value=0,
@@ -298,17 +299,17 @@ def main():
         return regression_df
 
     genotype_regression = calculate_trends(genotype_counts)
-    spike_combo_mutation_regression = calculate_trends(spike_combo_mutation_counts)
-    spike_single_mutation_regression = calculate_trends(spike_single_mutation_counts)
+    fusion_combo_mutation_regression = calculate_trends(fusion_combo_mutation_counts)
+    fusion_single_mutation_regression = calculate_trends(fusion_single_mutation_counts)
 
     genotype_regression.insert(0, "type", "genotype")
-    spike_combo_mutation_regression.insert(0, "type", "spike_combo")
-    spike_single_mutation_regression.insert(0, "type", "spike_single")
+    fusion_combo_mutation_regression.insert(0, "type", "fusion_combo")
+    fusion_single_mutation_regression.insert(0, "type", "fusion_single")
     all_regression = pd.concat(
         [
             genotype_regression,
-            spike_combo_mutation_regression,
-            spike_single_mutation_regression,
+            fusion_combo_mutation_regression,
+            fusion_single_mutation_regression,
         ],
         axis=0,
         ignore_index=True,

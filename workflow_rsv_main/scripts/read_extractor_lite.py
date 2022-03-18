@@ -261,6 +261,11 @@ class ReadExtractor:
         # Join adjacent indels
         self.dna_mutations = []
         i = 0
+        subtype = ""
+        if self.read.reference_name == "NC_038235.1":
+            subtype = "A"
+        elif self.read.reference_name == "NC_001781.1":
+            subtype = "B"
         while i < len(self.mutation_str):
             (query_name, pos, ref, alt) = self.mutation_str[i]
             # mut is a tuple: (Position, Ref, Alt)
@@ -279,7 +284,7 @@ class ReadExtractor:
                 if alt not in ["A", "C", "G", "T"]:
                     continue
 
-                self.dna_mutations.append((query_name, pos, ref, alt))
+                self.dna_mutations.append((query_name, pos, ref, alt, subtype))
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -299,12 +304,14 @@ class ReadExtractor:
             # Get adjacent indels
             adj_muts = self.mutation_str[i:j]
             # Combine bases, but keep first position and type
+
             self.dna_mutations.append(
                 (
                     query_name,
                     pos,
                     "".join([m[2] for m in adj_muts]),
                     "".join([m[3] for m in adj_muts]),
+                    subtype
                 )
             )
             # Skip ahead to the end of the adjacent mutations

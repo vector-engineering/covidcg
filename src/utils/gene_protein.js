@@ -2,6 +2,8 @@
 import genes from '../../static_data/__VIRUS__/genes_processed.json';
 import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
 
+import { config } from '../config';
+
 /* function processFeatures(features) {
   return features.map((feature) => {
     feature.ranges = feature.segments;
@@ -26,8 +28,12 @@ import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
   });
 } */
 
-export function getAllGenes() {
-  return genes;
+export function getAllGenes(ref = 'A') {
+  if (config.virus === 'sars2') {
+    return genes;
+  } else {
+    return ref === 'A' ? genes['NC_038235.1'] : genes['NC_001781.1'];
+  }
 }
 
 export const geneMap = {
@@ -37,17 +43,34 @@ export const geneMap = {
     domains: [],
   },
 };
-genes.forEach((gene) => {
-  geneMap[gene.name] = gene;
-});
 
-export function getGene(gene) {
+export function getGene(gene, ref = 'A') {
   // Get the selected gene object
-  return geneMap[gene];
+  if (!(gene in geneMap)) {
+    if (config.virus === 'sars2') {
+      genes.forEach((gene) => {
+        geneMap[gene.name] = gene;
+      });
+    } else {
+      if (!(ref in geneMap)) {
+        const selectedGenes =
+          ref === 'A' ? genes['NC_038235.1'] : genes['NC_001781.1'];
+        geneMap[ref] = {};
+        selectedGenes.forEach((gene) => {
+          geneMap[ref][gene.name] = gene;
+        });
+      }
+    }
+  }
+  return config.virus === 'sars2' ? geneMap[gene] : geneMap[ref][gene];
 }
 
-export function getAllProteins() {
-  return proteins;
+export function getAllProteins(ref = 'A') {
+  if (config.virus === 'sars2') {
+    return proteins;
+  } else {
+    return ref === 'A' ? proteins['NC_038235.1'] : proteins['NC_001781.1'];
+  }
 }
 
 export const proteinMap = {
@@ -57,10 +80,32 @@ export const proteinMap = {
     domains: [],
   },
 };
-proteins.forEach((protein) => {
-  proteinMap[protein.name] = protein;
-});
 
-export function getProtein(_protein) {
-  return proteinMap[_protein];
+export function getProtein(_protein, ref = 'A') {
+  // Get the selected gene object
+  if (!(_protein in proteinMap)) {
+    if (config.virus === 'sars2') {
+      proteins.forEach((protein) => {
+        proteinMap[protein.name] = protein;
+      });
+    } else {
+      if (!(ref in proteinMap)) {
+        if (config.virus === 'sars2') {
+          proteins.forEach((protein) => {
+            proteinMap[protein.name] = protein;
+          });
+        } else {
+          const selectedProteins =
+            ref === 'A' ? proteins['NC_038235.1'] : proteins['NC_001781.1'];
+          proteinMap[ref] = {};
+          selectedProteins.forEach((protein) => {
+            proteinMap[ref][protein.name] = protein;
+          });
+        }
+      }
+    }
+  }
+  return config.virus === 'sars2'
+    ? proteinMap[_protein]
+    : proteinMap[ref][_protein];
 }

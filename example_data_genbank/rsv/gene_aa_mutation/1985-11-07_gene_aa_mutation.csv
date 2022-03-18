@@ -1,1 +1,6 @@
-Accession ID,gene,pos,ref,alt
+Accession ID,gene,pos,ref,alt,subtype
+X02221,F,106,T,S,A
+X02221,F,143,C,W,A
+X02221,F,182,S,C,A
+X02221,F,383,N,S,A
+X02221,F,451,D,G,A

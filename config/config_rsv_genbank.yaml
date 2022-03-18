@@ -69,7 +69,7 @@ group_cols:
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
-surv_start_date: "1996-01-01"
+surv_start_date: "1956-01-01"
 surv_min_combo_count: 50
 surv_min_single_count: 50
 surv_start_date_days_ago: 90
@@ -96,7 +96,7 @@ mutation_partition_break: "Y"
 # which is structured as "user1:pass1,user2:pass2,..."
 login_required: true
 
-dev_hostname: "http://localhost:5000"
+dev_hostname: "http://localhost:5001"
 prod_hostname: "https://rsv.pathmut.org"
 # prod_hostname: "http://localhost:8080"
 

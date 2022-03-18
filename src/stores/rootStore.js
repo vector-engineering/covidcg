@@ -58,9 +58,10 @@ class RootStore {
     this.plotSettingsStore.init();
     this.metadataStore.init();
     this.locationDataStore.init();
-    this.mutationDataStore.init();
 
     this.configStore.init();
+
+    this.mutationDataStore.init();
 
     this.globalSequencingDataStore.init();
     this.groupDataStore.init();

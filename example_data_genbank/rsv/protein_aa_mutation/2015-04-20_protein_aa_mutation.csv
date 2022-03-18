@@ -1,1 +1,6 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+KP713401,N,117,A,S,A
+KP713402,N,70,A,V,B
+KP713402,N,72,S,T,B
+KP713402,N,74,L,A,B
+KP713402,N,75,G,R,B

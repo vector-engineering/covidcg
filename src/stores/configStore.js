@@ -102,7 +102,9 @@ export class ConfigStore {
         if (key === 'selectedGene') {
           // If the specified gene is in the geneMap get the gene
           if (value in geneMap) {
-            this[key] = getGene(value);
+            if (config.virus === 'sars2') {
+              this[key] = getGene(value);
+            }
           } else {
             // Else display default gene
             this[key] = this.initialValues.selectedGene;
@@ -111,7 +113,9 @@ export class ConfigStore {
         } else if (key === 'selectedProtein') {
           // If the specified protein is in the proteinMap get the protein
           if (value in proteinMap) {
-            this[key] = getProtein(value);
+            if (config.virus === 'sars2') {
+              this[key] = getProtein(value);
+            }
           } else {
             // Else display default protein
             this[key] = this.initialValues.selectedProtein;

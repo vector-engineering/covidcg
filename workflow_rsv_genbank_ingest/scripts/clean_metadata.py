@@ -75,10 +75,6 @@ def clean_metadata(metadata_in, metadata_out):
         (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
-        | ((df["protein_names"].str.contains('fusion')
-            | df["protein_names"].str.contains('F ')) &
-           df["protein_names"].str.contains('attachment')
-            | df["protein_names"].str.contains('G '))
     )
     df = df.loc[~remove_rows]
 

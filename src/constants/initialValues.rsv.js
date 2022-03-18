@@ -24,13 +24,13 @@ export default function values() {
       dnaOrAa: DNA_OR_AA.AA,
 
       // Select the F gene and protein by default
-      selectedGene: getGene('F'),
-      selectedProtein: getProtein('F'),
+      selectedGene: getGene('F', 'A'),
+      selectedProtein: getProtein('F', 'A'),
       selectedPrimers: [],
       selectedReference: 'A',
       customCoordinates: [[5648, 7550]],
       customSequences: ['GGTGTTGGATCTGCAATCGC'],
-      residueCoordinates: [[1, getGene('F').len_aa]],
+      residueCoordinates: [[1, getGene('F', 'A').len_aa]],
 
       // Selecting the gene as the coordinate range by default
       coordinateMode: COORDINATE_MODES.COORD_GENE,

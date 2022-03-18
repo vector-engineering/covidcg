@@ -1,3 +1,3 @@
-Accession ID,protein,pos,ref,alt
-U27298,L,27,S,G
-U27298,L,1059,N,D
+Accession ID,protein,pos,ref,alt,subtype
+U27298,L,17,S,G,A
+U27298,L,1049,N,D,A

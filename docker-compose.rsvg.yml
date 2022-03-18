@@ -21,9 +21,9 @@ services:
       - POSTGRES_MAX_CONN=20
       - FRONTEND_PORT=3000
     # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
-    command: "flask run --host 0.0.0.0 --port=5000"
+    command: "flask run --host 0.0.0.0 --port=5001"
     ports:
-      - 5000:5000
+      - 5001:5001
     working_dir: /app
     volumes:
       - ./services/server:/app:cached # Mount the server python code at run-time, so that the flask development server can refresh on changes

@@ -1,1 +1,5 @@
-Accession ID,protein,pos,ref,alt
+Accession ID,protein,pos,ref,alt,subtype
+AB574189,F,276,N,S,A
+AB574190,F,276,N,S,A
+AB574192,F,276,N,S,A
+AB574202,F,355,A,V,B

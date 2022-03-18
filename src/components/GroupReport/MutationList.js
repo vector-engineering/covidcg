@@ -39,8 +39,6 @@ import {
 } from './MutationList.styles';
 import { HelpButton, HelpText } from '../Common/Accordion.styles';
 
-const genes = getAllGenes();
-const proteins = getAllProteins();
 const heatmapMin = 0.0;
 const heatmapMax = 1.0;
 const numColors = reds.length;
@@ -180,7 +178,12 @@ DeleteButtonContainer.propTypes = {
 };
 
 const MutationListContent = observer(() => {
-  const { groupDataStore, UIStore, plotSettingsStore } = useStores();
+  const {
+    groupDataStore,
+    UIStore,
+    plotSettingsStore,
+    configStore,
+  } = useStores();
 
   // console.log(UIStore.groupMutationFrequencyState);
 
@@ -235,8 +238,19 @@ const MutationListContent = observer(() => {
   };
 
   // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
-  const features =
-    groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
+
+  let features = {};
+  if (config.virus === 'sars2') {
+    const genes = getAllGenes();
+    const proteins = getAllProteins();
+    features =
+      groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
+  } else {
+    const genes = getAllGenes(configStore.selectedReference);
+    const proteins = getAllProteins(configStore.selectedReference);
+    features =
+      groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
+  }
 
   features.forEach((feature, feature_i) => {
     // Get all mutations for this gene, then sort by position/alt

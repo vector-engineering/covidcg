@@ -1,1 +1,6 @@
-Accession ID,pos,ref,alt
+Accession ID,pos,ref,alt,subtype
+DM091208,1349,G,T,A
+DM091208,1358,G,A,A
+DM091208,1424,A,G,A
+DM091208,1457,A,G,A
+DM091208,1488,G,T,A

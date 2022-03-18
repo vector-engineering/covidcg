@@ -35,9 +35,6 @@ import {
   GROUP_MUTATION,
 } from '../../constants/defs.json';
 
-const genes = getAllGenes();
-const proteins = getAllProteins();
-
 const CoordinateSelect = observer(
   ({
     groupKey,
@@ -66,6 +63,17 @@ const CoordinateSelect = observer(
   }) => {
     // Create option elements
     const { configStore } = useStores();
+
+    let genes = {};
+    let proteins = {};
+
+    if (config.virus === 'sars2') {
+      genes = getAllGenes();
+      proteins = getAllProteins();
+    } else {
+      genes = getAllGenes(configStore.selectedReference);
+      proteins = getAllProteins(configStore.selectedReference);
+    }
 
     // GENE
     let geneOptionElements = [];
