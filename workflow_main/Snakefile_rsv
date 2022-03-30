@@ -28,9 +28,28 @@ def get_reference_file(wildcards, output):
     subtype = get_subtype(wildcards, output)
     return os.path.join(static_data_folder, 'mut_references', subtype + '.fa')
 
+# Additional analyses module
+include: "analyses/Snakefile"
+
 rule all:
     input:
-        combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv')
+        # Generate reference-related data
+        os.path.join(static_data_folder, "reference.json"),
+        os.path.join(static_data_folder, "primers.json"),
+        # Packaged data
+        os.path.join(data_folder, "data_package.json.gz"),
+        os.path.join(data_folder, 'data_complete.csv'),
+        # Additional analyses
+        # rules.additional_analyses.output.done
+        # Surveillance data
+        rules.surveillance_data.output.group_counts,
+        rules.surveillance_data.output.group_regression,
+        # Global sequencing data
+        rules.global_seq_data.output.case_count,
+        rules.global_seq_data.output.sequences_per_month,
+        rules.global_seq_data.output.turnaround_per_month,
+        rules.global_seq_data.output.iso_lookup,
+        
 
 rule preprocess_sequences:
     """Filter out sequences...
@@ -136,8 +155,8 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
-        # processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
-        metadata = os.path.join(data_folder, "metadata.csv"),
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        metadata = os.path.join(data_folder, "metadata+subtype.csv"),
         dna_mutation_files = expand(
             os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
             chunk=CHUNKS
@@ -151,16 +170,154 @@ rule combine_all_data:
             chunk=CHUNKS
         )
     output:
-        # metadata_map = os.path.join(data_folder, "metadata_map.json"),
-        # # Only used to build the location tree
-        # case_data = os.path.join(data_folder, "case_data.json"),
-        # case_data_csv = os.path.join(data_folder, "case_data.csv")
-        combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv'),
-        combined_gene_aa_mutations = os.path.join(data_folder, 'gene_aa_mutations.csv'),
-        combined_protein_aa_mutations = os.path.join(data_folder, 'protein_aa_mutations.csv')
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        # Only used to build the location tree
+        case_data = os.path.join(data_folder, "case_data.json"),
+        case_data_csv = os.path.join(data_folder, "case_data.csv")
+    params:
+        count_threshold=config["mutation_count_threshold"],
+        group_cols=list(config["group_cols"].keys()),
+        metadata_cols=list(config["metadata_cols"].keys())
     shell:
         """
-        echo "hello" > {output.combined_dna_mutations}
-        echo "hello" > {output.combined_gene_aa_mutations}
-        echo "hello" > {output.combined_protein_aa_mutations}
+        python3 scripts/combine_all_data.py \
+            --fasta {input.processed_fasta_files} \
+            --metadata {input.metadata} \
+            --dna-mutation-files {input.dna_mutation_files} \
+            --gene-aa-mutation-files {input.gene_aa_mutation_files} \
+            --protein-aa-mutation-files {input.protein_aa_mutation_files} \
+            --metadata-map {output.metadata_map} \
+            --case-data {output.case_data} \
+            --case-data-csv {output.case_data_csv} \
+            --count-threshold {params.count_threshold} \
+            --metadata-cols {params.metadata_cols}
+
+            # --group-cols {params.group_cols}
+        """
+
+
+rule build_location_tree:
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        emoji_map_file = os.path.join(
+            static_data_folder, "country_to_emoji.xls"
+        )
+    output:
+        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
+    shell:
+        """
+        python3 scripts/build_location_tree.py \
+            --case-data {input.case_data} \
+            --metadata-map {input.metadata_map} \
+            --emoji-map {input.emoji_map_file} \
+            --out {output.geo_select_tree}
+        """
+
+
+rule write_reference_files:
+    """Write some of the reference sequence data as JSON
+    files that can be easily loaded by the front-end
+    """
+    input:
+        reference = os.path.join(static_data_folder, "reference.fasta"),
+        primers = os.path.join(static_data_folder, "primers.csv")
+    output:
+        # Write data to JSON for the JS/UI to handle
+        reference = os.path.join(static_data_folder, "reference.json"),
+        primers = os.path.join(static_data_folder, "primers.json")
+    shell:
+        """
+        python3 scripts/write_reference_files.py \
+            --reference-fasta {input.reference} \
+            --primers-csv {input.primers} \
+            --reference-json {output.reference} \
+            --primers-json {output.primers}
+        """
+
+rule consensus_mutations:
+    """For each lineage and clade, get the lineage/clade-defining mutations,
+    on both the NT and AA level
+    Lineage/clade-defining mutations are defined as mutations which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data
+    output:
+        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
+        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
+    params:
+        group_cols=list(config["group_cols"].keys()),
+        consensus_fraction=config["consensus_fraction"],
+        min_reporting_fraction=config['min_reporting_fraction']
+    shell:
+        """
+        python3 scripts/consensus_mutations.py \
+            --case-data {input.case_data} \
+            --consensus-out {output.group_consensus_mutations} \
+            --frequencies-out {output.group_mutation_frequencies} \
+            --group-cols {params.group_cols} \
+            --consensus-fraction {params.consensus_fraction} \
+            --min-reporting-fraction {params.min_reporting_fraction}
+        """
+
+
+rule global_group_counts:
+    """Get the number of sequences in each group
+    Doing this in the pipeline just saves some work for the browser later
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data
+    output:
+        global_group_counts = os.path.join(
+            data_folder, "global_group_counts.json"
+        )
+    params:
+        group_cols = list(config["group_cols"].keys())
+    shell:
+        """
+        python3 scripts/global_group_counts.py \
+            --case-data {input.case_data} \
+            --out-global-group-counts {output.global_group_counts} \
+            --group-cols {params.group_cols}
+        """
+
+rule assemble_data_package:
+    """Assemble the complete data package, that will be downloaded
+    by the app upon initial load
+    """
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        country_score = rules.global_sequencing_efforts.output.country_score,
+        geo_select_tree = rules.build_location_tree.output.geo_select_tree,
+        global_group_counts = rules.global_group_counts.output.global_group_counts,
+        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
+        metadata_map = rules.combine_all_data.output.metadata_map
+    output:
+        data_package = os.path.join(data_folder, "data_package.json.gz")
+    shell:
+        """
+        python3 scripts/assemble_data_package.py \
+            --case-data {input.case_data} \
+            --country-score {input.country_score} \
+            --geo-select-tree {input.geo_select_tree} \
+            --global-group-counts {input.global_group_counts} \
+            --group-consensus-mutations {input.group_consensus_mutations} \
+            --metadata-map {input.metadata_map} \
+            --data-package-out {output.data_package}
+        """
+
+rule build_full_dataframe:
+    input:
+        case_data = rules.combine_all_data.output.case_data,
+        metadata_map = rules.combine_all_data.output.metadata_map
+    output:
+        full_df = os.path.join(data_folder, 'data_complete.csv')
+    shell:
+        """
+        python3 scripts/build_full_dataframe.py \
+            --case-data {input.case_data} \
+            --metadata-map {input.metadata_map} \
+            --df-out {output.full_df}
         """

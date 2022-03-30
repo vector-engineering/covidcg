@@ -1,14 +1,28 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
+import argparse
 import pandas as pd
 import json
 
 
-def build_full_dataframe(case_data, metadata_map, df_out):
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--case-data", type=str, required=True, help="Case data JSON file"
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map JSON file"
+    )
+    parser.add_argument("--df-out", type=str, required=True, help="Data frame output")
+
+    args = parser.parse_args()
 
     # Load data
-    df = pd.read_json(case_data).set_index("Accession ID")
-    with open(metadata_map, "r") as fp:
+    df = pd.read_json(args.case_data).set_index("Accession ID")
+    with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 
     # Join mutation information
@@ -45,4 +59,8 @@ def build_full_dataframe(case_data, metadata_map, df_out):
         mmap = {int(k): v for k, v in metadata_map[col].items()}
         df[col] = df[col].map(mmap)
 
-    df.to_csv(df_out)
+    df.to_csv(args.df_out)
+
+
+if __name__ == "__main__":
+    main()
