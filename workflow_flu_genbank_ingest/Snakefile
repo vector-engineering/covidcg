@@ -72,7 +72,7 @@ rule write_ha_fasta:
     shell:
         """
         python3 scripts/write_ha_fasta.py \
-            --feed {input.feed} --metadata-in {input.metadata} --out {params.sequences_out}
+            --feed {input.feed} --metadata-in {input.metadata} --out {output.sequences}
         """
         
 

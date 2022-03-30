@@ -4,7 +4,7 @@
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "data_genbank/rsv"
+data_folder: "rsv_data_genbank"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
@@ -63,11 +63,11 @@ surv_end_date_days_ago: 30
 
 # Split mutation table partitions into periods of this length
 # See: https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-# Common options: 
+# Common options:
 # 'D' calendar day frequency
 # 'W' weekly frequency
 # 'M' month end frequency
-mutation_partition_break: 'M'
+mutation_partition_break: "M"
 
 # ---------------
 #     SERVER
