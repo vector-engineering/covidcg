@@ -94,6 +94,7 @@ workflow*/**/__pycache__/**
 data/**
 data_genbank/**
 data_custom/**
+data_genbank_rsv/**
 
 # Ignore server passwords
 server/htpasswd
