@@ -1,123 +1,143 @@
 {
-  "NC_038235.1": [
+  "A": [
     {
       "name": "nsp1",
+      "segment": 1,
       "segments": [[99, 518]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "nsp2",
+      "segment": 1,
       "segments": [[628, 1002]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "N",
+      "segment": 1,
       "segments": [[1140, 2315]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "P",
+      "segment": 1,
       "segments": [[2346, 3071]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "M",
+      "segment": 1,
       "segments": [[3261, 4031]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "SH",
+      "segment": 1,
       "segments": [[4303, 4497]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "G",
+      "segment": 1,
       "segments": [[4688, 5584]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "F",
+      "segment": 1,
       "segments": [[5661, 7385]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "M2",
+      "segment": 1,
       "segments": [[7606, 8431]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "L",
+      "segment": 1,
       "segments": [[8498, 14995]],
       "protein_coding": 1,
       "domains": []
     }
   ],
-  "NC_001781.1": [
+  "B": [
     {
       "name": "nsp1",
+      "segment": 1,
       "segments": [[99, 518]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "nsp2",
+      "segment": 1,
       "segments": [[626, 1000]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "N",
+      "segment": 1,
       "segments": [[1140, 2315]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "P",
+      "segment": 1,
       "segments": [[2348, 3073]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "M",
+      "segment": 1,
       "segments": [[3263, 4033]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "SH",
+      "segment": 1,
       "segments": [[4303, 4500]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "G",
+      "segment": 1,
       "segments": [[4690, 5589]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "F",
+      "segment": 1,
       "segments": [[5666, 7390]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "M2",
+      "segment": 1,
       "segments": [[7618, 8443]],
       "protein_coding": 1,
       "domains": []
     },
     {
       "name": "L",
+      "segment": 1,
       "segments": [[8509, 15009]],
       "protein_coding": 1,
       "domains": []

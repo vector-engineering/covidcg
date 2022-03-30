@@ -11,7 +11,7 @@ data_folder: "data_genbank_rsv"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
-static_data_folder: "static_data"
+static_data_folder: "static_data/rsv"
 
 # Path to folder with data to use in development
 # This path is relative to the project root

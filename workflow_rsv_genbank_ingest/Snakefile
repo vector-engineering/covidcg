@@ -12,7 +12,7 @@ configfile: "../config/config_rsv_genbank.yaml"
 today_str = datetime.date.today().isoformat()
 
 data_folder = os.path.join("..", config["data_folder"])
-static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 rule all:
     input:

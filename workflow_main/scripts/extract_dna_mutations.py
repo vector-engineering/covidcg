@@ -10,8 +10,8 @@ import argparse
 import pandas as pd
 import pysam
 
-from scripts.fasta import read_fasta_file
-from scripts.read_extractor_lite import ReadExtractor
+from fasta import read_fasta_file
+from read_extractor_lite import ReadExtractor
 
 
 def extract_dna_mutations(sam_file, reference_file):

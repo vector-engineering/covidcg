@@ -1,0 +1,166 @@
+# coding: utf-8
+
+"""Main data processing workflow from ingested data
+
+$ snakemake -s Snakefile_rsv --configfile ../config/config_rsv_genbank.yaml -j6
+
+Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
+"""
+
+import datetime
+import os
+
+data_folder = os.path.join("..", config["data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
+
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
+
+# Find chunks
+CHUNKS, = glob_wildcards(os.path.join(
+    data_folder, "fasta_raw", "{chunk}.fa.gz"
+))
+
+def get_subtype(wildcards, output):
+    return wildcards.chunk.split('_')[0]
+
+def get_reference_file(wildcards, output):
+    subtype = get_subtype(wildcards, output)
+    return os.path.join(static_data_folder, 'mut_references', subtype + '.fa')
+
+rule all:
+    input:
+        combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv')
+
+rule preprocess_sequences:
+    """Filter out sequences...
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
+    shell:
+        """
+        # Pass-through for now
+        cp {input.fasta} {output.fasta}
+        """
+
+rule align_sequences:
+    input:
+        fasta = rules.preprocess_sequences.output.fasta
+    params:
+        ref_seq = get_reference_file
+    output:
+        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
+    shell:
+        """
+        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+rule extract_dna_mutations:
+    """Find mutations on the NT level for each sequence
+    """
+    input:
+        bam = rules.align_sequences.output.bam
+    params:
+        ref_seq = get_reference_file
+    output:
+        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
+    shell:
+        """
+        python3 scripts/extract_dna_mutations.py \
+            --bam {input.bam} \
+            --reference {params.ref_seq} \
+            --out {output.dna_mutation}
+        """
+
+
+rule process_genes_and_proteins:
+    """Calculate some additional columns on top of the human-generated
+    genes.json and proteins.json annotations file
+    """
+    input:
+        genes = os.path.join(static_data_folder, "genes.json"),
+        proteins = os.path.join(static_data_folder, "proteins.json")
+    output:
+        genes = os.path.join(static_data_folder, "genes_processed.json"),
+        proteins = os.path.join(static_data_folder, "proteins_processed.json")
+    shell:
+        """
+        python3 scripts/gene_protein_defs.py -i {input.genes} -o {output.genes}
+        python3 scripts/gene_protein_defs.py -i {input.proteins} -o {output.proteins}
+        """
+
+rule extract_aa_mutations:
+    """Using the NT mutations, translate genes/proteins and find mutations
+    on the AA level, for genes
+    """
+    input:
+        dna_mutation = rules.extract_dna_mutations.output.dna_mutation,
+        genes_file = rules.process_genes_and_proteins.output.genes,
+        proteins_file = rules.process_genes_and_proteins.output.proteins
+    params:
+        ref_seq = get_reference_file,
+        subtype = get_subtype
+    output:
+        gene_aa_mutation = os.path.join(
+            data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
+        ),
+        protein_aa_mutation = os.path.join(
+            data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"
+        )
+    shell:
+        """
+        python3 scripts/extract_aa_mutations.py \
+            --dna-mutation {input.dna_mutation} \
+            --gene-protein-def {input.genes_file} \
+            --reference {params.ref_seq} \
+            --serotype {params.subtype} \
+            --segment 1 \
+            --mode gene \
+            --out {output.gene_aa_mutation}
+
+        python3 scripts/extract_aa_mutations.py \
+            --dna-mutation {input.dna_mutation} \
+            --gene-protein-def {input.proteins_file} \
+            --reference {params.ref_seq} \
+            --serotype {params.subtype} \
+            --segment 1 \
+            --mode protein \
+            --out {output.protein_aa_mutation}
+        """
+
+
+rule combine_all_data:
+    """Main rule for generating the data files for the browser
+    Mostly just a bunch of joins
+    """
+    input:
+        # processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        metadata = os.path.join(data_folder, "metadata.csv"),
+        dna_mutation_files = expand(
+            os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        gene_aa_mutation_files = expand(
+            os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        protein_aa_mutation_files = expand(
+            os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
+            chunk=CHUNKS
+        )
+    output:
+        # metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        # # Only used to build the location tree
+        # case_data = os.path.join(data_folder, "case_data.json"),
+        # case_data_csv = os.path.join(data_folder, "case_data.csv")
+        combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv'),
+        combined_gene_aa_mutations = os.path.join(data_folder, 'gene_aa_mutations.csv'),
+        combined_protein_aa_mutations = os.path.join(data_folder, 'protein_aa_mutations.csv')
+    shell:
+        """
+        echo "hello" > {output.combined_dna_mutations}
+        echo "hello" > {output.combined_gene_aa_mutations}
+        echo "hello" > {output.combined_protein_aa_mutations}
+        """
