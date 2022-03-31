@@ -6,12 +6,16 @@
   "padding": 5,
   "signals": [
     {
+      "name": "other_hover",
+      "value": null
+    },
+    {
       "name": "hoverGroup",
       "value": null,
       "on": [
         {
           "events": "rect:mouseover!",
-          "update": "{location: datum.group}"
+          "update": "datum.group"
         },
         {
           "events": "rect:mouseout!",
@@ -52,6 +56,7 @@
   ],
 
   "data": [
+    
     {
       "name": "group_reg",
       "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
@@ -210,6 +215,10 @@
           "as": "end"
         }
       ]
+    },
+    {
+      "name": "hover_legend",
+      "values": []
     }
   ],
 
@@ -390,7 +399,7 @@
                       "strokeWidth": { "value":20},
                       "strokeOpacity": [
                         {
-                          "test": "hoverGroup === null || hoverGroup.location === datum.group",
+                          "test": "(indata('hover_legend', 'group', datum.group) || hoverGroup === datum.group || other_hover === datum.group) || (!length(data('hover_legend')) && hoverGroup === null)",
                           "value": 1
                         },
                         {"value": 0.3}

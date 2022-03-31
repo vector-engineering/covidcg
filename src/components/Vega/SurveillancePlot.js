@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
 import { config } from '../../config';
+import equal from 'fast-deep-equal';
 
 import {
   SORT_DIRECTIONS,
@@ -322,8 +323,26 @@ const SurveillancePlot = observer(({ width }) => {
     ReactTooltip.rebuild();
   }, []);
 
+  // Update hover groups when there is a change in the store
+  useEffect(() => {
+    const hov = plotSettingsStore.surveillanceLegendHover;
+    if (hov.length > 0) {
+      const sliced = hov.slice();
+      setState({
+        ...state,
+        other_hover: sliced[0]
+      });
+    } else {
+      setState({
+        ...state,
+        other_hover: null
+      });
+    }
+    
+  }, [plotSettingsStore.surveillanceLegendHover])
+
   const handleValidGroups = (...args) => {
-    // console.log('valid', args);
+    //console.log('valid', args);
     setState({
       ...state,
       legendItems: args[1],
@@ -346,28 +365,39 @@ const SurveillancePlot = observer(({ width }) => {
     });
   };
 
+  const handleBarGroups = (...args) => {
+    let store = plotSettingsStore.surveillanceLegendHover;
+    if (store.length > 0) {
+      store = store.slice();
+    } else {
+      store = [];
+    }
+    if (args[1] !== null && !store.includes(args[1])) {
+      plotSettingsStore.setSurveillanceLegendHover([args[1]]);
+    } else if (args[1] == null && store.length > 0) {
+      plotSettingsStore.setSurveillanceLegendHover([]);
+    }
+  }
+
   const handleHoverGroups = (...args) => {
-    // console.log('hover', args);
 
     const legendHover = [];
     args[1].forEach((item) => {
       legendHover.push(item.group);
     });
-
     plotSettingsStore.setSurveillanceLegendHover(legendHover);
   };
 
   const [state, setState] = useState({
     dataListeners: {
       valid_groups_color: handleValidGroups,
-      tooltip_group: handleHoverGroups,
     },
     data: {
       hover_legend: [],
     },
     currSpec: stackedSpec,
-    signalListeners: {},
     legendItems: [],
+    other_hover: null,
   });
 
   const onToggleShowSettings = () => {
@@ -413,7 +443,6 @@ const SurveillancePlot = observer(({ width }) => {
       ...state,
       currSpec: newSpec
     });
-    console.log(state.currSpec);
   };
 
   const setLegendHover = (group) => {
@@ -467,7 +496,7 @@ const SurveillancePlot = observer(({ width }) => {
         Only data from the last {config.surv_start_date_days_ago} days is shown,
         and sequence counts are grouped by week to reduce noise. Please note
         that the most recent data (most recent month marked by darker-colored
-        band) is sparser due to lags in time between sample collection and
+        band or red line) is sparser due to lags in time between sample collection and
         submission.
       </HelpText>
       <HelpText>
@@ -504,19 +533,6 @@ const SurveillancePlot = observer(({ width }) => {
               </label>
             </OptionSelectContainer>
             
-            { // TODO: Add choice if we want to.
-            /* Graph Mode
-            <OptionSelectContainer>
-              <label>
-                <select
-                  value={plotSettingsStore.surveillanceGraphMode}
-                  onChange={onChangeGraphMode}
-                >
-                  <option value={'line'}>Line</option>
-                  <option value={'stacked_bar'}>Stacked Bar</option>
-                </select>
-              </label>
-            </OptionSelectContainer>{' '} */}
             <CollapseButton onClick={onToggleShowSettings}>
               {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
               Settings <span className="caret"></span>
@@ -552,6 +568,38 @@ const SurveillancePlot = observer(({ width }) => {
         <VegaEmbed
           ref={vegaRef}
           spec={state.currSpec}
+          data={state.data}
+          signals={{
+            mode: plotSettingsStore.surveillanceMode,
+            sortField: plotSettingsStore.surveillanceSortField,
+            sortDirection:
+              plotSettingsStore.surveillanceSortDirection ===
+              SORT_DIRECTIONS.SORT_ASC
+                ? 'ascending'
+                : 'descending',
+            display_min_counts: plotSettingsStore.surveillanceDisplayMinCounts,
+            display_min_percent:
+              plotSettingsStore.surveillanceDisplayMinPercent,
+            sig_min_counts: plotSettingsStore.surveillanceSigMinCounts,
+            sig_min_percent: plotSettingsStore.surveillanceSigMinPercent,
+            sig_min_r: plotSettingsStore.surveillanceSigMinR,
+          }}
+          dataListeners={state.dataListeners}
+          signalListeners={state.signalListeners}
+          width={width - 80}
+          actions={false}
+          onComplete={refreshValidGroups}
+        />
+      </PlotAndLegend>
+      <PlotAndLegend>
+        <SurveillanceLegend
+          legendItems={state.legendItems}
+          legendHover={plotSettingsStore.surveillanceLegendHover}
+          setLegendHover={setLegendHover}
+        />
+        <VegaEmbed
+          ref={vegaRef}
+          spec={initialSpec}
           data={state.data}
           signals={{
             mode: plotSettingsStore.surveillanceMode,
