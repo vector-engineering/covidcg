@@ -15,6 +15,7 @@ export const WalkthroughItemList = styled.div`
 
 export const WalkthroughItemContainer = styled.a`
   min-width: 150px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
   align-items: stretch;

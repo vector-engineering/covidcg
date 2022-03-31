@@ -19,6 +19,8 @@ import {
   VOCBadge,
 } from './VOCList.styles';
 
+import { LineageName } from '../Common/LineageName';
+
 export const colors = {
   WHO: '#88CCEE',
   CDC: '#DDCC77',
@@ -73,7 +75,7 @@ const VOCItem = observer(({ name, orgArr }) => {
   return (
     <VOCItemContainer onClick={onClick} selected={selected}>
       <VOCBadgeContainer>{badges}</VOCBadgeContainer>
-      <VOCItemName selected={selected}>{name}</VOCItemName>
+      <LineageName name={name} selected={selected} />
     </VOCItemContainer>
   );
 });

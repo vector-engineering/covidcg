@@ -135,6 +135,7 @@ def build_sequence_where_filter(req):
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
     selected_reference = req.get("selected_reference", None)
     group_key = req.get("group_key", None)
+
     selected_metadata_fields = req.get("selected_metadata_fields", {})
     selected_group_fields = req.get("selected_group_fields", {})
 
@@ -170,7 +171,7 @@ def build_sequence_where_filter(req):
             )
         )
 
-    if config['virus'] == "rsv":
+    if config["virus"] == "rsv":
         # Only display mutations in the currently selected reference
         if group_key == "mutation":
             metadata_filters.append(

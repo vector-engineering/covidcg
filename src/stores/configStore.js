@@ -66,7 +66,9 @@ export class ConfigStore {
 
   @observable selectedGroupFields = {};
 
-  @observable selectedLocationNodes = [];
+  @observable selectedGroupFields = initialValues.selectedGroupFields;
+
+  @observable selectedLocationNodes = initialValues.selectedLocationNodes;
 
   @observable hoverGroup = null;
   @observable selectedGroups = [];
@@ -563,11 +565,8 @@ export class ConfigStore {
   };
 
   getSelectedGroupIds() {
-    const {
-      dnaMutationMap,
-      geneAaMutationMap,
-      proteinAaMutationMap,
-    } = rootStoreInstance.mutationDataStore;
+    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
+      rootStoreInstance.mutationDataStore;
 
     let selectedGroupIds;
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
@@ -616,11 +615,8 @@ export class ConfigStore {
   }
 
   getMutationToIntMap() {
-    const {
-      dnaMutationMap,
-      geneAaMutationMap,
-      proteinAaMutationMap,
-    } = rootStoreInstance.mutationDataStore;
+    const { dnaMutationMap, geneAaMutationMap, proteinAaMutationMap } =
+      rootStoreInstance.mutationDataStore;
 
     if (this.dnaOrAa === DNA_OR_AA.DNA) {
       return dnaMutationMap;

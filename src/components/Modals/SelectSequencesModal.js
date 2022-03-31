@@ -49,12 +49,8 @@ const NOOP = () => {};
 const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
-  const {
-    configStore,
-    UIStore,
-    locationDataStore,
-    metadataStore,
-  } = useStores();
+  const { configStore, UIStore, locationDataStore, metadataStore } =
+    useStores();
   const sentRequest = useRef(false);
 
   const [coordPending, setCoordPending] = useState({
@@ -190,9 +186,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     return { dnaOrAa, coordinateMode, residueCoordinates };
   };
   const updateCoordinateMode = (_coordinateMode) => {
-    const { dnaOrAa, coordinateMode, residueCoordinates } = getCoordinateMode(
-      _coordinateMode
-    );
+    const { dnaOrAa, coordinateMode, residueCoordinates } =
+      getCoordinateMode(_coordinateMode);
 
     setCoordPending({
       ...coordPending,

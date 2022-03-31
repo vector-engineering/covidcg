@@ -18,4 +18,7 @@ ENV PYTHONUNBUFFERED True
 WORKDIR /opt
 ADD ./services/server/requirements.txt ./requirements.txt
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+
+RUN apt-get update && \
+    apt-get -y install libpq-dev gcc && \
+    pip install -r requirements.txt --no-cache-dir

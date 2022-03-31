@@ -24,6 +24,7 @@ import WarningBox from '../Common/WarningBox';
 import DropdownButton from '../Buttons/DropdownButton';
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import SkeletonElement from '../Common/SkeletonElement';
+import StyledDropdownTreeSelect from '../Common/StyledDropdownTreeSelect';
 import { PlotTitle, OptionSelectContainer } from './Plot.styles';
 import { PlotHeader, PlotOptionsRow } from './GroupStackPlot.styles';
 
@@ -73,10 +74,28 @@ const GroupStackPlot = observer(({ width }) => {
 
   const processData = () => {
     // console.log('GROUP STACK PROCESS DATA');
-    // console.log(dataStore.aggGroupDate);
 
     if (configStore.groupKey === GROUP_MUTATION) {
-      return toJS(dataStore.aggSelectedMutationsDate);
+      let data = toJS(dataStore.aggLocationSelectedMutationsDate);
+
+      // Filter focused locations
+      const focusedLocations = state.focusLocationTree
+        .filter((node) => node.checked)
+        .map((node) => node.value);
+      data = data.filter((record) =>
+        focusedLocations.includes(record.location)
+      );
+
+      // Re-aggregate
+      data = aggregate({
+        data,
+        groupby: ['group', 'collection_date'],
+        fields: ['counts', 'color', 'group_name'],
+        ops: ['sum', 'first', 'first'],
+        as: ['counts', 'color', 'group_name'],
+      });
+
+      return data;
     }
 
     // For non-mutation mode, we'll need some additional fields:
@@ -88,7 +107,15 @@ const GroupStackPlot = observer(({ width }) => {
       lowFreqFilterType: plotSettingsStore.groupStackLowFreqFilter,
       lowFreqFilterValue: plotSettingsStore.groupStackLowFreqValue,
     });
-    let data = toJS(dataStore.aggGroupDate).map((record) => {
+    let data = toJS(dataStore.aggLocationGroupDate);
+
+    // Filter focused locations
+    const focusedLocations = state.focusLocationTree
+      .filter((node) => node.checked)
+      .map((node) => node.value);
+    data = data.filter((record) => focusedLocations.includes(record.location));
+
+    data = data.map((record) => {
       if (!validGroups.includes(record.group_id)) {
         record.group = GROUPS.OTHER_GROUP;
       } else {
@@ -121,6 +148,7 @@ const GroupStackPlot = observer(({ width }) => {
     showWarning: true,
     // data: {},
     hoverGroup: null,
+    focusLocationTree: [],
     signalListeners: {
       // detailDomain: debounce(handleBrush, 500),
       hoverBar: throttle(handleHoverGroup, 100),
@@ -129,6 +157,32 @@ const GroupStackPlot = observer(({ width }) => {
       selected: handleSelected,
     },
   });
+
+  // Update state based on the focused location dropdown select
+  const focusLocationSelectOnChange = (event) => {
+    const focusLocationTree = state.focusLocationTree.slice();
+    focusLocationTree.forEach((node) => {
+      if (node.value === event.value) {
+        node.checked = event.checked;
+      }
+    });
+
+    setState({
+      ...state,
+      focusLocationTree,
+    });
+  };
+  // Deselect all focused locations
+  const deselectAllFocusedLocations = () => {
+    const focusLocationTree = state.focusLocationTree.slice().map((node) => {
+      node.checked = false;
+      return node;
+    });
+    setState({
+      ...state,
+      focusLocationTree,
+    });
+  };
 
   const onDismissWarning = () => {
     setState({
@@ -181,14 +235,70 @@ const GroupStackPlot = observer(({ width }) => {
       return;
     }
 
-    setState({
+    // console.log('REFRESH DATA FROM STORE');
+
+    // Update focus location tree with new locations
+    const focusLocationTree = [];
+    Object.keys(dataStore.countsPerLocationMap).forEach((loc) => {
+      focusLocationTree.push({
+        label: loc + ' (' + dataStore.countsPerLocationMap[loc] + ')',
+        value: loc,
+        checked: true,
+      });
+    });
+
+    const newState = {
       ...state,
       data: {
         cases_by_date_and_group: processData(),
         selected: toJS(configStore.selectedGroups),
       },
-    });
+    };
+
+    // Only update location tree if the location list changed
+    // This is to prevent firing the processData event twice when we change selected groups
+    const prevLocs = state.focusLocationTree.map((node) => node.value);
+    if (
+      focusLocationTree.length !== state.focusLocationTree.length ||
+      !focusLocationTree.every((node) => prevLocs.includes(node.value))
+    ) {
+      newState['focusLocationTree'] = focusLocationTree;
+    }
+
+    setState(newState);
   };
+
+  useEffect(() => {
+    // console.log('UPDATE DATA FROM FOCUSED LOCATIONS');
+
+    setState({
+      ...state,
+      data: {
+        ...state.data,
+        cases_by_date_and_group: processData(),
+      },
+    });
+  }, [state.focusLocationTree]);
+
+  const focusLocationDropdownContainer = (
+    <StyledDropdownTreeSelect
+      mode={'multiSelect'}
+      data={state.focusLocationTree}
+      className="geo-dropdown-tree-select"
+      clearSearchOnChange={false}
+      keepTreeOnSearch={true}
+      keepChildrenOnSearch={true}
+      showPartiallySelected={false}
+      inlineSearchInput={false}
+      texts={{
+        placeholder: 'Search...',
+        noMatches: 'No matches found',
+      }}
+      onChange={focusLocationSelectOnChange}
+      // onAction={treeSelectOnAction}
+      // onNodeToggle={treeSelectOnNodeToggleCurrentNode}
+    />
+  );
 
   // Refresh data on mount (i.e., tab change) or when data state changes
   useEffect(refreshData, [
@@ -250,16 +360,20 @@ const GroupStackPlot = observer(({ width }) => {
   }
 
   const maxShownLocations = 4;
-  let selectedLocationsText =
-    '(' +
-    configStore.selectedLocationNodes
-      .slice(0, maxShownLocations)
-      .map((node) => node.value)
-      .join(', ');
-  if (configStore.selectedLocationNodes.length > maxShownLocations) {
-    selectedLocationsText += ', ...)';
-  } else {
-    selectedLocationsText += ')';
+  let selectedLocationsText = '';
+  if (!state.focusLocationTree.every((node) => node.checked === false)) {
+    selectedLocationsText +=
+      '(' +
+      state.focusLocationTree
+        .filter((node) => node.checked)
+        .slice(0, maxShownLocations)
+        .map((node) => node.value)
+        .join(', ');
+    if (state.focusLocationTree.length > maxShownLocations) {
+      selectedLocationsText += ', ...)';
+    } else {
+      selectedLocationsText += ')';
+    }
   }
 
   // Set the stack offset mode
@@ -381,6 +495,19 @@ const GroupStackPlot = observer(({ width }) => {
               ></LowFreqFilter>
             </PlotOptionsRow>
           )}
+          <PlotOptionsRow>
+            Only show locations:&nbsp;{focusLocationDropdownContainer}
+            {'  '}
+            <button
+              disabled={state.focusLocationTree.every(
+                (node) => node.checked === false
+              )}
+              onClick={deselectAllFocusedLocations}
+              style={{ marginLeft: 10 }}
+            >
+              Deselect all
+            </button>
+          </PlotOptionsRow>
           <PlotOptionsRow style={{ justifyContent: 'flex-end' }}>
             <DropdownButton
               text={'Download'}

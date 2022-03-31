@@ -14,7 +14,6 @@
     { "name": "sig_min_counts", "value": 10 },
     { "name": "sig_min_percent", "value": 0.05 },
     { "name": "sig_min_r", "value": 0.5 },
-    { "name": "xLabelFormat", "value": "%m-%d" },
 
     { "name": "facet_width", "update": "width" },
     { "name": "facet_x", "update": "0" },

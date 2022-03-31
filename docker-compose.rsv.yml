@@ -1,3 +1,4 @@
+# docker compose -f docker-compose.rsv.yml -p rsv up -d
 version: "3.7"
 
 services:
@@ -9,18 +10,18 @@ services:
       - LOGINS=user1:pass1,user2:pass2
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
-      - CONFIGFILE=/opt/config/config_genbank_example.yaml
+      - CONFIGFILE=/opt/config/config_rsv_genbank.yaml
       - CONSTANTSFILE=/opt/constants/defs.json
       - DATA_PATH=/data
       - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=rsvg_dev
       - POSTGRES_HOST=db
-      - POSTGRES_DB=cg_dev
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
       - FRONTEND_PORT=3000
-    # command: "gunicorn --bind :5001 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    # command: "gunicorn --bind :5000 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
     command: "flask run --host 0.0.0.0 --port=5001"
     ports:
       - 5001:5001
@@ -38,7 +39,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
-      - POSTGRES_DB=cg_dev
+      - POSTGRES_DB=rsvg_dev
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
@@ -47,12 +48,11 @@ services:
     ports: # Expose 5432 so we can use DB administration tools
       - 5432:5432
   frontend:
-    restart: always
     build:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
     environment:
-      CONFIGFILE: /app/config/config_genbank.yaml
+      CONFIGFILE: /app/config/config_rsv_genbank.yaml
     working_dir: /app
     volumes:
       - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes

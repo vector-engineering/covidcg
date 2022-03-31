@@ -80,7 +80,8 @@ export class DataStore {
         selected_reference: toJS(
           rootStoreInstance.configStore.selectedReference
         ),
-        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          rootStoreInstance.configStore.getSelectedMetadataFields(),
         selected_group_fields: toJS(
           rootStoreInstance.configStore.selectedGroupFields
         ),
@@ -115,10 +116,11 @@ export class DataStore {
         });
 
         // Count all sequences
-        this.numSequencesAfterAllFiltering = this.aggSequencesUniqueLocationGroupDate.reduce(
-          (accumulator, record) => accumulator + record.counts,
-          0
-        );
+        this.numSequencesAfterAllFiltering =
+          this.aggSequencesUniqueLocationGroupDate.reduce(
+            (accumulator, record) => accumulator + record.counts,
+            0
+          );
 
         // Count groups
         this.groupCounts = countGroups({
@@ -140,21 +142,19 @@ export class DataStore {
 
         // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
 
-        ({
-          aggGroupDate: this.aggGroupDate,
-          aggGroup: this.aggSequencesGroup,
-        } = aggregateGroupDate({
-          aggSequencesUniqueLocationGroupDate: this
-            .aggSequencesUniqueLocationGroupDate,
-          groupKey: rootStoreInstance.configStore.groupKey,
-        }));
+        ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
+          aggregateGroupDate({
+            aggSequencesUniqueLocationGroupDate:
+              this.aggSequencesUniqueLocationGroupDate,
+            groupKey: rootStoreInstance.configStore.groupKey,
+          }));
         // console.log(this.aggGroupDate);
         // console.log(this.aggSequencesGroup);
 
         ({
           countsPerLocationDateMap: this.countsPerLocationDateMap,
-          cumulativeCountsPerLocationDateMap: this
-            .cumulativeCountsPerLocationDateMap,
+          cumulativeCountsPerLocationDateMap:
+            this.cumulativeCountsPerLocationDateMap,
           countsPerLocationMap: this.countsPerLocationMap,
         } = getLocationCounts({
           aggLocationGroupDate: this.aggLocationGroupDate,
@@ -210,7 +210,8 @@ export class DataStore {
         mutationColorMap,
       },
       ({ aggLocationSelectedMutationsDate, aggSelectedMutationsDate }) => {
-        this.aggLocationSelectedMutationsDate = aggLocationSelectedMutationsDate;
+        this.aggLocationSelectedMutationsDate =
+          aggLocationSelectedMutationsDate;
         this.aggSelectedMutationsDate = aggSelectedMutationsDate;
         rootStoreInstance.UIStore.onMutationDataFinished();
       }
@@ -251,7 +252,8 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -306,7 +308,8 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_metadata_fields: rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_metadata_fields:
+          rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),
@@ -532,8 +535,10 @@ export class DataStore {
     fields.push('pos', 'ref', 'alt');
 
     // Have to convert mutation string into integer, then into mutation object
-    const mutationToIntMap = rootStoreInstance.configStore.getMutationToIntMap();
-    const intToMutationMap = rootStoreInstance.configStore.getIntToMutationMap();
+    const mutationToIntMap =
+      rootStoreInstance.configStore.getMutationToIntMap();
+    const intToMutationMap =
+      rootStoreInstance.configStore.getIntToMutationMap();
     let mutation;
 
     this.mutationCooccurrence
