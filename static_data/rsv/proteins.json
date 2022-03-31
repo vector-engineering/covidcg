@@ -5,142 +5,178 @@
       "segment": 1,
       "segments": [[99, 518]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "non-structural protein 1"
     },
     {
       "name": "nsp2",
       "segment": 1,
       "segments": [[628, 1002]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "non-structural protein 2"
     },
     {
       "name": "N",
       "segment": 1,
       "segments": [[1140, 2315]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "nucleoprotein"
     },
     {
       "name": "P",
       "segment": 1,
       "segments": [[2346, 3071]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "phosphoprotein"
     },
     {
       "name": "M",
       "segment": 1,
       "segments": [[3261, 4031]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "matrix protein"
     },
     {
       "name": "SH",
       "segment": 1,
       "segments": [[4303, 4497]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "small hydrophobic protein"
     },
     {
       "name": "G",
       "segment": 1,
       "segments": [[4688, 5584]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "attachment glycoprotein"
     },
     {
       "name": "F",
       "segment": 1,
       "segments": [[5661, 7385]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "fusion glycoprotein"
     },
     {
-      "name": "M2",
+      "name": "M2-1",
       "segment": 1,
-      "segments": [[7606, 8431]],
+      "segments": [[7606, 8190]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "ORF 1, matrix protein 2"
+    },
+    {
+      "name": "M2-2",
+      "segment": 1,
+      "segments": [[8159, 8431]],
+      "protein_coding": 1,
+      "domains": [],
+      "notes": "ORF 2, RNA processivity factor"
     },
     {
       "name": "L",
       "segment": 1,
       "segments": [[8498, 14995]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "polymerase protein"
     }
   ],
   "B": [
     {
-      "name": "nsp1",
+      "name": "NS1",
       "segment": 1,
       "segments": [[99, 518]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "non-structural protein 1"
     },
     {
-      "name": "nsp2",
+      "name": "NS2",
       "segment": 1,
       "segments": [[626, 1000]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "non-structural protein 2"
     },
     {
       "name": "N",
       "segment": 1,
       "segments": [[1140, 2315]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "nucleoprotein"
     },
     {
       "name": "P",
       "segment": 1,
       "segments": [[2348, 3073]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "phosphoprotein"
     },
     {
       "name": "M",
       "segment": 1,
       "segments": [[3263, 4033]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "matrix protein"
     },
     {
       "name": "SH",
       "segment": 1,
       "segments": [[4303, 4500]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "small hydrophobic protein"
     },
     {
       "name": "G",
       "segment": 1,
       "segments": [[4690, 5589]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "attachment glycoprotein"
     },
     {
       "name": "F",
       "segment": 1,
       "segments": [[5666, 7390]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "fusion glycoprotein"
     },
     {
-      "name": "M2",
+      "name": "M2-1",
       "segment": 1,
-      "segments": [[7618, 8443]],
+      "segments": [[7618, 8205]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "ORF 1, matrix protein 2"
+    },
+    {
+      "name": "M2-2",
+      "segment": 1,
+      "segments": [[8171, 8443]],
+      "protein_coding": 1,
+      "domains": [],
+      "notes": "ORF 2, RNA processivity factor"
     },
     {
       "name": "L",
       "segment": 1,
       "segments": [[8509, 15009]],
       "protein_coding": 1,
-      "domains": []
+      "domains": [],
+      "notes": "polymerase protein"
     }
   ]
 }
