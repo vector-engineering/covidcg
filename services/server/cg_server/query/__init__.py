@@ -11,3 +11,4 @@ from .initial import *
 from .selection import *
 from .metadata import *
 from .report import *
+from .variant_table import *

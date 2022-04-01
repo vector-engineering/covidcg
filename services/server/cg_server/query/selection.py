@@ -60,27 +60,29 @@ def build_coordinate_filters(
     mutation_filter = sql.SQL(" AND ").join(mutation_filter)
 
     pos_filter = []
-    for i in range(len(coordinate_ranges)):
-        pos_filter.append(
-            sql.SQL(
-                """
-                ("pos" >= {start} AND "pos" <= {end})
-                """
-            ).format(
-                start=sql.Literal(coordinate_ranges[i][0]),
-                end=sql.Literal(coordinate_ranges[i][1]),
+    if coordinate_ranges:
+        for coord_range in coordinate_ranges:
+            pos_filter.append(
+                sql.SQL(
+                    """
+                    ("pos" >= {start} AND "pos" <= {end})
+                    """
+                ).format(
+                    start=sql.Literal(coord_range[0]), end=sql.Literal(coord_range[1]),
+                )
             )
-        )
 
     pos_filter = sql.SQL(" OR ").join(pos_filter)
 
     # Compose final WHERE expression
     mutation_filter = [mutation_filter]
     # Only combine the mutation_filter and pos_filter if the mutation_filter exists
-    if mutation_filter[0].as_string(conn):
-        mutation_filter.append(sql.SQL(" AND "))
+    # AND if the pos_filter exists
+    if coordinate_ranges:
+        if mutation_filter[0].as_string(conn):
+            mutation_filter.append(sql.SQL(" AND "))
+        mutation_filter.append(pos_filter)
 
-    mutation_filter.append(pos_filter)
     mutation_filter = sql.Composed(mutation_filter)
 
     # Only add the WHERE clause if the mutation_filter exists

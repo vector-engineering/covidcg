@@ -218,3 +218,27 @@ Additional sequence filtering parameters can be provided. All options described 
 #### Returns
 
 Return data is the same as the above [Group mutation frequencies](#group-mutation-frequencies) function.
+
+## Variant Table
+
+```
+curl --header "Content-Type: application/json" --request POST --data '{
+  "dna_or_aa": "AA",
+  "coordinate_mode": "gene",
+  "selected_gene": "S",
+  "region": [0, 1, 2],
+  "start_date": "2020-01-01",
+  "end_date": "2021-06-01"
+}' https://covidcg.org/variant_table -o variant_table.xlsx
+```
+
+#### Parameters
+
+Additional sequence filtering parameters can be provided. All options described in the [Aggregate data](#aggregate-data) are supported, except for `group_key`.
+
+#### Returns
+
+Excel file with two sheets:
+
+1. `sequence_mutations`: One row per sequence, with metadata, and column for each mutation. Each cell is marked with `1` if mutation is present, `0` if mutation is not present
+2. `mutation_counts`: One row per mutation. Counts of this mutation across all sequences selected
