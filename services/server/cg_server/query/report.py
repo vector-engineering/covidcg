@@ -8,7 +8,11 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import io
 import pandas as pd
 import numpy as np
+
+from cg_server.config import config
+
 from flask import send_file
+from psycopg2 import sql
 
 
 def generate_report(conn, req):
@@ -25,7 +29,7 @@ def generate_report(conn, req):
 
     Start and end dates are passed via. URL query params
     Download the full excel file with:
-    curl http://[host]/az_report?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD -o out.xlsx
+    curl http://[host]/az_report?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&gene=S -o out.xlsx
     Dates are in ISO format "YYYY-MM-DD"
 
     Parameters
@@ -40,6 +44,19 @@ def generate_report(conn, req):
 
     start_date = pd.to_datetime(req.get("start_date", None))
     end_date = pd.to_datetime(req.get("end_date", None))
+
+    if config["virus"] == "sars2":
+        default_gene = "S"
+    elif config["virus"] == "rsv":
+        default_gene = "F"
+
+    gene = req.get("gene", default_gene)
+
+    if config["virus"] == "sars2":
+        default_group = "lineage"
+    elif config["virus"] == "rsv":
+        default_group = "subtype"
+    group = req.get("group", default_group)
 
     with conn.cursor() as cur:
 
@@ -93,9 +110,9 @@ def generate_report(conn, req):
             INNER JOIN "gene_aa_mutation" mutation_def ON mutation_region_counts."mutation_id" = mutation_def."id"
             INNER JOIN region_counts ON region_counts."region" = mutation_region_counts."region"
             INNER JOIN "metadata_region" mr ON region_counts."region" = mr."id"
-            WHERE mutation_def."gene" = 'S'
+            WHERE mutation_def."gene" = %(gene)s
             """,
-            {"start_date": start_date, "end_date": end_date},
+            {"start_date": start_date, "end_date": end_date, "gene": gene},
         )
         single_spike_mutation_region = pd.DataFrame.from_records(
             cur.fetchall(),
@@ -159,8 +176,9 @@ def generate_report(conn, req):
             """
             SELECT "id", SUBSTRING("mutation_name" FROM 3) AS "name", "pos"
             FROM gene_aa_mutation
-            WHERE gene = 'S'
-            """
+            WHERE gene = %(gene)s
+            """,
+            {"gene": gene},
         )
         spike_mutation_props = pd.DataFrame.from_records(
             cur.fetchall(), columns=["id", "name", "pos"]
@@ -173,7 +191,8 @@ def generate_report(conn, req):
         )
 
         cur.execute(
-            """
+            sql.SQL(
+                """
             WITH seq_cooc AS (
                 SELECT
                     seq_mut."sequence_id",
@@ -181,28 +200,28 @@ def generate_report(conn, req):
                     ("mutations" & (
                         SELECT ARRAY_AGG("id")
                         FROM "gene_aa_mutation"
-                        WHERE "gene" = 'S'
+                        WHERE "gene" = %(gene)s
                     )) as "mutations",
-                    m."lineage"
+                    m.{group}
                 FROM "sequence_gene_aa_mutation" seq_mut
                 INNER JOIN "metadata" m ON seq_mut."sequence_id" = m."sequence_id"
                 WHERE
                     seq_mut."collection_date" >= %(start_date)s AND
                     seq_mut."collection_date" <= %(end_date)s
             ),
-            most_common_lineage AS (
+            most_common_group AS (
                 SELECT DISTINCT ON ("mutations")
                     "mutations",
                     "count",
-                    "lineage"
+                    {group}
                 FROM (
                     SELECT
                         "mutations",
-                        "lineage",
+                        {group},
                         COUNT("sequence_id") as "count"
                     FROM seq_cooc
-                    GROUP BY "mutations", "lineage"
-                ) cooc_lineage
+                    GROUP BY "mutations", {group}
+                ) cooc_group
                 ORDER BY "mutations", "count" DESC
             ),
             region_cooc_counts AS (
@@ -222,21 +241,21 @@ def generate_report(conn, req):
             )
             SELECT
                 mr."value" as "region",
-                most_common_lineage."lineage",
+                most_common_group.{group},
                 region_cooc_counts."mutations",
                 region_cooc_counts."count",
                 (region_cooc_counts."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM region_cooc_counts
             INNER JOIN region_counts ON region_cooc_counts."region" = region_counts."region"
-            INNER JOIN most_common_lineage ON region_cooc_counts."mutations" = most_common_lineage."mutations"
+            INNER JOIN most_common_group ON region_cooc_counts."mutations" = most_common_group."mutations"
             INNER JOIN metadata_region mr ON region_cooc_counts."region" = mr."id"
             ORDER BY region_cooc_counts."count" DESC
-            """,
-            {"start_date": start_date, "end_date": end_date},
+            """
+            ).format(group=sql.Identifier(group)),
+            {"start_date": start_date, "end_date": end_date, "gene": gene},
         )
         cooc_spike_mutation_region = pd.DataFrame.from_records(
-            cur.fetchall(),
-            columns=["region", "lineage", "mutations", "count", "percent"],
+            cur.fetchall(), columns=["region", group, "mutations", "count", "percent"],
         )
 
         # Sort mutations by position
@@ -252,7 +271,7 @@ def generate_report(conn, req):
         # Pivot
         cooc_spike_mutation_region_pivot = pd.pivot_table(
             cooc_spike_mutation_region,
-            index=["mutations", "lineage"],
+            index=["mutations", group],
             values=["count", "percent"],
             columns=["region"],
         ).fillna(0)
@@ -288,7 +307,7 @@ def generate_report(conn, req):
         # GLOBAL SPIKE COOC MUTATIONS
         cooc_spike_mutation_global = (
             cooc_spike_mutation_region.groupby("mutations")
-            .agg(lineage=("lineage", "first"), count=("count", np.sum),)
+            .agg(group=(group, "first"), count=("count", np.sum),)
             .sort_values("count", ascending=False)
             .assign(percent=lambda x: x["count"] / num_seqs)
             .reset_index()
@@ -297,7 +316,8 @@ def generate_report(conn, req):
 
         # REGIONAL LINEAGE COUNTS
         cur.execute(
-            """
+            sql.SQL(
+                """
             WITH region_counts AS (
                 SELECT
                     m."region",
@@ -311,76 +331,77 @@ def generate_report(conn, req):
             group_counts AS (
                 SELECT
                     m."region",
-                    m."lineage",
+                    m.{group},
                     COUNT(m."sequence_id") AS "count"
                 FROM "metadata" m
                 WHERE
                     m."collection_date" >= %(start_date)s AND
                     m."collection_date" <= %(end_date)s
-                GROUP BY m."region", m."lineage"
+                GROUP BY m."region", m.{group}
             )
             SELECT
                 mr."value" as "region",
-                g."lineage",
+                g.{group},
                 g."count",
                 (g."count"::REAL / region_counts."count"::REAL) * 100 AS "percent"
             FROM group_counts g
             INNER JOIN region_counts ON g."region" = region_counts."region"
             INNER JOIN metadata_region mr ON g."region" = mr."id"
-            """,
+            """
+            ).format(group=sql.Identifier(group)),
             {"start_date": start_date, "end_date": end_date},
         )
-        lineage_region = pd.DataFrame.from_records(
-            cur.fetchall(), columns=["region", "lineage", "count", "percent"]
+        group_region = pd.DataFrame.from_records(
+            cur.fetchall(), columns=["region", group, "count", "percent"]
         )
         # Pivot
-        lineage_region_pivot = pd.pivot_table(
-            lineage_region,
-            index=["lineage"],
+        group_region_pivot = pd.pivot_table(
+            group_region,
+            index=[group],
             values=["count", "percent"],
             columns=["region"],
         ).fillna(0)
         # Collapse column multi-index
-        lineage_region_pivot.columns = [
+        group_region_pivot.columns = [
             "{}_{}".format(a, b)
             for a, b in zip(
-                lineage_region_pivot.columns.get_level_values(0),
-                lineage_region_pivot.columns.get_level_values(1),
+                group_region_pivot.columns.get_level_values(0),
+                group_region_pivot.columns.get_level_values(1),
             )
         ]
         # Cast count columns to integers
-        count_cols = [col for col in lineage_region_pivot.columns if "count" in col]
+        count_cols = [col for col in group_region_pivot.columns if "count" in col]
         for col in count_cols:
-            lineage_region_pivot.loc[:, col] = lineage_region_pivot[col].astype(int)
-        lineage_region_pivot = lineage_region_pivot.reset_index()
+            group_region_pivot.loc[:, col] = group_region_pivot[col].astype(int)
+        group_region_pivot = group_region_pivot.reset_index()
 
         # Compute sum counts and sort on it
-        lineage_region_pivot.insert(
-            1, "sum_counts", lineage_region_pivot[count_cols].sum(axis=1)
+        group_region_pivot.insert(
+            1, "sum_counts", group_region_pivot[count_cols].sum(axis=1)
         )
-        lineage_region_pivot = lineage_region_pivot.sort_values(
+        group_region_pivot = group_region_pivot.sort_values(
             "sum_counts", ascending=False
         )
 
-        # print(lineage_region_pivot)
+        # print(group_region_pivot)
 
         # GLOBAL LINEAGES
-        lineage_global = (
-            lineage_region.groupby("lineage")
+        group_global = (
+            group_region.groupby(group)
             .agg(count=("count", np.sum))
             .sort_values("count", ascending=False)
             .assign(percent=lambda x: x["count"] / num_seqs)
             .reset_index()
         )
-        # print(lineage_global)
+        # print(group_global)
 
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
         single_spike_mutation_global.to_excel(
-            writer, index=False, sheet_name="SAV_Global"
+            writer, index=False, sheet_name="{}_Global".format(gene)
         )
         single_spike_mutation_region_pivot.to_excel(
-            writer, index=False, sheet_name="SAV_Regional"
+            writer, index=False, sheet_name="{}_Regional".format(gene)
         )
         cooc_spike_mutation_global.to_excel(
             writer, index=False, sheet_name="Cooc_Global"
@@ -388,9 +409,9 @@ def generate_report(conn, req):
         cooc_spike_mutation_region_pivot.to_excel(
             writer, index=False, sheet_name="Cooc_Regional"
         )
-        lineage_global.to_excel(writer, index=False, sheet_name="Lineage_Global")
-        lineage_region_pivot.to_excel(
-            writer, index=False, sheet_name="Lineage_Regional"
+        group_global.to_excel(writer, index=False, sheet_name="{}_Global".format(group))
+        group_region_pivot.to_excel(
+            writer, index=False, sheet_name="{}_Regional".format(group)
         )
     buf.seek(0)
 
