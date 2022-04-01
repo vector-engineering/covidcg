@@ -1,7 +1,7 @@
 {
   "A": [
     {
-      "name": "nsp1",
+      "name": "NS1",
       "segment": 1,
       "segments": [[99, 518]],
       "protein_coding": 1,
@@ -9,7 +9,7 @@
       "notes": "non-structural protein 1"
     },
     {
-      "name": "nsp2",
+      "name": "NS2",
       "segment": 1,
       "segments": [[628, 1002]],
       "protein_coding": 1,

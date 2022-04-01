@@ -350,10 +350,7 @@ const CoordinateSelect = observer(
         if (config.virus === 'sars2') {
           return seq.length === 0 || queryReferenceSequence(seq) === 0;
         } else if (config.virus === 'rsv') {
-          const key =
-            configStore.selectedReference === 'A'
-              ? 'NC_038235.1'
-              : 'NC_001781.1';
+          const key = configStore.selectedReference;
           return seq.length === 0 || queryReferenceSequence(seq, key);
         }
       });

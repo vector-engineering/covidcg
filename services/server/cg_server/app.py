@@ -27,12 +27,6 @@ cors_domains = ["https://covidcg.org", config["prod_hostname"]]
 if os.getenv("FLASK_ENV", "development") == "development":
     # Allow any connections from localhost in development
     cors_domains.append("http://localhost:{}".format(os.getenv("FRONTEND_PORT")))
-# Try to import the vm hostname if the file exists.
-try:
-    from cg_server.cors_conf import vmAddress
-    cors_domains.append(vmAddress)
-except Exception as e:
-    pass
 # CORS config
 CORS(app, origins=cors_domains)
 
@@ -59,7 +53,7 @@ if os.getenv("FLASK_ENV", "development") == "development":
 
         insert_sequences(
             conn,
-            Path(os.getenv("DATA_PATH", project_root / config["data_folder"])) / config["virus"],
-            filenames_as_dates=True,
+            Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
+            / config["virus"],
         )
         conn.commit()

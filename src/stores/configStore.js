@@ -65,10 +65,7 @@ export class ConfigStore {
   @observable submEndDate = '';
 
   @observable selectedGroupFields = {};
-
-  @observable selectedGroupFields = initialValues.selectedGroupFields;
-
-  @observable selectedLocationNodes = initialValues.selectedLocationNodes;
+  @observable selectedLocationNodes = [];
 
   @observable hoverGroup = null;
   @observable selectedGroups = [];
@@ -445,25 +442,30 @@ export class ConfigStore {
       this.residueCoordinates.forEach((range) => {
         // Make a deep copy of the current range
         const curRange = range.slice();
-        for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
-          const curAARange = this.selectedGene.aa_ranges[i];
-          const curNTRange = this.selectedGene.segments[i];
-          if (
-            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
-          ) {
-            coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
-              curNTRange[0] -
-                1 +
-                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
-            ]);
-            // Push the beginning of the current range to the end of
-            // the current AA range of the gene
-            if (curAARange[1] < curRange[1]) {
-              curRange[0] = curAARange[1] + 1;
+
+        if (this.dnaOrAa === DNA_OR_AA.DNA) {
+          for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
+            const curAARange = this.selectedGene.aa_ranges[i];
+            const curNTRange = this.selectedGene.segments[i];
+            if (
+              (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+              (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
+            ) {
+              coordinateRanges.push([
+                curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+                curNTRange[0] -
+                  1 +
+                  Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
+              ]);
+              // Push the beginning of the current range to the end of
+              // the current AA range of the gene
+              if (curAARange[1] < curRange[1]) {
+                curRange[0] = curAARange[1] + 1;
+              }
             }
           }
+        } else {
+          coordinateRanges.push([curRange[0], curRange[1]]);
         }
       });
       return coordinateRanges;
@@ -472,25 +474,30 @@ export class ConfigStore {
       this.residueCoordinates.forEach((range) => {
         // Make a deep copy of the current range
         const curRange = range.slice();
-        for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
-          const curAARange = this.selectedProtein.aa_ranges[i];
-          const curNTRange = this.selectedProtein.segments[i];
-          if (
-            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
-          ) {
-            coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
-              curNTRange[0] -
-                1 +
-                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
-            ]);
-            // Push the beginning of the current range to the end of
-            // the current AA range of the gene
-            if (curAARange[1] < curRange[1]) {
-              curRange[0] = curAARange[1] + 1;
+
+        if (this.dnaOrAa === DNA_OR_AA.DNA) {
+          for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
+            const curAARange = this.selectedProtein.aa_ranges[i];
+            const curNTRange = this.selectedProtein.segments[i];
+            if (
+              (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+              (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
+            ) {
+              coordinateRanges.push([
+                curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+                curNTRange[0] -
+                  1 +
+                  Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
+              ]);
+              // Push the beginning of the current range to the end of
+              // the current AA range of the gene
+              if (curAARange[1] < curRange[1]) {
+                curRange[0] = curAARange[1] + 1;
+              }
             }
           }
+        } else {
+          coordinateRanges.push([curRange[0], curRange[1]]);
         }
       });
       return coordinateRanges;
@@ -505,9 +512,7 @@ export class ConfigStore {
         if (config.virus === 'sars2') {
           return queryReferenceSequence(seq);
         } else if (config.virus === 'rsv') {
-          const key =
-            this.selectedReference === 'A' ? 'NC_038235.1' : 'NC_001781.1';
-          return queryReferenceSequence(seq, key);
+          return queryReferenceSequence(seq, this.selectedReference);
         }
       });
     }

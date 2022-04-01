@@ -21,14 +21,22 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"])) / config["virus"]
-static_data_path = Path(os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])) / config["virus"]
+data_path = (
+    Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
+    / config["virus"]
+)
+static_data_path = (
+    Path(os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"]))
+    / config["virus"]
+)
 
 if config["virus"] == "sars2":
-    genes = pd.read_json(str(static_data_path / "genes_processed.json")).set_index("name")
-    proteins = pd.read_json(str(static_data_path / "proteins_processed.json")).set_index(
+    genes = pd.read_json(str(static_data_path / "genes_processed.json")).set_index(
         "name"
     )
+    proteins = pd.read_json(
+        str(static_data_path / "proteins_processed.json")
+    ).set_index("name")
 else:
     with open(str(static_data_path / "genes_processed.json")) as f:
         genes = json.load(f)
@@ -45,7 +53,7 @@ loc_levels = [
 
 def df_to_sql(cur, df, table, index_label=None):
     n = 500  # chunk row size
-    list_df = [df[i:i+n] for i in range(0, df.shape[0], n)]
+    list_df = [df[i : i + n] for i in range(0, df.shape[0], n)]
 
     for chunk in list_df:
         buffer = io.StringIO()
@@ -62,7 +70,7 @@ def df_to_sql(cur, df, table, index_label=None):
             """.format(
                 table=table
             ),
-            buffer
+            buffer,
         )
 
 
@@ -115,130 +123,70 @@ def seed_database(conn, schema="public"):
         # DNA mutations
         dna_mutation = process_dna_mutations(metadata_map["dna_mutation"])
         cur.execute('DROP TABLE IF EXISTS "dna_mutation";')
-        if config["virus"] == "rsv":
-            cur.execute(
-                """
-                CREATE TABLE "dna_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    subtype        TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL
-                );
-                """
-            )
-        else:
-            cur.execute(
-                """
-                CREATE TABLE "dna_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL
-                );
-                """
-            )
+        cur.execute(
+            """
+            CREATE TABLE "dna_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL
+            );
+            """
+        )
         df_to_sql(cur, dna_mutation, "dna_mutation", index_label="id")
         cur.execute('CREATE INDEX "ix_dna_mutation_pos" ON "dna_mutation"("pos");')
 
         # AA mutations
         gene_aa_mutation = process_aa_mutations(
-            metadata_map["gene_aa_mutation"], "gene", genes
+            metadata_map["gene_aa_mutation"], "gene"
         )
         cur.execute('DROP TABLE IF EXISTS "gene_aa_mutation";')
-        if config["virus"] == "rsv":
-            cur.execute(
-                """
-                CREATE TABLE "gene_aa_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    gene           TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    subtype        TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL,
-                    nt_pos         INTEGER  NOT NULL
-                );
-                """
-            )
-        else:
-            cur.execute(
-                """
-                CREATE TABLE "gene_aa_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    gene           TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL,
-                    nt_pos         INTEGER  NOT NULL
-                );
-                """
-            )
+        cur.execute(
+            """
+            CREATE TABLE "gene_aa_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                gene           TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL
+            );
+            """
+        )
         df_to_sql(cur, gene_aa_mutation, "gene_aa_mutation", index_label="id")
         cur.execute(
             'CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");'
-        )
-        cur.execute(
-            'CREATE INDEX "ix_gene_aa_mutation_nt_pos" ON "gene_aa_mutation"("nt_pos");'
         )
         cur.execute(
             'CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");'
         )
 
         protein_aa_mutation = process_aa_mutations(
-            metadata_map["protein_aa_mutation"], "protein", proteins
+            metadata_map["protein_aa_mutation"], "protein"
         )
         cur.execute('DROP TABLE IF EXISTS "protein_aa_mutation";')
-        if config["virus"] == "rsv":
-            cur.execute(
-                """
-                CREATE TABLE "protein_aa_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    protein        TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    subtype        TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL,
-                    nt_pos         INTEGER  NOT NULL
-                );
-                """
-            )
-        else:
-            cur.execute(
-                """
-                CREATE TABLE "protein_aa_mutation" (
-                    id             INTEGER  PRIMARY KEY,
-                    mutation_str   TEXT     NOT NULL,
-                    protein        TEXT     NOT NULL,
-                    pos            INTEGER  NOT NULL,
-                    ref            TEXT     NOT NULL,
-                    alt            TEXT     NOT NULL,
-                    color          TEXT     NOT NULL,
-                    mutation_name  TEXT     NOT NULL,
-                    nt_pos         INTEGER  NOT NULL
-                );
-                """
-            )
+        cur.execute(
+            """
+            CREATE TABLE "protein_aa_mutation" (
+                id             INTEGER  PRIMARY KEY,
+                mutation_str   TEXT     NOT NULL,
+                protein        TEXT     NOT NULL,
+                pos            INTEGER  NOT NULL,
+                ref            TEXT     NOT NULL,
+                alt            TEXT     NOT NULL,
+                color          TEXT     NOT NULL,
+                mutation_name  TEXT     NOT NULL
+            );
+            """
+        )
         df_to_sql(cur, protein_aa_mutation, "protein_aa_mutation", index_label="id")
         cur.execute(
             'CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");'
-        )
-        cur.execute(
-            'CREATE INDEX "ix_protein_aa_mutation_nt_pos" ON "protein_aa_mutation"("nt_pos");'
         )
         cur.execute(
             'CREATE INDEX "ix_protein_aa_mutation_protein" ON "protein_aa_mutation"("protein");'
@@ -370,7 +318,12 @@ def seed_database(conn, schema="public"):
         mutation_cols = []
         for mutation_field in mutation_fields:
             mutation_cols.append(mutation_field + "_mutation_str")
-        case_data_columns = ["Accession ID", "collection_date", "submission_date"] + metadata_cols + grouping_cols + mutation_cols
+        case_data_columns = (
+            ["Accession ID", "collection_date", "submission_date"]
+            + metadata_cols
+            + grouping_cols
+            + mutation_cols
+        )
 
         case_data = pd.read_json(data_path / "case_data.json")[case_data_columns]
         # case_data = case_data.set_index("Accession ID")
@@ -382,16 +335,20 @@ def seed_database(conn, schema="public"):
         min_date = case_data["collection_date"].min()
         # Round latest sequence to the nearest partition break
         if config["mutation_partition_break"] == "M":
-            max_date = case_data["collection_date"].max().normalize() + pd.offsets.MonthBegin()
+            max_date = (
+                case_data["collection_date"].max().normalize() + pd.offsets.MonthBegin()
+            )
         elif config["mutation_partition_break"] == "Y":
-            max_date = case_data["collection_date"].max().normalize() + pd.offsets.YearBegin()
+            max_date = (
+                case_data["collection_date"].max().normalize() + pd.offsets.YearBegin()
+            )
 
         partition_dates = [
             d.isoformat()
             for d in pd.period_range(
                 start=min_date.to_period(config["mutation_partition_break"]),
                 end=max_date.to_period(config["mutation_partition_break"]),
-                freq=config["mutation_partition_break"]
+                freq=config["mutation_partition_break"],
             )
             .to_timestamp()
             .date
@@ -604,15 +561,15 @@ def seed_database(conn, schema="public"):
                 """,
                 ["vocs", Json(vocs)],
             )
-        if config["virus"] == "rsv":
-            with (static_data_path / "genotypesBySubtype.json").open("r") as fp:
-                subtypes = json.loads(fp.read())
-            cur.execute(
-                """
-                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-                """,
-                ["genotypesBySubtype", Json(subtypes)],
-            )
+        # if config["virus"] == "rsv":
+        #     with (static_data_path / "genotypesBySubtype.json").open("r") as fp:
+        #         subtypes = json.loads(fp.read())
+        #     cur.execute(
+        #         """
+        #         INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+        #         """,
+        #         ["genotypesBySubtype", Json(subtypes)],
+        #     )
 
         # Metadata map
         table_queries = []

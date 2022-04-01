@@ -55,9 +55,8 @@ export class MutationDataStore {
       return color;
     });
 
-    this.mutationColorMap[GROUPS.REFERENCE_GROUP] = _getMutationColor(
-      'Reference'
-    );
+    this.mutationColorMap[GROUPS.REFERENCE_GROUP] =
+      _getMutationColor('Reference');
     this.mutationColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.NONE_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
@@ -92,9 +91,8 @@ export class MutationDataStore {
         mut,
         DNA_OR_AA.DNA
       );
-      this.intToDnaMutationMap[mutationId]['color'] = this.mutationColorMap[
-        mut
-      ];
+      this.intToDnaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
     });
     Object.keys(this.geneAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.geneAaMutationMap[mut]);
@@ -114,46 +112,32 @@ export class MutationDataStore {
         mut,
         DNA_OR_AA.AA
       );
-      this.intToGeneAaMutationMap[mutationId]['color'] = this.mutationColorMap[
-        mut
-      ];
+      this.intToGeneAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
 
       // Get coordinates in NT (from start of codon)
+      let gene;
       if (config.virus === 'sars2') {
-        aaRangeInd = getGene(split[0]).aa_ranges.reduce(
-          (_aaRangeInd, range, ind) => {
-            return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
-              this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
-              ? ind
-              : _aaRangeInd;
-          },
-          0
-        );
-
-        this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
-          getGene(split[0]).segments[aaRangeInd][0] +
-          (this.intToGeneAaMutationMap[mutationId]['pos'] -
-            getGene(split[0]).aa_ranges[aaRangeInd][0]) *
-            3;
-      } else {
-        aaRangeInd = getGene(
+        gene = getGene(split[0]);
+      } else if (config.virus === 'rsv') {
+        gene = getGene(
           split[0],
           rootStoreInstance.configStore.selectedReference
-        ).aa_ranges.reduce((_aaRangeInd, range, ind) => {
-          return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
-            this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        }, 0);
-
-        this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
-          getGene(split[0], rootStoreInstance.configStore.selectedReference)
-            .segments[aaRangeInd][0] +
-          (this.intToGeneAaMutationMap[mutationId]['pos'] -
-            getGene(split[0], rootStoreInstance.configStore.selectedReference)
-              .aa_ranges[aaRangeInd][0]) *
-            3;
+        );
       }
+
+      aaRangeInd = gene.aa_ranges.reduce((_aaRangeInd, range, ind) => {
+        return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
+          this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
+          ? ind
+          : _aaRangeInd;
+      }, 0);
+
+      this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
+        gene.segments[aaRangeInd][0] +
+        (this.intToGeneAaMutationMap[mutationId]['pos'] -
+          gene.aa_ranges[aaRangeInd][0]) *
+          3;
     });
     Object.keys(this.proteinAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.proteinAaMutationMap[mut]);
@@ -173,48 +157,32 @@ export class MutationDataStore {
         mut,
         DNA_OR_AA.AA
       );
-      this.intToProteinAaMutationMap[mutationId][
-        'color'
-      ] = this.mutationColorMap[mut];
+      this.intToProteinAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
 
       // Get coordinates in NT (from start of codon)
+
+      let protein;
       if (config.virus === 'sars2') {
-        aaRangeInd = getProtein(split[0]).aa_ranges.reduce(
-          (_aaRangeInd, range, ind) => {
-            return this.intToProteinAaMutationMap[mutationId]['pos'] >=
-              range[0] &&
-              this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
-              ? ind
-              : _aaRangeInd;
-          },
-          0
-        );
-        this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
-          getProtein(split[0]).segments[aaRangeInd][0] +
-          (this.intToProteinAaMutationMap[mutationId]['pos'] -
-            getProtein(split[0]).aa_ranges[aaRangeInd][0]) *
-            3;
-      } else {
-        aaRangeInd = getProtein(
+        protein = getProtein(split[0]);
+      } else if (config.virus === 'rsv') {
+        protein = getProtein(
           split[0],
           rootStoreInstance.configStore.selectedReference
-        ).aa_ranges.reduce((_aaRangeInd, range, ind) => {
-          return this.intToProteinAaMutationMap[mutationId]['pos'] >=
-            range[0] &&
-            this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        }, 0);
-        this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
-          getProtein(split[0], rootStoreInstance.configStore.selectedReference)
-            .segments[aaRangeInd][0] +
-          (this.intToProteinAaMutationMap[mutationId]['pos'] -
-            getProtein(
-              split[0],
-              rootStoreInstance.configStore.selectedReference
-            ).aa_ranges[aaRangeInd][0]) *
-            3;
+        );
       }
+
+      aaRangeInd = protein.aa_ranges.reduce((_aaRangeInd, range, ind) => {
+        return this.intToProteinAaMutationMap[mutationId]['pos'] >= range[0] &&
+          this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
+          ? ind
+          : _aaRangeInd;
+      }, 0);
+      this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
+        protein.segments[aaRangeInd][0] +
+        (this.intToProteinAaMutationMap[mutationId]['pos'] -
+          protein.aa_ranges[aaRangeInd][0]) *
+          3;
     });
   }
 

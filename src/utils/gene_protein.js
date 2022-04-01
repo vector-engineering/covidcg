@@ -32,7 +32,7 @@ export function getAllGenes(ref = 'A') {
   if (config.virus === 'sars2') {
     return genes;
   } else {
-    return ref === 'A' ? genes['NC_038235.1'] : genes['NC_001781.1'];
+    return ref === 'A' ? genes['A'] : genes['B'];
   }
 }
 
@@ -53,8 +53,7 @@ export function getGene(gene, ref = 'A') {
       });
     } else {
       if (!(ref in geneMap)) {
-        const selectedGenes =
-          ref === 'A' ? genes['NC_038235.1'] : genes['NC_001781.1'];
+        const selectedGenes = ref === 'A' ? genes['A'] : genes['B'];
         geneMap[ref] = {};
         selectedGenes.forEach((gene) => {
           geneMap[ref][gene.name] = gene;
@@ -69,7 +68,7 @@ export function getAllProteins(ref = 'A') {
   if (config.virus === 'sars2') {
     return proteins;
   } else {
-    return ref === 'A' ? proteins['NC_038235.1'] : proteins['NC_001781.1'];
+    return ref === 'A' ? proteins['A'] : proteins['B'];
   }
 }
 
@@ -95,8 +94,7 @@ export function getProtein(_protein, ref = 'A') {
             proteinMap[protein.name] = protein;
           });
         } else {
-          const selectedProteins =
-            ref === 'A' ? proteins['NC_038235.1'] : proteins['NC_001781.1'];
+          const selectedProteins = ref === 'A' ? proteins['A'] : proteins['B'];
           proteinMap[ref] = {};
           selectedProteins.forEach((protein) => {
             proteinMap[ref][protein.name] = protein;

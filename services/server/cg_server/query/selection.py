@@ -61,14 +61,12 @@ def build_coordinate_filters(
 
     pos_filter = []
     for i in range(len(coordinate_ranges)):
-        pos_column = "pos" if dna_or_aa == constants["DNA_OR_AA"]["DNA"] else "nt_pos"
         pos_filter.append(
             sql.SQL(
                 """
-                ({pos_column} >= {start} AND {pos_column} <= {end})
+                ("pos" >= {start} AND "pos" <= {end})
                 """
             ).format(
-                pos_column=sql.Identifier(pos_column),
                 start=sql.Literal(coordinate_ranges[i][0]),
                 end=sql.Literal(coordinate_ranges[i][1]),
             )
