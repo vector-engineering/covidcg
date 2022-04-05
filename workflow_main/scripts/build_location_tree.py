@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Build tree for ReactDropdownTreeSelect
@@ -5,13 +6,14 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import pandas as pd
 
-from scripts.util import human_format
+from util import human_format
 
 
-def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree_out):
+def main():
     """Build tree for ReactDropdownTreeSelect
 
     data
@@ -63,11 +65,24 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
     }
     """
 
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--case-data", type=str, required=True, help="Case data JSON file"
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map file"
+    )
+    parser.add_argument("--emoji-map", type=str, required=True, help="Emoji map file")
+    parser.add_argument("--out", type=str, required=True, help="Output file")
+
+    args = parser.parse_args()
+
     loc_levels = ["region", "country", "division", "location"]
-    df = pd.read_json(case_data)
+    df = pd.read_json(args.case_data)
     df = df[["Accession ID"] + loc_levels]
 
-    with open(metadata_map, "r") as fp:
+    with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 
     loc_level_id_cols = [col + "_id" for col in loc_levels]
@@ -98,7 +113,7 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
     )
 
     # Load country -> emoji map
-    emoji_map = pd.read_excel(emoji_map_file, skiprows=1)
+    emoji_map = pd.read_excel(args.emoji_map, skiprows=1)
     # Expand country aliases, remove whitespace from each alias
     emoji_map["aliases"] = (
         emoji_map["aliases"].str.split(",").apply(lambda x: [y.strip() for y in x])
@@ -269,5 +284,9 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             }
             division_node["children"].append(location_node)
 
-    with open(geo_select_tree_out, "w") as fp:
+    with open(args.out, "w") as fp:
         fp.write(json.dumps(select_tree))
+
+
+if __name__ == "__main__":
+    main()

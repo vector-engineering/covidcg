@@ -70,7 +70,7 @@ def format_aa_mutation(aa_mutation_str):
     return "{}:{}{}{}".format(chunks[0], chunks[2], chunks[1], chunks[3])
 
 
-def process_aa_mutations(aa_mutation_dict, name, defs):
+def process_aa_mutations(aa_mutation_dict, name):
     """
     Parameters
     ----------
@@ -92,21 +92,5 @@ def process_aa_mutations(aa_mutation_dict, name, defs):
     aa_mutation.loc[:, "pos"] = aa_mutation["pos"].astype(int)
     aa_mutation["color"] = get_mutation_colors(aa_mutation.index.values)
     aa_mutation["mutation_name"] = aa_mutation["mutation_str"].apply(format_aa_mutation)
-
-    def get_nt_pos(dna_mutation):
-        segment_ind = [
-            i
-            for i, segment in enumerate(defs.at[dna_mutation[name], "aa_ranges"])
-            if dna_mutation["pos"] >= segment[0] and dna_mutation["pos"] <= segment[1]
-        ][0]
-        return defs.at[dna_mutation[name], "segments"][segment_ind][0] + (
-            (
-                dna_mutation["pos"]
-                - defs.at[dna_mutation[name], "aa_ranges"][segment_ind][0]
-            )
-            * 3
-        )
-
-    aa_mutation["nt_pos"] = aa_mutation.apply(get_nt_pos, axis=1)
 
     return aa_mutation

@@ -137,7 +137,7 @@ const StatusBox = observer(() => {
       <DownloadDataButton />
       <StatusText>
         <Line>
-          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences queried in{' '}
+          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences fetched in{' '}
           {dataStore.timeToFetch} s.
         </Line>
         <Line>

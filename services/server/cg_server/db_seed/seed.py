@@ -21,15 +21,27 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
-static_data_path = Path(
-    os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
+data_path = (
+    Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
+    / config["virus"]
+)
+static_data_path = (
+    Path(os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"]))
+    / config["virus"]
 )
 
-genes = pd.read_json(str(static_data_path / "genes_processed.json")).set_index("name")
-proteins = pd.read_json(str(static_data_path / "proteins_processed.json")).set_index(
-    "name"
-)
+if config["virus"] == "sars2":
+    genes = pd.read_json(str(static_data_path / "genes_processed.json")).set_index(
+        "name"
+    )
+    proteins = pd.read_json(
+        str(static_data_path / "proteins_processed.json")
+    ).set_index("name")
+else:
+    with open(str(static_data_path / "genes_processed.json")) as f:
+        genes = json.load(f)
+    with open(str(static_data_path / "proteins_processed.json")) as f:
+        proteins = json.load(f)
 
 loc_levels = [
     "region",
@@ -40,21 +52,26 @@ loc_levels = [
 
 
 def df_to_sql(cur, df, table, index_label=None):
-    buffer = io.StringIO()
-    if index_label:
-        df.to_csv(buffer, index_label=index_label, header=False)
-    else:
-        df.to_csv(buffer, index=False, header=False)
-    buffer.seek(0)
-    # cur.copy_from(buffer, table, sep=",")
-    cur.copy_expert(
-        """
-        COPY "{table}" FROM STDIN WITH (FORMAT CSV)
-        """.format(
-            table=table
-        ),
-        buffer,
-    )
+    n = 500  # chunk row size
+    list_df = [df[i : i + n] for i in range(0, df.shape[0], n)]
+
+    for chunk in list_df:
+        buffer = io.StringIO()
+        if index_label:
+            chunk.to_csv(buffer, index_label=index_label, header=False)
+        else:
+            chunk.to_csv(buffer, index=False, header=False)
+
+        buffer.seek(0)
+        # cur.copy_from(buffer, table, sep=",")
+        cur.copy_expert(
+            """
+            COPY "{table}" FROM STDIN WITH (FORMAT CSV)
+            """.format(
+                table=table
+            ),
+            buffer,
+        )
 
 
 def seed_database(conn, schema="public"):
@@ -124,7 +141,7 @@ def seed_database(conn, schema="public"):
 
         # AA mutations
         gene_aa_mutation = process_aa_mutations(
-            metadata_map["gene_aa_mutation"], "gene", genes
+            metadata_map["gene_aa_mutation"], "gene"
         )
         cur.execute('DROP TABLE IF EXISTS "gene_aa_mutation";')
         cur.execute(
@@ -137,8 +154,7 @@ def seed_database(conn, schema="public"):
                 ref            TEXT     NOT NULL,
                 alt            TEXT     NOT NULL,
                 color          TEXT     NOT NULL,
-                mutation_name  TEXT     NOT NULL,
-                nt_pos         INTEGER  NOT NULL
+                mutation_name  TEXT     NOT NULL
             );
             """
         )
@@ -147,14 +163,11 @@ def seed_database(conn, schema="public"):
             'CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");'
         )
         cur.execute(
-            'CREATE INDEX "ix_gene_aa_mutation_nt_pos" ON "gene_aa_mutation"("nt_pos");'
-        )
-        cur.execute(
             'CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");'
         )
 
         protein_aa_mutation = process_aa_mutations(
-            metadata_map["protein_aa_mutation"], "protein", proteins
+            metadata_map["protein_aa_mutation"], "protein"
         )
         cur.execute('DROP TABLE IF EXISTS "protein_aa_mutation";')
         cur.execute(
@@ -167,17 +180,13 @@ def seed_database(conn, schema="public"):
                 ref            TEXT     NOT NULL,
                 alt            TEXT     NOT NULL,
                 color          TEXT     NOT NULL,
-                mutation_name  TEXT     NOT NULL,
-                nt_pos         INTEGER  NOT NULL
+                mutation_name  TEXT     NOT NULL
             );
             """
         )
         df_to_sql(cur, protein_aa_mutation, "protein_aa_mutation", index_label="id")
         cur.execute(
             'CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");'
-        )
-        cur.execute(
-            'CREATE INDEX "ix_protein_aa_mutation_nt_pos" ON "protein_aa_mutation"("nt_pos");'
         )
         cur.execute(
             'CREATE INDEX "ix_protein_aa_mutation_protein" ON "protein_aa_mutation"("protein");'
@@ -266,30 +275,9 @@ def seed_database(conn, schema="public"):
                     grouping=grouping
                 )
             )
-
         print("done")
 
         print("Writing sequence metadata...", end="", flush=True)
-
-        # Sequence metadata
-        case_data = pd.read_json(data_path / "case_data.json")
-        # case_data = case_data.set_index("Accession ID")
-        case_data["collection_date"] = pd.to_datetime(case_data["collection_date"])
-        case_data["submission_date"] = pd.to_datetime(case_data["submission_date"])
-        # print(case_data.columns)
-
-        # Partition settings
-        min_date = case_data["collection_date"].min()
-        max_date = case_data["collection_date"].max() + pd.Timedelta(31, unit="D")
-        partition_dates = [
-            d.isoformat()
-            for d in pd.period_range(
-                start=min_date, end=max_date, freq=config["mutation_partition_break"],
-            )
-            .to_timestamp()
-            .date
-        ]
-
         # Make a column for each metadata field
         metadata_cols = []
         metadata_col_defs = []
@@ -312,7 +300,7 @@ def seed_database(conn, schema="public"):
         cur.execute(
             """
             CREATE TABLE "metadata" (
-                sequence_id               INTEGER    NOT NULL,
+                sequence_id      INTEGER    NOT NULL,
                 "Accession ID"   TEXT       NOT NULL,
                 collection_date  TIMESTAMP  NOT NULL,
                 submission_date  TIMESTAMP  NOT NULL,
@@ -324,6 +312,48 @@ def seed_database(conn, schema="public"):
                 metadata_col_defs=metadata_col_defs, grouping_col_defs=grouping_col_defs
             )
         )
+
+        # Only save what we want from the case_data json
+        mutation_fields = ["dna", "gene_aa", "protein_aa"]
+        mutation_cols = []
+        for mutation_field in mutation_fields:
+            mutation_cols.append(mutation_field + "_mutation_str")
+        case_data_columns = (
+            ["Accession ID", "collection_date", "submission_date"]
+            + metadata_cols
+            + grouping_cols
+            + mutation_cols
+        )
+
+        case_data = pd.read_json(data_path / "case_data.json")[case_data_columns]
+        # case_data = case_data.set_index("Accession ID")
+        case_data["collection_date"] = pd.to_datetime(case_data["collection_date"])
+        case_data["submission_date"] = pd.to_datetime(case_data["submission_date"])
+        # print(case_data.columns)
+
+        # Partition settings
+        min_date = case_data["collection_date"].min()
+        # Round latest sequence to the nearest partition break
+        if config["mutation_partition_break"] == "M":
+            max_date = (
+                case_data["collection_date"].max().normalize() + pd.offsets.MonthBegin()
+            )
+        elif config["mutation_partition_break"] == "Y":
+            max_date = (
+                case_data["collection_date"].max().normalize() + pd.offsets.YearBegin()
+            )
+
+        partition_dates = [
+            d.isoformat()
+            for d in pd.period_range(
+                start=min_date.to_period(config["mutation_partition_break"]),
+                end=max_date.to_period(config["mutation_partition_break"]),
+                freq=config["mutation_partition_break"],
+            )
+            .to_timestamp()
+            .date
+        ]
+
         for i in range(len(partition_dates) - 1):
             start = partition_dates[i]
             end = partition_dates[i + 1]
@@ -486,16 +516,17 @@ def seed_database(conn, schema="public"):
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
-            ["stats", Json(stats),],
+            ["stats", Json(stats)],
         )
-        with (data_path / "country_score.json").open("r") as fp:
-            country_score = json.loads(fp.read())
-        cur.execute(
-            """
-            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
-            """,
-            ["country_score", Json(country_score)],
-        )
+        if config["virus"] == "sars2":
+            with (data_path / "country_score.json").open("r") as fp:
+                country_score = json.loads(fp.read())
+            cur.execute(
+                """
+                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+                """,
+                ["country_score", Json(country_score)],
+            )
         with (data_path / "geo_select_tree.json").open("r") as fp:
             geo_select_tree = json.loads(fp.read())
         cur.execute(
@@ -504,14 +535,41 @@ def seed_database(conn, schema="public"):
             """,
             ["geo_select_tree", Json(geo_select_tree)],
         )
-        with (data_path / "vocs" / "vocs.json").open("r") as fp:
-            vocs = json.loads(fp.read())
+        with (data_path / "surveillance" / "group_counts2.json").open("r") as fp:
+            surv_group_counts = json.loads(fp.read())
         cur.execute(
             """
             INSERT INTO "jsons" (key, value) VALUES (%s, %s);
             """,
-            ["vocs", Json(vocs)],
+            ["surv_group_counts", Json(surv_group_counts)],
         )
+        with (data_path / "surveillance" / "group_regression2.json").open("r") as fp:
+            surv_group_regression = json.loads(fp.read())
+        cur.execute(
+            """
+            INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+            """,
+            ["surv_group_regression", Json(surv_group_regression)],
+        )
+
+        if config["virus"] == "sars2":
+            with (data_path / "vocs" / "vocs.json").open("r") as fp:
+                vocs = json.loads(fp.read())
+            cur.execute(
+                """
+                INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+                """,
+                ["vocs", Json(vocs)],
+            )
+        # if config["virus"] == "rsv":
+        #     with (static_data_path / "genotypesBySubtype.json").open("r") as fp:
+        #         subtypes = json.loads(fp.read())
+        #     cur.execute(
+        #         """
+        #         INSERT INTO "jsons" (key, value) VALUES (%s, %s);
+        #         """,
+        #         ["genotypesBySubtype", Json(subtypes)],
+        #     )
 
         # Metadata map
         table_queries = []
@@ -576,3 +634,4 @@ def seed_database(conn, schema="public"):
         )
 
         print("done")
+        cur.close()

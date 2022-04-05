@@ -5,7 +5,10 @@
 import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
-import { asyncDataStoreInstance } from '../components/App';
+import {
+  asyncDataStoreInstance,
+  initialValueStoreInstance,
+} from '../components/App';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
@@ -14,17 +17,12 @@ import {
   mutationHeatmapToPymolCommands,
 } from '../utils/pymol';
 
-export const initialValues = {
-  activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
-  groupMutationType: 'protein_aa',
-};
-
 export class GroupDataStore {
+  initialValues = {};
   // Actively selected group type in the report tab
-  @observable activeGroupType = initialValues.activeGroupType;
-  @observable selectedGroups = initialValues.selectedGroups;
-  @observable groupMutationType = initialValues.groupMutationType;
+  @observable activeGroupType = '';
+  @observable selectedGroups = [];
+  @observable groupMutationType = '';
 
   groups;
   @observable groupSelectTree;
@@ -46,6 +44,11 @@ export class GroupDataStore {
   }
 
   init() {
+    // Load intial values
+    this.initialValues = initialValueStoreInstance.groupDataStore;
+    Object.keys(this.initialValues).forEach((key) => {
+      this[key] = this.initialValues[key];
+    });
     // Load all groups from the server
     asyncDataStoreInstance.data.groups.forEach((record) => {
       let groupName = record['group'];

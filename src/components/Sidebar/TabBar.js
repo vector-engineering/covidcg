@@ -14,6 +14,8 @@ import {
   DropdownTab,
 } from './TabBar.styles';
 
+import { config } from '../../config';
+
 const TabBar = observer(({ activeTab, onTabChange }) => {
   const { configStore } = useStores();
 
@@ -28,6 +30,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     changeTab(tab);
   };
 
+  // The base tabs are the Example, Compare Groups, and Compare Locations tabs
   const tabs = [
     <TabItem key={TABS.TAB_EXAMPLE} active={activeTab === TABS.TAB_EXAMPLE}>
       <a
@@ -50,6 +53,10 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Lineage Reports</span>
       </a>
     </TabItem>,
+  ];
+
+  // Add Compare Groups/Locations
+  tabs.push(
     <TabItem
       key={TABS.TAB_COMPARE_GROUPS}
       active={activeTab === TABS.TAB_COMPARE_GROUPS}
@@ -73,28 +80,42 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       >
         <span>Compare Locations</span>
       </a>
-    </TabItem>,
-    <TabItem
-      key={TABS.TAB_GLOBAL_SEQUENCES}
-      active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+    </TabItem>
+  );
+
+  // Add virus specific tabs
+  if (config.virus === 'sars2') {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GLOBAL_SEQUENCES}
+        active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
       >
-        <span>Global Sequencing Coverage</span>
-      </a>
-    </TabItem>,
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+        >
+          <span>Global Sequencing Coverage</span>
+        </a>
+      </TabItem>
+    );
+  }
+
+  // Add About Tab and DropdownButton last
+  tabs.push(
     <TabItem key={TABS.TAB_ABOUT} active={activeTab === TABS.TAB_ABOUT}>
       <a
         href="#"
         className="tab-link"
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
-        <span>About COVID CG</span>
+        {config.virus === 'sars2' && <span>About COVID CG</span>}
+        {config.virus === 'rsv' && <span>About RSV CG</span>}
       </a>
-    </TabItem>,
+    </TabItem>
+  );
+
+  tabs.push(
     <DropdownButton
       key="tab-dropdown"
       button={DropdownTab}
@@ -103,8 +124,8 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       values={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
       onSelect={onMiscTabSelect}
       active={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED].includes(activeTab)}
-    />,
-  ];
+    />
+  );
 
   return (
     <TabBarContainer height={tabs.length * 30}>

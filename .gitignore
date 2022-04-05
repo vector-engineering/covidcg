@@ -94,6 +94,7 @@ workflow*/**/__pycache__/**
 data/**
 data_genbank/**
 data_custom/**
+data_genbank_rsv/**
 
 # Ignore server passwords
 server/htpasswd
@@ -110,18 +111,22 @@ filter_list.txt
 __pycache__
 
 # BAM files are too large to track for example data
-example_data_genbank/bam/**
+example_data_genbank/*/bam/**
 # Don't need to track redundant fasta_processed files
-example_data_genbank/fasta_processed/**
+example_data_genbank/*/fasta_processed/**
+# Case_data and data_complete files are too large in RSV
+case_data.*
+data_complete.*
 
 **/.snakemake_timestamp
-example_data_genbank/status/**
-example_data_genbank/lineage_treetime/*.txt
-example_data_genbank/lineage_treetime/*.png
-example_data_genbank/lineage_treetime/*.pdf
+example_data_genbank/*/status/**
+example_data_genbank/*/lineage_treetime/*.txt
+example_data_genbank/*/lineage_treetime/*.png
+example_data_genbank/*/lineage_treetime/*.pdf
 
 data
 data_genbank
+example_data_genbank/rsv/**
 
 # CORS config file.
 services/server/cg_server/cors_conf.py

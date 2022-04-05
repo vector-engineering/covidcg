@@ -6,8 +6,10 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { aggregate } from '../../utils/transform';
 import { throttle } from '../../utils/func';
+import { config } from '../../config';
 
 import {
+  MIN_DATE,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
@@ -28,12 +30,19 @@ import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 import initialSpec from '../../vega_specs/location_date.vg.json';
 import { formatMutation } from '../../utils/mutationUtils';
 
+const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
+
 const PlotContainer = styled.div``;
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { dataStore, configStore, UIStore, plotSettingsStore, groupDataStore } =
-    useStores();
+  const {
+    dataStore,
+    configStore,
+    UIStore,
+    plotSettingsStore,
+    groupDataStore,
+  } = useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -93,10 +102,9 @@ const LocationDatePlot = observer(({ width }) => {
       record.location_date_count = dataStore.countsPerLocationDateMap
         .get(record.location)
         .get(record.collection_date);
-      record.cumulative_location_date_count =
-        dataStore.cumulativeCountsPerLocationDateMap
-          .get(record.location)
-          .get(record.collection_date);
+      record.cumulative_location_date_count = dataStore.cumulativeCountsPerLocationDateMap
+        .get(record.location)
+        .get(record.collection_date);
       return record;
     });
 
@@ -422,6 +430,7 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
+            dateRangeStart: new Date(min_date).getTime() / 1000,
             percentages:
               plotSettingsStore.locationDateNormMode ===
               NORM_MODES.NORM_PERCENTAGES,

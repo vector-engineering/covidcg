@@ -124,9 +124,19 @@ const SurveillanceLegend = observer(
     if (plotSettingsStore.surveillanceMode === 'lineage') {
       legendTitleText = 'Lineages';
     } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText = 'Spike mutations (Co-occuring)';
+      legendTitleText =
+        config['virus'] === 'sars2'
+          ? 'Spike mutations (Co-occurring)'
+          : 'Fusion mutations {Co-occurring}';
     } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText = 'Spike mutations (Single)';
+      legendTitleText =
+        config['virus'] === 'sars2'
+          ? 'Spike mutations (single)'
+          : 'Fusion mutations {single}';
+    } else if (plotSettingsStore.surveillanceMode === 'genotype') {
+      legendTitleText = 'Genotype';
+    } else if (plotSettingsStore.surveillanceMode === 'subtype') {
+      legendTitleText = 'Subtype';
     }
 
     return (
@@ -312,7 +322,7 @@ SurveillanceSettings.propTypes = {
 };
 
 const SurveillancePlot = observer(({ width }) => {
-  const { plotSettingsStore } = useStores();
+  const { plotSettingsStore, surveillanceDataStore } = useStores();
   const vegaRef = useRef();
   const hiddenLink = useRef();
 
@@ -362,6 +372,8 @@ const SurveillancePlot = observer(({ width }) => {
       tooltip_group: handleHoverGroups,
     },
     data: {
+      group_reg: surveillanceDataStore.surv_group_regression,
+      group_counts: surveillanceDataStore.surv_group_counts,
       hover_legend: [],
     },
     signalListeners: {},
@@ -380,9 +392,7 @@ const SurveillancePlot = observer(({ width }) => {
 
   const handleDownloadSelect = (option) => {
     if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      hiddenLink.current.href =
-        'https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv';
-      hiddenLink.current.click();
+      surveillanceDataStore.downloadGroupCounts();
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG) {
       vegaRef.current.downloadImage('png', 'vega-export.png', 1);
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X) {
@@ -429,7 +439,15 @@ const SurveillancePlot = observer(({ width }) => {
     groupName = 'Co-occuring mutations';
   } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
     groupName = 'Single mutations';
+  } else if (plotSettingsStore.surveillanceMode == 'genotype') {
+    groupName = 'Genotype';
+  } else if (plotSettingsStore.surveillanceMode == 'subtype') {
+    groupName = 'Subtype';
   }
+
+  const getXLabelFormat = () => {
+    return config.virus === 'sars2' ? '%m-%d' : '%m-%y';
+  };
 
   return (
     <PlotContainer>
@@ -479,9 +497,29 @@ const SurveillancePlot = observer(({ width }) => {
                   value={plotSettingsStore.surveillanceMode}
                   onChange={onChangeMode}
                 >
-                  <option value={'lineage'}>Lineage</option>
-                  <option value={'spike_combo'}>Spike Co-occuring Mutations</option>
-                  <option value={'spike_single'}>Spike Single Mutations</option>
+                  {config.virus === 'sars2' && (
+                    <>
+                      <option value={'lineage'}>Lineage</option>
+                      <option value={'spike_combo'}>
+                        Spike Co-occuring Mutations
+                      </option>
+                      <option value={'spike_single'}>
+                        Spike Single Mutations
+                      </option>
+                    </>
+                  )}
+                  {config.virus === 'rsv' && (
+                    <>
+                      <option value={'genotype'}>Genotype</option>
+                      <option value={'subtype'}>Subtype</option>
+                      <option value={'spike_combo'}>
+                        Fusion Co-occuring Mutations
+                      </option>
+                      <option value={'spike_single'}>
+                        Fusion Single Mutations
+                      </option>
+                    </>
+                  )}
                 </select>
               </label>
             </OptionSelectContainer>{' '}
@@ -535,6 +573,7 @@ const SurveillancePlot = observer(({ width }) => {
             sig_min_counts: plotSettingsStore.surveillanceSigMinCounts,
             sig_min_percent: plotSettingsStore.surveillanceSigMinPercent,
             sig_min_r: plotSettingsStore.surveillanceSigMinR,
+            xLabelFormat: getXLabelFormat(),
           }}
           dataListeners={state.dataListeners}
           width={width - 80}

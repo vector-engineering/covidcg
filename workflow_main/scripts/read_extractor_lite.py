@@ -9,7 +9,7 @@ from the variant_extractor project
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-from scripts.util import reverse_complement
+from util import reverse_complement
 
 
 class ReadExtractor:

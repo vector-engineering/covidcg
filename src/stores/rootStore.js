@@ -10,6 +10,8 @@ import { LocationDataStore } from './locationDataStore';
 import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
+import { ExampleStore } from './exampleStore';
+import { SurveillanceDataStore } from './surveillanceDataStore';
 
 class RootStore {
   UIStore;
@@ -26,6 +28,9 @@ class RootStore {
   globalSequencingDataStore;
   groupDataStore;
 
+  surveillanceDataStore;
+  exampleStore;
+
   constructor() {
     this.UIStore = new UIStore();
     this.router = new RouterStore();
@@ -40,6 +45,9 @@ class RootStore {
 
     this.globalSequencingDataStore = new GlobalSequencingDataStore();
     this.groupDataStore = new GroupDataStore();
+
+    this.exampleStore = new ExampleStore();
+    this.surveillanceDataStore = new SurveillanceDataStore();
   }
 
   init() {
@@ -50,14 +58,19 @@ class RootStore {
     this.plotSettingsStore.init();
     this.metadataStore.init();
     this.locationDataStore.init();
-    this.mutationDataStore.init();
 
     this.configStore.init();
+
+    this.mutationDataStore.init();
 
     this.globalSequencingDataStore.init();
     this.groupDataStore.init();
 
+    this.surveillanceDataStore.init();
+
     this.dataStore.init();
+
+    this.exampleStore.init();
 
     const urlParams = new URLSearchParams(window.location.search);
 

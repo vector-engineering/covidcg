@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Process pangolin lineage/clade information
@@ -5,6 +6,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import pandas as pd
 
@@ -116,14 +118,7 @@ def get_consensus_mutations(
     )
 
 
-def get_all_consensus_mutations(
-    case_data,
-    consensus_out,
-    frequencies_out,
-    group_cols=[],
-    consensus_fraction=0.9,
-    min_reporting_fraction=0.05,
-):
+def main():
     """For each lineage and clade, get the lineage/clade-defining mutations,
     on both the NT and AA level
     Lineage/clade-defining mutations are defined as mutations which occur in
@@ -131,29 +126,59 @@ def get_all_consensus_mutations(
     [consensus_fraction] is a parameter which can be adjusted here
     """
 
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--case-data", type=str, required=True, help="Case data JSON file"
+    )
+    parser.add_argument(
+        "--consensus-out", type=str, required=True, help="Consensus mutations JSON file"
+    )
+    parser.add_argument(
+        "--frequencies-out", type=str, required=True, help="Frequencies JSON file"
+    )
+    parser.add_argument(
+        "--group-cols", type=str, nargs="+", default=[], help="Group columns"
+    )
+    parser.add_argument(
+        "--consensus-fraction", type=float, default=0.9, help="Consensus fraction"
+    ),
+    parser.add_argument(
+        "--min-reporting-fraction",
+        type=float,
+        default=0.05,
+        help="Min reporting fraction",
+    )
+
+    args = parser.parse_args()
+
     # If no group columns are defined, then just write an empty JSON object
-    if not group_cols:
-        with open(consensus_out, "w") as fp:
+    if not args.group_cols:
+        with open(args.consensus_out, "w") as fp:
             fp.write(json.dumps({}))
 
-    case_df = pd.read_json(case_data).set_index("Accession ID")
+    case_df = pd.read_json(args.case_data).set_index("Accession ID")
 
     consensus_dict = {}
     frequencies_dict = {}
     # group_cols is defined under the "group_cols" field
     # in the config.yaml file
-    for group in group_cols:
+    for group in args.group_cols:
         group_consensus, group_frequencies = get_consensus_mutations(
             case_df,
             group,
-            consensus_fraction=consensus_fraction,
-            min_reporting_fraction=min_reporting_fraction,
+            consensus_fraction=args.consensus_fraction,
+            min_reporting_fraction=args.min_reporting_fraction,
         )
         consensus_dict[group] = group_consensus
         frequencies_dict[group] = group_frequencies
 
-    with open(consensus_out, "w") as fp:
+    with open(args.consensus_out, "w") as fp:
         fp.write(json.dumps(consensus_dict))
 
-    with open(frequencies_out, "w") as fp:
+    with open(args.frequencies_out, "w") as fp:
         fp.write(json.dumps(frequencies_dict))
+
+
+if __name__ == "__main__":
+    main()

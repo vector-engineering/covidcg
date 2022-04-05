@@ -123,7 +123,7 @@
     },
     {
       "name": "selected",
-      "values": [{ "group": "S|614|D|G" }],
+      "values": [],
       "on": [
         { "trigger": "clearMutation", "remove": true },
         { "trigger": "!shiftMutation", "remove": true },

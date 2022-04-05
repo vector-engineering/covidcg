@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Extract AA mutations from NT mutations
@@ -5,24 +6,35 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-
+import argparse
+import json
 import pandas as pd
 
-from scripts.fasta import read_fasta_file
-from scripts.util import translate
+from fasta import read_fasta_file
+from util import translate
 
 
 def extract_aa_mutations(
-    dna_mutation_file, gene_or_protein_file, reference_file, mode="gene"
+    dna_mutation_file,
+    gene_or_protein_file,
+    reference_file,
+    serotype,
+    active_segment,
+    mode="gene",
 ):
+    active_segment = int(active_segment)
+
     # Load the reference sequence
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
         ref = read_fasta_file(lines)
         ref_seq = list(ref.values())[0]
 
+    # Load gene defs
     # JSON to dataframe
-    gene_or_protein_df = pd.read_json(gene_or_protein_file)
+    # serotype = 'H1N1'
+    with open(gene_or_protein_file, "r") as fp:
+        gene_or_protein_df = pd.DataFrame.from_records(json.loads(fp.read())[serotype])
 
     if mode == "gene":
         # Only take protein-coding genes
@@ -36,9 +48,9 @@ def extract_aa_mutations(
 
     dna_mutation_df = pd.read_csv(dna_mutation_file).fillna("")
     # Filter out any big mutations in the 5' or 3' UTR
-    dna_mutation_df = dna_mutation_df.loc[
-        (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
-    ].reset_index(drop=True)
+    # dna_mutation_df = dna_mutation_df.loc[
+    #     (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
+    # ].reset_index(drop=True)
     # Filter out any frameshifting indels
     dna_mutation_df = dna_mutation_df.loc[
         (
@@ -61,6 +73,11 @@ def extract_aa_mutations(
     aa_seqs = {}
 
     for ref_name, ref_row in gene_or_protein_df.iterrows():
+
+        # Only process genes in this segment/chromosome
+        if ref_row["segment"] != active_segment:
+            continue
+
         # print(ref_name)
 
         resi_counter = 0
@@ -247,4 +264,50 @@ def extract_aa_mutations(
             aa_mutations, columns=["Accession ID", "protein", "pos", "ref", "alt"]
         )
 
+    # Isolate accession ID, if its bound with the strain/isolate name
+    aa_mutation_df.loc[:, "Accession ID"] = (
+        aa_mutation_df["Accession ID"].str.split("|").apply(lambda x: x[0])
+    )
+
+    aa_mutation_df.insert(1, "serotype", serotype)
+    aa_mutation_df.insert(2, "segment", active_segment)
+
     return aa_mutation_df
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--dna-mutation", type=str, required=True, help="Path to DNA mutation CSV",
+    )
+    parser.add_argument(
+        "--gene-protein-def",
+        type=str,
+        required=True,
+        help="Path to gene/protein definition JSON",
+    )
+    parser.add_argument(
+        "--reference", type=str, required=True, help="Path to reference file"
+    )
+    parser.add_argument("--serotype", type=str, required=True, help="Serotype")
+    parser.add_argument("--segment", type=str, required=True, help="Segment/chromosome")
+    parser.add_argument(
+        "--mode", type=str, required=True, help="Mode ('gene' or 'protein')"
+    )
+    parser.add_argument("--out", type=str, required=True, help="Path to output")
+    args = parser.parse_args()
+
+    aa_mutation_df = extract_aa_mutations(
+        args.dna_mutation,
+        args.gene_protein_def,
+        args.reference,
+        args.serotype,
+        args.segment,
+        args.mode,
+    )
+    aa_mutation_df.to_csv(args.out, index=False)
+
+
+if __name__ == "__main__":
+    main()

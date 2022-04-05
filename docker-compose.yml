@@ -15,8 +15,8 @@ services:
       - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
-      - POSTGRES_DB=cg_dev
       - POSTGRES_HOST=db
+      - POSTGRES_DB=cg_dev
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
       - FRONTEND_PORT=3000

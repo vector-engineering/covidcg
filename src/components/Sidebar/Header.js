@@ -2,6 +2,7 @@ import React from 'react';
 
 import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
+import RSVCGLogo from '../../assets/images/rsvg_logo_temp.png';
 import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 import NCBILogo from '../../assets/images/ncbi_logo.svg';
 
@@ -20,9 +21,10 @@ const Header = () => {
     <HeaderDiv>
       <TitleContainer>
         <ImageContainer>
-          <img src={CGLogo}></img>
+          <img src={config.virus === 'sars2' ? CGLogo : RSVCGLogo}></img>
         </ImageContainer>
-        <h1>COVID-19 CoV Genetics</h1>
+        {config.virus === 'sars2' && <h1>COVID-19 CoV Genetics</h1>}
+        {config.virus === 'rsv' && <h1>RSV Genetics</h1>}
       </TitleContainer>
       {config['show_logos']['GISAID'] && (
         <GISAIDContainer>

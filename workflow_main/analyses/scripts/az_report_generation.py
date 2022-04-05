@@ -516,4 +516,3 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     lineage_region = lineage_region.sort_values("sum_counts", ascending=False)
     lineage_region.reset_index(inplace=True)
     lineage_region.to_csv(report_out / "lineage_region.csv", index=False)
-
