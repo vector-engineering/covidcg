@@ -20,8 +20,8 @@
             ],
             "on": [
                 {
-                    "events": "mousedown",
-                    "update": "[rotateX, centerY]"
+                    "events": "touchmove",
+                    "update": "[tick, centerY]"
                 }
             ]
         },
@@ -30,7 +30,7 @@
             "value": null,
             "on": [
                 {
-                    "events": "mousedown",
+                    "events": "touchmove",
                     "update": "copy('projection')"
                 }
             ]
@@ -40,7 +40,7 @@
             "value": null,
             "on": [
                 {
-                    "events": "mousedown",
+                    "events": "touchstart",
                     "update": "invert(cloned, xy())"
                 }
             ]
@@ -50,7 +50,7 @@
             "value": null,
             "on": [
                 {
-                    "events": "[mousedown, window:mouseup] > window:mousemove",
+                    "events": "[touchstart, window:touchend] > window:touchmove",
                     "update": "invert(cloned, xy())"
                 }
             ]
@@ -68,6 +68,16 @@
             ]
         },
         {
+          "name": "tickDelta",
+          "init": "0.5",
+          "on": [
+                {
+                  "events": "touchmove",
+                  "update": "0"
+                }
+          ]
+        },
+        {
             "name": "tick",
             "init": "0",
             "on": [
@@ -76,14 +86,8 @@
                         "type": "timer",
                         "throttle": 50
                     },
-                    "update": "tick + 0.5"
-                }
-            ]
-        },
-        {
-            "name": "rotateX",
-            "value": 0,
-            "on": [
+                    "update": "tick + tickDelta"
+                },
                 {
                     "events": {
                         "signal": "delta"
