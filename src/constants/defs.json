@@ -119,5 +119,9 @@
   "PYMOL_SCRIPT_TYPES": {
     "COMMANDS": "commands",
     "SCRIPT": "script"
+  },
+  "RSV_REFERENCE_NAMES": {
+    "A": "NC_038235.1",
+    "B": "NC_001781.1"
   }
 }
