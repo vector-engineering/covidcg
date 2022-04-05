@@ -34,13 +34,8 @@ const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const {
-    dataStore,
-    UIStore,
-    configStore,
-    plotSettingsStore,
-    groupDataStore,
-  } = useStores();
+  const { dataStore, UIStore, configStore, plotSettingsStore, groupDataStore } =
+    useStores();
 
   const handleHoverGroup = (...args) => {
     // Don't fire the action if there's no change

@@ -172,8 +172,8 @@ const CooccurrencePlot = observer(({ width }) => {
     return (
       <EmptyPlot height={70}>
         <p>
-          No mutations selected. Please select one or more mutations from the legend,
-          frequency plot, or table.
+          No mutations selected. Please select one or more mutations from the
+          legend, frequency plot, or table.
         </p>
       </EmptyPlot>
     );
