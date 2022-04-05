@@ -1,4 +1,4 @@
 *.ipynb binary linguist-detectable=false
-
 # Don't track changes in the example data
 example_data_genbank/** -diff -merge -text
+example_data_genbank/rsv.tar.gz filter=lfs diff=lfs merge=lfs -text
