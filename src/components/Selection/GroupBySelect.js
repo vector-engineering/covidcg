@@ -217,10 +217,7 @@ const GroupBySelect = observer(
           <RadioForm direction={direction}>
             <span className="form-title">Reference Sequence</span>
             {groupKey !== GROUP_MUTATION && (
-              <HintText>
-                Switch to &quot;Mutation&quot; under &quot;Group sequences
-                by&quot; in order to enable Reference Sequence Formatting
-              </HintText>
+              <HintText>Only available in &quot;Mutation&quot; mode</HintText>
             )}
             {groupKey === GROUP_MUTATION && renderRSVRefSelect()}
           </RadioForm>
