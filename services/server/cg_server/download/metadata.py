@@ -63,7 +63,7 @@ def download_metadata(conn, req):
             joins.append(
                 sql.SQL(
                     """
-                    INNER JOIN {metadata_table_name} {metadata_table_name}
+                    LEFT JOIN {metadata_table_name} {metadata_table_name}
                         ON m.{field} = {metadata_table_name}."id"
                     """
                 ).format(

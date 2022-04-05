@@ -80,7 +80,7 @@ def build_variant_table(conn, req):
             joins.append(
                 sql.SQL(
                     """
-                    INNER JOIN {metadata_table_name} {metadata_table_name}
+                    LEFT JOIN {metadata_table_name} {metadata_table_name}
                         ON m.{field} = {metadata_table_name}."id"
                     """
                 ).format(
@@ -89,9 +89,8 @@ def build_variant_table(conn, req):
                 )
             )
 
-        cur.execute(
-            sql.SQL(
-                """
+        query = sql.SQL(
+            """
             SELECT
                 {metadata_cols_expr},
                 sm."mutations"
@@ -110,15 +109,16 @@ def build_variant_table(conn, req):
             {joins}
             ORDER BY m."Accession ID" ASC
             """
-            ).format(
-                metadata_cols_expr=sql.SQL(",").join(metadata_cols_expr),
-                sequence_mutation_table=sql.Identifier(sequence_mutation_table),
-                sequence_where_filter=sequence_where_filter,
-                mutation_table=sql.Identifier(mutation_table),
-                joins=sql.SQL("\n").join(joins),
-                mutation_filter=mutation_filter,
-            )
+        ).format(
+            metadata_cols_expr=sql.SQL(",").join(metadata_cols_expr),
+            sequence_mutation_table=sql.Identifier(sequence_mutation_table),
+            sequence_where_filter=sequence_where_filter,
+            mutation_table=sql.Identifier(mutation_table),
+            joins=sql.SQL("\n").join(joins),
+            mutation_filter=mutation_filter,
         )
+        # print(query.as_string(conn))
+        cur.execute(query)
 
         res = pd.DataFrame.from_records(
             # cur.fetchall(), columns=metadata_cols + ["mutation_name", "pos"]
@@ -163,9 +163,9 @@ def build_variant_table(conn, req):
                     res.assign(val=lambda _: 1)
                     .explode("mutations")
                     .assign(
-                        mutations=lambda x: x["mutations"].map(
-                            mutation_def["name"].to_dict()
-                        )
+                        mutations=lambda x: x["mutations"]
+                        .map(mutation_def["name"].to_dict())
+                        .fillna("N/A")
                     )
                 ),
                 index=["Accession ID"],
@@ -175,6 +175,7 @@ def build_variant_table(conn, req):
             .fillna(0)
             .astype(int)
         )
+
         # Reorder columns by position
         mut_columns_ordered = [n for n in mutation_def["name"] if n in pivot.columns]
         pivot = pivot[mut_columns_ordered]
