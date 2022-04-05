@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import PropTypes from 'prop-types';
+import { config } from '../../config';
 
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
@@ -29,6 +30,8 @@ import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
 const headerHeight = 135;
 const treePlotHeight = 12000;
+
+const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 // https://cssgradient.io/
 const VIRIDIS_GRADIENT =
@@ -193,7 +196,7 @@ const GroupTreePlot = observer(({ width }) => {
       plotSettingsStore.reportTreeColorMode === TREE_COLOR_MODES.COLOR_LATEST
     ) {
       // A tick for each 6 months?
-      const startDate = ISOToInt(MIN_DATE);
+      const startDate = ISOToInt(min_date);
       const endDate = Date.now();
       // Overall date range in milliseconds
       const rangeMS = endDate - startDate;

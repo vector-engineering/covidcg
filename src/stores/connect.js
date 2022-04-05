@@ -22,6 +22,7 @@ export const connect = (Component) => {
             metadataStore={value.metadataStore}
             globalSequencingDataStore={value.globalSequencingDataStore}
             groupDataStore={value.groupDataStore}
+            surveillanceDataStore={value.surveillanceDataStore}
             {...props}
           />
         )}

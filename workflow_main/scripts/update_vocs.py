@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -30,10 +31,17 @@ def update_vocs(voc_files):
                     variant_dict = addVariantToDict(variant_dict, variant,
                                                     name, org)
 
+    variant_dict = addSpecificVariants(variant_dict)
     return variant_dict
 
 
 def addVariantToDict(variant_dict, variant, name, org):
+    # If the name does not start in a letter, have any number of
+    # '.'s followed by numbers, and end in a number
+    # This is a malformed lineage name, do nothing
+    if not re.match("^[A-Z]+(.[0-9])+$", name):
+        return variant_dict
+
     if name not in variant_dict:
         # Initialize variant into dict
         variant_dict[name] = {}
@@ -47,9 +55,6 @@ def addVariantToDict(variant_dict, variant, name, org):
         # If variant in dict but org not in variant
         variant_dict[name][org] = variant['level']
 
-    if org == 'who' and variant['who_label']:
-        variant_dict[name]['who_label'] = variant['who_label']
-
     return variant_dict
 
 
@@ -62,6 +67,21 @@ def compareLevels(newLvl, currLvl):
         return True
     else:
         return False
+
+
+def addSpecificVariants(variant_dict):
+    # Adds specific variants to the lineage reports tab that we want to
+    # highlight
+
+    if "BA.1" not in variant_dict:
+        variant_dict["BA.1"] = {
+            "who_label": "Omicron",
+            "CDC": "VOC",
+            "WHO": "VOC",
+            "ECDC": "VOC"
+        }
+
+    return variant_dict
 
 
 def main():

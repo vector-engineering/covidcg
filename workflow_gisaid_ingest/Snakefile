@@ -16,8 +16,8 @@ envvars:
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-data_folder = os.path.join("..", config["data_folder"])
-static_data_folder = os.path.join("..", config["static_data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
+static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
 
 
 rule all:
@@ -76,4 +76,3 @@ rule clean_metadata:
         """
         python3 scripts/clean_metadata.py -i {input.metadata_dirty} -l {input.location_corrections} -o {output.metadata_clean}
         """
-

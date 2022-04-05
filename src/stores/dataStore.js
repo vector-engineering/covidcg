@@ -77,11 +77,14 @@ export class DataStore {
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_group_fields: toJS(
-          rootStoreInstance.configStore.selectedGroupFields
+        selected_reference: toJS(
+          rootStoreInstance.configStore.selectedReference
         ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
         start_date: toJS(rootStoreInstance.configStore.startDate),
         end_date: toJS(rootStoreInstance.configStore.endDate),

@@ -101,16 +101,8 @@
   "data": [
     {
       "name": "group_reg",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
       "format": {
-        "type": "csv",
-        "parse": {
-          "slope": "number",
-          "r": "number",
-          "pval": "number",
-          "counts": "number",
-          "max_percent": "number"
-        }
+        "type": "json"
       },
       "transform": [
         {
@@ -178,15 +170,8 @@
     },
     {
       "name": "group_counts",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv",
       "format": {
-        "type": "csv",
-        "parse": {
-          "collection_week": "date",
-          "counts": "number",
-          "location_counts": "number",
-          "percent": "number"
-        }
+        "type": "json"
       },
       "transform": [
         {
@@ -370,8 +355,7 @@
             {
               "scale": "dateX",
               "orient": "bottom",
-              "format": "%m-%d",
-              "tickCount": "week",
+              "format": { "signal": "xLabelFormat" },
               "grid": false,
               "gridColor": "#DDD",
               "labelAngle": 310,

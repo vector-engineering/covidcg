@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Count sequences per group
@@ -5,6 +6,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import pandas as pd
 
@@ -12,27 +14,24 @@ from itertools import chain
 from collections import Counter
 
 
-def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
+def main():
     """Get the number of sequences in each group
     Doing this in the pipeline just saves some work for the browser later
-
-    Parameters
-    ----------
-    case_data: str
-    out_global_group_counts: str
-    group_cols: list of str
-        - List of sequence groupings (e.g., "lineage", "clade")
-
-    Returns
-    -------
-    None
     """
 
-    case_df = pd.read_json(case_data).set_index("Accession ID")
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--case-data', type=str, required=True, help='Case data JSON file')
+    parser.add_argument('--out-global-group-counts', type=str, required=True, help='Global group counts output file')
+    parser.add_argument('--group-cols', type=str, nargs='+', default=[], help='Group columns')
+
+    args = parser.parse_args()
+
+    case_df = pd.read_json(args.case_data).set_index("Accession ID")
 
     global_group_counts = {}
     # Count sequence groupings (e.g., lineages and clades)
-    for col in group_cols:
+    for col in args.group_cols:
         global_group_counts[col] = case_df[col].value_counts().to_dict()
 
     # Count global mutation frequencies
@@ -48,5 +47,8 @@ def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
         Counter(list(chain.from_iterable(case_df["protein_aa_mutation_str"])))
     )
 
-    with open(out_global_group_counts, "w") as fp:
+    with open(args.out_global_group_counts, "w") as fp:
         fp.write(json.dumps(global_group_counts))
+
+if __name__ == '__main__':
+    main()

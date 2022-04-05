@@ -10,6 +10,8 @@ import AccordionWrapper from '../Common/AccordionWrapper';
 
 import LocationGroupPlot from '../Vega/LocationGroupPlot';
 import LocationDatePlot from '../Vega/LocationDatePlot';
+import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
+import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
 
 import { GROUP_MUTATION } from '../../constants/defs.json';
 
@@ -72,6 +74,54 @@ const CompareLocationsTab = observer(() => {
     );
   };
 
+  const renderNumSeqPerLocationBarPlot = () => {
+    return (
+      <AccordionWrapper
+        title="Number of Sequences Per Location"
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+        helpText={
+          <ul>
+            <li>
+              This plot shows the number of sequences {' '}
+              <b>{configStore.getGroupLabel()}s</b> per location.
+            </li>
+            <li>
+              This can be used to determine biases where large amounts of sequences
+              can potentially effect how certain visualizations and data will appear.
+            </li>
+          </ul>
+        }
+      >
+        <NumSeqPerLocationBar width={width - 200} />
+      </AccordionWrapper>
+    );
+  };
+
+  const renderNumSeqPerLocationLinePlot = () => {
+    return (
+      <AccordionWrapper
+        title="Number of Sequences Per Location Over Time"
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+        helpText={
+          <ul>
+            <li>
+              This plot shows the number of sequences {' '}
+              <b>{configStore.getGroupLabel()}s</b> per location over the selected time frames.
+            </li>
+            <li>
+              This can be used to determine biases where large amounts of sequences
+              can potentially effect how certain visualizations and data will appear.
+            </li>
+          </ul>
+        }
+      >
+        <NumSeqPerLocationLine width={width - 200} />
+      </AccordionWrapper>
+    );
+  };
+
   const renderLocationGroupPlot = () => {
     return (
       <AccordionWrapper
@@ -111,6 +161,8 @@ const CompareLocationsTab = observer(() => {
     <CompareLocationsTabContainer ref={ref}>
       {renderLocationDatePlot()}
       {renderLocationGroupPlot()}
+      {renderNumSeqPerLocationBarPlot()}
+      {renderNumSeqPerLocationLinePlot()}
     </CompareLocationsTabContainer>
   );
 });

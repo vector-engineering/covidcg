@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import PropTypes from 'prop-types';
+import { config } from '../../config';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
 import { ISOToInt, intToISO } from '../../utils/date';
@@ -45,6 +46,8 @@ import {
 Modal.setAppElement('#app');
 const NOOP = () => {};
 
+const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
+
 const SelectSequencesContent = observer(({ onRequestClose }) => {
   const { configStore, UIStore, locationDataStore, metadataStore } =
     useStores();
@@ -56,6 +59,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     selectedGene: configStore.selectedGene,
     selectedProtein: configStore.selectedProtein,
     selectedPrimers: configStore.selectedPrimers,
+    selectedReference: configStore.selectedReference,
     customCoordinates: configStore.customCoordinates,
     validCustomCoordinates: true,
     customSequences: configStore.customSequences,
@@ -102,11 +106,19 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
       if (selectedGene.name === 'All Genes') {
         // Switch back to S gene
-        selectedGene = getGene('S');
+        if (config.virus === 'sars2') {
+          selectedGene = getGene('S');
+        } else {
+          selectedGene = getGene('F', configStore.selectedReference);
+        }
       }
       if (selectedProtein.name === 'All Proteins') {
         // Switch back to nsp12 protein
-        selectedProtein = getProtein('nsp12 - RdRp');
+        if (config.virus === 'sars2') {
+          selectedProtein = getProtein('nsp12 - RdRp');
+        } else {
+          selectedProtein = getProtein('F', configStore.selectedReference);
+        }
       }
     }
 
@@ -122,6 +134,13 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     changeGrouping(groupKey, pending.dnaOrAa);
   const onDnaOrAaChange = (dnaOrAa) =>
     changeGrouping(pending.groupKey, dnaOrAa);
+
+  const onReferenceChange = (reference) => {
+    setPending({
+      ...pending,
+      selectedReference: reference,
+    });
+  };
 
   const getDefaultGeneResidueCoordinates = (selectedGene) => {
     let residueCoordinates = pending.residueCoordinates;
@@ -413,7 +432,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     invalidReason = 'Start date cannot be before end date';
   } else if (pending.submStartDate !== '' || pending.submStartDate !== '') {
     let submStartDate =
-      pending.submStartDate === '' ? MIN_DATE : pending.submStartDate;
+      pending.submStartDate === '' ? min_date : pending.submStartDate;
     let submEndDate =
       pending.submEndDate === ''
         ? intToISO(new Date().getTime())
@@ -483,6 +502,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             {...pending}
             onGroupKeyChange={onGroupKeyChange}
             onDnaOrAaChange={onDnaOrAaChange}
+            onReferenceChange={onReferenceChange}
           />
           <CoordinateSelect
             {...pending}

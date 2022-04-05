@@ -1,6 +1,6 @@
 {
   "name": "covidcg",
-  "version": "2.5.0",
+  "version": "2.5.1-rsvdev6",
   "description": "",
   "engines": {
     "node": ">=8",
@@ -34,7 +34,7 @@
     "mobx": "5.15.4",
     "mobx-react": "6.2.2",
     "mobx-router": "0.2.9",
-    "node-sass": "4.14.1",
+    "sass": "1.49.7",
     "object-assign": "4.1.1",
     "polished": "3.6.5",
     "react": "16.11.0",
@@ -59,7 +59,7 @@
     "vega-lite": "4.12.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.6.4",
+    "@babel/cli": "7.17.3",
     "@babel/core": "7.6.4",
     "@babel/node": "7.6.3",
     "@babel/plugin-proposal-class-properties": "7.5.5",
@@ -96,6 +96,7 @@
     "prop-types": "15.7.2",
     "rimraf": "3.0.0",
     "sass-loader": "8.0.0",
+    "string-replace-loader": "2.3.0",
     "style-loader": "1.0.0",
     "url-loader": "2.2.0",
     "webpack": "4.41.2",
