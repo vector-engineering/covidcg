@@ -4,7 +4,12 @@ import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
 import { config } from '../../config';
-import { RSV_REFERENCE_NAMES } from '../../constants/defs.json';
+import {
+  GROUP_MUTATION,
+  DNA_OR_AA,
+  TABS,
+  RSV_REFERENCE_NAMES,
+} from '../../constants/defs.json';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -17,8 +22,6 @@ import EntropyPlot from '../Vega/EntropyPlot';
 import CooccurrencePlot from '../Vega/CooccurrencePlot';
 import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
 import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
-
-import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;

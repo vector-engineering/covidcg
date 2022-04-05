@@ -14,7 +14,6 @@ import {
   VOCTableContent,
   VOCGridTitle,
   VOCItemContainer,
-  VOCItemName,
   VOCBadgeContainer,
   VOCBadge,
 } from './VOCList.styles';
