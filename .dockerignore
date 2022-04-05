@@ -2,6 +2,7 @@ build
 node_modules
 data
 data_genbank
+data_genbank_rsv
 dist
 figures
 notebooks
