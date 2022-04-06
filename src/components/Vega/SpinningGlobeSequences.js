@@ -3,11 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 
-import { PLOT_DOWNLOAD_OPTIONS } from '../../constants/defs.json';
-
 import VegaEmbed from '../../react_vega/VegaEmbed';
-import { PlotOptions } from './Plot.styles';
-import ExternalLink from '../Common/ExternalLink';
 
 import initialSpec from '../../vega_specs/spinning_globe_seq.vg.json';
 
@@ -36,28 +32,12 @@ const PlotTitle = styled.div`
   }
 `;
 
-const HelpText = styled.p`
-  margin: 0px 20px;
-  margin-bottom: 5px;
-
-  font-weight: normal;
-  font-size: 14px;
-  line-height: normal;
-`;
-
 // TODO: in-spec: stop scrolling when interacted with.
 
 const SpinningGlobeSequences = ({ width }) => {
     const {
         dataStore
     } = useStores();
-
-    const [state, setState] = useState({
-        data: {
-            mapping: scores
-        }
-        }
-    );
 
     // Generates data to be passed into the globe.
     const genData = () => {
@@ -67,7 +47,6 @@ const SpinningGlobeSequences = ({ width }) => {
     };
 
     const vegaRef = useRef();
-    const hiddenLink = useRef();
     // const { dataStore } = useStores();
 
     genData();
@@ -75,7 +54,6 @@ const SpinningGlobeSequences = ({ width }) => {
             <VegaEmbed
                 ref={vegaRef}
                 spec={initialSpec}
-                data={state.data}
                 width={window.width}
                 actions={false}
             />
@@ -85,7 +63,7 @@ SpinningGlobeSequences.propTypes = {
     width: PropTypes.number,
 };
 SpinningGlobeSequences.defaultProps = {
-    width: 1000,
+    width: 375,
 };
 
 export default SpinningGlobeSequences;

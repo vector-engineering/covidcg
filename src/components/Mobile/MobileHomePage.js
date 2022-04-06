@@ -9,28 +9,24 @@ import CGLogo from '../../assets/images/cg_logo_v13.png';
 
 
 import {
-    MobileHomeContainer,
-    MobileHomeContent,
-    PubBanner,
-    CloseButton,
-    BannerLogo
+    BannerLogo,
+    MobileText
 } from './MobileHomePage.styles';
 
 import SpinningGlobeSequences from '../Vega/SpinningGlobeSequences';
 
 const MobileHomePage = observer(() => {
     const [ref, { width }] = useDimensions();
-    const [showBanner, setShowBanner] = useState(true);
-
+    console.log(width);
 
     return (
         <div>
             <BannerLogo src={CGLogo}></BannerLogo>
             <SpinningGlobeSequences width={width}></SpinningGlobeSequences>
-            <p>Shown above are the dominant lineages per country within the last X months. Only the top 3 lineages globally are plotted above, other lineages are shown as grey. Countries without sufficient data are colored white.
-</p>
+            <MobileText>Shown above are the dominant lineages per country within the last X months. Only the top 3 lineages globally are plotted above, other lineages are shown as grey. Countries without sufficient data are colored white.
+</MobileText>
             <MobileGlobalSeqPlot width={width}></MobileGlobalSeqPlot>
-            <p>Shown above are the number of SARS-CoV-2 genomes (sequenced viruses—not cases!) since the start of the pandemic</p>
+            <MobileText>Shown above are the number of SARS-CoV-2 genomes (sequenced viruses—not cases!) since the start of the pandemic</MobileText>
         </div>
     );
 });

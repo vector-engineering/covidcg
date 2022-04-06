@@ -40,3 +40,8 @@ export const BannerLogo = styled.img`
   margin-right: auto;
   width: 50%;
 `;
+
+export const MobileText = styled.p`
+  margin-left:5%;
+  width:90%;
+`;

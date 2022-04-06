@@ -52,7 +52,7 @@ services:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
     environment:
-      CONFIGFILE: /app/config/config_genbank_example.yaml
+      CONFIGFILE: /app/config/config_genbank.yaml
     working_dir: /app
     volumes:
       - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes

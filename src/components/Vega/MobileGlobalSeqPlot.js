@@ -46,12 +46,11 @@ const MobileGlobalSeqPlot = ({ width }) => {
     const vegaRef = useRef();
     // const { dataStore } = useStores();
 
-    return (
-            
+  return (
             <VegaEmbed
                 ref={vegaRef}
                 spec={initialSpec}
-                width={width}
+                width={window.width}
                 actions={false}
             />
     );
@@ -60,7 +59,7 @@ MobileGlobalSeqPlot.propTypes = {
     width: PropTypes.number,
 };
 MobileGlobalSeqPlot.defaultProps = {
-    width: 400,
+    width: 375,
 };
 
 export default MobileGlobalSeqPlot;
