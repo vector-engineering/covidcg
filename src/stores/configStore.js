@@ -13,7 +13,6 @@ import {
 } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
-import { intToISO, ISOToInt } from '../utils/date';
 import { updateURLFromParams } from '../utils/updateQueryParam';
 import { queryPrimers } from '../utils/primer';
 import { arrayEqual } from '../utils/func';
@@ -28,53 +27,9 @@ import {
 } from '../constants/defs.json';
 import { config } from '../config';
 
-// import { updateQueryStringParam } from '../utils/updateQueryParam';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
-
-// Define initial values
-
-const today = intToISO(new Date().getTime());
-const lastNDays = 30; // By default, show only the last 1 month
-
-export const initialValues = {
-  groupKey: GROUP_MUTATION,
-  dnaOrAa: DNA_OR_AA.AA,
-
-  // Select the Spike gene and nsp13 protein by default
-  selectedGene: getGene('S'),
-  selectedProtein: getProtein('nsp12 - RdRp'),
-  selectedPrimers: [],
-  customCoordinates: [[8000, 12000]],
-  customSequences: ['GACCCCAAAATCAGCGAAAT'],
-  residueCoordinates: [[1, getGene('S').len_aa]],
-
-  // Selecting the gene as the coordinate range by default
-  coordinateMode: COORDINATE_MODES.COORD_GENE,
-
-  // days * (24 hours/day) * (60 min/hour) * (60 s/min) * (1000 ms/s)
-  startDate: intToISO(ISOToInt(today) - lastNDays * 24 * 60 * 60 * 1000),
-  endDate: today,
-
-  submStartDate: '',
-  submEndDate: '',
-
-  // Group filtering (lineage filtering)
-  selectedGroupFields: {},
-
-  selectedLocationNodes: [],
-
-  hoverGroup: null,
-  selectedGroups: [],
-
-  // Metadata filtering
-  selectedMetadataFields: {},
-  ageRange: [null, null],
-
-  // Location tab
-  hoverLocation: null,
-  focusedLocations: [],
-};
+import { initialValueStoreInstance } from '../components/App';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -87,42 +42,49 @@ PARAMS_TO_TRACK.forEach((param) => {
 
 export class ConfigStore {
   // Maintain a reference to the initial values
-  initialValues = initialValues;
+  // Initalize values to correct data types
+  initialValues = {};
 
-  @observable groupKey = initialValues.groupKey;
-  @observable dnaOrAa = initialValues.dnaOrAa;
+  @observable groupKey = '';
+  @observable dnaOrAa = '';
 
-  @observable selectedGene = initialValues.selectedGene;
-  @observable selectedProtein = initialValues.selectedProtein;
-  @observable selectedPrimers = initialValues.selectedPrimers;
+  @observable selectedGene = {};
+  @observable selectedProtein = {};
+  @observable selectedPrimers = [];
+  @observable selectedReference = '';
 
-  @observable customCoordinates = initialValues.customCoordinates;
-  @observable customSequences = initialValues.customSequences;
-  @observable residueCoordinates = initialValues.residueCoordinates;
-  @observable coordinateMode = initialValues.coordinateMode;
+  @observable customCoordinates = [[]];
+  @observable customSequences = [];
+  @observable residueCoordinates = [[]];
+  @observable coordinateMode = '';
 
-  @observable startDate = initialValues.startDate;
-  @observable endDate = initialValues.endDate;
+  @observable startDate = new Date();
+  @observable endDate = new Date();
 
-  @observable submStartDate = initialValues.submStartDate;
-  @observable submEndDate = initialValues.submEndDate;
+  @observable submStartDate = '';
+  @observable submEndDate = '';
 
-  @observable selectedGroupFields = initialValues.selectedGroupFields;
+  @observable selectedGroupFields = {};
+  @observable selectedLocationNodes = [];
 
-  @observable selectedLocationNodes = initialValues.selectedLocationNodes;
+  @observable hoverGroup = null;
+  @observable selectedGroups = [];
 
-  @observable hoverGroup = initialValues.hoverGroup;
-  @observable selectedGroups = initialValues.selectedGroups;
+  @observable selectedMetadataFields = {};
+  @observable ageRange = [];
 
-  @observable selectedMetadataFields = initialValues.selectedMetadataFields;
-  @observable ageRange = initialValues.ageRange;
-
-  @observable hoverLocation = initialValues.hoverLocation;
-  @observable focusedLocations = initialValues.focusedLocations;
+  @observable hoverLocation = null;
+  @observable focusedLocations = [];
 
   constructor() {}
 
   init() {
+    this.initialValues = initialValueStoreInstance.configStore;
+
+    Object.keys(this.initialValues).forEach((key) => {
+      this[key] = this.initialValues[key];
+    });
+
     PARAMS_TO_TRACK.forEach((param) => {
       if (defaultsFromParams[param]) {
         // console.log('setting: ', param, urlParams.get(param));
@@ -135,24 +97,28 @@ export class ConfigStore {
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
       value = decodeURIComponent(value);
-      if (key in initialValues) {
+      if (key in this.initialValues) {
         if (key === 'selectedGene') {
           // If the specified gene is in the geneMap get the gene
           if (value in geneMap) {
-            this[key] = getGene(value);
+            if (config.virus === 'sars2') {
+              this[key] = getGene(value);
+            }
           } else {
             // Else display default gene
-            this[key] = initialValues.selectedGene;
-            this.urlParams.set(key, initialValues.selectedGene.name);
+            this[key] = this.initialValues.selectedGene;
+            this.urlParams.set(key, this.initialValues.selectedGene.name);
           }
         } else if (key === 'selectedProtein') {
           // If the specified protein is in the proteinMap get the protein
           if (value in proteinMap) {
-            this[key] = getProtein(value);
+            if (config.virus === 'sars2') {
+              this[key] = getProtein(value);
+            }
           } else {
             // Else display default protein
-            this[key] = initialValues.selectedProtein;
-            this.urlParams.set(key, initialValues.selectedProtein.name);
+            this[key] = this.initialValues.selectedProtein;
+            this.urlParams.set(key, this.initialValues.selectedProtein.name);
           }
         } else if (key === 'ageRange' || key.includes('valid')) {
           // AgeRange is not being used currently so ignore
@@ -269,11 +235,11 @@ export class ConfigStore {
 
   @action
   resetValues = (values) => {
-    Object.keys(initialValues).forEach((key) => {
+    Object.keys(this.initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialValues[key];
+        this[key] = this.initialValues[key];
       }
 
       // Special actions for some keys
@@ -304,10 +270,10 @@ export class ConfigStore {
   @action
   applyPendingChanges = (pending) => {
     // Clear selected groups/locations
-    this.hoverGroup = initialValues.hoverGroup;
-    this.selectedGroups = initialValues.selectedGroups;
-    this.hoverLocation = initialValues.hoverLocation;
-    this.focusedLocations = initialValues.focusedLocations;
+    this.hoverGroup = this.initialValues.hoverGroup;
+    this.selectedGroups = this.initialValues.selectedGroups;
+    this.hoverLocation = this.initialValues.hoverLocation;
+    this.focusedLocations = this.initialValues.focusedLocations;
 
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
@@ -353,7 +319,7 @@ export class ConfigStore {
         this.urlParams.set(field, String(pending[field]));
       }
 
-      if (pending[field] === initialValues[field]) {
+      if (pending[field] === this.initialValues[field]) {
         // Only display non-default fields in the url
         this.urlParams.delete(field);
       }
@@ -476,25 +442,30 @@ export class ConfigStore {
       this.residueCoordinates.forEach((range) => {
         // Make a deep copy of the current range
         const curRange = range.slice();
-        for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
-          const curAARange = this.selectedGene.aa_ranges[i];
-          const curNTRange = this.selectedGene.segments[i];
-          if (
-            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
-          ) {
-            coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
-              curNTRange[0] -
-                1 +
-                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
-            ]);
-            // Push the beginning of the current range to the end of
-            // the current AA range of the gene
-            if (curAARange[1] < curRange[1]) {
-              curRange[0] = curAARange[1] + 1;
+
+        if (this.dnaOrAa === DNA_OR_AA.DNA) {
+          for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
+            const curAARange = this.selectedGene.aa_ranges[i];
+            const curNTRange = this.selectedGene.segments[i];
+            if (
+              (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+              (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
+            ) {
+              coordinateRanges.push([
+                curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+                curNTRange[0] -
+                  1 +
+                  Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
+              ]);
+              // Push the beginning of the current range to the end of
+              // the current AA range of the gene
+              if (curAARange[1] < curRange[1]) {
+                curRange[0] = curAARange[1] + 1;
+              }
             }
           }
+        } else {
+          coordinateRanges.push([curRange[0], curRange[1]]);
         }
       });
       return coordinateRanges;
@@ -503,25 +474,30 @@ export class ConfigStore {
       this.residueCoordinates.forEach((range) => {
         // Make a deep copy of the current range
         const curRange = range.slice();
-        for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
-          const curAARange = this.selectedProtein.aa_ranges[i];
-          const curNTRange = this.selectedProtein.segments[i];
-          if (
-            (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
-            (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
-          ) {
-            coordinateRanges.push([
-              curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
-              curNTRange[0] -
-                1 +
-                Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
-            ]);
-            // Push the beginning of the current range to the end of
-            // the current AA range of the gene
-            if (curAARange[1] < curRange[1]) {
-              curRange[0] = curAARange[1] + 1;
+
+        if (this.dnaOrAa === DNA_OR_AA.DNA) {
+          for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
+            const curAARange = this.selectedProtein.aa_ranges[i];
+            const curNTRange = this.selectedProtein.segments[i];
+            if (
+              (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
+              (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
+            ) {
+              coordinateRanges.push([
+                curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
+                curNTRange[0] -
+                  1 +
+                  Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
+              ]);
+              // Push the beginning of the current range to the end of
+              // the current AA range of the gene
+              if (curAARange[1] < curRange[1]) {
+                curRange[0] = curAARange[1] + 1;
+              }
             }
           }
+        } else {
+          coordinateRanges.push([curRange[0], curRange[1]]);
         }
       });
       return coordinateRanges;
@@ -533,7 +509,11 @@ export class ConfigStore {
       return toJS(this.customCoordinates);
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
       return this.customSequences.map((seq) => {
-        return queryReferenceSequence(seq);
+        if (config.virus === 'sars2') {
+          return queryReferenceSequence(seq);
+        } else if (config.virus === 'rsv') {
+          return queryReferenceSequence(seq, this.selectedReference);
+        }
       });
     }
   }

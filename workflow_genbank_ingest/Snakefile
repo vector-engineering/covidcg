@@ -17,7 +17,7 @@ configfile: "../config/config_genbank.yaml"
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-data_folder = os.path.join("..", config["data_folder"])
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
 # static_data_folder = os.path.join("..", config["static_data_folder"])
 
 rule all:
@@ -61,8 +61,8 @@ checkpoint chunk_data:
         chunk_size = config["chunk_size"]
     run:
         chunk_data(
-            input.feed, output.fasta, output.metadata_dirty, 
-            chunk_size=params.chunk_size, 
+            input.feed, output.fasta, output.metadata_dirty,
+            chunk_size=params.chunk_size,
             processes=workflow.cores
         )
 
@@ -78,12 +78,13 @@ def get_num_seqs(fasta_gz):
                 num_seqs += 1
     return num_seqs
 
+
 def get_changed_chunks(wildcards):
-    """Helper function for detecting which chunks have changed in terms of their contents 
+    """Helper function for detecting which chunks have changed in terms of their contents
     (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
     isolates on GISAID, aligning them would take 1 week for the whole batch.
     """
-    
+
     # Only run to trigger DAG re-evaluation
     checkpoint_output = checkpoints.chunk_data.get(**wildcards)
     chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
@@ -97,7 +98,7 @@ def get_changed_chunks(wildcards):
 
         # If the current chunk doesn't exist yet, then mark it as changed
         if (
-                not fasta_raw_path.exists() or 
+                not fasta_raw_path.exists() or
                 not fasta_raw_path.is_file()
             ):
             changed_chunks.append(chunk)
@@ -138,7 +139,7 @@ checkpoint copy_changed_files:
 
 
 def get_chunks(wildcards):
-    """Get all copied chunks from copy_changed_files, as input for the 
+    """Get all copied chunks from copy_changed_files, as input for the
     lineage assignments. While some of these assignments will be wasted on
     sequences that will be filtered out downstream by the `preprocess_sequences`
     rule in `workflow_main`, I think it's still better to do this during the
@@ -147,11 +148,12 @@ def get_chunks(wildcards):
 
     # Only do this to trigger the DAG recalculation
     checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
-    
+
     return expand(
         os.path.join(data_folder, "lineages", "{chunk}.csv"),
         chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
     )
+
 
 rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
@@ -179,7 +181,7 @@ rule combine_lineages:
     run:
         combine_lineages(input.lineages, output.lineages)
 
-        
+
 rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """

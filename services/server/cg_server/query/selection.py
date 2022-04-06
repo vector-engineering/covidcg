@@ -60,29 +60,29 @@ def build_coordinate_filters(
     mutation_filter = sql.SQL(" AND ").join(mutation_filter)
 
     pos_filter = []
-    for i in range(len(coordinate_ranges)):
-        pos_column = "pos" if dna_or_aa == constants["DNA_OR_AA"]["DNA"] else "nt_pos"
-        pos_filter.append(
-            sql.SQL(
-                """
-                ({pos_column} >= {start} AND {pos_column} <= {end})
-                """
-            ).format(
-                pos_column=sql.Identifier(pos_column),
-                start=sql.Literal(coordinate_ranges[i][0]),
-                end=sql.Literal(coordinate_ranges[i][1]),
+    if coordinate_ranges:
+        for coord_range in coordinate_ranges:
+            pos_filter.append(
+                sql.SQL(
+                    """
+                    ("pos" >= {start} AND "pos" <= {end})
+                    """
+                ).format(
+                    start=sql.Literal(coord_range[0]), end=sql.Literal(coord_range[1]),
+                )
             )
-        )
 
     pos_filter = sql.SQL(" OR ").join(pos_filter)
 
     # Compose final WHERE expression
     mutation_filter = [mutation_filter]
     # Only combine the mutation_filter and pos_filter if the mutation_filter exists
-    if mutation_filter[0].as_string(conn):
-        mutation_filter.append(sql.SQL(" AND "))
+    # AND if the pos_filter exists
+    if coordinate_ranges:
+        if mutation_filter[0].as_string(conn):
+            mutation_filter.append(sql.SQL(" AND "))
+        mutation_filter.append(pos_filter)
 
-    mutation_filter.append(pos_filter)
     mutation_filter = sql.Composed(mutation_filter)
 
     # Only add the WHERE clause if the mutation_filter exists
@@ -126,7 +126,6 @@ def build_sequence_where_filter(req):
           inline table expression or CTE
 
     """
-
     start_date = pd.to_datetime(req.get("start_date", None))
     end_date = pd.to_datetime(req.get("end_date", None))
 
@@ -134,6 +133,8 @@ def build_sequence_where_filter(req):
     subm_end_date = req.get("subm_end_date", "")
     subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
     subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
+    selected_reference = req.get("selected_reference", None)
+    group_key = req.get("group_key", None)
 
     selected_metadata_fields = req.get("selected_metadata_fields", {})
     selected_group_fields = req.get("selected_group_fields", {})
@@ -169,6 +170,15 @@ def build_sequence_where_filter(req):
                 vals=sql.Literal(tuple([str(val) for val in md_vals])),
             )
         )
+
+    if config["virus"] == "rsv":
+        # Only display mutations in the currently selected reference
+        if group_key == "mutation":
+            metadata_filters.append(
+                sql.SQL('"subtype" = {subtype}').format(
+                    subtype=sql.Literal(selected_reference)
+                )
+            )
 
     if metadata_filters:
         metadata_filters = sql.SQL(" AND ").join(metadata_filters)
@@ -258,9 +268,9 @@ def query_and_aggregate(conn, req):
     Returns
     -------
     res: pandas.DataFrame
-        - Dataframe with 4 columns: "location", "collection_date", 
+        - Dataframe with 4 columns: "location", "collection_date",
         "group_id", "counts"
-        - Each row represents sequences aggregated by location, 
+        - Each row represents sequences aggregated by location,
           collection_date, and group_id
         - In "mutation" mode, "group_id" represents co-occurring mutations,
           and is structured as a list of mutation IDs (integers)
@@ -308,20 +318,20 @@ def query_and_aggregate(conn, req):
                     sql.SQL(
                         """
                     SELECT
-                        sm."location", 
-                        sm."collection_date", 
-                        sm."mutations", 
+                        sm."location",
+                        sm."collection_date",
+                        sm."mutations",
                         COUNT(*) as "count"
                     FROM (
-                        SELECT 
-                            sst."collection_date", 
+                        SELECT
+                            sst."collection_date",
                             locdef."value" AS "location",
                             (sst.mutations & (
                                 SELECT ARRAY_AGG("id")
                                 FROM {mutation_table}
                                 {mutation_filter}
                             )) as "mutations"
-                        FROM {sequence_mutation_table} sst 
+                        FROM {sequence_mutation_table} sst
                         INNER JOIN {loc_def_table} locdef ON sst.{loc_level_col} = locdef.id
                         WHERE {sequence_where_filter}
                     ) sm
@@ -340,10 +350,10 @@ def query_and_aggregate(conn, req):
                 main_query.append(
                     sql.SQL(
                         """
-                    SELECT 
-                        locdef."value" as "location", 
-                        m."collection_date", 
-                        m.{group_key}, 
+                    SELECT
+                        locdef."value" as "location",
+                        m."collection_date",
+                        m.{group_key},
                         COUNT(m."sequence_id") as "count"
                     FROM "metadata" m
                     INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"

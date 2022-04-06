@@ -9,6 +9,8 @@ import SurveillancePlot from '../Vega/SurveillancePlot';
 import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
 import ExampleList from '../Example/ExampleList';
 
+import { config } from '../../config';
+
 import {
   HomeTabContainer,
   HomeTabContent,
@@ -39,7 +41,7 @@ const HomeTab = observer(() => {
         <WalkthroughList />
         <SurveillancePlot width={width - 150} />
         <div style={{ height: '15px' }} />
-        <GlobalSeqPlot width={width - 120} />
+        {config.virus === 'sars2' && <GlobalSeqPlot width={width - 120} />}
         <ExampleList />
       </HomeTabContent>
     </HomeTabContainer>

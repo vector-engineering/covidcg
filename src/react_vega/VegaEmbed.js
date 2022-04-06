@@ -356,6 +356,13 @@ const VegaEmbed = forwardRef(
     useEffect(() => {
       // console.log('Passed signals:', signals);
       modifyView((view) => {
+        // When a signal changes, default behavior is to completely recreate the view
+        // This is because Vega doesn't have a way to update a signal without completely
+        // recreating the view.
+        //
+        // However, some signals can be updated without completely recreating the view.
+        // these signals are specified in the `cheapSignals` prop.
+
         let changed = false;
         let doUpdateData = false;
         Object.keys(signals).forEach((signalName) => {

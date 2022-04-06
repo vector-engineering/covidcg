@@ -1,5 +1,8 @@
-import genes from '../../static_data/genes_processed.json';
-import proteins from '../../static_data/proteins_processed.json';
+//__VIRUS__ is replaced with config.virus at build time
+import genes from '../../static_data/__VIRUS__/genes_processed.json';
+import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
+
+import { config } from '../config';
 
 /* function processFeatures(features) {
   return features.map((feature) => {
@@ -25,10 +28,12 @@ import proteins from '../../static_data/proteins_processed.json';
   });
 } */
 
-let processedGenes = genes;
-
-export function getAllGenes() {
-  return processedGenes;
+export function getAllGenes(ref = 'A') {
+  if (config.virus === 'sars2') {
+    return genes;
+  } else {
+    return ref === 'A' ? genes['A'] : genes['B'];
+  }
 }
 
 export const geneMap = {
@@ -38,19 +43,33 @@ export const geneMap = {
     domains: [],
   },
 };
-processedGenes.forEach((gene) => {
-  geneMap[gene.name] = gene;
-});
 
-export function getGene(gene) {
+export function getGene(gene, ref = 'A') {
   // Get the selected gene object
-  return geneMap[gene];
+  if (!(gene in geneMap)) {
+    if (config.virus === 'sars2') {
+      genes.forEach((gene) => {
+        geneMap[gene.name] = gene;
+      });
+    } else {
+      if (!(ref in geneMap)) {
+        const selectedGenes = ref === 'A' ? genes['A'] : genes['B'];
+        geneMap[ref] = {};
+        selectedGenes.forEach((gene) => {
+          geneMap[ref][gene.name] = gene;
+        });
+      }
+    }
+  }
+  return config.virus === 'sars2' ? geneMap[gene] : geneMap[ref][gene];
 }
 
-let processedProteins = proteins;
-
-export function getAllProteins() {
-  return processedProteins;
+export function getAllProteins(ref = 'A') {
+  if (config.virus === 'sars2') {
+    return proteins;
+  } else {
+    return ref === 'A' ? proteins['A'] : proteins['B'];
+  }
 }
 
 export const proteinMap = {
@@ -60,10 +79,31 @@ export const proteinMap = {
     domains: [],
   },
 };
-processedProteins.forEach((protein) => {
-  proteinMap[protein.name] = protein;
-});
 
-export function getProtein(_protein) {
-  return proteinMap[_protein];
+export function getProtein(_protein, ref = 'A') {
+  // Get the selected gene object
+  if (!(_protein in proteinMap)) {
+    if (config.virus === 'sars2') {
+      proteins.forEach((protein) => {
+        proteinMap[protein.name] = protein;
+      });
+    } else {
+      if (!(ref in proteinMap)) {
+        if (config.virus === 'sars2') {
+          proteins.forEach((protein) => {
+            proteinMap[protein.name] = protein;
+          });
+        } else {
+          const selectedProteins = ref === 'A' ? proteins['A'] : proteins['B'];
+          proteinMap[ref] = {};
+          selectedProteins.forEach((protein) => {
+            proteinMap[ref][protein.name] = protein;
+          });
+        }
+      }
+    }
+  }
+  return config.virus === 'sars2'
+    ? proteinMap[_protein]
+    : proteinMap[ref][_protein];
 }

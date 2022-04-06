@@ -2,12 +2,14 @@
  * Load mutation data, and map integers -> mutation strings
  */
 
+import { config } from '../config';
 import { getGene, getProtein } from '../utils/gene_protein';
 import { formatMutation } from '../utils/mutationUtils';
 import { memoize } from '../utils/func';
 import { mutationColorArray } from '../constants/colors';
 import { GROUPS, DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
+import { rootStoreInstance } from './rootStore';
 
 export class MutationDataStore {
   intToDnaMutationMap;
@@ -37,7 +39,8 @@ export class MutationDataStore {
 
   init() {
     this.dnaMutationMap = asyncDataStoreInstance.data.metadata_map.dna_mutation;
-    this.geneAaMutationMap = asyncDataStoreInstance.data.metadata_map.gene_aa_mutation;
+    this.geneAaMutationMap =
+      asyncDataStoreInstance.data.metadata_map.gene_aa_mutation;
     this.proteinAaMutationMap =
       asyncDataStoreInstance.data.metadata_map.protein_aa_mutation;
     // debugger;
@@ -52,7 +55,8 @@ export class MutationDataStore {
       return color;
     });
 
-    this.mutationColorMap[GROUPS.REFERENCE_GROUP] = _getMutationColor('Reference');
+    this.mutationColorMap[GROUPS.REFERENCE_GROUP] =
+      _getMutationColor('Reference');
     this.mutationColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.NONE_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
@@ -83,8 +87,12 @@ export class MutationDataStore {
       this.intToDnaMutationMap[mutationId]['pos'] = parseInt(split[0]);
       this.intToDnaMutationMap[mutationId]['ref'] = split[1];
       this.intToDnaMutationMap[mutationId]['alt'] = split[2];
-      this.intToDnaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.DNA);
-      this.intToDnaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
+      this.intToDnaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.DNA
+      );
+      this.intToDnaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
     });
     Object.keys(this.geneAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.geneAaMutationMap[mut]);
@@ -100,23 +108,35 @@ export class MutationDataStore {
       this.intToGeneAaMutationMap[mutationId]['pos'] = parseInt(split[1]);
       this.intToGeneAaMutationMap[mutationId]['ref'] = split[2];
       this.intToGeneAaMutationMap[mutationId]['alt'] = split[3];
-      this.intToGeneAaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.AA);
-      this.intToGeneAaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
+      this.intToGeneAaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.AA
+      );
+      this.intToGeneAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
 
       // Get coordinates in NT (from start of codon)
-      aaRangeInd = getGene(split[0]).aa_ranges.reduce(
-        (_aaRangeInd, range, ind) => {
-          return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
-            this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        },
-        0
-      );
+      let gene;
+      if (config.virus === 'sars2') {
+        gene = getGene(split[0]);
+      } else if (config.virus === 'rsv') {
+        gene = getGene(
+          split[0],
+          rootStoreInstance.configStore.selectedReference
+        );
+      }
+
+      aaRangeInd = gene.aa_ranges.reduce((_aaRangeInd, range, ind) => {
+        return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
+          this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
+          ? ind
+          : _aaRangeInd;
+      }, 0);
+
       this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
-        getGene(split[0]).segments[aaRangeInd][0] +
+        gene.segments[aaRangeInd][0] +
         (this.intToGeneAaMutationMap[mutationId]['pos'] -
-          getGene(split[0]).aa_ranges[aaRangeInd][0]) *
+          gene.aa_ranges[aaRangeInd][0]) *
           3;
     });
     Object.keys(this.proteinAaMutationMap).forEach((mut) => {
@@ -133,23 +153,35 @@ export class MutationDataStore {
       this.intToProteinAaMutationMap[mutationId]['pos'] = parseInt(split[1]);
       this.intToProteinAaMutationMap[mutationId]['ref'] = split[2];
       this.intToProteinAaMutationMap[mutationId]['alt'] = split[3];
-      this.intToProteinAaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.AA);
-      this.intToProteinAaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
+      this.intToProteinAaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.AA
+      );
+      this.intToProteinAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
 
       // Get coordinates in NT (from start of codon)
-      aaRangeInd = getProtein(split[0]).aa_ranges.reduce(
-        (_aaRangeInd, range, ind) => {
-          return this.intToProteinAaMutationMap[mutationId]['pos'] >= range[0] &&
-            this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        },
-        0
-      );
+
+      let protein;
+      if (config.virus === 'sars2') {
+        protein = getProtein(split[0]);
+      } else if (config.virus === 'rsv') {
+        protein = getProtein(
+          split[0],
+          rootStoreInstance.configStore.selectedReference
+        );
+      }
+
+      aaRangeInd = protein.aa_ranges.reduce((_aaRangeInd, range, ind) => {
+        return this.intToProteinAaMutationMap[mutationId]['pos'] >= range[0] &&
+          this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
+          ? ind
+          : _aaRangeInd;
+      }, 0);
       this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
-        getProtein(split[0]).segments[aaRangeInd][0] +
+        protein.segments[aaRangeInd][0] +
         (this.intToProteinAaMutationMap[mutationId]['pos'] -
-          getProtein(split[0]).aa_ranges[aaRangeInd][0]) *
+          protein.aa_ranges[aaRangeInd][0]) *
           3;
     });
   }
