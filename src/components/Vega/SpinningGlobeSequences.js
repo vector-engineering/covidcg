@@ -42,7 +42,7 @@ const SpinningGlobeSequences = ({ width }) => {
     // Generates data to be passed into the globe.
     const genData = () => {
         let d = dataStore;
-        console.log(JSON.stringify(dataStore));
+        //console.log(JSON.stringify(dataStore));
 
     };
 
