@@ -6,6 +6,10 @@
   "padding": 5,
   "data": [
     {
+      "name": "iso_lookup",
+      "url": "https://storage.googleapis.com/ve-public/new_global_data/iso_lookup.json"
+    },
+    {
       "name": "sequences",
       "url": "https://storage.googleapis.com/ve-public/new_global_data/sequences_per_month.json",
       "format": {"parse": {"month": "date"}}
