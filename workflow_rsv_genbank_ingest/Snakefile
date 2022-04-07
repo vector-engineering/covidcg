@@ -24,7 +24,9 @@ rule all:
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Cleaned metadata
-        os.path.join(data_folder, "metadata+subtype.csv")
+        os.path.join(data_folder, "metadata+subtype.csv"),
+        # Split sequences by subtype - for AZ internal workflows
+        seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
 
 
 rule download:
@@ -98,6 +100,34 @@ rule join_subtype_assignments:
             --out-metadata {output.metadata_plus_subtype}
         """
 
+rule split_sequences_by_subtype:
+    """Split sequences by subtype
+    """
+    input:
+        feed = rules.download.output.feed,
+        metadata = rules.join_subtype_assignments.output.metadata_plus_subtype
+    output:
+        seq_A = os.path.join(data_folder, 'seq_by_subtype', 'sequences_A.fa.gz'),
+        seq_B = os.path.join(data_folder, 'seq_by_subtype', 'sequences_B.fa.gz'),
+        metadata_A = os.path.join(data_folder, 'seq_by_subtype', 'metadata_A.csv'),
+        metadata_B = os.path.join(data_folder, 'seq_by_subtype', 'metadata_B.csv'),
+        seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
+    params:
+        seq_by_subtype_folder = os.path.join(data_folder, 'seq_by_subtype')
+    shell:
+        """
+        python3 scripts/split_sequences_by_subtype.py \
+            --feed {input.feed} \
+            --metadata {input.metadata} \
+            --out-A {output.seq_A} \
+            --out-B {output.seq_B} \
+            --out-metadata-A {output.metadata_A} \
+            --out-metadata-B {output.metadata_B}
+
+        # Compress folder
+        tar -czvf {output.seq_by_subtype_tar} {params.seq_by_subtype_folder}
+        """
+    
 
 checkpoint chunk_sequences:
     """Split up the data feed's individual JSON objects into metadata and fasta files. 
