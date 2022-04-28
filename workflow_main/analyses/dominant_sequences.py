@@ -18,13 +18,35 @@ def dominant_sequences():
     )
     parser.add_argument("--metadata-map", type=str, required=True, 
         help="Path to metadata mapping JSON file.")
+    parser.add_argument(
+        "--start-date-days-ago",
+        type=int,
+        default=90,
+        help="Number of days before today to filter data. Default: 90",
+    )
+    parser.add_argument(
+        "--start-date",
+        type=str,
+        default=None,
+        help="Start date for filtering data in ISO format (YYYY-MM-DD). Overrides --start-date-days-ago if defined. Default: None",
+    )
     args = parser.parse_args()
     out_path = Path(args.output)
     with open(args.metadata_map, "r") as fp:
             metadata_map = json.loads(fp.read())
     case_df = pd.read_json(args.case_data).set_index('Accession ID')
-    # Join locations onto case_data
 
+    # Filter by last x days.
+    if args.start_date:
+        start_date_iso = args.start_date
+    else:
+        start_date_iso = (
+            datetime.date.today() - datetime.timedelta(days=args.start_date_days_ago)
+        ).isoformat()
+
+    case_df = case_df.loc[pd.to_datetime(case_df['collection_date']) >= pd.to_datetime(start_date_iso)]
+
+    # Join locations onto case_data
     loc_levels = ["region", "country", "division", "location"]
     for loc_level in loc_levels:
         case_df.loc[:, loc_level] = case_df[loc_level].map(
