@@ -21,15 +21,15 @@ CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
 
-def get_subtype(wildcards, output):
-    return wildcards.chunk.split('_')[0]
-
-def get_reference_file(wildcards, output):
-    subtype = get_subtype(wildcards, output)
-    return os.path.join(static_data_folder, 'mut_references', subtype + '.fa')
+REFS, = glob_wildcards(os.path.join(
+    static_data_folder, "mut_references", "{ref}.fa"
+))
 
 # Additional analyses module
 include: "analyses/Snakefile"
+
+wildcard_constraints:
+    chunk="[AB]_[0-9]{4}-[0-9]{2}"
 
 rule all:
     input:
@@ -51,49 +51,6 @@ rule all:
         rules.global_seq_data.output.iso_lookup,
         
 
-rule preprocess_sequences:
-    """Filter out sequences...
-    """
-    input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
-    output:
-        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
-    shell:
-        """
-        # Pass-through for now
-        cp {input.fasta} {output.fasta}
-        """
-
-rule align_sequences:
-    input:
-        fasta = rules.preprocess_sequences.output.fasta
-    params:
-        ref_seq = get_reference_file
-    output:
-        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
-    shell:
-        """
-        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
-        """
-
-rule extract_dna_mutations:
-    """Find mutations on the NT level for each sequence
-    """
-    input:
-        bam = rules.align_sequences.output.bam
-    params:
-        ref_seq = get_reference_file
-    output:
-        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
-    shell:
-        """
-        python3 scripts/extract_dna_mutations.py \
-            --bam {input.bam} \
-            --reference {params.ref_seq} \
-            --out {output.dna_mutation}
-        """
-
-
 rule process_genes_and_proteins:
     """Calculate some additional columns on top of the human-generated
     genes.json and proteins.json annotations file
@@ -110,6 +67,72 @@ rule process_genes_and_proteins:
         python3 scripts/gene_protein_defs.py -i {input.proteins} -o {output.proteins}
         """
 
+
+rule combine_references:
+    input:
+        ref_seq = expand(os.path.join(static_data_folder, "mut_references", "{ref}.fa"), ref=REFS)
+    output:
+        ref_seqs = os.path.join(static_data_folder, "reference.fa")
+    shell:
+        """
+        cat {input.ref_seq} > {output.ref_seqs}
+        """
+
+
+rule preprocess_sequences:
+    """Filter out sequences...
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
+    shell:
+        """
+        # Pass-through for now
+        cp {input.fasta} {output.fasta}
+        """
+
+rule align_sequences:
+    input:
+        fasta = rules.preprocess_sequences.output.fasta,
+        ref_seq = os.path.join(static_data_folder, "mut_references", "{ref}.fa")
+    output:
+        bam = os.path.join(data_folder, "bam_ref", "{ref}_{chunk}.bam")
+    shell:
+        """
+        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {input.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+rule combine_alignments:
+    input: 
+        bam = expand(
+            os.path.join(data_folder, "bam_ref", "{ref}_{chunk}.bam"),
+            ref=REFS,
+            allow_missing=True
+        )
+    output:
+        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
+    shell:
+        """
+        samtools merge -o {output.bam} {input.bam}
+        """
+
+rule extract_dna_mutations:
+    """Find mutations on the NT level for each sequence
+    """
+    input:
+        bam = rules.combine_alignments.output.bam,
+        ref_seqs = rules.combine_references.output.ref_seqs
+    output:
+        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
+    shell:
+        """
+        python3 scripts/extract_dna_mutations.py \
+            --bam {input.bam} \
+            --reference {input.ref_seqs} \
+            --out {output.dna_mutation}
+        """
+
 rule extract_aa_mutations:
     """Using the NT mutations, translate genes/proteins and find mutations
     on the AA level, for genes
@@ -117,10 +140,8 @@ rule extract_aa_mutations:
     input:
         dna_mutation = rules.extract_dna_mutations.output.dna_mutation,
         genes_file = rules.process_genes_and_proteins.output.genes,
-        proteins_file = rules.process_genes_and_proteins.output.proteins
-    params:
-        ref_seq = get_reference_file,
-        subtype = get_subtype
+        proteins_file = rules.process_genes_and_proteins.output.proteins,
+        ref_seqs = rules.combine_references.output.ref_seqs
     output:
         gene_aa_mutation = os.path.join(
             data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
@@ -133,8 +154,7 @@ rule extract_aa_mutations:
         python3 scripts/extract_aa_mutations.py \
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.genes_file} \
-            --reference {params.ref_seq} \
-            --serotype {params.subtype} \
+            --reference {input.ref_seqs} \
             --segment 1 \
             --mode gene \
             --out {output.gene_aa_mutation}
@@ -142,8 +162,7 @@ rule extract_aa_mutations:
         python3 scripts/extract_aa_mutations.py \
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.proteins_file} \
-            --reference {params.ref_seq} \
-            --serotype {params.subtype} \
+            --reference {input.ref_seqs} \
             --segment 1 \
             --mode protein \
             --out {output.protein_aa_mutation}
@@ -155,7 +174,6 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
-        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
         metadata = os.path.join(data_folder, "metadata+subtype.csv"),
         dna_mutation_files = expand(
             os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
@@ -175,13 +193,14 @@ rule combine_all_data:
         case_data = os.path.join(data_folder, "case_data.json"),
         case_data_csv = os.path.join(data_folder, "case_data.csv")
     params:
-        count_threshold=config["mutation_count_threshold"],
-        group_cols=list(config["group_cols"].keys()),
-        metadata_cols=list(config["metadata_cols"].keys())
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        count_threshold = config["mutation_count_threshold"],
+        group_cols = list(config["group_cols"].keys()),
+        metadata_cols = list(config["metadata_cols"].keys())
     shell:
         """
         python3 scripts/combine_all_data.py \
-            --fasta {input.processed_fasta_files} \
+            --fasta {params.processed_fasta_files} \
             --metadata {input.metadata} \
             --dna-mutation-files {input.dna_mutation_files} \
             --gene-aa-mutation-files {input.gene_aa_mutation_files} \

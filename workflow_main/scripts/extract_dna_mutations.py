@@ -15,13 +15,12 @@ from read_extractor_lite import ReadExtractor
 
 
 def extract_dna_mutations(sam_file, reference_file):
-    # Load the reference sequence
+    # Load the reference sequences
     with open(reference_file, "r") as fp:
         lines = fp.readlines()
-        ref = read_fasta_file(lines)
-        ref_seq = list(ref.values())[0]
+        ref_seqs = read_fasta_file(lines)
 
-    ReadExtractor.RefSeq = ref_seq
+    ReadExtractor.RefSeq = ref_seqs
 
     samfile = pysam.AlignmentFile(sam_file, "r")  # pylint: disable=no-member
 
@@ -40,7 +39,7 @@ def extract_dna_mutations(sam_file, reference_file):
     samfile.close()
 
     dna_mutation_df = pd.DataFrame.from_records(
-        all_dna_mutations, columns=["Accession ID", "pos", "ref", "alt"]
+        all_dna_mutations, columns=["reference", "Accession ID", "pos", "ref", "alt"]
     )
 
     # Fill NaN values

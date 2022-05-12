@@ -16,8 +16,8 @@ class ReadExtractor:
     """Extract variable regions from a pysam AlignedSegment
     """
 
-    RefSeq = ""
-    VALID_NUCLEOTIDES = ['A', 'T', 'C', 'G']
+    RefSeq = {}
+    VALID_NUCLEOTIDES = ["A", "T", "C", "G"]
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -70,7 +70,7 @@ class ReadExtractor:
             return
 
         # Get the reference sequence
-        self.reference_seq = ReadExtractor.RefSeq
+        self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
 
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
@@ -271,7 +271,9 @@ class ReadExtractor:
             # If it's a mutation, then add and continue
             if ref and alt:
                 i += 1
-                self.dna_mutations.append((query_name, pos, ref, alt))
+                self.dna_mutations.append(
+                    (self.read.reference_name, query_name, pos, ref, alt)
+                )
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -296,15 +298,18 @@ class ReadExtractor:
 
             # For long insertions, if any base is degenerate/non-canonical,
             # then throw out the entire insertion
-            if not all([
-                    c in self.VALID_NUCLEOTIDES or c == '' 
-                    for c in list(''.join([m[3] for m in adj_muts]))
-                ]):
+            if not all(
+                [
+                    c in self.VALID_NUCLEOTIDES or c == ""
+                    for c in list("".join([m[3] for m in adj_muts]))
+                ]
+            ):
                 continue
 
             # Combine bases, but keep first position and type
             self.dna_mutations.append(
                 (
+                    self.read.reference_name,
                     query_name,
                     pos,
                     "".join([m[2] for m in adj_muts]),
