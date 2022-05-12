@@ -38,7 +38,7 @@ rule az_reports:
 
 rule surveillance_data:
     input:
-        metadata = os.path.join(data_folder, "metadata.csv"),
+        metadata = os.path.join(data_folder, "metadata+subtype.csv"),
     params:
         group_col = config["surv_group_col"],
         out_folder = os.path.join(data_folder, 'surveillance'),

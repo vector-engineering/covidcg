@@ -20,11 +20,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Path to case data JSON file",
-    )
-
-    parser.add_argument(
-        "--metadata-map", type=str, required=True, help="Path to metadata map JSON file"
+        "--metadata", type=str, required=True, help="Path to metadata CSV file",
     )
 
     parser.add_argument(
@@ -75,20 +71,11 @@ def main():
 
     args = parser.parse_args()
 
-    case_data = pd.read_json(args.case_data)
-    with open(args.metadata_map, "r") as fp:
-        metadata_map = json.loads(fp.read())
-
-    # Join region onto case_data
-    case_data.loc[:, "region"] = case_data["region"].map(
-        {int(k): v for k, v in metadata_map["region"].items()}
-    )
+    case_data = pd.read_csv(args.metadata)
 
     out_path = Path(args.output)
 
-    df = case_data[
-        ["Accession ID", "collection_date", args.group_col, "gene_aa_mutation_str", "region"]
-    ]
+    df = case_data[["Accession ID", "collection_date", args.group_col, "region"]]
 
     # Filter for valid regions
     valid_regions = [

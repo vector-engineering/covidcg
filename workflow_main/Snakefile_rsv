@@ -26,7 +26,7 @@ REFS, = glob_wildcards(os.path.join(
 ))
 
 # Additional analyses module
-include: "analyses/Snakefile"
+include: "analyses/Snakefile_rsv"
 
 wildcard_constraints:
     chunk="[AB]_[0-9]{4}-[0-9]{2}"
@@ -37,7 +37,6 @@ rule all:
         os.path.join(static_data_folder, "reference.json"),
         os.path.join(static_data_folder, "primers.json"),
         # Packaged data
-        os.path.join(data_folder, "data_package.json.gz"),
         os.path.join(data_folder, 'data_complete.csv'),
         # Additional analyses
         # rules.additional_analyses.output.done
@@ -257,40 +256,13 @@ rule build_location_tree:
         """
 
 
-rule consensus_mutations:
-    """For each lineage and clade, get the lineage/clade-defining mutations,
-    on both the NT and AA level
-    Lineage/clade-defining mutations are defined as mutations which occur in
-    >= [consensus_fraction] of sequences within that lineage/clade.
-    [consensus_fraction] is a parameter which can be adjusted here
-    """
-    input:
-        case_data = rules.combine_all_data.output.case_data
-    output:
-        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
-        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
-    params:
-        group_cols=list(config["group_cols"].keys()),
-        consensus_fraction=config["consensus_fraction"],
-        min_reporting_fraction=config['min_reporting_fraction']
-    shell:
-        """
-        python3 scripts/consensus_mutations.py \
-            --case-data {input.case_data} \
-            --consensus-out {output.group_consensus_mutations} \
-            --frequencies-out {output.group_mutation_frequencies} \
-            --group-cols {params.group_cols} \
-            --consensus-fraction {params.consensus_fraction} \
-            --min-reporting-fraction {params.min_reporting_fraction}
-        """
-
-
 rule global_group_counts:
     """Get the number of sequences in each group
     Doing this in the pipeline just saves some work for the browser later
     """
     input:
-        case_data = rules.combine_all_data.output.case_data
+        case_data = rules.combine_all_data.output.case_data,
+        ref_seqs_json = rules.write_reference_files.output.reference
     output:
         global_group_counts = os.path.join(
             data_folder, "global_group_counts.json"
@@ -301,33 +273,9 @@ rule global_group_counts:
         """
         python3 scripts/global_group_counts.py \
             --case-data {input.case_data} \
+            --reference-json {input.ref_seqs_json} \
             --out-global-group-counts {output.global_group_counts} \
             --group-cols {params.group_cols}
-        """
-
-rule assemble_data_package:
-    """Assemble the complete data package, that will be downloaded
-    by the app upon initial load
-    """
-    input:
-        case_data = rules.combine_all_data.output.case_data,
-        country_score = rules.global_sequencing_efforts.output.country_score,
-        geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-        global_group_counts = rules.global_group_counts.output.global_group_counts,
-        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
-        metadata_map = rules.combine_all_data.output.metadata_map
-    output:
-        data_package = os.path.join(data_folder, "data_package.json.gz")
-    shell:
-        """
-        python3 scripts/assemble_data_package.py \
-            --case-data {input.case_data} \
-            --country-score {input.country_score} \
-            --geo-select-tree {input.geo_select_tree} \
-            --global-group-counts {input.global_group_counts} \
-            --group-consensus-mutations {input.group_consensus_mutations} \
-            --metadata-map {input.metadata_map} \
-            --data-package-out {output.data_package}
         """
 
 rule build_full_dataframe:

@@ -31,12 +31,6 @@ def main():
         help="Global group counts JSON file",
     )
     parser.add_argument(
-        "--group-consensus-mutations",
-        type=str,
-        required=True,
-        help="Group consensus mutations JSON file",
-    )
-    parser.add_argument(
         "--metadata-map", type=str, required=True, help="Metadata map JSON file"
     )
     parser.add_argument(
@@ -55,8 +49,6 @@ def main():
         data_package["geo_select_tree"] = json.loads(fp.read())
     with open(args.global_group_counts, "r") as fp:
         data_package["global_group_counts"] = json.loads(fp.read())
-    with open(args.group_consensus_mutations, "r") as fp:
-        data_package["group_consensus_mutations"] = json.loads(fp.read())
     with open(args.metadata_map, "r") as fp:
         data_package["metadata_map"] = json.loads(fp.read())
 

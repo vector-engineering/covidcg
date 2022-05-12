@@ -80,7 +80,7 @@ def main():
 
     loc_levels = ["region", "country", "division", "location"]
     df = pd.read_json(args.case_data)
-    df = df[["Accession ID"] + loc_levels]
+    df = df[["Accession ID"] + loc_levels].drop_duplicates("Accession ID")
 
     with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())

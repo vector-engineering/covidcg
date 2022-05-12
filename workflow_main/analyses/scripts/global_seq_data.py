@@ -18,16 +18,8 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Path to case data CSV file",
+        "--metadata", type=str, required=True, help="Path to metadata CSV file",
     )
-
-    parser.add_argument(
-        "--metadata-map",
-        type=str,
-        required=True,
-        help="Path to metadata map JSON file",
-    )
-
     parser.add_argument(
         "-o", "--output", type=str, required=True, help="Path to output directory",
     )
@@ -154,20 +146,18 @@ def main():
     case_count_df["month"] = case_count_df["month"].dt.start_time
     case_count_df.to_json(str(out_path / "case_count.json"), orient="records")
 
-    case_df = pd.read_json(args.case_data).set_index("Accession ID")
+    case_df = pd.read_csv(args.metadata, index_col="Accession ID")
 
-    with open(args.metadata_map, "r") as fp:
-        metadata_map = json.loads(fp.read())
-
-    # Join locations onto case_data
-    loc_levels = ["region", "country", "division", "location"]
-    for loc_level in loc_levels:
-        case_df.loc[:, loc_level] = case_df[loc_level].map(
-            {int(k): v for k, v in metadata_map[loc_level].items()}
-        )
-        case_df.loc[case_df[loc_level].isna(), loc_level] = None
-
-    case_df = case_df[["collection_date", "submission_date"] + loc_levels]
+    case_df = case_df[
+        [
+            "collection_date",
+            "submission_date",
+            "region",
+            "country",
+            "division",
+            "location",
+        ]
+    ]
 
     case_df["collection_date"] = pd.to_datetime(
         case_df["collection_date"], errors="coerce"
