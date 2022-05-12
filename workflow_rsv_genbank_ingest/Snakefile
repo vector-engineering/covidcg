@@ -81,7 +81,7 @@ rule assign_subtypes:
         bam = os.path.join(data_folder, "subtypes.bam")
     shell:
         """
-        minimap2 -t {threads} -x asm20 -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        minimap2 -t {threads} -x map-ont -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
 
 rule join_subtype_assignments:
