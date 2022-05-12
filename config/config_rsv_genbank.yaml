@@ -15,6 +15,7 @@ static_data_folder: "static_data/rsv"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
+# Only used for database seeding in development
 example_data_folder: "example_data_genbank"
 
 # Database for this virus

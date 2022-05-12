@@ -34,11 +34,10 @@ def main():
     # Load the reference sequence
     with open(args.reference_fasta, "r") as fp:
         lines = fp.readlines()
-        ref = read_fasta_file(lines)
-        ref_seq = list(ref.values())[0]
+        ref_seqs = read_fasta_file(lines)
 
     with open(args.reference_json, "w") as fp:
-        fp.write(json.dumps({"ref_seq": ref_seq}))
+        fp.write(json.dumps(ref_seqs))
 
     # Load primers, write to JSON
     primers_df = pd.read_csv(args.primers_csv, comment="#")

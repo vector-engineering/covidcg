@@ -79,6 +79,27 @@ rule combine_references:
         """
 
 
+rule write_reference_files:
+    """Write some of the reference sequence data as JSON
+    files that can be easily loaded by the front-end
+    """
+    input:
+        reference = os.path.join(static_data_folder, "reference.fa"),
+        primers = os.path.join(static_data_folder, "primers.csv")
+    output:
+        # Write data to JSON for the JS/UI to handle
+        reference = os.path.join(static_data_folder, "reference.json"),
+        primers = os.path.join(static_data_folder, "primers.json")
+    shell:
+        """
+        python3 scripts/write_reference_files.py \
+            --reference-fasta {input.reference} \
+            --primers-csv {input.primers} \
+            --reference-json {output.reference} \
+            --primers-json {output.primers}
+        """
+
+
 rule preprocess_sequences:
     """Filter out sequences...
     """
@@ -186,7 +207,8 @@ rule combine_all_data:
         protein_aa_mutation_files = expand(
             os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
             chunk=CHUNKS
-        )
+        ),
+        ref_seqs_json = rules.write_reference_files.output.reference
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
@@ -202,6 +224,7 @@ rule combine_all_data:
         python3 scripts/combine_all_data.py \
             --fasta {params.processed_fasta_files} \
             --metadata {input.metadata} \
+            --reference-json {input.ref_seqs_json} \
             --dna-mutation-files {input.dna_mutation_files} \
             --gene-aa-mutation-files {input.gene_aa_mutation_files} \
             --protein-aa-mutation-files {input.protein_aa_mutation_files} \
@@ -233,26 +256,6 @@ rule build_location_tree:
             --out {output.geo_select_tree}
         """
 
-
-rule write_reference_files:
-    """Write some of the reference sequence data as JSON
-    files that can be easily loaded by the front-end
-    """
-    input:
-        reference = os.path.join(static_data_folder, "reference.fasta"),
-        primers = os.path.join(static_data_folder, "primers.csv")
-    output:
-        # Write data to JSON for the JS/UI to handle
-        reference = os.path.join(static_data_folder, "reference.json"),
-        primers = os.path.join(static_data_folder, "primers.json")
-    shell:
-        """
-        python3 scripts/write_reference_files.py \
-            --reference-fasta {input.reference} \
-            --primers-csv {input.primers} \
-            --reference-json {output.reference} \
-            --primers-json {output.primers}
-        """
 
 rule consensus_mutations:
     """For each lineage and clade, get the lineage/clade-defining mutations,
