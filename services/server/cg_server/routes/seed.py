@@ -23,8 +23,10 @@ def force_seed(conn):
     seed_database(conn)
     insert_sequences(
         conn,
-        os.path.join(os.getenv("DATA_PATH", project_root / config["data_folder"]), config["virus"]),
-        filenames_as_dates=True,
+        os.path.join(
+            os.getenv("DATA_PATH", project_root / config["data_folder"]),
+            config["virus"],
+        ),
     )
 
     return "Done!"

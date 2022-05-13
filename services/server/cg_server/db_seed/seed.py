@@ -248,9 +248,16 @@ def seed_database(conn, schema="public"):
 
         # Build colormaps
         for grouping in config["group_cols"].keys():
-            group_df = pd.DataFrame(
-                {"name": list(global_group_counts[grouping].keys())}
-            )
+
+            # Collect unique group names
+            group_names = []
+            for reference in global_group_counts.keys():
+                group_names.extend(
+                    list(global_group_counts[reference][grouping].keys())
+                )
+            group_names = sorted(set(group_names))
+
+            group_df = pd.DataFrame({"name": group_names})
             group_df["color"] = group_df["name"].map(
                 get_categorical_colormap(group_df["name"])
             )
@@ -322,6 +329,7 @@ def seed_database(conn, schema="public"):
             ["Accession ID", "collection_date", "submission_date"]
             + metadata_cols
             + grouping_cols
+            + ["reference",]
             + mutation_cols
         )
 
@@ -422,6 +430,7 @@ def seed_database(conn, schema="public"):
                     submission_date  TIMESTAMP  NOT NULL,
                     {metadata_col_defs},
                     {grouping_col_defs},
+                    reference        TEXT       NOT NULL,
                     mutations        INTEGER[]  NOT NULL
                 )
                 PARTITION BY RANGE(collection_date);
@@ -432,6 +441,7 @@ def seed_database(conn, schema="public"):
                 )
             )
 
+            # Create table partitions
             for i in range(len(partition_dates) - 1):
                 start = partition_dates[i]
                 end = partition_dates[i + 1]
@@ -452,7 +462,7 @@ def seed_database(conn, schema="public"):
                 ["collection_date", "submission_date"]
                 + metadata_cols
                 + grouping_cols
-                + [mutation_col]
+                + ["reference", mutation_col]
             ]
             mutation_df = mutation_df.loc[~mutation_df[mutation_col].isna()]
             # Serialize list of integers
@@ -477,6 +487,11 @@ def seed_database(conn, schema="public"):
             )
             cur.execute(
                 'CREATE INDEX "ix_{table_name}_submission_date" ON "{table_name}"("submission_date");'.format(
+                    table_name=table_name
+                )
+            )
+            cur.execute(
+                'CREATE INDEX "ix_{table_name}_reference" ON "{table_name}"("reference");'.format(
                     table_name=table_name
                 )
             )

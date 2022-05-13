@@ -5,7 +5,6 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import datetime
 import io
 import gzip
 
