@@ -3,7 +3,12 @@ import { reverseComplement } from './string';
 import { memoize } from './func';
 import refSeq from '../../static_data/__VIRUS__/reference.json';
 
-const reverseComplementRefSeq = reverseComplement(refSeq.ref_seq);
+const reverseComplementRefSeq = Object.assign({}, refSeq);
+Object.keys(reverseComplementRefSeq).forEach((key) => {
+  reverseComplementRefSeq[key] = reverseComplement(
+    reverseComplementRefSeq[key]
+  );
+});
 
 export function getReferenceSequence(key = '') {
   return key ? refSeq.ref_seq[key] : refSeq.ref_seq;
