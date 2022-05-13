@@ -8,8 +8,7 @@ import {
   LOW_FREQ_FILTER_TYPES,
   // LITEMOL_STYLES,
 } from '../constants/defs.json';
-
-import { initialValueStoreInstance } from '../components/App';
+import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
 export class PlotSettingsStore {
   initialValues = {};
@@ -52,7 +51,7 @@ export class PlotSettingsStore {
   @observable reportStructureActiveGroup = '';
 
   init() {
-    this.initialValues = initialValueStoreInstance.plotSettingsStore;
+    this.initialValues = initialPlotSettingsStore;
 
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
@@ -108,24 +107,24 @@ export class PlotSettingsStore {
   // -----------------
 
   @observable surveillanceMode = this.initialValues.surveillanceMode;
-  @observable surveillanceShowWarning = this.initialValues
-    .surveillanceShowWarning;
-  @observable surveillanceShowSettings = this.initialValues
-    .surveillanceShowSettings;
+  @observable surveillanceShowWarning =
+    this.initialValues.surveillanceShowWarning;
+  @observable surveillanceShowSettings =
+    this.initialValues.surveillanceShowSettings;
   @observable surveillanceSortField = this.initialValues.surveillanceSortField;
-  @observable surveillanceSortDirection = this.initialValues
-    .surveillanceSortDirection;
-  @observable surveillanceDisplayMinCounts = this.initialValues
-    .surveillanceDisplayMinCounts;
-  @observable surveillanceDisplayMinPercent = this.initialValues
-    .surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts = this.initialValues
-    .surveillanceSigMinCounts;
-  @observable surveillanceSigMinPercent = this.initialValues
-    .surveillanceSigMinPercent;
+  @observable surveillanceSortDirection =
+    this.initialValues.surveillanceSortDirection;
+  @observable surveillanceDisplayMinCounts =
+    this.initialValues.surveillanceDisplayMinCounts;
+  @observable surveillanceDisplayMinPercent =
+    this.initialValues.surveillanceDisplayMinPercent;
+  @observable surveillanceSigMinCounts =
+    this.initialValues.surveillanceSigMinCounts;
+  @observable surveillanceSigMinPercent =
+    this.initialValues.surveillanceSigMinPercent;
   @observable surveillanceSigMinR = this.initialValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover = this.initialValues
-    .surveillanceLegendHover;
+  @observable surveillanceLegendHover =
+    this.initialValues.surveillanceLegendHover;
 
   @action
   setSurveillanceMode = (mode) => {
@@ -177,24 +176,24 @@ export class PlotSettingsStore {
   // ----------------
 
   @observable reportTreeColorMode = this.initialValues.reportTreeColorMode;
-  @observable reportConsensusThreshold = this.initialValues
-    .reportConsensusThreshold;
-  @observable reportMutationListHideEmpty = this.initialValues
-    .reportMutationListHideEmpty;
-  @observable reportMutationListHidden = this.initialValues
-    .reportMutationListHidden;
-  @observable reportStructureActiveProtein = this.initialValues
-    .reportStructureActiveProtein;
+  @observable reportConsensusThreshold =
+    this.initialValues.reportConsensusThreshold;
+  @observable reportMutationListHideEmpty =
+    this.initialValues.reportMutationListHideEmpty;
+  @observable reportMutationListHidden =
+    this.initialValues.reportMutationListHidden;
+  @observable reportStructureActiveProtein =
+    this.initialValues.reportStructureActiveProtein;
   @observable reportStructurePdbId = this.initialValues.reportStructurePdbId;
   // Actively selected group for the structural viewer
-  @observable reportStructureActiveGroup = this.initialValues
-    .reportStructureActiveGroup;
-  @observable reportStructureProteinStyle = this.initialValues
-    .reportStructureProteinStyle;
+  @observable reportStructureActiveGroup =
+    this.initialValues.reportStructureActiveGroup;
+  @observable reportStructureProteinStyle =
+    this.initialValues.reportStructureProteinStyle;
 
   reportStructureAssemblies = this.initialValues.reportStructureAssemblies;
-  reportStructureActiveAssembly = this.initialValues
-    .reportStructureActiveAssembly;
+  reportStructureActiveAssembly =
+    this.initialValues.reportStructureActiveAssembly;
   reportStructureEntities = this.initialValues.reportStructureEntities;
 
   @action

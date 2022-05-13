@@ -5,10 +5,8 @@
 import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
-import {
-  asyncDataStoreInstance,
-  initialValueStoreInstance,
-} from '../components/App';
+import { asyncDataStoreInstance } from '../components/App';
+import { groupDataStore as initialGroupDataStore } from '../constants/initialValues';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
@@ -45,7 +43,7 @@ export class GroupDataStore {
 
   init() {
     // Load intial values
-    this.initialValues = initialValueStoreInstance.groupDataStore;
+    this.initialValues = initialGroupDataStore;
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
     });

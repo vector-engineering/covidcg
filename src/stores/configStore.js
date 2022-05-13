@@ -29,7 +29,7 @@ import { config } from '../config';
 
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
-import { initialValueStoreInstance } from '../components/App';
+import { configStore as initialConfigStore } from '../constants/initialValues';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -79,7 +79,7 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.initialValues = initialValueStoreInstance.configStore;
+    this.initialValues = initialConfigStore;
 
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
