@@ -20,7 +20,11 @@ const SequencingEffortsTab = observer(() => {
     return (
       <>
         <div style={{ height: '20px' }} />
-        <WarningBox title={'Failed to load data'} showDismissButton={false}>
+        <WarningBox
+          show={true}
+          title={'Failed to load data'}
+          showDismissButton={false}
+        >
           Failed to load sequencing data. Please try again by refreshing the
           page. If this error persists, please contact us at{' '}
           <ExternalLink href="mailto:covidcg@broadinstitute.org">
