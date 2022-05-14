@@ -10,6 +10,10 @@ Object.keys(reverseComplementRefSeq).forEach((key) => {
   );
 });
 
+export function getReferenceNames() {
+  return Object.keys(refSeq);
+}
+
 export function getReferenceSequence(key = '') {
   return key ? refSeq.ref_seq[key] : refSeq.ref_seq;
 }

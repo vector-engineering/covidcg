@@ -171,14 +171,13 @@ def build_sequence_where_filter(req):
             )
         )
 
-    if config["virus"] == "rsv":
-        # Only display mutations in the currently selected reference
-        if group_key == "mutation":
-            metadata_filters.append(
-                sql.SQL('"subtype" = {subtype}').format(
-                    subtype=sql.Literal(selected_reference)
-                )
+    # Only display mutations in the currently selected reference
+    if group_key == "mutation":
+        metadata_filters.append(
+            sql.SQL('"reference" = {reference}').format(
+                reference=sql.Literal(selected_reference)
             )
+        )
 
     if metadata_filters:
         metadata_filters = sql.SQL(" AND ").join(metadata_filters)

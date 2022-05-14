@@ -17,6 +17,7 @@ import {
   COORDINATE_MODES,
 } from '../../constants/defs.json';
 import { config } from '../../config';
+import { getReferenceNames } from '../../utils/reference';
 
 const GroupBySelect = observer(
   ({
@@ -156,31 +157,21 @@ const GroupBySelect = observer(
       );
     };
 
-    const renderRSVRefSelect = () => {
+    const renderRefSelect = () => {
+      const referenceOptionItems = [];
+      getReferenceNames().forEach((referenceName) => {
+        referenceOptionItems.push(
+          <option key={`ref-option-${referenceName}`} value={referenceName}>
+            {referenceName}
+          </option>
+        );
+      });
+
       return (
         <div className="radio-row">
-          <div className="radio-item">
-            <input
-              type="radio"
-              id="RSVAChoice"
-              name="rsvAorB"
-              value="A"
-              checked={selectedReference === 'A'}
-              onChange={handleReferenceChange}
-            ></input>
-            <label htmlFor="RSVAChoice">RSV-A</label>
-          </div>
-          <div className="radio-item">
-            <input
-              type="radio"
-              id="RSVBChoice"
-              name="rsvAorB"
-              value="B"
-              checked={selectedReference === 'B'}
-              onChange={handleReferenceChange}
-            ></input>
-            <label htmlFor="RSVAChoice">RSV-B</label>
-          </div>
+          <select value={selectedReference} onChange={handleReferenceChange}>
+            {referenceOptionItems}
+          </select>
         </div>
       );
     };
@@ -213,15 +204,13 @@ const GroupBySelect = observer(
             {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
           </RadioForm>
         )}
-        {config.virus === 'rsv' && (
-          <RadioForm direction={direction}>
-            <span className="form-title">Reference Sequence</span>
-            {groupKey !== GROUP_MUTATION && (
-              <HintText>Only available in &quot;Mutation&quot; mode</HintText>
-            )}
-            {groupKey === GROUP_MUTATION && renderRSVRefSelect()}
-          </RadioForm>
-        )}
+        <RadioForm direction={direction}>
+          <span className="form-title">Reference</span>
+          {groupKey !== GROUP_MUTATION && (
+            <HintText>Only available in &quot;Mutation&quot; mode</HintText>
+          )}
+          {groupKey === GROUP_MUTATION && renderRefSelect()}
+        </RadioForm>
       </SelectContainer>
     );
   }
