@@ -52,8 +52,6 @@ if os.getenv("FLASK_ENV", "development") == "development":
         seed_database(conn)
 
         insert_sequences(
-            conn,
-            Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
-            / config["virus"],
+            conn, Path(os.getenv("DATA_PATH", project_root / config["data_folder"])),
         )
         conn.commit()
