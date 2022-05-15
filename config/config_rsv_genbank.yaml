@@ -106,6 +106,8 @@ prod_hostname: "https://rsv.pathmut.org"
 #     VISUALIZATION
 # ----------------------
 
+min_date: "1956-01-01"
+
 show_logos:
   GISAID: false
   GenBank: true

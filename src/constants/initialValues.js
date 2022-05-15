@@ -6,7 +6,6 @@ import {
   GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
-  MIN_DATE,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
@@ -120,7 +119,7 @@ if (config['virus'] === 'sars2') {
     coordinateMode: COORDINATE_MODES.COORD_GENE,
 
     // RSV displays all data by default
-    startDate: MIN_DATE['RSV'],
+    startDate: config.min_date,
     endDate: today,
 
     submStartDate: '',

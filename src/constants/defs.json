@@ -15,7 +15,6 @@
     "COORD_CUSTOM": "custom",
     "COORD_SEQUENCE": "sequence"
   },
-  "MIN_DATE": { "SARS2": "2019-12-15", "RSV": "1956-01-01" },
   "PLOT_DOWNLOAD_OPTIONS": {
     "DOWNLOAD_DATA": "Plot Data",
     "DOWNLOAD_PNG": "PNG",

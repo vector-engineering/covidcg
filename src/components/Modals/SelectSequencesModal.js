@@ -11,7 +11,6 @@ import {
   ASYNC_STATES,
   GROUP_MUTATION,
   DNA_OR_AA,
-  MIN_DATE,
 } from '../../constants/defs.json';
 
 import Modal from 'react-modal';
@@ -45,8 +44,6 @@ import {
 
 Modal.setAppElement('#app');
 const NOOP = () => {};
-
-const min_date = config.virus == 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const SelectSequencesContent = observer(({ onRequestClose }) => {
   const { configStore, UIStore, locationDataStore, metadataStore } =
@@ -432,7 +429,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     invalidReason = 'Start date cannot be before end date';
   } else if (pending.submStartDate !== '' || pending.submStartDate !== '') {
     let submStartDate =
-      pending.submStartDate === '' ? min_date : pending.submStartDate;
+      pending.submStartDate === '' ? config.min_date : pending.submStartDate;
     let submEndDate =
       pending.submEndDate === ''
         ? intToISO(new Date().getTime())

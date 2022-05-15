@@ -4,7 +4,6 @@ import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import {
-  MIN_DATE,
   ASYNC_STATES,
   NORM_MODES,
   COUNT_MODES,
@@ -29,8 +28,6 @@ import { PlotTitle, OptionSelectContainer } from './Plot.styles';
 import { PlotHeader, PlotOptionsRow } from './GroupStackPlot.styles';
 
 import initialSpec from '../../vega_specs/group_stack.vg.json';
-
-const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
@@ -89,6 +86,8 @@ const GroupStackPlot = observer(({ width }) => {
         ops: ['sum', 'first', 'first'],
         as: ['counts', 'color', 'group_name'],
       });
+
+      // console.log(JSON.stringify(data));
 
       return data;
     }
@@ -528,7 +527,7 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            dateRangeStart: new Date(min_date).getTime() / 1000,
+            dateRangeStart: new Date(config.min_date).getTime(),
             disableSelectionColoring: configStore.groupKey === GROUP_MUTATION,
             detailHeight,
             hoverBar: state.hoverGroup,
