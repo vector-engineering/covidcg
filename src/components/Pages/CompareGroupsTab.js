@@ -3,13 +3,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
-import { config } from '../../config';
-import {
-  GROUP_MUTATION,
-  DNA_OR_AA,
-  TABS,
-  RSV_REFERENCE_NAMES,
-} from '../../constants/defs.json';
+import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -37,18 +31,6 @@ const CompareGroupsTab = observer(() => {
       return null;
     }
 
-    let genomeName;
-    if (config['virus'] === 'sars2') {
-      genomeName = 'WIV04 hCoV19';
-    } else if (config['virus'] === 'rsv') {
-      genomeName =
-        'RSV ' +
-        configStore.selectedReference +
-        ' (' +
-        RSV_REFERENCE_NAMES[configStore.selectedReference] +
-        ')';
-    }
-
     return (
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Frequencies`}
@@ -58,7 +40,7 @@ const CompareGroupsTab = observer(() => {
           <ul>
             <li>
               This plot shows the frequency of {configStore.getGroupLabel()}s
-              along the {genomeName} genome (
+              along the {configStore.selectedReference} genome (
               {configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'} Mode:{' '}
               {configStore.dnaOrAa === DNA_OR_AA.DNA
                 ? 'Genomic Coordinates'

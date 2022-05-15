@@ -7,6 +7,7 @@ import { useStores } from '../../stores/connect';
 import { config } from '../../config';
 import { geneMap, proteinMap } from '../../utils/gene_protein';
 import { throttle } from '../../utils/func';
+import { getReferences } from '../../utils/reference';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
@@ -22,7 +23,6 @@ import {
   DNA_OR_AA,
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
-  RSV_REFERENCE_NAMES,
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
@@ -406,15 +406,7 @@ const EntropyPlot = observer(({ width }) => {
   } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
     xLabel += 'AA residue';
   }
-  if (config.virus === 'sars2') {
-    xLabel += ' (WIV04';
-  } else {
-    xLabel +=
-      ' (RSV' +
-      configStore.selectedReference +
-      ': ' +
-      RSV_REFERENCE_NAMES[configStore.selectedReference];
-  }
+  xLabel += ' (' + configStore.selectedReference;
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     xLabel += ', ' + configStore.selectedGene.name + ' Gene';
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
