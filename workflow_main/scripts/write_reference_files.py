@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-"""Write reference files
+"""Write reference JSON files
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """

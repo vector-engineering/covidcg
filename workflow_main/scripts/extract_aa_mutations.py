@@ -10,7 +10,6 @@ import argparse
 import json
 import pandas as pd
 
-from fasta import read_fasta_file
 from util import translate
 
 
@@ -21,12 +20,29 @@ def extract_aa_mutations(
     active_segment,
     mode="gene",
 ):
+    """
+    Extract AA mutations from NT mutations
+    
+    Parameters
+    ----------
+    dna_mutation_file: str
+        Path to DNA mutation CSV
+    gene_or_protein_file: str
+        Path to gene/protein definition JSON
+    reference_file: str
+        Path to reference JSON file
+    active_segment: str
+        Segment/chromosome
+    mode: str
+        Mode ('gene' or 'protein')
+    """
+
     active_segment = int(active_segment)
 
-    # Load the reference sequence
+    # Load the reference sequences
     with open(reference_file, "r") as fp:
-        lines = fp.readlines()
-        ref_seqs = read_fasta_file(lines)
+        references = json.loads(fp.read())
+    ref_seqs = {ref["name"]: ref["sequence"] for ref in references.values()}
 
     # Load gene defs
     # JSON to dataframe
@@ -285,6 +301,8 @@ def extract_aa_mutations(
 
 
 def main():
+    """Entry point"""
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

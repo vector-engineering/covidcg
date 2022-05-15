@@ -142,14 +142,14 @@ rule extract_dna_mutations:
     """
     input:
         bam = rules.combine_alignments.output.bam,
-        ref_seqs = rules.combine_references.output.ref_seqs
+        reference = rules.write_reference_files.output.reference
     output:
         dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
     shell:
         """
         python3 scripts/extract_dna_mutations.py \
             --bam {input.bam} \
-            --reference {input.ref_seqs} \
+            --reference {input.reference} \
             --out {output.dna_mutation}
         """
 
@@ -161,7 +161,7 @@ rule extract_aa_mutations:
         dna_mutation = rules.extract_dna_mutations.output.dna_mutation,
         genes_file = rules.process_genes_and_proteins.output.genes,
         proteins_file = rules.process_genes_and_proteins.output.proteins,
-        ref_seqs = rules.combine_references.output.ref_seqs
+        reference = rules.write_reference_files.output.reference
     output:
         gene_aa_mutation = os.path.join(
             data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
@@ -174,7 +174,7 @@ rule extract_aa_mutations:
         python3 scripts/extract_aa_mutations.py \
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.genes_file} \
-            --reference {input.ref_seqs} \
+            --reference {input.reference} \
             --segment 1 \
             --mode gene \
             --out {output.gene_aa_mutation}
@@ -182,7 +182,7 @@ rule extract_aa_mutations:
         python3 scripts/extract_aa_mutations.py \
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.proteins_file} \
-            --reference {input.ref_seqs} \
+            --reference {input.reference} \
             --segment 1 \
             --mode protein \
             --out {output.protein_aa_mutation}

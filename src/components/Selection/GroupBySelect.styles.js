@@ -80,3 +80,18 @@ export const HintText = styled.div`
   font-size: 1em;
   color: #888;
 `;
+
+export const ReferenceSelectRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  select {
+    margin-top: 2px;
+  }
+
+  .reference-description {
+    font-size: 0.8em;
+    font-weight: normal;
+  }
+`;

@@ -9,6 +9,7 @@ import {
   RadioForm,
   Link,
   HintText,
+  ReferenceSelectRow,
 } from './GroupBySelect.styles';
 
 import {
@@ -17,7 +18,7 @@ import {
   COORDINATE_MODES,
 } from '../../constants/defs.json';
 import { config } from '../../config';
-import { getReferenceNames } from '../../utils/reference';
+import { getReferenceNames, getReferences } from '../../utils/reference';
 
 const GroupBySelect = observer(
   ({
@@ -32,6 +33,7 @@ const GroupBySelect = observer(
     onReferenceChange,
 
     showExtraGroupText,
+    showReferenceDescription,
     disabled,
     direction,
   }) => {
@@ -168,11 +170,16 @@ const GroupBySelect = observer(
       });
 
       return (
-        <div className="radio-row">
+        <ReferenceSelectRow>
           <select value={selectedReference} onChange={handleReferenceChange}>
             {referenceOptionItems}
           </select>
-        </div>
+          {showReferenceDescription && (
+            <div className="reference-description">
+              <span>{getReferences()[selectedReference]['description']}</span>
+            </div>
+          )}
+        </ReferenceSelectRow>
       );
     };
 
@@ -228,11 +235,13 @@ GroupBySelect.propTypes = {
   onReferenceChange: PropTypes.func,
 
   showExtraGroupText: PropTypes.bool,
+  showReferenceDescription: PropTypes.bool,
   disabled: PropTypes.bool,
   direction: PropTypes.oneOf(['row', 'column']),
 };
 GroupBySelect.defaultProps = {
   showExtraGroupText: true,
+  showReferenceDescription: false,
   disabled: false,
   direction: 'column',
   onReferenceChange: PropTypes.func,
