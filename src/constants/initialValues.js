@@ -126,6 +126,9 @@ if (config['virus'] === 'sars2') {
     submStartDate: '',
     submEndDate: '',
 
+    selectedGroupFields: {
+      subtype: ['A'],
+    },
     selectedLocationNodes: [],
 
     hoverGroup: null,
