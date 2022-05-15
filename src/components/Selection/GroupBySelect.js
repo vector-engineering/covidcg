@@ -162,9 +162,14 @@ const GroupBySelect = observer(
     const renderRefSelect = () => {
       const referenceOptionItems = [];
       getReferenceNames().forEach((referenceName) => {
+        let name = referenceName;
+        if (showReferenceDescription) {
+          name += ' ' + getReferences()[referenceName]['description'];
+        }
+
         referenceOptionItems.push(
           <option key={`ref-option-${referenceName}`} value={referenceName}>
-            {referenceName}
+            {name}
           </option>
         );
       });
@@ -174,11 +179,11 @@ const GroupBySelect = observer(
           <select value={selectedReference} onChange={handleReferenceChange}>
             {referenceOptionItems}
           </select>
-          {showReferenceDescription && (
+          {/* {showReferenceDescription && (
             <div className="reference-description">
               <span>{getReferences()[selectedReference]['description']}</span>
             </div>
-          )}
+          )} */}
         </ReferenceSelectRow>
       );
     };

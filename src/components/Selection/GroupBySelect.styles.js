@@ -88,6 +88,7 @@ export const ReferenceSelectRow = styled.div`
 
   select {
     margin-top: 2px;
+    width: 100%;
   }
 
   .reference-description {
