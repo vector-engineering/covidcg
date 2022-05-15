@@ -39,7 +39,8 @@
   "DATE_BINS": {
     "DATE_BIN_DAY": "day",
     "DATE_BIN_WEEK": "week",
-    "DATE_BIN_MONTH": "month"
+    "DATE_BIN_MONTH": "month",
+    "DATE_BIN_YEAR": "year"
   },
   "COLOR_MODES": {
     "COLOR_MODE_COMPARE": "compare",

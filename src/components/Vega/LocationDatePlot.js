@@ -133,6 +133,10 @@ const LocationDatePlot = observer(({ width }) => {
       plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
     ) {
       dateBin = 1000 * 60 * 60 * 24 * 30;
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_YEAR
+    ) {
+      dateBin = 1000 * 60 * 60 * 24 * 365;
     }
 
     const dateBinSignal = spec.signals.find(
@@ -342,7 +346,12 @@ const LocationDatePlot = observer(({ width }) => {
     plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
   ) {
     plotTitle += ' by Month';
+  } else if (
+    plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
+  ) {
+    plotTitle += ' by Year';
   }
+
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_MUTATION) {
       plotTitle += ` (${configStore.selectedGroups
@@ -397,6 +406,7 @@ const LocationDatePlot = observer(({ width }) => {
               <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
               <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
               <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+              <option value={DATE_BINS.DATE_BIN_YEAR}>Year</option>
             </select>
           </label>
         </OptionSelectContainer>

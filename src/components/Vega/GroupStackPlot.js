@@ -351,6 +351,8 @@ const GroupStackPlot = observer(({ width }) => {
     plotTitle += ' by Week';
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     plotTitle += ' by Month';
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_YEAR) {
+    plotTitle += ' by Year';
   }
 
   const maxShownLocations = 4;
@@ -383,7 +385,10 @@ const GroupStackPlot = observer(({ width }) => {
     dateBin = 1000 * 60 * 60 * 24 * 7;
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     dateBin = 1000 * 60 * 60 * 24 * 30;
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_YEAR) {
+    dateBin = 1000 * 60 * 60 * 24 * 365;
   }
+
   // If running in cumulative mode, add the vega transformation
   // By default the cumulative transformation is dumped into a column
   // "counts_cumulative", so if active, just overwrite the "counts"
@@ -471,6 +476,7 @@ const GroupStackPlot = observer(({ width }) => {
                   <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
                   <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
                   <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+                  <option value={DATE_BINS.DATE_BIN_YEAR}>Year</option>
                 </select>
               </label>
             </OptionSelectContainer>
