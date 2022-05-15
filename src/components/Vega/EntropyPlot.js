@@ -7,7 +7,6 @@ import { useStores } from '../../stores/connect';
 import { config } from '../../config';
 import { geneMap, proteinMap } from '../../utils/gene_protein';
 import { throttle } from '../../utils/func';
-import { getReferences } from '../../utils/reference';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';

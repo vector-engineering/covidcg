@@ -1,5 +1,5 @@
 import { getGene, getProtein } from '../utils/gene_protein';
-import { intToISO } from '../utils/date';
+import { intToISO, ISOToInt } from '../utils/date';
 import { config } from '../config';
 
 import {
@@ -16,6 +16,7 @@ import {
 } from './defs.json';
 
 const today = intToISO(new Date().getTime());
+const lastNDays = 30;
 
 let _configStore, _groupDataStore, _plotSettingsStore;
 

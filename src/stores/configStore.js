@@ -5,12 +5,7 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import {
-  geneMap,
-  proteinMap,
-  getGene,
-  getProtein,
-} from '../utils/gene_protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { updateURLFromParams } from '../utils/updateQueryParam';
