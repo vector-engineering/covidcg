@@ -98,6 +98,7 @@ if (config['virus'] === 'sars2') {
     activeGroupType: Object.keys(config['group_cols'])[0],
     selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
     groupMutationType: 'protein_aa',
+    activeReference: '',
   };
 } else if (config['virus'] === 'rsv') {
   const startingReference = 'NC_038235.1';
@@ -182,6 +183,7 @@ if (config['virus'] === 'sars2') {
     activeGroupType: Object.keys(config['group_cols'])[0],
     selectedGroups: ['ON1'],
     groupMutationType: 'protein_aa',
+    activeReference: 'NC_038235.1',
   };
 }
 

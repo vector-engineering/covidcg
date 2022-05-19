@@ -5,6 +5,8 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import datetime
+
 import pandas as pd
 from psycopg2 import sql
 from cg_server.config import config
@@ -118,6 +120,8 @@ def build_sequence_where_filter(req):
         - Strucutred as { group_key: [group_vals] }
         - Key are group types, i.e., "lineage"
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
+    selected_reference: str
+        - Reference name (e.g., "NC_012920.1")
 
     Returns
     -------
@@ -126,8 +130,8 @@ def build_sequence_where_filter(req):
           inline table expression or CTE
 
     """
-    start_date = pd.to_datetime(req.get("start_date", None))
-    end_date = pd.to_datetime(req.get("end_date", None))
+    start_date = pd.to_datetime(req.get("start_date", config['min_date']))
+    end_date = pd.to_datetime(req.get("end_date", datetime.date.today().isoformat()))
 
     subm_start_date = req.get("subm_start_date", "")
     subm_end_date = req.get("subm_end_date", "")

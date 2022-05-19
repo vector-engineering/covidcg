@@ -13,18 +13,25 @@ from cg_server.query.selection import build_sequence_location_where_filter
 
 
 def query_group_mutation_frequencies(conn, req):
-    group = req["group"]
+    group_key = req["group_key"]
     mutation_type = req["mutation_type"]
     consensus_threshold = req["consensus_threshold"]
+    selected_reference = req["selected_reference"]
 
     with conn.cursor() as cur:
-        table_name = "{group}_frequency_{mutation_type}_mutation".format(
-            group=group, mutation_type=mutation_type
+        table_name = "{group_key}_frequency_{mutation_type}_mutation".format(
+            group_key=group_key, mutation_type=mutation_type
         )
         mutation_table_name = "{mutation_type}_mutation".format(
             mutation_type=mutation_type
         )
-        mutation_cols = ["pos", "ref", "alt", "mutation_name", "mutation_str"]
+        mutation_cols = [
+            "pos",
+            "ref",
+            "alt",
+            "mutation_name",
+            "mutation_str",
+        ]
         if mutation_type == "gene_aa":
             mutation_cols = ["gene",] + mutation_cols
         elif mutation_type == "protein_aa":
@@ -42,25 +49,32 @@ def query_group_mutation_frequencies(conn, req):
                 """
             SELECT
                 f."name",
+                f."reference",
                 f."count",
                 f."fraction",
                 f."mutation_id",
                 {mutation_cols_expr}
             FROM {table_name} f
             JOIN {mutation_table_name} mut ON f."mutation_id" = mut."id"
-            WHERE "fraction" >= %(consensus_threshold)s
+            WHERE 
+                "fraction" >= %(consensus_threshold)s AND
+                f."reference" = %(selected_reference)s
             """
             ).format(
                 mutation_cols_expr=mutation_cols_expr,
                 table_name=sql.Identifier(table_name),
                 mutation_table_name=sql.Identifier(mutation_table_name),
             ),
-            {"consensus_threshold": consensus_threshold},
+            {
+                "consensus_threshold": consensus_threshold,
+                "selected_reference": selected_reference,
+            },
         )
 
         res = pd.DataFrame.from_records(
             cur.fetchall(),
-            columns=["name", "count", "fraction", "mutation_id"] + mutation_cols,
+            columns=["name", "reference", "count", "fraction", "mutation_id"]
+            + mutation_cols,
         )
 
     # print(res)
@@ -72,6 +86,7 @@ def query_group_mutation_frequencies_dynamic(conn, req):
     group_key = req.get("group_key", None)
     mutation_type = req.get("mutation_type", "dna")
     consensus_threshold = req.get("consensus_threshold", 0.0)
+    selected_reference = req.get("selected_reference", None)
 
     mutation_cols = ["pos", "ref", "alt", "mutation_name", "mutation_str"]
     if mutation_type == "dna":
@@ -111,6 +126,7 @@ def query_group_mutation_frequencies_dynamic(conn, req):
                 GROUP BY {group_col}, "mutation"
             )
             SELECT
+                {reference_name} as "reference",
                 "group_muts".{group_col} AS "name", 
                 "group_muts"."count" AS "count", 
                 ("group_muts"."count"::REAL / "group_counts"."count"::REAL) AS "fraction",
@@ -127,6 +143,7 @@ def query_group_mutation_frequencies_dynamic(conn, req):
                 sequence_mutation_table=sql.Identifier(sequence_mutation_table),
                 mutation_table=sql.Identifier(mutation_table),
                 sequence_where_filter=sequence_where_filter,
+                reference_name=sql.Literal(selected_reference),
                 mutation_cols_expr=mutation_cols_expr,
             ),
             {"consensus_threshold": consensus_threshold},
@@ -134,7 +151,8 @@ def query_group_mutation_frequencies_dynamic(conn, req):
 
         res = pd.DataFrame.from_records(
             cur.fetchall(),
-            columns=["name", "count", "fraction", "mutation_id"] + mutation_cols,
+            columns=["reference", "name", "count", "fraction", "mutation_id"]
+            + mutation_cols,
         )
 
     return res.to_json(orient="records")

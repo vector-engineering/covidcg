@@ -36,7 +36,7 @@ mutation_count_threshold: 3
 
 # Threshold of prevalence to report a mutation as being a consensus
 # mutation for a group (e.g., clade, lineage)
-consensus_fraction: 0.9
+consensus_fraction: 0.7
 
 # Threshold of prevalence to report a mutation as being associated
 # with a group (e.g., clade, lineage)

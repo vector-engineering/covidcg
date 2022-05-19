@@ -197,6 +197,10 @@ def seed_database(conn, schema="public"):
 
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for grouping in group_mutation_frequencies.keys():
+
+            # Get references
+            reference_names = sorted(group_mutation_frequencies[grouping].keys())
+
             for mutation_field in mutation_fields:
                 table_name = "{grouping}_frequency_{mutation_field}_mutation".format(
                     grouping=grouping, mutation_field=mutation_field
@@ -209,6 +213,7 @@ def seed_database(conn, schema="public"):
                     """
                     CREATE TABLE "{table_name}" (
                         name         TEXT     NOT NULL,
+                        reference    TEXT     NOT NULL,
                         mutation_id  INTEGER  NOT NULL,
                         count        INTEGER  NOT NULL,
                         fraction     REAL     NOT NULL
@@ -217,20 +222,48 @@ def seed_database(conn, schema="public"):
                         table_name=table_name
                     )
                 )
-                group_mutation_frequency_df = (
-                    pd.DataFrame.from_records(
-                        group_mutation_frequencies[grouping][mutation_field]
+
+                group_mutation_frequency_df = []
+                for reference_name in reference_names:
+                    group_mutation_frequency_df.append(
+                        pd.DataFrame.from_records(
+                            group_mutation_frequencies[grouping][reference_name][
+                                mutation_field
+                            ]
+                        )
+                        .rename(columns={"group": "name"})
+                        .assign(reference=lambda _: reference_name)
                     )
-                    .rename(columns={"group": "name"})
-                    .set_index("name")
-                )
-                df_to_sql(
-                    cur, group_mutation_frequency_df, table_name, index_label="name"
-                )
+                group_mutation_frequency_df = pd.concat(
+                    group_mutation_frequency_df, axis=0
+                )[["name", "reference", "mutation_id", "count", "fraction"]]
+
+                df_to_sql(cur, group_mutation_frequency_df, table_name)
 
                 cur.execute(
                     """
                     CREATE INDEX "idx_{table_name}_name" ON "{table_name}"("name");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_reference" ON "{table_name}"("reference");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_mutation_id" ON "{table_name}"("mutation_id");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_fraction" ON "{table_name}"("fraction");
                     """.format(
                         table_name=table_name
                     )
