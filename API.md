@@ -37,6 +37,7 @@ This map contains integer mappings that the server is currently using, for mutat
 curl --header "Content-Type: application/json" --request POST --data '{
   "group_key": "mutation",
   "dna_or_aa": "AA",
+  "selected_reference": "...",
   "coordinate_mode": "gene",
   "coordinate_ranges": [[21563, 25384]],
   "selected_gene": "S",
@@ -61,6 +62,9 @@ curl --header "Content-Type: application/json" --request POST --data '{
 - `dna_or_aa`: string - required
   - "DNA": Mutations are on the nucleotide level
   - "AA": Mutations are on the amino acid level
+- `selected_reference`: string
+  - Required only for mutation mode
+  - Mutations will be relative to this reference
 - `coordinate_mode`: string - required only for AA mode
   - "gene": Amino acid mutations are relative to canonical genes (may be missing ORFs within some genes). i.e., will return mutations relative to Orf1a coding frame instead of relative to nsp1's or nsp2's
   - "protein": Amino acid mutations are relative to all ORFs
@@ -138,17 +142,18 @@ This function queries all mutations associated with a group (i.e., PANGO lineage
 
 ```
 curl --header "Content-Type: application/json" --request POST --data '{
-  "group": "lineage",
+  "group_key": "lineage",
   "mutation_type": "gene_aa",
-  "consensus_threshold": 0.9
+  "consensus_threshold": 0.9,
+  "selected_reference": "..."
 }' https://covidcg.org/group_mutation_frequencies
 ```
 
 #### Parameters
 
-`group` determines the field with which sequences are grouped. Typically this is set to `lineage`.
+`group_key` determines the field with which sequences are grouped. Typically this is set to `lineage`.
 
-Valid choices for `group` are:
+Valid choices for `group_key` are:
 
 - `lineage`: PANGO lineage designation
 - `clade`: GISAID clade designation (GISAID site only, not available on Genbank site)
@@ -163,6 +168,8 @@ Valid choices for `mutation_type` are:
 
 `consensus_threshold` determines the cutoff for reporting mutations. i.e., mutations that occur less than this frequency will be excluded from the results. Set this to `0.0` to include all mutations associated with the particular grouping.
 
+`selected_reference` defines the reference for which mutations are relative to.
+
 #### Returns
 
 Returns a JSON object, with the format:
@@ -172,6 +179,8 @@ Returns a JSON object, with the format:
   {
     "name": string
         - Name of the grouping, i.e., for `group` of `lineage`, this will be the lineage name,
+    "reference": string
+        - Name of the reference sequence
     "count": integer
         - Number of occurrences of this mutation within the group
     "fraction": float
@@ -202,6 +211,7 @@ curl --header "Content-Type: application/json" --request POST --data '{
   "group_key": "lineage",
   "mutation_type": "gene_aa",
   "consensus_threshold": 0.1,
+  "selected_reference": "...",
   "region": [0, 1, 2, 3, 4, 5],
   "start_date": "2021-12-01",
   "end_date": "2022-01-01",
@@ -223,6 +233,7 @@ Return data is the same as the above [Group mutation frequencies](#group-mutatio
 
 ```
 curl --header "Content-Type: application/json" --request POST --data '{
+  "selected_reference": "...",
   "dna_or_aa": "AA",
   "coordinate_mode": "gene",
   "selected_gene": "S",
@@ -230,6 +241,21 @@ curl --header "Content-Type: application/json" --request POST --data '{
   "start_date": "2020-01-01",
   "end_date": "2021-06-01"
 }' https://covidcg.org/variant_table -o variant_table.xlsx
+```
+
+RSV:
+
+```
+curl --header "Content-Type: application/json" --request POST --data '{
+  "selected_reference": "NC_001781.1",
+  "selected_group_fields": { "subtype": ["B"] },
+  "dna_or_aa": "AA",
+  "coordinate_mode": "gene",
+  "selected_gene": "F",
+  "region": [0, 1, 2],
+  "start_date": "2020-01-01",
+  "end_date": "2021-06-01"
+}' https://rsv.pathmut.org/variant_table -o variant_table.xlsx
 ```
 
 #### Parameters

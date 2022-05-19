@@ -12,13 +12,23 @@ from psycopg2 import sql
 
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.query import build_sequence_location_where_filter
+from cg_server.query import build_sequence_location_where_filter, get_loc_level_ids
 
 
 def download_metadata(conn, req):
 
     with conn.cursor() as cur:
-        sequence_where_filter = build_sequence_location_where_filter(req)
+        sequence_where_filter = build_sequence_location_where_filter(
+            req.get("group_key", None),
+            get_loc_level_ids(req),
+            req.get("start_date", None),
+            req.get("end_date", None),
+            req.get("subm_start_date", None),
+            req.get("subm_end_date", None),
+            req.get("selected_metadata_fields", None),
+            req.get("selected_group_fields", None),
+            req.get("selected_reference", None),
+        )
 
         # Fields that the user wants
         selected_fields = req.get("selected_fields", [])

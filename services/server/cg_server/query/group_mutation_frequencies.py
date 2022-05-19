@@ -9,7 +9,10 @@ import pandas as pd
 from psycopg2 import sql
 
 from cg_server.constants import constants
-from cg_server.query.selection import build_sequence_location_where_filter
+from cg_server.query.selection import (
+    build_sequence_location_where_filter,
+    get_loc_level_ids,
+)
 
 
 def query_group_mutation_frequencies(conn, req):
@@ -98,7 +101,17 @@ def query_group_mutation_frequencies_dynamic(conn, req):
         mutation_table = "protein_aa_mutation"
         mutation_cols = ["protein",] + mutation_cols
 
-    sequence_where_filter = build_sequence_location_where_filter(req)
+    sequence_where_filter = build_sequence_location_where_filter(
+        group_key,
+        get_loc_level_ids(req),
+        req.get("start_date", None),
+        req.get("end_date", None),
+        req.get("subm_start_date", None),
+        req.get("subm_end_date", None),
+        req.get("selected_metadata_fields", None),
+        req.get("selected_group_fields", None),
+        selected_reference,
+    )
     sequence_mutation_table = "sequence_" + mutation_table
 
     mutation_cols_expr = sql.SQL(",\n").join(
