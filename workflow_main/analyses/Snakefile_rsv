@@ -13,7 +13,7 @@ from analyses.scripts.global_sequencing_efforts import global_sequencing_efforts
 from analyses.scripts.standalone_map_spec import standalone_map_spec
 
 data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
@@ -109,6 +109,36 @@ rule global_seq_data:
         """
 
 
+rule consensus_mutations:
+    """For each lineage and clade, get the lineage/clade-defining mutations,
+    on both the NT and AA level
+    Lineage/clade-defining mutations are defined as mutations which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
+    input:
+        case_data = os.path.join(data_folder, "case_data.json"),
+        ref_seqs_json = os.path.join(static_data_folder, "reference.json")
+    output:
+        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
+        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
+    params:
+        group_cols = list(config["group_cols"].keys()),
+        consensus_fraction = config['consensus_fraction'],
+        min_reporting_fraction = config['min_reporting_fraction']
+    shell:
+        """
+        python3 analyses/scripts/consensus_mutations.py \
+            --case-data {input.case_data} \
+            --reference-json {input.ref_seqs_json} \
+            --consensus-out {output.group_consensus_mutations} \
+            --frequencies-out {output.group_mutation_frequencies} \
+            --group-cols {params.group_cols} \
+            --consensus-fraction {params.consensus_fraction} \
+            --min-reporting-fraction {params.min_reporting_fraction}
+        """
+
+
 rule additional_analyses:
     input:
         # AZ REPORTS
@@ -128,6 +158,9 @@ rule additional_analyses:
         rules.global_seq_data.output.sequences_per_month,
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
+        # Consensus Mutations
+        rules.consensus_mutations.output.group_consensus_mutations,
+        rules.consensus_mutations.output.group_mutation_frequencies
 
     output:
         done = touch(os.path.join(

@@ -48,6 +48,9 @@ rule all:
         rules.global_seq_data.output.sequences_per_month,
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
+        # Consensus Mutations
+        rules.consensus_mutations.output.group_consensus_mutations,
+        rules.consensus_mutations.output.group_mutation_frequencies
         
 
 rule process_genes_and_proteins:
