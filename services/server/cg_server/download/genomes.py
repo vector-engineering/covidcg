@@ -25,7 +25,7 @@ def download_genomes(conn, req):
     try:
         with conn.cursor() as cur:
             sequence_where_filter = build_sequence_location_where_filter(
-                req.get("group_key", None),
+                None,  # req.get("group_key", None),
                 get_loc_level_ids(req),
                 req.get("start_date", None),
                 req.get("end_date", None),
@@ -33,7 +33,7 @@ def download_genomes(conn, req):
                 req.get("subm_end_date", None),
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
-                req.get("selected_reference", None),
+                None,  # req.get("selected_reference", None),
             )
 
             cur.execute(

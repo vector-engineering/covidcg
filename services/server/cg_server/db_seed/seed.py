@@ -406,11 +406,14 @@ def seed_database(conn, schema="public"):
 
         df_to_sql(
             cur,
+            # Remove duplicates associated with multiple references
             case_data[
                 ["Accession ID", "collection_date", "submission_date"]
                 + metadata_cols
                 + grouping_cols
-            ],
+            ]
+            .drop_duplicates("Accession ID", keep="first")
+            .reset_index(drop=True),
             "metadata",
             index_label="sequence_id",
         )
@@ -553,7 +556,9 @@ def seed_database(conn, schema="public"):
         )
 
         stats = {
-            "num_sequences": len(case_data),
+            "num_sequences": len(
+                case_data.drop_duplicates("Accession ID", keep="first")
+            ),
             "data_date": datetime.date.today().isoformat(),
         }
         cur.execute(
