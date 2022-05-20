@@ -106,6 +106,17 @@ prod_hostname: "https://rsv.pathmut.org"
 #     VISUALIZATION
 # ----------------------
 
+# Home page
+show_home_banner: true
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
+
 min_date: "1956-01-01"
 
 show_logos:
