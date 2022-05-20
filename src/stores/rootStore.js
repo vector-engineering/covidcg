@@ -10,7 +10,6 @@ import { LocationDataStore } from './locationDataStore';
 import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
-import { ExampleStore } from './exampleStore';
 import { SurveillanceDataStore } from './surveillanceDataStore';
 
 class RootStore {
@@ -29,7 +28,6 @@ class RootStore {
   groupDataStore;
 
   surveillanceDataStore;
-  exampleStore;
 
   constructor() {
     this.UIStore = new UIStore();
@@ -46,7 +44,6 @@ class RootStore {
     this.globalSequencingDataStore = new GlobalSequencingDataStore();
     this.groupDataStore = new GroupDataStore();
 
-    this.exampleStore = new ExampleStore();
     this.surveillanceDataStore = new SurveillanceDataStore();
   }
 
@@ -69,8 +66,6 @@ class RootStore {
     this.surveillanceDataStore.init();
 
     this.dataStore.init();
-
-    this.exampleStore.init();
 
     const urlParams = new URLSearchParams(window.location.search);
 

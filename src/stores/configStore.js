@@ -420,6 +420,7 @@ export class ConfigStore {
       division: [],
       location: [],
     };
+    console.log(this.selectedLocationNodes);
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });

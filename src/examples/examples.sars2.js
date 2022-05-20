@@ -1,7 +1,7 @@
-import { getGene } from '../../utils/gene_protein';
-import { getLocationByNameAndLevel } from '../../utils/location';
-import { queryPrimers } from '../../utils/primer';
-import { todayISO } from '../../utils/date';
+import { getGene } from '../utils/gene_protein';
+import { getLocationByNameAndLevel } from '../utils/location';
+import { queryPrimers } from '../utils/primer';
+import { todayISO } from '../utils/date';
 
 import {
   GROUP_MUTATION,
@@ -11,11 +11,11 @@ import {
   COUNT_MODES,
   DATE_BINS,
   TABS,
-} from '../../constants/defs.json';
+} from '../constants/defs.json';
 
-import { config } from '../../config';
+import { config } from '../config';
 
-export default function examples(selectTree) {
+export default function examples({ selectTree }) {
   return [
     {
       title: 'Global Lineages',
