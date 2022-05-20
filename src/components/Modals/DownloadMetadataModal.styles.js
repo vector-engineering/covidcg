@@ -96,3 +96,9 @@ export const ApplyButton = styled(Button)`
 ApplyButton.defaultProps = {
   invalid: false,
 };
+
+export const SelectInput = styled.label`
+  select {
+    margin-left: 4px;
+  }
+`;

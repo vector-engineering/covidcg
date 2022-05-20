@@ -13,6 +13,7 @@ import {
   metadataFields,
   metadataFieldNiceNameMap,
 } from '../../constants/metadata';
+import { getReferenceNames, getReferences } from '../../utils/reference';
 import { config } from '../../config';
 
 import Modal from 'react-modal';
@@ -41,6 +42,7 @@ import {
   FormTitle,
   Checkbox,
   ApplyButton,
+  SelectInput,
 } from './DownloadMetadataModal.styles';
 
 Modal.setAppElement('#app');
@@ -62,7 +64,7 @@ Object.values(GEO_LEVELS).forEach((field) => {
 });
 
 const DownloadMetadataContent = observer(({ onRequestClose }) => {
-  const { UIStore, dataStore } = useStores();
+  const { UIStore, dataStore, configStore } = useStores();
   const sentRequest = useRef();
 
   const [state, setState] = useState({
@@ -76,6 +78,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
       initialSelectedGroupings,
       initialSelectedLocationFields
     ),
+    selectedReference: configStore.selectedReference,
     mutationFormat: MUTATION_FORMAT.POS_REF_ALT,
   });
 
@@ -100,6 +103,13 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     setState({
       ...state,
       mutationFormat: event.target.value,
+    });
+  };
+
+  const handleReferenceChange = (e) => {
+    setState({
+      ...state,
+      selectedReference: e.target.value,
     });
   };
 
@@ -162,6 +172,18 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
         {/* Capitalize */}
         {field.charAt(0).toUpperCase() + field.slice(1)}
       </Checkbox>
+    );
+  });
+
+  const referenceOptionItems = [];
+  getReferenceNames().forEach((referenceName) => {
+    let name =
+      referenceName + ' ' + getReferences()[referenceName]['description'];
+
+    referenceOptionItems.push(
+      <option key={`ref-option-${referenceName}`} value={referenceName}>
+        {name}
+      </option>
     );
   });
 
@@ -232,6 +254,20 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
               &lt;Reference&gt;&lt;Position&gt;&lt;Alternate&gt; (i.e.,
               &quot;S:D614G&quot;)
             </Radio>
+          </RadioForm>
+        </Row>
+        <Row>
+          <RadioForm>
+            <FormTitle>Reference:</FormTitle>
+            <SelectInput>
+              <select
+                onChange={handleReferenceChange}
+                value={state.selectedReference}
+                style={{ width: '100%' }}
+              >
+                {referenceOptionItems}
+              </select>
+            </SelectInput>
           </RadioForm>
         </Row>
         <Row>

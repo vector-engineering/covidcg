@@ -142,31 +142,27 @@ def build_sequence_where_filter(
     if not end_date:
         end_date = datetime.date.today().isoformat()
 
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
-
-    if subm_start_date:
-        subm_start_date = pd.to_datetime(subm_start_date)
-    if subm_end_date:
-        subm_end_date = pd.to_datetime(subm_end_date)
-
     if not selected_metadata_fields:
         selected_metadata_fields = {}
     if not selected_group_fields:
         selected_group_fields = {}
 
     # Construct submission date filters
-    if subm_start_date is None and subm_end_date is None:
+    if not subm_start_date and not subm_end_date:
         submission_date_filter = sql.SQL("")
     else:
         chunks = []
-        if subm_start_date is not None:
+        if subm_start_date:
             chunks.append(
-                sql.SQL('"submission_date" >= {}').format(sql.Literal(subm_start_date))
+                sql.SQL('"submission_date" >= {}').format(
+                    sql.Literal(pd.to_datetime(subm_start_date))
+                )
             )
-        if subm_end_date is not None:
+        if subm_end_date:
             chunks.append(
-                sql.SQL('"submission_date" <= {}').format(sql.Literal(subm_end_date))
+                sql.SQL('"submission_date" <= {}').format(
+                    sql.Literal(pd.to_datetime(subm_end_date))
+                )
             )
 
         submission_date_filter = sql.Composed(
@@ -234,8 +230,8 @@ def build_sequence_where_filter(
     ).format(
         metadata_filters=metadata_filters,
         group_filters=group_filters,
-        start_date=sql.Literal(start_date),
-        end_date=sql.Literal(end_date),
+        start_date=sql.Literal(pd.to_datetime(start_date)),
+        end_date=sql.Literal(pd.to_datetime(end_date)),
         submission_date_filter=submission_date_filter,
     )
 
