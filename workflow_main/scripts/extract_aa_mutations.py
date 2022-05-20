@@ -255,6 +255,53 @@ def extract_aa_mutations(
         # END FOR SEGMENT
     # END FOR GENE/PROTEIN
 
+    # Combine AA mutations
+    # Merge AA mutations only if:
+    # - Accession ID is the same
+    # - gene/protein is the same
+    # - position is the same 
+    # - one mutation is an indel, other is a substitution
+
+    if len(aa_mutations) > 0:
+        cur_mutation = aa_mutations[0]
+        i = 1
+        while i < len(aa_mutations):
+            
+            next_mutation = aa_mutations[i]
+            
+            # (Accession ID, gene/protein, pos, ref, alt)
+            if (
+                    cur_mutation[0] == next_mutation[0] and
+                    cur_mutation[1] == next_mutation[1] and
+                    cur_mutation[2] == next_mutation[2] and
+                    (
+                        (cur_mutation[3] == '' or cur_mutation[4] == '') or
+                        (next_mutation[3] == '' or next_mutation[4] == '')
+                    )
+                ):
+                
+                # Merge mutations
+                
+                # Combine refs and alts in a new mutation
+                new_mutation = (
+                    cur_mutation[0], cur_mutation[1], cur_mutation[2],
+                    cur_mutation[3] + next_mutation[3],
+                    cur_mutation[4] + next_mutation[4],
+                )
+                
+                # Pop both cur_mutation and next_mutation from the list
+                del aa_mutations[i-1:i+1]
+                
+                # Insert new mutation at existing index (so it can be merged further if necessary)
+                aa_mutations.insert(i-1, new_mutation)
+                
+                # print('MERGE AA', cur_mutation, next_mutation, '-->', new_mutation)
+                
+            else:
+                # No merging, move on
+                cur_mutation = aa_mutations[i]
+                i += 1
+
     if mode == "gene":
         aa_mutation_df = pd.DataFrame.from_records(
             aa_mutations, columns=["Accession ID", "gene", "pos", "ref", "alt"]
