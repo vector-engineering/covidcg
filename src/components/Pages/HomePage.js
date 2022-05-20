@@ -10,7 +10,7 @@ import Legend from '../Legend/Legend';
 import SelectionTopBar from '../Selection/SelectionTopBar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 
-import config from '../../config';
+import { config } from '../../config';
 import { TABS, ASYNC_STATES } from '../../constants/defs.json';
 import KeyListener from '../KeyListener';
 import AsyncErrorModal from '../Modals/AsyncErrorModal';
@@ -19,7 +19,8 @@ const CompareGroupsTab = React.lazy(() => import('./CompareGroupsTab'));
 const HomeTab = React.lazy(() => import('./HomeTab'));
 const CompareLocationsTab = React.lazy(() => import('./CompareLocationsTab'));
 const GroupReportTab = React.lazy(() => import('./GroupReportTab'));
-const AboutTab = React.lazy(() => import('./AboutTab'));
+const AboutTabSARS = React.lazy(() => import('./AboutTabSARS'));
+const AboutTabRSV = React.lazy(() => import('./AboutTabRSV'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
@@ -56,7 +57,11 @@ const HomePage = observer(() => {
     } else if (UIStore.activeTab === TABS.TAB_EXAMPLE) {
       return <HomeTab />;
     } else if (UIStore.activeTab === TABS.TAB_ABOUT) {
-      return <AboutTab />;
+      if (config['virus'] === 'sars2') {
+        return <AboutTabSARS />;
+      } else if (config['virus'] === 'rsv') {
+        return <AboutTabRSV />;
+      }
     } else if (UIStore.activeTab === TABS.TAB_METHODOLOGY) {
       return <MethodologyTab />;
     } else if (UIStore.activeTab === TABS.TAB_RELATED) {

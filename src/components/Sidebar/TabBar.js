@@ -110,7 +110,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
         {config.virus === 'sars2' && <span>About COVID CG</span>}
-        {config.virus === 'rsv' && <span>About RSV Pathmut</span>}
+        {config.virus === 'rsv' && <span>About RSV PathMut</span>}
       </a>
     </TabItem>
   );
