@@ -6,7 +6,6 @@
   "padding": 5,
 
   "signals": [
-    { "name": "mode", "value": "lineage" },
     { "name": "sortField", "value": "group" },
     { "name": "sortDirection", "value": "ascending" },
     { "name": "display_min_counts", "value": 5 },
@@ -95,6 +94,10 @@
     {
       "name": "percent_sensitivity",
       "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
+    },
+    {
+      "name": "xLabelFormat",
+      "value": "%m-%d"
     }
   ],
 
@@ -103,13 +106,7 @@
       "name": "group_reg",
       "format": {
         "type": "json"
-      },
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        }
-      ]
+      }
     },
     {
       "name": "hide_groups",
@@ -174,10 +171,6 @@
         "type": "json"
       },
       "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        },
         {
           "type": "lookup",
           "from": "hide_groups",

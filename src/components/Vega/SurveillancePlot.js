@@ -60,31 +60,6 @@ const LegendItem = ({
 
   let groupText = legendItem.group;
 
-  // For co-occurring Spike mutations (spike_combo mode),
-  // try to break up long strings by comma so that they're
-  // more readable in this compact format
-  if (surveillanceMode === 'spike_combo') {
-    let charCounter = 0;
-    let curEntry = '';
-    groupText = [];
-    legendItem.group.split(',').forEach((mutation, i) => {
-      charCounter += mutation.length;
-      if (charCounter > maxCharsPerLine) {
-        groupText.push(
-          <span key={`${legendItem.group}-${i}`}>{curEntry}</span>
-        );
-        groupText.push(<br key={`${legendItem.group}-${i}-break`} />);
-        charCounter = mutation.length;
-        curEntry = '';
-      }
-      curEntry += mutation;
-      if (i < legendItem.group.split(',').length - 1) {
-        curEntry += ',';
-      }
-    });
-    groupText.push(<span key={`${legendItem.group}-last`}>{curEntry}</span>);
-  }
-
   return (
     <LegendItemContainer
       hovered={legendHover.includes(legendItem.group)}
@@ -120,24 +95,10 @@ const SurveillanceLegend = observer(
       );
     });
 
-    let legendTitleText;
-    if (plotSettingsStore.surveillanceMode === 'lineage') {
-      legendTitleText = 'Lineages';
-    } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-      legendTitleText =
-        config['virus'] === 'sars2'
-          ? 'Spike mutations (Co-occurring)'
-          : 'Fusion mutations {Co-occurring}';
-    } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-      legendTitleText =
-        config['virus'] === 'sars2'
-          ? 'Spike mutations (single)'
-          : 'Fusion mutations {single}';
-    } else if (plotSettingsStore.surveillanceMode === 'genotype') {
-      legendTitleText = 'Genotype';
-    } else if (plotSettingsStore.surveillanceMode === 'subtype') {
-      legendTitleText = 'Subtype';
-    }
+    let legendTitleText = plotSettingsStore.surveillanceMode;
+    // Capitalize first letter
+    legendTitleText =
+      legendTitleText.charAt(0).toUpperCase() + legendTitleText.slice(1);
 
     return (
       <Legend>
@@ -432,22 +393,23 @@ const SurveillancePlot = observer(({ width }) => {
     });
   };
 
-  let groupName;
-  if (plotSettingsStore.surveillanceMode === 'lineage') {
-    groupName = 'Lineages';
-  } else if (plotSettingsStore.surveillanceMode === 'spike_combo') {
-    groupName = 'Co-occuring mutations';
-  } else if (plotSettingsStore.surveillanceMode === 'spike_single') {
-    groupName = 'Single mutations';
-  } else if (plotSettingsStore.surveillanceMode == 'genotype') {
-    groupName = 'Genotype';
-  } else if (plotSettingsStore.surveillanceMode == 'subtype') {
-    groupName = 'Subtype';
-  }
+  let groupName = plotSettingsStore.surveillanceMode;
+  // Capitalize first letter
+  groupName = groupName.charAt(0).toUpperCase() + groupName.slice(1);
 
   const getXLabelFormat = () => {
     return config.virus === 'sars2' ? '%m-%d' : '%m-%y';
   };
+
+  useEffect(() => {
+    setState({
+      ...state,
+      data: {
+        group_reg: surveillanceDataStore.surv_group_regression,
+        group_counts: surveillanceDataStore.surv_group_counts,
+      },
+    });
+  }, [plotSettingsStore.surveillanceMode]);
 
   return (
     <PlotContainer>
@@ -500,24 +462,12 @@ const SurveillancePlot = observer(({ width }) => {
                   {config.virus === 'sars2' && (
                     <>
                       <option value={'lineage'}>Lineage</option>
-                      <option value={'spike_combo'}>
-                        Spike Co-occuring Mutations
-                      </option>
-                      <option value={'spike_single'}>
-                        Spike Single Mutations
-                      </option>
                     </>
                   )}
                   {config.virus === 'rsv' && (
                     <>
-                      <option value={'genotype'}>Genotype</option>
                       <option value={'subtype'}>Subtype</option>
-                      <option value={'spike_combo'}>
-                        Fusion Co-occuring Mutations
-                      </option>
-                      <option value={'spike_single'}>
-                        Fusion Single Mutations
-                      </option>
+                      {/* <option value={'genotype'}>Genotype</option> */}
                     </>
                   )}
                 </select>
@@ -560,7 +510,6 @@ const SurveillancePlot = observer(({ width }) => {
           spec={initialSpec}
           data={state.data}
           signals={{
-            mode: plotSettingsStore.surveillanceMode,
             sortField: plotSettingsStore.surveillanceSortField,
             sortDirection:
               plotSettingsStore.surveillanceSortDirection ===

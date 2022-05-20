@@ -158,7 +158,7 @@ if (config['virus'] === 'sars2') {
     cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
 
     // SURVEILLANCE PLOT
-    surveillanceMode: 'genotype',
+    surveillanceMode: 'subtype',
     surveillanceSortField: 'counts', // 'group' or 'counts'
     surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
     surveillanceDisplayMinCounts: 5,
