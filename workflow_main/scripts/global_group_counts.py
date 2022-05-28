@@ -21,34 +21,87 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--case-data', type=str, required=True, help='Case data JSON file')
-    parser.add_argument('--out-global-group-counts', type=str, required=True, help='Global group counts output file')
-    parser.add_argument('--group-cols', type=str, nargs='+', default=[], help='Group columns')
+    parser.add_argument(
+        "--case-data", type=str, required=True, help="Case data JSON file"
+    )
+    parser.add_argument(
+        "--reference-json",
+        type=str,
+        required=True,
+        help="Path to reference sequences fasta file",
+    )
+    parser.add_argument(
+        "--out-global-group-counts",
+        type=str,
+        required=True,
+        help="Global group counts output file",
+    )
+    parser.add_argument(
+        "--group-cols", type=str, nargs="+", default=[], help="Group columns"
+    )
 
     args = parser.parse_args()
 
-    case_df = pd.read_json(args.case_data).set_index("Accession ID")
+    case_df = pd.read_json(args.case_data)
+
+    # Get reference sequence names
+    with open(args.reference_json, "rt") as fp:
+        references = json.load(fp)
+        reference_names = sorted(references.keys())
 
     global_group_counts = {}
+
+    for ref_name in reference_names:
+        global_group_counts[ref_name] = {}
+
     # Count sequence groupings (e.g., lineages and clades)
     for col in args.group_cols:
-        global_group_counts[col] = case_df[col].value_counts().to_dict()
+        for ref_name in reference_names:
+            global_group_counts[ref_name][col] = (
+                case_df.drop_duplicates("Accession ID")[col].value_counts().to_dict()
+            )
 
     # Count global mutation frequencies
     # Collapse list of lists into one list, then count individual
     # occurrences, then cast to a regular dict
-    global_group_counts["dna_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["dna_mutation_str"])))
-    )
-    global_group_counts["gene_aa_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["gene_aa_mutation_str"])))
-    )
-    global_group_counts["protein_aa_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["protein_aa_mutation_str"])))
-    )
+    for ref_name in reference_names:
+        global_group_counts[ref_name]["dna_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        case_df.loc[
+                            case_df["reference"] == ref_name, "dna_mutation_str"
+                        ]
+                    )
+                )
+            )
+        )
+        global_group_counts[ref_name]["gene_aa_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        case_df.loc[
+                            case_df["reference"] == ref_name, "gene_aa_mutation_str"
+                        ]
+                    )
+                )
+            )
+        )
+        global_group_counts[ref_name]["protein_aa_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        case_df.loc[
+                            case_df["reference"] == ref_name, "protein_aa_mutation_str"
+                        ]
+                    )
+                )
+            )
+        )
 
     with open(args.out_global_group_counts, "w") as fp:
         fp.write(json.dumps(global_group_counts))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

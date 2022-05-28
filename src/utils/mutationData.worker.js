@@ -50,9 +50,8 @@ function processSelectedMutations({
     !(
       row.collection_date in aggLocationSelectedMutationsDateObj[row.location]
     ) &&
-      (aggLocationSelectedMutationsDateObj[row.location][
-        row.collection_date
-      ] = {});
+      (aggLocationSelectedMutationsDateObj[row.location][row.collection_date] =
+        {});
 
     // Check that every mutation ID is present
     // TODO: sort and then short-circuit check, that should be more efficient

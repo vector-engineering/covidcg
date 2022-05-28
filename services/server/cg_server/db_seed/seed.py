@@ -21,13 +21,9 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = (
-    Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
-    / config["virus"]
-)
-static_data_path = (
-    Path(os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"]))
-    / config["virus"]
+data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
+static_data_path = Path(
+    os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
 )
 
 if config["virus"] == "sars2":
@@ -201,6 +197,10 @@ def seed_database(conn, schema="public"):
 
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for grouping in group_mutation_frequencies.keys():
+
+            # Get references
+            reference_names = sorted(group_mutation_frequencies[grouping].keys())
+
             for mutation_field in mutation_fields:
                 table_name = "{grouping}_frequency_{mutation_field}_mutation".format(
                     grouping=grouping, mutation_field=mutation_field
@@ -213,6 +213,7 @@ def seed_database(conn, schema="public"):
                     """
                     CREATE TABLE "{table_name}" (
                         name         TEXT     NOT NULL,
+                        reference    TEXT     NOT NULL,
                         mutation_id  INTEGER  NOT NULL,
                         count        INTEGER  NOT NULL,
                         fraction     REAL     NOT NULL
@@ -221,20 +222,48 @@ def seed_database(conn, schema="public"):
                         table_name=table_name
                     )
                 )
-                group_mutation_frequency_df = (
-                    pd.DataFrame.from_records(
-                        group_mutation_frequencies[grouping][mutation_field]
+
+                group_mutation_frequency_df = []
+                for reference_name in reference_names:
+                    group_mutation_frequency_df.append(
+                        pd.DataFrame.from_records(
+                            group_mutation_frequencies[grouping][reference_name][
+                                mutation_field
+                            ]
+                        )
+                        .rename(columns={"group": "name"})
+                        .assign(reference=lambda _: reference_name)
                     )
-                    .rename(columns={"group": "name"})
-                    .set_index("name")
-                )
-                df_to_sql(
-                    cur, group_mutation_frequency_df, table_name, index_label="name"
-                )
+                group_mutation_frequency_df = pd.concat(
+                    group_mutation_frequency_df, axis=0
+                )[["name", "reference", "mutation_id", "count", "fraction"]]
+
+                df_to_sql(cur, group_mutation_frequency_df, table_name)
 
                 cur.execute(
                     """
                     CREATE INDEX "idx_{table_name}_name" ON "{table_name}"("name");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_reference" ON "{table_name}"("reference");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_mutation_id" ON "{table_name}"("mutation_id");
+                    """.format(
+                        table_name=table_name
+                    )
+                )
+                cur.execute(
+                    """
+                    CREATE INDEX "idx_{table_name}_fraction" ON "{table_name}"("fraction");
                     """.format(
                         table_name=table_name
                     )
@@ -248,9 +277,16 @@ def seed_database(conn, schema="public"):
 
         # Build colormaps
         for grouping in config["group_cols"].keys():
-            group_df = pd.DataFrame(
-                {"name": list(global_group_counts[grouping].keys())}
-            )
+
+            # Collect unique group names
+            group_names = []
+            for reference in global_group_counts.keys():
+                group_names.extend(
+                    list(global_group_counts[reference][grouping].keys())
+                )
+            group_names = sorted(set(group_names))
+
+            group_df = pd.DataFrame({"name": group_names})
             group_df["color"] = group_df["name"].map(
                 get_categorical_colormap(group_df["name"])
             )
@@ -322,6 +358,7 @@ def seed_database(conn, schema="public"):
             ["Accession ID", "collection_date", "submission_date"]
             + metadata_cols
             + grouping_cols
+            + ["reference",]
             + mutation_cols
         )
 
@@ -369,11 +406,14 @@ def seed_database(conn, schema="public"):
 
         df_to_sql(
             cur,
+            # Remove duplicates associated with multiple references
             case_data[
                 ["Accession ID", "collection_date", "submission_date"]
                 + metadata_cols
                 + grouping_cols
-            ],
+            ]
+            .drop_duplicates("Accession ID", keep="first")
+            .reset_index(drop=True),
             "metadata",
             index_label="sequence_id",
         )
@@ -422,6 +462,7 @@ def seed_database(conn, schema="public"):
                     submission_date  TIMESTAMP  NOT NULL,
                     {metadata_col_defs},
                     {grouping_col_defs},
+                    reference        TEXT       NOT NULL,
                     mutations        INTEGER[]  NOT NULL
                 )
                 PARTITION BY RANGE(collection_date);
@@ -432,6 +473,7 @@ def seed_database(conn, schema="public"):
                 )
             )
 
+            # Create table partitions
             for i in range(len(partition_dates) - 1):
                 start = partition_dates[i]
                 end = partition_dates[i + 1]
@@ -452,7 +494,7 @@ def seed_database(conn, schema="public"):
                 ["collection_date", "submission_date"]
                 + metadata_cols
                 + grouping_cols
-                + [mutation_col]
+                + ["reference", mutation_col]
             ]
             mutation_df = mutation_df.loc[~mutation_df[mutation_col].isna()]
             # Serialize list of integers
@@ -477,6 +519,11 @@ def seed_database(conn, schema="public"):
             )
             cur.execute(
                 'CREATE INDEX "ix_{table_name}_submission_date" ON "{table_name}"("submission_date");'.format(
+                    table_name=table_name
+                )
+            )
+            cur.execute(
+                'CREATE INDEX "ix_{table_name}_reference" ON "{table_name}"("reference");'.format(
                     table_name=table_name
                 )
             )
@@ -509,7 +556,9 @@ def seed_database(conn, schema="public"):
         )
 
         stats = {
-            "num_sequences": len(case_data),
+            "num_sequences": len(
+                case_data.drop_duplicates("Accession ID", keep="first")
+            ),
             "data_date": datetime.date.today().isoformat(),
         }
         cur.execute(

@@ -5,6 +5,8 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import datetime
+
 import pandas as pd
 from psycopg2 import sql
 from cg_server.config import config
@@ -92,16 +94,22 @@ def build_coordinate_filters(
     return mutation_filter, mutation_table
 
 
-def build_sequence_where_filter(req):
+def build_sequence_where_filter(
+    group_key,
+    start_date=None,
+    end_date=None,
+    subm_start_date=None,
+    subm_end_date=None,
+    selected_metadata_fields=None,
+    selected_group_fields=None,
+    selected_reference=None,
+):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
 
     Parameters
     ----------
-    req: flask.Request
-
-    Request fields
-    --------------
+    group_key: str
     start_date: str
         - Collection sart date, in ISO format (YYYY-MM-DD)
     end_date: str
@@ -118,6 +126,8 @@ def build_sequence_where_filter(req):
         - Strucutred as { group_key: [group_vals] }
         - Key are group types, i.e., "lineage"
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
+    selected_reference: str
+        - Reference name (e.g., "NC_012920.1")
 
     Returns
     -------
@@ -126,31 +136,33 @@ def build_sequence_where_filter(req):
           inline table expression or CTE
 
     """
-    start_date = pd.to_datetime(req.get("start_date", None))
-    end_date = pd.to_datetime(req.get("end_date", None))
 
-    subm_start_date = req.get("subm_start_date", "")
-    subm_end_date = req.get("subm_end_date", "")
-    subm_start_date = None if subm_start_date == "" else pd.to_datetime(subm_start_date)
-    subm_end_date = None if subm_end_date == "" else pd.to_datetime(subm_end_date)
-    selected_reference = req.get("selected_reference", None)
-    group_key = req.get("group_key", None)
+    if not start_date:
+        start_date = config["min_date"]
+    if not end_date:
+        end_date = datetime.date.today().isoformat()
 
-    selected_metadata_fields = req.get("selected_metadata_fields", {})
-    selected_group_fields = req.get("selected_group_fields", {})
+    if not selected_metadata_fields:
+        selected_metadata_fields = {}
+    if not selected_group_fields:
+        selected_group_fields = {}
 
     # Construct submission date filters
-    if subm_start_date is None and subm_end_date is None:
+    if not subm_start_date and not subm_end_date:
         submission_date_filter = sql.SQL("")
     else:
         chunks = []
-        if subm_start_date is not None:
+        if subm_start_date:
             chunks.append(
-                sql.SQL('"submission_date" >= {}').format(sql.Literal(subm_start_date))
+                sql.SQL('"submission_date" >= {}').format(
+                    sql.Literal(pd.to_datetime(subm_start_date))
+                )
             )
-        if subm_end_date is not None:
+        if subm_end_date:
             chunks.append(
-                sql.SQL('"submission_date" <= {}').format(sql.Literal(subm_end_date))
+                sql.SQL('"submission_date" <= {}').format(
+                    sql.Literal(pd.to_datetime(subm_end_date))
+                )
             )
 
         submission_date_filter = sql.Composed(
@@ -171,14 +183,13 @@ def build_sequence_where_filter(req):
             )
         )
 
-    if config["virus"] == "rsv":
-        # Only display mutations in the currently selected reference
-        if group_key == "mutation":
-            metadata_filters.append(
-                sql.SQL('"subtype" = {subtype}').format(
-                    subtype=sql.Literal(selected_reference)
-                )
+    # Only display mutations in the currently selected reference
+    if group_key == constants["GROUP_MUTATION"]:
+        metadata_filters.append(
+            sql.SQL('"reference" = {reference}').format(
+                reference=sql.Literal(selected_reference)
             )
+        )
 
     if metadata_filters:
         metadata_filters = sql.SQL(" AND ").join(metadata_filters)
@@ -219,19 +230,85 @@ def build_sequence_where_filter(req):
     ).format(
         metadata_filters=metadata_filters,
         group_filters=group_filters,
-        start_date=sql.Literal(start_date),
-        end_date=sql.Literal(end_date),
+        start_date=sql.Literal(pd.to_datetime(start_date)),
+        end_date=sql.Literal(pd.to_datetime(end_date)),
         submission_date_filter=submission_date_filter,
     )
 
     return sequence_where_filter
 
 
-def build_sequence_location_where_filter(req):
-    sequence_where_filter = [build_sequence_where_filter(req)]
-    loc_where = []
+def get_loc_level_ids(req):
+    """Get location level IDs from a flask request"""
+
+    res = {}
+
     for loc_level in constants["GEO_LEVELS"].values():
         loc_ids = req.get(loc_level, None)
+        if not loc_ids:
+            res[loc_level] = []
+        else:
+            res[loc_level] = loc_ids
+
+    return res
+
+
+def build_sequence_location_where_filter(
+    group_key,
+    loc_level_ids,
+    start_date=None,
+    end_date=None,
+    subm_start_date=None,
+    subm_end_date=None,
+    selected_metadata_fields=None,
+    selected_group_fields=None,
+    selected_reference=None,
+):
+    """Build query for filtering sequences based on user's location/date
+    selection and selected metadata fields - including location
+
+    Parameters
+    ----------
+    group_key: str
+    loc_level_ids: dict
+        - key: One of GEO_LEVELS
+        - value: list of level IDs
+    start_date: str
+        - Collection sart date, in ISO format (YYYY-MM-DD)
+    end_date: str
+        - Collection end date, in ISO format (YYYY-MM-DD)
+    subm_start_date: str
+        - Submission start date, in ISO format (YYYY-MM-DD)
+    subm_end_date: str
+        - Submission end date, in ISO format (YYYY-MM-DD)
+    selected_metadata_fields: dict
+        - Structured as { metadata_field: [metadata_values] }
+        - Keys are a metadata field, as a string
+        - Values are a list of metadata value IDs (integers)
+    selected_group_fields: dict
+        - Strucutred as { group_key: [group_vals] }
+        - Key are group types, i.e., "lineage"
+        - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
+    selected_reference: str
+        - Reference name (e.g., "NC_012920.1")
+
+    """
+
+    sequence_where_filter = [
+        build_sequence_where_filter(
+            group_key,
+            start_date,
+            end_date,
+            subm_start_date,
+            subm_end_date,
+            selected_metadata_fields,
+            selected_group_fields,
+            selected_reference,
+        )
+    ]
+    loc_where = []
+    for loc_level in constants["GEO_LEVELS"].values():
+        loc_ids = loc_level_ids[loc_level]
         if not loc_ids:
             continue
         loc_where.append(
@@ -294,7 +371,16 @@ def query_and_aggregate(conn, req):
             if not loc_ids:
                 continue
 
-            sequence_where_filter = build_sequence_where_filter(req)
+            sequence_where_filter = build_sequence_where_filter(
+                group_key,
+                req.get("start_date", None),
+                req.get("end_date", None),
+                req.get("subm_start_date", None),
+                req.get("subm_end_date", None),
+                req.get("selected_metadata_fields", None),
+                req.get("selected_group_fields", None),
+                req.get("selected_reference", None),
+            )
             sequence_where_filter = sql.SQL(
                 "{prior} AND {loc_level_col} = ANY({loc_ids})"
             ).format(

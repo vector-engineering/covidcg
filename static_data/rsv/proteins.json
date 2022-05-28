@@ -1,5 +1,5 @@
 {
-  "A": [
+  "NC_038235.1": [
     {
       "name": "NS1",
       "segment": 1,
@@ -89,7 +89,7 @@
       "notes": "polymerase protein"
     }
   ],
-  "B": [
+  "NC_001781.1": [
     {
       "name": "NS1",
       "segment": 1,
@@ -177,6 +177,24 @@
       "protein_coding": 1,
       "domains": [],
       "notes": "polymerase protein"
+    }
+  ],
+  "KX858757.1": [
+    {
+      "name": "F",
+      "segment": 1,
+      "segments": [[1, 1725]],
+      "protein_coding": 1,
+      "domains": []
+    }
+  ],
+  "KX858756.1": [
+    {
+      "name": "F",
+      "segment": 1,
+      "segments": [[1, 1725]],
+      "protein_coding": 1,
+      "domains": []
     }
   ]
 }

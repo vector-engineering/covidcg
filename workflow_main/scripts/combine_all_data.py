@@ -21,6 +21,13 @@ def main():
     parser.add_argument("--metadata", type=str, required=True, help="Metadata file")
 
     parser.add_argument(
+        "--reference-json",
+        type=str,
+        required=True,
+        help="Path to reference sequences fasta file",
+    )
+
+    parser.add_argument(
         "--dna-mutation-files",
         type=str,
         nargs="+",
@@ -63,28 +70,36 @@ def main():
 
     args = parser.parse_args()
 
+    # Get reference sequence names
+    with open(args.reference_json, "rt") as fp:
+        references = json.load(fp)
+        reference_names = sorted(references.keys())
+
     # Count mutations
     dna_mutation_group_df, dna_mutation_map = process_mutations(
         args.fasta,
         args.dna_mutation_files,
+        reference_names,
         mode="dna",
         count_threshold=args.count_threshold,
     )
     gene_aa_mutation_group_df, gene_aa_mutation_map = process_mutations(
         args.fasta,
         args.gene_aa_mutation_files,
+        reference_names,
         mode="gene_aa",
         count_threshold=args.count_threshold,
     )
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
         args.fasta,
         args.protein_aa_mutation_files,
+        reference_names,
         mode="protein_aa",
         count_threshold=args.count_threshold,
     )
 
     # Load metadata
-    df = pd.read_csv(args.metadata).set_index("Accession ID")
+    df = pd.read_csv(args.metadata)
 
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)
@@ -93,26 +108,35 @@ def main():
     # for col in group_cols:
     #     df = df.loc[~pd.isnull(df[col]), :]
 
+    # Prepare for joins with mutation data
+    # Explode to one row per sequence-reference pair
+    df = df.assign(reference=lambda _: [reference_names] * len(df)).explode("reference")
+
     # Join mutations to main dataframe
     # inner join to exclude filtered out sequences
-    df = df.join(
-        dna_mutation_group_df[["mutation_id"]],
-        on="Accession ID",
-        how="inner",
-        sort=False,
-    ).rename(columns={"mutation_id": "dna_mutation_str"})
-    df = df.join(
-        gene_aa_mutation_group_df[["mutation_id"]],
-        on="Accession ID",
-        how="inner",
-        sort=False,
-    ).rename(columns={"mutation_id": "gene_aa_mutation_str"})
-    df = df.join(
-        protein_aa_mutation_group_df[["mutation_id"]],
-        on="Accession ID",
-        how="inner",
-        sort=False,
-    ).rename(columns={"mutation_id": "protein_aa_mutation_str"})
+    df = (
+        df.merge(
+            dna_mutation_group_df,
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="inner",
+        )
+        .rename(columns={"mutation_id": "dna_mutation_str"})
+        .merge(
+            gene_aa_mutation_group_df,
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="inner",
+        )
+        .rename(columns={"mutation_id": "gene_aa_mutation_str"})
+        .merge(
+            protein_aa_mutation_group_df,
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="inner",
+        )
+        .rename(columns={"mutation_id": "protein_aa_mutation_str"})
+    )
 
     # Factorize some more metadata columns
     metadata_maps = {}
@@ -142,7 +166,7 @@ def main():
         fp.write(json.dumps(metadata_maps))
 
     # Write final dataframe
-    df.to_csv(args.case_data_csv, index_label="Accession ID")
+    df.to_csv(args.case_data_csv, index=False)
     df.reset_index().to_json(args.case_data, orient="records")
 
 

@@ -241,7 +241,11 @@ export class DataStore {
   };
 
   @action
-  downloadSelectedSequenceMetadata = ({ selectedFields, mutationFormat }) => {
+  downloadSelectedSequenceMetadata = ({
+    selectedFields,
+    mutationFormat,
+    selectedReference,
+  }) => {
     rootStoreInstance.UIStore.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
@@ -252,6 +256,10 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_reference: selectedReference,
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -308,6 +316,9 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),

@@ -4,7 +4,6 @@ import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import {
-  MIN_DATE,
   ASYNC_STATES,
   NORM_MODES,
   COUNT_MODES,
@@ -29,8 +28,6 @@ import { PlotTitle, OptionSelectContainer } from './Plot.styles';
 import { PlotHeader, PlotOptionsRow } from './GroupStackPlot.styles';
 
 import initialSpec from '../../vega_specs/group_stack.vg.json';
-
-const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
 
 const GroupStackPlot = observer(({ width }) => {
   const vegaRef = useRef();
@@ -89,6 +86,8 @@ const GroupStackPlot = observer(({ width }) => {
         ops: ['sum', 'first', 'first'],
         as: ['counts', 'color', 'group_name'],
       });
+
+      // console.log(JSON.stringify(data));
 
       return data;
     }
@@ -352,6 +351,8 @@ const GroupStackPlot = observer(({ width }) => {
     plotTitle += ' by Week';
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     plotTitle += ' by Month';
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_YEAR) {
+    plotTitle += ' by Year';
   }
 
   const maxShownLocations = 4;
@@ -384,7 +385,10 @@ const GroupStackPlot = observer(({ width }) => {
     dateBin = 1000 * 60 * 60 * 24 * 7;
   } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_MONTH) {
     dateBin = 1000 * 60 * 60 * 24 * 30;
+  } else if (plotSettingsStore.groupStackDateBin === DATE_BINS.DATE_BIN_YEAR) {
+    dateBin = 1000 * 60 * 60 * 24 * 365;
   }
+
   // If running in cumulative mode, add the vega transformation
   // By default the cumulative transformation is dumped into a column
   // "counts_cumulative", so if active, just overwrite the "counts"
@@ -472,6 +476,7 @@ const GroupStackPlot = observer(({ width }) => {
                   <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
                   <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
                   <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+                  <option value={DATE_BINS.DATE_BIN_YEAR}>Year</option>
                 </select>
               </label>
             </OptionSelectContainer>
@@ -528,7 +533,7 @@ const GroupStackPlot = observer(({ width }) => {
           signalListeners={state.signalListeners}
           dataListeners={state.dataListeners}
           signals={{
-            dateRangeStart: new Date(min_date).getTime() / 1000,
+            dateRangeStart: new Date(config.min_date).getTime(),
             disableSelectionColoring: configStore.groupKey === GROUP_MUTATION,
             detailHeight,
             hoverBar: state.hoverGroup,

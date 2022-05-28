@@ -5,6 +5,7 @@ import { useStores } from '../../stores/connect';
 import { config } from '../../config';
 
 import { ASYNC_STATES } from '../../constants/defs.json';
+import { getReferenceNames, getReferences } from '../../utils/reference';
 
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
@@ -43,6 +44,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     group: Object.keys(config.group_cols)[0],
     mutationType: 'gene_aa',
     consensusThreshold: 0.9,
+    selectedReference: groupDataStore.activeReference,
   });
 
   useEffect(() => {
@@ -55,6 +57,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
       group: state.group,
       mutationType: state.mutationType,
       consensusThreshold: parseFloat(state.consensusThreshold),
+      selectedReference: state.selectedReference,
     });
   };
 
@@ -86,6 +89,13 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     });
   };
 
+  const onChangeReference = (e) => {
+    setState({
+      ...state,
+      selectedReference: e.target.value,
+    });
+  };
+
   const onChangeMutationType = (e) => {
     setState({
       ...state,
@@ -105,6 +115,18 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     groupOptions.push(
       <option key={`group-${group}`} value={group}>
         {config.group_cols[group]['title']}
+      </option>
+    );
+  });
+
+  const referenceOptionItems = [];
+  getReferenceNames().forEach((referenceName) => {
+    let name =
+      referenceName + ' ' + getReferences()[referenceName]['description'];
+
+    referenceOptionItems.push(
+      <option key={`ref-option-${referenceName}`} value={referenceName}>
+        {name}
       </option>
     );
   });
@@ -144,6 +166,18 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
             Phylogeny Definition{' '}
             <select onChange={onChangeGroup} value={state.group}>
               {groupOptions}
+            </select>
+          </SelectInput>
+        </Row>
+        <Row>
+          <SelectInput>
+            Reference{' '}
+            <select
+              onChange={onChangeReference}
+              value={state.selectedReference}
+              style={{ width: '100%' }}
+            >
+              {referenceOptionItems}
             </select>
           </SelectInput>
         </Row>

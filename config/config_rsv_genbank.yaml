@@ -7,7 +7,7 @@ virus: "rsv"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "data_genbank_rsv"
+data_folder: "example_data_genbank/rsv"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
@@ -15,7 +15,8 @@ static_data_folder: "static_data/rsv"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
-example_data_folder: "example_data_genbank"
+# Only used for database seeding in development
+example_data_folder: "example_data_genbank/rsv"
 
 # Database for this virus
 postgres_db: "rsvg_dev"
@@ -35,7 +36,7 @@ mutation_count_threshold: 3
 
 # Threshold of prevalence to report a mutation as being a consensus
 # mutation for a group (e.g., clade, lineage)
-consensus_fraction: 0.9
+consensus_fraction: 0.7
 
 # Threshold of prevalence to report a mutation as being associated
 # with a group (e.g., clade, lineage)
@@ -104,6 +105,19 @@ prod_hostname: "https://rsv.pathmut.org"
 # ----------------------
 #     VISUALIZATION
 # ----------------------
+
+# Home page
+show_home_banner: true
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
+
+min_date: "1956-01-01"
 
 show_logos:
   GISAID: false

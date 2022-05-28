@@ -20,7 +20,7 @@ import {
 
 const HomeTab = observer(() => {
   const [ref, { width }] = useDimensions();
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(config['show_home_banner']);
 
   return (
     <HomeTabContainer ref={ref}>
@@ -38,10 +38,14 @@ const HomeTab = observer(() => {
         </PubBanner>
       )}
       <HomeTabContent>
-        <WalkthroughList />
-        <SurveillancePlot width={width - 150} />
+        {config['show_walkthroughs'] && <WalkthroughList />}
+        {config['show_surveillance'] && (
+          <SurveillancePlot width={width - 150} />
+        )}
         <div style={{ height: '15px' }} />
-        {config.virus === 'sars2' && <GlobalSeqPlot width={width - 120} />}
+        {config['show_global_seq_plot'] && (
+          <GlobalSeqPlot width={width - 120} />
+        )}
         <ExampleList />
       </HomeTabContent>
     </HomeTabContainer>

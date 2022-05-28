@@ -178,12 +178,8 @@ DeleteButtonContainer.propTypes = {
 };
 
 const MutationListContent = observer(() => {
-  const {
-    groupDataStore,
-    UIStore,
-    plotSettingsStore,
-    configStore,
-  } = useStores();
+  const { groupDataStore, UIStore, plotSettingsStore, configStore } =
+    useStores();
 
   // console.log(UIStore.groupMutationFrequencyState);
 
@@ -443,6 +439,7 @@ const MutationList = observer(() => {
         group: groupDataStore.activeGroupType,
         mutationType: groupDataStore.groupMutationType,
         consensusThreshold: 0,
+        selectedReference: groupDataStore.activeReference,
       });
     }
   };

@@ -1,33 +1,45 @@
 import { DEGENERATES } from '../constants/defs.json';
 import { reverseComplement } from './string';
 import { memoize } from './func';
-import refSeq from '../../static_data/__VIRUS__/reference.json';
+import references from '../../static_data/__VIRUS__/reference.json';
 
-const reverseComplementRefSeq = reverseComplement(refSeq.ref_seq);
-
-export function getReferenceSequence(key = '') {
-  return key ? refSeq.ref_seq[key] : refSeq.ref_seq;
-}
-export function getReferenceSequenceReverseComplement(key = '') {
-  return key ? reverseComplementRefSeq[key] : reverseComplementRefSeq;
+export function getReferences() {
+  return references;
 }
 
-export function referenceSequenceIncludes(seq, key = '') {
-  return forRefSeqIncludes(seq, key) || revRefSeqIncludes(seq, key);
-}
-
-const forRefSeqIncludes = memoize((seq, key = '') => {
-  return key ? refSeq.ref_seq[key].includes(seq) : refSeq.ref_seq.includes(seq);
-});
-const revRefSeqIncludes = memoize((seq, key = '') => {
-  return key
-    ? reverseComplementRefSeq[key].includes(seq)
-    : reverseComplementRefSeq.includes(seq);
+Object.keys(references).forEach((referenceName) => {
+  references[referenceName]['sequence_rc'] = reverseComplement(
+    references[referenceName]['sequence']
+  );
 });
 
-export const queryReferenceSequence = memoize((seq, key = '') => {
+export function getReferenceNames() {
+  return Object.keys(references);
+}
+
+export function referenceSequenceIncludes(referenceName, query) {
+  return (
+    forRefSeqIncludes(referenceName, query) ||
+    revRefSeqIncludes(referenceName, query)
+  );
+}
+
+const forRefSeqIncludes = memoize((referenceName, query) => {
+  return references[referenceName]['sequence'].includes(query);
+});
+const revRefSeqIncludes = memoize((referenceName, query) => {
+  return references[referenceName]['sequence_rc'].includes(query);
+});
+const forRefSeqIndexOf = memoize((referenceName, query) => {
+  return references[referenceName]['sequence'].indexOf(query);
+});
+const revRefSeqIndexOf = memoize((referenceName, query) => {
+  return references[referenceName]['sequence_rc'].indexOf(query);
+});
+
+export const queryReferenceSequence = memoize((referenceName, query) => {
   let ind = [];
-  [...seq].forEach((char, i) => {
+  [...query].forEach((char, i) => {
     // Check if char represents a nucleotide (NT)
     if (char.toUpperCase() in DEGENERATES) {
       // If char is a degenerate NT, save an array where:
@@ -46,12 +58,12 @@ export const queryReferenceSequence = memoize((seq, key = '') => {
   if (ind.length) {
     // If there are degenerate NTs, generate and check the sequences
     // Create the first sequence
-    let newseq = seq;
+    let newseq = query;
     // Calculate the max number of permutations to use later as an e-stop
     let maxPerms = 1;
     ind.forEach((item) => {
       // Replace each degenerate with a valid nucleotide
-      let validNTArray = DEGENERATES[seq.charAt(item[0])];
+      let validNTArray = DEGENERATES[query.charAt(item[0])];
       newseq = replaceChar(newseq, item[0], validNTArray[item[1]]);
       // Number.MAX_VALUE = 2^1024 so maxPerms shouldn't overflow
       maxPerms *= validNTArray.length;
@@ -62,7 +74,7 @@ export const queryReferenceSequence = memoize((seq, key = '') => {
     let res = lookForSeq(newseq);
     let counter = 1;
     let degenInd = 0;
-    let validNTArray = DEGENERATES[seq.charAt(ind[degenInd][0])];
+    let validNTArray = DEGENERATES[query.charAt(ind[degenInd][0])];
     while (res === 0 && counter < maxPerms) {
       // While newseq is not in the reference, generate and check next sequence
       // To generate sequence, change the first degenerate to its next valid NT
@@ -74,7 +86,7 @@ export const queryReferenceSequence = memoize((seq, key = '') => {
         // Change the next degenerate to its next valid NT.
         degenInd++;
         ind[degenInd][1]++;
-        validNTArray = DEGENERATES[seq.charAt(ind[degenInd][0])];
+        validNTArray = DEGENERATES[query.charAt(ind[degenInd][0])];
         // If this index is beyond validNTArray, repeat.
       }
       // Construct the new sequence
@@ -87,49 +99,36 @@ export const queryReferenceSequence = memoize((seq, key = '') => {
       counter++;
       // Reset to the first degenerate.
       degenInd = 0;
-      validNTArray = DEGENERATES[seq.charAt(ind[degenInd][0])];
+      validNTArray = DEGENERATES[query.charAt(ind[degenInd][0])];
       // Check the new seq
-      res = lookForSeq(newseq, key);
+      res = lookForSeq(referenceName, newseq);
     }
     return res;
   } else {
     // No degenerate nucleotides, keep original logic
-    return lookForSeq(seq, key);
+    return lookForSeq(referenceName, query);
   }
-});
-
-const forRefSeqIndexOf = memoize((seq, key = '') => {
-  return key ? refSeq.ref_seq[key].indexOf(seq) : refSeq.ref_seq.indexOf(seq);
-});
-const revRefSeqIndexOf = memoize((seq, key = '') => {
-  return key
-    ? reverseComplementRefSeq[key].indexOf(seq)
-    : reverseComplementRefSeq.indexOf(seq);
 });
 
 function replaceChar(str, ind, char) {
   return str.substr(0, ind) + char + str.substr(ind + 1);
 }
 
-const lookForSeq = memoize((seq, key = '') => {
-  if (forRefSeqIncludes(seq, key)) {
+const lookForSeq = memoize((referenceName, query) => {
+  if (forRefSeqIncludes(referenceName, query)) {
     return [
-      forRefSeqIndexOf(seq, key) + 1,
-      forRefSeqIndexOf(seq, key) + seq.length,
+      forRefSeqIndexOf(referenceName, query) + 1,
+      forRefSeqIndexOf(referenceName, query) + query.length,
     ];
-  } else if (revRefSeqIncludes(seq, key)) {
-    return key
-      ? [
-          refSeq.ref_seq[key].length -
-            revRefSeqIndexOf(seq, key) -
-            seq.length +
-            1,
-          refSeq.ref_seq[key].length - revRefSeqIndexOf(seq, key),
-        ]
-      : [
-          refSeq.ref_seq.length - revRefSeqIndexOf(seq) - seq.length + 1,
-          refSeq.ref_seq.length - revRefSeqIndexOf(seq),
-        ];
+  } else if (revRefSeqIncludes(referenceName, query)) {
+    return [
+      references[referenceName]['sequence'].length -
+        revRefSeqIndexOf(referenceName, query) -
+        query.length +
+        1,
+      references[referenceName]['sequence'].length -
+        revRefSeqIndexOf(referenceName, query),
+    ];
   } else {
     return 0;
   }

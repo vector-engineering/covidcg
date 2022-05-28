@@ -14,6 +14,7 @@ from cg_server.constants import constants
 from cg_server.query import (
     build_sequence_location_where_filter,
     build_coordinate_filters,
+    get_loc_level_ids,
 )
 from psycopg2 import sql
 
@@ -34,9 +35,23 @@ def build_variant_table(conn, req):
     coordinate_ranges = req.get("coordinate_ranges", None)
     selected_gene = req.get("selected_gene", None)
     selected_protein = req.get("selected_protein", None)
+    selected_reference = req.get("selected_reference", None)
+
+    if not selected_reference:
+        raise Exception("No reference specified")
 
     with conn.cursor() as cur:
-        sequence_where_filter = build_sequence_location_where_filter(req)
+        sequence_where_filter = build_sequence_location_where_filter(
+            constants["GROUP_MUTATION"],
+            get_loc_level_ids(req),
+            req.get("start_date", None),
+            req.get("end_date", None),
+            req.get("subm_start_date", None),
+            req.get("subm_end_date", None),
+            req.get("selected_metadata_fields", None),
+            req.get("selected_group_fields", None),
+            selected_reference,
+        )
 
         (mutation_filter, mutation_table) = build_coordinate_filters(
             conn,
@@ -93,10 +108,12 @@ def build_variant_table(conn, req):
             """
             SELECT
                 {metadata_cols_expr},
+                sm."reference",
                 sm."mutations"
             FROM (
                 SELECT
                     sst."sequence_id",
+                    sst."reference",
                     (sst.mutations & (
                         SELECT ARRAY_AGG("id")
                         FROM {mutation_table}
@@ -123,7 +140,7 @@ def build_variant_table(conn, req):
         res = pd.DataFrame.from_records(
             # cur.fetchall(), columns=metadata_cols + ["mutation_name", "pos"]
             cur.fetchall(),
-            columns=metadata_cols + ["mutations"],
+            columns=metadata_cols + ["reference", "mutations"],
         ).set_index("Accession ID")
 
         # Get mutation ID mappings
@@ -197,6 +214,7 @@ def build_variant_table(conn, req):
             .drop(columns=["pos"])[["name", "counts"]]  # Reorder columns
             .rename(columns={"name": "mutation_name"})
         )
+        mut_counts.insert(0, "reference", selected_reference)
 
         # print(mut_counts)
         # print(pivot)

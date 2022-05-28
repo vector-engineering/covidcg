@@ -9,7 +9,6 @@ import { throttle } from '../../utils/func';
 import { config } from '../../config';
 
 import {
-  MIN_DATE,
   NORM_MODES,
   COUNT_MODES,
   DATE_BINS,
@@ -30,19 +29,12 @@ import { PlotOptions, OptionSelectContainer } from './Plot.styles';
 import initialSpec from '../../vega_specs/location_date.vg.json';
 import { formatMutation } from '../../utils/mutationUtils';
 
-const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
-
 const PlotContainer = styled.div``;
 
 const LocationDatePlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const {
-    dataStore,
-    configStore,
-    UIStore,
-    plotSettingsStore,
-    groupDataStore,
-  } = useStores();
+  const { dataStore, configStore, UIStore, plotSettingsStore, groupDataStore } =
+    useStores();
 
   const handleHoverLocation = (...args) => {
     // Don't fire the action if there's no change
@@ -102,9 +94,10 @@ const LocationDatePlot = observer(({ width }) => {
       record.location_date_count = dataStore.countsPerLocationDateMap
         .get(record.location)
         .get(record.collection_date);
-      record.cumulative_location_date_count = dataStore.cumulativeCountsPerLocationDateMap
-        .get(record.location)
-        .get(record.collection_date);
+      record.cumulative_location_date_count =
+        dataStore.cumulativeCountsPerLocationDateMap
+          .get(record.location)
+          .get(record.collection_date);
       return record;
     });
 
@@ -140,6 +133,10 @@ const LocationDatePlot = observer(({ width }) => {
       plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
     ) {
       dateBin = 1000 * 60 * 60 * 24 * 30;
+    } else if (
+      plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_YEAR
+    ) {
+      dateBin = 1000 * 60 * 60 * 24 * 365;
     }
 
     const dateBinSignal = spec.signals.find(
@@ -349,7 +346,12 @@ const LocationDatePlot = observer(({ width }) => {
     plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
   ) {
     plotTitle += ' by Month';
+  } else if (
+    plotSettingsStore.locationDateDateBin === DATE_BINS.DATE_BIN_MONTH
+  ) {
+    plotTitle += ' by Year';
   }
+
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_MUTATION) {
       plotTitle += ` (${configStore.selectedGroups
@@ -404,6 +406,7 @@ const LocationDatePlot = observer(({ width }) => {
               <option value={DATE_BINS.DATE_BIN_DAY}>Day</option>
               <option value={DATE_BINS.DATE_BIN_WEEK}>Week</option>
               <option value={DATE_BINS.DATE_BIN_MONTH}>Month</option>
+              <option value={DATE_BINS.DATE_BIN_YEAR}>Year</option>
             </select>
           </label>
         </OptionSelectContainer>
@@ -430,7 +433,7 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
-            dateRangeStart: new Date(min_date).getTime() / 1000,
+            dateRangeStart: new Date(config.min_date).getTime() / 1000,
             percentages:
               plotSettingsStore.locationDateNormMode ===
               NORM_MODES.NORM_PERCENTAGES,

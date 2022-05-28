@@ -5,12 +5,7 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import {
-  geneMap,
-  proteinMap,
-  getGene,
-  getProtein,
-} from '../utils/gene_protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { updateURLFromParams } from '../utils/updateQueryParam';
@@ -29,7 +24,7 @@ import { config } from '../config';
 
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
-import { initialValueStoreInstance } from '../components/App';
+import { configStore as initialConfigStore } from '../constants/initialValues';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -79,7 +74,7 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.initialValues = initialValueStoreInstance.configStore;
+    this.initialValues = initialConfigStore;
 
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
@@ -98,28 +93,15 @@ export class ConfigStore {
     this.urlParams.forEach((value, key) => {
       value = decodeURIComponent(value);
       if (key in this.initialValues) {
-        if (key === 'selectedGene') {
-          // If the specified gene is in the geneMap get the gene
-          if (value in geneMap) {
-            if (config.virus === 'sars2') {
-              this[key] = getGene(value);
-            }
-          } else {
-            // Else display default gene
-            this[key] = this.initialValues.selectedGene;
-            this.urlParams.set(key, this.initialValues.selectedGene.name);
-          }
-        } else if (key === 'selectedProtein') {
-          // If the specified protein is in the proteinMap get the protein
-          if (value in proteinMap) {
-            if (config.virus === 'sars2') {
-              this[key] = getProtein(value);
-            }
-          } else {
-            // Else display default protein
-            this[key] = this.initialValues.selectedProtein;
-            this.urlParams.set(key, this.initialValues.selectedProtein.name);
-          }
+        if (key === 'selectedReference') {
+          this.selectedReference = value;
+        }
+        // Set gene/protein from URL params
+        // Since the gene/protein object is dependent on the reference,
+        // wait til we get that first and then we'll call getGene()/getProtein()
+        // For now, set the value to a string
+        else if (key === 'selectedGene' || key === 'selectedProtein') {
+          this[key] = value;
         } else if (key === 'ageRange' || key.includes('valid')) {
           // AgeRange is not being used currently so ignore
           // validity flags should not be set from the url
@@ -201,6 +183,23 @@ export class ConfigStore {
         this.urlParams.delete(key);
       }
     });
+
+    // Map gene/protein names to objects
+    if (typeof this.selectedGene === 'string') {
+      this.selectedGene = getGene(this.selectedGene, this.selectedReference);
+      if (this.selectedGene === undefined) {
+        this.selectedGene = this.initialValues.selectedGene;
+      }
+    }
+    if (typeof this.selectedProtein === 'string') {
+      this.selectedProtein = getProtein(
+        this.selectedProtein,
+        this.selectedReference
+      );
+      if (this.selectedProtein === undefined) {
+        this.selectedProtein = this.initialValues.selectedProtein;
+      }
+    }
 
     // Update URL
     updateURLFromParams(this.urlParams);
@@ -421,6 +420,7 @@ export class ConfigStore {
       division: [],
       location: [],
     };
+    console.log(this.selectedLocationNodes);
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });

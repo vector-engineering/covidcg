@@ -8,6 +8,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import gzip
 import io
 import pandas as pd
+import numpy as np
 
 from pathlib import Path
 
@@ -70,16 +71,48 @@ def extract_ids(fasta_file):
 def process_mutations(
     processed_fasta_files,
     mutation_files,
+    references,
     # Mutations must occur at least this many times to pass filters
     count_threshold=3,
     mode="dna",  # dna, gene_aa, protein_aa
 ):
+    """Process mutation data
+    
+    Parameters
+    ----------
+    processed_fasta_files: string
+        - Path to processed FASTA files folder
+    mutation_files: list of strings
+        - Paths to mutation CSV files
+    references: list of strings
+        - Names of reference FASTA files
+    count_threshold: int
+        - Mutations must occur at least this many times to pass filters
+    mode: string
+        - dna, gene_aa, protein_aa
+    
+    Returns
+    -------
+    out: tuple of pandas.DataFrames
+        - Mutation group dataframe
+        - Mutation map dataframe
+    """
 
     manifest = []
     for fasta_file in sorted(Path(processed_fasta_files).glob("*.fa.gz")):
         manifest.extend(extract_ids(fasta_file))
     manifest = pd.DataFrame.from_records(manifest, columns=["Accession ID", "date"])
     pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
+
+    # Add references to manifest
+    pruned_manifest[
+        "reference"
+    ] = np.nan  # Have to first assign a singular value before setting to array
+    # pruned_manifest['reference'] = pruned_manifest['reference'].apply(lambda _: ['NC_038235.1', 'NC_001781.1', 'KX858757.1', 'KX858756.1'])
+    pruned_manifest["reference"] = pruned_manifest["reference"].apply(
+        lambda _: references
+    )
+    pruned_manifest = pruned_manifest.explode("reference")
 
     # Dump all mutation chunks into a text buffer
     mutation_df_io = io.StringIO()
@@ -106,14 +139,12 @@ def process_mutations(
     # Remove duplicate sequences
     # --------------------------
 
-    mutation_df = pruned_manifest.set_index(["Accession ID", "date"]).join(
-        mutation_df.set_index(["Accession ID", "date"]), how="left"
+    # Also has the effect of adding rows for sequences without mutations
+    # (pos, ref, alt, etc filled with NaNs)
+    mutation_df = pruned_manifest.set_index(["Accession ID", "reference", "date"]).join(
+        mutation_df.set_index(["Accession ID", "reference", "date"]), how="left"
     )
     mutation_df.reset_index(inplace=True)
-
-    # Set aside sequences with no mutations
-    # We'll add them back in later
-    no_mutation_seqs = mutation_df.loc[mutation_df["pos"].isna(), "Accession ID"].values
 
     # Remove sequences with no mutations before counting mutations
     mutation_df = mutation_df.loc[~mutation_df["pos"].isna()]
@@ -156,19 +187,27 @@ def process_mutations(
     mutation_map = pd.Series(mutation_map.index.values, index=mutation_map)
     mutation_df["mutation_id"] = mutation_df["mutation_str"].map(mutation_map)
 
+    mutation_group_df = mutation_df.groupby(
+        ["Accession ID", "reference"], as_index=False
+    )["mutation_id"].agg(list)
+
     mutation_group_df = (
-        mutation_df.groupby("Accession ID")["mutation_id"].agg(list).reset_index()
-    )
-    # Add back the sequences with no mutations
-    mutation_group_df = pd.concat(
-        [
+        pruned_manifest.drop(columns=["date"])
+        .merge(
             mutation_group_df,
-            pd.DataFrame({"Accession ID": no_mutation_seqs}).assign(
-                mutation_id=[[]] * len(no_mutation_seqs)
-            ),
-        ],
-        axis=0,
-        ignore_index=True,
-    ).set_index("Accession ID")
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="left",
+        )
+        .sort_values(["Accession ID", "reference"])
+    )
+
+    # Fill NaNs with empty arrays
+    mutation_group_df.loc[
+        mutation_group_df["mutation_id"].isna(), "mutation_id"
+    ] = pd.Series(
+        [[]] * mutation_group_df["mutation_id"].isna().sum(),
+        index=mutation_group_df.index[mutation_group_df["mutation_id"].isna()],
+    )
 
     return mutation_group_df, mutation_map

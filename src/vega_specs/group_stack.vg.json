@@ -17,7 +17,7 @@
     { "name": "overviewHeight", "value": 60 },
     {
       "name": "dateRangeStart",
-      "value": 1575158400000,
+      "value": -631152000000,
       "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
     },
     {

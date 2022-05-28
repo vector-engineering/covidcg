@@ -1,7 +1,7 @@
-import { getGene } from '../../utils/gene_protein';
-import { getLocationByNameAndLevel } from '../../utils/location';
-import { queryPrimers } from '../../utils/primer';
-import { todayISO } from '../../utils/date';
+import { getGene } from '../utils/gene_protein';
+import { getLocationByNameAndLevel } from '../utils/location';
+import { queryPrimers } from '../utils/primer';
+import { todayISO } from '../utils/date';
 
 import {
   GROUP_MUTATION,
@@ -11,14 +11,11 @@ import {
   COUNT_MODES,
   DATE_BINS,
   TABS,
-  MIN_DATE,
-} from '../../constants/defs.json';
+} from '../constants/defs.json';
 
-import { config } from '../../config';
+import { config } from '../config';
 
-const min_date = MIN_DATE.SARS2;
-
-export default function examples(selectTree) {
+export default function examples({ selectTree }) {
   return [
     {
       title: 'Global Lineages',
@@ -40,7 +37,7 @@ export default function examples(selectTree) {
           selectedGene: getGene('S'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [selectTree], // select root
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: todayISO(),
         },
       },
@@ -90,7 +87,7 @@ export default function examples(selectTree) {
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'Iceland', 'country')[0],
           ],
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: todayISO(),
         },
       },
@@ -161,7 +158,7 @@ export default function examples(selectTree) {
             getLocationByNameAndLevel(selectTree, 'Texas', 'division')[0],
             getLocationByNameAndLevel(selectTree, 'Wisconsin', 'division')[0],
           ],
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: todayISO(),
         },
       },
@@ -225,7 +222,7 @@ export default function examples(selectTree) {
                 Name: '2019-nCoV-N2-P',
               })
             ),
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: todayISO(),
         },
       },
@@ -254,7 +251,7 @@ export default function examples(selectTree) {
             getLocationByNameAndLevel(selectTree, 'USA', 'country')[0],
           ],
           selectedGroups: [{ group: 'N|203|R|K' }, { group: 'N|204|G|R' }],
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: todayISO(),
         },
       },
@@ -283,7 +280,7 @@ export default function examples(selectTree) {
             getLocationByNameAndLevel(selectTree, 'Europe', 'region')[0],
           ],
           selectedGroups: [{ group: 'S|614|D|G' }],
-          startDate: min_date,
+          startDate: config.min_date,
           endDate: '2020-12-31',
         },
       },

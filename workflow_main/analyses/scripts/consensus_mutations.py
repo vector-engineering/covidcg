@@ -15,7 +15,11 @@ from collections import Counter
 
 
 def get_consensus_mutations(
-    case_df, group_key, consensus_fraction=0.9, min_reporting_fraction=0.05
+    case_df,
+    group_key,
+    reference=None,
+    consensus_fraction=0.9,
+    min_reporting_fraction=0.05,
 ):
     """Generalized for lineages/clades
 
@@ -24,6 +28,8 @@ def get_consensus_mutations(
     case_df: pandas.DataFrame
     group_key: str
         - 'lineage' or 'clade'
+    reference: str
+        - Reference name
     consensus_fraction: float
         - Fraction of taxons that need to have a mutation for it to be considered 
           a consensus mutation for a lineage/clade
@@ -35,8 +41,13 @@ def get_consensus_mutations(
     group_mutation_df: pandas.DataFrame
     """
 
+    if reference is not None:
+        case_dff = case_df.loc[case_df["reference"] == reference]
+    else:
+        case_dff = case_df
+
     collapsed_mutations = (
-        case_df.groupby(group_key)[
+        case_dff.groupby(group_key)[
             ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
@@ -75,6 +86,7 @@ def get_consensus_mutations(
 
     def mutations_to_df(field):
         _df = collapsed_mutations[field].explode()
+        _df = _df.loc[~pd.isna(_df)]
         _df = pd.DataFrame.from_records(
             _df, columns=["mutation_id", "count", "fraction"], index=_df.index
         )
@@ -129,7 +141,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Case data JSON file"
+        "--case-data", type=str, required=True, help="Path to Case data JSON file"
+    )
+    parser.add_argument(
+        "--reference-json", type=str, required=True, help="Path to Reference JSON file"
     )
     parser.add_argument(
         "--consensus-out", type=str, required=True, help="Consensus mutations JSON file"
@@ -159,19 +174,31 @@ def main():
 
     case_df = pd.read_json(args.case_data).set_index("Accession ID")
 
+    # Get references
+    with open(args.reference_json, "rt") as fp:
+        references = json.load(fp)
+        reference_names = sorted(references.keys())
+
     consensus_dict = {}
     frequencies_dict = {}
     # group_cols is defined under the "group_cols" field
     # in the config.yaml file
     for group in args.group_cols:
-        group_consensus, group_frequencies = get_consensus_mutations(
-            case_df,
-            group,
-            consensus_fraction=args.consensus_fraction,
-            min_reporting_fraction=args.min_reporting_fraction,
-        )
-        consensus_dict[group] = group_consensus
-        frequencies_dict[group] = group_frequencies
+
+        consensus_dict[group] = {}
+        frequencies_dict[group] = {}
+
+        for reference_name in reference_names:
+
+            group_consensus, group_frequencies = get_consensus_mutations(
+                case_df,
+                group,
+                reference=reference_name,
+                consensus_fraction=args.consensus_fraction,
+                min_reporting_fraction=args.min_reporting_fraction,
+            )
+            consensus_dict[group][reference_name] = group_consensus
+            frequencies_dict[group][reference_name] = group_frequencies
 
     with open(args.consensus_out, "w") as fp:
         fp.write(json.dumps(consensus_dict))
