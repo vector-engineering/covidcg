@@ -7,7 +7,7 @@ import pandas as pd
 import pysam
 
 
-def coverage_nt(bam_file):
+def coverage_dna(bam_file):
     """Extract coverage of each sequence on their respective references.
     This assumes the sequence (query) is one contiguous sequence and is
     not split up into segments (e.g., paired-end reads that do not overlap).
@@ -61,7 +61,7 @@ def main():
     parser.add_argument("--out", type=str, required=True, help="Path to output file")
     args = parser.parse_args()
 
-    coverage_df = coverage_nt(args.bam)
+    coverage_df = coverage_dna(args.bam)
     coverage_df.to_csv(args.out, index=False)
 
 

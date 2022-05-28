@@ -7,12 +7,12 @@ import json
 import pandas as pd
 
 
-def coverage_aa(coverage_nt_df, feature_dfs, active_segment, mode):
+def coverage_aa(coverage_dna_df, feature_dfs, active_segment, mode):
     """Extract coverage of sequences on the AA level
 
     Parameters
     ----------
-    coverage_nt_df: pandas.DataFrame
+    coverage_dna_df: pandas.DataFrame
         - Accession ID,reference,start,end
     feature_df: dict
         - key: str
@@ -32,7 +32,7 @@ def coverage_aa(coverage_nt_df, feature_dfs, active_segment, mode):
 
     coverage_aa_df = []
 
-    for _, row in coverage_nt_df.iterrows():
+    for _, row in coverage_dna_df.iterrows():
         reference_name = row["reference"]
         nt_start = row["start"]
         nt_end = row["end"]
@@ -148,7 +148,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--coverage_nt", type=str, required=True, help="Path to coverage_nt.csv file",
+        "--coverage-dna", type=str, required=True, help="Path to coverage_dna.csv file",
     )
     parser.add_argument(
         "--gene-protein-def",
@@ -164,7 +164,7 @@ def main():
     args = parser.parse_args()
 
     # Load NT coverage dataframe
-    coverage_nt_df = pd.read_csv(args.coverage_nt)
+    coverage_dna_df = pd.read_csv(args.coverage_dna)
 
     # Load gene/protein defs
     # JSON to dataframe
@@ -187,7 +187,7 @@ def main():
 
         feature_dfs[k] = v
 
-    coverage_aa_df = coverage_aa(coverage_nt_df, feature_dfs, args.segment, args.mode)
+    coverage_aa_df = coverage_aa(coverage_dna_df, feature_dfs, args.segment, args.mode)
     coverage_aa_df.to_csv(args.out, index=False)
 
 

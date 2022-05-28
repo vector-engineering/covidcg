@@ -5,73 +5,15 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import gzip
 import io
 import pandas as pd
-import numpy as np
 
 from pathlib import Path
 
 
-def extract_ids(fasta_file):
-    """Extract Accession IDs (entry names) from a fasta file
-
-    Parameters
-    ----------
-    fasta_file: str
-
-    Returns
-    -------
-    out: list of tuples, (Accession ID, date)
-
-    """
-
-    out = []
-
-    # Read sequences
-    cur_entry = ""
-    cur_seq = ""
-
-    # Get the date from the fasta file name, as a string
-    file_date = Path(fasta_file).name.replace(".fa.gz", "")
-
-    with gzip.open(fasta_file, "rt") as fp:
-        lines = fp.readlines()
-        for i, line in enumerate(lines):
-            # Strip whitespace
-            line = line.strip()
-
-            # Ignore empty lines that aren't the last line
-            if not line and i < (len(lines) - 1):
-                continue
-
-            # If not the name of an entry, add this line to the current sequence
-            # (some FASTA files will have multiple lines per sequence)
-            if line[0] != ">":
-                cur_seq = cur_seq + line
-
-            # Start of another entry = end of the previous entry
-            if line[0] == ">" or i == (len(lines) - 1):
-                # Avoid capturing the first one and pushing an empty sequence
-                if cur_entry:
-                    out.append((cur_entry, file_date,))
-
-                # Clear the entry and sequence
-                cur_entry = line[1:]
-                # Ignore anything past the first whitespace
-                if cur_entry:
-                    cur_entry = cur_entry.split()[0]
-                cur_seq = ""
-
-    # print("Read {} entries for file {}".format(len(out), fasta_file))
-
-    return out
-
-
 def process_mutations(
-    processed_fasta_files,
+    manifest,
     mutation_files,
-    references,
     # Mutations must occur at least this many times to pass filters
     count_threshold=3,
     mode="dna",  # dna, gene_aa, protein_aa
@@ -80,12 +22,10 @@ def process_mutations(
     
     Parameters
     ----------
-    processed_fasta_files: string
-        - Path to processed FASTA files folder
+    manifest: pandas.DataFrame
+        - Sequence manifest (all sequence-reference pairs)
     mutation_files: list of strings
         - Paths to mutation CSV files
-    references: list of strings
-        - Names of reference FASTA files
     count_threshold: int
         - Mutations must occur at least this many times to pass filters
     mode: string
@@ -97,22 +37,6 @@ def process_mutations(
         - Mutation group dataframe
         - Mutation map dataframe
     """
-
-    manifest = []
-    for fasta_file in sorted(Path(processed_fasta_files).glob("*.fa.gz")):
-        manifest.extend(extract_ids(fasta_file))
-    manifest = pd.DataFrame.from_records(manifest, columns=["Accession ID", "date"])
-    pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
-
-    # Add references to manifest
-    pruned_manifest[
-        "reference"
-    ] = np.nan  # Have to first assign a singular value before setting to array
-    # pruned_manifest['reference'] = pruned_manifest['reference'].apply(lambda _: ['NC_038235.1', 'NC_001781.1', 'KX858757.1', 'KX858756.1'])
-    pruned_manifest["reference"] = pruned_manifest["reference"].apply(
-        lambda _: references
-    )
-    pruned_manifest = pruned_manifest.explode("reference")
 
     # Dump all mutation chunks into a text buffer
     mutation_df_io = io.StringIO()
@@ -141,7 +65,7 @@ def process_mutations(
 
     # Also has the effect of adding rows for sequences without mutations
     # (pos, ref, alt, etc filled with NaNs)
-    mutation_df = pruned_manifest.set_index(["Accession ID", "reference", "date"]).join(
+    mutation_df = manifest.set_index(["Accession ID", "reference", "date"]).join(
         mutation_df.set_index(["Accession ID", "reference", "date"]), how="left"
     )
     mutation_df.reset_index(inplace=True)
@@ -192,7 +116,7 @@ def process_mutations(
     )["mutation_id"].agg(list)
 
     mutation_group_df = (
-        pruned_manifest.drop(columns=["date"])
+        manifest.drop(columns=["date"])
         .merge(
             mutation_group_df,
             left_on=["Accession ID", "reference"],

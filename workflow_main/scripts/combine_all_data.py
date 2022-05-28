@@ -17,9 +17,11 @@ def main():
     parser = argparse.ArgumentParser()
 
     # Input
-    parser.add_argument("--fasta", type=str, required=True, help="FASTA file directory")
     parser.add_argument("--metadata", type=str, required=True, help="Metadata file")
 
+    parser.add_argument(
+        "--manifest", type=str, required=True, help="Path to manifest CSV file",
+    )
     parser.add_argument(
         "--reference-json",
         type=str,
@@ -48,6 +50,18 @@ def main():
         required=True,
         help="Protein AA mutation files",
     )
+    parser.add_argument(
+        "--dna-coverage", type=str, required=True, help="DNA coverage CSV file"
+    )
+    parser.add_argument(
+        "--gene-aa-coverage", type=str, required=True, help="Gene AA coverage CSV file"
+    )
+    parser.add_argument(
+        "--protein-aa-coverage",
+        type=str,
+        required=True,
+        help="Protein AA coverage CSV file",
+    )
 
     # Output
     parser.add_argument(
@@ -75,25 +89,24 @@ def main():
         references = json.load(fp)
         reference_names = sorted(references.keys())
 
+    manifest = pd.read_csv(args.manifest)
+
     # Count mutations
     dna_mutation_group_df, dna_mutation_map = process_mutations(
-        args.fasta,
+        manifest,
         args.dna_mutation_files,
-        reference_names,
         mode="dna",
         count_threshold=args.count_threshold,
     )
     gene_aa_mutation_group_df, gene_aa_mutation_map = process_mutations(
-        args.fasta,
+        manifest,
         args.gene_aa_mutation_files,
-        reference_names,
         mode="gene_aa",
         count_threshold=args.count_threshold,
     )
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
-        args.fasta,
+        manifest,
         args.protein_aa_mutation_files,
-        reference_names,
         mode="protein_aa",
         count_threshold=args.count_threshold,
     )
@@ -136,6 +149,56 @@ def main():
             how="inner",
         )
         .rename(columns={"mutation_id": "protein_aa_mutation_str"})
+    )
+
+    # Join coverage data to main dataframe
+    coverage_dna = pd.read_csv(args.dna_coverage)
+    coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
+        lambda x: tuple(x), axis=1
+    )
+
+    coverage_gene_aa = pd.read_csv(args.gene_aa_coverage)
+    coverage_gene_aa["range"] = coverage_gene_aa[["gene", "start", "end"]].apply(
+        lambda x: tuple(x), axis=1
+    )
+    coverage_gene_aa_group = (
+        coverage_gene_aa.drop(columns=["gene", "start", "end"])
+        .groupby(["Accession ID", "reference"], as_index=False)
+        .agg(range=("range", list))
+    )
+
+    coverage_protein_aa = pd.read_csv(args.protein_aa_coverage)
+    coverage_protein_aa["range"] = coverage_protein_aa[
+        ["protein", "start", "end"]
+    ].apply(lambda x: tuple(x), axis=1)
+    coverage_protein_aa_group = (
+        coverage_protein_aa.drop(columns=["protein", "start", "end"])
+        .groupby(["Accession ID", "reference"], as_index=False)
+        .agg(range=("range", list))
+    )
+
+    df = (
+        df.merge(
+            coverage_dna[["Accession ID", "reference", "range"]],
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="left",
+        )
+        .rename(columns={"range": "nt_range"})
+        .merge(
+            coverage_gene_aa_group,
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="left",
+        )
+        .rename(columns={"range": "gene_aa_range"})
+        .merge(
+            coverage_protein_aa_group,
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="left",
+        )
+        .rename(columns={"range": "protein_aa_range"})
     )
 
     # Factorize some more metadata columns

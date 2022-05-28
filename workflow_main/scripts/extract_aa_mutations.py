@@ -44,7 +44,7 @@ def extract_aa_mutations(
         references = json.loads(fp.read())
     ref_seqs = {ref["name"]: ref["sequence"] for ref in references.values()}
 
-    # Load gene defs
+    # Load gene/protein defs
     # JSON to dataframe
     with open(gene_or_protein_file, "r") as fp:
         feature_dicts = json.loads(fp.read())
