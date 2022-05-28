@@ -192,6 +192,49 @@ rule extract_aa_mutations:
         """
 
 
+rule coverage_nt:
+    """Find mutations on the NT level for each sequence
+    """
+    input:
+        bam = rules.combine_alignments.output.bam,
+    output:
+        coverage_nt = os.path.join(data_folder, "coverage_nt", "{chunk}_coverage_nt.csv")
+    shell:
+        """
+        python3 scripts/coverage_nt.py \
+            --bam {input.bam} \
+            --out {output.coverage_nt}
+        """
+
+
+rule coverage_aa:
+    """Find mutations on the AA level for each sequence
+    """
+    input:
+        coverage_nt = rules.coverage_nt.output.coverage_nt,
+        genes_def = rules.process_genes_and_proteins.output.genes,
+        proteins_def = rules.process_genes_and_proteins.output.proteins
+    output:
+        coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+        coverage_protein_aa = os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv")
+    shell:
+        """
+        python3 scripts/coverage_aa.py \
+            --coverage_nt {input.coverage_nt} \
+            --gene-protein-def {input.genes_def} \
+            --segment 1 \
+            --mode gene \
+            --out {output.coverage_gene_aa}
+
+        python3 scripts/coverage_aa.py \
+            --coverage_nt {input.coverage_nt} \
+            --gene-protein-def {input.proteins_def} \
+            --segment 1 \
+            --mode protein \
+            --out {output.coverage_protein_aa}
+        """
+
+
 rule combine_all_data:
     """Main rule for generating the data files for the browser
     Mostly just a bunch of joins
@@ -208,6 +251,18 @@ rule combine_all_data:
         ),
         protein_aa_mutation_files = expand(
             os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_nt_files = expand(
+            os.path.join(data_folder, "coverage_nt", "{chunk}_coverage_nt.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_gene_aa_files = expand(
+            os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_protein_aa_files = expand(
+            os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv"),
             chunk=CHUNKS
         ),
         ref_seqs_json = rules.write_reference_files.output.reference
