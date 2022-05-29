@@ -7,7 +7,7 @@ import json
 import pandas as pd
 
 
-def coverage_aa(coverage_dna_df, feature_dfs, active_segment, mode):
+def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
     """Extract coverage of sequences on the AA level
 
     Parameters
@@ -19,7 +19,6 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment, mode):
             Reference name
         - value: pandas.DataFrame
     active_segment: str
-    mode: str
     references: dict
 
     Returns
@@ -134,7 +133,7 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment, mode):
     # END FOR NT COVERAGE ROW
 
     coverage_aa_df = pd.DataFrame.from_records(
-        coverage_aa_df, columns=["Accession ID", "reference", mode, "start", "end"]
+        coverage_aa_df, columns=["Accession ID", "reference", "feature", "start", "end"]
     )
 
     # print(coverage_aa_df)
@@ -187,7 +186,7 @@ def main():
 
         feature_dfs[k] = v
 
-    coverage_aa_df = coverage_aa(coverage_dna_df, feature_dfs, args.segment, args.mode)
+    coverage_aa_df = coverage_aa(coverage_dna_df, feature_dfs, args.segment)
     coverage_aa_df.to_csv(args.out, index=False)
 
 

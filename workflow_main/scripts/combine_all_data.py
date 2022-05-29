@@ -149,21 +149,21 @@ def main():
     )
 
     coverage_gene_aa = pd.read_csv(args.gene_aa_coverage)
-    coverage_gene_aa["range"] = coverage_gene_aa[["gene", "start", "end"]].apply(
+    coverage_gene_aa["range"] = coverage_gene_aa[["feature", "start", "end"]].apply(
         lambda x: tuple(x), axis=1
     )
     coverage_gene_aa_group = (
-        coverage_gene_aa.drop(columns=["gene", "start", "end"])
+        coverage_gene_aa.drop(columns=["feature", "start", "end"])
         .groupby(["Accession ID", "reference"], as_index=False)
         .agg(range=("range", list))
     )
 
     coverage_protein_aa = pd.read_csv(args.protein_aa_coverage)
     coverage_protein_aa["range"] = coverage_protein_aa[
-        ["protein", "start", "end"]
+        ["feature", "start", "end"]
     ].apply(lambda x: tuple(x), axis=1)
     coverage_protein_aa_group = (
-        coverage_protein_aa.drop(columns=["protein", "start", "end"])
+        coverage_protein_aa.drop(columns=["feature", "start", "end"])
         .groupby(["Accession ID", "reference"], as_index=False)
         .agg(range=("range", list))
     )

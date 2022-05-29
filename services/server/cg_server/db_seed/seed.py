@@ -534,13 +534,11 @@ def seed_database(conn, schema="public"):
             table_name = f"{mutation_field}_coverage"
 
             coverage_cols = ["sequence_id", "reference", "start", "end"]
-            gene_or_protein_col = sql.SQL("")
-            if mutation_field == "gene_aa":
-                gene_or_protein_col = sql.SQL("gene TEXT NOT NULL,")
-                coverage_cols.insert(2, "gene")
-            elif mutation_field == "protein_aa":
-                gene_or_protein_col = sql.SQL("protein TEXT NOT NULL,")
-                coverage_cols.insert(2, "protein")
+            feature_name_col = sql.SQL("")
+
+            if mutation_field == "gene_aa" or mutation_field == "protein_aa":
+                feature_name_col = sql.SQL("feature TEXT NOT NULL,")
+                coverage_cols.insert(2, "feature")
 
             cur.execute(
                 sql.SQL(
@@ -549,7 +547,7 @@ def seed_database(conn, schema="public"):
                 CREATE TABLE {table_name} (
                     sequence_id  INTEGER  NOT NULL,
                     reference    TEXT     NOT NULL,
-                    {gene_or_protein_col}
+                    {feature_name_col}
                     range_start  INTEGER  NOT NULL,
                     range_end    INTEGER  NOT NULL
                 )
@@ -557,7 +555,7 @@ def seed_database(conn, schema="public"):
                 """
                 ).format(
                     table_name=sql.Identifier(table_name),
-                    gene_or_protein_col=gene_or_protein_col,
+                    feature_name_col=feature_name_col,
                 )
             )
 
@@ -569,10 +567,8 @@ def seed_database(conn, schema="public"):
 
                 # For gene/protein, additionally partition by gene/protein name
                 additional_partition = ""
-                if mutation_field == "gene_aa":
-                    additional_partition = "PARTITION BY LIST(gene)"
-                elif mutation_field == "protein_aa":
-                    additional_partition = "PARTITION BY LIST(protein)"
+                if mutation_field == "gene_aa" or mutation_field == "protein_aa":
+                    additional_partition = "PARTITION BY LIST(feature)"
 
                 reference_partition_name = f"{table_name}_{reference_name_sql}"
 
@@ -627,10 +623,8 @@ def seed_database(conn, schema="public"):
 
             # Create indices
             index_fields = ["sequence_id", "reference", "range_start", "range_end"]
-            if mutation_field == "gene_aa":
-                index_fields.append("gene")
-            elif mutation_field == "protein_aa":
-                index_fields.append("protein")
+            if mutation_field == "gene_aa" or mutation_field == "protein_aa":
+                index_fields.append("feature")
 
             for field in index_fields:
                 cur.execute(
