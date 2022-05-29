@@ -318,7 +318,6 @@ rule combine_all_data:
         dna_coverage = rules.combine_coverage.output.coverage_dna,
         gene_aa_coverage = rules.combine_coverage.output.coverage_gene_aa,
         protein_aa_coverage = rules.combine_coverage.output.coverage_protein_aa,
-        ref_seqs_json = rules.write_reference_files.output.reference
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
@@ -333,7 +332,6 @@ rule combine_all_data:
         python3 scripts/combine_all_data.py \
             --manifest {input.manifest} \
             --metadata {input.metadata} \
-            --reference-json {input.ref_seqs_json} \
             --dna-mutation-files {input.dna_mutation_files} \
             --gene-aa-mutation-files {input.gene_aa_mutation_files} \
             --protein-aa-mutation-files {input.protein_aa_mutation_files} \

@@ -23,13 +23,6 @@ def main():
         "--manifest", type=str, required=True, help="Path to manifest CSV file",
     )
     parser.add_argument(
-        "--reference-json",
-        type=str,
-        required=True,
-        help="Path to reference sequences fasta file",
-    )
-
-    parser.add_argument(
         "--dna-mutation-files",
         type=str,
         nargs="+",
@@ -84,11 +77,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Get reference sequence names
-    with open(args.reference_json, "rt") as fp:
-        references = json.load(fp)
-        reference_names = sorted(references.keys())
-
     manifest = pd.read_csv(args.manifest)
 
     # Count mutations
@@ -114,6 +102,13 @@ def main():
     # Load metadata
     df = pd.read_csv(args.metadata)
 
+    # Join sequence ID and reference from manifest
+    df = df.merge(
+        manifest[["Accession ID", "sequence_id", "reference"]],
+        on="Accession ID",
+        how="left",
+    )
+
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)
     # "group_cols" is defined in the "group_cols" field in the
@@ -121,29 +116,25 @@ def main():
     # for col in group_cols:
     #     df = df.loc[~pd.isnull(df[col]), :]
 
-    # Prepare for joins with mutation data
-    # Explode to one row per sequence-reference pair
-    df = df.assign(reference=lambda _: [reference_names] * len(df)).explode("reference")
-
     # Join mutations to main dataframe
     # inner join to exclude filtered out sequences
     df = (
         df.merge(
-            dna_mutation_group_df,
+            dna_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
         .rename(columns={"mutation_id": "dna_mutation_str"})
         .merge(
-            gene_aa_mutation_group_df,
+            gene_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
         .rename(columns={"mutation_id": "gene_aa_mutation_str"})
         .merge(
-            protein_aa_mutation_group_df,
+            protein_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
@@ -184,16 +175,16 @@ def main():
             right_on=["Accession ID", "reference"],
             how="left",
         )
-        .rename(columns={"range": "nt_range"})
+        .rename(columns={"range": "dna_range"})
         .merge(
-            coverage_gene_aa_group,
+            coverage_gene_aa_group[["Accession ID", "reference", "range"]],
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="left",
         )
         .rename(columns={"range": "gene_aa_range"})
         .merge(
-            coverage_protein_aa_group,
+            coverage_protein_aa_group[["Accession ID", "reference", "range"]],
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="left",
@@ -230,7 +221,7 @@ def main():
 
     # Write final dataframe
     df.to_csv(args.case_data_csv, index=False)
-    df.reset_index().to_json(args.case_data, orient="records")
+    df.to_json(args.case_data, orient="records")
 
 
 if __name__ == "__main__":

@@ -107,6 +107,12 @@ def main():
     manifest = pd.DataFrame.from_records(manifest, columns=["Accession ID", "date"])
     pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
 
+    pruned_manifest = (
+        pruned_manifest.reset_index(drop=True)
+        .reset_index()
+        .rename(columns={"index": "sequence_id"})
+    )
+
     # Add references to manifest
     pruned_manifest[
         "reference"

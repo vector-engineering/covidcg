@@ -39,6 +39,9 @@ else:
     with open(str(static_data_path / "proteins_processed.json")) as f:
         proteins = json.load(f)
 
+with open(str(static_data_path / "reference.json")) as f:
+    references = json.load(f)
+
 loc_levels = [
     "region",
     "country",
@@ -465,7 +468,7 @@ def seed_database(conn, schema="public"):
                     reference        TEXT       NOT NULL,
                     mutations        INTEGER[]  NOT NULL
                 )
-                PARTITION BY RANGE(collection_date);
+                PARTITION BY RANGE(reference, collection_date);
                 """.format(
                     table_name=table_name,
                     metadata_col_defs=metadata_col_defs,
@@ -473,22 +476,34 @@ def seed_database(conn, schema="public"):
                 )
             )
 
+            reference_names = list(references.keys())
+
             # Create table partitions
-            for i in range(len(partition_dates) - 1):
-                start = partition_dates[i]
-                end = partition_dates[i + 1]
-                cur.execute(
-                    """
-                    CREATE TABLE "{partition_table_name}" PARTITION OF "{table_name}"
-                    FOR VALUES FROM ('{start}') TO ('{end}')
-                    WITH (parallel_workers = 4);
-                    """.format(
-                        partition_table_name="{}_{}".format(table_name, i),
-                        table_name=table_name,
-                        start=start,
-                        end=end,
+            for reference_name in reference_names:
+
+                # Clean up the reference name as a SQL ident - no dots
+                reference_name_sql = reference_name.replace(".", "_")
+
+                for i in range(len(partition_dates) - 1):
+                    date_start = partition_dates[i]
+                    date_end = partition_dates[i + 1]
+                    cur.execute(
+                        sql.SQL(
+                            """
+                        CREATE TABLE {partition_table_name} PARTITION OF {table_name}
+                        FOR VALUES FROM ({date_start}, {reference_name}) TO ({date_end}, {reference_name})
+                        WITH (parallel_workers = 4);
+                        """
+                        ).format(
+                            partition_table_name=sql.Identifier(
+                                f"{table_name}_{reference_name_sql}_{i}"
+                            ),
+                            table_name=sql.Identifier(table_name),
+                            date_start=sql.Literal(date_start),
+                            date_end=sql.Literal(date_end),
+                            reference_name=sql.Literal(reference_name),
+                        )
                     )
-                )
 
             mutation_df = case_data[
                 ["collection_date", "submission_date"]
