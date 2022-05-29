@@ -103,7 +103,7 @@ export class DataStore {
         const endTime = Date.now();
         this.timeToFetch = (endTime - startTime) / 1000;
 
-        this.aggLocationGroupDate = res;
+        this.aggLocationGroupDate = res['records'];
 
         // console.log(this.aggLocationGroupDate);
 
