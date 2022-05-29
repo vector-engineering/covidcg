@@ -322,32 +322,30 @@ def count_coverage(
     elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
         coverage_table = "gene_aa_coverage"
         coverage_filter.append(
-            sql.SQL('"gene" = {gene}').format(gene=sql.Literal(selected_gene))
+            sql.SQL('"feature" = {feature}').format(feature=sql.Literal(selected_gene))
         )
-        gene_or_protein_col = sql.SQL('"gene",')
-        gene_or_protein_coalesce = sql.SQL(
-            'COALESCE(start_count."gene", end_count."gene") AS "gene",'
-        )
-        gene_or_protein_join = sql.SQL('start_count."gene" = end_count."gene" AND ')
-        gene_or_protein_partition_by = sql.SQL('PARTITION BY "gene"')
-        gene_or_protein_df_col = ["gene"]
 
     elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
         coverage_table = "protein_aa_coverage"
         coverage_filter.append(
-            sql.SQL('"protein" = {protein}').format(
-                protein=sql.Literal(selected_protein)
+            sql.SQL('"feature" = {feature}').format(
+                feature=sql.Literal(selected_protein)
             )
         )
-        gene_or_protein_col = sql.SQL('"protein",')
+
+    if (
+        coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]
+        or coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]
+    ):
+        gene_or_protein_col = sql.SQL('"feature",')
         gene_or_protein_coalesce = sql.SQL(
-            'COALESCE(start_count."protein", end_count."protein") AS "protein",'
+            'COALESCE(start_count."feature", end_count."feature") AS "feature",'
         )
         gene_or_protein_join = sql.SQL(
-            'start_count."protein" = end_count."protein" AND '
+            'start_count."feature" = end_count."feature" AND '
         )
-        gene_or_protein_partition_by = sql.SQL('PARTITION BY "protein"')
-        gene_or_protein_df_col = ["protein"]
+        gene_or_protein_partition_by = sql.SQL('PARTITION BY "feature"')
+        gene_or_protein_df_col = ["feature"]
 
     coverage_filter = sql.SQL(" AND ").join(coverage_filter)
 
