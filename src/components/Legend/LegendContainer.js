@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { debounce } from '../../utils/func';
@@ -18,13 +17,7 @@ import { COLUMN_NAMES } from './legendUtils';
 import SkeletonElement from '../Common/SkeletonElement';
 import TableLegend from './TableLegend';
 
-const TableLegendContainer = styled.div`
-  width: 100%;
-  height: calc(100vh - 50px);
-  overflow-y: hidden;
-  overflow-x: hidden;
-  border-left: 1px #eaeaea solid;
-`;
+import { TableLegendContainer } from './Legend.styles';
 
 const comparer =
   ({ sortDirection, sortColumn, groupKey, dnaOrAa, coordinateMode }) =>
@@ -63,7 +56,7 @@ const comparer =
     }
   };
 
-const Legend = observer(() => {
+const LegendContainer = observer(() => {
   const { dataStore, UIStore, configStore, groupDataStore, mutationDataStore } =
     useStores();
 
@@ -274,4 +267,4 @@ const Legend = observer(() => {
   );
 });
 
-export default Legend;
+export default LegendContainer;

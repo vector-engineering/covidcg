@@ -20,6 +20,7 @@ example_data_folder: "example_data_genbank/rsv"
 
 # Database for this virus
 postgres_db: "rsvg_dev"
+
 # ------------------
 #       INGEST
 # ------------------
