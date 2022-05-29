@@ -1,5 +1,7 @@
 //__VIRUS__ is replaced with config.virus at build time
+// eslint-disable-next-line import/no-unresolved
 import genes from '../../static_data/__VIRUS__/genes_processed.json';
+// eslint-disable-next-line import/no-unresolved
 import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
 
 // import { config } from '../config';

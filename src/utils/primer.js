@@ -5,6 +5,7 @@ let primerSelectTree = [];
 let instObj = null;
 
 if (config.virus === 'sars2') {
+  // eslint-disable-next-line import/no-unresolved
   import('../../static_data/__VIRUS__/primers.json').then((mod) => {
     const primers = mod.default;
     if (primers && primers.length > 0) {

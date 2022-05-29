@@ -39,15 +39,9 @@ import {
   CollapseButton,
 } from './SurveillancePlot.styles';
 
-const maxCharsPerLine = 10;
 const countsFormatter = format('.2s');
 
-const LegendItem = ({
-  surveillanceMode,
-  legendItem,
-  legendHover,
-  setLegendHover,
-}) => {
+const LegendItem = ({ legendItem, legendHover, setLegendHover }) => {
   const onMouseEnter = () => {
     // console.log('enter', legendItem.group);
     setLegendHover(legendItem.group);
@@ -73,7 +67,6 @@ const LegendItem = ({
   );
 };
 LegendItem.propTypes = {
-  surveillanceMode: PropTypes.string,
   legendItem: PropTypes.object,
   legendHover: PropTypes.arrayOf(PropTypes.string),
   setLegendHover: PropTypes.func,
@@ -87,7 +80,6 @@ const SurveillanceLegend = observer(
       legendElements.push(
         <LegendItem
           key={`surv-legend-${legendItem.group}`}
-          surveillanceMode={plotSettingsStore.surveillanceMode}
           legendItem={legendItem}
           legendHover={legendHover}
           setLegendHover={setLegendHover}
