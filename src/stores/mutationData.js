@@ -17,6 +17,8 @@ export class MutationDataStore {
   proteinAaMutationMap;
   mutationColorMap;
 
+  coverage = [];
+
   constructor() {
     this.intToDnaMutationMap = {
       '-1': { mutation_str: GROUPS.REFERENCE_GROUP },
@@ -176,6 +178,49 @@ export class MutationDataStore {
         return this.geneAaMutationToInt(mut);
       } else {
         return this.proteinAaMutationToInt(mut);
+      }
+    }
+  }
+
+  // For partial sequences mode
+  // Get the genome coverage at the given position
+  getCoverageAtPosition(position, featureName = undefined) {
+    // If the coverage map is not present, return undefined
+    if (this.coverage.length === 0) {
+      return undefined;
+    }
+
+    let coverageMapSubset = this.coverage;
+    // If the feature name is defined, subset the coverage map
+    if (featureName !== undefined) {
+      coverageMapSubset = coverageMapSubset.filter(
+        (row) => row.feature === featureName
+      );
+    }
+
+    // Coverage map structure:
+    // {ind: 1, count: 100},
+    // {ind: 10, count 110},
+    // ...
+    // {ind: [end], count 0} -- last row is always count = 0
+    // Scrub through each interval with the bounds [start, end)
+    for (let i = 0; i < coverageMapSubset.length - 1; i++) {
+      if (
+        position >= coverageMapSubset[i].ind &&
+        position < coverageMapSubset[i + 1].ind
+      ) {
+        return coverageMapSubset[i].count;
+      }
+      // If we're in the last interval, and the position matches the last index,
+      // Then don't use the count of 0, use the count of the interval before this
+      // For example, say all sequences had coverage from 1-500
+      // The coverage map would look like:
+      // {ind: 1, count: 100}, {ind: 500, count: 0}
+      // A position of 500 should return 100, not 0
+      else if (i === coverageMapSubset.length - 2) {
+        if (position === coverageMapSubset[i + 1].ind) {
+          return coverageMapSubset[i].count;
+        }
       }
     }
   }

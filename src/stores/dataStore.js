@@ -105,7 +105,10 @@ export class DataStore {
 
         this.aggLocationGroupDate = res['records'];
 
-        // console.log(this.aggLocationGroupDate);
+        // Pass coverage object onto mutationDataStore
+        if (Object.prototype.hasOwnProperty.call(res, 'coverage')) {
+          rootStoreInstance.mutationDataStore.coverage = res['coverage'];
+        }
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -128,20 +131,7 @@ export class DataStore {
           groupKey: toJS(rootStoreInstance.configStore.groupKey),
         });
 
-        // Collapse low frequency groups
-        // Identify groups to collapse into the "Other" group
-        // this.validGroups = getValidGroups({
-        //   aggSequencesGroup: this.aggSequencesGroup,
-        //   lowFreqFilterType: toJS(rootStoreInstance.configStore.lowFreqFilterType),
-        //   lowFreqFilterParams: {
-        //     maxGroupCounts: toJS(rootStoreInstance.configStore.maxGroupCounts),
-        //     minLocalCounts: toJS(rootStoreInstance.configStore.minLocalCounts),
-        //   },
-        // });
-        // Make a copy of the data which has collapsed data
-
-        // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
-
+        // Aggregate, collapse locations
         ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
           aggregateGroupDate({
             aggSequencesUniqueLocationGroupDate:

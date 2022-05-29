@@ -6,31 +6,35 @@ import {
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
-  // LITEMOL_STYLES,
+  LITEMOL_STYLES,
 } from '../constants/defs.json';
 import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
 export class PlotSettingsStore {
   initialValues = {};
 
+  // LEGEND
+  @observable legendAdjustPartialSequences = true;
+
+  // GROUP STACK PLOT
   @observable groupStackLowFreqFilter = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
   @observable groupStackLowFreqValue = 20;
   @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
   @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
   @observable groupStackDateBin = DATE_BINS.DATE_BIN_DAY;
 
+  // LOCATION DATE PLOT
   @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
   @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
   @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
 
+  // LOCATION GROUP PLOT
   @observable locationGroupHideReference = true;
 
+  // COOCCURRENCE PLOT
   @observable cooccurrenceNormMode = NORM_MODES.NORM_COUNTS;
 
-  // -----------------
   // SURVEILLANCE PLOT
-  // -----------------
-
   @observable surveillanceMode = '';
   @observable surveillanceSortField = '';
   @observable surveillanceSortDirection = SORT_DIRECTIONS.SORT_DESC;
@@ -41,6 +45,7 @@ export class PlotSettingsStore {
   @observable surveillanceSigMinR = 0.3;
   @observable surveillanceLegendHover = [];
 
+  // GROUP REPORT TAB
   @observable reportTreeColorMode = TREE_COLOR_MODES.COLOR_LATEST;
   @observable reportConsensusThreshold = 0.7;
   @observable reportMutationListHideEmpty = true;
@@ -49,6 +54,11 @@ export class PlotSettingsStore {
   @observable reportStructurePdbId = '';
   // Actively selected group for the structural viewer
   @observable reportStructureActiveGroup = '';
+  @observable reportStructureProteinStyle = LITEMOL_STYLES.SURFACE;
+
+  reportStructureAssemblies = [];
+  reportStructureActiveAssembly = '';
+  reportStructureEntities = [];
 
   init() {
     this.initialValues = initialPlotSettingsStore;
@@ -58,6 +68,13 @@ export class PlotSettingsStore {
     });
   }
 
+  // LEGEND
+  @action
+  setLegendAdjustPartialSequences = (value) => {
+    this.legendAdjustPartialSequences = value;
+  };
+
+  // GROUP STACK PLOT
   @action
   setGroupStackLowFreqFilter = (filterType) => {
     this.groupStackLowFreqFilter = filterType;
@@ -79,6 +96,7 @@ export class PlotSettingsStore {
     this.groupStackDateBin = dateBin;
   };
 
+  // LOCATION DATE PLOT
   @action
   setLocationDateNormMode = (mode) => {
     this.locationDateNormMode = mode;
@@ -92,40 +110,19 @@ export class PlotSettingsStore {
     this.locationDateDateBin = dateBin;
   };
 
+  // LOCATION GROUP PLOT
   @action
   setLocationGroupHideReference = (hide) => {
     this.locationGroupHideReference = hide;
   };
 
+  // COOCCURRENCE PLOT
   @action
   setCooccurrenceNormMode = (mode) => {
     this.cooccurrenceNormMode = mode;
   };
 
-  // -----------------
   // SURVEILLANCE PLOT
-  // -----------------
-
-  @observable surveillanceMode = this.initialValues.surveillanceMode;
-  @observable surveillanceShowWarning =
-    this.initialValues.surveillanceShowWarning;
-  @observable surveillanceShowSettings =
-    this.initialValues.surveillanceShowSettings;
-  @observable surveillanceSortField = this.initialValues.surveillanceSortField;
-  @observable surveillanceSortDirection =
-    this.initialValues.surveillanceSortDirection;
-  @observable surveillanceDisplayMinCounts =
-    this.initialValues.surveillanceDisplayMinCounts;
-  @observable surveillanceDisplayMinPercent =
-    this.initialValues.surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts =
-    this.initialValues.surveillanceSigMinCounts;
-  @observable surveillanceSigMinPercent =
-    this.initialValues.surveillanceSigMinPercent;
-  @observable surveillanceSigMinR = this.initialValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover =
-    this.initialValues.surveillanceLegendHover;
-
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
@@ -171,31 +168,7 @@ export class PlotSettingsStore {
     this.surveillanceLegendHover = hover;
   };
 
-  // ----------------
   // GROUP REPORT TAB
-  // ----------------
-
-  @observable reportTreeColorMode = this.initialValues.reportTreeColorMode;
-  @observable reportConsensusThreshold =
-    this.initialValues.reportConsensusThreshold;
-  @observable reportMutationListHideEmpty =
-    this.initialValues.reportMutationListHideEmpty;
-  @observable reportMutationListHidden =
-    this.initialValues.reportMutationListHidden;
-  @observable reportStructureActiveProtein =
-    this.initialValues.reportStructureActiveProtein;
-  @observable reportStructurePdbId = this.initialValues.reportStructurePdbId;
-  // Actively selected group for the structural viewer
-  @observable reportStructureActiveGroup =
-    this.initialValues.reportStructureActiveGroup;
-  @observable reportStructureProteinStyle =
-    this.initialValues.reportStructureProteinStyle;
-
-  reportStructureAssemblies = this.initialValues.reportStructureAssemblies;
-  reportStructureActiveAssembly =
-    this.initialValues.reportStructureActiveAssembly;
-  reportStructureEntities = this.initialValues.reportStructureEntities;
-
   @action
   setReportTreeColorMode = (mode) => {
     this.reportTreeColorMode = mode;
