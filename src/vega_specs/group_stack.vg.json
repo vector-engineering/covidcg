@@ -146,11 +146,6 @@
     {
       "name": "cases_by_date_and_group",
       "comment": "Main data object, same as caseData in store",
-      "format": {
-        "parse": {
-          "collection_date": "date:'%Q'"
-        }
-      },
       "transform": [
         {
           "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",

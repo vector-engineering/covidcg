@@ -486,7 +486,7 @@ def query_and_aggregate(conn, req):
                         """
                     SELECT
                         sm."location",
-                        sm."collection_date",
+                        EXTRACT(EPOCH FROM sm."collection_date"),
                         sm."mutations",
                         COUNT(*) as "count"
                     FROM (
@@ -519,7 +519,7 @@ def query_and_aggregate(conn, req):
                         """
                     SELECT
                         locdef."value" as "location",
-                        m."collection_date",
+                        EXTRACT(EPOCH FROM m."collection_date"),
                         m.{group_key},
                         COUNT(m."sequence_id") as "count"
                     FROM "metadata" m
@@ -546,6 +546,7 @@ def query_and_aggregate(conn, req):
             cur.fetchall(),
             columns=["location", "collection_date", "group_id", "counts"],
         )
+        print(records_df.dtypes)
 
         res = {
             "records": records_df.to_dict(orient="records"),

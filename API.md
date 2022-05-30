@@ -99,7 +99,7 @@ Returns a JSON object, with the format:
     "location": string
       - Name of the specified location. e.g., "North America"
     "collection_date": integer
-      - Collection date, in javascript time (milliseconds since Unix epoch)
+      - Collection date, in seconds since Unix epoch
     "group_id": array of integers or null
       - Represents a group of co-occurring mutation IDs. These mutation IDs can be mapped with the metadata map
       - null value represents no mutations within the specified genomic region

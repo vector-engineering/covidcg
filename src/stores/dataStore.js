@@ -104,6 +104,10 @@ export class DataStore {
         this.timeToFetch = (endTime - startTime) / 1000;
 
         this.aggLocationGroupDate = res['records'];
+        // Convert time from unix epoch (seconds) to milliseconds
+        this.aggLocationGroupDate.forEach((row) => {
+          row.collection_date = row.collection_date * 1000;
+        });
 
         // Pass coverage object onto mutationDataStore
         if (Object.prototype.hasOwnProperty.call(res, 'coverage')) {
