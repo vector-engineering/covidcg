@@ -12,6 +12,7 @@ import {
   SORT_DIRECTIONS,
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
+  LITEMOL_STYLES,
 } from './defs.json';
 
 const today = intToISO(new Date().getTime());
@@ -75,6 +76,11 @@ if (config['virus'] === 'sars2') {
     groupStackCountMode: COUNT_MODES.COUNT_NEW,
     groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
 
+    // MUTATION STRUCTURE VIEWER
+    mutationStructurePdbId: '6ZGG',
+    mutationStructureProteinStyle: LITEMOL_STYLES.SURFACE,
+    mutationStructureNormMode: NORM_MODES.NORM_COVERAGE_ADJUSTED,
+
     // LOCATION DATE PLOT
     locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
     locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
@@ -107,6 +113,7 @@ if (config['virus'] === 'sars2') {
     reportStructureActiveProtein: config['default_protein'],
     reportStructurePdbId: '6ZGG',
     reportStructureActiveGroup: 'B.1.617.2',
+    reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
   };
 
   _groupDataStore = {
@@ -174,6 +181,12 @@ if (config['virus'] === 'sars2') {
     groupStackCountMode: COUNT_MODES.COUNT_NEW,
     groupStackDateBin: DATE_BINS.DATE_BIN_MONTH,
 
+    // MUTATION STRUCTURE VIEWER
+    // 5UDE, 3RRR
+    mutationStructurePdbId: '5UDE',
+    mutationStructureProteinStyle: LITEMOL_STYLES.SURFACE,
+    mutationStructureNormMode: NORM_MODES.NORM_COVERAGE_ADJUSTED,
+
     // LOCATION DATE PLOT
     locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
     locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
@@ -206,6 +219,7 @@ if (config['virus'] === 'sars2') {
     reportStructureActiveProtein: config['default_protein'],
     reportStructurePdbId: '5UDE',
     reportStructureActiveGroup: 'ON1',
+    reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
   };
   _groupDataStore = {
     activeGroupType: Object.keys(config['group_cols'])[0],

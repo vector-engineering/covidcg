@@ -27,6 +27,15 @@ export class PlotSettingsStore {
   @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
   @observable groupStackDateBin = DATE_BINS.DATE_BIN_DAY;
 
+  // MUTATION STRUCTURE VIEWER
+  @observable mutationStructurePdbId = '';
+  @observable mutationStructureProteinStyle = LITEMOL_STYLES.SURFACE;
+  @observable mutationStructureNormMode = NORM_MODES.NORM_COVERAGE_ADJUSTED;
+
+  mutationStructureAssemblies = [];
+  mutationStructureActiveAssembly = '';
+  mutationStructureEntities = [];
+
   // LOCATION DATE PLOT
   @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
   @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
@@ -114,6 +123,33 @@ export class PlotSettingsStore {
   @action
   setGroupStackDateBin = (dateBin) => {
     this.groupStackDateBin = dateBin;
+  };
+
+  // MUTATION STRUCTURE VIEWER
+  @action
+  setMutationStructurePdbId = (pdbId) => {
+    this.mutationStructurePdbId = pdbId;
+  };
+  @action
+  setMutationStructureProteinStyle = (style) => {
+    this.mutationStructureProteinStyle = style;
+  };
+  @action
+  setMutationStructureNormMode = (mode) => {
+    this.mutationStructureNormMode = mode;
+  };
+
+  @action
+  setMutationStructureAssemblies = (assemblies) => {
+    this.mutationStructureAssemblies = assemblies;
+  };
+  @action
+  setMutationStructureActiveAssembly = (assembly) => {
+    this.mutationStructureActiveAssembly = assembly;
+  };
+  @action
+  setMutationStructureEntities = (entities) => {
+    this.mutationStructureEntities = entities;
   };
 
   // LOCATION DATE PLOT

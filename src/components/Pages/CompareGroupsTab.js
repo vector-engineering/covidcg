@@ -3,7 +3,12 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
-import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
+import {
+  GROUP_MUTATION,
+  DNA_OR_AA,
+  COORDINATE_MODES,
+  TABS,
+} from '../../constants/defs.json';
 
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
@@ -16,6 +21,7 @@ import EntropyPlot from '../Viz/EntropyPlot';
 import CooccurrencePlot from '../Viz/CooccurrencePlot';
 import NumSeqPerLocationBar from '../Viz/NumSeqPerLocationBar';
 import NumSeqPerLocationLine from '../Viz/NumSeqPerLocationLine';
+import MutationStructureViewer from '../Viz/MutationStructureViewer';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
@@ -177,6 +183,32 @@ const CompareGroupsTab = observer(() => {
     );
   };
 
+  const renderMutationStructureViewer = () => {
+    // Only valid in AA mode, gene/protein mode
+    if (
+      configStore.dnaOrAa !== DNA_OR_AA.AA ||
+      (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+        configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN)
+    ) {
+      return null;
+    }
+
+    return (
+      <AccordionWrapper
+        title="Mutations projected onto protein structure"
+        defaultCollapsed={false}
+        maxHeight={'500px'}
+        helpText={
+          <ul>
+            <li>...</li>
+          </ul>
+        }
+      >
+        <MutationStructureViewer />
+      </AccordionWrapper>
+    );
+  };
+
   const renderNumSeqPerLocationBarPlot = () => {
     return (
       <AccordionWrapper
@@ -233,6 +265,7 @@ const CompareGroupsTab = observer(() => {
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
+      {renderMutationStructureViewer()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
     </CompareGroupsTabContainer>
