@@ -465,24 +465,24 @@ export class DataStore {
 
   downloadMutationFrequencies() {
     let csvString = 'mutation,';
-    let fields = [];
+    let mutationFields = [];
     if (rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_GENE
       ) {
         csvString += 'gene,';
-        fields.push('gene');
+        mutationFields.push('gene');
       } else if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_PROTEIN
       ) {
         csvString += 'protein,';
-        fields.push('protein');
+        mutationFields.push('protein');
       }
     }
-    csvString += 'pos,ref,alt,counts\n';
-    fields.push('pos', 'ref', 'alt');
+    csvString += 'pos,ref,alt,counts,percent,percent_coverage_adjusted\n';
+    mutationFields.push('pos', 'ref', 'alt');
 
     let mutation;
 
@@ -497,18 +497,29 @@ export class DataStore {
           record.group_id
         );
 
-        // Add mutation fields
+        // Add mutation mutationFields
         if (mutation.mutation_str === GROUPS.REFERENCE_GROUP) {
           csvString += mutation.mutation_str + ',';
-          csvString += fields.slice().fill('').join(',');
+          csvString += mutationFields.slice().fill('').join(',');
         } else {
           csvString +=
             mutation.name +
             ',' +
-            fields.map((field) => mutation[field]).join(',');
+            mutationFields.map((field) => mutation[field]).join(',');
         }
-        // Add counts
-        csvString += `,${record.counts}\n`;
+        // Add counts, percent
+        csvString += `,${record.counts},${
+          record.counts / this.numSequencesAfterAllFiltering
+        }`;
+        // Add coverage-adjusted percent
+        let feature = record.gene || record.protein;
+        csvString += `,${
+          record.counts /
+          rootStoreInstance.mutationDataStore.getCoverageAtPosition(
+            record.pos,
+            feature
+          )
+        }\n`;
       });
     // console.log(csvString);
 
