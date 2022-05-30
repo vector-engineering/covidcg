@@ -102,20 +102,16 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     // then make sure we don't have "All Genes" or "All Proteins" selected
     if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
       if (selectedGene.name === 'All Genes') {
-        // Switch back to S gene
-        if (config.virus === 'sars2') {
-          selectedGene = getGene('S');
-        } else {
-          selectedGene = getGene('F', configStore.selectedReference);
-        }
+        selectedGene = getGene(
+          config['default_gene'],
+          configStore.selectedReference
+        );
       }
       if (selectedProtein.name === 'All Proteins') {
-        // Switch back to nsp12 protein
-        if (config.virus === 'sars2') {
-          selectedProtein = getProtein('nsp12 - RdRp');
-        } else {
-          selectedProtein = getProtein('F', configStore.selectedReference);
-        }
+        selectedProtein = getProtein(
+          config['default_protein'],
+          configStore.selectedReference
+        );
       }
     }
 

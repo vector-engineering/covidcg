@@ -20,17 +20,21 @@ const lastNDays = 30;
 let _configStore, _groupDataStore, _plotSettingsStore;
 
 if (config['virus'] === 'sars2') {
+  const startingReference = '...';
+
   _configStore = {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
     // Select the Spike gene and nsp13 protein by default
-    selectedGene: getGene('S'),
-    selectedProtein: getProtein('nsp12 - RdRp'),
+    selectedGene: getGene(config['default_gene'], startingReference),
+    selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
     customCoordinates: [[8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
-    residueCoordinates: [[1, getGene('S').len_aa]],
+    residueCoordinates: [
+      [1, getGene(config['default_gene'], startingReference).len_aa],
+    ],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -100,7 +104,7 @@ if (config['virus'] === 'sars2') {
     reportConsensusThreshold: 0.7,
     reportMutationListHideEmpty: true,
     reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-    reportStructureActiveProtein: 'S',
+    reportStructureActiveProtein: config['default_protein'],
     reportStructurePdbId: '6ZGG',
     reportStructureActiveGroup: 'B.1.617.2',
   };
@@ -109,7 +113,7 @@ if (config['virus'] === 'sars2') {
     activeGroupType: Object.keys(config['group_cols'])[0],
     selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
     groupMutationType: 'protein_aa',
-    activeReference: '',
+    activeReference: startingReference,
   };
 } else if (config['virus'] === 'rsv') {
   const startingReference = 'NC_038235.1';
@@ -119,13 +123,15 @@ if (config['virus'] === 'sars2') {
     dnaOrAa: DNA_OR_AA.AA,
 
     // Select the F gene and protein by default
-    selectedGene: getGene('F', startingReference),
-    selectedProtein: getProtein('F', startingReference),
+    selectedGene: getGene(config['default_gene'], startingReference),
+    selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
     selectedReference: startingReference,
     customCoordinates: [[5648, 7550]],
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [[1, getGene('F', startingReference).len_aa]],
+    residueCoordinates: [
+      [1, getGene(config['default_gene'], startingReference).len_aa],
+    ],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -197,7 +203,7 @@ if (config['virus'] === 'sars2') {
     reportConsensusThreshold: 0.7,
     reportMutationListHideEmpty: true,
     reportMutationListHidden: [], // By default, hide none
-    reportStructureActiveProtein: 'F',
+    reportStructureActiveProtein: config['default_protein'],
     reportStructurePdbId: '5UDE',
     reportStructureActiveGroup: 'ON1',
   };
@@ -205,7 +211,7 @@ if (config['virus'] === 'sars2') {
     activeGroupType: Object.keys(config['group_cols'])[0],
     selectedGroups: ['ON1'],
     groupMutationType: 'protein_aa',
-    activeReference: 'NC_038235.1',
+    activeReference: startingReference,
   };
 }
 

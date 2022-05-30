@@ -236,8 +236,8 @@ const MutationListContent = observer(() => {
   // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
 
   let features = {};
-  const genes = getAllGenes();
-  const proteins = getAllProteins();
+  const genes = getAllGenes(groupDataStore.activeReference);
+  const proteins = getAllProteins(groupDataStore.activeReference);
   features =
     groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
 

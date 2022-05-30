@@ -118,6 +118,9 @@ show_global_sequencing_tab: false
 show_methods_tab: false
 show_related_projects_tab: false
 
+default_gene: F
+default_protein: F
+
 min_date: "1956-01-01"
 
 show_logos:
