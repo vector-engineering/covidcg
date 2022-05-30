@@ -63,8 +63,6 @@ const CoordinateSelect = observer(
     updateValidCustomSequences,
   }) => {
     // Create option elements
-    const { configStore } = useStores();
-
     let genes = {};
     let proteins = {};
 
@@ -342,13 +340,9 @@ const CoordinateSelect = observer(
       const sequences = curText.split(';');
       // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
-        // Fails if any conditions are met
-        if (config.virus === 'sars2') {
-          return seq.length === 0 || queryReferenceSequence(seq) === 0;
-        } else if (config.virus === 'rsv') {
-          const key = configStore.selectedReference;
-          return seq.length === 0 || queryReferenceSequence(seq, key);
-        }
+        return (
+          seq.length === 0 || queryReferenceSequence(seq, selectedReference)
+        );
       });
 
       setState({

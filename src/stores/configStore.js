@@ -511,11 +511,7 @@ export class ConfigStore {
       return toJS(this.customCoordinates);
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
       return this.customSequences.map((seq) => {
-        if (config.virus === 'sars2') {
-          return queryReferenceSequence(seq);
-        } else if (config.virus === 'rsv') {
-          return queryReferenceSequence(seq, this.selectedReference);
-        }
+        return queryReferenceSequence(seq, this.selectedReference);
       });
     }
   }

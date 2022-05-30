@@ -15,6 +15,14 @@ import QuestionButton from '../Buttons/QuestionButton';
 
 const DEFAULT_PRESET_OPTION = 'date-preset-default';
 const PRESET_START = 'preset-start';
+
+let firstDateLabel;
+if (config.virus === 'sars2') {
+  firstDateLabel = 'Since pandemic start';
+} else if (config.virus === 'rsv') {
+  firstDateLabel = 'Date of first sequence';
+}
+
 const presetDateOptions = [
   <option
     key={DEFAULT_PRESET_OPTION}
@@ -24,9 +32,7 @@ const presetDateOptions = [
     Select a preset date range
   </option>,
   <option key={PRESET_START} value={PRESET_START}>
-    {config.virus === 'sars2'
-      ? 'Since pandemic start'
-      : 'Date of first sequence'}
+    {firstDateLabel}
   </option>,
   <option key={'separator-1'} disabled={true}>
     ──────────

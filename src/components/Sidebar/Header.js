@@ -16,15 +16,24 @@ import {
   NCBIContainer,
 } from './Header.styles';
 
+let logoImage;
+let siteTitle;
+if (config.virus === 'sars2') {
+  logoImage = CGLogo;
+  siteTitle = 'COVID-19 CoV Genetics';
+} else if (config.virus === 'rsv') {
+  logoImage = RSVCGLogo;
+  siteTitle = 'RSV Pathogen Mutation DB';
+}
+
 const Header = () => {
   return (
     <HeaderDiv>
       <TitleContainer>
         <ImageContainer>
-          <img src={config.virus === 'sars2' ? CGLogo : RSVCGLogo}></img>
+          <img src={logoImage}></img>
         </ImageContainer>
-        {config.virus === 'sars2' && <h1>COVID-19 CoV Genetics</h1>}
-        {config.virus === 'rsv' && <h1>RSV Pathogen Mutation DB</h1>}
+        <h1>{siteTitle}</h1>
       </TitleContainer>
       {config['show_logos']['GISAID'] && (
         <GISAIDContainer>

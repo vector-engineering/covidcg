@@ -390,7 +390,11 @@ const SurveillancePlot = observer(({ width }) => {
   groupName = groupName.charAt(0).toUpperCase() + groupName.slice(1);
 
   const getXLabelFormat = () => {
-    return config.virus === 'sars2' ? '%m-%d' : '%m-%y';
+    if (config.virus === 'sars2') {
+      return '%m-%d';
+    } else if (config.virus === 'rsv') {
+      return '%m-%y';
+    }
   };
 
   useEffect(() => {
