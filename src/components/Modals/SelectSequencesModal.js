@@ -9,7 +9,6 @@ import { ISOToInt, intToISO } from '../../utils/date';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
-  GROUP_MUTATION,
   DNA_OR_AA,
 } from '../../constants/defs.json';
 

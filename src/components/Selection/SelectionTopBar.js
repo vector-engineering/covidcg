@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/defs.json';
+import { ASYNC_STATES, COORDINATE_MODES } from '../../constants/defs.json';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
 import GroupBySelect from '../Selection/GroupBySelect';
 import DownloadDataButton from '../Sidebar/DownloadDataButton';
+
+import { getGene, getProtein } from '../../utils/gene_protein';
 
 import {
   Container,
@@ -43,7 +45,30 @@ const SelectionTopBar = observer(() => {
     configStore.applyPendingChanges({ dnaOrAa });
   };
   const onReferenceChange = (selectedReference) => {
-    configStore.applyPendingChanges({ selectedReference });
+    // Update the selected gene/protein object
+    const selectedGene = getGene(
+      configStore.selectedGene.name,
+      selectedReference
+    );
+    const selectedProtein = getProtein(
+      configStore.selectedProtein.name,
+      selectedReference
+    );
+
+    // Update residue coordinates
+    let residueCoordinates;
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      residueCoordinates = [[1, selectedGene.len_aa]];
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      residueCoordinates = [[1, selectedProtein.len_aa]];
+    }
+
+    configStore.applyPendingChanges({
+      selectedReference,
+      selectedGene,
+      selectedProtein,
+      residueCoordinates,
+    });
   };
   const loading = UIStore.caseDataState === ASYNC_STATES.STARTED;
 
