@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
