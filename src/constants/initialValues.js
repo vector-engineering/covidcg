@@ -60,6 +60,10 @@ if (config['virus'] === 'sars2') {
     // LEGEND
     legendAdjustPartialSequences: false,
 
+    // ENTROPY PLOT
+    entropyYMode: NORM_MODES.NORM_COUNTS,
+    entropyYPow: 0.5,
+
     // GROUP STACK PLOT
     groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
     groupStackLowFreqValue: 20,
@@ -152,6 +156,10 @@ if (config['virus'] === 'sars2') {
   _plotSettingsStore = {
     // LEGEND
     legendAdjustPartialSequences: true,
+
+    // ENTROPY PLOT
+    entropyYMode: NORM_MODES.NORM_COUNTS,
+    entropyYPow: 0.5,
 
     // GROUP STACK PLOT
     groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,

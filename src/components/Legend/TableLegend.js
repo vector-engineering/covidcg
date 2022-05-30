@@ -107,7 +107,7 @@ const TableLegend = observer(
                 onChange={toggleLegendAdjustPartialSequences}
               ></input>
               <label htmlFor="legend-adjust-partial-sequences-checkbox">
-                Adjust for partials
+                Adjust for coverage
               </label>
               <QuestionButton
                 data-tip={`

@@ -16,6 +16,10 @@ export class PlotSettingsStore {
   // LEGEND
   @observable legendAdjustPartialSequences = true;
 
+  // ENTROPY PLOT
+  @observable entropyYMode = NORM_MODES.NORM_COUNTS;
+  @observable entropyYPow = 0.5;
+
   // GROUP STACK PLOT
   @observable groupStackLowFreqFilter = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
   @observable groupStackLowFreqValue = 20;
@@ -72,6 +76,22 @@ export class PlotSettingsStore {
   @action
   setLegendAdjustPartialSequences = (value) => {
     this.legendAdjustPartialSequences = value;
+  };
+
+  // ENTROPY PLOT
+  @action
+  setEntropyYMode = (mode) => {
+    this.entropyYMode = mode;
+    // Default powers
+    if (this.entropyYMode === NORM_MODES.NORM_COUNTS) {
+      this.entropyYPow = 0.5;
+    } else {
+      this.entropyYPow = 1.0;
+    }
+  };
+  @action
+  setEntropyYPow = (pow) => {
+    this.entropyYPow = pow;
   };
 
   // GROUP STACK PLOT

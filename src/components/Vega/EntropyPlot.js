@@ -13,7 +13,12 @@ import WarningBox from '../Common/WarningBox';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
-import { PlotOptions } from './Plot.styles';
+import QuestionButton from '../Buttons/QuestionButton';
+import {
+  PlotOptions,
+  OptionSelectContainer,
+  OptionInputContainer,
+} from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
 import {
@@ -22,6 +27,7 @@ import {
   DNA_OR_AA,
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
+  NORM_MODES,
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
@@ -29,7 +35,13 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, mutationDataStore } = useStores();
+  const {
+    configStore,
+    dataStore,
+    UIStore,
+    mutationDataStore,
+    plotSettingsStore,
+  } = useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -96,6 +108,23 @@ const EntropyPlot = observer(({ width }) => {
         );
         record.mutationName = mutation.name;
         record.pos = mutation.pos;
+
+        if (
+          configStore.dnaOrAa === DNA_OR_AA.AA &&
+          configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
+        ) {
+          record.feature = mutation.gene;
+        } else if (
+          configStore.dnaOrAa === DNA_OR_AA.AA &&
+          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+        ) {
+          record.feature = mutation.protein;
+        }
+
+        record.partial_adjusted =
+          record.counts /
+          mutationDataStore.getCoverageAtPosition(record.pos, record.feature);
+
         return record;
       })
       .filter((record) => {
@@ -121,6 +150,13 @@ const EntropyPlot = observer(({ width }) => {
       return { group: item.group };
     });
     configStore.updateSelectedGroups(curSelectedGroups);
+  };
+
+  const onChangeEntropyYMode = (event) => {
+    plotSettingsStore.setEntropyYMode(event.target.value);
+  };
+  const onChangeEntropyYPow = (event) => {
+    plotSettingsStore.setEntropyYPow(event.target.value);
   };
 
   const getDomainPlotHeight = () => {
@@ -382,6 +418,9 @@ const EntropyPlot = observer(({ width }) => {
     // console.log(getXRange());
     // console.log(processData());
 
+    // console.log(JSON.stringify(mutationDataStore.coverage));
+    // console.log(JSON.stringify(processData()));
+
     setState({
       ...state,
       xRange: getXRange(),
@@ -390,6 +429,7 @@ const EntropyPlot = observer(({ width }) => {
         ...state.data,
         domains: domainsToShow(),
         table: processData(),
+        coverage: mutationDataStore.coverage,
       },
     });
   };
@@ -459,6 +499,73 @@ const EntropyPlot = observer(({ width }) => {
         </WarningBox>
       )}
       <PlotOptions>
+        <OptionSelectContainer>
+          <label>
+            Show:
+            <select
+              value={plotSettingsStore.entropyYMode}
+              onChange={onChangeEntropyYMode}
+            >
+              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+              <option value={NORM_MODES.NORM_PERCENTAGES}>Percents</option>
+              <option value={NORM_MODES.NORM_COVERAGE_ADJUSTED}>
+                Percents (coverage adjusted)
+              </option>
+            </select>
+          </label>
+          <QuestionButton
+            data-tip={`
+          <ul>
+            <li>
+              Counts: show raw mutation counts
+            </li>
+            <li>
+              Percents: show mutation counts as a percentage of 
+              the total number of sequences selected
+            </li>
+            <li>
+              Percents (coverage adjusted): show mutation counts as a 
+              percentage of sequences with coverage at the mutation position
+            </li>
+          </ul>
+          `}
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </OptionSelectContainer>
+
+        <OptionInputContainer style={{ marginLeft: '10px' }}>
+          <label>
+            Y-scale:
+            <input
+              value={plotSettingsStore.entropyYPow}
+              type="number"
+              step={0.1}
+              min={0}
+              onChange={onChangeEntropyYPow}
+            ></input>
+          </label>
+          <QuestionButton
+            data-tip={`
+          <ul>
+            <li>
+              Y-scale: adjust the power of the y-axis. 
+            </li>
+            <li>
+              For Y-scale = 1, the y-axis scale is linear.
+            </li>
+            <li>
+              For Y-scale < 1, lower values are more visible.
+            </li>
+            <li>
+              For Y-scale > 1, lower values are less visible.
+            </li>
+          </ul>
+          `}
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </OptionInputContainer>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}
@@ -479,6 +586,8 @@ const EntropyPlot = observer(({ width }) => {
         width={width}
         height={entropyPlotHeight + padding + state.domainPlotHeight}
         signals={{
+          yMode: plotSettingsStore.entropyYMode,
+          yScaleExponent: plotSettingsStore.entropyYPow,
           totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
