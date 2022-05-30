@@ -546,7 +546,6 @@ def query_and_aggregate(conn, req):
             cur.fetchall(),
             columns=["location", "collection_date", "group_id", "counts"],
         )
-        print(records_df.dtypes)
 
         res = {
             "records": records_df.to_dict(orient="records"),
