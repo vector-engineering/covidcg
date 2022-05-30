@@ -10,10 +10,8 @@ import { groupDataStore as initialGroupDataStore } from '../constants/initialVal
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import {
-  mutationHeatmapToPymolScript,
-  mutationHeatmapToPymolCommands,
-} from '../utils/pymol';
+import { getProtein } from '../utils/gene_protein';
+import { savePymolScript } from '../utils/pymol';
 
 export class GroupDataStore {
   initialValues = {};
@@ -330,44 +328,29 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    let script, outfile;
+    let filename;
     if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
-      script = mutationHeatmapToPymolCommands({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
     } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
-      script = mutationHeatmapToPymolScript({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        activeGroup:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
     }
-    const blob = new Blob([script]);
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, outfile);
+
+    savePymolScript({
+      opts,
+      filename,
+      activeProtein: getProtein(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        rootStoreInstance.configStore.selectedReference // TODO: track reference for report in plotSettingsStore?
+      ),
+      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+      proteinStyle:
+        rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+      assemblies: rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+      activeAssembly:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+      entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+      mutations: this.getStructureMutations(),
+      mutationColorField: 'fraction',
+    });
   }
 }

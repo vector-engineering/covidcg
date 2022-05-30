@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
 
 import { PYMOL_SCRIPT_TYPES } from '../../constants/defs';
 
@@ -30,8 +28,7 @@ import {} from './DownloadPymolScriptModal.styles';
 Modal.setAppElement('#app');
 const NOOP = () => {};
 
-const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
-  const { groupDataStore } = useStores();
+const DownloadPymolScriptContent = ({ onRequestClose, onConfirm }) => {
   const [state, setState] = useState({
     scriptType: PYMOL_SCRIPT_TYPES.SCRIPT,
     selectIndividualMutations: true,
@@ -46,7 +43,7 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
   // }, []);
 
   const confirmDownload = () => {
-    groupDataStore.downloadStructurePymolScript(state);
+    onConfirm(state);
   };
 
   const onChangeScriptType = (event) => {
@@ -233,9 +230,14 @@ const DownloadPymolScriptContent = observer(({ onRequestClose }) => {
       </Content>
     </Wrapper>
   );
-});
+};
 
-const DownloadPymolScriptModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
+const DownloadPymolScriptModal = ({
+  isOpen,
+  onAfterOpen,
+  onRequestClose,
+  onConfirm,
+}) => {
   const closeDownloadModal = () => {
     onRequestClose();
   };
@@ -265,7 +267,10 @@ const DownloadPymolScriptModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
       }}
       contentLabel="Download PyMOL Script"
     >
-      <DownloadPymolScriptContent onRequestClose={closeDownloadModal} />
+      <DownloadPymolScriptContent
+        onRequestClose={closeDownloadModal}
+        onConfirm={onConfirm}
+      />
     </Modal>
   );
 };
@@ -274,6 +279,7 @@ DownloadPymolScriptModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onAfterOpen: PropTypes.func,
   onRequestClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
 };
 DownloadPymolScriptModal.defaultProps = {
   onAfterOpen: NOOP,

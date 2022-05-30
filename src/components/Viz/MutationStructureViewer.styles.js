@@ -5,7 +5,7 @@ export const MutationStructureViewerContainer = styled.div``;
 
 export const LiteMolContainer = styled.div`
   min-width: 100%;
-  min-height: 600px;
+  min-height: 500px;
   // margin-top: 5px;
 `;
 

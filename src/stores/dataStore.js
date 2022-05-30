@@ -1,19 +1,16 @@
 import { action, toJS } from 'mobx';
 import { hostname } from '../config';
-import {
-  processSelectedMutations,
-  processCooccurrenceData,
-} from '../utils/mutationDataWorkerWrapper';
-import { downloadBlobURL } from '../utils/download';
-import { intToISO } from '../utils/date';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
+
 import {
   GROUP_MUTATION,
   GROUPS,
   DNA_OR_AA,
   COORDINATE_MODES,
   TABS,
+  PYMOL_SCRIPT_TYPES,
+  NORM_MODES,
 } from '../constants/defs.json';
 
 import {
@@ -23,6 +20,14 @@ import {
   getLocationCounts,
   expandSingleMutationData,
 } from '../utils/data';
+import { intToISO } from '../utils/date';
+import { downloadBlobURL } from '../utils/download';
+import { getProtein } from '../utils/gene_protein';
+import {
+  processSelectedMutations,
+  processCooccurrenceData,
+} from '../utils/mutationDataWorkerWrapper';
+import { savePymolScript } from '../utils/pymol';
 
 export class DataStore {
   dataDate;
@@ -150,6 +155,8 @@ export class DataStore {
               mutation.mutation_str
             );
             record.mutationName = mutation.name;
+            record.ref = mutation.ref;
+            record.alt = mutation.alt;
             record.pos = mutation.pos;
 
             if (
@@ -633,6 +640,60 @@ export class DataStore {
     const url = URL.createObjectURL(blob);
 
     downloadBlobURL(url, 'global_sequencing_coverage.json');
+  }
+
+  downloadMutationStructurePymolScript(opts) {
+    let activeProtein;
+    if (
+      rootStoreInstance.configStore.coordinateMode ===
+      COORDINATE_MODES.COORD_PROTEIN
+    ) {
+      activeProtein = rootStoreInstance.configStore.selectedProtein;
+    } else if (
+      rootStoreInstance.configStore.coordinateMode ===
+      COORDINATE_MODES.COORD_GENE
+    ) {
+      activeProtein = getProtein(
+        rootStoreInstance.configStore.selectedGene.name,
+        rootStoreInstance.configStore.selectedReference
+      );
+    }
+
+    let filename;
+    if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
+      filename = `heatmap_${activeProtein.name}.txt`;
+    } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
+      filename = `heatmap_${activeProtein.name}.py`;
+    }
+
+    let colorField;
+    if (
+      rootStoreInstance.plotSettingsStore.mutationStructureNormMode ===
+      NORM_MODES.NORM_PERCENTAGES
+    ) {
+      colorField = 'percent';
+    } else if (
+      rootStoreInstance.plotSettingsStore.mutationStructureNormMode ===
+      NORM_MODES.NORM_COVERAGE_ADJUSTED
+    ) {
+      colorField = 'partial_adjusted';
+    }
+
+    savePymolScript({
+      opts,
+      filename,
+      activeProtein,
+      pdbId: rootStoreInstance.plotSettingsStore.mutationStructurePdbId,
+      proteinStyle:
+        rootStoreInstance.plotSettingsStore.mutationStructureProteinStyle,
+      assemblies:
+        rootStoreInstance.plotSettingsStore.mutationStructureAssemblies,
+      activeAssembly:
+        rootStoreInstance.plotSettingsStore.mutationStructureActiveAssembly,
+      entities: rootStoreInstance.plotSettingsStore.mutationStructureEntities,
+      mutations: this.groupCounts,
+      mutationColorField: colorField,
+    });
   }
 }
 

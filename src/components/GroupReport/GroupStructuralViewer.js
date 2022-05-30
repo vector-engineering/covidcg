@@ -151,6 +151,9 @@ const StructuralViewer = observer(() => {
       showDownloadPymolScriptModal();
     }
   };
+  const handlePymolScriptDownload = (opts) => {
+    groupDataStore.downloadStructurePymolScript(opts);
+  };
 
   const applyHeatmap = ({ ref, entities }) => {
     const mutations = groupDataStore.groupMutationFrequency[
@@ -291,6 +294,7 @@ const StructuralViewer = observer(() => {
       <DownloadPymolScriptModal
         isOpen={state.downloadPymolScriptModalOpen}
         onRequestClose={hideDownloadPymolScriptModal}
+        onConfirm={handlePymolScriptDownload}
       />
       <StructuralViewerHeader>
         <OptionSelectContainer>

@@ -109,6 +109,9 @@ const MutationStructureViewer = observer(() => {
       showDownloadPymolScriptModal();
     }
   };
+  const handlePymolScriptDownload = (opts) => {
+    dataStore.downloadMutationStructurePymolScript(opts);
+  };
 
   // Get the protein to show
   let activeProtein;
@@ -170,9 +173,7 @@ const MutationStructureViewer = observer(() => {
         ) {
           colorField = 'partial_adjusted';
         }
-        mutation.colorInd = Math.floor(
-          (mutation[colorField] - 0.001) * NUM_COLORS
-        );
+        mutation.colorInd = Math.floor(mutation[colorField] * (NUM_COLORS - 1));
         return mutation;
       })
       // Sort by position
@@ -274,6 +275,7 @@ const MutationStructureViewer = observer(() => {
       <DownloadPymolScriptModal
         isOpen={state.downloadPymolScriptModalOpen}
         onRequestClose={hideDownloadPymolScriptModal}
+        onConfirm={handlePymolScriptDownload}
       />
       <PlotOptions style={{ marginBottom: '2px' }}>
         <OptionInputContainer>
