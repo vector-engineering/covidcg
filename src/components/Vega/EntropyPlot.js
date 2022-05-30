@@ -369,8 +369,6 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
-    console.log(JSON.stringify(domainsToShow()));
-
     setState({
       ...state,
       xRange: getXRange(),
