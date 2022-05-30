@@ -135,6 +135,46 @@ export class DataStore {
           groupKey: toJS(rootStoreInstance.configStore.groupKey),
         });
 
+        // Add some additional information to group counts, if we're in mutation mode
+        if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+          // [{ group_id: mutation_id, counts: int }]
+          this.groupCounts.forEach((record) => {
+            let mutation = rootStoreInstance.mutationDataStore.intToMutation(
+              rootStoreInstance.configStore.dnaOrAa,
+              rootStoreInstance.configStore.coordinateMode,
+              record.group_id
+            );
+
+            record.mutation = mutation.mutation_str;
+            record.color = rootStoreInstance.mutationDataStore.getMutationColor(
+              mutation.mutation_str
+            );
+            record.mutationName = mutation.name;
+            record.pos = mutation.pos;
+
+            if (
+              rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA &&
+              rootStoreInstance.configStore.coordinateMode ===
+                COORDINATE_MODES.COORD_GENE
+            ) {
+              record.feature = mutation.gene;
+            } else if (
+              rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA &&
+              rootStoreInstance.configStore.coordinateMode ===
+                COORDINATE_MODES.COORD_PROTEIN
+            ) {
+              record.feature = mutation.protein;
+            }
+
+            record.partial_adjusted =
+              record.counts /
+              rootStoreInstance.mutationDataStore.getCoverageAtPosition(
+                record.pos,
+                record.feature
+              );
+          });
+        }
+
         // Aggregate, collapse locations
         ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
           aggregateGroupDate({

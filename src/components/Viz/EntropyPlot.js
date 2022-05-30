@@ -68,53 +68,13 @@ const EntropyPlot = observer(({ width }) => {
 
   const processData = () => {
     let mutationCounts = toJS(dataStore.groupCounts);
-    // Input data from dataStore.groupCounts is in the form
-    // [{ group_id: mutation_id, counts: int }]
-    // Before we pass this into Vega, we also need:
-    // 1) The color of each mutation
-    // 2) The human-readable name of each mutation
-    // 3) The position of the mutation
-    // console.log('ENTROPY PROCESS DATA');
 
-    return mutationCounts
-      .map((record) => {
-        let mutation = mutationDataStore.intToMutation(
-          configStore.dnaOrAa,
-          configStore.coordinateMode,
-          record.group_id
-        );
-
-        record.mutation = mutation.mutation_str;
-        record.color = mutationDataStore.getMutationColor(
-          mutation.mutation_str
-        );
-        record.mutationName = mutation.name;
-        record.pos = mutation.pos;
-
-        if (
-          configStore.dnaOrAa === DNA_OR_AA.AA &&
-          configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
-        ) {
-          record.feature = mutation.gene;
-        } else if (
-          configStore.dnaOrAa === DNA_OR_AA.AA &&
-          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-        ) {
-          record.feature = mutation.protein;
-        }
-
-        record.partial_adjusted =
-          record.counts /
-          mutationDataStore.getCoverageAtPosition(record.pos, record.feature);
-
-        return record;
-      })
-      .filter((record) => {
-        return (
-          record.group !== GROUPS.OTHER_GROUP &&
-          record.group !== GROUPS.REFERENCE_GROUP
-        );
-      });
+    return mutationCounts.filter((record) => {
+      return (
+        record.group !== GROUPS.OTHER_GROUP &&
+        record.group !== GROUPS.REFERENCE_GROUP
+      );
+    });
   };
 
   const handleHoverGroup = (...args) => {
