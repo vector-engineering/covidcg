@@ -427,6 +427,7 @@ const EntropyPlot = observer(({ width }) => {
   }
 
   const entropyPlotHeight = 120;
+  const coveragePlotHeight = 40;
   const padding = 40;
 
   return (
@@ -533,7 +534,11 @@ const EntropyPlot = observer(({ width }) => {
         data={state.data}
         width={width}
         height={
-          entropyPlotHeight + padding + state.domainPlotHeight + padding + 60
+          entropyPlotHeight +
+          padding +
+          state.domainPlotHeight +
+          padding +
+          coveragePlotHeight
         }
         signals={{
           yMode: plotSettingsStore.entropyYMode,

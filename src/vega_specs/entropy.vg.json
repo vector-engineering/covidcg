@@ -24,6 +24,7 @@
     { "name": "yScaleExponent", "value": 1.0 },
     { "name": "totalSequences", "value": 474 },
     { "name": "numDomainRows", "value": 4 },
+    { "name": "domainYScale", "update": "[0, numDomainRows * 1.5]" },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
@@ -406,7 +407,7 @@
         {
           "name": "domainYScale",
           "type": "linear",
-          "domain": [0, 5],
+          "domain": { "signal": "domainYScale" },
           "range": { "signal": "domainPlotYRange" }
         }
       ],
