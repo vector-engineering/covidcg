@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -43,6 +42,7 @@ const CoordinateSelect = observer(
     selectedGene,
     selectedProtein,
     selectedPrimers,
+    selectedReference,
     residueCoordinates,
     validResidueCoordinates,
     customCoordinates,
@@ -62,18 +62,11 @@ const CoordinateSelect = observer(
     updateValidCustomSequences,
   }) => {
     // Create option elements
-    const { configStore } = useStores();
-
     let genes = {};
     let proteins = {};
 
-    if (config.virus === 'sars2') {
-      genes = getAllGenes();
-      proteins = getAllProteins();
-    } else {
-      genes = getAllGenes(configStore.selectedReference);
-      proteins = getAllProteins(configStore.selectedReference);
-    }
+    genes = getAllGenes(selectedReference);
+    proteins = getAllProteins(selectedReference);
 
     // GENE
     let geneOptionElements = [];
@@ -105,9 +98,9 @@ const CoordinateSelect = observer(
           Entire {gene.name} Gene (1..{gene.len_aa})
         </option>,
       ];
-      gene.domains.forEach((domain) => {
+      gene.domains.forEach((domain, j) => {
         geneDomainOptionElements[gene.name].push(
-          <option key={`${gene.name}-${domain.name}`} value={domain.name}>
+          <option key={`${gene.name}-${domain.name}-${j}`} value={domain.name}>
             {domain.name}&nbsp;&nbsp;(
             {domain.ranges.map((range) => range.join('..')).join(';')})
           </option>
@@ -346,13 +339,9 @@ const CoordinateSelect = observer(
       const sequences = curText.split(';');
       // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
-        // Fails if any conditions are met
-        if (config.virus === 'sars2') {
-          return seq.length === 0 || queryReferenceSequence(seq) === 0;
-        } else if (config.virus === 'rsv') {
-          const key = configStore.selectedReference;
-          return seq.length === 0 || queryReferenceSequence(seq, key);
-        }
+        return (
+          seq.length === 0 || queryReferenceSequence(seq, selectedReference)
+        );
       });
 
       setState({

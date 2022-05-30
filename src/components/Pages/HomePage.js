@@ -6,7 +6,7 @@ import { onMobileDevice } from '../../utils/device';
 import ReactTooltip from 'react-tooltip';
 import FilterSidebar from '../Sidebar/FilterSidebar';
 import DefaultSidebar from '../Sidebar/DefaultSidebar';
-import Legend from '../Legend/Legend';
+import Legend from '../Legend/LegendContainer';
 import SelectionTopBar from '../Selection/SelectionTopBar';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
 

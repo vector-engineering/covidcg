@@ -14,6 +14,7 @@ import { reds } from '../../constants/colors';
 import { LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
+// eslint-disable-next-line import/no-unresolved
 import defaultStructures from '../../../static_data/__VIRUS__/default_structures.json';
 
 import DropdownButton from '../Buttons/DropdownButton';

@@ -178,8 +178,7 @@ DeleteButtonContainer.propTypes = {
 };
 
 const MutationListContent = observer(() => {
-  const { groupDataStore, UIStore, plotSettingsStore, configStore } =
-    useStores();
+  const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupMutationFrequencyState);
 
@@ -236,17 +235,10 @@ const MutationListContent = observer(() => {
   // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
 
   let features = {};
-  if (config.virus === 'sars2') {
-    const genes = getAllGenes();
-    const proteins = getAllProteins();
-    features =
-      groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
-  } else {
-    const genes = getAllGenes(configStore.selectedReference);
-    const proteins = getAllProteins(configStore.selectedReference);
-    features =
-      groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
-  }
+  const genes = getAllGenes(groupDataStore.activeReference);
+  const proteins = getAllProteins(groupDataStore.activeReference);
+  features =
+    groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
 
   features.forEach((feature, feature_i) => {
     // Get all mutations for this gene, then sort by position/alt
@@ -484,14 +476,12 @@ const MutationList = observer(() => {
               selected {groupDataStore.getGroupMutationTypePrettyName()}s will
               be filtered out.
             </li>
-            {config.virus === 'sars2' && (
-              <li>
-                Note: We define ORF1a and ORF1ab as separate genes. In
-                &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
-                will also be listed in ORF1ab. By default, ORF1a is hidden to
-                avoid this confusion.
-              </li>
-            )}
+            <li>
+              Note: We define ORF1a and ORF1ab as separate genes. In
+              &quot;NT&quot; or &quot;Gene AA&quot; mode, a mutation in ORF1a
+              will also be listed in ORF1ab. By default, ORF1a is hidden to
+              avoid this confusion.
+            </li>
             <li>
               Switch to &quot;Protein AA&quot; mode to see mutations in the
               context of proteins (i.e., NSPs)

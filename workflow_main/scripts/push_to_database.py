@@ -42,7 +42,7 @@ def main():
             cur.execute('CREATE SCHEMA "new";')
 
         seed_database(conn, schema="new")
-        #insert_sequences(conn, data_path, schema="new", filenames_as_dates=True)
+        insert_sequences(conn, data_path, schema="new", filenames_as_dates=True)
 
         print("Committing changes...", end="", flush=True)
         conn.commit()
@@ -54,7 +54,7 @@ def main():
             cur.execute('ALTER SCHEMA "public" RENAME TO "old";')
             cur.execute('ALTER SCHEMA "new" RENAME TO "public";')
 
-            cur.execute('DROP EXTENSION IF EXISTS intarray;')
+            cur.execute("DROP EXTENSION IF EXISTS intarray;")
             cur.execute('CREATE EXTENSION IF NOT EXISTS intarray WITH SCHEMA "public";')
         conn.commit()
         print("done")

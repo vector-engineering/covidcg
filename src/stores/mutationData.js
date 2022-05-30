@@ -2,14 +2,11 @@
  * Load mutation data, and map integers -> mutation strings
  */
 
-import { config } from '../config';
-import { getGene, getProtein } from '../utils/gene_protein';
 import { formatMutation } from '../utils/mutationUtils';
 import { memoize } from '../utils/func';
 import { mutationColorArray } from '../constants/colors';
 import { GROUPS, DNA_OR_AA, COORDINATE_MODES } from '../constants/defs.json';
 import { asyncDataStoreInstance } from '../components/App';
-import { rootStoreInstance } from './rootStore';
 
 export class MutationDataStore {
   intToDnaMutationMap;
@@ -19,6 +16,8 @@ export class MutationDataStore {
   geneAaMutationMap;
   proteinAaMutationMap;
   mutationColorMap;
+
+  coverage = [];
 
   constructor() {
     this.intToDnaMutationMap = {
@@ -71,7 +70,7 @@ export class MutationDataStore {
     });
 
     //remap so its integer -> mutation
-    let mutationId, split, aaRangeInd;
+    let mutationId, split;
 
     Object.keys(this.dnaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.dnaMutationMap[mut]);
@@ -114,30 +113,6 @@ export class MutationDataStore {
       );
       this.intToGeneAaMutationMap[mutationId]['color'] =
         this.mutationColorMap[mut];
-
-      // Get coordinates in NT (from start of codon)
-      // let gene;
-      // if (config.virus === 'sars2') {
-      //   gene = getGene(split[0]);
-      // } else if (config.virus === 'rsv') {
-      //   gene = getGene(
-      //     split[0],
-      //     rootStoreInstance.configStore.selectedReference
-      //   );
-      // }
-
-      // aaRangeInd = gene.aa_ranges.reduce((_aaRangeInd, range, ind) => {
-      //   return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
-      //     this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
-      //     ? ind
-      //     : _aaRangeInd;
-      // }, 0);
-
-      // this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
-      //   gene.segments[aaRangeInd][0] +
-      //   (this.intToGeneAaMutationMap[mutationId]['pos'] -
-      //     gene.aa_ranges[aaRangeInd][0]) *
-      //     3;
     });
     Object.keys(this.proteinAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.proteinAaMutationMap[mut]);
@@ -159,29 +134,6 @@ export class MutationDataStore {
       );
       this.intToProteinAaMutationMap[mutationId]['color'] =
         this.mutationColorMap[mut];
-
-      // Get coordinates in NT (from start of codon)
-      // let protein;
-      // if (config.virus === 'sars2') {
-      //   protein = getProtein(split[0]);
-      // } else if (config.virus === 'rsv') {
-      //   protein = getProtein(
-      //     split[0],
-      //     rootStoreInstance.configStore.selectedReference
-      //   );
-      // }
-
-      // aaRangeInd = protein.aa_ranges.reduce((_aaRangeInd, range, ind) => {
-      //   return this.intToProteinAaMutationMap[mutationId]['pos'] >= range[0] &&
-      //     this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
-      //     ? ind
-      //     : _aaRangeInd;
-      // }, 0);
-      // this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
-      //   protein.segments[aaRangeInd][0] +
-      //   (this.intToProteinAaMutationMap[mutationId]['pos'] -
-      //     protein.aa_ranges[aaRangeInd][0]) *
-      //     3;
     });
   }
 
@@ -226,6 +178,49 @@ export class MutationDataStore {
         return this.geneAaMutationToInt(mut);
       } else {
         return this.proteinAaMutationToInt(mut);
+      }
+    }
+  }
+
+  // For partial sequences mode
+  // Get the genome coverage at the given position
+  getCoverageAtPosition(position, featureName = undefined) {
+    // If the coverage map is not present, return undefined
+    if (this.coverage.length === 0) {
+      return undefined;
+    }
+
+    let coverageMapSubset = this.coverage;
+    // If the feature name is defined, subset the coverage map
+    if (featureName) {
+      coverageMapSubset = coverageMapSubset.filter(
+        (row) => row.feature === featureName
+      );
+    }
+
+    // Coverage map structure:
+    // {ind: 1, count: 100},
+    // {ind: 10, count 110},
+    // ...
+    // {ind: [end], count 0} -- last row is always count = 0
+    // Scrub through each interval with the bounds [start, end)
+    for (let i = 0; i < coverageMapSubset.length - 1; i++) {
+      if (
+        position >= coverageMapSubset[i].ind &&
+        position < coverageMapSubset[i + 1].ind
+      ) {
+        return coverageMapSubset[i].count;
+      }
+      // If we're in the last interval, and the position matches the last index,
+      // Then don't use the count of 0, use the count of the interval before this
+      // For example, say all sequences had coverage from 1-500
+      // The coverage map would look like:
+      // {ind: 1, count: 100}, {ind: 500, count: 0}
+      // A position of 500 should return 100, not 0
+      else if (i === coverageMapSubset.length - 2) {
+        if (position === coverageMapSubset[i + 1].ind) {
+          return coverageMapSubset[i].count;
+        }
       }
     }
   }

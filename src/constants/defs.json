@@ -30,7 +30,8 @@
   },
   "NORM_MODES": {
     "NORM_COUNTS": "counts",
-    "NORM_PERCENTAGES": "percentages"
+    "NORM_PERCENTAGES": "percentages",
+    "NORM_COVERAGE_ADJUSTED": "partial_adjusted"
   },
   "COUNT_MODES": {
     "COUNT_NEW": "new",

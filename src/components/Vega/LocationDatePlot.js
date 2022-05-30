@@ -59,6 +59,11 @@ const LocationDatePlot = observer(({ width }) => {
       }
 
       locationData = toJS(dataStore.aggLocationSelectedMutationsDate);
+
+      // Filter out 'All Other Sequences' group
+      locationData = locationData.filter((row) => {
+        return row.group !== GROUPS.ALL_OTHER_GROUP;
+      });
     } else {
       if (dataStore.aggLocationGroupDate === undefined) {
         return [];
@@ -75,12 +80,21 @@ const LocationDatePlot = observer(({ width }) => {
       });
     }
 
-    if (configStore.groupKey === GROUP_MUTATION) {
-      // Filter out 'All Other Sequences' group
-      locationData = locationData.filter((row) => {
-        return row.group !== GROUPS.ALL_OTHER_GROUP;
-      });
-    }
+    // TODO: add coverage-adjusted percentages
+    // Because in this plot we allow selecting multiple mutations
+    // the coverage-adjusted percentage should have, as the denominator,
+    // the total number of mutations with *both* mutations covered
+    //
+    // This isn't really possible with the current range-based setup because
+    // the coverage data only tracks counts on a rolling basis
+    // for example, let's say we selected mutations at positions 100 and 200,
+    // and we had 10 sequences covering [90, 110] and 10 sequences covering [190, 210]
+    //
+    // From the coverage data we would get 10 as the denominator for both of the
+    // sequences separately, but jointly the real denominator would be 0.
+    //
+    // It's not that big of a deal anyways since this plot is less about comparing mutations
+    // to each other and more about comparing frequencies over locations/time
 
     locationData = aggregate({
       data: locationData,

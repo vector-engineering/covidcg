@@ -56,7 +56,7 @@ PercentageCell.propTypes = {
 
 const TableLegendItem = observer(
   ({ item, style, maxCounts, updateHoverGroup, updateSelectGroup }) => {
-    const { configStore } = useStores();
+    const { configStore, plotSettingsStore, mutationDataStore } = useStores();
     const [hovered, setHovered] = useState();
     const [selected, setSelected] = useState();
 
@@ -73,6 +73,17 @@ const TableLegendItem = observer(
         updateHoverGroup(null);
       }
     };
+
+    let percentage = item.percent;
+    // Adjust percentages for partial genome coverage
+    if (
+      configStore.groupKey === GROUP_MUTATION &&
+      plotSettingsStore.legendAdjustPartialSequences
+    ) {
+      percentage =
+        item.counts /
+        mutationDataStore.getCoverageAtPosition(item.pos, item.gene_or_protein);
+    }
 
     useEffect(() => {
       const _hovered =
@@ -131,7 +142,7 @@ const TableLegendItem = observer(
           data-group={item.group}
           min={0}
           max={1}
-          value={item.percent}
+          value={percentage}
           percent={true}
         />
       </Container>

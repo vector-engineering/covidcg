@@ -8,6 +8,7 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import datetime
 
 import pandas as pd
+from flask import jsonify
 from psycopg2 import sql
 from cg_server.config import config
 from cg_server.constants import constants
@@ -103,6 +104,7 @@ def build_sequence_where_filter(
     selected_metadata_fields=None,
     selected_group_fields=None,
     selected_reference=None,
+    include_reference=True,
 ):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
@@ -128,6 +130,9 @@ def build_sequence_where_filter(
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
     selected_reference: str
         - Reference name (e.g., "NC_012920.1")
+    include_reference: bool
+        - Include reference filter (this flag only used to generate
+          filter for the coverage query)
 
     Returns
     -------
@@ -184,7 +189,7 @@ def build_sequence_where_filter(
         )
 
     # Only display mutations in the currently selected reference
-    if group_key == constants["GROUP_MUTATION"]:
+    if group_key == constants["GROUP_MUTATION"] and include_reference:
         metadata_filters.append(
             sql.SQL('"reference" = {reference}').format(
                 reference=sql.Literal(selected_reference)
@@ -253,17 +258,7 @@ def get_loc_level_ids(req):
     return res
 
 
-def build_sequence_location_where_filter(
-    group_key,
-    loc_level_ids,
-    start_date=None,
-    end_date=None,
-    subm_start_date=None,
-    subm_end_date=None,
-    selected_metadata_fields=None,
-    selected_group_fields=None,
-    selected_reference=None,
-):
+def build_sequence_location_where_filter(group_key, loc_level_ids, *args, **kwargs):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields - including location
 
@@ -273,39 +268,9 @@ def build_sequence_location_where_filter(
     loc_level_ids: dict
         - key: One of GEO_LEVELS
         - value: list of level IDs
-    start_date: str
-        - Collection sart date, in ISO format (YYYY-MM-DD)
-    end_date: str
-        - Collection end date, in ISO format (YYYY-MM-DD)
-    subm_start_date: str
-        - Submission start date, in ISO format (YYYY-MM-DD)
-    subm_end_date: str
-        - Submission end date, in ISO format (YYYY-MM-DD)
-    selected_metadata_fields: dict
-        - Structured as { metadata_field: [metadata_values] }
-        - Keys are a metadata field, as a string
-        - Values are a list of metadata value IDs (integers)
-    selected_group_fields: dict
-        - Strucutred as { group_key: [group_vals] }
-        - Key are group types, i.e., "lineage"
-        - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
-    selected_reference: str
-        - Reference name (e.g., "NC_012920.1")
-
     """
 
-    sequence_where_filter = [
-        build_sequence_where_filter(
-            group_key,
-            start_date,
-            end_date,
-            subm_start_date,
-            subm_end_date,
-            selected_metadata_fields,
-            selected_group_fields,
-            selected_reference,
-        )
-    ]
+    sequence_where_filter = [build_sequence_where_filter(group_key, *args, **kwargs)]
     loc_where = []
     for loc_level in constants["GEO_LEVELS"].values():
         loc_ids = loc_level_ids[loc_level]
@@ -326,6 +291,117 @@ def build_sequence_location_where_filter(
 
     sequence_where_filter = sql.Composed(sequence_where_filter)
     return sequence_where_filter
+
+
+def count_coverage(
+    cur,
+    sequence_where_filter,
+    selected_reference,
+    dna_or_aa,
+    coordinate_mode,
+    coordinate_ranges,
+    selected_gene,
+    selected_protein,
+):
+    """Get coverage stats from partial sequences"""
+
+    coverage_filter = [
+        sql.SQL('"reference" = {reference}').format(
+            reference=sql.Literal(selected_reference)
+        )
+    ]
+
+    if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
+        coverage_table = "dna_coverage"
+        gene_or_protein_col = sql.SQL("")
+        gene_or_protein_coalesce = sql.SQL("")
+        gene_or_protein_join = sql.SQL("")
+        gene_or_protein_partition_by = sql.SQL("")
+        gene_or_protein_df_col = []
+    else:
+        gene_or_protein_col = sql.SQL('"feature",')
+        gene_or_protein_coalesce = sql.SQL(
+            'COALESCE(start_count."feature", end_count."feature") AS "feature",'
+        )
+        gene_or_protein_join = sql.SQL(
+            'start_count."feature" = end_count."feature" AND '
+        )
+        gene_or_protein_partition_by = sql.SQL('PARTITION BY "feature"')
+        gene_or_protein_df_col = ["feature"]
+
+        if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
+            coverage_table = "gene_aa_coverage"
+            coverage_filter.append(
+                sql.SQL('"feature" = {feature}').format(feature=sql.Literal(selected_gene))
+            )
+
+        elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
+            coverage_table = "protein_aa_coverage"
+            coverage_filter.append(
+                sql.SQL('"feature" = {feature}').format(
+                    feature=sql.Literal(selected_protein)
+                )
+            )
+
+    coverage_filter = sql.SQL(" AND ").join(coverage_filter)
+
+    coverage_query = sql.SQL(
+        """
+        WITH selected AS (
+            SELECT "sequence_id"
+            FROM "metadata"
+            WHERE {sequence_where_filter}
+        ), start_count AS (
+            SELECT {gene_or_protein_col} "range_start", COUNT(*) AS "count"
+            FROM {coverage_table}
+            INNER JOIN SELECTED ON {coverage_table}."sequence_id" = selected."sequence_id"
+            WHERE {coverage_filter}
+            GROUP BY {gene_or_protein_col} "range_start"
+        ), end_count AS (
+            SELECT {gene_or_protein_col} "range_end", COUNT(*) AS "count"
+            FROM {coverage_table}
+            INNER JOIN SELECTED ON {coverage_table}."sequence_id" = selected."sequence_id"
+            WHERE {coverage_filter}
+            GROUP BY {gene_or_protein_col} "range_end"
+        ), start_end_count AS (
+            SELECT
+                {gene_or_protein_coalesce}
+                COALESCE(start_count."range_start", end_count."range_end") AS "ind",
+                COALESCE(start_count."count", 0) AS "start",
+                COALESCE(end_count."count", 0) AS "end"
+            FROM start_count
+            FULL JOIN end_count ON 
+                {gene_or_protein_join}
+                start_count."range_start" = end_count."range_end"
+            ORDER BY {gene_or_protein_col} "ind" ASC
+        )
+        SELECT
+            {gene_or_protein_col}
+            "ind",
+            (SUM("start") OVER ({gene_or_protein_partition_by} ORDER BY "ind" ASC) -
+            SUM("end") OVER ({gene_or_protein_partition_by} ORDER BY "ind" ASC))::INTEGER AS "count"
+        FROM start_end_count
+        ORDER BY {gene_or_protein_col} "ind" ASC
+        """
+    ).format(
+        sequence_where_filter=sequence_where_filter,
+        gene_or_protein_col=gene_or_protein_col,
+        coverage_table=sql.Identifier(coverage_table),
+        coverage_filter=coverage_filter,
+        gene_or_protein_coalesce=gene_or_protein_coalesce,
+        gene_or_protein_join=gene_or_protein_join,
+        gene_or_protein_partition_by=gene_or_protein_partition_by,
+    )
+
+    cur.execute(coverage_query)
+
+    coverage_df = pd.DataFrame.from_records(
+        cur.fetchall(), columns=gene_or_protein_df_col + ["ind", "count"],
+    )
+
+    # print(coverage_df)
+
+    return coverage_df
 
 
 def query_and_aggregate(conn, req):
@@ -362,6 +438,7 @@ def query_and_aggregate(conn, req):
     coordinate_ranges = req.get("coordinate_ranges", None)
     selected_gene = req.get("selected_gene", None)
     selected_protein = req.get("selected_protein", None)
+    selected_reference = req.get("selected_reference", None)
 
     with conn.cursor() as cur:
 
@@ -405,7 +482,7 @@ def query_and_aggregate(conn, req):
                         """
                     SELECT
                         sm."location",
-                        sm."collection_date",
+                        EXTRACT(EPOCH FROM sm."collection_date"),
                         sm."mutations",
                         COUNT(*) as "count"
                     FROM (
@@ -438,7 +515,7 @@ def query_and_aggregate(conn, req):
                         """
                     SELECT
                         locdef."value" as "location",
-                        m."collection_date",
+                        EXTRACT(EPOCH FROM m."collection_date"),
                         m.{group_key},
                         COUNT(m."sequence_id") as "count"
                     FROM "metadata" m
@@ -461,9 +538,40 @@ def query_and_aggregate(conn, req):
 
         cur.execute(main_query)
 
-        res = pd.DataFrame.from_records(
+        records_df = pd.DataFrame.from_records(
             cur.fetchall(),
             columns=["location", "collection_date", "group_id", "counts"],
-        ).to_json(orient="records")
+        )
 
-    return res
+        res = {
+            "records": records_df.to_dict(orient="records"),
+        }
+
+        # Count coverage for partial sequences
+        # only do for mutation mode
+        if group_key == constants["GROUP_MUTATION"]:
+            sequence_location_where_filter = build_sequence_location_where_filter(
+                group_key,
+                get_loc_level_ids(req),
+                req.get("start_date", None),
+                req.get("end_date", None),
+                req.get("subm_start_date", None),
+                req.get("subm_end_date", None),
+                req.get("selected_metadata_fields", None),
+                req.get("selected_group_fields", None),
+                req.get("selected_reference", None),
+                include_reference=False,
+            )
+            coverage_df = count_coverage(
+                cur,
+                sequence_location_where_filter,
+                selected_reference,
+                dna_or_aa,
+                coordinate_mode,
+                coordinate_ranges,
+                selected_gene,
+                selected_protein,
+            )
+            res["coverage"] = coverage_df.to_dict(orient="records")
+
+    return jsonify(res)

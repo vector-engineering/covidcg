@@ -6,7 +6,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import gzip
-import pandas as pd
 import psycopg2
 import tempfile
 

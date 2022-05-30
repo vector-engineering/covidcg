@@ -62,7 +62,7 @@ const CompareGroupsTab = observer(() => {
           </ul>
         }
       >
-        <EntropyPlot width={width - 150} />
+        <EntropyPlot width={width - 200} />
       </AccordionWrapper>
     );
   };

@@ -177,7 +177,9 @@ export class ConfigStore {
         ) {
           this.selectedGroupFields[key] = [];
         }
-        this.selectedGroupFields[key].push(value);
+        if (!this.selectedGroupFields[key].includes(value)) {
+          this.selectedGroupFields[key].push(value);
+        }
       } else {
         // Invalid field, remove it from the url
         this.urlParams.delete(key);
@@ -420,7 +422,7 @@ export class ConfigStore {
       division: [],
       location: [],
     };
-    console.log(this.selectedLocationNodes);
+    //console.log(this.selectedLocationNodes);
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });
@@ -509,11 +511,7 @@ export class ConfigStore {
       return toJS(this.customCoordinates);
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
       return this.customSequences.map((seq) => {
-        if (config.virus === 'sars2') {
-          return queryReferenceSequence(seq);
-        } else if (config.virus === 'rsv') {
-          return queryReferenceSequence(seq, this.selectedReference);
-        }
+        return queryReferenceSequence(seq, this.selectedReference);
       });
     }
   }

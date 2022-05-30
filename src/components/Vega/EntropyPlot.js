@@ -5,7 +5,6 @@ import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { config } from '../../config';
-import { geneMap, proteinMap } from '../../utils/gene_protein';
 import { throttle } from '../../utils/func';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -13,7 +12,12 @@ import WarningBox from '../Common/WarningBox';
 import EmptyPlot from '../Common/EmptyPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import DropdownButton from '../Buttons/DropdownButton';
-import { PlotOptions } from './Plot.styles';
+import QuestionButton from '../Buttons/QuestionButton';
+import {
+  PlotOptions,
+  OptionSelectContainer,
+  OptionInputContainer,
+} from './Plot.styles';
 
 import initialSpec from '../../vega_specs/entropy.vg.json';
 import {
@@ -22,6 +26,7 @@ import {
   DNA_OR_AA,
   PLOT_DOWNLOAD_OPTIONS,
   GROUPS,
+  NORM_MODES,
 } from '../../constants/defs.json';
 import ExternalLink from '../Common/ExternalLink';
 
@@ -29,7 +34,13 @@ const PlotContainer = styled.div``;
 
 const EntropyPlot = observer(({ width }) => {
   const vegaRef = useRef();
-  const { configStore, dataStore, UIStore, mutationDataStore } = useStores();
+  const {
+    configStore,
+    dataStore,
+    UIStore,
+    mutationDataStore,
+    plotSettingsStore,
+  } = useStores();
 
   const onDismissWarning = () => {
     setState({
@@ -53,23 +64,6 @@ const EntropyPlot = observer(({ width }) => {
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
     }
-  };
-
-  const filterMap = (map, keyToRemove) => {
-    // Used to turn proteinMap and geneMap into an array of objects
-    // that can be used with the domain plot
-    return Object.keys(map)
-      .filter((key) => key !== keyToRemove)
-      .reduce((arr, key) => {
-        map[key]['ranges'] = map[key]['segments'];
-        if (map[key]['ranges'].length > 1) {
-          // Collapse ORF1ab ranges
-          map[key]['ranges'][0][1] = map[key]['ranges'][1][1];
-          map[key]['ranges'].slice(1, 1);
-        }
-        arr.push(map[key]);
-        return arr;
-      }, []);
   };
 
   const processData = () => {
@@ -96,6 +90,23 @@ const EntropyPlot = observer(({ width }) => {
         );
         record.mutationName = mutation.name;
         record.pos = mutation.pos;
+
+        if (
+          configStore.dnaOrAa === DNA_OR_AA.AA &&
+          configStore.coordinateMode === COORDINATE_MODES.COORD_GENE
+        ) {
+          record.feature = mutation.gene;
+        } else if (
+          configStore.dnaOrAa === DNA_OR_AA.AA &&
+          configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+        ) {
+          record.feature = mutation.protein;
+        }
+
+        record.partial_adjusted =
+          record.counts /
+          mutationDataStore.getCoverageAtPosition(record.pos, record.feature);
+
         return record;
       })
       .filter((record) => {
@@ -123,13 +134,18 @@ const EntropyPlot = observer(({ width }) => {
     configStore.updateSelectedGroups(curSelectedGroups);
   };
 
+  const onChangeEntropyYMode = (event) => {
+    plotSettingsStore.setEntropyYMode(event.target.value);
+  };
+  const onChangeEntropyYPow = (event) => {
+    plotSettingsStore.setEntropyYPow(event.target.value);
+  };
+
+  // Domain Plot height is calculated as the number of rows times a constant
+  const domainPlotRowHeight = 15;
   const getDomainPlotHeight = () => {
-    // Domain Plot height is calculated as the number of rows times a constant
-    let heightConst = 30;
     // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
-
-    let geneProteinObj = null;
 
     // Logic for Primer track
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
@@ -141,32 +157,15 @@ const EntropyPlot = observer(({ width }) => {
           }
         });
 
-        return numRows * heightConst;
+        return numRows * domainPlotRowHeight;
       } else {
-        return heightConst;
+        return domainPlotRowHeight;
       }
     }
 
     // Logic for Gene/Protein track
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        geneProteinObj = filterMap(geneMap, 'All Genes');
-      } else if (
-        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-      ) {
-        geneProteinObj = filterMap(proteinMap, 'All Proteins');
-      }
-
-      // Greedily get the max number of rows
-      geneProteinObj.forEach((geneProtein) => {
-        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
-        if (geneProtein['row'] + 1 > numRows) {
-          numRows = geneProtein['row'] + 1;
-        }
-      });
-
-      return numRows * heightConst;
-    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    let geneProteinObj = null;
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       geneProteinObj = configStore.selectedGene;
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       geneProteinObj = configStore.selectedProtein;
@@ -182,7 +181,7 @@ const EntropyPlot = observer(({ width }) => {
       });
     }
 
-    return numRows * heightConst;
+    return numRows * domainPlotRowHeight;
   };
 
   const getXRange = () => {
@@ -258,15 +257,7 @@ const EntropyPlot = observer(({ width }) => {
         row: 0,
       },
     ];
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        return filterMap(geneMap, 'All Genes');
-      } else if (
-        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-      ) {
-        return filterMap(proteinMap, 'All Proteins');
-      }
-    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       return configStore.selectedGene.domains.length > 0
         ? configStore.selectedGene.domains
         : nullDomain;
@@ -378,10 +369,6 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
-    // console.log(getDomains());
-    // console.log(getXRange());
-    // console.log(processData());
-
     setState({
       ...state,
       xRange: getXRange(),
@@ -390,6 +377,7 @@ const EntropyPlot = observer(({ width }) => {
         ...state.data,
         domains: domainsToShow(),
         table: processData(),
+        coverage: mutationDataStore.coverage,
       },
     });
   };
@@ -439,6 +427,7 @@ const EntropyPlot = observer(({ width }) => {
   }
 
   const entropyPlotHeight = 120;
+  const coveragePlotHeight = 40;
   const padding = 40;
 
   return (
@@ -459,6 +448,73 @@ const EntropyPlot = observer(({ width }) => {
         </WarningBox>
       )}
       <PlotOptions>
+        <OptionSelectContainer>
+          <label>
+            Show:
+            <select
+              value={plotSettingsStore.entropyYMode}
+              onChange={onChangeEntropyYMode}
+            >
+              <option value={NORM_MODES.NORM_COUNTS}>Counts</option>
+              <option value={NORM_MODES.NORM_PERCENTAGES}>Percents</option>
+              <option value={NORM_MODES.NORM_COVERAGE_ADJUSTED}>
+                Percents (coverage adjusted)
+              </option>
+            </select>
+          </label>
+          <QuestionButton
+            data-tip={`
+          <ul>
+            <li>
+              Counts: show raw mutation counts
+            </li>
+            <li>
+              Percents: show mutation counts as a percentage of 
+              the total number of sequences selected
+            </li>
+            <li>
+              Percents (coverage adjusted): show mutation counts as a 
+              percentage of sequences with coverage at the mutation position
+            </li>
+          </ul>
+          `}
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </OptionSelectContainer>
+
+        <OptionInputContainer style={{ marginLeft: '10px' }}>
+          <label>
+            Y-scale:
+            <input
+              value={plotSettingsStore.entropyYPow}
+              type="number"
+              step={0.1}
+              min={0}
+              onChange={onChangeEntropyYPow}
+            ></input>
+          </label>
+          <QuestionButton
+            data-tip={`
+          <ul>
+            <li>
+              Y-scale: adjust the power of the y-axis. 
+            </li>
+            <li>
+              For Y-scale = 1, the y-axis scale is linear.
+            </li>
+            <li>
+              For Y-scale < 1, lower values are more visible.
+            </li>
+            <li>
+              For Y-scale > 1, lower values are less visible.
+            </li>
+          </ul>
+          `}
+            data-html="true"
+            data-for="main-tooltip"
+          />
+        </OptionInputContainer>
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}
@@ -477,12 +533,21 @@ const EntropyPlot = observer(({ width }) => {
         spec={initialSpec}
         data={state.data}
         width={width}
-        height={entropyPlotHeight + padding + state.domainPlotHeight}
+        height={
+          entropyPlotHeight +
+          padding +
+          state.domainPlotHeight +
+          padding +
+          coveragePlotHeight
+        }
         signals={{
+          yMode: plotSettingsStore.entropyYMode,
+          yScaleExponent: plotSettingsStore.entropyYPow,
           totalSequences: dataStore.numSequencesAfterAllFiltering,
           xLabel,
           xRange: state.xRange,
           hoverGroup: state.hoverGroup,
+          numDomainRows: state.domainPlotHeight / domainPlotRowHeight,
           domainPlotHeight: state.domainPlotHeight,
           posField:
             configStore.dnaOrAa === DNA_OR_AA.DNA &&

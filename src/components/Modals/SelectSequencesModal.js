@@ -9,7 +9,6 @@ import { ISOToInt, intToISO } from '../../utils/date';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
-  GROUP_MUTATION,
   DNA_OR_AA,
 } from '../../constants/defs.json';
 
@@ -50,13 +49,16 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     useStores();
   const sentRequest = useRef(false);
 
-  const [coordPending, setCoordPending] = useState({
+  const [groupPending, setGroupPending] = useState({
     groupKey: configStore.groupKey,
     dnaOrAa: configStore.dnaOrAa,
+    selectedReference: configStore.selectedReference,
+  });
+
+  const [coordPending, setCoordPending] = useState({
     selectedGene: configStore.selectedGene,
     selectedProtein: configStore.selectedProtein,
     selectedPrimers: configStore.selectedPrimers,
-    selectedReference: configStore.selectedReference,
     customCoordinates: configStore.customCoordinates,
     validCustomCoordinates: true,
     customSequences: configStore.customSequences,
@@ -81,6 +83,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   });
 
   const [pending, setPending] = useState({
+    ...groupPending,
     ...coordPending,
     ...locationPending,
     ...metaPending,
@@ -89,40 +92,24 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   useEffect(() => {
     setPending({
       ...pending,
+      ...groupPending,
       ...coordPending,
       ...locationPending,
       ...metaPending,
     });
-  }, [coordPending, locationPending, metaPending]);
+  }, [groupPending, coordPending, locationPending, metaPending]);
 
   const changeGrouping = (groupKey, dnaOrAa) => {
     let selectedGene = pending.selectedGene;
     let selectedProtein = pending.selectedProtein;
-    // If we switched to non-mutation grouping in AA-mode,
-    // then make sure we don't have "All Genes" or "All Proteins" selected
-    if (groupKey !== GROUP_MUTATION && dnaOrAa === DNA_OR_AA.AA) {
-      if (selectedGene.name === 'All Genes') {
-        // Switch back to S gene
-        if (config.virus === 'sars2') {
-          selectedGene = getGene('S');
-        } else {
-          selectedGene = getGene('F', configStore.selectedReference);
-        }
-      }
-      if (selectedProtein.name === 'All Proteins') {
-        // Switch back to nsp12 protein
-        if (config.virus === 'sars2') {
-          selectedProtein = getProtein('nsp12 - RdRp');
-        } else {
-          selectedProtein = getProtein('F', configStore.selectedReference);
-        }
-      }
-    }
 
-    setCoordPending({
-      ...coordPending,
+    setGroupPending({
+      ...groupPending,
       groupKey,
       dnaOrAa,
+    });
+    setCoordPending({
+      ...coordPending,
       selectedGene,
       selectedProtein,
     });
@@ -133,7 +120,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     changeGrouping(pending.groupKey, dnaOrAa);
 
   const onReferenceChange = (reference) => {
-    setPending({
+    setGroupPending({
       ...pending,
       selectedReference: reference,
     });
@@ -186,9 +173,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     const { dnaOrAa, coordinateMode, residueCoordinates } =
       getCoordinateMode(_coordinateMode);
 
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       residueCoordinates,
       validResidueCoordinates: true,
@@ -202,14 +192,17 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_GENE
       ));
     }
-    selectedGene = getGene(selectedGene);
+    selectedGene = getGene(selectedGene, pending.selectedReference);
     // If we selected a new gene, then update the residue coordinates
     if (selectedGene.name !== pending.selectedGene.name) {
       residueCoordinates = getDefaultGeneResidueCoordinates(selectedGene);
     }
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       selectedGene,
       residueCoordinates,
@@ -224,14 +217,17 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_PROTEIN
       ));
     }
-    selectedProtein = getProtein(selectedProtein);
+    selectedProtein = getProtein(selectedProtein, pending.selectedReference);
     // If we selected a new protein, then update the residue coordinates
     if (selectedProtein.name !== pending.selectedProtein.name) {
       residueCoordinates = getDefaultProteinResidueCoordinates(selectedProtein);
     }
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       selectedProtein,
       residueCoordinates,
@@ -260,9 +256,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_PRIMER
       ));
     }
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       selectedPrimers,
     });
@@ -275,9 +274,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_CUSTOM
       ));
     }
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       customCoordinates,
       validCustomCoordinates: true,
@@ -297,9 +299,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_SEQUENCE
       ));
     }
+    setGroupPending({
+      ...groupPending,
+      dnaOrAa,
+    });
     setCoordPending({
       ...coordPending,
-      dnaOrAa,
       coordinateMode,
       customSequences,
       validCustomSequences: true,
@@ -379,7 +384,12 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
 
   const applyDefault = () => {
     Object.keys(configStore.initialValues).forEach((key) => {
-      if (key in coordPending) {
+      if (key in groupPending) {
+        setGroupPending({
+          ...groupPending,
+          [key]: configStore.initialValues[key],
+        });
+      } else if (key in coordPending) {
         setCoordPending({
           ...coordPending,
           [key]: configStore.initialValues[key],

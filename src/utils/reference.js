@@ -1,6 +1,7 @@
 import { DEGENERATES } from '../constants/defs.json';
 import { reverseComplement } from './string';
 import { memoize } from './func';
+// eslint-disable-next-line import/no-unresolved
 import references from '../../static_data/__VIRUS__/reference.json';
 
 export function getReferences() {

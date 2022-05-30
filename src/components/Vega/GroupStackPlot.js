@@ -133,7 +133,7 @@ const GroupStackPlot = observer(({ width }) => {
       as: ['counts', 'color', 'group_name'],
     });
 
-    // console.log(data);
+    // console.log(JSON.stringify(data));
 
     return data;
   };

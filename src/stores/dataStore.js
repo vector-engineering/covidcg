@@ -62,35 +62,35 @@ export class DataStore {
 
     const startTime = Date.now();
 
+    const pkg = {
+      group_key: toJS(rootStoreInstance.configStore.groupKey),
+      dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
+      coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
+      coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
+      selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
+      selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
+        .name,
+      ...rootStoreInstance.configStore.getSelectedLocations(),
+      selected_reference: toJS(rootStoreInstance.configStore.selectedReference),
+      selected_metadata_fields:
+        rootStoreInstance.configStore.getSelectedMetadataFields(),
+      selected_group_fields: toJS(
+        rootStoreInstance.configStore.selectedGroupFields
+      ),
+      ageRange: toJS(rootStoreInstance.configStore.ageRange),
+      start_date: toJS(rootStoreInstance.configStore.startDate),
+      end_date: toJS(rootStoreInstance.configStore.endDate),
+      subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+      subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+    };
+
     fetch(hostname + '/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        group_key: toJS(rootStoreInstance.configStore.groupKey),
-        dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
-        coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
-        coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
-        selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
-        selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
-          .name,
-        ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_reference: toJS(
-          rootStoreInstance.configStore.selectedReference
-        ),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
-        selected_group_fields: toJS(
-          rootStoreInstance.configStore.selectedGroupFields
-        ),
-        ageRange: toJS(rootStoreInstance.configStore.ageRange),
-        start_date: toJS(rootStoreInstance.configStore.startDate),
-        end_date: toJS(rootStoreInstance.configStore.endDate),
-        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
-        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
-      }),
+      body: JSON.stringify(pkg),
     })
       .then((res) => {
         if (!res.ok) {
@@ -103,9 +103,16 @@ export class DataStore {
         const endTime = Date.now();
         this.timeToFetch = (endTime - startTime) / 1000;
 
-        this.aggLocationGroupDate = res;
+        this.aggLocationGroupDate = res['records'];
+        // Convert time from unix epoch (seconds) to milliseconds
+        this.aggLocationGroupDate.forEach((row) => {
+          row.collection_date = row.collection_date * 1000;
+        });
 
-        // console.log(this.aggLocationGroupDate);
+        // Pass coverage object onto mutationDataStore
+        if (Object.prototype.hasOwnProperty.call(res, 'coverage')) {
+          rootStoreInstance.mutationDataStore.coverage = res['coverage'];
+        }
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -128,20 +135,7 @@ export class DataStore {
           groupKey: toJS(rootStoreInstance.configStore.groupKey),
         });
 
-        // Collapse low frequency groups
-        // Identify groups to collapse into the "Other" group
-        // this.validGroups = getValidGroups({
-        //   aggSequencesGroup: this.aggSequencesGroup,
-        //   lowFreqFilterType: toJS(rootStoreInstance.configStore.lowFreqFilterType),
-        //   lowFreqFilterParams: {
-        //     maxGroupCounts: toJS(rootStoreInstance.configStore.maxGroupCounts),
-        //     minLocalCounts: toJS(rootStoreInstance.configStore.minLocalCounts),
-        //   },
-        // });
-        // Make a copy of the data which has collapsed data
-
-        // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
-
+        // Aggregate, collapse locations
         ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
           aggregateGroupDate({
             aggSequencesUniqueLocationGroupDate:
@@ -471,24 +465,24 @@ export class DataStore {
 
   downloadMutationFrequencies() {
     let csvString = 'mutation,';
-    let fields = [];
+    let mutationFields = [];
     if (rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_GENE
       ) {
         csvString += 'gene,';
-        fields.push('gene');
+        mutationFields.push('gene');
       } else if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_PROTEIN
       ) {
         csvString += 'protein,';
-        fields.push('protein');
+        mutationFields.push('protein');
       }
     }
-    csvString += 'pos,ref,alt,counts\n';
-    fields.push('pos', 'ref', 'alt');
+    csvString += 'pos,ref,alt,counts,percent,percent_coverage_adjusted\n';
+    mutationFields.push('pos', 'ref', 'alt');
 
     let mutation;
 
@@ -503,18 +497,29 @@ export class DataStore {
           record.group_id
         );
 
-        // Add mutation fields
+        // Add mutation mutationFields
         if (mutation.mutation_str === GROUPS.REFERENCE_GROUP) {
           csvString += mutation.mutation_str + ',';
-          csvString += fields.slice().fill('').join(',');
+          csvString += mutationFields.slice().fill('').join(',');
         } else {
           csvString +=
             mutation.name +
             ',' +
-            fields.map((field) => mutation[field]).join(',');
+            mutationFields.map((field) => mutation[field]).join(',');
         }
-        // Add counts
-        csvString += `,${record.counts}\n`;
+        // Add counts, percent
+        csvString += `,${record.counts},${
+          record.counts / this.numSequencesAfterAllFiltering
+        }`;
+        // Add coverage-adjusted percent
+        let feature = record.gene || record.protein;
+        csvString += `,${
+          record.counts /
+          rootStoreInstance.mutationDataStore.getCoverageAtPosition(
+            record.pos,
+            feature
+          )
+        }\n`;
       });
     // console.log(csvString);
 

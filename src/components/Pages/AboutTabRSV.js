@@ -80,10 +80,11 @@ const AboutTab = () => {
             </p>
             <p>
               <b>Dr. Shing Hei Zhan</b> is a recent graduate from the University
-              of British Columbia's Department of Zoology &amp; the Biodiversity
-              Research Centre. Shing is also co-founder and lead bioinformatics
-              scientist at Fusion Genomics Corporation, which develops molecular
-              diagnostic assays for infectious diseases, including COVID-19.
+              of British Columbia&apos;s Department of Zoology &amp; the
+              Biodiversity Research Centre. Shing is also co-founder and lead
+              bioinformatics scientist at Fusion Genomics Corporation, which
+              develops molecular diagnostic assays for infectious diseases,
+              including COVID-19.
             </p>
             <p>
               <ExternalLink href="https://www.broadinstitute.org/bios/ben-deverman">
