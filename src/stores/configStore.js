@@ -177,7 +177,9 @@ export class ConfigStore {
         ) {
           this.selectedGroupFields[key] = [];
         }
-        this.selectedGroupFields[key].push(value);
+        if (!this.selectedGroupFields[key].includes(value)) {
+          this.selectedGroupFields[key].push(value);
+        }
       } else {
         // Invalid field, remove it from the url
         this.urlParams.delete(key);
