@@ -25,6 +25,7 @@ import {
 import EmptyPlot from '../Common/EmptyPlot';
 import DropdownButton from '../Buttons/DropdownButton';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
+import StructureEntities from '../LiteMol/StructureEntities';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
 
 import {
@@ -146,6 +147,21 @@ const MutationStructureViewer = observer(() => {
       );
     }
   }
+
+  const onChangeEntities = (entities) => {
+    setState({
+      ...state,
+      entities,
+    });
+    applyHeatmap({
+      ref:
+        state.assemblies.length > 0 && state.activeAssembly !== 'asym'
+          ? 'assembly'
+          : 'model',
+      entities,
+    });
+    plotSettingsStore.setMutationStructureEntities(entities);
+  };
 
   const applyHeatmap = ({ ref, entities }) => {
     // Deep copy data from store
@@ -386,6 +402,10 @@ const MutationStructureViewer = observer(() => {
           </label>
         </OptionSelectContainer>
       </PlotOptions>
+      <StructureEntities
+        entities={state.entities}
+        onChangeEntities={onChangeEntities}
+      />
       <LiteMolContainer>
         <LiteMolPlugin
           height={500}

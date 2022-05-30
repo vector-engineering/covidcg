@@ -21,7 +21,7 @@ import DropdownButton from '../Buttons/DropdownButton';
 import EmptyPlot from '../Common/EmptyPlot';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
-import StructureEntities from './StructureEntities';
+import StructureEntities from '../LiteMol/StructureEntities';
 import {
   StructuralViewerContainer,
   LiteMolContainer,
