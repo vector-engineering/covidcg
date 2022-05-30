@@ -135,9 +135,12 @@ const CoordinateSelect = observer(
           Entire {protein.name} Protein (1..{protein.len_aa})
         </option>,
       ];
-      protein.domains.forEach((domain) => {
+      protein.domains.forEach((domain, j) => {
         proteinDomainOptionElements[protein.name].push(
-          <option key={`${protein.name}-${domain.name}`} value={domain.name}>
+          <option
+            key={`${protein.name}-${domain.name}-${j}`}
+            value={domain.name}
+          >
             {domain.name}&nbsp;&nbsp;(
             {domain.ranges.map((range) => range.join('..')).join(';')})
           </option>
