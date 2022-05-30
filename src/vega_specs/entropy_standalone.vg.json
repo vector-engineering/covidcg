@@ -20,6 +20,7 @@
     { "name": "yMode", "value": "percentages"},
     { "name": "yScaleExponent", "value": 1.0 },
     { "name": "totalSequences", "value": 474 },
+    { "name": "numDomainRows", "value": 4 },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
@@ -164,11 +165,11 @@
       "format": {
         "type": "json"
       },
-      "values": [{"abbr":"RBD","name":"Receptor binding domain","ranges":[[319,541]],"row":1},{"abbr":"S1 Subunit","name":"S1 Subunit","ranges":[[14,685]],"row":0},{"abbr":"S2 Subunit","name":"S2 Subunit","ranges":[[686,1273]],"row":0},{"abbr":"S","name":"Signal Peptide","ranges":[[1,13]],"row":2},{"abbr":"NTD","name":"N-Terminal Domain","ranges":[[14,305]],"row":1},{"abbr":"F","name":"Fusion Peptide","ranges":[[788,806]],"row":2},{"abbr":"HR1","name":"Heptapeptide Repeat Sequence 1","ranges":[[912,984]],"row":1},{"abbr":"HR2","name":"Heptapeptide Repeat Sequence 2","ranges":[[1163,1213]],"row":1},{"abbr":"TM","name":"Transmembrane Domain","ranges":[[1213,1237]],"row":2},{"abbr":"CT","name":"Cytoplasm Domain","ranges":[[1237,1273]],"row":1}],
+      "values": [{"name":"Signal peptide","abbr":"SP","ranges":[[1,25]],"row":0},{"name":"F0","abbr":"F0","ranges":[[26,574]],"row":1},{"name":"F2","abbr":"F2","ranges":[[26,109]],"row":2},{"name":"p27","abbr":"p27","ranges":[[110,136]],"row":0},{"name":"F1","abbr":"F1","ranges":[[137,574]],"row":2},{"name":"Extracellular","abbr":"EC","ranges":[[26,524]],"row":3},{"name":"Transmembrane, Helical","abbr":"TM","ranges":[[525,550]],"row":0},{"name":"Cytoplasmic","abbr":"Cyto","ranges":[[551,574]],"row":3}],
       "transform": [
         {
           "type": "formula",
-          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + numDomainRows + 2",
           "as": "rowTop"
         },
         { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },

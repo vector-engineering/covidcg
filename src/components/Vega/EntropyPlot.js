@@ -5,7 +5,6 @@ import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { config } from '../../config';
-import { geneMap, proteinMap } from '../../utils/gene_protein';
 import { throttle } from '../../utils/func';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
@@ -65,23 +64,6 @@ const EntropyPlot = observer(({ width }) => {
     } else if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG) {
       vegaRef.current.downloadImage('svg', 'vega-export.svg');
     }
-  };
-
-  const filterMap = (map, keyToRemove) => {
-    // Used to turn proteinMap and geneMap into an array of objects
-    // that can be used with the domain plot
-    return Object.keys(map)
-      .filter((key) => key !== keyToRemove)
-      .reduce((arr, key) => {
-        map[key]['ranges'] = map[key]['segments'];
-        if (map[key]['ranges'].length > 1) {
-          // Collapse ORF1ab ranges
-          map[key]['ranges'][0][1] = map[key]['ranges'][1][1];
-          map[key]['ranges'].slice(1, 1);
-        }
-        arr.push(map[key]);
-        return arr;
-      }, []);
   };
 
   const processData = () => {
@@ -159,13 +141,11 @@ const EntropyPlot = observer(({ width }) => {
     plotSettingsStore.setEntropyYPow(event.target.value);
   };
 
+  // Domain Plot height is calculated as the number of rows times a constant
+  const domainPlotRowHeight = 15;
   const getDomainPlotHeight = () => {
-    // Domain Plot height is calculated as the number of rows times a constant
-    let heightConst = 30;
     // There will always be at least 1 row (nullDomain displays when no rows)
     let numRows = 1;
-
-    let geneProteinObj = null;
 
     // Logic for Primer track
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
@@ -177,32 +157,15 @@ const EntropyPlot = observer(({ width }) => {
           }
         });
 
-        return numRows * heightConst;
+        return numRows * domainPlotRowHeight;
       } else {
-        return heightConst;
+        return domainPlotRowHeight;
       }
     }
 
     // Logic for Gene/Protein track
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        geneProteinObj = filterMap(geneMap, 'All Genes');
-      } else if (
-        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-      ) {
-        geneProteinObj = filterMap(proteinMap, 'All Proteins');
-      }
-
-      // Greedily get the max number of rows
-      geneProteinObj.forEach((geneProtein) => {
-        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
-        if (geneProtein['row'] + 1 > numRows) {
-          numRows = geneProtein['row'] + 1;
-        }
-      });
-
-      return numRows * heightConst;
-    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    let geneProteinObj = null;
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       geneProteinObj = configStore.selectedGene;
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       geneProteinObj = configStore.selectedProtein;
@@ -218,7 +181,7 @@ const EntropyPlot = observer(({ width }) => {
       });
     }
 
-    return numRows * heightConst;
+    return numRows * domainPlotRowHeight;
   };
 
   const getXRange = () => {
@@ -294,15 +257,7 @@ const EntropyPlot = observer(({ width }) => {
         row: 0,
       },
     ];
-    if (configStore.residueCoordinates.length === 0) {
-      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-        return filterMap(geneMap, 'All Genes');
-      } else if (
-        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
-      ) {
-        return filterMap(proteinMap, 'All Proteins');
-      }
-    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       return configStore.selectedGene.domains.length > 0
         ? configStore.selectedGene.domains
         : nullDomain;
@@ -414,12 +369,7 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
-    // console.log(getDomains());
-    // console.log(getXRange());
-    // console.log(processData());
-
-    // console.log(JSON.stringify(mutationDataStore.coverage));
-    // console.log(JSON.stringify(processData()));
+    console.log(JSON.stringify(domainsToShow()));
 
     setState({
       ...state,
@@ -584,7 +534,9 @@ const EntropyPlot = observer(({ width }) => {
         spec={initialSpec}
         data={state.data}
         width={width}
-        height={entropyPlotHeight + padding + state.domainPlotHeight}
+        height={
+          entropyPlotHeight + padding + state.domainPlotHeight + padding + 60
+        }
         signals={{
           yMode: plotSettingsStore.entropyYMode,
           yScaleExponent: plotSettingsStore.entropyYPow,
@@ -592,6 +544,7 @@ const EntropyPlot = observer(({ width }) => {
           xLabel,
           xRange: state.xRange,
           hoverGroup: state.hoverGroup,
+          numDomainRows: state.domainPlotHeight / domainPlotRowHeight,
           domainPlotHeight: state.domainPlotHeight,
           posField:
             configStore.dnaOrAa === DNA_OR_AA.DNA &&

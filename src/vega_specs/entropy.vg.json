@@ -23,6 +23,7 @@
     { "name": "yMode", "value": "percentages" },
     { "name": "yScaleExponent", "value": 1.0 },
     { "name": "totalSequences", "value": 474 },
+    { "name": "numDomainRows", "value": 4 },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
@@ -177,7 +178,7 @@
       "transform": [
         {
           "type": "formula",
-          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
+          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + numDomainRows + 2",
           "as": "rowTop"
         },
         { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
