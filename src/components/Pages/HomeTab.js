@@ -5,8 +5,8 @@ import useDimensions from 'react-use-dimensions';
 import ExternalLink from '../Common/ExternalLink';
 
 import WalkthroughList from '../Example/WalkthroughList';
-import SurveillancePlot from '../Vega/SurveillancePlot';
-import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
+import SurveillancePlot from '../Viz/SurveillancePlot';
+import GlobalSeqPlot from '../Viz/GlobalSeqPlot';
 import ExampleList from '../Example/ExampleList';
 
 import { config } from '../../config';

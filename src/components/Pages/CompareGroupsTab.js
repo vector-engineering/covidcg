@@ -10,12 +10,12 @@ import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import VegaStackedBars from '../Vega/GroupStackPlot';
-import LocationGroupPlot from '../Vega/LocationGroupPlot';
-import EntropyPlot from '../Vega/EntropyPlot';
-import CooccurrencePlot from '../Vega/CooccurrencePlot';
-import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
-import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
+import VegaStackedBars from '../Viz/GroupStackPlot';
+import LocationGroupPlot from '../Viz/LocationGroupPlot';
+import EntropyPlot from '../Viz/EntropyPlot';
+import CooccurrencePlot from '../Viz/CooccurrencePlot';
+import NumSeqPerLocationBar from '../Viz/NumSeqPerLocationBar';
+import NumSeqPerLocationLine from '../Viz/NumSeqPerLocationLine';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
