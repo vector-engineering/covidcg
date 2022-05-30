@@ -105,9 +105,9 @@ const CoordinateSelect = observer(
           Entire {gene.name} Gene (1..{gene.len_aa})
         </option>,
       ];
-      gene.domains.forEach((domain) => {
+      gene.domains.forEach((domain, j) => {
         geneDomainOptionElements[gene.name].push(
-          <option key={`${gene.name}-${domain.name}`} value={domain.name}>
+          <option key={`${gene.name}-${domain.name}-${j}`} value={domain.name}>
             {domain.name}&nbsp;&nbsp;(
             {domain.ranges.map((range) => range.join('..')).join(';')})
           </option>
