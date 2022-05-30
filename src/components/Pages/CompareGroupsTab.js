@@ -197,7 +197,7 @@ const CompareGroupsTab = observer(() => {
       <AccordionWrapper
         title="Mutations projected onto protein structure"
         defaultCollapsed={false}
-        maxHeight={'500px'}
+        maxHeight={'800px'}
         helpText={
           <ul>
             <li>...</li>

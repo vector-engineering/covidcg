@@ -585,3 +585,80 @@ export const CreateMacromoleculeVisual = Tree.Transformer.action(
     return g;
   }
 );
+
+export const LoadLitemolModel = ({
+  plugin,
+  pdbId,
+  proteinStyle,
+  useAssembly,
+  onLoad,
+}) => {
+  plugin.clear();
+  pdbId = pdbId.toLowerCase();
+
+  // good example: https://github.com/dsehnal/LiteMol/blob/master/src/Viewer/App/Examples.ts
+  const modelAction = plugin
+    .createTransform()
+    .add(plugin.root, Transformer.Data.Download, {
+      url: `https://www.ebi.ac.uk/pdbe/static/entry/${pdbId}_updated.cif`,
+      type: 'String',
+      id: pdbId,
+    })
+    .then(Transformer.Data.ParseCif, { id: pdbId }, { isBinding: true })
+    .then(
+      Transformer.Molecule.CreateFromMmCif,
+      { blockIndex: 0 },
+      { ref: 'molecule' }
+    );
+
+  plugin.applyTransform(modelAction).then(() => {
+    let vizAction = plugin
+      .createTransform()
+      .add(
+        'molecule',
+        Transformer.Molecule.CreateModel,
+        { modelIndex: 0 },
+        { ref: 'model' }
+      );
+
+    // If an assembly exists, then display that instead
+    // of the asymmetric unit
+    const assemblies = getMoleculeAssemblies({ plugin });
+
+    if (assemblies.length > 0) {
+      // If no assembly is selected, then default to the first assembly
+      if (useAssembly === '') {
+        useAssembly = assemblies[0];
+      }
+      //useAssembly = 'asym';
+
+      // If user decides to display the asymmetric unit,
+      // then skip the assembly process
+      if (useAssembly !== 'asym') {
+        vizAction = vizAction.then(
+          Transformer.Molecule.CreateAssembly,
+          { name: assemblies[0] },
+          { ref: 'assembly' }
+        );
+      }
+    }
+
+    const entities = getMoleculeEntities({ plugin });
+
+    vizAction = vizAction.then(CreateMacromoleculeVisual, {
+      polymer: true,
+      het: true,
+      water: false,
+      style: proteinStyle,
+    });
+
+    onLoad({
+      vizAction,
+      assemblies,
+      entities,
+      activeAssembly: useAssembly,
+    });
+  });
+
+  return modelAction;
+};

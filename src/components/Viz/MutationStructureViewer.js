@@ -3,18 +3,9 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import './../../styles/litemol.min.css';
 
-import LiteMol from 'litemol';
-const Bootstrap = LiteMol.Bootstrap;
-const Transformer = Bootstrap.Entity.Transformer;
-
 import { reds } from '../../constants/colors';
 import { hexToRgb } from '../../utils/color';
-import {
-  colorHeatmap,
-  getMoleculeAssemblies,
-  getMoleculeEntities,
-  CreateMacromoleculeVisual,
-} from '../LiteMol/litemolutils';
+import { LoadLitemolModel, colorHeatmap } from '../LiteMol/litemolutils';
 import { getProtein } from '../../utils/gene_protein';
 import {
   COORDINATE_MODES,
@@ -113,8 +104,7 @@ const MutationStructureViewer = observer(() => {
 
   const handleDownloadSelect = (downloadOption) => {
     if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
-      // groupDataStore.downloadStructureMutationData();
-      console.log('DOWNLOAD DATA');
+      dataStore.downloadMutationFrequencies();
     } else if (downloadOption === DOWNLOAD_OPTIONS.DOWNLOAD_PYMOL) {
       showDownloadPymolScriptModal();
     }
@@ -218,90 +208,36 @@ const MutationStructureViewer = observer(() => {
     if (!plugin) {
       return;
     }
-    plugin.clear();
 
-    const pdbId = plotSettingsStore.mutationStructurePdbId.toLowerCase();
-
-    // good example: https://github.com/dsehnal/LiteMol/blob/master/src/Viewer/App/Examples.ts
-    const modelAction = plugin
-      .createTransform()
-      .add(plugin.root, Transformer.Data.Download, {
-        url: `https://www.ebi.ac.uk/pdbe/static/entry/${pdbId}_updated.cif`,
-        type: 'String',
-        id: pdbId,
-      })
-      .then(Transformer.Data.ParseCif, { id: pdbId }, { isBinding: true })
-      .then(
-        Transformer.Molecule.CreateFromMmCif,
-        { blockIndex: 0 },
-        { ref: 'molecule' }
-      );
-
-    plugin.applyTransform(modelAction).then(() => {
-      let vizAction = plugin
-        .createTransform()
-        .add(
-          'molecule',
-          Transformer.Molecule.CreateModel,
-          { modelIndex: 0 },
-          { ref: 'model' }
-        );
-
-      // If an assembly exists, then display that instead
-      // of the asymmetric unit
-      const assemblies = getMoleculeAssemblies({ plugin });
-
-      if (assemblies.length > 0) {
-        // If no assembly is selected, then default to the first assembly
-        if (useAssembly === '') {
-          useAssembly = assemblies[0];
-        }
-        //useAssembly = 'asym';
-
-        // If user decides to display the asymmetric unit,
-        // then skip the assembly process
-        if (useAssembly !== 'asym') {
-          vizAction = vizAction.then(
-            Transformer.Molecule.CreateAssembly,
-            { name: assemblies[0] },
-            { ref: 'assembly' }
-          );
-        }
-      }
-
-      const entities = getMoleculeEntities({ plugin });
-
-      setState({
-        ...state,
-        assemblies,
-        entities,
-        activeAssembly: useAssembly,
-      });
-
-      vizAction = vizAction.then(CreateMacromoleculeVisual, {
-        polymer: true,
-        het: true,
-        water: false,
-        style: plotSettingsStore.mutationStructureProteinStyle,
-      });
-
-      plugin.applyTransform(vizAction).then(() => {
-        applyHeatmap({
-          ref:
-            assemblies.length > 0 && useAssembly !== 'asym'
-              ? 'assembly'
-              : 'model',
-          entities: entities,
+    LoadLitemolModel({
+      plugin,
+      pdbId: plotSettingsStore.mutationStructurePdbId,
+      proteinStyle: plotSettingsStore.mutationStructureProteinStyle,
+      useAssembly,
+      onLoad: ({ vizAction, assemblies, entities, activeAssembly }) => {
+        setState({
+          ...state,
+          assemblies,
+          entities,
+          activeAssembly,
         });
-      });
 
-      // Update store so other components have this info
-      plotSettingsStore.setMutationStructureAssemblies(assemblies);
-      plotSettingsStore.setMutationStructureActiveAssembly(useAssembly);
-      plotSettingsStore.setMutationStructureEntities(entities);
+        plugin.applyTransform(vizAction).then(() => {
+          applyHeatmap({
+            ref:
+              assemblies.length > 0 && activeAssembly !== 'asym'
+                ? 'assembly'
+                : 'model',
+            entities: entities,
+          });
+        });
+
+        // Update store so other components have this info
+        plotSettingsStore.setMutationStructureAssemblies(assemblies);
+        plotSettingsStore.setMutationStructureActiveAssembly(activeAssembly);
+        plotSettingsStore.setMutationStructureEntities(entities);
+      },
     });
-
-    modelAction;
   };
 
   useEffect(() => {

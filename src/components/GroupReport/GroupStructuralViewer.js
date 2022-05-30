@@ -1,15 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import LiteMol from 'litemol';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import './../../styles/litemol.min.css';
 
-import {
-  colorHeatmap,
-  getMoleculeAssemblies,
-  getMoleculeEntities,
-  CreateMacromoleculeVisual,
-} from '../LiteMol/litemolutils';
+import { LoadLitemolModel, colorHeatmap } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
 import { LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
@@ -33,9 +27,6 @@ import {
 } from './GroupStructuralViewer.styles';
 
 const proteins = getAllProteins();
-
-const Bootstrap = LiteMol.Bootstrap;
-const Transformer = Bootstrap.Entity.Transformer;
 
 const numColors = reds.length;
 
@@ -207,90 +198,36 @@ const StructuralViewer = observer(() => {
     if (!plugin) {
       return;
     }
-    plugin.clear();
 
-    const pdbId = plotSettingsStore.reportStructurePdbId.toLowerCase();
-
-    // good example: https://github.com/dsehnal/LiteMol/blob/master/src/Viewer/App/Examples.ts
-    const modelAction = plugin
-      .createTransform()
-      .add(plugin.root, Transformer.Data.Download, {
-        url: `https://www.ebi.ac.uk/pdbe/static/entry/${pdbId}_updated.cif`,
-        type: 'String',
-        id: pdbId,
-      })
-      .then(Transformer.Data.ParseCif, { id: pdbId }, { isBinding: true })
-      .then(
-        Transformer.Molecule.CreateFromMmCif,
-        { blockIndex: 0 },
-        { ref: 'molecule' }
-      );
-
-    plugin.applyTransform(modelAction).then(() => {
-      let vizAction = plugin
-        .createTransform()
-        .add(
-          'molecule',
-          Transformer.Molecule.CreateModel,
-          { modelIndex: 0 },
-          { ref: 'model' }
-        );
-
-      // If an assembly exists, then display that instead
-      // of the asymmetric unit
-      const assemblies = getMoleculeAssemblies({ plugin });
-
-      if (assemblies.length > 0) {
-        // If no assembly is selected, then default to the first assembly
-        if (useAssembly === '') {
-          useAssembly = assemblies[0];
-        }
-        //useAssembly = 'asym';
-
-        // If user decides to display the asymmetric unit,
-        // then skip the assembly process
-        if (useAssembly !== 'asym') {
-          vizAction = vizAction.then(
-            Transformer.Molecule.CreateAssembly,
-            { name: assemblies[0] },
-            { ref: 'assembly' }
-          );
-        }
-      }
-
-      const entities = getMoleculeEntities({ plugin });
-
-      setState({
-        ...state,
-        assemblies,
-        entities,
-        activeAssembly: useAssembly,
-      });
-
-      vizAction = vizAction.then(CreateMacromoleculeVisual, {
-        polymer: true,
-        het: true,
-        water: false,
-        style: plotSettingsStore.reportStructureProteinStyle,
-      });
-
-      plugin.applyTransform(vizAction).then(() => {
-        applyHeatmap({
-          ref:
-            assemblies.length > 0 && useAssembly !== 'asym'
-              ? 'assembly'
-              : 'model',
-          entities: entities,
+    LoadLitemolModel({
+      plugin,
+      pdbId: plotSettingsStore.reportStructurePdbId,
+      proteinStyle: plotSettingsStore.reportStructureProteinStyle,
+      useAssembly,
+      onLoad: ({ vizAction, assemblies, entities, activeAssembly }) => {
+        setState({
+          ...state,
+          assemblies,
+          entities,
+          activeAssembly,
         });
-      });
 
-      // Update store so other components have this info
-      plotSettingsStore.setReportStructureAssemblies(assemblies);
-      plotSettingsStore.setReportStructureActiveAssembly(useAssembly);
-      plotSettingsStore.setReportStructureEntities(entities);
+        plugin.applyTransform(vizAction).then(() => {
+          applyHeatmap({
+            ref:
+              assemblies.length > 0 && activeAssembly !== 'asym'
+                ? 'assembly'
+                : 'model',
+            entities: entities,
+          });
+        });
+
+        // Update store so other components have this info
+        plotSettingsStore.setReportStructureAssemblies(assemblies);
+        plotSettingsStore.setReportStructureActiveAssembly(activeAssembly);
+        plotSettingsStore.setReportStructureEntities(entities);
+      },
     });
-
-    modelAction;
   };
 
   useEffect(() => {
