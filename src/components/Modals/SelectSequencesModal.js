@@ -202,7 +202,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_GENE
       ));
     }
-    selectedGene = getGene(selectedGene);
+    selectedGene = getGene(selectedGene, pending.selectedReference);
     // If we selected a new gene, then update the residue coordinates
     if (selectedGene.name !== pending.selectedGene.name) {
       residueCoordinates = getDefaultGeneResidueCoordinates(selectedGene);
@@ -224,7 +224,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
         COORDINATE_MODES.COORD_PROTEIN
       ));
     }
-    selectedProtein = getProtein(selectedProtein);
+    selectedProtein = getProtein(selectedProtein, pending.selectedReference);
     // If we selected a new protein, then update the residue coordinates
     if (selectedProtein.name !== pending.selectedProtein.name) {
       residueCoordinates = getDefaultProteinResidueCoordinates(selectedProtein);

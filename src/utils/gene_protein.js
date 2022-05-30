@@ -39,7 +39,7 @@ export function getGene(gene, ref) {
   return genes[ref].find((g) => g.name === gene);
 }
 
-export function getAllProteins(ref = 'A') {
+export function getAllProteins(ref) {
   return proteins[ref];
 }
 

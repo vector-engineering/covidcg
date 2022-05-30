@@ -43,6 +43,7 @@ const CoordinateSelect = observer(
     selectedGene,
     selectedProtein,
     selectedPrimers,
+    selectedReference,
     residueCoordinates,
     validResidueCoordinates,
     customCoordinates,
@@ -67,13 +68,8 @@ const CoordinateSelect = observer(
     let genes = {};
     let proteins = {};
 
-    if (config.virus === 'sars2') {
-      genes = getAllGenes();
-      proteins = getAllProteins();
-    } else {
-      genes = getAllGenes(configStore.selectedReference);
-      proteins = getAllProteins(configStore.selectedReference);
-    }
+    genes = getAllGenes(selectedReference);
+    proteins = getAllProteins(selectedReference);
 
     // GENE
     let geneOptionElements = [];
