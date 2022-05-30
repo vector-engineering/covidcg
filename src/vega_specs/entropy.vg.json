@@ -11,7 +11,7 @@
 
     { "name": "domainPlotHeight", "value": 60 },
     { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
-    { "name": "domainPlotY", "update": "entropyPlotHeight + 40" },
+    { "name": "domainPlotY", "update": "height - entropyPlotHeight - 20" },
 
     { "name": "coveragePlotHeight", "value": 40 },
     { "name": "coveragePlotYRange", "update": "[coveragePlotHeight, 0]" },
