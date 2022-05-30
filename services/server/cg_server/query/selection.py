@@ -318,25 +318,7 @@ def count_coverage(
         gene_or_protein_join = sql.SQL("")
         gene_or_protein_partition_by = sql.SQL("")
         gene_or_protein_df_col = []
-
-    elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
-        coverage_table = "gene_aa_coverage"
-        coverage_filter.append(
-            sql.SQL('"feature" = {feature}').format(feature=sql.Literal(selected_gene))
-        )
-
-    elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
-        coverage_table = "protein_aa_coverage"
-        coverage_filter.append(
-            sql.SQL('"feature" = {feature}').format(
-                feature=sql.Literal(selected_protein)
-            )
-        )
-
-    if (
-        coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]
-        or coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]
-    ):
+    else:
         gene_or_protein_col = sql.SQL('"feature",')
         gene_or_protein_coalesce = sql.SQL(
             'COALESCE(start_count."feature", end_count."feature") AS "feature",'
@@ -346,6 +328,20 @@ def count_coverage(
         )
         gene_or_protein_partition_by = sql.SQL('PARTITION BY "feature"')
         gene_or_protein_df_col = ["feature"]
+
+        if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
+            coverage_table = "gene_aa_coverage"
+            coverage_filter.append(
+                sql.SQL('"feature" = {feature}').format(feature=sql.Literal(selected_gene))
+            )
+
+        elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
+            coverage_table = "protein_aa_coverage"
+            coverage_filter.append(
+                sql.SQL('"feature" = {feature}').format(
+                    feature=sql.Literal(selected_protein)
+                )
+            )
 
     coverage_filter = sql.SQL(" AND ").join(coverage_filter)
 

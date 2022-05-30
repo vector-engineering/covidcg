@@ -192,7 +192,7 @@ export class MutationDataStore {
 
     let coverageMapSubset = this.coverage;
     // If the feature name is defined, subset the coverage map
-    if (featureName !== undefined) {
+    if (featureName) {
       coverageMapSubset = coverageMapSubset.filter(
         (row) => row.feature === featureName
       );
