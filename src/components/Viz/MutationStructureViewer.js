@@ -100,7 +100,7 @@ const MutationStructureViewer = observer(() => {
   };
 
   const applyChanges = () => {
-    plotSettingsStore.setReportStructurePdbId(state.pdbId);
+    plotSettingsStore.setMutationStructurePdbId(state.pdbId);
 
     // Clear changed and error states
     setState({
