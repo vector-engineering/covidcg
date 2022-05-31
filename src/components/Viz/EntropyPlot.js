@@ -121,24 +121,29 @@ const EntropyPlot = observer(({ width }) => {
       } else {
         return domainPlotRowHeight;
       }
-    }
+    } else if (
+      configStore.coordinateMode === COORDINATE_MODES.COORD_GENE ||
+      configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+    ) {
+      // Logic for Gene/Protein track
+      let geneProteinObj = null;
+      if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+        geneProteinObj = configStore.selectedGene;
+      } else if (
+        configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+      ) {
+        geneProteinObj = configStore.selectedProtein;
+      }
 
-    // Logic for Gene/Protein track
-    let geneProteinObj = null;
-    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      geneProteinObj = configStore.selectedGene;
-    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      geneProteinObj = configStore.selectedProtein;
-    }
-
-    // Greedily get the number of rows
-    if (geneProteinObj && geneProteinObj.domains.length > 0) {
-      geneProteinObj.domains.forEach((domain) => {
-        // geneProtein[row] is zero-indexed so add 1 to get total number of rows
-        if (domain['row'] + 1 > numRows) {
-          numRows = domain['row'] + 1;
-        }
-      });
+      // Greedily get the number of rows
+      if (geneProteinObj && geneProteinObj.domains.length > 0) {
+        geneProteinObj.domains.forEach((domain) => {
+          // geneProtein[row] is zero-indexed so add 1 to get total number of rows
+          if (domain['row'] + 1 > numRows) {
+            numRows = domain['row'] + 1;
+          }
+        });
+      }
     }
 
     return numRows * domainPlotRowHeight;
@@ -213,6 +218,7 @@ const EntropyPlot = observer(({ width }) => {
     const nullDomain = [
       {
         name: 'No Domains Available',
+        abbr: 'No Domains Available',
         ranges: [xRange],
         row: 0,
       },
@@ -226,7 +232,7 @@ const EntropyPlot = observer(({ width }) => {
         ? configStore.selectedProtein.domains
         : nullDomain;
     } else {
-      return [];
+      return nullDomain;
     }
   };
 
