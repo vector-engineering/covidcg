@@ -504,7 +504,17 @@ const CoordinateSelect = observer(
                     />
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
+                      data-tip='
+                        <p>
+                          Coordinates are in the form "start..end". 
+                          Multiple ranges can be separated with ";"
+                        </p>
+                        <p>
+                          i.e., "100..300;500..550"
+                        </p>
+                        <p>
+                          Coordinates are relative to the gene ORF
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -522,7 +532,13 @@ const CoordinateSelect = observer(
                     </select>
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                      data-tip='
+                        <p>
+                          Coordinates relative to the gene ORF, and are in the form "start..end".
+                        </p>
+                        <p>
+                          Selecting a domain will replace the range(s) to the residue indices input
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -570,7 +586,17 @@ const CoordinateSelect = observer(
                     />
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
+                      data-tip='
+                        <p>
+                          Coordinates are in the form "start..end". 
+                          Multiple ranges can be separated with ";"
+                        </p>
+                        <p>
+                          i.e., "100..300;500..550"
+                        </p>
+                        <p>
+                          Coordinates are relative to the protein ORF
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -588,7 +614,14 @@ const CoordinateSelect = observer(
                     </select>
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                      data-tip='
+                        <p>
+                          Coordinates relative to the protein ORF, and are in 
+                          the form "start..end".
+                        </p>
+                        <p>
+                          Selecting a domain will replace the range(s) to the residue indices input
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -748,7 +781,17 @@ const CoordinateSelect = observer(
         <span className="title">
           Genomic Coordinates
           <QuestionButton
-            data-tip='<p>When grouping by mutation, only show mutations within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus mutations within the given genomic coordinates.</p><p>These options are only enabled when in "Mutation" mode.</p>'
+            data-tip='
+              <p>
+                When grouping by mutation, only show mutations within the given genomic coordinates.
+              </p>
+              <p>
+                When grouping by lineage/clade, only show consensus mutations 
+                within the given genomic coordinates.
+              </p>
+              <p>
+                These options are only enabled when in "Mutation" mode.
+              </p>'
             data-html="true"
             data-for="main-tooltip"
           />
