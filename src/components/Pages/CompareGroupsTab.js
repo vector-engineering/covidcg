@@ -3,13 +3,9 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
-import {
-  GROUP_MUTATION,
-  DNA_OR_AA,
-  COORDINATE_MODES,
-  TABS,
-} from '../../constants/defs.json';
+import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
+import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
@@ -184,15 +180,6 @@ const CompareGroupsTab = observer(() => {
   };
 
   const renderMutationStructureViewer = () => {
-    // Only valid in AA mode, gene/protein mode
-    if (
-      configStore.dnaOrAa !== DNA_OR_AA.AA ||
-      (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
-        configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN)
-    ) {
-      return null;
-    }
-
     return (
       <AccordionWrapper
         title="Mutations projected onto protein structure"
@@ -200,7 +187,33 @@ const CompareGroupsTab = observer(() => {
         maxHeight={'700px'}
         helpText={
           <ul>
-            <li>...</li>
+            <li>
+              Mutations are colored by their frequency (from all selected
+              locations) and projected onto a protein structure, if such
+              structure exists for the protein or analogous gene.
+            </li>
+            <li>
+              Molecule visualizations are provided by{' '}
+              <ExternalLink href="https://www.litemol.org/">
+                LiteMol
+              </ExternalLink>
+              . Click the circular &quot;?&quot; button inside the LiteMol
+              visualization for control help.
+            </li>
+            <li>
+              Structures are downloaded from the{' '}
+              <ExternalLink href="https://www.rcsb.org/">RCSB PDB</ExternalLink>
+            </li>
+            <li>
+              Default PDB IDs are provided but can be changed. Enter in a new
+              PDB ID and click apply to change the structure.
+            </li>
+            <li>
+              If in gene mode, the gene is required to have an analogous
+              protein. I.e., an ORF with multiple protein products will not be
+              projected here. To view mutations on those proteins, switch to the
+              Protein coordinate mode.
+            </li>
           </ul>
         }
       >

@@ -8,6 +8,7 @@ import { hexToRgb } from '../../utils/color';
 import { LoadLitemolModel, colorHeatmap } from '../LiteMol/litemolutils';
 import { getProtein } from '../../utils/gene_protein';
 import {
+  DNA_OR_AA,
   COORDINATE_MODES,
   LITEMOL_STYLES,
   NORM_MODES,
@@ -50,6 +51,13 @@ const MutationStructureViewer = observer(() => {
     activeAssembly: '',
   });
   const pluginRef = useRef(null);
+
+  // Flag to not run any hooks if we're going to render an empty plot
+  // i.e., show the hint text when in NT mode
+  const skipHooks =
+    configStore.dnaOrAa !== DNA_OR_AA.AA ||
+    (configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+      configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN);
 
   const showDownloadPymolScriptModal = () => {
     setState({
@@ -112,34 +120,6 @@ const MutationStructureViewer = observer(() => {
   const handlePymolScriptDownload = (opts) => {
     dataStore.downloadMutationStructurePymolScript(opts);
   };
-
-  // Get the protein to show
-  let activeProtein;
-  if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-    activeProtein = configStore.selectedProtein;
-  }
-  // If we're in gene mode, we need to find the analogous protein
-  // If it doesn't exist (i.e., gene is an ORF that codes for multiple proteins),
-  // then show a message prompting user to switch to protein mode
-  else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-    activeProtein = getProtein(
-      configStore.selectedGene.name,
-      configStore.selectedReference
-    );
-    // If we fell back to another protein, then the analogous protein doesn't exist
-    if (activeProtein.name !== configStore.selectedGene.name) {
-      return (
-        <EmptyPlot height={250}>
-          <p>
-            No analogous protein found for gene {configStore.selectedGene.name}.
-            Please click on the "Filter Sequences" button at the top of the
-            screen and switch to "Protein" under "Genomic Coordinates" to enter
-            protein mode.
-          </p>
-        </EmptyPlot>
-      );
-    }
-  }
 
   const onChangeEntities = (entities) => {
     setState({
@@ -242,6 +222,7 @@ const MutationStructureViewer = observer(() => {
   };
 
   useEffect(() => {
+    if (skipHooks) return;
     if (!plugin) return;
     loadModel();
   }, [
@@ -251,6 +232,7 @@ const MutationStructureViewer = observer(() => {
   ]);
 
   useEffect(() => {
+    if (skipHooks) return;
     if (!plugin) return;
     applyHeatmap({
       ref:
@@ -269,6 +251,60 @@ const MutationStructureViewer = observer(() => {
       </option>
     );
   });
+
+  // Only valid in AA mode, or gene/protein mode
+  if (configStore.dnaOrAa !== DNA_OR_AA.AA) {
+    return (
+      <EmptyPlot height={150}>
+        <p>
+          Structure view only available in AA mode. Please select the "AA"
+          option under "Mutation Format" in the top bar or in the "Filter
+          Sequences" dialog.
+        </p>
+      </EmptyPlot>
+    );
+  } else if (
+    configStore.coordinateMode !== COORDINATE_MODES.COORD_GENE &&
+    configStore.coordinateMode !== COORDINATE_MODES.COORD_PROTEIN
+  ) {
+    return (
+      <EmptyPlot height={150}>
+        <p>
+          Structure view requires gene or protein coordinates. Please select the
+          "Gene" or "Protein" option under "Coordinate Mode" in the top bar or
+          in the "Filter Sequences" dialog.
+        </p>
+      </EmptyPlot>
+    );
+  }
+
+  // Get the protein to show
+  let activeProtein;
+  if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+    activeProtein = configStore.selectedProtein;
+  }
+  // If we're in gene mode, we need to find the analogous protein
+  // If it doesn't exist (i.e., gene is an ORF that codes for multiple proteins),
+  // then show a message prompting user to switch to protein mode
+  else if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    activeProtein = getProtein(
+      configStore.selectedGene.name,
+      configStore.selectedReference
+    );
+    // If we fell back to another protein, then the analogous protein doesn't exist
+    if (activeProtein.name !== configStore.selectedGene.name) {
+      return (
+        <EmptyPlot height={150}>
+          <p>
+            No analogous protein found for gene {configStore.selectedGene.name}.
+            Please click on the "Filter Sequences" button at the top of the
+            screen and switch to "Protein" under "Genomic Coordinates" to enter
+            protein mode.
+          </p>
+        </EmptyPlot>
+      );
+    }
+  }
 
   return (
     <MutationStructureViewerContainer>
