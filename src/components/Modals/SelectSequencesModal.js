@@ -6,6 +6,7 @@ import { config } from '../../config';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
 import { ISOToInt, intToISO } from '../../utils/date';
+import { getReference } from '../../utils/reference';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
@@ -120,9 +121,27 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     changeGrouping(pending.groupKey, dnaOrAa);
 
   const onReferenceChange = (reference) => {
+    // Check the custom coordinates under the new reference
+    // If it fits, then leave it alone
+    // Otherwise, set custom coordinates to the segments of the default gene
+    let customCoordinates = pending.customCoordinates;
+    const refSeqLength = getReference(reference).sequence.length;
+
+    const customCoordMax = customCoordinates.reduce(
+      (acc, range) => Math.max(acc, ...range),
+      0
+    );
+    if (customCoordMax > refSeqLength) {
+      // The custom coordinates don't fit - reset to segments of the default gene
+      customCoordinates = getGene(config.default_gene, reference).segments;
+    }
+
     setGroupPending({
       ...pending,
       selectedReference: reference,
+    });
+    setCoordPending({
+      customCoordinates,
     });
   };
 

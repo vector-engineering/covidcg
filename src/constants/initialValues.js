@@ -134,7 +134,8 @@ if (config['virus'] === 'sars2') {
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
     selectedReference: startingReference,
-    customCoordinates: [[5648, 7550]],
+    customCoordinates: getGene(config['default_gene'], startingReference)
+      .segments,
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
     residueCoordinates: [
       [1, getGene(config['default_gene'], startingReference).len_aa],
