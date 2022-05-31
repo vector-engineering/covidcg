@@ -660,7 +660,17 @@ const CoordinateSelect = observer(
                 />
                 <QuestionButton
                   rebuildAfterMount={true}
-                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                  data-tip={`
+                    <p>
+                      Coordinates are in the form "start..end". 
+                      Multiple ranges can be separated with ";"
+                    </p>
+                    <p>
+                      i.e., "100..300;500..550"
+                    </p>
+                    <p>
+                      Coordinates relative to the reference genome: <b>${selectedReference}</b>
+                    </p>`}
                   data-html="true"
                   data-for="main-tooltip"
                 />
@@ -697,7 +707,18 @@ const CoordinateSelect = observer(
                   />
                   <QuestionButton
                     rebuildAfterMount={true}
-                    data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                    data-tip={`
+                      <p>
+                        Select coordinates based on matches to the entered sequence 
+                        (can be forward or reverse)
+                      </p>
+                      <p>
+                        Please only enter A, T, C, or G. 
+                        Enter in more than one sequence by separating them with ";"
+                      </p>
+                      <p>
+                        Sequences are matched to the reference genome: <b>${selectedReference}</b>
+                      </p>`}
                     data-html="true"
                     data-for="main-tooltip"
                   />
