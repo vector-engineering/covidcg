@@ -231,6 +231,10 @@ const DownloadPymolScriptContent = ({ onRequestClose, onConfirm }) => {
     </Wrapper>
   );
 };
+DownloadPymolScriptContent.propTypes = {
+  onRequestClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+};
 
 const DownloadPymolScriptModal = ({
   isOpen,

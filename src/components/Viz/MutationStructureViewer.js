@@ -257,9 +257,9 @@ const MutationStructureViewer = observer(() => {
     return (
       <EmptyPlot height={150}>
         <p>
-          Structure view only available in AA mode. Please select the "AA"
-          option under "Mutation Format" in the top bar or in the "Filter
-          Sequences" dialog.
+          Structure view only available in AA mode. Please select the
+          &quot;AA&quot; option under &quot;Mutation Format&quot; in the top bar
+          or in the &quot;Filter Sequences&quot; dialog.
         </p>
       </EmptyPlot>
     );
@@ -271,8 +271,9 @@ const MutationStructureViewer = observer(() => {
       <EmptyPlot height={150}>
         <p>
           Structure view requires gene or protein coordinates. Please select the
-          "Gene" or "Protein" option under "Coordinate Mode" in the top bar or
-          in the "Filter Sequences" dialog.
+          &quot;Gene&quot; or &quot;Protein&quot; option under &quot;Coordinate
+          Mode&quot; in the top bar or in the &quot;Filter Sequences&quot;
+          dialog.
         </p>
       </EmptyPlot>
     );
@@ -297,9 +298,9 @@ const MutationStructureViewer = observer(() => {
         <EmptyPlot height={150}>
           <p>
             No analogous protein found for gene {configStore.selectedGene.name}.
-            Please click on the "Filter Sequences" button at the top of the
-            screen and switch to "Protein" under "Genomic Coordinates" to enter
-            protein mode.
+            Please click on the &quot;Filter Sequences&quot; button at the top
+            of the screen and switch to &quot;Protein&quot; under &quot;Genomic
+            Coordinates&quot; to enter protein mode.
           </p>
         </EmptyPlot>
       );
