@@ -11,6 +11,7 @@ import {
 
 import { formatMutation } from '../../utils/mutationUtils';
 import { ISOToInt } from '../../utils/date';
+import { getReferences } from '../../utils/reference';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import DownloadDataButton from './DownloadDataButton';
@@ -142,6 +143,10 @@ const StatusBox = observer(() => {
         </Line>
         <Line>
           Sequences grouped by <b>{configStore.getGroupLabel()}</b>.
+        </Line>
+        <Line>
+          Reference genome: <b>{configStore.selectedReference}</b> (
+          {getReferences()[configStore.selectedReference]['description']}).
         </Line>
         <Line>
           <b>{configStore.selectedLocationNodes.length}</b> selected locations:{' '}

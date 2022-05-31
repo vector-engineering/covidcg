@@ -6,7 +6,7 @@ import useDimensions from 'react-use-dimensions';
 import { ASYNC_STATES } from '../../constants/defs.json';
 
 import ExternalLink from '../Common/ExternalLink';
-import SequencingMapPlot from '../Vega/SequencingMapPlot';
+import SequencingMapPlot from '../Viz/SequencingMapPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import WarningBox from '../Common/WarningBox';
 
