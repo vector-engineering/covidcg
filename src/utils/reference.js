@@ -7,6 +7,9 @@ import references from '../../static_data/__VIRUS__/reference.json';
 export function getReferences() {
   return references;
 }
+export function getReference(referenceName) {
+  return references[referenceName];
+}
 
 Object.keys(references).forEach((referenceName) => {
   references[referenceName]['sequence_rc'] = reverseComplement(
