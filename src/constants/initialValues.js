@@ -180,7 +180,7 @@ if (config['virus'] === 'sars2') {
     groupStackLowFreqValue: 20,
     groupStackNormMode: NORM_MODES.NORM_COUNTS,
     groupStackCountMode: COUNT_MODES.COUNT_NEW,
-    groupStackDateBin: DATE_BINS.DATE_BIN_MONTH,
+    groupStackDateBin: DATE_BINS.DATE_BIN_YEAR,
 
     // MUTATION STRUCTURE VIEWER
     // 5UDE, 3RRR
@@ -191,7 +191,7 @@ if (config['virus'] === 'sars2') {
     // LOCATION DATE PLOT
     locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
     locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-    locationDateDateBin: DATE_BINS.DATE_BIN_MONTH,
+    locationDateDateBin: DATE_BINS.DATE_BIN_YEAR,
 
     // LOCATION GROUP PLOT
     locationGroupHideReference: true,
