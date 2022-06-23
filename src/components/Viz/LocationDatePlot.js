@@ -381,9 +381,8 @@ const LocationDatePlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        Inconsistent sampling in the underlying data can result in missing data
-        and artefacts in this visualization. Please interpret this data with
-        care.
+        COVID-19 CG plots reflect data contributed to GISAID and are therefore
+        impacted by the sequence coverage in each country.
       </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>

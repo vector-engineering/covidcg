@@ -400,7 +400,9 @@ const EntropyPlot = observer(({ width }) => {
     <PlotContainer>
       {config['virus'] === 'sars2' && (
         <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-          Systematic errors are sometimes observed specific to particular labs
+          COVID-19 CG plots reflect data contributed to GISAID and are therefore
+          impacted by the sequence coverage in each country. For example,
+          systematic errors are sometimes observed specific to particular labs
           or methods (
           <ExternalLink href="https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14">
             https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14
@@ -409,7 +411,7 @@ const EntropyPlot = observer(({ width }) => {
           <ExternalLink href="https://doi.org/10.1371/journal.pgen.1009175">
             https://doi.org/10.1371/journal.pgen.1009175
           </ExternalLink>
-          ), users are advised to consider these errors in their high resolution
+          ). Users are advised to consider these errors in their high resolution
           analyses.
         </WarningBox>
       )}

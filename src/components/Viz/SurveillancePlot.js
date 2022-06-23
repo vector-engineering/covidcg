@@ -440,10 +440,10 @@ const SurveillancePlot = observer(({ width }) => {
         show={plotSettingsStore.surveillanceShowWarning}
         onDismiss={onDismissWarning}
       >
-        Inconsistent sampling in the underlying data can result in missing data
-        and artefacts in this visualization. Increased prevalence of lineages{' '}
-        <b>does not</b>, on its own, suggest an increase in transmissibility.
-        Please interpret this data with care.
+        COVID-19 CG plots reflect data contributed to GISAID and are therefore
+        impacted by the sequence coverage in each country. Increased prevalence
+        of any lineage does not, on its own, suggest an increase in
+        transmissibility.
       </WarningBox>
       <PlotOptions style={{ marginLeft: 20 }}>
         <OptionsColumn>

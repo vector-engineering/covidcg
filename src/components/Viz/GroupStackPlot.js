@@ -419,9 +419,8 @@ const GroupStackPlot = observer(({ width }) => {
   return (
     <div>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        Inconsistent sampling in the underlying data can result in missing data
-        and artefacts in this visualization. Please interpret this data with
-        care.
+        COVID-19 CG plots reflect data contributed to GISAID and are therefore
+        impacted by the sequence coverage in each country.
       </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>
