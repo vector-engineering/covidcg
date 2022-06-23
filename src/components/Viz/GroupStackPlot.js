@@ -480,20 +480,21 @@ const GroupStackPlot = observer(({ width }) => {
               </label>
             </OptionSelectContainer>
           </PlotOptionsRow>
-          {configStore.groupKey !== GROUP_MUTATION && (
-            <PlotOptionsRow>
-              <LowFreqFilter
-                lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
-                lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
-                updateLowFreqFilterType={
-                  plotSettingsStore.setGroupStackLowFreqFilter
-                }
-                updateLowFreqFilterValue={
-                  plotSettingsStore.setGroupStackLowFreqValue
-                }
-              ></LowFreqFilter>
-            </PlotOptionsRow>
-          )}
+          {configStore.groupKey !== GROUP_MUTATION &&
+            config.group_cols[configStore.groupKey].show_collapse_options && (
+              <PlotOptionsRow>
+                <LowFreqFilter
+                  lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
+                  lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
+                  updateLowFreqFilterType={
+                    plotSettingsStore.setGroupStackLowFreqFilter
+                  }
+                  updateLowFreqFilterValue={
+                    plotSettingsStore.setGroupStackLowFreqValue
+                  }
+                ></LowFreqFilter>
+              </PlotOptionsRow>
+            )}
           <PlotOptionsRow>
             Only show locations:&nbsp;{focusLocationDropdownContainer}
             {'  '}
