@@ -94,20 +94,33 @@ curl --header "Content-Type: application/json" --request POST --data '{
 Returns a JSON object, with the format:
 
 ```
-[
-  {
-    "location": string
-      - Name of the specified location. e.g., "North America"
-    "collection_date": integer
-      - Collection date, in seconds since Unix epoch
-    "group_id": array of integers or null
-      - Represents a group of co-occurring mutation IDs. These mutation IDs can be mapped with the metadata map
-      - null value represents no mutations within the specified genomic region
-    "counts": integer
-      - Occurrences of this group of mutations, at the location, at the given collection date
-  },
-  ...
-]
+{
+  "records": [
+    {
+      "location": string
+        - Name of the specified location. e.g., "North America"
+      "collection_date": integer
+        - Collection date, in seconds since Unix epoch
+      "group_id": array of integers or null
+        - Represents a group of co-occurring mutation IDs. These mutation IDs can be mapped with the metadata map
+        - null value represents no mutations within the specified genomic region
+      "counts": integer
+        - Occurrences of this group of mutations, at the location, at the given collection date
+    },
+    ...
+  ],
+  "coverage": [
+    {
+      "feature": string (only in AA mode)
+        - Name of gene/protein feature, if in AA mode
+      "ind": integer
+        - Index in nucleotides (if in NT mode) or residues (if in AA mode)
+      "count": integer
+        - Number of sequences with coverage at this index
+    }
+  ]
+}
+
 ```
 
 Important to note:
