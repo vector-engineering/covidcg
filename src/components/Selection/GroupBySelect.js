@@ -33,7 +33,7 @@ const GroupBySelect = observer(
     onReferenceChange,
 
     showExtraGroupText,
-    showReferenceDescription,
+    referenceSelectMaxWidth,
     disabled,
     direction,
   }) => {
@@ -162,28 +162,20 @@ const GroupBySelect = observer(
     const renderRefSelect = () => {
       const referenceOptionItems = [];
       getReferenceNames().forEach((referenceName) => {
-        let name = referenceName;
-        if (showReferenceDescription) {
-          name += ' ' + getReferences()[referenceName]['description'];
-        }
-
         referenceOptionItems.push(
           <option key={`ref-option-${referenceName}`} value={referenceName}>
-            {name}
+            {referenceName +
+              ' ' +
+              getReferences()[referenceName]['description']}
           </option>
         );
       });
 
       return (
-        <ReferenceSelectRow>
+        <ReferenceSelectRow maxWidth={referenceSelectMaxWidth}>
           <select value={selectedReference} onChange={handleReferenceChange}>
             {referenceOptionItems}
           </select>
-          {/* {showReferenceDescription && (
-            <div className="reference-description">
-              <span>{getReferences()[selectedReference]['description']}</span>
-            </div>
-          )} */}
         </ReferenceSelectRow>
       );
     };
@@ -240,13 +232,13 @@ GroupBySelect.propTypes = {
   onReferenceChange: PropTypes.func,
 
   showExtraGroupText: PropTypes.bool,
-  showReferenceDescription: PropTypes.bool,
+  referenceSelectMaxWidth: PropTypes.string,
   disabled: PropTypes.bool,
   direction: PropTypes.oneOf(['row', 'column']),
 };
 GroupBySelect.defaultProps = {
   showExtraGroupText: true,
-  showReferenceDescription: false,
+  referenceSelectMaxWidth: null,
   disabled: false,
   direction: 'column',
   onReferenceChange: PropTypes.func,

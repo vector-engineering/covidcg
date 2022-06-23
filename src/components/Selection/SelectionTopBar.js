@@ -108,6 +108,7 @@ const SelectionTopBar = observer(() => {
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}
+        referenceSelectMaxWidth="100px"
       />
 
       {statusBox}
