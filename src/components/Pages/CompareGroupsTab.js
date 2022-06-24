@@ -3,25 +3,21 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
-import { config } from '../../config';
-import {
-  GROUP_MUTATION,
-  DNA_OR_AA,
-  TABS,
-  RSV_REFERENCE_NAMES,
-} from '../../constants/defs.json';
+import { GROUP_MUTATION, DNA_OR_AA, TABS } from '../../constants/defs.json';
 
+import ExternalLink from '../Common/ExternalLink';
 import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import VegaStackedBars from '../Vega/GroupStackPlot';
-import LocationGroupPlot from '../Vega/LocationGroupPlot';
-import EntropyPlot from '../Vega/EntropyPlot';
-import CooccurrencePlot from '../Vega/CooccurrencePlot';
-import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
-import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
+import VegaStackedBars from '../Viz/GroupStackPlot';
+import LocationGroupPlot from '../Viz/LocationGroupPlot';
+import EntropyPlot from '../Viz/EntropyPlot';
+import CooccurrencePlot from '../Viz/CooccurrencePlot';
+import NumSeqPerLocationBar from '../Viz/NumSeqPerLocationBar';
+import NumSeqPerLocationLine from '../Viz/NumSeqPerLocationLine';
+import MutationStructureViewer from '../Viz/MutationStructureViewer';
 
 const CompareGroupsTabContainer = styled.div`
   padding-top: 10px;
@@ -37,18 +33,6 @@ const CompareGroupsTab = observer(() => {
       return null;
     }
 
-    let genomeName;
-    if (config['virus'] === 'sars2') {
-      genomeName = 'WIV04 hCoV19';
-    } else if (config['virus'] === 'rsv') {
-      genomeName =
-        'RSV ' +
-        configStore.selectedReference +
-        ' (' +
-        RSV_REFERENCE_NAMES[configStore.selectedReference] +
-        ')';
-    }
-
     return (
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Frequencies`}
@@ -58,7 +42,7 @@ const CompareGroupsTab = observer(() => {
           <ul>
             <li>
               This plot shows the frequency of {configStore.getGroupLabel()}s
-              along the {genomeName} genome (
+              along the {configStore.selectedReference} genome (
               {configStore.dnaOrAa === DNA_OR_AA.DNA ? 'NT' : 'AA'} Mode:{' '}
               {configStore.dnaOrAa === DNA_OR_AA.DNA
                 ? 'Genomic Coordinates'
@@ -80,7 +64,7 @@ const CompareGroupsTab = observer(() => {
           </ul>
         }
       >
-        <EntropyPlot width={width - 150} />
+        <EntropyPlot width={width - 200} />
       </AccordionWrapper>
     );
   };
@@ -195,6 +179,49 @@ const CompareGroupsTab = observer(() => {
     );
   };
 
+  const renderMutationStructureViewer = () => {
+    return (
+      <AccordionWrapper
+        title="Mutations projected onto protein structure"
+        defaultCollapsed={false}
+        maxHeight={'700px'}
+        helpText={
+          <ul>
+            <li>
+              Mutations are colored by their frequency (from all selected
+              locations) and projected onto a protein structure, if such
+              structure exists for the protein or analogous gene.
+            </li>
+            <li>
+              Molecule visualizations are provided by{' '}
+              <ExternalLink href="https://www.litemol.org/">
+                LiteMol
+              </ExternalLink>
+              . Click the circular &quot;?&quot; button inside the LiteMol
+              visualization for control help.
+            </li>
+            <li>
+              Structures are downloaded from the{' '}
+              <ExternalLink href="https://www.rcsb.org/">RCSB PDB</ExternalLink>
+            </li>
+            <li>
+              Default PDB IDs are provided but can be changed. Enter in a new
+              PDB ID and click apply to change the structure.
+            </li>
+            <li>
+              If in gene mode, the gene is required to have an analogous
+              protein. I.e., an ORF with multiple protein products will not be
+              projected here. To view mutations on those proteins, switch to the
+              Protein coordinate mode.
+            </li>
+          </ul>
+        }
+      >
+        <MutationStructureViewer />
+      </AccordionWrapper>
+    );
+  };
+
   const renderNumSeqPerLocationBarPlot = () => {
     return (
       <AccordionWrapper
@@ -251,6 +278,7 @@ const CompareGroupsTab = observer(() => {
       {renderEntropyPlot()}
       {renderCooccurrencePlot()}
       {renderGroupStackPlot()}
+      {renderMutationStructureViewer()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
     </CompareGroupsTabContainer>

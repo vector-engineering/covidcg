@@ -5,7 +5,6 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import datetime
 import io
 import gzip
 
@@ -55,6 +54,18 @@ def flush_chunk(cur, buffer):
 
 
 def insert_sequences(conn, data_path, schema="public"):
+    """Insert sequences into database
+
+    Parameters
+    ----------
+    conn: psycopg2.Connection
+    data_path: str
+    schema: str
+
+    Returns
+    -------
+    None
+    """
 
     print("INSERTING SEQUENCES")
 

@@ -38,6 +38,7 @@ export default {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new HtmlWebpackPlugin({
+      title: configfile.site_title,
       // Create HTML file that includes references to bundled CSS and JS.
       template: 'src/index.ejs',
       minify: {

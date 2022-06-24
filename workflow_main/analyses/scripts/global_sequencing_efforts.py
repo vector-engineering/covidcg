@@ -6,12 +6,11 @@ and merge in some geological data
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import json
 import numpy as np
 import pandas as pd
 
 
-def global_sequencing_efforts(case_data, metadata_map, country_score_out):
+def global_sequencing_efforts(metadata, country_score_out):
     # Load case counts by country
     case_count_df = pd.read_csv(
         "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
@@ -76,17 +75,7 @@ def global_sequencing_efforts(case_data, metadata_map, country_score_out):
     case_count_df["date"] = pd.to_datetime(case_count_df["date"])
     case_count_df["month"] = case_count_df["date"].dt.to_period("M")
 
-    case_df = pd.read_json(case_data).set_index("Accession ID")
-    with open(metadata_map, "r") as fp:
-        metadata_map = json.loads(fp.read())
-    # Join locations onto case_data
-    loc_levels = ["region", "country", "division", "location"]
-    for loc_level in loc_levels:
-        case_df.loc[:, loc_level] = case_df[loc_level].map(
-            {int(k): v for k, v in metadata_map[loc_level].items()}
-        )
-        case_df.loc[case_df[loc_level].isna(), loc_level] = None
-
+    case_df = pd.read_csv(metadata, index_col="Accession ID")
     case_df["collection_date"] = pd.to_datetime(
         case_df["collection_date"], errors="coerce"
     )

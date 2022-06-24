@@ -11,6 +11,7 @@ import {
 
 import { formatMutation } from '../../utils/mutationUtils';
 import { ISOToInt } from '../../utils/date';
+import { getReferences } from '../../utils/reference';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import DownloadDataButton from './DownloadDataButton';
@@ -88,10 +89,19 @@ const StatusBox = observer(() => {
       return;
     }
 
+    const selectedGroupFieldItems = [];
+    configStore.selectedGroupFields[groupKey].forEach((group, i) => {
+      selectedGroupFieldItems.push(
+        <b key={`status-selected-group-${groupKey}-${group}}`}>{group}</b>
+      );
+      if (i < configStore.selectedGroupFields[groupKey].length - 1) {
+        selectedGroupFieldItems.push(',');
+      }
+    });
+
     selectedGroupFields.push(
       <Line key={`status-box-selected-group-fields-${groupKey}`}>
-        Selected {groupKey}s:{' '}
-        {configStore.selectedGroupFields[groupKey].join(', ')}
+        Selected {groupKey}s: {selectedGroupFieldItems}
       </Line>
     );
   });
@@ -142,6 +152,10 @@ const StatusBox = observer(() => {
         </Line>
         <Line>
           Sequences grouped by <b>{configStore.getGroupLabel()}</b>.
+        </Line>
+        <Line>
+          Reference genome: <b>{configStore.selectedReference}</b> (
+          {getReferences()[configStore.selectedReference]['description']}).
         </Line>
         <Line>
           <b>{configStore.selectedLocationNodes.length}</b> selected locations:{' '}

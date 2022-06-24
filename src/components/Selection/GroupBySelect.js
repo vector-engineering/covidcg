@@ -9,6 +9,7 @@ import {
   RadioForm,
   Link,
   HintText,
+  ReferenceSelectRow,
 } from './GroupBySelect.styles';
 
 import {
@@ -17,6 +18,7 @@ import {
   COORDINATE_MODES,
 } from '../../constants/defs.json';
 import { config } from '../../config';
+import { getReferenceNames, getReferences } from '../../utils/reference';
 
 const GroupBySelect = observer(
   ({
@@ -31,6 +33,7 @@ const GroupBySelect = observer(
     onReferenceChange,
 
     showExtraGroupText,
+    referenceSelectMaxWidth,
     disabled,
     direction,
   }) => {
@@ -112,7 +115,8 @@ const GroupBySelect = observer(
             </div>
           </div>
           {showExtraGroupText &&
-            Object.keys(config.group_cols).includes(groupKey) && (
+            groupKey in Object.keys(config.group_cols) &&
+            'link' in config.group_cols[groupKey] && (
               <>
                 {config.group_cols[groupKey].description}
                 <Link href={config.group_cols[groupKey].link.href}>
@@ -156,32 +160,24 @@ const GroupBySelect = observer(
       );
     };
 
-    const renderRSVRefSelect = () => {
+    const renderRefSelect = () => {
+      const referenceOptionItems = [];
+      getReferenceNames().forEach((referenceName) => {
+        referenceOptionItems.push(
+          <option key={`ref-option-${referenceName}`} value={referenceName}>
+            {referenceName +
+              ' ' +
+              getReferences()[referenceName]['description']}
+          </option>
+        );
+      });
+
       return (
-        <div className="radio-row">
-          <div className="radio-item">
-            <input
-              type="radio"
-              id="RSVAChoice"
-              name="rsvAorB"
-              value="A"
-              checked={selectedReference === 'A'}
-              onChange={handleReferenceChange}
-            ></input>
-            <label htmlFor="RSVAChoice">RSV-A</label>
-          </div>
-          <div className="radio-item">
-            <input
-              type="radio"
-              id="RSVBChoice"
-              name="rsvAorB"
-              value="B"
-              checked={selectedReference === 'B'}
-              onChange={handleReferenceChange}
-            ></input>
-            <label htmlFor="RSVAChoice">RSV-B</label>
-          </div>
-        </div>
+        <ReferenceSelectRow maxWidth={referenceSelectMaxWidth}>
+          <select value={selectedReference} onChange={handleReferenceChange}>
+            {referenceOptionItems}
+          </select>
+        </ReferenceSelectRow>
       );
     };
 
@@ -213,15 +209,13 @@ const GroupBySelect = observer(
             {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
           </RadioForm>
         )}
-        {config.virus === 'rsv' && (
-          <RadioForm direction={direction}>
-            <span className="form-title">Reference Sequence</span>
-            {groupKey !== GROUP_MUTATION && (
-              <HintText>Only available in &quot;Mutation&quot; mode</HintText>
-            )}
-            {groupKey === GROUP_MUTATION && renderRSVRefSelect()}
-          </RadioForm>
-        )}
+        <RadioForm direction={direction}>
+          <span className="form-title">Reference</span>
+          {groupKey !== GROUP_MUTATION && (
+            <HintText>Only available in &quot;Mutation&quot; mode</HintText>
+          )}
+          {groupKey === GROUP_MUTATION && renderRefSelect()}
+        </RadioForm>
       </SelectContainer>
     );
   }
@@ -239,11 +233,13 @@ GroupBySelect.propTypes = {
   onReferenceChange: PropTypes.func,
 
   showExtraGroupText: PropTypes.bool,
+  referenceSelectMaxWidth: PropTypes.string,
   disabled: PropTypes.bool,
   direction: PropTypes.oneOf(['row', 'column']),
 };
 GroupBySelect.defaultProps = {
   showExtraGroupText: true,
+  referenceSelectMaxWidth: null,
   disabled: false,
   direction: 'column',
   onReferenceChange: PropTypes.func,

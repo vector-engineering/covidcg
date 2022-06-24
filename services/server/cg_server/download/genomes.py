@@ -6,14 +6,13 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import gzip
-import pandas as pd
 import psycopg2
 import tempfile
 
 from flask import make_response, send_file
 from psycopg2 import sql
 
-from cg_server.query import build_sequence_location_where_filter
+from cg_server.query import build_sequence_location_where_filter, get_loc_level_ids
 
 
 def download_genomes(conn, req):
@@ -24,7 +23,17 @@ def download_genomes(conn, req):
 
     try:
         with conn.cursor() as cur:
-            sequence_where_filter = build_sequence_location_where_filter(req)
+            sequence_where_filter = build_sequence_location_where_filter(
+                None,  # req.get("group_key", None),
+                get_loc_level_ids(req),
+                req.get("start_date", None),
+                req.get("end_date", None),
+                req.get("subm_start_date", None),
+                req.get("subm_end_date", None),
+                req.get("selected_metadata_fields", None),
+                req.get("selected_group_fields", None),
+                None,  # req.get("selected_reference", None),
+            )
 
             cur.execute(
                 sql.SQL(

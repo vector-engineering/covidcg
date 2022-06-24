@@ -15,7 +15,6 @@
     "COORD_CUSTOM": "custom",
     "COORD_SEQUENCE": "sequence"
   },
-  "MIN_DATE": { "SARS2": "2019-12-15", "RSV": "1956-01-01" },
   "PLOT_DOWNLOAD_OPTIONS": {
     "DOWNLOAD_DATA": "Plot Data",
     "DOWNLOAD_PNG": "PNG",
@@ -31,7 +30,8 @@
   },
   "NORM_MODES": {
     "NORM_COUNTS": "counts",
-    "NORM_PERCENTAGES": "percentages"
+    "NORM_PERCENTAGES": "percentages",
+    "NORM_COVERAGE_ADJUSTED": "partial_adjusted"
   },
   "COUNT_MODES": {
     "COUNT_NEW": "new",
@@ -40,7 +40,8 @@
   "DATE_BINS": {
     "DATE_BIN_DAY": "day",
     "DATE_BIN_WEEK": "week",
-    "DATE_BIN_MONTH": "month"
+    "DATE_BIN_MONTH": "month",
+    "DATE_BIN_YEAR": "year"
   },
   "COLOR_MODES": {
     "COLOR_MODE_COMPARE": "compare",
@@ -119,9 +120,5 @@
   "PYMOL_SCRIPT_TYPES": {
     "COMMANDS": "commands",
     "SCRIPT": "script"
-  },
-  "RSV_REFERENCE_NAMES": {
-    "A": "NC_038235.1",
-    "B": "NC_001781.1"
   }
 }

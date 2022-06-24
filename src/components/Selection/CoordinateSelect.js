@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react';
-import { useStores } from '../../stores/connect';
 
 import ExternalLink from '../Common/ExternalLink';
 import QuestionButton from '../Buttons/QuestionButton';
@@ -43,6 +42,7 @@ const CoordinateSelect = observer(
     selectedGene,
     selectedProtein,
     selectedPrimers,
+    selectedReference,
     residueCoordinates,
     validResidueCoordinates,
     customCoordinates,
@@ -62,18 +62,11 @@ const CoordinateSelect = observer(
     updateValidCustomSequences,
   }) => {
     // Create option elements
-    const { configStore } = useStores();
-
     let genes = {};
     let proteins = {};
 
-    if (config.virus === 'sars2') {
-      genes = getAllGenes();
-      proteins = getAllProteins();
-    } else {
-      genes = getAllGenes(configStore.selectedReference);
-      proteins = getAllProteins(configStore.selectedReference);
-    }
+    genes = getAllGenes(selectedReference);
+    proteins = getAllProteins(selectedReference);
 
     // GENE
     let geneOptionElements = [];
@@ -105,9 +98,9 @@ const CoordinateSelect = observer(
           Entire {gene.name} Gene (1..{gene.len_aa})
         </option>,
       ];
-      gene.domains.forEach((domain) => {
+      gene.domains.forEach((domain, j) => {
         geneDomainOptionElements[gene.name].push(
-          <option key={`${gene.name}-${domain.name}`} value={domain.name}>
+          <option key={`${gene.name}-${domain.name}-${j}`} value={domain.name}>
             {domain.name}&nbsp;&nbsp;(
             {domain.ranges.map((range) => range.join('..')).join(';')})
           </option>
@@ -142,9 +135,12 @@ const CoordinateSelect = observer(
           Entire {protein.name} Protein (1..{protein.len_aa})
         </option>,
       ];
-      protein.domains.forEach((domain) => {
+      protein.domains.forEach((domain, j) => {
         proteinDomainOptionElements[protein.name].push(
-          <option key={`${protein.name}-${domain.name}`} value={domain.name}>
+          <option
+            key={`${protein.name}-${domain.name}-${j}`}
+            value={domain.name}
+          >
             {domain.name}&nbsp;&nbsp;(
             {domain.ranges.map((range) => range.join('..')).join(';')})
           </option>
@@ -346,13 +342,9 @@ const CoordinateSelect = observer(
       const sequences = curText.split(';');
       // Check that the reference sequence includes the sequence
       const validCustomSequences = !sequences.some((seq) => {
-        // Fails if any conditions are met
-        if (config.virus === 'sars2') {
-          return seq.length === 0 || queryReferenceSequence(seq) === 0;
-        } else if (config.virus === 'rsv') {
-          const key = configStore.selectedReference;
-          return seq.length === 0 || queryReferenceSequence(seq, key);
-        }
+        return (
+          seq.length === 0 || queryReferenceSequence(seq, selectedReference)
+        );
       });
 
       setState({
@@ -512,7 +504,17 @@ const CoordinateSelect = observer(
                     />
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the gene ORF</p>'
+                      data-tip='
+                        <p>
+                          Coordinates are in the form "start..end". 
+                          Multiple ranges can be separated with ";"
+                        </p>
+                        <p>
+                          i.e., "100..300;500..550"
+                        </p>
+                        <p>
+                          Coordinates are relative to the gene ORF
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -530,7 +532,13 @@ const CoordinateSelect = observer(
                     </select>
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates relative to the gene ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                      data-tip='
+                        <p>
+                          Coordinates relative to the gene ORF, and are in the form "start..end".
+                        </p>
+                        <p>
+                          Selecting a domain will replace the range(s) to the residue indices input
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -578,7 +586,17 @@ const CoordinateSelect = observer(
                     />
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates are relative to the protein ORF</p>'
+                      data-tip='
+                        <p>
+                          Coordinates are in the form "start..end". 
+                          Multiple ranges can be separated with ";"
+                        </p>
+                        <p>
+                          i.e., "100..300;500..550"
+                        </p>
+                        <p>
+                          Coordinates are relative to the protein ORF
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -596,7 +614,14 @@ const CoordinateSelect = observer(
                     </select>
                     <QuestionButton
                       rebuildAfterMount={true}
-                      data-tip='<p>Coordinates relative to the protein ORF, and are in the form "start..end".</p><p>Selecting a domain will replace the range(s) to the residue indices input</p>'
+                      data-tip='
+                        <p>
+                          Coordinates relative to the protein ORF, and are in 
+                          the form "start..end".
+                        </p>
+                        <p>
+                          Selecting a domain will replace the range(s) to the residue indices input
+                        </p>'
                       data-html="true"
                       data-for="main-tooltip"
                     />
@@ -668,7 +693,17 @@ const CoordinateSelect = observer(
                 />
                 <QuestionButton
                   rebuildAfterMount={true}
-                  data-tip='<p>Coordinates are in the form "start..end". Multiple ranges can be separated with ";"</p><p>i.e., "100..300;500..550"</p><p>Coordinates relative to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                  data-tip={`
+                    <p>
+                      Coordinates are in the form "start..end". 
+                      Multiple ranges can be separated with ";"
+                    </p>
+                    <p>
+                      i.e., "100..300;500..550"
+                    </p>
+                    <p>
+                      Coordinates relative to the reference genome: <b>${selectedReference}</b>
+                    </p>`}
                   data-html="true"
                   data-for="main-tooltip"
                 />
@@ -705,7 +740,18 @@ const CoordinateSelect = observer(
                   />
                   <QuestionButton
                     rebuildAfterMount={true}
-                    data-tip='<p>Select coordinates based on matches to the entered sequence (can be forward or reverse)</p><p>Please only enter A, T, C, or G. Enter in more than one sequence by separating them with ";"</p><p>Sequences are matched to the WIV04 reference sequence (EPI_ISL_402124)</p>'
+                    data-tip={`
+                      <p>
+                        Select coordinates based on matches to the entered sequence 
+                        (can be forward or reverse)
+                      </p>
+                      <p>
+                        Please only enter A, T, C, or G. 
+                        Enter in more than one sequence by separating them with ";"
+                      </p>
+                      <p>
+                        Sequences are matched to the reference genome: <b>${selectedReference}</b>
+                      </p>`}
                     data-html="true"
                     data-for="main-tooltip"
                   />
@@ -735,7 +781,17 @@ const CoordinateSelect = observer(
         <span className="title">
           Genomic Coordinates
           <QuestionButton
-            data-tip='<p>When grouping by mutation, only show mutations within the given genomic coordinates.</p><p>When grouping by lineage/clade, only show consensus mutations within the given genomic coordinates.</p><p>These options are only enabled when in "Mutation" mode.</p>'
+            data-tip='
+              <p>
+                When grouping by mutation, only show mutations within the given genomic coordinates.
+              </p>
+              <p>
+                When grouping by lineage/clade, only show consensus mutations 
+                within the given genomic coordinates.
+              </p>
+              <p>
+                These options are only enabled when in "Mutation" mode.
+              </p>'
             data-html="true"
             data-for="main-tooltip"
           />

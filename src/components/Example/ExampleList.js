@@ -4,6 +4,8 @@ import { observer } from 'mobx-react';
 
 import ExternalLink from '../Common/ExternalLink';
 
+import { getExampleItems } from '../../examples';
+
 import {
   ExampleListContainer,
   ExampleHeader,
@@ -17,9 +19,14 @@ import {
 import TempImage from '../../assets/images/cg_short_v13@4x_square.png';
 
 const ExampleList = observer(() => {
-  const { configStore, plotSettingsStore, UIStore, exampleStore } = useStores();
+  const { configStore, plotSettingsStore, UIStore, locationDataStore } =
+    useStores();
 
-  const exampleItems = exampleStore.examples;
+  // const exampleItems = exampleStore.examples;
+  const exampleItems = getExampleItems({
+    selectTree: locationDataStore.selectTree,
+  });
+  // console.log(exampleItems);
 
   const onExampleClick = (title, e) => {
     e.preventDefault();

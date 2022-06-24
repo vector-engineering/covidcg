@@ -5,81 +5,38 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import gzip
 import io
 import pandas as pd
 
 from pathlib import Path
 
 
-def extract_ids(fasta_file):
-    """Extract Accession IDs (entry names) from a fasta file
-
-    Parameters
-    ----------
-    fasta_file: str
-
-    Returns
-    -------
-    out: list of tuples, (Accession ID, date)
-
-    """
-
-    out = []
-
-    # Read sequences
-    cur_entry = ""
-    cur_seq = ""
-
-    # Get the date from the fasta file name, as a string
-    file_date = Path(fasta_file).name.replace(".fa.gz", "")
-
-    with gzip.open(fasta_file, "rt") as fp:
-        lines = fp.readlines()
-        for i, line in enumerate(lines):
-            # Strip whitespace
-            line = line.strip()
-
-            # Ignore empty lines that aren't the last line
-            if not line and i < (len(lines) - 1):
-                continue
-
-            # If not the name of an entry, add this line to the current sequence
-            # (some FASTA files will have multiple lines per sequence)
-            if line[0] != ">":
-                cur_seq = cur_seq + line
-
-            # Start of another entry = end of the previous entry
-            if line[0] == ">" or i == (len(lines) - 1):
-                # Avoid capturing the first one and pushing an empty sequence
-                if cur_entry:
-                    out.append((cur_entry, file_date,))
-
-                # Clear the entry and sequence
-                cur_entry = line[1:]
-                # Ignore anything past the first whitespace
-                if cur_entry:
-                    cur_entry = cur_entry.split()[0]
-                cur_seq = ""
-
-    # print("Read {} entries for file {}".format(len(out), fasta_file))
-
-    return out
-
-
 def process_mutations(
-    processed_fasta_files,
+    manifest,
     mutation_files,
     # Mutations must occur at least this many times to pass filters
     count_threshold=3,
     mode="dna",  # dna, gene_aa, protein_aa
 ):
-
-    manifest = []
-    for fasta_file in sorted(Path(processed_fasta_files).glob("*.fa.gz")):
-        manifest.extend(extract_ids(fasta_file))
-    manifest = pd.DataFrame.from_records(manifest, columns=["Accession ID", "date"])
-    pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
+    """Process mutation data
+    
+    Parameters
+    ----------
+    manifest: pandas.DataFrame
+        - Sequence manifest (all sequence-reference pairs)
+    mutation_files: list of strings
+        - Paths to mutation CSV files
+    count_threshold: int
+        - Mutations must occur at least this many times to pass filters
+    mode: string
+        - dna, gene_aa, protein_aa
+    
+    Returns
+    -------
+    out: tuple of pandas.DataFrames
+        - Mutation group dataframe
+        - Mutation map dataframe
+    """
 
     # Dump all mutation chunks into a text buffer
     mutation_df_io = io.StringIO()
@@ -106,14 +63,12 @@ def process_mutations(
     # Remove duplicate sequences
     # --------------------------
 
-    mutation_df = pruned_manifest.set_index(["Accession ID", "date"]).join(
-        mutation_df.set_index(["Accession ID", "date"]), how="left"
+    # Also has the effect of adding rows for sequences without mutations
+    # (pos, ref, alt, etc filled with NaNs)
+    mutation_df = manifest.set_index(["Accession ID", "reference", "date"]).join(
+        mutation_df.set_index(["Accession ID", "reference", "date"]), how="left"
     )
     mutation_df.reset_index(inplace=True)
-
-    # Set aside sequences with no mutations
-    # We'll add them back in later
-    no_mutation_seqs = mutation_df.loc[mutation_df["pos"].isna(), "Accession ID"].values
 
     # Remove sequences with no mutations before counting mutations
     mutation_df = mutation_df.loc[~mutation_df["pos"].isna()]
@@ -156,19 +111,27 @@ def process_mutations(
     mutation_map = pd.Series(mutation_map.index.values, index=mutation_map)
     mutation_df["mutation_id"] = mutation_df["mutation_str"].map(mutation_map)
 
+    mutation_group_df = mutation_df.groupby(
+        ["Accession ID", "reference"], as_index=False
+    )["mutation_id"].agg(list)
+
     mutation_group_df = (
-        mutation_df.groupby("Accession ID")["mutation_id"].agg(list).reset_index()
-    )
-    # Add back the sequences with no mutations
-    mutation_group_df = pd.concat(
-        [
+        manifest.drop(columns=["date"])
+        .merge(
             mutation_group_df,
-            pd.DataFrame({"Accession ID": no_mutation_seqs}).assign(
-                mutation_id=[[]] * len(no_mutation_seqs)
-            ),
-        ],
-        axis=0,
-        ignore_index=True,
-    ).set_index("Accession ID")
+            left_on=["Accession ID", "reference"],
+            right_on=["Accession ID", "reference"],
+            how="left",
+        )
+        .sort_values(["Accession ID", "reference"])
+    )
+
+    # Fill NaNs with empty arrays
+    mutation_group_df.loc[
+        mutation_group_df["mutation_id"].isna(), "mutation_id"
+    ] = pd.Series(
+        [[]] * mutation_group_df["mutation_id"].isna().sum(),
+        index=mutation_group_df.index[mutation_group_df["mutation_id"].isna()],
+    )
 
     return mutation_group_df, mutation_map

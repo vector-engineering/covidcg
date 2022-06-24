@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { config } from '../../config';
 import { TABS } from '../../constants/defs.json';
 
 import DropdownButton from '../Buttons/DropdownButton';
@@ -13,8 +14,6 @@ import {
   TabItem,
   DropdownTab,
 } from './TabBar.styles';
-
-import { config } from '../../config';
 
 const TabBar = observer(({ activeTab, onTabChange }) => {
   const { configStore } = useStores();
@@ -30,7 +29,6 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     changeTab(tab);
   };
 
-  // The base tabs are the Example, Compare Groups, and Compare Locations tabs
   const tabs = [
     <TabItem key={TABS.TAB_EXAMPLE} active={activeTab === TABS.TAB_EXAMPLE}>
       <a
@@ -41,21 +39,25 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Home</span>
       </a>
     </TabItem>,
-    <TabItem
-      key={TABS.TAB_GROUP_REPORT}
-      active={activeTab === TABS.TAB_GROUP_REPORT}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
-      >
-        <span>Lineage Reports</span>
-      </a>
-    </TabItem>,
   ];
 
-  // Add Compare Groups/Locations
+  if (config['show_reports_tab']) {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GROUP_REPORT}
+        active={activeTab === TABS.TAB_GROUP_REPORT}
+      >
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+        >
+          <span>Lineage Reports</span>
+        </a>
+      </TabItem>
+    );
+  }
+
   tabs.push(
     <TabItem
       key={TABS.TAB_COMPARE_GROUPS}
@@ -83,8 +85,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     </TabItem>
   );
 
-  // Add virus specific tabs
-  if (config.virus === 'sars2') {
+  if (config['show_global_sequencing_tab']) {
     tabs.push(
       <TabItem
         key={TABS.TAB_GLOBAL_SEQUENCES}
@@ -101,7 +102,6 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     );
   }
 
-  // Add About Tab and DropdownButton last
   tabs.push(
     <TabItem key={TABS.TAB_ABOUT} active={activeTab === TABS.TAB_ABOUT}>
       <a
@@ -110,22 +110,35 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
         {config.virus === 'sars2' && <span>About COVID CG</span>}
-        {config.virus === 'rsv' && <span>About RSV CG</span>}
+        {config.virus === 'rsv' && <span>About RSV PathMut</span>}
       </a>
     </TabItem>
   );
 
-  tabs.push(
-    <DropdownButton
-      key="tab-dropdown"
-      button={DropdownTab}
-      text="More..."
-      options={['Methods', 'Related Projects']}
-      values={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
-      onSelect={onMiscTabSelect}
-      active={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED].includes(activeTab)}
-    />
-  );
+  const misc_tabs = [];
+  const misc_tab_titles = [];
+  if (config['show_methods_tab']) {
+    misc_tabs.push(TABS.TAB_METHODOLOGY);
+    misc_tab_titles.push('Methods');
+  }
+  if (config['show_related_projects_tab']) {
+    misc_tabs.push(TABS.TAB_RELATED);
+    misc_tab_titles.push('Related Projects');
+  }
+
+  if (misc_tabs.length > 0) {
+    tabs.push(
+      <DropdownButton
+        key="tab-dropdown"
+        button={DropdownTab}
+        text="More..."
+        options={misc_tab_titles}
+        values={misc_tabs}
+        onSelect={onMiscTabSelect}
+        active={misc_tabs.includes(activeTab)}
+      />
+    );
+  }
 
   return (
     <TabBarContainer height={tabs.length * 30}>

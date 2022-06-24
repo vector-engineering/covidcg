@@ -5,17 +5,13 @@
 import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
-import {
-  asyncDataStoreInstance,
-  initialValueStoreInstance,
-} from '../components/App';
+import { asyncDataStoreInstance } from '../components/App';
+import { groupDataStore as initialGroupDataStore } from '../constants/initialValues';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import {
-  mutationHeatmapToPymolScript,
-  mutationHeatmapToPymolCommands,
-} from '../utils/pymol';
+import { getProtein } from '../utils/gene_protein';
+import { savePymolScript } from '../utils/pymol';
 
 export class GroupDataStore {
   initialValues = {};
@@ -23,6 +19,7 @@ export class GroupDataStore {
   @observable activeGroupType = '';
   @observable selectedGroups = [];
   @observable groupMutationType = '';
+  @observable activeReference = '';
 
   groups;
   @observable groupSelectTree;
@@ -45,7 +42,7 @@ export class GroupDataStore {
 
   init() {
     // Load intial values
-    this.initialValues = initialValueStoreInstance.groupDataStore;
+    this.initialValues = initialGroupDataStore;
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
     });
@@ -116,6 +113,7 @@ export class GroupDataStore {
         group: this.activeGroupType,
         mutationType: this.groupMutationType,
         consensusThreshold: 0,
+        selectedReference: this.activeReference,
       });
     }
   };
@@ -130,6 +128,7 @@ export class GroupDataStore {
         group: this.activeGroupType,
         mutationType: this.groupMutationType,
         consensusThreshold: 0,
+        selectedReference: this.activeReference,
       });
     }
 
@@ -174,6 +173,11 @@ export class GroupDataStore {
     }
   };
 
+  @action
+  updateActiveReference = (activeReference) => {
+    this.activeReference = activeReference;
+  };
+
   getActiveGroupTypePrettyName() {
     return config.group_cols[this.activeGroupType].title;
   }
@@ -197,6 +201,7 @@ export class GroupDataStore {
     group,
     mutationType,
     consensusThreshold,
+    selectedReference,
   }) {
     // Skip the download if we already have the requested data
     if (
@@ -231,9 +236,10 @@ export class GroupDataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        group,
+        group_key: group,
         mutation_type: mutationType,
         consensus_threshold: consensusThreshold,
+        selected_reference: selectedReference,
       }),
     })
       .then((res) => {
@@ -284,12 +290,14 @@ export class GroupDataStore {
     group,
     mutationType,
     consensusThreshold,
+    selectedReference,
   }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupMutationFrequencyData({
       group,
       mutationType,
       consensusThreshold,
+      selectedReference,
     }).then((pkg) => {
       rootStoreInstance.UIStore.onDownloadFinished();
       const blob = new Blob([JSON.stringify(pkg)]);
@@ -320,44 +328,29 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    let script, outfile;
+    let filename;
     if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
-      script = mutationHeatmapToPymolCommands({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
     } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
-      script = mutationHeatmapToPymolScript({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        activeGroup:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
     }
-    const blob = new Blob([script]);
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, outfile);
+
+    savePymolScript({
+      opts,
+      filename,
+      activeProtein: getProtein(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        rootStoreInstance.configStore.selectedReference // TODO: track reference for report in plotSettingsStore?
+      ),
+      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+      proteinStyle:
+        rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+      assemblies: rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+      activeAssembly:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+      entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+      mutations: this.getStructureMutations(),
+      mutationColorField: 'fraction',
+    });
   }
 }

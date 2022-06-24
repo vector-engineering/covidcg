@@ -134,3 +134,6 @@ example_data_genbank/sars2/**
 
 # CORS config file.
 services/server/cg_server/cors_conf.py
+
+# scratch notebooks
+workflow_main/notebooks/**

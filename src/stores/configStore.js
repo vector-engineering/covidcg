@@ -5,12 +5,7 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import {
-  geneMap,
-  proteinMap,
-  getGene,
-  getProtein,
-} from '../utils/gene_protein';
+import { getGene, getProtein } from '../utils/gene_protein';
 import { queryReferenceSequence } from '../utils/reference';
 import { getLocationByNameAndLevel } from '../utils/location';
 import { updateURLFromParams } from '../utils/updateQueryParam';
@@ -29,7 +24,7 @@ import { config } from '../config';
 
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
-import { initialValueStoreInstance } from '../components/App';
+import { configStore as initialConfigStore } from '../constants/initialValues';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -79,7 +74,7 @@ export class ConfigStore {
   constructor() {}
 
   init() {
-    this.initialValues = initialValueStoreInstance.configStore;
+    this.initialValues = initialConfigStore;
 
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
@@ -94,32 +89,30 @@ export class ConfigStore {
 
     this.urlParams = new URLSearchParams(window.location.search);
 
+    // RSV EDGE CASE
+    // If any selected group fields are set in the URLs,
+    // then clear the default selected group fields
+    if (
+      Object.keys(config.group_cols).some((groupKey) =>
+        this.urlParams.has(groupKey)
+      )
+    ) {
+      this.selectedGroupFields = {};
+    }
+
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
       value = decodeURIComponent(value);
       if (key in this.initialValues) {
-        if (key === 'selectedGene') {
-          // If the specified gene is in the geneMap get the gene
-          if (value in geneMap) {
-            if (config.virus === 'sars2') {
-              this[key] = getGene(value);
-            }
-          } else {
-            // Else display default gene
-            this[key] = this.initialValues.selectedGene;
-            this.urlParams.set(key, this.initialValues.selectedGene.name);
-          }
-        } else if (key === 'selectedProtein') {
-          // If the specified protein is in the proteinMap get the protein
-          if (value in proteinMap) {
-            if (config.virus === 'sars2') {
-              this[key] = getProtein(value);
-            }
-          } else {
-            // Else display default protein
-            this[key] = this.initialValues.selectedProtein;
-            this.urlParams.set(key, this.initialValues.selectedProtein.name);
-          }
+        if (key === 'selectedReference') {
+          this.selectedReference = value;
+        }
+        // Set gene/protein from URL params
+        // Since the gene/protein object is dependent on the reference,
+        // wait til we get that first and then we'll call getGene()/getProtein()
+        // For now, set the value to a string
+        else if (key === 'selectedGene' || key === 'selectedProtein') {
+          this[key] = value;
         } else if (key === 'ageRange' || key.includes('valid')) {
           // AgeRange is not being used currently so ignore
           // validity flags should not be set from the url
@@ -195,12 +188,31 @@ export class ConfigStore {
         ) {
           this.selectedGroupFields[key] = [];
         }
-        this.selectedGroupFields[key].push(value);
+        if (!this.selectedGroupFields[key].includes(value)) {
+          this.selectedGroupFields[key].push(value);
+        }
       } else {
         // Invalid field, remove it from the url
         this.urlParams.delete(key);
       }
     });
+
+    // Map gene/protein names to objects
+    if (typeof this.selectedGene === 'string') {
+      this.selectedGene = getGene(this.selectedGene, this.selectedReference);
+      if (this.selectedGene === undefined) {
+        this.selectedGene = this.initialValues.selectedGene;
+      }
+    }
+    if (typeof this.selectedProtein === 'string') {
+      this.selectedProtein = getProtein(
+        this.selectedProtein,
+        this.selectedReference
+      );
+      if (this.selectedProtein === undefined) {
+        this.selectedProtein = this.initialValues.selectedProtein;
+      }
+    }
 
     // Update URL
     updateURLFromParams(this.urlParams);
@@ -224,6 +236,19 @@ export class ConfigStore {
     if (this.selectedLocationNodes.length === 0) {
       // If no locations in url, set default selected locations
       this.selectedLocationNodes = defaultSelectedLocationNodes;
+    }
+
+    // RSV EDGE CASE
+    // If we don't start out in mutation mode, and no
+    // selected group fields are specified, empty out the
+    // selected group fields selection
+    if (
+      this.groupKey !== GROUP_MUTATION &&
+      Object.keys(config.group_cols).every(
+        (groupKey) => !this.urlParams.has(groupKey)
+      )
+    ) {
+      this.selectedGroupFields = {};
     }
   }
 
@@ -309,6 +334,14 @@ export class ConfigStore {
           }
         });
       } else if (field === 'selectedGroupFields') {
+        // If selectedGroupFields just got emptied - make sure to
+        // remove any lingering group keys in the URL
+        Object.keys(config.group_cols).forEach((groupKey) => {
+          if (!Object.keys(pending[field]).includes(groupKey)) {
+            this.urlParams.delete(groupKey);
+          }
+        });
+
         Object.keys(pending[field]).forEach((groupKey) => {
           this.urlParams.delete(groupKey);
           pending[field][groupKey].forEach((group) => {
@@ -353,6 +386,15 @@ export class ConfigStore {
       this.urlParams.delete('selectedPrimers');
       this.urlParams.delete('selectedGene');
       this.urlParams.delete('customCoordinates');
+    }
+
+    if (this.groupKey !== GROUP_MUTATION) {
+      this.urlParams.delete('residueCoordinates');
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('customCoordinates');
+      this.urlParams.delete('customSequences');
     }
 
     // Update the location node tree with our new selection
@@ -421,6 +463,7 @@ export class ConfigStore {
       division: [],
       location: [],
     };
+    //console.log(this.selectedLocationNodes);
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });
@@ -509,11 +552,7 @@ export class ConfigStore {
       return toJS(this.customCoordinates);
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
       return this.customSequences.map((seq) => {
-        if (config.virus === 'sars2') {
-          return queryReferenceSequence(seq);
-        } else if (config.virus === 'rsv') {
-          return queryReferenceSequence(seq, this.selectedReference);
-        }
+        return queryReferenceSequence(seq, this.selectedReference);
       });
     }
   }

@@ -38,8 +38,7 @@ rule az_reports:
 
 rule surveillance_data:
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
-        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        metadata = os.path.join(data_folder, "metadata.csv"),
     params:
         group_col = config["surv_group_col"],
         out_folder = os.path.join(data_folder, 'surveillance'),
@@ -53,6 +52,7 @@ rule surveillance_data:
         ),
         start_date_days_ago = config.get('surv_start_date_days_ago', 30),
         end_date_days_ago = config.get('surv_end_date_days_ago', 30),
+        period = config.get('surv_period', 'W'),
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
     output:
@@ -61,12 +61,12 @@ rule surveillance_data:
     shell:
         """
         python3 analyses/scripts/surveillance.py \
-            --case-data {input.case_data} \
-            --metadata-map {input.metadata_map} \
+            --metadata {input.metadata} \
             --group-col {params.group_col} \
             {params.start_date} {params.end_date} \
             --start-date-days-ago {params.start_date_days_ago} \
             --end-date-days-ago {params.end_date_days_ago} \
+            --period {params.period} \
             --min-combo-count {params.min_combo_count} \
             --min-single-count {params.min_single_count} \
             -o {params.out_folder}
@@ -78,15 +78,12 @@ rule global_sequencing_efforts:
     to produce the "Global Sequencing Effort" plot in the web app
     """
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
-        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        metadata = os.path.join(data_folder, "metadata.csv"),
     output:
         country_score = os.path.join(data_folder, "country_score.json")
     run:
-        global_sequencing_efforts(
-            input.case_data, input.metadata_map,
-            output.country_score
-        )
+        global_sequencing_efforts(input.metadata, output.country_score)
+
 
 rule create_standalone_map_spec:
     input:
@@ -98,11 +95,9 @@ rule create_standalone_map_spec:
         standalone_map_spec(input.spec, input.data, output.standalone_spec)
 
 
-
 rule global_seq_data:
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
-        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        metadata = os.path.join(data_folder, "metadata.csv"),
     params:
         out_folder = os.path.join(data_folder, 'new_global_data')
     output:
@@ -112,7 +107,7 @@ rule global_seq_data:
         iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
     shell:
         """
-        python3 analyses/scripts/global_seq_data.py --case-data {input.case_data} --metadata-map {input.metadata_map} -o {params.out_folder}
+        python3 analyses/scripts/global_seq_data.py --metadata {input.metadata}  -o {params.out_folder}
         """
 
 

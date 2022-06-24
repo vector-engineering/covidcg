@@ -8,7 +8,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import argparse
 import datetime
-import json
 import pandas as pd
 import numpy as np
 
@@ -20,11 +19,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Path to case data JSON file",
-    )
-
-    parser.add_argument(
-        "--metadata-map", type=str, required=True, help="Path to metadata map JSON file"
+        "--metadata", type=str, required=True, help="Path to metadata CSV file",
     )
 
     parser.add_argument(
@@ -55,6 +50,12 @@ def main():
         default=None,
         help="End date for filtering data in ISO format (YYYY-MM-DD). Overrides --end-date-days-ago if defined. Default: None",
     )
+    parser.add_argument(
+        "--period",
+        type=str,
+        default="W",
+        help="Aggregation period. W = week, M = month, Y = year. Default: W",
+    )
 
     parser.add_argument(
         "--min-combo-count",
@@ -75,20 +76,11 @@ def main():
 
     args = parser.parse_args()
 
-    case_data = pd.read_json(args.case_data)
-    with open(args.metadata_map, "r") as fp:
-        metadata_map = json.loads(fp.read())
-
-    # Join region onto case_data
-    case_data.loc[:, "region"] = case_data["region"].map(
-        {int(k): v for k, v in metadata_map["region"].items()}
-    )
+    case_data = pd.read_csv(args.metadata)
 
     out_path = Path(args.output)
 
-    df = case_data[
-        ["Accession ID", "collection_date", args.group_col, "gene_aa_mutation_str", "region"]
-    ]
+    df = case_data[["Accession ID", "collection_date", args.group_col, "region"]]
 
     # Filter for valid regions
     valid_regions = [
@@ -102,10 +94,10 @@ def main():
     df = df.loc[df["region"].isin(valid_regions)]
 
     df["collection_date"] = pd.to_datetime(df["collection_date"])
-    df["collection_week"] = df["collection_date"].dt.to_period("W")
+    df["collection_period"] = df["collection_date"].dt.to_period(args.period)
 
     location_counts = (
-        df.groupby(["region", "collection_week"])
+        df.groupby(["region", "collection_period"])
         .size()
         .rename("location_counts")
         .reset_index()
@@ -126,10 +118,12 @@ def main():
             datetime.date.today() - datetime.timedelta(days=args.end_date_days_ago)
         ).isoformat()
 
+    print(start_date_iso, end_date_iso)
+
     # LINEAGE DATA
     lineage_counts = (
         df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", args.group_col, "collection_week"])
+        .groupby(["region", args.group_col, "collection_period"])
         .size()
         .reset_index()
         .rename(columns={args.group_col: "group", 0: "counts"})
@@ -139,13 +133,13 @@ def main():
 
     def calculate_percentages(_df):
         _df = (
-            _df.set_index(["region", "collection_week"])
-            .join(location_counts.set_index(["region", "collection_week"]))
+            _df.set_index(["region", "collection_period"])
+            .join(location_counts.set_index(["region", "collection_period"]))
             .reset_index()
         )
 
         _df["percent"] = _df["counts"] / _df["location_counts"]
-        _df["collection_week"] = _df["collection_week"].dt.start_time
+        _df["collection_period"] = _df["collection_period"].dt.start_time
 
         return _df
 
@@ -157,8 +151,8 @@ def main():
     # DO REGRESSIONS
 
     def group_regression(_df):
-        min_date = _df["collection_week"].dt.date.min().isoformat()
-        _df = _df.set_index("collection_week").reindex(
+        min_date = _df["collection_period"].dt.date.min().isoformat()
+        _df = _df.set_index("collection_period").reindex(
             pd.date_range(min_date, end_date_iso, freq="7D", closed="left"),
             fill_value=0,
         )
@@ -175,7 +169,7 @@ def main():
 
     def calculate_trends(_df):
         regression_df = (
-            _df.groupby(["region", "group"])[["collection_week", "counts", "percent"]]
+            _df.groupby(["region", "group"])[["collection_period", "counts", "percent"]]
             .apply(group_regression)
             .rename("res")
             .reset_index()

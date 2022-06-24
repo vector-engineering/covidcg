@@ -24,7 +24,7 @@ def read_fasta_file(lines):
         value: DNA sequence of the FASTA entry
     """
 
-    entries = dict()
+    entries = {}
 
     # Read sequences
     cur_entry = ""
@@ -64,13 +64,18 @@ def read_fasta_file(lines):
         if ">" in line or i == (len(lines) - 1):
             # Avoid capturing the first one and pushing an empty sequence
             if cur_entry:
-                entries[cur_entry] = cur_seq
+                entry_name = cur_entry.split()[0]
+                entry_desc = ""
+                if len(cur_entry.split()) > 1:
+                    entry_desc = " ".join(cur_entry.split()[1:])
+
+                entries[entry_name] = {}
+                entries[entry_name]["name"] = entry_name
+                entries[entry_name]["sequence"] = cur_seq
+                entries[entry_name]["description"] = entry_desc
 
             # Clear the entry and sequence
             cur_entry = line[1:]
-            # Ignore anything past the first whitespace
-            if cur_entry:
-                cur_entry = cur_entry.split()[0]
             cur_seq = ""
 
     return entries

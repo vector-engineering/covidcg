@@ -7,7 +7,6 @@ import { MobxRouter } from 'mobx-router';
 import { rootStoreInstance, StoreProvider } from '../stores/rootStore';
 import WaitForAsyncWrapper from './WaitForAsyncWrapper';
 import ObservableAsyncDataStore from '../stores/asyncDataStore';
-import InitialValueStore from '../stores/initialValueStore';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -24,7 +23,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export const asyncDataStoreInstance = new ObservableAsyncDataStore();
-export const initialValueStoreInstance = new InitialValueStore();
 
 const App = () => {
   return (

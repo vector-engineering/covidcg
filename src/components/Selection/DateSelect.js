@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { intToISO } from '../../utils/date';
-import { MIN_DATE } from '../../constants/defs.json';
 import { config } from '../../config';
 
 import {
@@ -14,10 +13,16 @@ import {
 
 import QuestionButton from '../Buttons/QuestionButton';
 
-const min_date = config.virus === 'sars2' ? MIN_DATE.SARS2 : MIN_DATE.RSV;
-
 const DEFAULT_PRESET_OPTION = 'date-preset-default';
 const PRESET_START = 'preset-start';
+
+let firstDateLabel;
+if (config.virus === 'sars2') {
+  firstDateLabel = 'Since pandemic start';
+} else if (config.virus === 'rsv') {
+  firstDateLabel = 'Date of first sequence';
+}
+
 const presetDateOptions = [
   <option
     key={DEFAULT_PRESET_OPTION}
@@ -27,9 +32,7 @@ const presetDateOptions = [
     Select a preset date range
   </option>,
   <option key={PRESET_START} value={PRESET_START}>
-    {config.virus === 'sars2'
-      ? 'Since pandemic start'
-      : 'Date of first sequence'}
+    {firstDateLabel}
   </option>,
   <option key={'separator-1'} disabled={true}>
     ──────────
@@ -109,7 +112,7 @@ const DateSelect = observer(
           );
         }
       } else if (option === PRESET_START) {
-        startDate = min_date;
+        startDate = config.min_date;
       }
 
       updateDateRange(startDate, intToISO(endDate));
@@ -145,7 +148,7 @@ const DateSelect = observer(
               id="start"
               name="date-range-start"
               value={startDate}
-              min={min_date}
+              min={config.min_date}
               max={maxDateISO}
               onChange={handleStartChange}
             />
@@ -158,7 +161,7 @@ const DateSelect = observer(
               id="end"
               name="date-range-end"
               value={endDate}
-              min={min_date}
+              min={config.min_date}
               max={maxDateISO}
               onChange={handleEndChange}
             />
