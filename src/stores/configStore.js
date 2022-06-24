@@ -89,6 +89,17 @@ export class ConfigStore {
 
     this.urlParams = new URLSearchParams(window.location.search);
 
+    // RSV EDGE CASE
+    // If any selected group fields are set in the URLs,
+    // then clear the default selected group fields
+    if (
+      Object.keys(config.group_cols).some((groupKey) =>
+        this.urlParams.has(groupKey)
+      )
+    ) {
+      this.selectedGroupFields = {};
+    }
+
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
       value = decodeURIComponent(value);
