@@ -52,6 +52,7 @@ rule surveillance_data:
         ),
         start_date_days_ago = config.get('surv_start_date_days_ago', 30),
         end_date_days_ago = config.get('surv_end_date_days_ago', 30),
+        period = config.get('surv_period', 'W'),
         min_combo_count = config['surv_min_combo_count'],
         min_single_count = config['surv_min_single_count']
     output:
@@ -65,6 +66,7 @@ rule surveillance_data:
             {params.start_date} {params.end_date} \
             --start-date-days-ago {params.start_date_days_ago} \
             --end-date-days-ago {params.end_date_days_ago} \
+            --period {params.period} \
             --min-combo-count {params.min_combo_count} \
             --min-single-count {params.min_single_count} \
             -o {params.out_folder}

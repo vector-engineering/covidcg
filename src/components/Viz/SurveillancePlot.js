@@ -393,7 +393,21 @@ const SurveillancePlot = observer(({ width }) => {
     if (config.virus === 'sars2') {
       return '%m-%d';
     } else if (config.virus === 'rsv') {
-      return '%m-%y';
+      return '%Y-%m';
+    }
+  };
+
+  // For snapping to nearest points, on the x (time) axis
+  const getTimeSensitivity = () => {
+    const day = 24 * 60 * 60 * 1000;
+    if (config.surv_period === 'W') {
+      return day * 3.5;
+    } else if (config.surv_period === 'M') {
+      return day * 15;
+    } else if (config.surv_period === 'Y') {
+      return day * 365;
+    } else {
+      return day * 100;
     }
   };
 
@@ -501,6 +515,7 @@ const SurveillancePlot = observer(({ width }) => {
             sig_min_percent: plotSettingsStore.surveillanceSigMinPercent,
             sig_min_r: plotSettingsStore.surveillanceSigMinR,
             xLabelFormat: getXLabelFormat(),
+            time_sensitivity: getTimeSensitivity(),
           }}
           dataListeners={state.dataListeners}
           width={width - 80}
