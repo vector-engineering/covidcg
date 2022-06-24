@@ -50,9 +50,6 @@ group_cols:
     name: "genotype"
     title: "Genotype"
     description: ""
-    link:
-      title: "(RSV Factsheet)"
-      href: "https://www.cdc.gov/rsv/references.html#factsheet"
     show_collapse_options: false
 
 # Surveillance plot options

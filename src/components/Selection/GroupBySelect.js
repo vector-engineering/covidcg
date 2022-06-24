@@ -115,7 +115,8 @@ const GroupBySelect = observer(
             </div>
           </div>
           {showExtraGroupText &&
-            Object.keys(config.group_cols).includes(groupKey) && (
+            groupKey in Object.keys(config.group_cols) &&
+            'link' in config.group_cols[groupKey] && (
               <>
                 {config.group_cols[groupKey].description}
                 <Link href={config.group_cols[groupKey].link.href}>

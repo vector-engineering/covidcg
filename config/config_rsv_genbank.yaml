@@ -58,17 +58,11 @@ group_cols:
     name: "genotype"
     title: "Genotype"
     description: ""
-    link:
-      title: "(Subtype Descriptions)"
-      href: "https://www.cdc.gov/rsv/references.html#factsheet"
     show_collapse_options: false
   subtype:
     name: "subtype"
     title: "Subtype"
     description: ""
-    link:
-      title: "(Subtype Descriptions)"
-      href: "https://www.cdc.gov/rsv/references.html#factsheet"
     show_collapse_options: false
 
 # Surveillance plot options
