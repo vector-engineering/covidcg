@@ -26,7 +26,7 @@ const ExampleList = observer(() => {
   const exampleItems = getExampleItems({
     selectTree: locationDataStore.selectTree,
   });
-  console.log(exampleItems);
+  // console.log(exampleItems);
 
   const onExampleClick = (title, e) => {
     e.preventDefault();
