@@ -49,6 +49,8 @@ export class PlotSettingsStore {
 
   // SURVEILLANCE PLOT
   @observable surveillanceMode = '';
+  @observable surveillanceShowWarning = true;
+  @observable surveillanceShowSettings = false;
   @observable surveillanceSortField = '';
   @observable surveillanceSortDirection = SORT_DIRECTIONS.SORT_DESC;
   @observable surveillanceDisplayMinCounts = 5;

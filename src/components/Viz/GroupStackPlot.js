@@ -419,9 +419,8 @@ const GroupStackPlot = observer(({ width }) => {
   return (
     <div>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        Inconsistent sampling in the underlying data can result in missing data
-        and artefacts in this visualization. Please interpret this data with
-        care.
+        {config.site_title} plots reflect data contributed to GISAID and are
+        therefore impacted by the sequence coverage in each country.
       </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>
@@ -481,20 +480,21 @@ const GroupStackPlot = observer(({ width }) => {
               </label>
             </OptionSelectContainer>
           </PlotOptionsRow>
-          {configStore.groupKey !== GROUP_MUTATION && (
-            <PlotOptionsRow>
-              <LowFreqFilter
-                lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
-                lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
-                updateLowFreqFilterType={
-                  plotSettingsStore.setGroupStackLowFreqFilter
-                }
-                updateLowFreqFilterValue={
-                  plotSettingsStore.setGroupStackLowFreqValue
-                }
-              ></LowFreqFilter>
-            </PlotOptionsRow>
-          )}
+          {configStore.groupKey !== GROUP_MUTATION &&
+            config.group_cols[configStore.groupKey].show_collapse_options && (
+              <PlotOptionsRow>
+                <LowFreqFilter
+                  lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
+                  lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
+                  updateLowFreqFilterType={
+                    plotSettingsStore.setGroupStackLowFreqFilter
+                  }
+                  updateLowFreqFilterValue={
+                    plotSettingsStore.setGroupStackLowFreqValue
+                  }
+                ></LowFreqFilter>
+              </PlotOptionsRow>
+            )}
           <PlotOptionsRow>
             Only show locations:&nbsp;{focusLocationDropdownContainer}
             {'  '}

@@ -177,10 +177,10 @@ if (config['virus'] === 'sars2') {
 
     // GROUP STACK PLOT
     groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-    groupStackLowFreqValue: 20,
+    groupStackLowFreqValue: 50,
     groupStackNormMode: NORM_MODES.NORM_COUNTS,
     groupStackCountMode: COUNT_MODES.COUNT_NEW,
-    groupStackDateBin: DATE_BINS.DATE_BIN_MONTH,
+    groupStackDateBin: DATE_BINS.DATE_BIN_YEAR,
 
     // MUTATION STRUCTURE VIEWER
     // 5UDE, 3RRR
@@ -191,7 +191,7 @@ if (config['virus'] === 'sars2') {
     // LOCATION DATE PLOT
     locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
     locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-    locationDateDateBin: DATE_BINS.DATE_BIN_MONTH,
+    locationDateDateBin: DATE_BINS.DATE_BIN_YEAR,
 
     // LOCATION GROUP PLOT
     locationGroupHideReference: true,
@@ -203,11 +203,11 @@ if (config['virus'] === 'sars2') {
     surveillanceMode: 'subtype',
     surveillanceSortField: 'counts', // 'group' or 'counts'
     surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
-    surveillanceDisplayMinCounts: 5,
-    surveillanceDisplayMinPercent: 0.01,
-    surveillanceSigMinCounts: 10,
-    surveillanceSigMinPercent: 0.02,
-    surveillanceSigMinR: 0.15,
+    surveillanceDisplayMinCounts: 0,
+    surveillanceDisplayMinPercent: 0.0,
+    surveillanceSigMinCounts: 0,
+    surveillanceSigMinPercent: 0.0,
+    surveillanceSigMinR: -1.0,
     surveillanceLegendHover: [],
     surveillanceShowWarning: false,
     surveillanceShowSettings: false,

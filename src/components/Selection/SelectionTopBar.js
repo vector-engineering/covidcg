@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES, COORDINATE_MODES } from '../../constants/defs.json';
+import {
+  ASYNC_STATES,
+  COORDINATE_MODES,
+  GROUP_MUTATION,
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
@@ -10,6 +15,7 @@ import GroupBySelect from '../Selection/GroupBySelect';
 import DownloadDataButton from '../Sidebar/DownloadDataButton';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
+import { configStore as initialConfigStore } from '../../constants/initialValues';
 
 import {
   Container,
@@ -39,7 +45,24 @@ const SelectionTopBar = observer(() => {
   };
 
   const onChangeGroupKey = (groupKey) => {
-    configStore.applyPendingChanges({ groupKey });
+    // If we just changed from mutation to another grouping,
+    // then clear selected group fields
+    let selectedGroupFields = configStore.selectedGroupFields;
+    if (groupKey !== GROUP_MUTATION && groupKey !== configStore.groupKey) {
+      selectedGroupFields = {};
+    }
+    // RSV MODE ONLY
+    // If we're switching to mutation mode, go back to
+    // default selected group fields
+    else if (
+      config.virus === 'rsv' &&
+      groupKey === GROUP_MUTATION &&
+      groupKey !== configStore.groupKey
+    ) {
+      selectedGroupFields = initialConfigStore.selectedGroupFields;
+    }
+
+    configStore.applyPendingChanges({ groupKey, selectedGroupFields });
   };
   const onChangeDnaOrAa = (dnaOrAa) => {
     configStore.applyPendingChanges({ dnaOrAa });
@@ -108,6 +131,7 @@ const SelectionTopBar = observer(() => {
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}
+        referenceSelectMaxWidth="120px"
       />
 
       {statusBox}

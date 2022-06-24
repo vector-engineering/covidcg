@@ -11,7 +11,7 @@
 
     { "name": "domainPlotHeight", "value": 60 },
     { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
-    { "name": "domainPlotY", "update": "height - entropyPlotHeight - 20" },
+    { "name": "domainPlotY", "update": "entropyPlotHeight + 40" },
 
     { "name": "coveragePlotHeight", "value": 40 },
     { "name": "coveragePlotYRange", "update": "[coveragePlotHeight, 0]" },
@@ -24,7 +24,7 @@
     { "name": "yScaleExponent", "value": 1.0 },
     { "name": "totalSequences", "value": 474 },
     { "name": "numDomainRows", "value": 4 },
-    { "name": "domainYScale", "update": "[0, numDomainRows * 1.5]" },
+    { "name": "domainYScaleSignal", "update": "[0, numDomainRows * 1.5]" },
     { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
@@ -179,10 +179,10 @@
       "transform": [
         {
           "type": "formula",
-          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + numDomainRows + 2",
-          "as": "rowTop"
+          "expr": "0.5 + (datum.row * 1.5)",
+          "as": "rowBottom"
         },
-        { "type": "formula", "expr": "(datum.rowTop - 1)", "as": "rowBottom" },
+        { "type": "formula", "expr": "datum.rowBottom + 1", "as": "rowTop" },
         {
           "type": "formula",
           "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
@@ -407,7 +407,7 @@
         {
           "name": "domainYScale",
           "type": "linear",
-          "domain": { "signal": "domainYScale" },
+          "domain": { "signal": "domainYScaleSignal" },
           "range": { "signal": "domainPlotYRange" }
         }
       ],

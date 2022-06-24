@@ -89,6 +89,17 @@ export class ConfigStore {
 
     this.urlParams = new URLSearchParams(window.location.search);
 
+    // RSV EDGE CASE
+    // If any selected group fields are set in the URLs,
+    // then clear the default selected group fields
+    if (
+      Object.keys(config.group_cols).some((groupKey) =>
+        this.urlParams.has(groupKey)
+      )
+    ) {
+      this.selectedGroupFields = {};
+    }
+
     // Check to see what's in the URL
     this.urlParams.forEach((value, key) => {
       value = decodeURIComponent(value);
@@ -226,6 +237,19 @@ export class ConfigStore {
       // If no locations in url, set default selected locations
       this.selectedLocationNodes = defaultSelectedLocationNodes;
     }
+
+    // RSV EDGE CASE
+    // If we don't start out in mutation mode, and no
+    // selected group fields are specified, empty out the
+    // selected group fields selection
+    if (
+      this.groupKey !== GROUP_MUTATION &&
+      Object.keys(config.group_cols).every(
+        (groupKey) => !this.urlParams.has(groupKey)
+      )
+    ) {
+      this.selectedGroupFields = {};
+    }
   }
 
   // modifyQueryParams = autorun(() => {
@@ -310,6 +334,14 @@ export class ConfigStore {
           }
         });
       } else if (field === 'selectedGroupFields') {
+        // If selectedGroupFields just got emptied - make sure to
+        // remove any lingering group keys in the URL
+        Object.keys(config.group_cols).forEach((groupKey) => {
+          if (!Object.keys(pending[field]).includes(groupKey)) {
+            this.urlParams.delete(groupKey);
+          }
+        });
+
         Object.keys(pending[field]).forEach((groupKey) => {
           this.urlParams.delete(groupKey);
           pending[field][groupKey].forEach((group) => {
@@ -354,6 +386,15 @@ export class ConfigStore {
       this.urlParams.delete('selectedPrimers');
       this.urlParams.delete('selectedGene');
       this.urlParams.delete('customCoordinates');
+    }
+
+    if (this.groupKey !== GROUP_MUTATION) {
+      this.urlParams.delete('residueCoordinates');
+      this.urlParams.delete('selectedGene');
+      this.urlParams.delete('selectedProtein');
+      this.urlParams.delete('selectedPrimers');
+      this.urlParams.delete('customCoordinates');
+      this.urlParams.delete('customSequences');
     }
 
     // Update the location node tree with our new selection

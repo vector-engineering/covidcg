@@ -89,7 +89,8 @@ export const ReferenceSelectRow = styled.div`
   select {
     margin-top: 2px;
     width: 100%;
-  }
+
+    ${({ maxWidth }) => (maxWidth ? `max-width: ${maxWidth};` : '')}
 
   .reference-description {
     font-size: 0.8em;

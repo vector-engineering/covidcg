@@ -55,9 +55,12 @@ group_cols:
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
+    show_collapse_options: true
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
+surv_group_col: "lineage"
+surv_period: "W"
 surv_min_combo_count: 50
 surv_min_single_count: 50
 surv_start_date_days_ago: 90
@@ -90,6 +93,24 @@ prod_hostname: "http://localhost:8080"
 # ----------------------
 #     VISUALIZATION
 # ----------------------
+
+site_title: "COVID CG"
+
+# Home page
+show_home_banner: false
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
+
+default_gene: S
+default_protein: nsp12 - RdRp
+
+min_date: "2019-12-01"
 
 show_logos:
   GISAID: false

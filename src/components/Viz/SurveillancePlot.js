@@ -357,9 +357,9 @@ const SurveillancePlot = observer(({ width }) => {
     }
   };
 
-  const onChangeMode = (e) => {
-    plotSettingsStore.setSurveillanceMode(e.target.value);
-  };
+  // const onChangeMode = (e) => {
+  //   plotSettingsStore.setSurveillanceMode(e.target.value);
+  // };
 
   const setLegendHover = (group) => {
     // console.log('legend hover', group);
@@ -393,7 +393,21 @@ const SurveillancePlot = observer(({ width }) => {
     if (config.virus === 'sars2') {
       return '%m-%d';
     } else if (config.virus === 'rsv') {
-      return '%m-%y';
+      return '%Y-%m';
+    }
+  };
+
+  // For snapping to nearest points, on the x (time) axis
+  const getTimeSensitivity = () => {
+    const day = 24 * 60 * 60 * 1000;
+    if (config.surv_period === 'W') {
+      return day * 3.5;
+    } else if (config.surv_period === 'M') {
+      return day * 15;
+    } else if (config.surv_period === 'Y') {
+      return day * 365;
+    } else {
+      return day * 100;
     }
   };
 
@@ -440,61 +454,43 @@ const SurveillancePlot = observer(({ width }) => {
         show={plotSettingsStore.surveillanceShowWarning}
         onDismiss={onDismissWarning}
       >
-        Inconsistent sampling in the underlying data can result in missing data
-        and artefacts in this visualization. Increased prevalence of lineages{' '}
-        <b>does not</b>, on its own, suggest an increase in transmissibility.
-        Please interpret this data with care.
+        {config.site_title} plots reflect data contributed to GISAID and are
+        therefore impacted by the sequence coverage in each country. Increased
+        prevalence of any lineage does not, on its own, suggest an increase in
+        transmissibility.
       </WarningBox>
-      <PlotOptions style={{ marginLeft: 20 }}>
-        <OptionsColumn>
-          <OptionsRow>
-            Mode{' '}
-            <OptionSelectContainer>
-              <label>
-                <select
-                  value={plotSettingsStore.surveillanceMode}
-                  onChange={onChangeMode}
-                >
-                  {config.virus === 'sars2' && (
-                    <>
-                      <option value={'lineage'}>Lineage</option>
-                    </>
-                  )}
-                  {config.virus === 'rsv' && (
-                    <>
-                      <option value={'subtype'}>Subtype</option>
-                      {/* <option value={'genotype'}>Genotype</option> */}
-                    </>
-                  )}
-                </select>
-              </label>
-            </OptionSelectContainer>{' '}
-            <CollapseButton onClick={onToggleShowSettings}>
-              {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
-              Settings <span className="caret"></span>
-            </CollapseButton>
-            <div className="spacer"></div>
-            <DropdownButton
-              text={'Download'}
-              options={[
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-              ]}
-              onSelect={handleDownloadSelect}
-            />
-          </OptionsRow>
-          {plotSettingsStore.surveillanceShowSettings && (
-            <SurveillanceSettings
-              groupName={groupName}
-              vegaRef={vegaRef}
-              refreshValidGroups={refreshValidGroups}
-            />
-          )}
-        </OptionsColumn>
-      </PlotOptions>
+      {/* Only show these surveillance settings for SAR2 */}
+      {config.virus === 'sars2' && (
+        <PlotOptions style={{ marginLeft: 20 }}>
+          <OptionsColumn>
+            <OptionsRow>
+              <CollapseButton onClick={onToggleShowSettings}>
+                {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
+                Plot Settings <span className="caret"></span>
+              </CollapseButton>
+              <div className="spacer"></div>
+              <DropdownButton
+                text={'Download'}
+                options={[
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+                ]}
+                onSelect={handleDownloadSelect}
+              />
+            </OptionsRow>
+            {plotSettingsStore.surveillanceShowSettings && (
+              <SurveillanceSettings
+                groupName={groupName}
+                vegaRef={vegaRef}
+                refreshValidGroups={refreshValidGroups}
+              />
+            )}
+          </OptionsColumn>
+        </PlotOptions>
+      )}
       <PlotAndLegend>
         <SurveillanceLegend
           legendItems={state.legendItems}
@@ -519,6 +515,7 @@ const SurveillancePlot = observer(({ width }) => {
             sig_min_percent: plotSettingsStore.surveillanceSigMinPercent,
             sig_min_r: plotSettingsStore.surveillanceSigMinR,
             xLabelFormat: getXLabelFormat(),
+            time_sensitivity: getTimeSensitivity(),
           }}
           dataListeners={state.dataListeners}
           width={width - 80}

@@ -89,10 +89,19 @@ const StatusBox = observer(() => {
       return;
     }
 
+    const selectedGroupFieldItems = [];
+    configStore.selectedGroupFields[groupKey].forEach((group, i) => {
+      selectedGroupFieldItems.push(
+        <b key={`status-selected-group-${groupKey}-${group}}`}>{group}</b>
+      );
+      if (i < configStore.selectedGroupFields[groupKey].length - 1) {
+        selectedGroupFieldItems.push(',');
+      }
+    });
+
     selectedGroupFields.push(
       <Line key={`status-box-selected-group-fields-${groupKey}`}>
-        Selected {groupKey}s:{' '}
-        {configStore.selectedGroupFields[groupKey].join(', ')}
+        Selected {groupKey}s: {selectedGroupFieldItems}
       </Line>
     );
   });
