@@ -122,12 +122,27 @@ prod_hostname: "https://covidcg.org"
 #     VISUALIZATION
 # ----------------------
 
-show_logos:
-  GISAID: true
-  GenBank: false
+site_title: "COVID CG"
+
+# Home page
+show_home_banner: false
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
 
 default_gene: S
 default_protein: nsp12 - RdRp
+
+min_date: "2019-12-01"
+
+show_logos:
+  GISAID: true
+  GenBank: false
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: false

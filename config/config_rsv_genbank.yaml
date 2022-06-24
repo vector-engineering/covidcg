@@ -110,8 +110,10 @@ prod_hostname: "https://rsv.pathmut.org"
 #     VISUALIZATION
 # ----------------------
 
+site_title: "RSV PathMut"
+
 # Home page
-show_home_banner: true
+show_home_banner: false
 show_walkthroughs: false
 show_surveillance: true
 show_global_seq_plot: false

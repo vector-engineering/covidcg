@@ -93,9 +93,25 @@ prod_hostname: "http://localhost:8080"
 #     VISUALIZATION
 # ----------------------
 
+# Home page
+show_home_banner: false
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
+
+default_gene: F
+default_protein: F
+
+min_date: "1956-01-01"
+
 show_logos:
   GISAID: false
-  GenBank: false
+  GenBank: true
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: true
