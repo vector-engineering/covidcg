@@ -129,6 +129,8 @@ example_data_genbank/*/lineage_treetime/*.pdf
 data
 data_genbank
 example_data_genbank/rsv/**
+example_data_genbank/flu/**
+example_data_genbank/sars2/**
 
 # CORS config file.
 services/server/cg_server/cors_conf.py
