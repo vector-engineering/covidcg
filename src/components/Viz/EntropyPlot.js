@@ -400,10 +400,10 @@ const EntropyPlot = observer(({ width }) => {
     <PlotContainer>
       {config['virus'] === 'sars2' && (
         <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-          COVID-19 CG plots reflect data contributed to GISAID and are therefore
-          impacted by the sequence coverage in each country. For example,
-          systematic errors are sometimes observed specific to particular labs
-          or methods (
+          {config.site_title} plots reflect data contributed to GISAID and are
+          therefore impacted by the sequence coverage in each country. For
+          example, systematic errors are sometimes observed specific to
+          particular labs or methods (
           <ExternalLink href="https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14">
             https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14
           </ExternalLink>

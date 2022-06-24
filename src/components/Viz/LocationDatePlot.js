@@ -381,8 +381,8 @@ const LocationDatePlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        COVID-19 CG plots reflect data contributed to GISAID and are therefore
-        impacted by the sequence coverage in each country.
+        {config.site_title} plots reflect data contributed to GISAID and are
+        therefore impacted by the sequence coverage in each country.
       </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>

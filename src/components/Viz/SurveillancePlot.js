@@ -454,9 +454,9 @@ const SurveillancePlot = observer(({ width }) => {
         show={plotSettingsStore.surveillanceShowWarning}
         onDismiss={onDismissWarning}
       >
-        COVID-19 CG plots reflect data contributed to GISAID and are therefore
-        impacted by the sequence coverage in each country. Increased prevalence
-        of any lineage does not, on its own, suggest an increase in
+        {config.site_title} plots reflect data contributed to GISAID and are
+        therefore impacted by the sequence coverage in each country. Increased
+        prevalence of any lineage does not, on its own, suggest an increase in
         transmissibility.
       </WarningBox>
       {/* Only show these surveillance settings for SAR2 */}

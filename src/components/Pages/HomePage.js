@@ -83,9 +83,9 @@ const HomePage = observer(() => {
       >
         <img src={CGLogo}></img>
         <p style={{ margin: '20px' }}>
-          COVID-19 CG is designed for large screen devices due to the highly
-          detailed analyses presented on the browser. Please view this site on a
-          laptop or computer for the best user experience.
+          {config.site_title} is designed for large screen devices due to the
+          highly detailed analyses presented on the browser. Please view this
+          site on a laptop or computer for the best user experience.
         </p>
         <p
           style={{
@@ -96,10 +96,11 @@ const HomePage = observer(() => {
             lineHeight: 'normal',
           }}
         >
-          COVID-19 CG can also be explored on iPad and larger tablets if browser
-          settings are switched to &quot;Request Desktop Version&quot; and the
-          device is in landscape mode. Exploring COVID-19 CG on handheld mobile
-          devices will result in excessively limited browser functionality.
+          {config.site_title} can also be explored on iPad and larger tablets if
+          browser settings are switched to &quot;Request Desktop Version&quot;
+          and the device is in landscape mode. Exploring {config.site_title} on
+          handheld mobile devices will result in excessively limited browser
+          functionality.
         </p>
       </div>
     );
