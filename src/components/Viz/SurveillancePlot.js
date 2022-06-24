@@ -357,9 +357,9 @@ const SurveillancePlot = observer(({ width }) => {
     }
   };
 
-  const onChangeMode = (e) => {
-    plotSettingsStore.setSurveillanceMode(e.target.value);
-  };
+  // const onChangeMode = (e) => {
+  //   plotSettingsStore.setSurveillanceMode(e.target.value);
+  // };
 
   const setLegendHover = (group) => {
     // console.log('legend hover', group);
@@ -445,56 +445,38 @@ const SurveillancePlot = observer(({ width }) => {
         of any lineage does not, on its own, suggest an increase in
         transmissibility.
       </WarningBox>
-      <PlotOptions style={{ marginLeft: 20 }}>
-        <OptionsColumn>
-          <OptionsRow>
-            Mode{' '}
-            <OptionSelectContainer>
-              <label>
-                <select
-                  value={plotSettingsStore.surveillanceMode}
-                  onChange={onChangeMode}
-                >
-                  {config.virus === 'sars2' && (
-                    <>
-                      <option value={'lineage'}>Lineage</option>
-                    </>
-                  )}
-                  {config.virus === 'rsv' && (
-                    <>
-                      <option value={'subtype'}>Subtype</option>
-                      {/* <option value={'genotype'}>Genotype</option> */}
-                    </>
-                  )}
-                </select>
-              </label>
-            </OptionSelectContainer>{' '}
-            <CollapseButton onClick={onToggleShowSettings}>
-              {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
-              Settings <span className="caret"></span>
-            </CollapseButton>
-            <div className="spacer"></div>
-            <DropdownButton
-              text={'Download'}
-              options={[
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
-                PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
-              ]}
-              onSelect={handleDownloadSelect}
-            />
-          </OptionsRow>
-          {plotSettingsStore.surveillanceShowSettings && (
-            <SurveillanceSettings
-              groupName={groupName}
-              vegaRef={vegaRef}
-              refreshValidGroups={refreshValidGroups}
-            />
-          )}
-        </OptionsColumn>
-      </PlotOptions>
+      {/* Only show these surveillance settings for SAR2 */}
+      {config.virus === 'sars2' && (
+        <PlotOptions style={{ marginLeft: 20 }}>
+          <OptionsColumn>
+            <OptionsRow>
+              <CollapseButton onClick={onToggleShowSettings}>
+                {plotSettingsStore.surveillanceShowSettings ? 'Hide' : 'Show'}{' '}
+                Plot Settings <span className="caret"></span>
+              </CollapseButton>
+              <div className="spacer"></div>
+              <DropdownButton
+                text={'Download'}
+                options={[
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_2X,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_PNG_4X,
+                  PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_SVG,
+                ]}
+                onSelect={handleDownloadSelect}
+              />
+            </OptionsRow>
+            {plotSettingsStore.surveillanceShowSettings && (
+              <SurveillanceSettings
+                groupName={groupName}
+                vegaRef={vegaRef}
+                refreshValidGroups={refreshValidGroups}
+              />
+            )}
+          </OptionsColumn>
+        </PlotOptions>
+      )}
       <PlotAndLegend>
         <SurveillanceLegend
           legendItems={state.legendItems}
