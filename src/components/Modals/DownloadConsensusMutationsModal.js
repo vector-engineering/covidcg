@@ -14,7 +14,10 @@ import QuestionButton from '../Buttons/QuestionButton';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
+  Wrapper,
   Overlay,
+  Content,
+  Row,
   ProgressContainer,
   ProgressText,
   TitleContainer,
@@ -23,16 +26,10 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
-} from './Modal.styles';
-import {
-  Wrapper,
-  Content,
-  Row,
-  // Info,
+  ApplyButton,
   SelectInput,
   TextInput,
-  ApplyButton,
-} from './DownloadConsensusMutationsModal.styles';
+} from './Modal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};

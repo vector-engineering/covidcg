@@ -10,6 +10,11 @@ import Modal from 'react-modal';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
+  Wrapper,
+  Content,
+  Row,
+  Info,
+  ApplyButton,
   Overlay,
   ProgressContainer,
   ProgressText,
@@ -21,13 +26,6 @@ import {
   InvalidText,
   CheckboxInput,
 } from './Modal.styles';
-import {
-  Wrapper,
-  Content,
-  Row,
-  Info,
-  ApplyButton,
-} from './DownloadGenomesModal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};

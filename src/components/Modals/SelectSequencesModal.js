@@ -35,14 +35,10 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
+  ApplyButton,
 } from './Modal.styles';
 
-import {
-  Wrapper,
-  Content,
-  Column,
-  ApplyButton,
-} from './SelectSequencesModal.styles';
+import { Wrapper, Content, Column } from './SelectSequencesModal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};

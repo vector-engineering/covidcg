@@ -21,7 +21,10 @@ import Modal from 'react-modal';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
+  Wrapper,
   Overlay,
+  Content,
+  Row,
   ProgressContainer,
   ProgressText,
   TitleContainer,
@@ -30,20 +33,15 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
-} from './Modal.styles';
-import {
-  Wrapper,
-  Content,
-  Row,
+  SelectInput,
   Info,
   RadioForm,
   Radio,
   CheckboxForm,
-  FormTitle,
   Checkbox,
   ApplyButton,
-  SelectInput,
-} from './DownloadMetadataModal.styles';
+  FormTitle,
+} from './Modal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};
@@ -196,7 +194,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
   }
 
   return (
-    <Wrapper>
+    <Wrapper width={600} height={400}>
       <Overlay visible={UIStore.downloadState === ASYNC_STATES.STARTED}>
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
