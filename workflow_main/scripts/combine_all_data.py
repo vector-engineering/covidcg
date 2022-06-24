@@ -144,8 +144,19 @@ def main():
 
     # Join coverage data to main dataframe
     coverage_dna = pd.read_csv(args.dna_coverage)
-    coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
-        lambda x: tuple(x), axis=1
+    # coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
+    #     lambda x: tuple(x), axis=1
+    # )
+    # Sometimes with multiple alignments to the same reference
+    # we get multiple DNA coverage entries for the same
+    # Accession ID / reference pair.
+    # Collapse these duplicate entries, by assuming that the
+    # sequence is contiguous -- i.e., take the max of the ends
+    # and the min of the starts
+    coverage_dna_group = (
+        coverage_dna.groupby(["Accession ID", "reference"], as_index=False)
+        .agg(start=("start", min), end=("end", max))
+        .assign(range=lambda x: x[["start", "end"]].apply(lambda _x: tuple(_x), axis=1))
     )
 
     coverage_gene_aa = pd.read_csv(args.gene_aa_coverage)
@@ -170,7 +181,7 @@ def main():
 
     df = (
         df.merge(
-            coverage_dna[["Accession ID", "reference", "range"]],
+            coverage_dna_group[["Accession ID", "reference", "range"]],
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="left",
