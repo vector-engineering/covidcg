@@ -11,7 +11,9 @@ import {
   COORDINATE_MODES,
   ASYNC_STATES,
   DNA_OR_AA,
+  GROUP_MUTATION,
 } from '../../constants/defs.json';
+import { configStore as initialConfigStore } from '../../constants/initialValues';
 
 import Modal from 'react-modal';
 
@@ -104,6 +106,23 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     let selectedGene = pending.selectedGene;
     let selectedProtein = pending.selectedProtein;
 
+    // If we just changed from mutation to another grouping,
+    // then clear selected group fields
+    let selectedGroupFields = pending.selectedGroupFields;
+    if (groupKey !== GROUP_MUTATION && groupKey !== pending.groupKey) {
+      selectedGroupFields = {};
+    }
+    // RSV MODE ONLY
+    // If we're switching to mutation mode, go back to
+    // default selected group fields
+    else if (
+      config.virus === 'rsv' &&
+      groupKey === GROUP_MUTATION &&
+      groupKey !== pending.groupKey
+    ) {
+      selectedGroupFields = initialConfigStore.selectedGroupFields;
+    }
+
     setGroupPending({
       ...groupPending,
       groupKey,
@@ -113,6 +132,9 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
       ...coordPending,
       selectedGene,
       selectedProtein,
+    });
+    setMetaPending({
+      selectedGroupFields,
     });
   };
   const onGroupKeyChange = (groupKey) =>

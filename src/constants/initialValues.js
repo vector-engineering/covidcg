@@ -177,7 +177,7 @@ if (config['virus'] === 'sars2') {
 
     // GROUP STACK PLOT
     groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-    groupStackLowFreqValue: 20,
+    groupStackLowFreqValue: 50,
     groupStackNormMode: NORM_MODES.NORM_COUNTS,
     groupStackCountMode: COUNT_MODES.COUNT_NEW,
     groupStackDateBin: DATE_BINS.DATE_BIN_YEAR,
