@@ -21,10 +21,7 @@ import Modal from 'react-modal';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
-  Wrapper,
   Overlay,
-  Content,
-  Row,
   ProgressContainer,
   ProgressText,
   TitleContainer,
@@ -33,14 +30,17 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
-  SelectInput,
+  Wrapper,
+  Content,
+  Row,
   Info,
   RadioForm,
   Radio,
   CheckboxForm,
+  FormTitle,
   Checkbox,
   ApplyButton,
-  FormTitle,
+  SelectInput,
 } from './Modal.styles';
 
 Modal.setAppElement('#app');
@@ -61,7 +61,7 @@ Object.values(GEO_LEVELS).forEach((field) => {
   initialSelectedLocationFields[field] = true;
 });
 
-const DownloadMetadataContent = observer(({ onRequestClose }) => {
+const DownloadVariantTableContent = observer(({ onRequestClose }) => {
   const { UIStore, dataStore, configStore } = useStores();
   const sentRequest = useRef();
 
@@ -77,12 +77,12 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
       initialSelectedLocationFields
     ),
     selectedReference: configStore.selectedReference,
-    mutationFormat: MUTATION_FORMAT.POS_REF_ALT,
+    mutationFormat: MUTATION_FORMAT.REF_POS_ALT,
   });
 
   const confirmDownload = () => {
     sentRequest.current = true;
-    dataStore.downloadSelectedSequenceMetadata(state);
+    dataStore.downloadVariantTable(state);
   };
 
   const handleFieldSelect = (event) => {
@@ -205,7 +205,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
         <HeaderRow>
           <TitleContainer>
             <div className="title">
-              <h2>Download Sequence Metadata</h2>
+              <h2>Download Variant Table</h2>
             </div>
           </TitleContainer>
           <div style={{ flexGrow: 1 }} />
@@ -225,7 +225,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
       <Content>
         <Row>
           <Info>
-            Downloading sequence metadata for{' '}
+            Downloading variant table for{' '}
             <b>{dataStore.numSequencesAfterAllFiltering}</b> selected sequences
           </Info>
         </Row>
@@ -281,43 +281,13 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
             <FormTitle>Geography</FormTitle>
             {locationCheckboxes}
           </CheckboxForm>
-          <CheckboxForm>
-            <FormTitle>Mutations</FormTitle>
-            <Checkbox>
-              <input
-                name="dna"
-                type="checkbox"
-                checked={state.selectedFields['dna']}
-                onChange={handleFieldSelect}
-              />
-              NT
-            </Checkbox>
-            <Checkbox>
-              <input
-                name="gene_aa"
-                type="checkbox"
-                checked={state.selectedFields['gene_aa']}
-                onChange={handleFieldSelect}
-              />
-              AA (Gene)
-            </Checkbox>
-            <Checkbox>
-              <input
-                name="protein_aa"
-                type="checkbox"
-                checked={state.selectedFields['protein_aa']}
-                onChange={handleFieldSelect}
-              />
-              AA (Protein)
-            </Checkbox>
-          </CheckboxForm>
         </Row>
       </Content>
     </Wrapper>
   );
 });
 
-const DownloadMetadataModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
+const DownloadVariantTableModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
   const { UIStore } = useStores();
 
   const closeDownloadModal = () => {
@@ -351,20 +321,20 @@ const DownloadMetadataModal = ({ isOpen, onAfterOpen, onRequestClose }) => {
           paddingBottom: '0px',
         },
       }}
-      contentLabel="Download Sequence Metadata"
+      contentLabel="Download Variant Table"
     >
-      <DownloadMetadataContent onRequestClose={closeDownloadModal} />
+      <DownloadVariantTableContent onRequestClose={closeDownloadModal} />
     </Modal>
   );
 };
 
-DownloadMetadataModal.propTypes = {
+DownloadVariantTableModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onAfterOpen: PropTypes.func,
   onRequestClose: PropTypes.func.isRequired,
 };
-DownloadMetadataModal.defaultProps = {
+DownloadVariantTableModal.defaultProps = {
   onAfterOpen: NOOP,
 };
 
-export default DownloadMetadataModal;
+export default DownloadVariantTableModal;

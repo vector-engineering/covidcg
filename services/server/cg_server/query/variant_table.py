@@ -63,6 +63,12 @@ def build_variant_table(conn, req):
         )
         sequence_mutation_table = "sequence_" + mutation_table
 
+        # Fields that the user wants
+        selected_fields = req.get("selected_fields", [])
+        mutation_format = req.get(
+            "mutation_format", constants["MUTATION_FORMAT"]["POS_REF_ALT"]
+        )
+
         # Get grouping columns, metadata columns
         metadata_cols = [
             "Accession ID",
@@ -75,12 +81,18 @@ def build_variant_table(conn, req):
         joins = []
 
         for grouping in config["group_cols"].keys():
+            if grouping not in selected_fields:
+                continue
+
             metadata_cols.append(grouping)
             metadata_cols_expr.append(sql.SQL("m.{}").format(sql.Identifier(grouping)))
 
         for field in list(config["metadata_cols"].keys()) + list(
             constants["GEO_LEVELS"].values()
         ):
+            if field not in selected_fields:
+                continue
+
             metadata_cols.append(field)
             metadata_cols_expr.append(
                 sql.SQL(
@@ -143,18 +155,25 @@ def build_variant_table(conn, req):
             columns=metadata_cols + ["reference", "mutations"],
         ).set_index("Accession ID")
 
+        mutation_name_field = "mutation_str"
+        if mutation_format == constants["MUTATION_FORMAT"]["POS_REF_ALT"]:
+            mutation_name_field = "mutation_str"
+        elif mutation_format == constants["MUTATION_FORMAT"]["REF_POS_ALT"]:
+            mutation_name_field = "mutation_name"
+
         # Get mutation ID mappings
         cur.execute(
             sql.SQL(
                 """
             SELECT 
                 "id",
-                SUBSTRING("mutation_name" FROM 3) AS "name",
+                SUBSTRING({mutation_name_field} FROM 3) AS "name",
                 "pos"
             FROM {mutation_table}
             {mutation_filter}
             """
             ).format(
+                mutation_name_field=sql.Identifier(mutation_name_field),
                 mutation_table=sql.Identifier(mutation_table),
                 mutation_filter=mutation_filter,
             )
@@ -165,7 +184,6 @@ def build_variant_table(conn, req):
             .sort_values("pos", ascending=True)
         )
 
-        # print(res)
         # print(mutation_def)
 
         # Create pivot table of mutations
@@ -174,6 +192,9 @@ def build_variant_table(conn, req):
         # Each column after metadata = one mutation
         # 0 = doesn't have it, 1 = has it
 
+        mutation_id_to_name = mutation_def["name"].to_dict()
+        mutation_id_to_pos = mutation_def["pos"].to_dict()
+
         pivot = (
             pd.pivot_table(
                 (
@@ -181,7 +202,7 @@ def build_variant_table(conn, req):
                     .explode("mutations")
                     .assign(
                         mutations=lambda x: x["mutations"]
-                        .map(mutation_def["name"].to_dict())
+                        .map(mutation_id_to_name)
                         .fillna("N/A")
                     )
                 ),
@@ -193,16 +214,28 @@ def build_variant_table(conn, req):
             .astype(int)
         )
 
+        # print(pivot)
+
         # Reorder columns by position
         mut_columns_ordered = [n for n in mutation_def["name"] if n in pivot.columns]
         pivot = pivot[mut_columns_ordered]
+
+        # Create column of all mutations concatenated
+        def f_mutation_id_to_pos(x):
+            return mutation_id_to_pos[x]
+
+        all_mutations = res["mutations"].apply(
+            lambda x: ",".join(
+                [mutation_id_to_name[_x] for _x in sorted(x, key=f_mutation_id_to_pos)]
+            )
+        )
+        pivot.insert(0, "all_mutations", all_mutations)
 
         # Join metadata back onto the pivot table
         pivot = res.drop(columns=["mutations"]).join(pivot, how="inner")
 
         # Create another table with aggregated mutation counts
         # Each row = one mutation
-
         mut_counts = (
             pivot[mut_columns_ordered]
             .sum(axis=0)

@@ -273,6 +273,17 @@ curl --header "Content-Type: application/json" --request POST --data '{
 
 #### Parameters
 
+- `mutation_format`: string enum `{'pos_ref_alt'|'ref_pos_alt'}`
+  - `'pos_ref_alt'`: &lt;Position&gt;|&lt;Reference&gt;|&lt;Alternate&gt; (i.e., "S|614|D|G")
+  - `'ref_pos_alt'`: &lt;Reference&gt;&lt;Position&gt;&lt;Alternate&gt; (i.e., "S:D614G")
+- `selected_fields`: array of string.
+  - Metadata fields (columns) to include.
+  - Example fields:
+    - `region`, `country`, `division`, `location`
+    - `lineage` (SARS-CoV-2 only)
+    - `subtype`, `genotype` (RSV only)
+    - Any group fields/metadata fields defined in the `config_*.yaml` file
+
 Additional sequence filtering parameters can be provided. All options described in the [Aggregate data](#aggregate-data) are supported, except for `group_key`.
 
 #### Returns

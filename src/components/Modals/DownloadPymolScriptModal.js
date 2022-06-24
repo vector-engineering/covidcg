@@ -23,7 +23,6 @@ import {
   CheckboxInput,
   ApplyButton,
 } from './Modal.styles';
-import {} from './DownloadPymolScriptModal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};

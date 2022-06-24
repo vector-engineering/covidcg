@@ -696,7 +696,9 @@ export class DataStore {
     });
   }
 
-  downloadVariantTable() {
+  downloadVariantTable({ selectedFields, mutationFormat, selectedReference }) {
+    rootStoreInstance.UIStore.onDownloadStarted();
+
     fetch(hostname + '/variant_table', {
       method: 'POST',
       headers: {
@@ -712,9 +714,7 @@ export class DataStore {
         selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
           .name,
         ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_reference: toJS(
-          rootStoreInstance.configStore.selectedReference
-        ),
+        selected_reference: selectedReference,
         selected_group_fields: toJS(
           rootStoreInstance.configStore.selectedGroupFields
         ),
@@ -724,6 +724,11 @@ export class DataStore {
         end_date: toJS(rootStoreInstance.configStore.endDate),
         subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
         subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+        // Pass an array of only the fields that were selected
+        selected_fields: Object.keys(selectedFields).filter(
+          (field) => selectedFields[field]
+        ),
+        mutation_format: mutationFormat,
       }),
     })
       .then((res) => {

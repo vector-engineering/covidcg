@@ -7,19 +7,17 @@ import Modal from 'react-modal';
 import ExternalLink from '../Common/ExternalLink';
 
 import {
+  Wrapper,
+  Content,
+  Row,
+  Info,
   TitleContainer,
   HeaderContainer,
   HeaderRow,
   HeaderButtons,
   CancelButton,
-} from './Modal.styles';
-import {
-  Wrapper,
-  Content,
-  Row,
-  Info,
   RefreshButton,
-} from './AsyncErrorModal.styles';
+} from './Modal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};

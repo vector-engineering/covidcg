@@ -153,6 +153,12 @@ export const Info = styled.p`
   margin: 5px 0px;
 `;
 
+export const FormTitle = styled.span`
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1rem;
+`;
+
 export const ApplyButton = styled(Button)`
   background-image: none;
   font-size: 1rem;
@@ -172,6 +178,21 @@ ApplyButton.defaultProps = {
   invalid: false,
 };
 
+export const RefreshButton = styled(Button)`
+  background-image: none;
+  font-size: 1rem;
+  font-weight: normal;
+
+  background-color: #dc3545;
+  color: #fff;
+
+  transition: 0.1s all ease-in-out;
+
+  &:hover {
+    background-color: ${() => lighten(0.1, '#dc3545')};
+  }
+`;
+
 export const SelectInput = styled.label`
   select {
     margin-left: 4px;
@@ -184,8 +205,42 @@ export const TextInput = styled.label`
   }
 `;
 
+export const CheckboxForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  margin-right: 30px;
+`;
+
 export const CheckboxInput = styled.label`
   input {
     margin-right: 4px;
+  }
+`;
+
+export const Checkbox = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  input {
+    margin: 0px 8px;
+  }
+
+  margin-bottom: 3px;
+`;
+
+export const RadioForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+`;
+
+export const Radio = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  input {
+    margin: 0px 8px;
   }
 `;
