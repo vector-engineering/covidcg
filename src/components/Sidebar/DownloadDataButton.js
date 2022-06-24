@@ -11,6 +11,7 @@ import SkeletonElement from '../Common/SkeletonElement';
 import DownloadConsensusMutationsModal from '../Modals/DownloadConsensusMutationsModal';
 import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
 import DownloadGenomesModal from '../Modals/DownloadGenomesModal';
+import DownloadVariantTableModal from '../Modals/DownloadVariantTableModal';
 
 import { ButtonContainer, DownloadButton } from './DownloadDataButton.styles';
 
@@ -30,6 +31,7 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
     downloadConsensusMutations: false,
     downloadMetadata: false,
     downloadGenomes: false,
+    downloadVariantTable: false,
   });
 
   const showModal = (modal) => {
@@ -54,7 +56,7 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
     } else if (option === DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS) {
       showModal('downloadConsensusMutations');
     } else if (option === DOWNLOAD_OPTIONS.VARIANT_TABLE) {
-      dataStore.downloadVariantTable();
+      showModal('downloadVariantTable');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       showModal('downloadMetadata');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_GENOMES) {
@@ -103,6 +105,10 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
       <DownloadGenomesModal
         isOpen={activeModals.downloadGenomes}
         onRequestClose={hideModal.bind(this, 'downloadGenomes')}
+      />
+      <DownloadVariantTableModal
+        isOpen={activeModals.downloadVariantTable}
+        onRequestClose={hideModal.bind(this, 'downloadVariantTable')}
       />
       <DropdownButton
         button={DownloadButton}
