@@ -36,8 +36,11 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
         nt_start = row["start"]
         nt_end = row["end"]
 
+        # print(row["Accession ID"], reference_name)
+
         # Loop through all features of the sequence's reference
         for feature_name, feature_row in feature_dfs[reference_name].iterrows():
+            # print(feature_name)
 
             # Only process genes in this segment/chromosome
             if feature_row["segment"] != active_segment:
@@ -77,21 +80,25 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
                 # Check to skip segment
                 if nt_end < segment[0] + 3 or nt_start > segment[1] - 3:
                     # print(
-                    #     'Segment out of range '
-                    #     f'sequence: {nt_start}--{nt_end}. '
-                    #     f'segment {segment_i}: {segment[0]}--{segment[1]} '
+                    #     "Segment out of range "
+                    #     f"sequence: {nt_start}--{nt_end}. "
+                    #     f"segment {segment_i}: {segment[0]}--{segment[1]} "
                     # )
                     continue
 
                 # Start is before this segment?
                 # Skip if we already have a start from a previous segment
                 if nt_start <= segment[0] and aa_start is None:
-                    # print(f'Start before segment. sequence start: {nt_start}. segment start: {segment[0]}')
+                    # print(
+                    #     f"Start before segment. sequence start: {nt_start}. segment start: {segment[0]}"
+                    # )
                     aa_start = aa_ranges[segment_i][0]
                 # Start is within this segment?
                 # Skip if we already have a start from a previous segment
                 elif nt_start > segment[0] and aa_start is None:
-                    # print(f'Start inside segment. sequence start: {nt_start}. segment start: {segment[0]}')
+                    # print(
+                    #     f"Start inside segment. sequence start: {nt_start}. segment start: {segment[0]}"
+                    # )
                     # Get the codon index of the NT start within this segment
                     # e.g., nt_start = 4, segment = [1, 9] --> codon #2
                     rel_codon_ind = (nt_start - segment[0]) // 3
@@ -100,15 +107,19 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
                     aa_start = aa_ranges[segment_i][0] + rel_codon_ind
 
                 # End is after this segment?
-                if nt_end > segment[1] and aa_end is None:
-                    # print(f'End after segment. sequence end: {nt_end}. segment end: {segment[1]}')
+                if nt_end > segment[1]:
+                    # print(
+                    #     f"End after segment. sequence end: {nt_end}. segment end: {segment[1]}"
+                    # )
                     aa_end = aa_ranges[segment_i][1]
                 # End is within this segment?
                 # Don't skip if end is already defined - overwrite previous one instead
                 # Again, this assumes segments are defined in order
                 # TODO: just sort segments beforehand to ensure this...
                 elif nt_end <= segment[1]:
-                    # print(f'End inside segment. sequence end: {nt_end}. segment end: {segment[1]}')
+                    # print(
+                    #     f"End inside segment. sequence end: {nt_end}. segment end: {segment[1]}"
+                    # )
                     # Get the codon index of the NT end within this segment
                     # e.g., nt_end = 8, segment = [1, 9] --> codon #2
                     #       (codon #3 only partially covered)
