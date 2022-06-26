@@ -61,7 +61,7 @@ def main():
                     )[0]["sequence"]
 
     with open(args.reference_json, "w") as fp:
-        fp.write(json.dumps(ref_obj))
+        fp.write(json.dumps(ref_obj, indent=2))
 
     # Load primers, write to JSON
     primers_df = pd.read_csv(args.primers_csv, comment="#")

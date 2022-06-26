@@ -7,11 +7,11 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import json
 import pandas as pd
 import pysam
 
 from read_extractor_lite import ReadExtractor
+from fasta import read_fasta_file
 
 
 def extract_dna_mutations(sam_file, reference_file):
@@ -32,8 +32,10 @@ def extract_dna_mutations(sam_file, reference_file):
 
     # Load the reference sequences
     with open(reference_file, "r") as fp:
-        references = json.loads(fp.read())
-    ref_seqs = {ref["name"]: ref["sequence"] for ref in references.values()}
+        lines = fp.readlines()
+        ref_seqs = read_fasta_file(lines)
+
+    ref_seqs = {ref["name"]: ref["sequence"] for ref in ref_seqs.values()}
 
     ReadExtractor.RefSeq = ref_seqs
 
@@ -73,7 +75,7 @@ def main():
         "--bam", type=str, required=True, help="Path to BAM file",
     )
     parser.add_argument(
-        "--reference", type=str, required=True, help="Path to reference JSON file"
+        "--reference", type=str, required=True, help="Path to reference FASTA file"
     )
     parser.add_argument("--out", type=str, required=True, help="Path to output")
     args = parser.parse_args()

@@ -17,6 +17,7 @@ def extract_aa_mutations(
     dna_mutation_file,
     gene_or_protein_file,
     reference_file,
+    subtype,
     active_segment,
     mode="gene",
 ):
@@ -31,23 +32,31 @@ def extract_aa_mutations(
         Path to gene/protein definition JSON
     reference_file: str
         Path to reference JSON file
+    subtype: str
+        Subtype
     active_segment: str
         Segment/chromosome
     mode: str
         Mode ('gene' or 'protein')
     """
 
-    active_segment = int(active_segment)
-
     # Load the reference sequences
     with open(reference_file, "r") as fp:
         references = json.loads(fp.read())
-    ref_seqs = {ref["name"]: ref["sequence"] for ref in references.values()}
+
+    # Get references for this subtype
+    references = references[subtype]
+
+    # Get sequences for all references under this subtype,
+    # but only for the active segment
+    ref_seqs = {
+        ref["name"]: ref["segments"][active_segment] for ref in references.values()
+    }
 
     # Load gene/protein defs
     # JSON to dataframe
     with open(gene_or_protein_file, "r") as fp:
-        feature_dicts = json.loads(fp.read())
+        feature_dicts = json.loads(fp.read())[subtype]
 
     feature_dfs = {}
     for k, v in feature_dicts.items():
@@ -283,44 +292,46 @@ def extract_aa_mutations(
     # Merge AA mutations only if:
     # - Accession ID is the same
     # - gene/protein is the same
-    # - position is the same 
+    # - position is the same
     # - one mutation is an indel, other is a substitution
 
     if len(aa_mutations) > 0:
         cur_mutation = aa_mutations[0]
         i = 1
         while i < len(aa_mutations):
-            
+
             next_mutation = aa_mutations[i]
-            
+
             # (Accession ID, gene/protein, pos, ref, alt)
             if (
-                    cur_mutation[0] == next_mutation[0] and
-                    cur_mutation[1] == next_mutation[1] and
-                    cur_mutation[2] == next_mutation[2] and
-                    (
-                        (cur_mutation[3] == '' or cur_mutation[4] == '') or
-                        (next_mutation[3] == '' or next_mutation[4] == '')
-                    )
-                ):
-                
+                cur_mutation[0] == next_mutation[0]
+                and cur_mutation[1] == next_mutation[1]
+                and cur_mutation[2] == next_mutation[2]
+                and (
+                    (cur_mutation[3] == "" or cur_mutation[4] == "")
+                    or (next_mutation[3] == "" or next_mutation[4] == "")
+                )
+            ):
+
                 # Merge mutations
-                
+
                 # Combine refs and alts in a new mutation
                 new_mutation = (
-                    cur_mutation[0], cur_mutation[1], cur_mutation[2],
+                    cur_mutation[0],
+                    cur_mutation[1],
+                    cur_mutation[2],
                     cur_mutation[3] + next_mutation[3],
                     cur_mutation[4] + next_mutation[4],
                 )
-                
+
                 # Pop both cur_mutation and next_mutation from the list
-                del aa_mutations[i-1:i+1]
-                
+                del aa_mutations[i - 1 : i + 1]
+
                 # Insert new mutation at existing index (so it can be merged further if necessary)
-                aa_mutations.insert(i-1, new_mutation)
-                
+                aa_mutations.insert(i - 1, new_mutation)
+
                 # print('MERGE AA', cur_mutation, next_mutation, '-->', new_mutation)
-                
+
             else:
                 # No merging, move on
                 cur_mutation = aa_mutations[i]
@@ -342,6 +353,7 @@ def extract_aa_mutations(
         aa_mutation_df["Accession ID"].str.split("|").apply(lambda x: x[0])
     )
 
+    aa_mutation_df.insert(1, "subtype", subtype)
     aa_mutation_df.insert(2, "segment", active_segment)
 
     return aa_mutation_df
@@ -364,6 +376,7 @@ def main():
     parser.add_argument(
         "--reference", type=str, required=True, help="Path to reference file"
     )
+    parser.add_argument("--subtype", type=str, required=True, help="Subtype")
     parser.add_argument("--segment", type=str, required=True, help="Segment/chromosome")
     parser.add_argument(
         "--mode", type=str, required=True, help="Mode ('gene' or 'protein')"
@@ -375,6 +388,7 @@ def main():
         args.dna_mutation,
         args.gene_protein_def,
         args.reference,
+        args.subtype,
         args.segment,
         args.mode,
     )
