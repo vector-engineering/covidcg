@@ -68,21 +68,21 @@ def get_subtype(wildcards, output=None):
     return wildcards.chunk.split('_')[1]
 
 def get_alignments(wildcards):
-    segment = get_segment(wildcards)
     subtype = get_subtype(wildcards)
+    segment = get_segment(wildcards)
     return expand(
         os.path.join(data_folder, "bam_ref", "{ref}_{{chunk}}.bam"),
         ref=SUBTYPE_REFS[subtype], allow_missing=True
     )
 
 def get_reference_file(wildcards):
-    segment = get_segment(wildcards)
     subtype = get_subtype(wildcards)
+    segment = get_segment(wildcards)
     return os.path.join(static_data_folder, 'mut_references', subtype, "{ref}", segment + '.fa')
 
 def get_combined_reference_file(wildcards, output=None):
-    segment = get_segment(wildcards, output)
     subtype = get_subtype(wildcards, output)
+    segment = get_segment(wildcards, output)    
     return os.path.join(static_data_folder, 'combined_mut_references', subtype, segment + '.fa')
 
 wildcard_constraints:
@@ -90,15 +90,14 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand(
-            os.path.join(static_data_folder, "combined_mut_references", "{subtype}", "{segment}.fa"),
-            subtype=SUBTYPES, segment=SEGMENTS
-        ),
         os.path.join(static_data_folder, "reference.json"),
         # combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv')
         # case_data = os.path.join(data_folder, "case_data.json")
         expand(os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"), chunk=CHUNKS),
-        expand(os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"), chunk=CHUNKS)
+        expand(os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"), chunk=CHUNKS),
+        os.path.join(data_folder, "coverage_dna.csv"),
+        os.path.join(data_folder, "coverage_gene_aa.csv"),
+        os.path.join(data_folder, "coverage_protein_aa.csv"),
 
 
 rule process_genes_and_proteins:
@@ -165,7 +164,8 @@ rule align_sequences:
         bam = os.path.join(data_folder, "bam_ref", "{ref}_{chunk}.bam")
     shell:
         """
-        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {input.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only \
+            {input.ref_seq} {input.fasta} | samtools view -b > {output.bam}
         """
 
 
@@ -186,8 +186,8 @@ rule extract_dna_mutations:
         bam = rules.combine_alignments.output.bam,
         reference = rules.write_reference_files.output.reference
     params:
-        segment = get_segment,
-        subtype = get_subtype
+        subtype = get_subtype,
+        segment = get_segment
     output:
         dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
     shell:
@@ -195,10 +195,11 @@ rule extract_dna_mutations:
         python3 scripts/extract_dna_mutations.py \
             --bam {input.bam} \
             --reference {input.reference} \
-            --segment {params.segment} \
             --subtype {params.subtype} \
+            --segment {params.segment} \
             --out {output.dna_mutation}
         """
+
 
 rule extract_aa_mutations:
     """Using the NT mutations, translate genes/proteins and find mutations
@@ -210,8 +211,8 @@ rule extract_aa_mutations:
         proteins_file = rules.process_genes_and_proteins.output.proteins,
         reference = rules.write_reference_files.output.reference
     params:
-        segment = get_segment,
-        subtype = get_subtype
+        subtype = get_subtype,
+        segment = get_segment
     output:
         gene_aa_mutation = os.path.join(
             data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
@@ -225,8 +226,8 @@ rule extract_aa_mutations:
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.genes_file} \
             --reference {input.reference} \
-            --segment {params.segment} \
             --subtype {params.subtype} \
+            --segment {params.segment} \
             --mode gene \
             --out {output.gene_aa_mutation}
 
@@ -234,10 +235,127 @@ rule extract_aa_mutations:
             --dna-mutation {input.dna_mutation} \
             --gene-protein-def {input.proteins_file} \
             --reference {input.reference} \
-            --segment {params.segment} \
             --subtype {params.subtype} \
+            --segment {params.segment} \
             --mode protein \
             --out {output.protein_aa_mutation}
+        """
+
+
+rule coverage_dna:
+    """Get each sequence's coverage on the NT level
+    """
+    input:
+        bam = rules.combine_alignments.output.bam,
+        reference = rules.write_reference_files.output.reference
+    params:
+        subtype = get_subtype,
+        segment = get_segment
+    output:
+        coverage_dna = os.path.join(data_folder, "coverage_dna", "{chunk}_coverage_dna.csv")
+    shell:
+        """
+        python3 scripts/coverage_dna.py \
+            --bam {input.bam} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --out {output.coverage_dna}
+        """
+
+
+rule coverage_aa:
+    """Get each sequence's coverage for all gene/protein features, on the AA level
+    """
+    input:
+        coverage_dna = rules.coverage_dna.output.coverage_dna,
+        genes_def = rules.process_genes_and_proteins.output.genes,
+        proteins_def = rules.process_genes_and_proteins.output.proteins
+    params:
+        subtype = get_subtype,
+        segment = get_segment
+    output:
+        coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+        coverage_protein_aa = os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv")
+    shell:
+        """
+        python3 scripts/coverage_aa.py \
+            --coverage-dna {input.coverage_dna} \
+            --gene-protein-def {input.genes_def} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode gene \
+            --out {output.coverage_gene_aa}
+
+        python3 scripts/coverage_aa.py \
+            --coverage-dna {input.coverage_dna} \
+            --gene-protein-def {input.proteins_def} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode protein \
+            --out {output.coverage_protein_aa}
+        """
+
+
+rule sequence_manifest:
+    """Generate sequence manifest (all sequence-reference pairs)
+    Used as the left side for joining mutation/coverage data
+    """
+    input:
+        reference = rules.write_reference_files.output.reference
+    output:
+        manifest = os.path.join(data_folder, "sequence_manifest.csv")
+    params:
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed")
+    shell:
+        """
+        python3 scripts/sequence_manifest.py \
+            --reference {input.reference} \
+            --fasta {params.processed_fasta_files} \
+            --out {output.manifest}
+        """
+
+
+rule combine_coverage:
+    """Combine coverage data from all chunks
+    """
+    input:
+        manifest = rules.sequence_manifest.output.manifest,
+        coverage_dna_files = expand(
+            os.path.join(data_folder, "coverage_dna", "{chunk}_coverage_dna.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_gene_aa_files = expand(
+            os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_protein_aa_files = expand(
+            os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv"),
+            chunk=CHUNKS
+        ),
+    output:
+        coverage_dna = os.path.join(data_folder, "coverage_dna.csv"),
+        coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa.csv"),
+        coverage_protein_aa = os.path.join(data_folder, "coverage_protein_aa.csv")
+    shell:
+        """
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-files {input.coverage_dna_files} \
+            --mode dna \
+            --out {output.coverage_dna}
+
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-files {input.coverage_gene_aa_files} \
+            --mode gene_aa \
+            --out {output.coverage_gene_aa}
+
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-files {input.coverage_protein_aa_files} \
+            --mode protein_aa \
+            --out {output.coverage_protein_aa}
         """
 
 
