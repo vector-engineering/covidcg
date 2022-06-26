@@ -118,18 +118,6 @@ rule process_genes_and_proteins:
         """
 
 
-rule combine_references:
-    params:
-        ref_seq = os.path.join(static_data_folder, "mut_references", "{subtype}", "**", "{segment}.fa")
-    output:
-        ref_seq = os.path.join(static_data_folder, "combined_mut_references", "{subtype}", "{segment}.fa")
-    shell:
-        """
-        # Insert newlines in between each file
-        for f in {params.ref_seq}; do (cat $f; echo '') >> {output.ref_seq}; done
-        """
-
-
 rule write_reference_files:
     """Write some of the reference sequence data as JSON
     files that can be easily loaded by the front-end
@@ -196,7 +184,10 @@ rule extract_dna_mutations:
     """
     input:
         bam = rules.combine_alignments.output.bam,
-        reference = get_combined_reference_file
+        reference = rules.write_reference_files.output.reference
+    params:
+        segment = get_segment,
+        subtype = get_subtype
     output:
         dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
     shell:
@@ -204,6 +195,8 @@ rule extract_dna_mutations:
         python3 scripts/extract_dna_mutations.py \
             --bam {input.bam} \
             --reference {input.reference} \
+            --segment {params.segment} \
+            --subtype {params.subtype} \
             --out {output.dna_mutation}
         """
 

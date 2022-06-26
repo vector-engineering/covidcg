@@ -50,7 +50,8 @@ def extract_aa_mutations(
     # Get sequences for all references under this subtype,
     # but only for the active segment
     ref_seqs = {
-        ref["name"]: ref["segments"][active_segment] for ref in references.values()
+        ref["name"]: ref["segments"][active_segment]["sequence"]
+        for ref in references.values()
     }
 
     # Load gene/protein defs
