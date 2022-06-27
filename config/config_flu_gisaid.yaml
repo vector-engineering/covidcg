@@ -37,16 +37,24 @@ consensus_fraction: 0.9
 min_reporting_fraction: 0.05
 
 metadata_cols:
-  database:
-    title: "Database"
+  passage:
+    title: "Passage"
   host:
     title: "Host"
-  isolation_source:
-    title: "Isolation source"
+  isolate_submitter:
+    title: "Isolate Submitter"
+  submitting_lab:
+    title: "Submitting Lab"
+  originating_lab:
+    title: "Originating Lab"
   authors:
     title: "Authors"
-  publications:
-    title: "Publications"
+  publication:
+    title: "Publication"
+  gender:
+    title: "Gender"
+  patient_status:
+    title: "Patient Status"
 
 group_cols:
   serotype:

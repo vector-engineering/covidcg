@@ -3,6 +3,7 @@
 """Main data processing workflow from ingested data
 
 $ snakemake -s Snakefile_flu --configfile ../config/config_flu_genbank.yaml -j6
+$ snakemake -s Snakefile_flu --configfile ../config/config_flu_gisaid.yaml -j6
 
 This DAG building gets kind of complicated...
 First, sequences are split up by submission date and subtype (this is
