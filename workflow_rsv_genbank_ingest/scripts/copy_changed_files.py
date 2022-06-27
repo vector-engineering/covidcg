@@ -21,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--files", type=str, nargs="+", required=True, help="Files to copy"
+        "--files", type=str, nargs="*", required=True, help="Files to copy"
     )
     parser.add_argument(
         "--data-folder", type=str, required=True, help="Path to data folder"
