@@ -18,7 +18,7 @@ rule all:
     input:
         # Cleaned metadata
         os.path.join(data_folder, "metadata.csv"),
-        os.path.join(data_folder, "metadata_virus+serotype.csv"),
+        os.path.join(data_folder, "metadata_virus+serotype.json"),
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         )
@@ -42,7 +42,7 @@ rule clean_metadata:
         )
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv"),
-        metadata_virus = os.path.join(data_folder, "metadata_virus+serotype.csv")
+        metadata_virus = os.path.join(data_folder, "metadata_virus+serotype.json")
     shell:
         """
         python3 scripts/clean_metadata.py \

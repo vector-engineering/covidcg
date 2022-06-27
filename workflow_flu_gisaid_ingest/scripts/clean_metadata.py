@@ -18,7 +18,6 @@ def clean_df(df):
             "HE Segment_Id",
             "P3 Segment_Id",
             # Either irrelevant or way too little data (or just empty)
-            "Isolate_Id",
             # 'Lineage',
             "Note",
             "Antigen_Character",
@@ -66,6 +65,7 @@ def clean_df(df):
     # Rename columns
     df.rename(
         columns={
+            "Isolate_Id": "isolate_id",
             "Isolate_Name": "virus_name",
             "Subtype": "serotype",
             "Passage_History": "passage",
@@ -122,7 +122,7 @@ def clean_df(df):
             # Segments are already in order from 1-8, so assign number based on column position
             .multiply(np.array([1, 2, 3, 4, 5, 6, 7, 8]))
             # Join into one array per isolate
-            .apply(lambda x: [_x for _x in list(x) if _x > 0], axis=1)
+            .apply(lambda x: [str(_x) for _x in list(x) if _x > 0], axis=1)
         ),
     )
     df.drop(columns=segment_cols, inplace=True)
@@ -138,13 +138,16 @@ def clean_df(df):
         df.loc[~b_serotype, "serotype"].str.split("/").apply(lambda x: x[1]).str.strip()
     )
 
+    # Remove rows without segments
+    df = df.loc[df["segments"].apply(len) > 0, :]
+
     # Expand location metadata
     # print("Processing location data...", end="", flush=True)
     # Location data is stored in one column, "region / country / division / location"
     location_df = (
         # Unset index for faster filtering
         df["Location"]
-        .fillna('')
+        .fillna("")
         .str.split("/", expand=True)
         .iloc[:, :4]  # Only take 4 columns
         # Rename columns
@@ -196,13 +199,16 @@ def clean_df(df):
     df.loc[:, "collection_date"] = pd.to_datetime(df["collection_date"], yearfirst=True)
     df.loc[:, "submission_date"] = pd.to_datetime(df["submission_date"], yearfirst=True)
     # Backfill submission date with collection date
-    df.loc[:, 'submission_date'] = df['submission_date'].combine_first(df['collection_date'])
+    df.loc[:, "submission_date"] = df["submission_date"].combine_first(
+        df["collection_date"]
+    )
 
     # Enforce column order for easier concatenation later
     df = df[
         [
             "accession_ids",
             "segments",
+            "isolate_id",
             "virus_name",
             "serotype",
             "passage",
@@ -224,9 +230,10 @@ def clean_df(df):
     ]
 
     # Collapse by isolate
-    df = df.groupby("virus_name").agg(
+    df = df.groupby("isolate_id").agg(
         accession_ids=("accession_ids", sum),
         segments=("segments", sum),
+        virus_name=("virus_name", "first"),
         serotype=("serotype", "first"),
         passage=("passage", "first"),
         host=("host", "first"),
@@ -271,7 +278,7 @@ def main():
         "--metadata-virus-out",
         type=str,
         required=True,
-        help="Path to output metadata virus CSV file",
+        help="Path to output metadata virus JSON file",
     )
 
     args = parser.parse_args()
@@ -283,7 +290,7 @@ def main():
         dfs.append(clean_df(df))
     dfs = pd.concat(dfs, axis=0)
 
-    dfs.to_csv(args.metadata_virus_out)
+    dfs.to_json(args.metadata_virus_out, orient="records")
 
     # Expand by Accession ID
     df = dfs.explode(["accession_ids", "segments"]).rename(

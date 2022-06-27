@@ -2,6 +2,8 @@
 #       GLOBAL
 # ------------------
 
+virus: "flu"
+
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
 data_folder: "data_gisaid_flu"
@@ -20,6 +22,8 @@ chunk_size: 10000
 # --------------------
 #       ANALYSIS
 # --------------------
+
+segments: ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 # Mutations with less than this number of global occurrences will be ignored
 mutation_count_threshold: 3
