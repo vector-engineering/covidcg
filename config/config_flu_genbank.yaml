@@ -2,7 +2,7 @@
 #       GLOBAL
 # ------------------
 
-virus: 'flu'
+virus: "flu"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
@@ -49,10 +49,11 @@ metadata_cols:
     title: "Publications"
 
 group_cols:
-  subtype:
-    name: "subtype"
-    title: "Subtype"
+  serotype:
+    name: "serotype"
+    title: "Serotype"
     description: ""
+    show_collapse_options: false
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
