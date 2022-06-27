@@ -63,6 +63,8 @@ def extract_dna_mutations(
             continue
 
         read_extractor = ReadExtractor(read)
+        if not read_extractor.valid:
+            continue
 
         # print(read.query_name)
         dna_mutations = read_extractor.process_all()
