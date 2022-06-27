@@ -27,7 +27,7 @@ rule all:
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Serotype assignments
-        os.path.join(data_folder, "serotype_assignments.csv"),
+        # os.path.join(data_folder, "serotype_assignments.csv"),
         os.path.join(data_folder, 'metadata_virus+serotype.csv')
 
 
