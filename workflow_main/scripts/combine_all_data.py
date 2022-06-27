@@ -8,6 +8,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import argparse
 import json
+from pathlib import Path
+
 import pandas as pd
 
 from process_mutations import process_mutations
@@ -23,25 +25,19 @@ def main():
         "--manifest", type=str, required=True, help="Path to manifest CSV file",
     )
     parser.add_argument(
-        "--dna-mutation-files",
-        type=str,
-        nargs="+",
-        required=True,
-        help="DNA mutation files",
+        "--dna-mutation-dir", type=str, required=True, help="DNA mutation directory",
     )
     parser.add_argument(
-        "--gene-aa-mutation-files",
+        "--gene-aa-mutation-dir",
         type=str,
-        nargs="+",
         required=True,
-        help="Gene AA mutation files",
+        help="Gene AA mutation directory",
     )
     parser.add_argument(
-        "--protein-aa-mutation-files",
+        "--protein-aa-mutation-dir",
         type=str,
-        nargs="+",
         required=True,
-        help="Protein AA mutation files",
+        help="Protein AA mutation directory",
     )
     parser.add_argument(
         "--dna-coverage", type=str, required=True, help="DNA coverage CSV file"
@@ -82,19 +78,19 @@ def main():
     # Count mutations
     dna_mutation_group_df, dna_mutation_map = process_mutations(
         manifest,
-        args.dna_mutation_files,
+        sorted(Path(args.dna_mutation_dir).glob("*.csv")),
         mode="dna",
         count_threshold=args.count_threshold,
     )
     gene_aa_mutation_group_df, gene_aa_mutation_map = process_mutations(
         manifest,
-        args.gene_aa_mutation_files,
+        sorted(Path(args.gene_aa_mutation_dir).glob("*.csv")),
         mode="gene_aa",
         count_threshold=args.count_threshold,
     )
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
         manifest,
-        args.protein_aa_mutation_files,
+        sorted(Path(args.protein_aa_mutation_dir).glob("*.csv")),
         mode="protein_aa",
         count_threshold=args.count_threshold,
     )

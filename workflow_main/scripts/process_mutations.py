@@ -118,7 +118,7 @@ def process_mutations(
     )["mutation_id"].agg(list)
 
     mutation_group_df = (
-        manifest.drop(columns=["file_name", "date"])
+        manifest.drop(columns=["file_name", "date", "subtype", "segment"])
         .merge(
             mutation_group_df,
             left_on=["Accession ID", "reference"],

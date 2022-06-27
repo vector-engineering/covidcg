@@ -385,15 +385,18 @@ rule combine_all_data:
     params:
         count_threshold = config["mutation_count_threshold"],
         group_cols = list(config["group_cols"].keys()),
-        metadata_cols = list(config["metadata_cols"].keys())
+        metadata_cols = list(config["metadata_cols"].keys()),
+        dna_mutation_dir = os.path.join(data_folder, "dna_mutation"),
+        gene_aa_mutation_dir = os.path.join(data_folder, "gene_aa_mutation"),
+        protein_aa_mutation_dir = os.path.join(data_folder, "protein_aa_mutation"),
     shell:
         """
         python3 scripts/combine_all_data.py \
             --manifest {input.manifest} \
             --metadata {input.metadata} \
-            --dna-mutation-files {input.dna_mutation_files} \
-            --gene-aa-mutation-files {input.gene_aa_mutation_files} \
-            --protein-aa-mutation-files {input.protein_aa_mutation_files} \
+            --dna-mutation-dir {params.dna_mutation_dir} \
+            --gene-aa-mutation-dir {params.gene_aa_mutation_dir} \
+            --protein-aa-mutation-dir {params.protein_aa_mutation_dir} \
             --dna-coverage {input.dna_coverage} \
             --gene-aa-coverage {input.gene_aa_coverage} \
             --protein-aa-coverage {input.protein_aa_coverage} \
