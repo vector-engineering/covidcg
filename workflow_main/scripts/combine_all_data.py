@@ -103,11 +103,9 @@ def main():
     df = pd.read_csv(args.metadata)
 
     # Join sequence ID and reference from manifest
-    df = df.merge(
-        manifest[["Accession ID", "sequence_id", "reference"]],
-        on="Accession ID",
-        how="left",
-    )
+    df = manifest.merge(
+        df.drop(columns=["segment"]), on="Accession ID", how="left"
+    ).drop(columns=["file_name", "date"])
 
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)

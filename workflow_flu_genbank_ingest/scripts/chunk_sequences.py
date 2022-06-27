@@ -22,32 +22,50 @@ from pathlib import Path
 
 csv.field_size_limit(sys.maxsize)
 
+
 def flush_chunk(output_path, fasta_by_month_serotype_segment):
     for (month, serotype, segment), seqs in fasta_by_month_serotype_segment.items():
         # print(month, serotype, segment)
         # Open the output fasta file for this month chunk
-        fasta_out_path = str(output_path / (str(segment) + '_' + serotype + '_' + month + ".fa.gz"))
+        fasta_out_path = str(
+            output_path / (str(segment) + "_" + serotype + "_" + month + ".fa.gz")
+        )
         # Mode 'at' is append, in text mode
         with gzip.open(fasta_out_path, "at") as fp_out:
             for seq in seqs:
-                fp_out.write('>{}|{}\n{}\n'.format(seq[0], seq[1], seq[2]))
+                fp_out.write(">{}\n{}\n".format(seq[0], seq[1]))
 
 
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--feed', type=str, required=True, help='Path to data feed csv file')
-    parser.add_argument('--metadata-in', type=str, required=True, help='Path to metadata csv file')
-    parser.add_argument('--metadata-virus-in', type=str, required=True, help='Path to metadata-virus csv file')
-    parser.add_argument('--out-fasta', type=str, required=True, help='Path to fasta output directory')
-    parser.add_argument('--chunk-size', type=int, default=10_000, 
-        help='Number of records to hold in RAM before flushing to disk (default: 10,000')
+    parser.add_argument(
+        "--feed", type=str, required=True, help="Path to data feed csv file"
+    )
+    parser.add_argument(
+        "--metadata-in", type=str, required=True, help="Path to metadata csv file"
+    )
+    parser.add_argument(
+        "--metadata-virus-in",
+        type=str,
+        required=True,
+        help="Path to metadata-virus csv file",
+    )
+    parser.add_argument(
+        "--out-fasta", type=str, required=True, help="Path to fasta output directory"
+    )
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=10_000,
+        help="Number of records to hold in RAM before flushing to disk (default: 10,000",
+    )
 
     args = parser.parse_args()
 
     # Load metadata
-    metadata = pd.read_csv(args.metadata_in, index_col='Accession ID')
-    metadata_virus = pd.read_csv(args.metadata_virus_in, index_col='virus_name')
+    metadata = pd.read_csv(args.metadata_in, index_col="Accession ID")
+    metadata_virus = pd.read_csv(args.metadata_virus_in, index_col="virus_name")
 
     output_path = Path(args.out_fasta)
 
@@ -77,7 +95,7 @@ def main():
 
             # Flush results if chunk is full
             if chunk_i == args.chunk_size:
-                print('Writing {} sequences'.format(chunk_i))
+                print("Writing {} sequences".format(chunk_i))
                 flush_chunk(output_path, fasta_by_month_serotype_segment)
                 # Reset chunk counter
                 chunk_i = 0
@@ -85,30 +103,30 @@ def main():
                 fasta_by_month_serotype_segment = defaultdict(list)
 
             # If this entry isn't present in the cleaned metadata, then skip
-            accession_id = row['genbank_accession']
+            accession_id = row["genbank_accession"]
             if accession_id not in metadata.index:
                 skip_counter += 1
                 continue
 
             # Get the serotype
-            virus_name = metadata.at[accession_id, 'virus_name']
+            virus_name = metadata.at[accession_id, "virus_name"]
             if not virus_name or virus_name not in metadata_virus.index:
                 skip_counter += 1
                 continue
-            
-            serotype = metadata_virus.at[virus_name, 'serotype']
+
+            serotype = metadata_virus.at[virus_name, "serotype"]
             # Get segment
-            segment = metadata.at[accession_id, 'segment']
+            segment = metadata.at[accession_id, "segment"]
 
             if not serotype or not segment:
                 skip_counter += 1
                 continue
 
-            month = metadata.at[accession_id, 'submission_date'][0:7]
+            month = metadata.at[accession_id, "submission_date"][0:7]
 
             # Store sequence in dictionary (By month, not day)
             fasta_by_month_serotype_segment[(month, serotype, segment)].append(
-                (accession_id, metadata.at[accession_id, 'virus_name'], row["sequence"])
+                (accession_id, row["sequence"])
             )
 
             # Iterate the intra-chunk counter
@@ -117,11 +135,11 @@ def main():
             line_counter += 1
 
         # Flush the last chunk
-        print('Writing {} sequences'.format(chunk_i))
+        print("Writing {} sequences".format(chunk_i))
         flush_chunk(output_path, fasta_by_month_serotype_segment)
 
-        print('Skipped {} sequences'.format(skip_counter))
+        print("Skipped {} sequences".format(skip_counter))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

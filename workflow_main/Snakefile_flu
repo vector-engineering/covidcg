@@ -91,13 +91,7 @@ wildcard_constraints:
 rule all:
     input:
         os.path.join(static_data_folder, "reference.json"),
-        # combined_dna_mutations = os.path.join(data_folder, 'dna_mutations.csv')
-        # case_data = os.path.join(data_folder, "case_data.json")
-        expand(os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"), chunk=CHUNKS),
-        expand(os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"), chunk=CHUNKS),
-        os.path.join(data_folder, "coverage_dna.csv"),
-        os.path.join(data_folder, "coverage_gene_aa.csv"),
-        os.path.join(data_folder, "coverage_protein_aa.csv"),
+        case_data = os.path.join(data_folder, "case_data.json")
 
 
 rule process_genes_and_proteins:
@@ -302,6 +296,8 @@ rule sequence_manifest:
     Used as the left side for joining mutation/coverage data
     """
     input:
+        # Include metadata so this triggers every run
+        metadata = os.path.join(data_folder, "metadata.csv"),
         reference = rules.write_reference_files.output.reference
     output:
         manifest = os.path.join(data_folder, "sequence_manifest.csv")
@@ -357,6 +353,58 @@ rule combine_coverage:
             --mode protein_aa \
             --out {output.coverage_protein_aa}
         """
+
+
+rule combine_all_data:
+    """Main rule for generating the data files for the browser
+    Mostly just a bunch of joins
+    """
+    input:
+        manifest = rules.sequence_manifest.output.manifest,
+        metadata = os.path.join(data_folder, "metadata.csv"),
+        dna_mutation_files = expand(
+            os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        gene_aa_mutation_files = expand(
+            os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        protein_aa_mutation_files = expand(
+            os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
+            chunk=CHUNKS
+        ),
+        dna_coverage = rules.combine_coverage.output.coverage_dna,
+        gene_aa_coverage = rules.combine_coverage.output.coverage_gene_aa,
+        protein_aa_coverage = rules.combine_coverage.output.coverage_protein_aa,
+    output:
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        # Only used to build the location tree
+        case_data = os.path.join(data_folder, "case_data.json"),
+        case_data_csv = os.path.join(data_folder, "case_data.csv")
+    params:
+        count_threshold = config["mutation_count_threshold"],
+        group_cols = list(config["group_cols"].keys()),
+        metadata_cols = list(config["metadata_cols"].keys())
+    shell:
+        """
+        python3 scripts/combine_all_data.py \
+            --manifest {input.manifest} \
+            --metadata {input.metadata} \
+            --dna-mutation-files {input.dna_mutation_files} \
+            --gene-aa-mutation-files {input.gene_aa_mutation_files} \
+            --protein-aa-mutation-files {input.protein_aa_mutation_files} \
+            --dna-coverage {input.dna_coverage} \
+            --gene-aa-coverage {input.gene_aa_coverage} \
+            --protein-aa-coverage {input.protein_aa_coverage} \
+            --metadata-map {output.metadata_map} \
+            --case-data {output.case_data} \
+            --case-data-csv {output.case_data_csv} \
+            --count-threshold {params.count_threshold} \
+            --metadata-cols {params.metadata_cols}
+            # --group-cols {params.group_cols}
+        """
+
 
 
 # rule combine_all_data:
