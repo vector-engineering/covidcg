@@ -51,6 +51,13 @@ def main():
         help="Grouping column for the grouping-focused report files",
     )
     parser.add_argument(
+        "--group-references",
+        type=str,
+        nargs="*",
+        default=None,
+        help="References to use for each group",
+    )
+    parser.add_argument(
         "--report-out", type=str, required=True, help="Output directory"
     )
     args = parser.parse_args()
@@ -62,6 +69,21 @@ def main():
     # ------------------------
 
     isolate_df = pd.read_json(args.isolate_data)
+
+    # Filter for group references, if defined
+    if args.group_references:
+        valid_group_reference_pair = pd.Series(
+            data=False, index=isolate_df.index.values
+        )
+        for pair in args.group_references:
+            group = pair.split("=")[0]
+            reference = pair.split("=")[1]
+            valid_group_reference_pair = valid_group_reference_pair | (
+                (isolate_df[args.report_group_col] == group)
+                & (isolate_df["reference"] == reference)
+            )
+
+        isolate_df = isolate_df.loc[valid_group_reference_pair, :]
 
     # Load DNA mutation ID map
     with open(args.metadata_map, "r") as fp:

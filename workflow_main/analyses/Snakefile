@@ -21,15 +21,22 @@ report_gene = config["report_gene"]
 report_group_col = config['report_group_col']
 
 rule az_report:
-    """Mutation reports
-    TODO: multiple reference compatibility
-    """
+    """Mutation reports"""
     input:
         isolate_data = os.path.join(data_folder, "isolate_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json")
     params:
         report_gene = config["report_gene"],
-        report_group_col = config['report_group_col']
+        report_group_col = config['report_group_col'],
+        report_group_references = (
+            ("--group-references " + " ".join(
+                [
+                    f"{group}={config['report_group_references'][group]}"
+                    for group in config['report_group_references']
+                ]
+            ))
+            if "report_group_references" in config else ""
+        ),
     output:
         report_out = directory(az_report_out),
         gene_mutation_global = os.path.join(az_report_out, f"{report_gene}_mutation_global.csv"),
@@ -45,6 +52,7 @@ rule az_report:
             --metadata-map {input.metadata_map} \
             --report-gene {params.report_gene} \
             --report-group-col {params.report_group_col} \
+            {params.report_group_references} \
             --report-out {output.report_out}
         """
 
