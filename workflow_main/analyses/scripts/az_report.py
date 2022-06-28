@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Table building for AZ
@@ -5,6 +6,7 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import pandas as pd
 import numpy as np
 import json
@@ -26,17 +28,37 @@ def aa_mutation_str_to_name(mut_str):
     return split[2] + split[1] + split[3]
 
 
-def generate_az_reports(case_data_path, metadata_map_path, report_out):
-    report_out = Path(report_out)
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--isolate-data", type=str, required=True, help="Isolate data JSON file"
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map JSON file"
+    )
+    parser.add_argument(
+        "--report-gene",
+        type=str,
+        required=True,
+        help="Gene name for gene-focused report files",
+    )
+    parser.add_argument(
+        "--report-out", type=str, required=True, help="Output directory"
+    )
+    args = parser.parse_args()
+
+    report_out = Path(args.report_out)
 
     # ------------------------
     #        LOAD DATA
     # ------------------------
 
-    case_data = pd.read_json(case_data_path)
+    isolate_df = pd.read_json(args.isolate_data)
 
     # Load DNA mutation ID map
-    with open(metadata_map_path, "r") as fp:
+    with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 
     id_to_dna_mutation = {v: k for k, v in metadata_map["dna_mutation"].items()}
@@ -45,13 +67,13 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         v: k for k, v in metadata_map["protein_aa_mutation"].items()
     }
 
-    # Join locations onto case_data
+    # Join locations onto isolate_df
     loc_levels = ["region", "country", "division", "location"]
     for loc_level in loc_levels:
-        case_data.loc[:, loc_level] = case_data[loc_level].map(
+        isolate_df.loc[:, loc_level] = isolate_df[loc_level].map(
             {int(k): v for k, v in metadata_map[loc_level].items()}
         )
-        case_data.loc[case_data[loc_level].isna(), loc_level] = None
+        isolate_df.loc[isolate_df[loc_level].isna(), loc_level] = None
 
     # -----------------------------
     #     MUTATION DEFINITIONS
@@ -144,7 +166,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     # -----------------------------
 
     collapsed_mutations = (
-        case_data.groupby(lambda x: True)[
+        isolate_df.groupby(lambda x: True)[
             ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
@@ -168,7 +190,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         how="inner",
     )
     dna_mutation_df = dna_mutation_df.assign(
-        freq=(dna_mutation_df["count"] / len(case_data)) * 100
+        freq=(dna_mutation_df["count"] / len(isolate_df)) * 100
     )
     dna_mutation_df = dna_mutation_df.sort_values("count", ascending=False)
     dna_mutation_df.to_csv(report_out / "dna_mutation_global.csv", index=False)
@@ -182,13 +204,13 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         how="inner",
     )
     gene_aa_mutation_df = gene_aa_mutation_df.assign(
-        freq=(gene_aa_mutation_df["count"] / len(case_data)) * 100
+        freq=(gene_aa_mutation_df["count"] / len(isolate_df)) * 100
     )
     gene_aa_mutation_df = gene_aa_mutation_df.sort_values("count", ascending=False)
     gene_aa_mutation_df.to_csv(report_out / "gene_aa_mutation_global.csv", index=False)
 
     (
-        gene_aa_mutation_df.loc[gene_aa_mutation_df["gene"] == "S"]
+        gene_aa_mutation_df.loc[gene_aa_mutation_df["gene"] == args.report_gene]
         .drop(columns=["gene"])
         .to_csv(report_out / "spike_mutation_global.csv", index=False)
     )
@@ -202,7 +224,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         how="inner",
     )
     protein_aa_mutation_df = protein_aa_mutation_df.assign(
-        freq=(protein_aa_mutation_df["count"] / len(case_data)) * 100
+        freq=(protein_aa_mutation_df["count"] / len(isolate_df)) * 100
     )
     protein_aa_mutation_df = protein_aa_mutation_df.sort_values(
         "count", ascending=False
@@ -216,7 +238,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     # ------------------------------
 
     collapsed_region_mutations = (
-        case_data.groupby("region")[
+        isolate_df.groupby("region")[
             ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
         ]
         # Instead of trying to flatten this list of lists
@@ -313,7 +335,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         report_out / "gene_aa_mutation_region.csv", index=False
     )
 
-    gene_aa_mutation_region.loc[gene_aa_mutation_region["gene"] == "S"].to_csv(
+    gene_aa_mutation_region.loc[gene_aa_mutation_region["gene"] == args.report_gene].to_csv(
         report_out / "spike_mutation_region.csv", index=False
     )
 
@@ -351,24 +373,24 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     #  CO-OCCURRING SPIKE MUTATIONS
     # -------------------------------
 
-    case_data["dna_mutation_str"] = (
-        case_data["dna_mutation_str"].apply(np.unique).apply(tuple)
+    isolate_df["dna_mutation_str"] = (
+        isolate_df["dna_mutation_str"].apply(np.unique).apply(tuple)
     )
-    case_data["gene_aa_mutation_str"] = (
-        case_data["gene_aa_mutation_str"].apply(np.unique).apply(tuple)
+    isolate_df["gene_aa_mutation_str"] = (
+        isolate_df["gene_aa_mutation_str"].apply(np.unique).apply(tuple)
     )
-    case_data["protein_aa_mutation_str"] = (
-        case_data["protein_aa_mutation_str"].apply(np.unique).apply(tuple)
+    isolate_df["protein_aa_mutation_str"] = (
+        isolate_df["protein_aa_mutation_str"].apply(np.unique).apply(tuple)
     )
 
-    case_data_gene_mutation = case_data[
-        ["Accession ID", "gene_aa_mutation_str", "lineage", "region"]
+    isolate_df_gene_mutation = isolate_df[
+        ["isolate_id", "gene_aa_mutation_str", "lineage", "region"]
     ].explode("gene_aa_mutation_str")
 
     # Filter for only spike mutations
-    case_data_spike_mutation = (
-        case_data_gene_mutation.reset_index(drop=True).join(
-            (gene_aa_mutation_def.loc[gene_aa_mutation_def["gene"] == "S"]),
+    isolate_df_spike_mutation = (
+        isolate_df_gene_mutation.reset_index(drop=True).join(
+            (gene_aa_mutation_def.loc[gene_aa_mutation_def["gene"] == args.report_gene]),
             on="gene_aa_mutation_str",
             how="inner",
         )
@@ -377,7 +399,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
         .sort_values("pos")
     )
 
-    spike_cooc = case_data_spike_mutation.groupby("Accession ID").agg(
+    spike_cooc = isolate_df_spike_mutation.groupby("isolate_id").agg(
         spike_mutation=("mutation_name", lambda x: ":".join(x)),
         region=("region", "first"),
         lineage=("lineage", "first"),
@@ -387,16 +409,16 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     spike_cooc_global = (
         spike_cooc.reset_index()
         .groupby("spike_mutation", as_index=False)
-        .agg(count=("Accession ID", "count"))
-        .assign(freq=lambda x: (x["count"] / len(case_data)) * 100)
+        .agg(count=("isolate_id", "count"))
+        .assign(freq=lambda x: (x["count"] / len(isolate_df)) * 100)
         .sort_values("count", ascending=False)
         .reset_index(drop=True)
     )
     spike_cooc_global_lineage = (
         spike_cooc.reset_index()
         .groupby(["spike_mutation", "lineage"], as_index=False)
-        .agg(count=("Accession ID", "count"))
-        .assign(freq=lambda x: (x["count"] / len(case_data)) * 100)
+        .agg(count=("isolate_id", "count"))
+        .assign(freq=lambda x: (x["count"] / len(isolate_df)) * 100)
         .sort_values("count", ascending=False)
         .reset_index(drop=True)
     )
@@ -409,8 +431,8 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
 
     # Get total region counts for normalization
     region_counts = (
-        case_data.groupby("region")
-        .agg(count=("Accession ID", "count"))
+        isolate_df.groupby("region")
+        .agg(count=("isolate_id", "count"))
         .squeeze()
         .to_dict()
     )
@@ -418,7 +440,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     spike_cooc_region = (
         spike_cooc.reset_index()
         .groupby(["spike_mutation", "region"], as_index=False)
-        .agg(count=("Accession ID", "count"))
+        .agg(count=("isolate_id", "count"))
         .assign(
             region_counts=lambda x: x["region"].map(region_counts),
             freq=lambda x: (x["count"] / x["region_counts"]) * 100,
@@ -447,7 +469,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     spike_cooc_region_lineage = (
         spike_cooc.reset_index()
         .groupby(["spike_mutation", "lineage", "region"], as_index=False)
-        .agg(count=("Accession ID", "count"))
+        .agg(count=("isolate_id", "count"))
         .assign(
             region_counts=lambda x: x["region"].map(region_counts),
             freq=lambda x: (x["count"] / x["region_counts"]) * 100,
@@ -487,17 +509,17 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     # ------------------------
 
     lineage_global = (
-        case_data.groupby("lineage")
-        .agg(count=("Accession ID", "count"))
-        .assign(freq=lambda x: (x["count"] / len(case_data)) * 100)
+        isolate_df.groupby("lineage")
+        .agg(count=("isolate_id", "count"))
+        .assign(freq=lambda x: (x["count"] / len(isolate_df)) * 100)
         .sort_values("count", ascending=False)
         .reset_index()
     )
     lineage_global.to_csv(report_out / "lineage_global.csv", index=False)
 
     lineage_region = (
-        case_data.groupby(["lineage", "region"], as_index=False)
-        .agg(count=("Accession ID", "count"))
+        isolate_df.groupby(["lineage", "region"], as_index=False)
+        .agg(count=("isolate_id", "count"))
         .assign(
             region_counts=lambda x: x["region"].map(region_counts),
             freq=lambda x: (x["count"] / x["region_counts"]) * 100,
@@ -516,3 +538,7 @@ def generate_az_reports(case_data_path, metadata_map_path, report_out):
     lineage_region = lineage_region.sort_values("sum_counts", ascending=False)
     lineage_region.reset_index(inplace=True)
     lineage_region.to_csv(report_out / "lineage_region.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()
