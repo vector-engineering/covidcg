@@ -95,11 +95,14 @@ wildcard_constraints:
 rule all:
     input:
         os.path.join(static_data_folder, "reference.json"),
-        os.path.join(data_folder, "sequence_data.json"),
         os.path.join(data_folder, "isolate_data.json"),
         os.path.join(data_folder, "geo_select_tree.json"),
         os.path.join(data_folder, "global_group_counts.json"),
-        os.path.join(data_folder, "data_complete.csv")
+        os.path.join(data_folder, "data_complete.csv"),
+        # Additional analyses
+        os.path.join(
+            data_folder, "status", "additional_analyses_" + today_str + ".done"
+        )
 
 
 rule process_genes_and_proteins:
@@ -398,7 +401,6 @@ rule combine_all_data:
         sequence_data_csv = os.path.join(data_folder, "sequence_data.csv")
     params:
         count_threshold = config["mutation_count_threshold"],
-        group_cols = list(config["group_cols"].keys()),
         metadata_cols = list(config["metadata_cols"].keys()),
         dna_mutation_dir = os.path.join(data_folder, "dna_mutation"),
         gene_aa_mutation_dir = os.path.join(data_folder, "gene_aa_mutation"),
@@ -419,7 +421,6 @@ rule combine_all_data:
             --sequence-data-csv {output.sequence_data_csv} \
             --count-threshold {params.count_threshold} \
             --metadata-cols {params.metadata_cols}
-            # --group-cols {params.group_cols}
         """
 
 

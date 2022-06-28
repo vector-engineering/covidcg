@@ -55,6 +55,8 @@ def main():
         # Isolate data
         "subtype": ("subtype", "first"),
         "virus_name": ("virus_name", "first"),
+        "collection_date": ("collection_date", "first"),
+        "submission_date": ("submission_date", "first"),
         # Location data
         "region": ("region", "first"),
         "country": ("country", "first"),
