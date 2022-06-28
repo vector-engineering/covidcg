@@ -21,6 +21,108 @@ The request this program makes is based on observing the network activity that
 performs after clicking through the download interface.  Some tweaks were made
 by comparing different download requests and guessing, which allows us to
 download the metadata + sequence in the same request instead of two.
+
+------------------
+
+From inspecting network data on NCBI virus site
+Example record:
+
+{
+    "ExportDate_dt":"2021-11-29T07:01:48.204Z",
+    "QualNum_i":0,
+    "IncompleteCdsCnt_i":0,
+    "Host_s":"Homo sapiens",
+    "HostSpecies_s":"Homo sapiens (human), taxid:9606|",
+    "HostLineage_ss":["cellular organisms, taxid:131567| biota", ...],
+    "HostLineageId_ss":["131567", ...],
+    "Locus_s":"NC_026431",
+    "OrgId_i":641809,
+    "VirusFamily_s":"Orthomyxoviridae",
+    "VirusGenus_s":"Alphainfluenzavirus",
+    "VirusSpecies_s":"Influenza A virus",
+    "VirusSpeciesId_i":11320,
+    "VirusLineage_ss":["Viruses, taxid:10239| Vira Viridae viruses", ...],
+    "VirusLineageId_ss":["10239", ...],
+    "VirusL0_s":"RNA viruses",
+    "VirusL1_s":"Orthornavirae, taxid:2732396",
+    "VirusL2_s":"Negarnaviricota (Negative-strand RNA viruses), taxid:2497569",
+    "VirusL3_s":"Polyploviricotina, taxid:2497571",
+    "VirusL4_s":"Insthoviricetes, taxid:2497577",
+    "VirusL5_s":"Articulavirales, taxid:2499411",
+    "VirusL6_s":"Orthomyxoviridae, taxid:11308",
+    "VirusL7_s":"Alphainfluenzavirus, taxid:197911",
+    "VirusL8_s":"Influenza A virus, taxid:11320",
+    "ViralHost_ss":["human",
+        "vertebrates"],
+    "GenomicMoltype_s":"ssRNA(-)",
+    "SLen_i":982,
+    "Flags_ss":["refseq",
+        "complete"],
+    "Flags_csv":"refseq, complete",
+    "FlagsCount_i":2,
+    "SetAcc_s":"GCF_001343785.1",
+    "Strain_s":"A/California/07/2009",
+    "Authors_ss":[ ... ],
+    "Authors_csv":"...",
+    "AuthorsCount_i":68,
+    "Country_s":"USA",
+    "Segment_s":"7",
+    "Division_s":"VRL",
+    "Keywords_ss":["RefSeq"],
+    "KeywordsCount_i":1,
+    "TaxName_s":"Influenza A virus (A/California/07/2009(H1N1))",
+    "Segments_ss":["7"],
+    "SegmentsCount_i":1,
+    "Serotype_s":"H1N1",
+    "Region_s":"North America",
+    "ParentAcc_s":"set:2d58cc4fd08e5bef66b3d72d7545a9531dad1057",
+    "Segmented_s":"true",
+    "SetPosition_i":6,
+    "SourceDB_s":"RefSeq",
+    "USAState_s":"CA",
+    "Definition_s":"Influenza A virus (A/California/07/2009(H1N1)) segment 7 matrix protein 2 (M2) and matrix protein 1 (M1) genes, complete cds",
+    "HostId_i":9606,
+    "CreateDate_dt":"2015-02-23T00:00:00Z",
+    "MolType_s":"cRNA",
+    "ProtAcc_ss":["YP_009118622",
+        "YP_009118623"],
+    "ProtAccCount_i":2,
+    "UpdateDate_dt":"2018-08-13T00:00:00Z",
+    "PubMed_ss":["19465683",
+        "19423869"],
+    "PubMed_csv":"19465683, 19423869",
+    "PubMedCount_i":2,
+    "Completeness_s":"complete",
+    "CountryFull_s":"USA: California state",
+    "ProtNames_ss":["matrix protein 2",
+        "matrix protein 1"],
+    "ProtNamesCount_i":2,
+    "NuclAcc_ss":["NC_026431"],
+    "NuclAccCount_i":1,
+    "CollectionDate_dr":"2009-04-09",
+    "BioProject_ss":["PRJNA485481"],
+    "BioProject_csv":"PRJNA485481",
+    "BioProjectCount_i":1,
+    "AccVer_s":"NC_026431.1",
+    "CollectionDate_s":"2009-04-09",
+    "GenomeCompleteness_s":"complete",
+    "BioProject_s":"PRJNA485481",
+    "AccNV_s":"NC_026431",
+    "id":"NC_026431",
+    "SeqType_s":"Nucleotide",
+    "FastaMD5_s":"6c90e1a0ccdb70640f8df30b331aa239",
+    "ids_ss":["GCF_001343785",
+        "GCF_001343785.1",
+        "NC_026431",
+        "NC_026431.1",
+        "PRJNA485481",
+        "YP_009118622",
+        "YP_009118623",
+        "set:2d58cc4fd08e5bef66b3d72d7545a9531dad1057"],
+    "gi_i":758899349,
+    "Genome_js":[{"id": "NC_026431.1", "segment": "7", "proteins": [{"id": "YP_009118622.1", "name": "matrix protein 2", "location": "join(1..26,715..982)"}, {"id": "YP_009118623.1", "name": "matrix protein 1", "location": "1..759"}]}]},
+}
+
 """
 
 import requests
@@ -34,8 +136,8 @@ params = {
         #   Alphainfluenzavirus: 197911
         #   Betainfluenzavirus: 197912
         #   Gammainfluenzavirus: 197913
-        # "VirusLineageId_ss:(197911 OR 197912 OR 197913)",  
-        "VirusLineageId_ss:(197911 OR 197912)",  
+        # "VirusLineageId_ss:(197911 OR 197912 OR 197913)",
+        "VirusLineageId_ss:(197911 OR 197912)",
     ],
     # Unclear, but seems necessary.
     "q": "*:*",
@@ -55,7 +157,7 @@ params = {
             #   -trs, 13 May 2020
             ("genbank_accession", "id"),
             ("database", "SourceDB_s"),
-            
+            ("set_id", "SetAcc_s"),
             # Serotype info is here as well... maybe get these if the serotype field
             # is missing for some of these
             # ("species", "VirusSpecies_s"),
@@ -65,7 +167,6 @@ params = {
             ("genus", "VirusGenus_s"),
             ("serotype", "Serotype_s"),
             ("strain", "Strain_s"),
-
             # Sequencing/Assembly
             ("length", "SLen_i"),
             ("is_segmented", "Segmented_s"),
@@ -73,17 +174,14 @@ params = {
             ("segments", "Segments_ss"),
             # ("protein_names", "ProtNames_ss"),
             ("genome_coverage", "Genome_js"),
-
             # Geographical info
             ("region", "Region_s"),
             ("country", "Country_s"),
             ("location", "CountryFull_s"),
-
             # Date info
             ("collected", "CollectionDate_s"),
             ("submitted", "CreateDate_dt"),
             ("updated", "UpdateDate_dt"),
-
             # Additional metadata
             ("host", "Host_s"),
             ("isolation_source", "Isolation_csv"),

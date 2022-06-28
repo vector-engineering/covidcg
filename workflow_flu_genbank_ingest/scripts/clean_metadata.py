@@ -317,6 +317,7 @@ def main():
         args.metadata_in,
         usecols=[
             "genbank_accession",
+            "set_id",
             "database",
             "genus",
             "serotype",
@@ -340,6 +341,7 @@ def main():
 
     # Fields:
     #   genbank_accession: string,
+    #   set_id: string,
     #   database: string,
     #   genus: string (Alphainfluenzavirus, Betainfluenzavirus)
     #   serotype: string
@@ -371,6 +373,7 @@ def main():
     df.rename(
         columns={
             "genbank_accession": "Accession ID",
+            "set_id": "isolate_id",
             "strain": "virus_name",
             "submitted": "submission_date",
             "collected": "collection_date",
@@ -380,13 +383,27 @@ def main():
     )
     df.set_index("Accession ID", inplace=True)
 
-    # Remove sequences without virus_name, region, collection date, or submission date
+    # Remove sequences without isolate_id, virus_name, region, collection date, or submission date
+    # TODO: fill in missing isolate_ids with accession IDs?
+    # TODO: investigate whether missing isolate IDs are biased towards
+    #       certain segments. i.e., if they're all 4 (HA), then they
+    #       can probably be treated as standalone isolates
+    print(f"Missing isolate_id: {df['isolate_id'].isna().sum()}")
+    print(f"Missing virus_name: {df['virus_name'].isna().sum()}")
+    print(f"Missing region: {df['region'].isna().sum()}")
+    print(f"Missing submission_date: {df['submission_date'].isna().sum()}")
+    print(f"Missing collection_date: {df['collection_date'].isna().sum()}")
+
     remove_rows = (
-        (df["virus_name"].isna())
+        (df["isolate_id"].isna())
+        | (df["virus_name"].isna())
         | (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
     )
+
+    print(f"Removing {remove_rows.sum()} rows")
+
     df.drop(df.index[remove_rows], inplace=True)
 
     # Redundant, but only keep alpha+beta
