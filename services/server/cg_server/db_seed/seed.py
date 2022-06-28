@@ -119,6 +119,7 @@ def seed_database(conn, schema="public"):
             CREATE TABLE "dna_mutation" (
                 id             INTEGER  PRIMARY KEY,
                 mutation_str   TEXT     NOT NULL,
+                segment        TEXT     NOT NULL,
                 pos            INTEGER  NOT NULL,
                 ref            TEXT     NOT NULL,
                 alt            TEXT     NOT NULL,
@@ -128,19 +129,23 @@ def seed_database(conn, schema="public"):
             """
         )
         df_to_sql(cur, dna_mutation, "dna_mutation", index_label="id")
+        cur.execute(
+            'CREATE INDEX "ix_dna_mutation_segment" ON "dna_mutation"("segment");'
+        )
         cur.execute('CREATE INDEX "ix_dna_mutation_pos" ON "dna_mutation"("pos");')
+        cur.execute(
+            'CREATE INDEX "ix_dna_mutation_segment_pos" ON "dna_mutation"("segment", "pos");'
+        )
 
         # AA mutations
-        gene_aa_mutation = process_aa_mutations(
-            metadata_map["gene_aa_mutation"], "gene"
-        )
+        gene_aa_mutation = process_aa_mutations(metadata_map["gene_aa_mutation"])
         cur.execute(
             """
             DROP TABLE IF EXISTS "gene_aa_mutation";
             CREATE TABLE "gene_aa_mutation" (
                 id             INTEGER  PRIMARY KEY,
                 mutation_str   TEXT     NOT NULL,
-                gene           TEXT     NOT NULL,
+                feature        TEXT     NOT NULL,
                 pos            INTEGER  NOT NULL,
                 ref            TEXT     NOT NULL,
                 alt            TEXT     NOT NULL,
@@ -153,20 +158,18 @@ def seed_database(conn, schema="public"):
         cur.execute(
             """
             CREATE INDEX "ix_gene_aa_mutation_pos" ON "gene_aa_mutation"("pos");
-            CREATE INDEX "ix_gene_aa_mutation_gene" ON "gene_aa_mutation"("gene");
+            CREATE INDEX "ix_gene_aa_mutation_feature" ON "gene_aa_mutation"("feature");
             """
         )
 
-        protein_aa_mutation = process_aa_mutations(
-            metadata_map["protein_aa_mutation"], "protein"
-        )
+        protein_aa_mutation = process_aa_mutations(metadata_map["protein_aa_mutation"])
         cur.execute(
             """
             DROP TABLE IF EXISTS "protein_aa_mutation";
             CREATE TABLE "protein_aa_mutation" (
                 id             INTEGER  PRIMARY KEY,
                 mutation_str   TEXT     NOT NULL,
-                protein        TEXT     NOT NULL,
+                feature        TEXT     NOT NULL,
                 pos            INTEGER  NOT NULL,
                 ref            TEXT     NOT NULL,
                 alt            TEXT     NOT NULL,
@@ -179,7 +182,7 @@ def seed_database(conn, schema="public"):
         cur.execute(
             """
             CREATE INDEX "ix_protein_aa_mutation_pos" ON "protein_aa_mutation"("pos");
-            CREATE INDEX "ix_protein_aa_mutation_protein" ON "protein_aa_mutation"("protein");
+            CREATE INDEX "ix_protein_aa_mutation_feature" ON "protein_aa_mutation"("feature");
             """
         )
 
@@ -314,10 +317,14 @@ def seed_database(conn, schema="public"):
                 """
             DROP TABLE IF EXISTS "metadata";
             CREATE TABLE "metadata" (
-                sequence_id      INTEGER    NOT NULL,
-                "Accession ID"   TEXT       NOT NULL,
+                isolate_id       INTEGER    NOT NULL,
+                isolate_name     TEXT       NOT NULL,
+                virus_name       TEXT       NOT NULL,
                 collection_date  TIMESTAMP  NOT NULL,
                 submission_date  TIMESTAMP  NOT NULL,
+                subtype          TEXT       NOT NULL,
+                segments         TEXT[]     NOT NULL,
+                accession_ids    TEXT[]     NOT NULL,
                 {metadata_col_defs},
                 {grouping_col_defs}
             )
@@ -328,36 +335,31 @@ def seed_database(conn, schema="public"):
             )
         )
 
-        # Only save what we want from the case_data json
-        mutation_fields = ["dna", "gene_aa", "protein_aa"]
-        mutation_cols = []
-        for mutation_field in mutation_fields:
-            mutation_cols.append(mutation_field + "_mutation_str")
-        case_data_columns = (
-            ["sequence_id", "Accession ID", "collection_date", "submission_date"]
-            + metadata_cols
-            + grouping_cols
-            + ["reference",]
-            + mutation_cols
-        )
-
-        case_data = pd.read_json(data_path / "case_data.json")[case_data_columns]
-        # case_data = case_data.set_index("Accession ID")
-        case_data["collection_date"] = pd.to_datetime(case_data["collection_date"])
-        case_data["submission_date"] = pd.to_datetime(case_data["submission_date"])
-        # print(case_data.columns)
+        isolate_df = pd.read_json(data_path / "isolate_data.json")
+        isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
+        isolate_df["submission_date"] = pd.to_datetime(isolate_df["submission_date"])
+        # print(isolate_df.columns)
 
         # Partition settings
-        min_date = case_data["collection_date"].min()
+        min_date = isolate_df["collection_date"].min()
         # Round latest sequence to the nearest partition break
         if config["mutation_partition_break"] == "M":
             max_date = (
-                case_data["collection_date"].max().normalize() + pd.offsets.MonthBegin()
+                isolate_df["collection_date"].max().normalize()
+                + pd.offsets.MonthBegin()
             )
         elif config["mutation_partition_break"] == "Y":
             max_date = (
-                case_data["collection_date"].max().normalize() + pd.offsets.YearBegin()
+                isolate_df["collection_date"].max().normalize() + pd.offsets.YearBegin()
             )
+
+        # Serialize lists
+        isolate_df["segments_str"] = isolate_df["segments"].apply(
+            lambda x: "{" + ",".join([str(_x) for _x in sorted(x)]) + "}"
+        )
+        isolate_df["accession_ids_str"] = isolate_df["accession_ids"].apply(
+            lambda x: "{" + ",".join([str(_x) for _x in sorted(x)]) + "}"
+        )
 
         partition_dates = [
             d.isoformat()
@@ -390,16 +392,34 @@ def seed_database(conn, schema="public"):
         df_to_sql(
             cur,
             # Remove duplicates associated with multiple references
-            case_data[
-                ["sequence_id", "Accession ID", "collection_date", "submission_date"]
+            isolate_df[
+                [
+                    "isolate_id",
+                    "isolate_name",
+                    "virus_name",
+                    "collection_date",
+                    "submission_date",
+                    "subtype",
+                    "segments_str",
+                    "accession_ids_str",
+                ]
                 + metadata_cols
                 + grouping_cols
-            ].drop_duplicates("Accession ID", keep="first"),
+            ].drop_duplicates("isolate_id", keep="first"),
             "metadata",
         )
         # Create indices
         for field in (
-            ["sequence_id", "collection_date", "submission_date"]
+            [
+                "isolate_id",
+                "isolate_name",
+                "virus_name",
+                "collection_date",
+                "submission_date",
+                "subtype",
+                "segments",
+                "accession_ids",
+            ]
             + list(config["metadata_cols"].keys())
             + loc_levels
             + list(config["group_cols"].keys())
@@ -421,16 +441,18 @@ def seed_database(conn, schema="public"):
         # Sequence mutation data
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for mutation_field in mutation_fields:
-            mutation_col = mutation_field + "_mutation_str"
+            mutation_col = mutation_field + "_mutation"
             table_name = f"sequence_{mutation_field}_mutation"
             cur.execute(
                 sql.SQL(
                     """
                 DROP TABLE IF EXISTS {table_name};
                 CREATE TABLE {table_name} (
-                    sequence_id      INTEGER    NOT NULL,
+                    isolate_id       INTEGER    NOT NULL,
+                    virus_name       TEXT       NOT NULL,
                     collection_date  TIMESTAMP  NOT NULL,
                     submission_date  TIMESTAMP  NOT NULL,
+                    subtype          TEXT       NOT NULL,
                     {metadata_col_defs},
                     {grouping_col_defs},
                     reference        TEXT       NOT NULL,
@@ -445,7 +467,7 @@ def seed_database(conn, schema="public"):
                 )
             )
 
-            reference_names = list(references.keys())
+            reference_names = sorted(list(references.keys()))
 
             # Create table partitions
             for reference_name in reference_names:
@@ -493,8 +515,14 @@ def seed_database(conn, schema="public"):
                         )
                     )
 
-            mutation_df = case_data[
-                ["sequence_id", "collection_date", "submission_date"]
+            mutation_df = isolate_df[
+                [
+                    "isolate_id",
+                    "virus_name",
+                    "collection_date",
+                    "submission_date",
+                    "subtype",
+                ]
                 + metadata_cols
                 + grouping_cols
                 + ["reference", mutation_col]
@@ -509,7 +537,14 @@ def seed_database(conn, schema="public"):
 
             # Create indices
             for field in (
-                ["sequence_id", "collection_date", "submission_date", "reference"]
+                [
+                    "isolate_id",
+                    "virus_name",
+                    "collection_date",
+                    "submission_date",
+                    "subtype",
+                    "reference",
+                ]
                 + list(config["metadata_cols"].keys())
                 + loc_levels
                 + list(config["group_cols"].keys())
@@ -533,19 +568,22 @@ def seed_database(conn, schema="public"):
         for mutation_field in mutation_fields:
             table_name = f"{mutation_field}_coverage"
 
-            coverage_cols = ["sequence_id", "reference", "start", "end"]
-            feature_name_col = sql.SQL("")
+            coverage_cols = ["isolate_id", "subtype", "reference", "start", "end"]
 
-            if mutation_field == "gene_aa" or mutation_field == "protein_aa":
+            if mutation_field == "dna":
+                feature_name_col = sql.SQL("segment TEXT NOT NULL,")
+                coverage_cols.insert(3, "segment")
+            else:
                 feature_name_col = sql.SQL("feature TEXT NOT NULL,")
-                coverage_cols.insert(2, "feature")
+                coverage_cols.insert(3, "feature")
 
             cur.execute(
                 sql.SQL(
                     """
                 DROP TABLE IF EXISTS {table_name};
                 CREATE TABLE {table_name} (
-                    sequence_id  INTEGER  NOT NULL,
+                    isolate_id   INTEGER  NOT NULL,
+                    subtype      TEXT     NOT NULL,
                     reference    TEXT     NOT NULL,
                     {feature_name_col}
                     range_start  INTEGER  NOT NULL,
@@ -559,7 +597,8 @@ def seed_database(conn, schema="public"):
                 )
             )
 
-            reference_names = list(references.keys())
+            reference_names = sorted(list(references.keys()))
+
             # Create table partitions
             for reference_name in reference_names:
                 # Clean up the reference name as a SQL ident - no dots
@@ -616,14 +655,37 @@ def seed_database(conn, schema="public"):
                             )
                         )
 
-            coverage_df = pd.read_csv(data_path / f"coverage_{mutation_field}.csv")
+            if mutation_field == "dna":
+                coverage_df = isolate_df[
+                    ["isolate_id", "subtype", "reference", "segments", "dna_range"]
+                ].explode(["segments", "dna_range"])
+                coverage_df.rename(columns={"segments": "segment"}, inplace=True)
+                coverage_df["start"] = coverage_df["dna_range"].str.get(0).astype(int)
+                coverage_df["end"] = coverage_df["dna_range"].str.get(1).astype(int)
+            else:
+                range_col = f"{mutation_field}_range"
+                coverage_df = isolate_df[
+                    ["isolate_id", "subtype", "reference", range_col]
+                ].explode(range_col)
+                coverage_df["feature"] = coverage_df[range_col].str.get(0)
+                coverage_df["start"] = coverage_df[range_col].str.get(1).astype(int)
+                coverage_df["end"] = coverage_df[range_col].str.get(2).astype(int)
+
             df_to_sql(
                 cur, coverage_df[coverage_cols], table_name,
             )
 
             # Create indices
-            index_fields = ["sequence_id", "reference", "range_start", "range_end"]
-            if mutation_field == "gene_aa" or mutation_field == "protein_aa":
+            index_fields = [
+                "isolate_id",
+                "subtype",
+                "reference",
+                "range_start",
+                "range_end",
+            ]
+            if mutation_field == "dna":
+                index_fields.append("segment")
+            else:
                 index_fields.append("feature")
 
             for field in index_fields:
@@ -654,7 +716,7 @@ def seed_database(conn, schema="public"):
 
         stats = {
             "num_sequences": len(
-                case_data.drop_duplicates("Accession ID", keep="first")
+                isolate_df.drop_duplicates("isolate_id", keep="first")
             ),
             "data_date": datetime.date.today().isoformat(),
         }

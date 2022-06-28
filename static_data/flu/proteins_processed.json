@@ -1,1998 +1,1990 @@
 {
-  "H1N1": {
-    "A-Victoria-2570-2019": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            16,
-            2295
-          ]
+  "A-Victoria-2570-2019": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          16,
+          2295
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2280,
+      "len_aa": 760,
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          13,
+          2286
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PB1-F2",
+          "ranges": [
+            [
+              95,
+              358
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 2274,
+      "len_aa": 758,
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          13,
+          2163
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PA-X",
+          "ranges": [
+            [
+              1,
+              760
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 2151,
+      "len_aa": 717,
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              1,
+              51
+            ]
+          ],
+          "row": 0
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              52,
+              1032
+            ]
+          ],
+          "row": 1
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              1033,
+              1698
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 1701,
+      "len_aa": 567,
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          34,
+          1530
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1497,
+      "len_aa": 499,
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          10,
+          1419
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1410,
+      "len_aa": 470,
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 759,
+      "len_aa": 253,
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
         ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2280,
-        "len_aa": 760,
-        "aa_ranges": [
-          [
-            1,
-            760
-          ]
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 294,
+      "len_aa": 98,
+      "aa_ranges": [
+        [
+          1,
+          8
         ],
-        "nt_ranges": [
-          [
-            1,
-            2280
-          ]
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
         ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            13,
-            2286
-          ]
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          27,
+          56
         ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [
-              [
-                95,
-                358
-              ]
+        [
+          529,
+          864
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 366,
+      "len_aa": 122,
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          27,
+          719
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 693,
+      "len_aa": 231,
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Cambodia-e0826360-2020": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          18,
+          2297
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2280,
+      "len_aa": 760,
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          15,
+          2288
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PB1-F2",
+          "ranges": [
+            [
+              109,
+              381
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 2274,
+      "len_aa": 758,
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          11,
+          2161
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PA-X",
+          "ranges": [
+            [
+              11,
+              583
             ],
-            "row": 0
-          }
+            [
+              585,
+              770
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 2151,
+      "len_aa": 717,
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              1,
+              48
+            ]
+          ],
+          "row": 0
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              49,
+              1035
+            ]
+          ],
+          "row": 1
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              1036,
+              1698
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 1701,
+      "len_aa": 567,
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          37,
+          1533
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1497,
+      "len_aa": 499,
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1410,
+      "len_aa": 470,
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 759,
+      "len_aa": 253,
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
         ],
-        "len_nt": 2274,
-        "len_aa": 758,
-        "aa_ranges": [
-          [
-            1,
-            758
-          ]
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 294,
+      "len_aa": 98,
+      "aa_ranges": [
+        [
+          1,
+          8
         ],
-        "nt_ranges": [
-          [
-            1,
-            2274
-          ]
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
         ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            13,
-            2163
-          ]
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          23,
+          52
         ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [
-              [
-                1,
-                760
-              ]
+        [
+          525,
+          860
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 366,
+      "len_aa": 122,
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          23,
+          715
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 693,
+      "len_aa": 231,
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Darwin-9-2021": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2280,
+      "len_aa": 760,
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PB1-F2",
+          "ranges": [
+            [
+              95,
+              358
+            ]
+          ],
+          "row": 0
+        }
+      ],
+      "len_nt": 2274,
+      "len_aa": 758,
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "PA-X",
+          "ranges": [
+            [
+              1,
+              573
             ],
-            "row": 0
-          }
-        ],
-        "len_nt": 2151,
-        "len_aa": 717,
-        "aa_ranges": [
-          [
-            1,
-            717
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2151
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "signal peptide",
-            "ranges": [
-              [
-                1,
-                51
-              ]
-            ],
-            "row": 0
-          },
-          {
-            "name": "HA1",
-            "ranges": [
-              [
-                52,
-                1032
-              ]
-            ],
-            "row": 1
-          },
-          {
-            "name": "HA2",
-            "ranges": [
-              [
-                1033,
-                1698
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 1701,
-        "len_aa": 567,
-        "aa_ranges": [
-          [
-            1,
-            567
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            34,
-            1530
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1497,
-        "len_aa": 499,
-        "aa_ranges": [
-          [
-            1,
-            499
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1497
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            10,
-            1419
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1410,
-        "len_aa": 470,
-        "aa_ranges": [
-          [
-            1,
-            470
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1410
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "M1",
-        "segment": "7",
-        "segments": [
-          [
-            26,
-            784
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 759,
-        "len_aa": 253,
-        "aa_ranges": [
-          [
-            1,
-            253
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            759
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M2",
-        "segment": "7",
-        "segments": [
-          [
-            26,
-            51
+            [
+              575,
+              760
+            ]
           ],
-          [
-            740,
-            1007
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 294,
-        "len_aa": 98,
-        "aa_ranges": [
-          [
-            1,
-            8
+          "row": 0
+        }
+      ],
+      "len_nt": 2151,
+      "len_aa": 717,
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              1,
+              48
+            ]
           ],
-          [
-            9,
-            97
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            24
+          "row": 0
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              49,
+              1035
+            ]
           ],
-          [
-            25,
-            291
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            27,
-            56
+          "row": 1
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              1036,
+              1698
+            ]
           ],
-          [
-            529,
-            864
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 366,
-        "len_aa": 122,
-        "aa_ranges": [
-          [
-            1,
-            10
-          ],
-          [
-            11,
-            122
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            30
-          ],
-          [
-            31,
-            366
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            27,
-            719
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 693,
-        "len_aa": 231,
-        "aa_ranges": [
-          [
-            1,
-            231
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            693
-          ]
-        ],
-        "row": 9
-      }
-    ]
-  },
-  "H3N2": {
-    "A-Cambodia-e0826360-2020": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            18,
-            2297
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2280,
-        "len_aa": 760,
-        "aa_ranges": [
-          [
-            1,
-            760
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2280
-          ]
-        ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            15,
-            2288
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [
-              [
-                109,
-                381
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 2274,
-        "len_aa": 758,
-        "aa_ranges": [
-          [
-            1,
-            758
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2274
-          ]
-        ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            11,
-            2161
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [
-              [
-                11,
-                583
-              ],
-              [
-                585,
-                770
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 2151,
-        "len_aa": 717,
-        "aa_ranges": [
-          [
-            1,
-            717
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2151
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "signal peptide",
-            "ranges": [
-              [
-                1,
-                48
-              ]
-            ],
-            "row": 0
-          },
-          {
-            "name": "HA1",
-            "ranges": [
-              [
-                49,
-                1035
-              ]
-            ],
-            "row": 1
-          },
-          {
-            "name": "HA2",
-            "ranges": [
-              [
-                1036,
-                1698
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 1701,
-        "len_aa": 567,
-        "aa_ranges": [
-          [
-            1,
-            567
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            37,
-            1533
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1497,
-        "len_aa": 499,
-        "aa_ranges": [
-          [
-            1,
-            499
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1497
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            1,
-            1410
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1410,
-        "len_aa": 470,
-        "aa_ranges": [
-          [
-            1,
-            470
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1410
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "M1",
-        "segment": "7",
-        "segments": [
-          [
-            26,
-            784
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 759,
-        "len_aa": 253,
-        "aa_ranges": [
-          [
-            1,
-            253
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            759
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M2",
-        "segment": "7",
-        "segments": [
-          [
-            26,
-            51
-          ],
-          [
-            740,
-            1007
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 294,
-        "len_aa": 98,
-        "aa_ranges": [
-          [
-            1,
-            8
-          ],
-          [
-            9,
-            97
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            24
-          ],
-          [
-            25,
-            291
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            23,
-            52
-          ],
-          [
-            525,
-            860
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 366,
-        "len_aa": 122,
-        "aa_ranges": [
-          [
-            1,
-            10
-          ],
-          [
-            11,
-            122
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            30
-          ],
-          [
-            31,
-            366
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            23,
-            715
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 693,
-        "len_aa": 231,
-        "aa_ranges": [
-          [
-            1,
-            231
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            693
-          ]
-        ],
-        "row": 9
-      }
-    ],
-    "A-Darwin-9-2021": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            1,
-            2280
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2280,
-        "len_aa": 760,
-        "aa_ranges": [
-          [
-            1,
-            760
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2280
-          ]
-        ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            1,
-            2274
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [
-              [
-                95,
-                358
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 2274,
-        "len_aa": 758,
-        "aa_ranges": [
-          [
-            1,
-            758
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2274
-          ]
-        ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            1,
-            2151
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [
-              [
-                1,
-                573
-              ],
-              [
-                575,
-                760
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 2151,
-        "len_aa": 717,
-        "aa_ranges": [
-          [
-            1,
-            717
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2151
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [
-          {
-            "name": "signal peptide",
-            "ranges": [
-              [
-                1,
-                48
-              ]
-            ],
-            "row": 0
-          },
-          {
-            "name": "HA1",
-            "ranges": [
-              [
-                49,
-                1035
-              ]
-            ],
-            "row": 1
-          },
-          {
-            "name": "HA2",
-            "ranges": [
-              [
-                1036,
-                1698
-              ]
-            ],
-            "row": 0
-          }
-        ],
-        "len_nt": 1701,
-        "len_aa": 567,
-        "aa_ranges": [
-          [
-            1,
-            567
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1701
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            1,
-            1497
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1497,
-        "len_aa": 499,
-        "aa_ranges": [
-          [
-            1,
-            499
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1497
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            8,
-            1417
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1410,
-        "len_aa": 470,
-        "aa_ranges": [
-          [
-            1,
-            470
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1410
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "M1",
-        "segment": "7",
-        "segments": [
-          [
-            1,
-            759
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 759,
-        "len_aa": 253,
-        "aa_ranges": [
-          [
-            1,
-            253
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            759
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M2",
-        "segment": "7",
-        "segments": [
-          [
-            1,
-            26
-          ],
-          [
-            715,
-            979
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 291,
-        "len_aa": 97,
-        "aa_ranges": [
-          [
-            1,
-            8
-          ],
-          [
-            9,
-            96
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            24
-          ],
-          [
-            25,
-            288
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            30
-          ],
-          [
-            503,
-            838
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 366,
-        "len_aa": 122,
-        "aa_ranges": [
-          [
-            1,
-            10
-          ],
-          [
-            11,
-            122
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            30
-          ],
-          [
-            31,
-            366
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            693
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 693,
-        "len_aa": 231,
-        "aa_ranges": [
-          [
-            1,
-            231
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            693
-          ]
-        ],
-        "row": 9
-      }
-    ]
-  },
-  "B-yam": {
-    "B-Phuket-3073-2013": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            1,
-            2313
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2313,
-        "len_aa": 771,
-        "aa_ranges": [
-          [
-            1,
-            771
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2313
-          ]
-        ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            1,
-            2259
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2259,
-        "len_aa": 753,
-        "aa_ranges": [
-          [
-            1,
-            753
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2259
-          ]
-        ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            1,
-            2181
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2181,
-        "len_aa": 727,
-        "aa_ranges": [
-          [
-            1,
-            727
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2181
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            1,
-            1755
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1755,
-        "len_aa": 585,
-        "aa_ranges": [
-          [
-            1,
-            585
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1755
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            1,
-            1683
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1683,
-        "len_aa": 561,
-        "aa_ranges": [
-          [
-            1,
-            561
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1683
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            34,
-            1434
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1401,
-        "len_aa": 467,
-        "aa_ranges": [
-          [
-            1,
-            467
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1401
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "NB",
-        "segment": "6",
-        "segments": [
-          [
-            27,
-            329
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 303,
-        "len_aa": 101,
-        "aa_ranges": [
-          [
-            1,
-            101
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            303
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M",
-        "segment": "7",
-        "segments": [
-          [
-            1,
-            747
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 747,
-        "len_aa": 249,
-        "aa_ranges": [
-          [
-            1,
-            249
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            747
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "BM2",
-        "segment": "7",
-        "segments": [
-          [
-            747,
-            1076
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 330,
-        "len_aa": 110,
-        "aa_ranges": [
-          [
-            1,
-            110
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            330
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            33
-          ],
-          [
-            689,
-            1024
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 369,
-        "len_aa": 123,
-        "aa_ranges": [
-          [
-            1,
-            11
-          ],
-          [
-            12,
-            123
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            33
-          ],
-          [
-            34,
-            369
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            846
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 846,
-        "len_aa": 282,
-        "aa_ranges": [
-          [
-            1,
-            282
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            846
-          ]
-        ],
-        "row": 9
-      }
-    ]
-  },
-  "B-vic": {
-    "B-Austria-1359417-2021": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            1,
-            2313
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2313,
-        "len_aa": 771,
-        "aa_ranges": [
-          [
-            1,
-            771
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2313
-          ]
-        ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            1,
-            2259
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2259,
-        "len_aa": 753,
-        "aa_ranges": [
-          [
-            1,
-            753
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2259
-          ]
-        ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            1,
-            2181
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2181,
-        "len_aa": 727,
-        "aa_ranges": [
-          [
-            1,
-            727
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2181
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            1,
-            1749
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1749,
-        "len_aa": 583,
-        "aa_ranges": [
-          [
-            1,
-            583
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1749
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            1,
-            1683
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1683,
-        "len_aa": 561,
-        "aa_ranges": [
-          [
-            1,
-            561
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1683
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            8,
-            1408
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1401,
-        "len_aa": 467,
-        "aa_ranges": [
-          [
-            1,
-            467
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1401
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "NB",
-        "segment": "6",
-        "segments": [
-          [
-            1,
-            303
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 303,
-        "len_aa": 101,
-        "aa_ranges": [
-          [
-            1,
-            101
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            303
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M",
-        "segment": "7",
-        "segments": [
-          [
-            1,
-            747
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 747,
-        "len_aa": 249,
-        "aa_ranges": [
-          [
-            1,
-            249
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            747
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "BM2",
-        "segment": "7",
-        "segments": [
-          [
-            747,
-            1076
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 330,
-        "len_aa": 110,
-        "aa_ranges": [
-          [
-            1,
-            110
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            330
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            36
-          ],
-          [
-            692,
-            1027
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 372,
-        "len_aa": 124,
-        "aa_ranges": [
-          [
-            1,
-            12
-          ],
-          [
-            13,
-            124
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            36
-          ],
-          [
-            37,
-            372
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            1,
-            849
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 849,
-        "len_aa": 283,
-        "aa_ranges": [
-          [
-            1,
-            283
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            849
-          ]
-        ],
-        "row": 9
-      }
-    ],
-    "B-Washington-02-2019": [
-      {
-        "name": "PB2",
-        "segment": "1",
-        "segments": [
-          [
-            10,
-            2322
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2313,
-        "len_aa": 771,
-        "aa_ranges": [
-          [
-            1,
-            771
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2313
-          ]
-        ],
-        "row": 0
-      },
-      {
-        "name": "PB1",
-        "segment": "2",
-        "segments": [
-          [
-            8,
-            2266
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2259,
-        "len_aa": 753,
-        "aa_ranges": [
-          [
-            1,
-            753
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2259
-          ]
-        ],
-        "row": 1
-      },
-      {
-        "name": "PA",
-        "segment": "3",
-        "segments": [
-          [
-            16,
-            2196
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 2181,
-        "len_aa": 727,
-        "aa_ranges": [
-          [
-            1,
-            727
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            2181
-          ]
-        ],
-        "row": 2
-      },
-      {
-        "name": "HA",
-        "segment": "4",
-        "segments": [
-          [
-            20,
-            1768
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1749,
-        "len_aa": 583,
-        "aa_ranges": [
-          [
-            1,
-            583
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1749
-          ]
-        ],
-        "row": 3
-      },
-      {
-        "name": "NP",
-        "segment": "5",
-        "segments": [
-          [
-            47,
-            1729
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1683,
-        "len_aa": 561,
-        "aa_ranges": [
-          [
-            1,
-            561
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1683
-          ]
-        ],
-        "row": 4
-      },
-      {
-        "name": "NA",
-        "segment": "6",
-        "segments": [
-          [
-            40,
-            1440
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 1401,
-        "len_aa": 467,
-        "aa_ranges": [
-          [
-            1,
-            467
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            1401
-          ]
-        ],
-        "row": 5
-      },
-      {
-        "name": "NB",
-        "segment": "6",
-        "segments": [
-          [
-            33,
-            335
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 303,
-        "len_aa": 101,
-        "aa_ranges": [
-          [
-            1,
-            101
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            303
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "M",
-        "segment": "7",
-        "segments": [
-          [
-            8,
-            754
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 747,
-        "len_aa": 249,
-        "aa_ranges": [
-          [
-            1,
-            249
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            747
-          ]
-        ],
-        "row": 7
-      },
-      {
-        "name": "BM2",
-        "segment": "7",
-        "segments": [
-          [
-            754,
-            1083
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 330,
-        "len_aa": 110,
-        "aa_ranges": [
-          [
-            1,
-            110
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            330
-          ]
-        ],
-        "row": 6
-      },
-      {
-        "name": "NEP",
-        "segment": "8",
-        "segments": [
-          [
-            29,
-            64
-          ],
-          [
-            720,
-            1055
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 372,
-        "len_aa": 124,
-        "aa_ranges": [
-          [
-            1,
-            12
-          ],
-          [
-            13,
-            124
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            36
-          ],
-          [
-            37,
-            372
-          ]
-        ],
-        "row": 8
-      },
-      {
-        "name": "NS1",
-        "segment": "8",
-        "segments": [
-          [
-            29,
-            877
-          ]
-        ],
-        "protein_coding": true,
-        "domains": [],
-        "len_nt": 849,
-        "len_aa": 283,
-        "aa_ranges": [
-          [
-            1,
-            283
-          ]
-        ],
-        "nt_ranges": [
-          [
-            1,
-            849
-          ]
-        ],
-        "row": 9
-      }
-    ]
-  }
+          "row": 0
+        }
+      ],
+      "len_nt": 1701,
+      "len_aa": 567,
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1497,
+      "len_aa": 499,
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          8,
+          1417
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1410,
+      "len_aa": 470,
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          759
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 759,
+      "len_aa": 253,
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          26
+        ],
+        [
+          715,
+          979
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 291,
+      "len_aa": 97,
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          96
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          288
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          30
+        ],
+        [
+          503,
+          838
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 366,
+      "len_aa": 122,
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          693
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 693,
+      "len_aa": 231,
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "B-Phuket-3073-2013": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          1,
+          2313
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2313,
+      "len_aa": 771,
+      "aa_ranges": [
+        [
+          1,
+          771
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2313
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          1,
+          2259
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2259,
+      "len_aa": 753,
+      "aa_ranges": [
+        [
+          1,
+          753
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2259
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          1,
+          2181
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2181,
+      "len_aa": 727,
+      "aa_ranges": [
+        [
+          1,
+          727
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2181
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1755,
+      "len_aa": 585,
+      "aa_ranges": [
+        [
+          1,
+          585
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          1,
+          1683
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1683,
+      "len_aa": 561,
+      "aa_ranges": [
+        [
+          1,
+          561
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1683
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          34,
+          1434
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1401,
+      "len_aa": 467,
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          27,
+          329
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 303,
+      "len_aa": 101,
+      "aa_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          303
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          747
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 747,
+      "len_aa": 249,
+      "aa_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          747
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "BM2",
+      "segment": "7",
+      "segments": [
+        [
+          747,
+          1076
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 330,
+      "len_aa": 110,
+      "aa_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          33
+        ],
+        [
+          689,
+          1024
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 369,
+      "len_aa": 123,
+      "aa_ranges": [
+        [
+          1,
+          11
+        ],
+        [
+          12,
+          123
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          33
+        ],
+        [
+          34,
+          369
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          846
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 846,
+      "len_aa": 282,
+      "aa_ranges": [
+        [
+          1,
+          282
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          846
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "B-Austria-1359417-2021": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          1,
+          2313
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2313,
+      "len_aa": 771,
+      "aa_ranges": [
+        [
+          1,
+          771
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2313
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          1,
+          2259
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2259,
+      "len_aa": 753,
+      "aa_ranges": [
+        [
+          1,
+          753
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2259
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          1,
+          2181
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2181,
+      "len_aa": 727,
+      "aa_ranges": [
+        [
+          1,
+          727
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2181
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1749
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1749,
+      "len_aa": 583,
+      "aa_ranges": [
+        [
+          1,
+          583
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1749
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          1,
+          1683
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1683,
+      "len_aa": 561,
+      "aa_ranges": [
+        [
+          1,
+          561
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1683
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          8,
+          1408
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1401,
+      "len_aa": 467,
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          303
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 303,
+      "len_aa": 101,
+      "aa_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          303
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          747
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 747,
+      "len_aa": 249,
+      "aa_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          747
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "BM2",
+      "segment": "7",
+      "segments": [
+        [
+          747,
+          1076
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 330,
+      "len_aa": 110,
+      "aa_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          36
+        ],
+        [
+          692,
+          1027
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 372,
+      "len_aa": 124,
+      "aa_ranges": [
+        [
+          1,
+          12
+        ],
+        [
+          13,
+          124
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          36
+        ],
+        [
+          37,
+          372
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          849
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 849,
+      "len_aa": 283,
+      "aa_ranges": [
+        [
+          1,
+          283
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          849
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "B-Washington-02-2019": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          10,
+          2322
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2313,
+      "len_aa": 771,
+      "aa_ranges": [
+        [
+          1,
+          771
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2313
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          8,
+          2266
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2259,
+      "len_aa": 753,
+      "aa_ranges": [
+        [
+          1,
+          753
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2259
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          16,
+          2196
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 2181,
+      "len_aa": 727,
+      "aa_ranges": [
+        [
+          1,
+          727
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2181
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          20,
+          1768
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1749,
+      "len_aa": 583,
+      "aa_ranges": [
+        [
+          1,
+          583
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1749
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          47,
+          1729
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1683,
+      "len_aa": 561,
+      "aa_ranges": [
+        [
+          1,
+          561
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1683
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          40,
+          1440
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 1401,
+      "len_aa": 467,
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          33,
+          335
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 303,
+      "len_aa": 101,
+      "aa_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          303
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M",
+      "segment": "7",
+      "segments": [
+        [
+          8,
+          754
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 747,
+      "len_aa": 249,
+      "aa_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          747
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "BM2",
+      "segment": "7",
+      "segments": [
+        [
+          754,
+          1083
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 330,
+      "len_aa": 110,
+      "aa_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          29,
+          64
+        ],
+        [
+          720,
+          1055
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 372,
+      "len_aa": 124,
+      "aa_ranges": [
+        [
+          1,
+          12
+        ],
+        [
+          13,
+          124
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          36
+        ],
+        [
+          37,
+          372
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          29,
+          877
+        ]
+      ],
+      "protein_coding": true,
+      "domains": [],
+      "len_nt": 849,
+      "len_aa": 283,
+      "aa_ranges": [
+        [
+          1,
+          283
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          849
+        ]
+      ],
+      "row": 9
+    }
+  ]
 }

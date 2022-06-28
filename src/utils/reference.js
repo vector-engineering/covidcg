@@ -12,9 +12,12 @@ export function getReference(referenceName) {
 }
 
 Object.keys(references).forEach((referenceName) => {
-  references[referenceName]['sequence_rc'] = reverseComplement(
-    references[referenceName]['sequence']
-  );
+  Object.keys(references[referenceName]['segments']).forEach((segment) => {
+    references[referenceName]['segments'][segment]['sequence_rc'] =
+      reverseComplement(
+        references[referenceName]['segments'][segment]['sequence']
+      );
+  });
 });
 
 export function getReferenceNames() {

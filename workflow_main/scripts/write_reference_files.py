@@ -39,7 +39,6 @@ def main():
 
     ref_obj = {}
     for subtype in args.subtypes:
-        ref_obj[subtype] = {}
 
         # Find individual references within each subtype
         reference_paths = [
@@ -49,16 +48,15 @@ def main():
         ]
         for reference_path in reference_paths:
             reference = reference_path.name
-            ref_obj[subtype][reference] = {}
-            ref_obj[subtype][reference]["name"] = reference
-            ref_obj[subtype][reference]["segments"] = {}
+            ref_obj[reference] = {}
+            ref_obj[reference]["name"] = reference
+            ref_obj[reference]["subtype"] = subtype
+            ref_obj[reference]["segments"] = {}
             for segment in args.segments:
                 with (reference_path / f"{segment}.fa").open("r") as fp:
                     lines = fp.readlines()
                     records = read_fasta_file(lines)
-                    ref_obj[subtype][reference]["segments"][segment] = list(
-                        records.values()
-                    )[0]
+                    ref_obj[reference]["segments"][segment] = list(records.values())[0]
 
     with open(args.reference_json, "w") as fp:
         fp.write(json.dumps(ref_obj, indent=2))

@@ -48,10 +48,7 @@ def main():
     with open(args.reference, "rt") as fp:
         references = json.load(fp)
 
-    subtypes = list(sorted(references.keys()))
-    reference_names = sorted(
-        sum([list(references[subtype].keys()) for subtype in subtypes], [])
-    )
+    reference_names = sorted(list(references.keys()))
 
     global_group_counts = {}
     for ref_name in reference_names:

@@ -178,10 +178,7 @@ def main():
     with open(args.reference, "rt") as fp:
         references = json.load(fp)
 
-    subtypes = list(sorted(references.keys()))
-    reference_names = sorted(
-        sum([list(references[subtype].keys()) for subtype in subtypes], [])
-    )
+    reference_names = sorted(list(references.keys()))
 
     consensus_dict = {}
     frequencies_dict = {}
@@ -205,10 +202,10 @@ def main():
             frequencies_dict[group][reference_name] = group_frequencies
 
     with open(args.consensus_out, "w") as fp:
-        fp.write(json.dumps(consensus_dict, indent=2))
+        fp.write(json.dumps(consensus_dict))
 
     with open(args.frequencies_out, "w") as fp:
-        fp.write(json.dumps(frequencies_dict, indent=2))
+        fp.write(json.dumps(frequencies_dict))
 
 
 if __name__ == "__main__":

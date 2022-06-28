@@ -45,7 +45,7 @@ def extract_aa_mutations(
         references = json.loads(fp.read())
 
     # Get references for this subtype
-    references = references[subtype]
+    references = {k: v for k, v in references.items() if v["subtype"] == subtype}
 
     # Get sequences for all references under this subtype,
     # but only for the active segment
@@ -57,7 +57,10 @@ def extract_aa_mutations(
     # Load gene/protein defs
     # JSON to dataframe
     with open(gene_or_protein_file, "r") as fp:
-        feature_dicts = json.loads(fp.read())[subtype]
+        feature_dicts = json.loads(fp.read())
+
+    # Get only features for the above references
+    feature_dicts = {k: v for k, v in feature_dicts.items() if k in references.keys()}
 
     feature_dfs = {}
     for k, v in feature_dicts.items():

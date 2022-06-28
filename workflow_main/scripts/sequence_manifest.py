@@ -96,12 +96,15 @@ def main():
     with open(args.reference, "rt") as fp:
         references = json.load(fp)
 
-    subtypes = list(sorted(references.keys()))
+    # subtypes = list(sorted(references.keys()))
+    subtypes = list(set([reference["subtype"] for reference in references.values()]))
 
     # Get references for each subtype
     subtype_refs = {}
     for subtype in subtypes:
-        subtype_refs[subtype] = list(sorted(references[subtype].keys()))
+        subtype_refs[subtype] = [
+            k for k, v in references.items() if v["subtype"] == subtype
+        ]
 
     manifest = []
     for fasta_file in sorted(Path(args.fasta).glob("*.fa.gz")):

@@ -41,7 +41,7 @@ def extract_dna_mutations(
         references = json.loads(fp.read())
 
     # Get references for this subtype
-    references = references[subtype]
+    references = {k: v for k, v in references.items() if v["subtype"] == subtype}
 
     # Get sequences for all references under this subtype,
     # but only for the active segment

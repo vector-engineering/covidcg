@@ -274,6 +274,7 @@ rule coverage_aa:
     """
     input:
         coverage_dna = rules.coverage_dna.output.coverage_dna,
+        reference = rules.write_reference_files.output.reference,
         genes_def = rules.process_genes_and_proteins.output.genes,
         proteins_def = rules.process_genes_and_proteins.output.proteins
     params:
@@ -286,6 +287,7 @@ rule coverage_aa:
         """
         python3 scripts/coverage_aa.py \
             --coverage-dna {input.coverage_dna} \
+            --reference {input.reference} \
             --gene-protein-def {input.genes_def} \
             --subtype {params.subtype} \
             --segment {params.segment} \
@@ -294,6 +296,7 @@ rule coverage_aa:
 
         python3 scripts/coverage_aa.py \
             --coverage-dna {input.coverage_dna} \
+            --reference {input.reference} \
             --gene-protein-def {input.proteins_def} \
             --subtype {params.subtype} \
             --segment {params.segment} \

@@ -31,24 +31,24 @@ import { configStore as initialValues } from '../constants/initialValues';
   });
 } */
 
-export function getAllGenes(ref) {
-  return genes[ref];
+export function getAllGenes(reference) {
+  return genes[reference];
 }
 
-function _getGene(gene, ref) {
-  return genes[ref].find((g) => g.name === gene);
+function _getGene(gene, reference) {
+  return genes[reference].find((g) => g.name === gene);
 }
-export function getGene(gene, ref) {
+export function getGene(gene, reference) {
   // Get the selected gene object
-  let geneObj = _getGene(gene, ref);
+  let geneObj = _getGene(gene, reference);
   // If the gene doesn't exist for this reference, try the initial gene
   if (geneObj === undefined) {
-    geneObj = _getGene(initialValues.selectedGene.name, ref);
+    geneObj = _getGene(initialValues.selectedGene.name, reference);
   }
   // If that doesn't exist, then just use the first gene in the list
   // for this reference
   if (geneObj === undefined) {
-    geneObj = getAllGenes(ref)[0];
+    geneObj = getAllGenes(reference)[0];
   }
 
   return geneObj;

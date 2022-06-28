@@ -53,7 +53,6 @@ def load_genes_or_proteins(file):
     out = dict()
 
     for subtype in file.keys():
-        out[subtype] = {}
         for reference in file[subtype].keys():
 
             df = pd.DataFrame.from_records(file[subtype][reference])
@@ -123,7 +122,7 @@ def load_genes_or_proteins(file):
                 domain_df.rename(columns={"index": "name"})
                 df.at[name, "domains"] = json.loads(domain_df.to_json(orient="records"))
 
-            out[subtype][reference] = df.reset_index().to_dict(orient="records")
+            out[reference] = df.reset_index().to_dict(orient="records")
 
     return out
 

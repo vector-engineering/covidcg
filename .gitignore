@@ -131,6 +131,7 @@ data_genbank
 example_data_genbank/rsv/**
 example_data_genbank/flu/**
 example_data_genbank/sars2/**
+data_flu_small/**
 
 # CORS config file.
 services/server/cg_server/cors_conf.py

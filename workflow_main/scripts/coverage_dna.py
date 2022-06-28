@@ -74,7 +74,7 @@ def main():
         references = json.loads(fp.read())
 
     # Get references for this subtype
-    references = references[args.subtype]
+    references = {k: v for k, v in references.items() if v["subtype"] == args.subtype}
 
     # Map segment reference names back to genome reference names
     ref_name_map = {

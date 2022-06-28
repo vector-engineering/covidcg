@@ -12,6 +12,14 @@ data_folder: "example_data_genbank/flu"
 # This path is relative to the project root
 static_data_folder: "static_data/flu"
 
+# Path to folder with data to use in development
+# This path is relative to the project root
+# Only used for database seeding in development
+example_data_folder: "example_data_genbank/flu"
+
+# Database for this virus
+postgres_db: "flu_genbank_dev"
+
 # ------------------
 #       INGEST
 # ------------------
@@ -100,13 +108,31 @@ mutation_partition_break: "M"
 # which is structured as "user1:pass1,user2:pass2,..."
 login_required: false
 
-dev_hostname: "http://localhost:5000"
-prod_hostname: "https://genbank.rsvg.org"
+dev_hostname: "http://localhost:5001"
+prod_hostname: "https://flu.genbank.pathmut.org"
 # prod_hostname: "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION
 # ----------------------
+
+site_title: "Flu PathMut"
+
+# Home page
+show_home_banner: false
+show_walkthroughs: false
+show_surveillance: true
+show_global_seq_plot: false
+
+show_reports_tab: false
+show_global_sequencing_tab: false
+show_methods_tab: false
+show_related_projects_tab: false
+
+default_gene: HA
+default_protein: HA
+
+min_date: "1956-01-01"
 
 show_logos:
   GISAID: false

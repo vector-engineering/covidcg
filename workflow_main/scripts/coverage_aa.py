@@ -165,6 +165,9 @@ def main():
         "--coverage-dna", type=str, required=True, help="Path to coverage_dna.csv file",
     )
     parser.add_argument(
+        "--reference", type=str, required=True, help="Path to reference file"
+    )
+    parser.add_argument(
         "--gene-protein-def",
         type=str,
         required=True,
@@ -181,10 +184,20 @@ def main():
     # Load NT coverage dataframe
     coverage_dna_df = pd.read_csv(args.coverage_dna)
 
+    # Load the reference sequences
+    with open(args.reference, "r") as fp:
+        references = json.loads(fp.read())
+
+    # Get references for this subtype
+    references = {k: v for k, v in references.items() if v["subtype"] == args.subtype}
+
     # Load gene/protein defs
     # JSON to dataframe
     with open(args.gene_protein_def, "r") as fp:
-        feature_dicts = json.loads(fp.read())[args.subtype]
+        feature_dicts = json.loads(fp.read())
+
+    # Get only features for the above references
+    feature_dicts = {k: v for k, v in feature_dicts.items() if k in references.keys()}
 
     feature_dfs = {}
     for k, v in feature_dicts.items():

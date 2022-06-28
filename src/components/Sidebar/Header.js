@@ -2,7 +2,8 @@ import React from 'react';
 
 import ExternalLink from '../Common/ExternalLink';
 import CGLogo from '../../assets/images/cg_logo_v13.png';
-import RSVCGLogo from '../../assets/images/rsv_pathmut_logo_v1@2x.png';
+import RSVLogo from '../../assets/images/rsv_pathmut_logo_v1@2x.png';
+import FluLogo from '../../assets/images/flu_pathmut_logo_v1@2x.png';
 import GISAIDLogo from '../../assets/images/gisaid_logo.png';
 import NCBILogo from '../../assets/images/ncbi_logo.svg';
 
@@ -22,8 +23,11 @@ if (config.virus === 'sars2') {
   logoImage = CGLogo;
   siteTitle = 'COVID-19 CoV Genetics';
 } else if (config.virus === 'rsv') {
-  logoImage = RSVCGLogo;
+  logoImage = RSVLogo;
   siteTitle = 'RSV Pathogen Mutation DB';
+} else if (config.virus === 'flu') {
+  logoImage = FluLogo;
+  siteTitle = 'Flu Pathogen Mutation DB';
 }
 
 const Header = () => {
