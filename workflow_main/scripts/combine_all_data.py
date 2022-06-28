@@ -143,7 +143,7 @@ def main():
     )
 
     # Join coverage data to main dataframe
-    coverage_dna = pd.read_csv(args.dna_coverage)
+    coverage_dna = pd.read_csv(args.dna_coverage, dtype={"segment": str},)
     # coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
     #     lambda x: tuple(x), axis=1
     # )
@@ -159,7 +159,12 @@ def main():
         .assign(range=lambda x: x[["start", "end"]].apply(lambda _x: tuple(_x), axis=1))
     )
 
-    coverage_gene_aa = pd.read_csv(args.gene_aa_coverage)
+    coverage_gene_aa = pd.read_csv(
+        args.gene_aa_coverage,
+        dtype={"segment": str, "feature": str},
+        keep_default_na=False,
+        na_values=[""],
+    )
     coverage_gene_aa["range"] = coverage_gene_aa[["feature", "start", "end"]].apply(
         lambda x: tuple(x), axis=1
     )
@@ -169,7 +174,12 @@ def main():
         .agg(range=("range", list))
     )
 
-    coverage_protein_aa = pd.read_csv(args.protein_aa_coverage)
+    coverage_protein_aa = pd.read_csv(
+        args.protein_aa_coverage,
+        dtype={"segment": str, "feature": str},
+        keep_default_na=False,
+        na_values=[""],
+    )
     coverage_protein_aa["range"] = coverage_protein_aa[
         ["feature", "start", "end"]
     ].apply(lambda x: tuple(x), axis=1)
