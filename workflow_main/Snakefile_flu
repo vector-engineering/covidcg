@@ -45,7 +45,7 @@ CHUNKS, = glob_wildcards(os.path.join(
 SEGMENTS = config["segments"]
 SUBTYPES = [
     d.name for d in sorted(
-        (Path(static_data_folder) / 'mut_references').iterdir()
+        (Path(static_data_folder) / "mut_references").iterdir()
     ) 
     if d.is_dir()
 ]
@@ -56,17 +56,17 @@ SUBTYPE_REFS = {}
 for subtype in SUBTYPES:
     SUBTYPE_REFS[subtype] = [
         d.name for d in sorted(
-            (Path(static_data_folder) / 'mut_references' / subtype).iterdir()
+            (Path(static_data_folder) / "mut_references" / subtype).iterdir()
         ) 
         if d.is_dir()
     ]
 # print(SUBTYPE_REFS)
 
 def get_segment(wildcards, output=None):
-    return wildcards.chunk.split('_')[0]
+    return wildcards.chunk.split("_")[0]
 
 def get_subtype(wildcards, output=None):
-    return wildcards.chunk.split('_')[1]
+    return wildcards.chunk.split("_")[1]
 
 def get_alignments(wildcards):
     subtype = get_subtype(wildcards)
@@ -79,12 +79,15 @@ def get_alignments(wildcards):
 def get_reference_file(wildcards):
     subtype = get_subtype(wildcards)
     segment = get_segment(wildcards)
-    return os.path.join(static_data_folder, 'mut_references', subtype, "{ref}", segment + '.fa')
+    return os.path.join(static_data_folder, "mut_references", subtype, "{ref}", segment + ".fa")
 
 def get_combined_reference_file(wildcards, output=None):
     subtype = get_subtype(wildcards, output)
     segment = get_segment(wildcards, output)    
-    return os.path.join(static_data_folder, 'combined_mut_references', subtype, segment + '.fa')
+    return os.path.join(static_data_folder, "combined_mut_references", subtype, segment + ".fa")
+
+# Additional analyses module
+include: "analyses/Snakefile"
 
 wildcard_constraints:
     chunk="[0-9]+_[A-Za-z0-9-]+_[0-9-]+"
@@ -92,7 +95,11 @@ wildcard_constraints:
 rule all:
     input:
         os.path.join(static_data_folder, "reference.json"),
-        case_data = os.path.join(data_folder, "case_data.json")
+        os.path.join(data_folder, "sequence_data.json"),
+        os.path.join(data_folder, "isolate_data.json"),
+        os.path.join(data_folder, "geo_select_tree.json"),
+        os.path.join(data_folder, "global_group_counts.json"),
+        os.path.join(data_folder, "data_complete.csv")
 
 
 rule process_genes_and_proteins:
@@ -318,6 +325,8 @@ rule combine_coverage:
     """
     input:
         manifest = rules.sequence_manifest.output.manifest,
+        # Include files here to trigger upstream DAG, but don't include in
+        # the actual command call
         coverage_dna_files = expand(
             os.path.join(data_folder, "coverage_dna", "{chunk}_coverage_dna.csv"),
             chunk=CHUNKS
@@ -330,6 +339,10 @@ rule combine_coverage:
             os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv"),
             chunk=CHUNKS
         ),
+    params:
+        dna_coverage_dir = os.path.join(data_folder, "coverage_dna"),
+        gene_aa_coverage_dir = os.path.join(data_folder, "coverage_gene_aa"),
+        protein_aa_coverage_dir = os.path.join(data_folder, "coverage_protein_aa")
     output:
         coverage_dna = os.path.join(data_folder, "coverage_dna.csv"),
         coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa.csv"),
@@ -338,19 +351,19 @@ rule combine_coverage:
         """
         python3 scripts/combine_coverage.py \
             --manifest {input.manifest} \
-            --coverage-files {input.coverage_dna_files} \
+            --coverage-dir {params.dna_coverage_dir} \
             --mode dna \
             --out {output.coverage_dna}
 
         python3 scripts/combine_coverage.py \
             --manifest {input.manifest} \
-            --coverage-files {input.coverage_gene_aa_files} \
+            --coverage-dir {params.gene_aa_coverage_dir} \
             --mode gene_aa \
             --out {output.coverage_gene_aa}
 
         python3 scripts/combine_coverage.py \
             --manifest {input.manifest} \
-            --coverage-files {input.coverage_protein_aa_files} \
+            --coverage-dir {params.protein_aa_coverage_dir} \
             --mode protein_aa \
             --out {output.coverage_protein_aa}
         """
@@ -381,8 +394,8 @@ rule combine_all_data:
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        case_data = os.path.join(data_folder, "case_data.json"),
-        case_data_csv = os.path.join(data_folder, "case_data.csv")
+        sequence_data = os.path.join(data_folder, "sequence_data.json"),
+        sequence_data_csv = os.path.join(data_folder, "sequence_data.csv")
     params:
         count_threshold = config["mutation_count_threshold"],
         group_cols = list(config["group_cols"].keys()),
@@ -402,56 +415,86 @@ rule combine_all_data:
             --gene-aa-coverage {input.gene_aa_coverage} \
             --protein-aa-coverage {input.protein_aa_coverage} \
             --metadata-map {output.metadata_map} \
-            --case-data {output.case_data} \
-            --case-data-csv {output.case_data_csv} \
+            --sequence-data {output.sequence_data} \
+            --sequence-data-csv {output.sequence_data_csv} \
             --count-threshold {params.count_threshold} \
             --metadata-cols {params.metadata_cols}
             # --group-cols {params.group_cols}
         """
 
 
+rule collapse_to_isolate:
+    """Collapse sequence data by isolate"""
+    input:
+        sequence_data = rules.combine_all_data.output.sequence_data
+    params:
+        group_cols = list(config["group_cols"].keys()),
+        metadata_cols = list(config["metadata_cols"].keys())
+    output:
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
+        isolate_data_csv = os.path.join(data_folder, "isolate_data.csv")
+    shell:
+        """
+        python3 scripts/collapse_to_isolate.py \
+            --sequence-data {input.sequence_data} \
+            --group-cols {params.group_cols} \
+            --metadata-cols {params.metadata_cols} \
+            --isolate-data {output.isolate_data} \
+            --isolate-data-csv {output.isolate_data_csv}
+        """
 
-# rule combine_all_data:
-#     """Main rule for generating the data files for the browser
-#     Mostly just a bunch of joins
-#     """
-#     input:
-#         processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
-#         metadata = os.path.join(data_folder, "metadata+subtype.csv"),
-#         dna_mutation_files = expand(
-#             os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
-#             chunk=CHUNKS
-#         ),
-#         gene_aa_mutation_files = expand(
-#             os.path.join(data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"),
-#             chunk=CHUNKS
-#         ),
-#         protein_aa_mutation_files = expand(
-#             os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
-#             chunk=CHUNKS
-#         )
-#     output:
-#         metadata_map = os.path.join(data_folder, "metadata_map.json"),
-#         # Only used to build the location tree
-#         case_data = os.path.join(data_folder, "case_data.json"),
-#         case_data_csv = os.path.join(data_folder, "case_data.csv")
-#     params:
-#         count_threshold=config["mutation_count_threshold"],
-#         group_cols=list(config["group_cols"].keys()),
-#         metadata_cols=list(config["metadata_cols"].keys())
-#     shell:
-#         """
-#         python3 scripts/combine_all_data.py \
-#             --fasta {input.processed_fasta_files} \
-#             --metadata {input.metadata} \
-#             --dna-mutation-files {input.dna_mutation_files} \
-#             --gene-aa-mutation-files {input.gene_aa_mutation_files} \
-#             --protein-aa-mutation-files {input.protein_aa_mutation_files} \
-#             --metadata-map {output.metadata_map} \
-#             --case-data {output.case_data} \
-#             --case-data-csv {output.case_data_csv} \
-#             --count-threshold {params.count_threshold} \
-#             --metadata-cols {params.metadata_cols}
 
-#             # --group-cols {params.group_cols}
-#         """
+rule build_location_tree:
+    input:
+        isolate_data_csv = rules.collapse_to_isolate.output.isolate_data_csv,
+        metadata_map = rules.combine_all_data.output.metadata_map,
+        emoji_map_file = os.path.join(
+            static_data_folder, "country_to_emoji.xls"
+        )
+    output:
+        geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
+    shell:
+        """
+        python3 scripts/build_location_tree.py \
+            --isolate-data {input.isolate_data_csv} \
+            --metadata-map {input.metadata_map} \
+            --emoji-map {input.emoji_map_file} \
+            --out {output.geo_select_tree}
+        """
+
+
+rule global_group_counts:
+    """Get the number of sequences in each group
+    Doing this in the pipeline just saves some work for the browser later
+    """
+    input:
+        isolate_data = rules.collapse_to_isolate.output.isolate_data,
+        reference = rules.write_reference_files.output.reference
+    output:
+        global_group_counts = os.path.join(
+            data_folder, "global_group_counts.json"
+        )
+    params:
+        group_cols = list(config["group_cols"].keys())
+    shell:
+        """
+        python3 scripts/global_group_counts.py \
+            --isolate-data {input.isolate_data} \
+            --reference {input.reference} \
+            --out-global-group-counts {output.global_group_counts} \
+            --group-cols {params.group_cols}
+        """
+
+rule build_full_dataframe:
+    input:
+        isolate_data = rules.collapse_to_isolate.output.isolate_data,
+        metadata_map = rules.combine_all_data.output.metadata_map
+    output:
+        full_df = os.path.join(data_folder, "data_complete.csv")
+    shell:
+        """
+        python3 scripts/build_full_dataframe.py \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
+            --df-out {output.full_df}
+        """

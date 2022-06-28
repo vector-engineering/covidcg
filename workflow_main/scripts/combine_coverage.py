@@ -20,11 +20,7 @@ def main():
         "--manifest", type=str, required=True, help="Path to manifest CSV file"
     )
     parser.add_argument(
-        "--coverage-files",
-        type=str,
-        nargs="+",
-        required=True,
-        help="DNA coverage files",
+        "--coverage-dir", type=str, required=True, help="Coverage files",
     )
     parser.add_argument(
         "--mode", type=str, required=True, help="Mode (dna, gene_aa, protein_aa)"
@@ -40,9 +36,15 @@ def main():
     # Get sequence manifest
     manifest = pd.read_csv(args.manifest)
 
+    # If not in DNA mode, the segment/subtype cols are provided by the
+    # coverage files themselves
+    # Remove now to prevent duplicate columns during the join
+    if args.mode != "dna":
+        manifest.drop(columns=["segment", "subtype"], inplace=True)
+
     # Dump all mutation chunks into a text buffer
     coverage_df_io = io.StringIO()
-    for i, chunk in enumerate(args.coverage_files):
+    for i, chunk in enumerate(sorted(Path(args.coverage_dir).glob("*.csv"))):
         chunk_name = Path(chunk).name.replace("_coverage_" + args.mode + ".csv", "")
         with open(chunk, "r") as fp_in:
             # Write file names, so we can remove duplicate sequences
@@ -58,7 +60,18 @@ def main():
 
     # Read the buffer into a dataframe, then discard the buffer
     coverage_df_io.seek(0)
-    coverage_df = pd.read_csv(coverage_df_io)
+
+    # For gene/protein mode, read segment as string
+    dtype_opts = {}
+    if args.mode == "gene_aa" or args.mode == "protein_aa":
+        dtype_opts["segment"] = str
+        dtype_opts["feature"] = str
+
+    # Specify only '' for null values
+    # Otherwise gene name of 'NA' will be interpreted as missing
+    coverage_df = pd.read_csv(
+        coverage_df_io, dtype=dtype_opts, keep_default_na=False, na_values=[""],
+    )
     coverage_df_io.close()
 
     # --------------------------

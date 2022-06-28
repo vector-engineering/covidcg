@@ -79,7 +79,9 @@ def process_mutations(
     mutation_df.fillna("-", inplace=True)
 
     groupby_cols = ["pos", "ref", "alt"]
-    if mode == "gene_aa":
+    if mode == "dna":
+        groupby_cols.insert(0, "segment")
+    elif mode == "gene_aa":
         groupby_cols.insert(0, "gene")
     elif mode == "protein_aa":
         groupby_cols.insert(0, "protein")

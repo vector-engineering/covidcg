@@ -68,7 +68,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Case data JSON file"
+        "--isolate-data", type=str, required=True, help="Isolate data CSV file"
     )
     parser.add_argument(
         "--metadata-map", type=str, required=True, help="Metadata map file"
@@ -79,8 +79,9 @@ def main():
     args = parser.parse_args()
 
     loc_levels = ["region", "country", "division", "location"]
-    df = pd.read_json(args.case_data)
-    df = df[["Accession ID"] + loc_levels].drop_duplicates("Accession ID")
+    df = pd.read_csv(
+        args.isolate_data, usecols=["isolate_id"] + loc_levels
+    ).drop_duplicates("isolate_id")
 
     with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
@@ -99,16 +100,14 @@ def main():
     unique_locations_df = df.drop_duplicates(loc_level_id_cols)
 
     # Count sequences per grouping level
-    region_counts = dict(df.groupby("region_id")["Accession ID"].count())
-    country_counts = dict(
-        df.groupby(["region_id", "country_id"])["Accession ID"].count()
-    )
+    region_counts = dict(df.groupby("region_id")["isolate_id"].count())
+    country_counts = dict(df.groupby(["region_id", "country_id"])["isolate_id"].count())
     division_counts = dict(
-        df.groupby(["region_id", "country_id", "division_id"])["Accession ID"].count()
+        df.groupby(["region_id", "country_id", "division_id"])["isolate_id"].count()
     )
     location_counts = dict(
         df.groupby(["region_id", "country_id", "division_id", "location_id"])[
-            "Accession ID"
+            "isolate_id"
         ].count()
     )
 

@@ -57,10 +57,16 @@ def main():
         "--metadata-map", type=str, required=True, help="Metadata map file output"
     )
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Case data JSON file output"
+        "--sequence-data",
+        type=str,
+        required=True,
+        help="Sequence data JSON file output",
     )
     parser.add_argument(
-        "--case-data-csv", type=str, required=True, help="Case data CSV file output"
+        "--sequence-data-csv",
+        type=str,
+        required=True,
+        help="Sequence data CSV file output",
     )
 
     # Parameters
@@ -119,21 +125,21 @@ def main():
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "dna_mutation_str"})
+        .rename(columns={"mutation_id": "dna_mutation"})
         .merge(
             gene_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "gene_aa_mutation_str"})
+        .rename(columns={"mutation_id": "gene_aa_mutation"})
         .merge(
             protein_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "protein_aa_mutation_str"})
+        .rename(columns={"mutation_id": "protein_aa_mutation"})
     )
 
     # Join coverage data to main dataframe
@@ -197,6 +203,10 @@ def main():
         .rename(columns={"range": "protein_aa_range"})
     )
 
+    # Remove rows with null dna_range
+    # These are failed alignments with no mutation information
+    df.drop(df.index[df["dna_range"].isna()], inplace=True)
+
     # Factorize some more metadata columns
     metadata_maps = {}
 
@@ -225,8 +235,8 @@ def main():
         fp.write(json.dumps(metadata_maps))
 
     # Write final dataframe
-    df.to_csv(args.case_data_csv, index=False)
-    df.to_json(args.case_data, orient="records")
+    df.to_csv(args.sequence_data_csv, index=False)
+    df.to_json(args.sequence_data, orient="records")
 
 
 if __name__ == "__main__":
