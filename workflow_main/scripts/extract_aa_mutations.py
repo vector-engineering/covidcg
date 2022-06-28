@@ -338,16 +338,10 @@ def extract_aa_mutations(
                 cur_mutation = aa_mutations[i]
                 i += 1
 
-    if mode == "gene":
-        aa_mutation_df = pd.DataFrame.from_records(
-            aa_mutations,
-            columns=["reference", "Accession ID", "gene", "pos", "ref", "alt"],
-        )
-    else:
-        aa_mutation_df = pd.DataFrame.from_records(
-            aa_mutations,
-            columns=["reference", "Accession ID", "protein", "pos", "ref", "alt"],
-        )
+    aa_mutation_df = pd.DataFrame.from_records(
+        aa_mutations,
+        columns=["reference", "Accession ID", "feature", "pos", "ref", "alt"],
+    )
 
     # Isolate accession ID, if its bound with the strain/isolate name
     aa_mutation_df.loc[:, "Accession ID"] = (

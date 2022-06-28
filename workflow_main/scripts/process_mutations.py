@@ -56,7 +56,19 @@ def process_mutations(
 
     # Read the buffer into a dataframe, then discard the buffer
     mutation_df_io.seek(0)
-    mutation_df = pd.read_csv(mutation_df_io)
+
+    # For gene/protein mode, read segment as string
+    dtype_opts = {}
+    if mode == "gene_aa" or mode == "protein_aa":
+        dtype_opts["segment"] = str
+        dtype_opts["feature"] = str
+
+    # Specify only '' for null values
+    # Otherwise gene name of 'NA' will be interpreted as missing
+    mutation_df = pd.read_csv(
+        mutation_df_io, dtype=dtype_opts, keep_default_na=False, na_values=[""]
+    )
+
     mutation_df_io.close()
 
     # --------------------------
@@ -81,13 +93,11 @@ def process_mutations(
     groupby_cols = ["pos", "ref", "alt"]
     if mode == "dna":
         groupby_cols.insert(0, "segment")
-    elif mode == "gene_aa":
-        groupby_cols.insert(0, "gene")
-    elif mode == "protein_aa":
-        groupby_cols.insert(0, "protein")
+    elif mode == "gene_aa" or mode == "protein_aa":
+        groupby_cols.insert(0, "feature")
 
     # Generate mutation strings for initial dataframes
-    # e.g., for DNA, its pos|ref|alt
+    # e.g., for DNA, its segment|pos|ref|alt
     # mutation_df['mutation_str'] = np.nan
     mutation_df = mutation_df.assign(
         mutation_str=(
