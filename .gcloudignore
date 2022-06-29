@@ -18,8 +18,12 @@ __pycache__
 build
 data
 data_genbank
+data_genbank_rsv
 data_az
 data_ma
+data_flu
+data_flu_small
+data_gisaid_flu
 dist
 example_data_genbank
 figures
