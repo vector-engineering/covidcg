@@ -16,7 +16,16 @@ import {
 
 export const initialValues = {
   activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
+  selectedGroups: [
+    'BA.1',
+    'BA.2',
+    'BA.4',
+    'BA.5',
+    'AY.4',
+    'B.1.1.7',
+    'B.1.351',
+    'P.2',
+  ],
   groupMutationType: 'protein_aa',
 };
 
