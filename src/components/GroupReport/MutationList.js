@@ -5,14 +5,13 @@ import { useStores } from '../../stores/connect';
 import { format } from 'd3-format';
 
 import { config } from '../../config';
-import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
-import { formatMutation } from '../../utils/mutationUtils';
 import { reds, mutationColorArray } from '../../constants/colors';
+import { ASYNC_STATES } from '../../constants/defs.json';
+import { downloadBlobURL } from '../../utils/download';
 import {
-  ASYNC_STATES,
-  PLOT_DOWNLOAD_OPTIONS,
-  DNA_OR_AA,
-} from '../../constants/defs.json';
+  buildFeatureMatrix,
+  serializeFeatureMatrix,
+} from './MutationList.utils';
 
 import GroupSearch from './GroupSearch';
 import EmptyPlot from '../Common/EmptyPlot';
@@ -39,8 +38,6 @@ import {
 } from './MutationList.styles';
 import { HelpButton, HelpText } from '../Common/Accordion.styles';
 
-const genes = getAllGenes();
-const proteins = getAllProteins();
 const heatmapMin = 0.0;
 const heatmapMax = 1.0;
 const numColors = reds.length;
@@ -179,7 +176,7 @@ DeleteButtonContainer.propTypes = {
   group: PropTypes.string.isRequired,
 };
 
-const MutationListContent = observer(() => {
+const MutationListContent = observer(({ featureMatrix }) => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
   // console.log(UIStore.groupMutationFrequencyState);
@@ -200,111 +197,10 @@ const MutationListContent = observer(() => {
     );
   }
 
-  // Select group mutations from the selected groups
-  const groupMutationFrequency = groupDataStore.groupMutationFrequency[
-    groupDataStore.activeGroupType
-  ][groupDataStore.groupMutationType]['0'].filter((groupMutation) =>
-    groupDataStore.selectedGroups.includes(groupMutation.name)
-  );
-  // console.log(groupMutationFrequency);
-
-  // Restructure so that we have it in a matrix-ish format
-  /*
-  {
-    // gene or protein
-    S: [
-      {
-        name: D614G
-        ref,
-        alt,
-        pos: 614
-        frequency: [0.1, 0.9, 0.5] // fractional frequencies per group
-      },
-      ...
-    ],
-    ...
-  ]
-  */
   const rowItems = [];
-  const sortByPosThenAlt = function (a, b) {
-    if (a.pos === b.pos) {
-      return a.alt > b.alt;
-    } else {
-      return a.pos - b.pos;
-    }
-  };
 
-  // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
-  const features =
-    groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
-
-  features.forEach((feature, feature_i) => {
-    // Get all mutations for this gene, then sort by position/alt
-    const groupFeatureMutations = groupMutationFrequency
-      .filter((groupMutation) => {
-        if (groupDataStore.groupMutationType === 'dna') {
-          // Include NT mutations in this gene if it is contained in
-          // any of the gene's NT segments
-          // (Most genes will have one segment)
-          return feature.segments.some(
-            (featureNTRange) =>
-              groupMutation.pos >= featureNTRange[0] &&
-              groupMutation.pos <= featureNTRange[1]
-          );
-        } else if (groupDataStore.groupMutationType === 'gene_aa') {
-          return groupMutation.gene === feature.name;
-        } else if (groupDataStore.groupMutationType === 'protein_aa') {
-          return groupMutation.protein === feature.name;
-        }
-      })
-      .sort(sortByPosThenAlt);
-    // console.log(feature.name, groupFeatureMutations);
-
-    // Make list of records to insert into master "matrix"
-    const featureMutationRecords = groupFeatureMutations
-      .slice()
-      // Unique mutations
-      .filter(
-        (v, i, a) =>
-          a.findIndex((element) => element.mutation_str === v.mutation_str) ===
-          i
-      )
-      .map((featureMutation) => {
-        // Find fractional frequencies for each group
-        const freqs = [];
-        groupDataStore.selectedGroups.forEach((group) => {
-          const matchingMutation = groupFeatureMutations.find(
-            (mut) =>
-              mut.mutation_str === featureMutation.mutation_str &&
-              mut.name === group
-          );
-          // 0 if the mutation record isn't found
-          freqs.push(
-            matchingMutation === undefined ? 0 : matchingMutation.fraction
-          );
-        });
-
-        return {
-          // mutation_name: featureMutation.mutation_name,
-          mutation_name: formatMutation(
-            featureMutation.mutation_str,
-            groupDataStore.groupMutationType === 'dna'
-              ? DNA_OR_AA.DNA
-              : DNA_OR_AA.AA
-          ),
-          pos: featureMutation.pos,
-          ref: featureMutation.ref,
-          alt: featureMutation.alt,
-          frequency: freqs,
-        };
-      })
-      // Filter out mutations that have all mutation frequencies below the threshold
-      .filter((row) => {
-        return row.frequency.some(
-          (freq) => freq > plotSettingsStore.reportConsensusThreshold
-        );
-      });
-    // console.log(feature.name, featureMutationRecords);
+  Object.keys(featureMatrix).forEach((featureName, feature_i) => {
+    const featureMutationRecords = featureMatrix[featureName];
 
     // Push empty row for segments without mutations
     if (featureMutationRecords.length === 0) {
@@ -315,8 +211,8 @@ const MutationListContent = observer(() => {
 
       rowItems.push(
         <MutationListRow
-          key={`group-mut-empty-${feature.name}`}
-          segmentName={feature.name}
+          key={`group-mut-empty-${featureName}`}
+          segmentName={featureName}
           segmentColor={
             mutationColorArray[feature_i % mutationColorArray.length]
           }
@@ -329,12 +225,12 @@ const MutationListContent = observer(() => {
     }
     // Push empty row for hidden features
     else if (
-      plotSettingsStore.reportMutationListHidden.indexOf(feature.name) > -1
+      plotSettingsStore.reportMutationListHidden.indexOf(featureName) > -1
     ) {
       rowItems.push(
         <MutationListRow
-          key={`group-mut-empty-${feature.name}`}
-          segmentName={feature.name}
+          key={`group-mut-empty-${featureName}`}
+          segmentName={featureName}
           segmentColor={
             mutationColorArray[feature_i % mutationColorArray.length]
           }
@@ -355,8 +251,8 @@ const MutationListContent = observer(() => {
 
       rowItems.push(
         <MutationListRow
-          key={`group-mut-${feature.name}-${mut.mutation_name}`}
-          segmentName={feature.name}
+          key={`group-mut-${featureName}-${mut.mutation_name}`}
+          segmentName={featureName}
           segmentColor={
             mutationColorArray[feature_i % mutationColorArray.length]
           }
@@ -404,12 +300,29 @@ const MutationListContent = observer(() => {
     </MutationContentContainer>
   );
 });
+MutationListContent.propTypes = {
+  featureMatrix: PropTypes.object.isRequired,
+};
+
+const DOWNLOAD_OPTIONS = {
+  MUTATION_DATA: 'Mutation Data',
+  MUTATION_DATA_MATRIX: 'Mutation Data (Matrix)',
+};
 
 const MutationList = observer(() => {
   const { groupDataStore, plotSettingsStore } = useStores();
   const [state, setState] = useState({
     showHelp: false,
   });
+
+  const featureMatrix = buildFeatureMatrix({
+    groupMutationFrequency: groupDataStore.groupMutationFrequency,
+    activeGroupType: groupDataStore.activeGroupType,
+    groupMutationType: groupDataStore.groupMutationType,
+    selectedGroups: groupDataStore.selectedGroups,
+    reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
+  });
+  console.log(featureMatrix);
 
   // const onChangeActiveGroupType = (event) => {
   //   groupDataStore.updateActiveGroupType(event.target.value);
@@ -424,12 +337,21 @@ const MutationList = observer(() => {
     plotSettingsStore.setReportMutationListHideEmpty(event.target.checked);
   };
   const handleDownloadSelect = (option) => {
-    if (option === PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA) {
+    if (option === DOWNLOAD_OPTIONS.MUTATION_DATA) {
       groupDataStore.downloadGroupMutationFrequencyData({
         group: groupDataStore.activeGroupType,
         mutationType: groupDataStore.groupMutationType,
         consensusThreshold: 0,
       });
+    } else if (option === DOWNLOAD_OPTIONS.MUTATION_DATA_MATRIX) {
+      const blob = new Blob([
+        serializeFeatureMatrix({
+          featureMatrix,
+          selectedGroups: groupDataStore.selectedGroups,
+        }),
+      ]);
+      const url = URL.createObjectURL(blob);
+      downloadBlobURL(url, 'mutation_data_matrix.csv');
     }
   };
   const toggleHelp = (e) => {
@@ -526,7 +448,10 @@ const MutationList = observer(() => {
         <div className="spacer"></div>
         <DropdownButton
           text={'Download'}
-          options={[PLOT_DOWNLOAD_OPTIONS.DOWNLOAD_DATA]}
+          options={[
+            DOWNLOAD_OPTIONS.MUTATION_DATA,
+            DOWNLOAD_OPTIONS.MUTATION_DATA_MATRIX,
+          ]}
           onSelect={handleDownloadSelect}
         />
       </MutationListHeader>
@@ -548,7 +473,7 @@ const MutationList = observer(() => {
         </OptionCheckboxContainer>
       </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListContent />
+        <MutationListContent featureMatrix={featureMatrix} />
       </MutationInnerContainer>
     </MutationListContainer>
   );
