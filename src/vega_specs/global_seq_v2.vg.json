@@ -12,7 +12,7 @@
     {
       "name": "sequences",
       "url": "https://storage.googleapis.com/ve-public/new_global_data/sequences_per_month.json",
-      "format": {"parse": {"month": "date"}}
+      "format": { "parse": { "month": "date" } }
     },
     {
       "name": "total_sequences",
@@ -30,7 +30,7 @@
     {
       "name": "case_count",
       "url": "https://storage.googleapis.com/ve-public/new_global_data/case_count.json",
-      "format": {"parse": {"month": "date"}}
+      "format": { "parse": { "month": "date" } }
     },
     {
       "name": "total_cases",
@@ -48,7 +48,7 @@
     {
       "name": "turnaround",
       "url": "https://storage.googleapis.com/ve-public/new_global_data/turnaround_per_month.json",
-      "format": {"parse": {"submission_month": "date"}}
+      "format": { "parse": { "submission_month": "date" } }
     },
     {
       "name": "sequences_and_cases",
@@ -79,12 +79,12 @@
     {
       "name": "source",
       "url": "https://storage.googleapis.com/ve-public/a/df_ym.json",
-      "format": {"parse": {"date": "date"}}
+      "format": { "parse": { "date": "date" } }
     },
     {
       "name": "world",
       "url": "https://storage.googleapis.com/ve-public/world-110m-mod.json",
-      "format": {"type": "topojson", "feature": "countries"},
+      "format": { "type": "topojson", "feature": "countries" },
       "transform": [
         {
           "type": "lookup",
@@ -105,23 +105,26 @@
     {
       "name": "trackCountries",
       "values": [
-        {"country": "USA"},
-        {"country": "United Kingdom"},
-        {"country": "China"},
-        {"country": "Australia"},
-        {"country": "Japan"},
-        {"country": "Denmark"},
-        {"country": "India"},
-        {"country": "New Zealand"}
+        { "country": "USA" },
+        { "country": "United Kingdom" },
+        { "country": "China" },
+        { "country": "Australia" },
+        { "country": "Japan" },
+        { "country": "Denmark" },
+        { "country": "India" },
+        { "country": "New Zealand" }
       ],
-      "on": [{"trigger": "active", "toggle": "{country: active.country}"}]
+      "on": [{ "trigger": "active", "toggle": "{country: active.country}" }]
     },
     {
       "name": "hover_country",
       "values": [],
       "on": [
-        { "trigger": "topRowHoverCountry", "insert": "{country: topRowHoverCountry, data: topRowHoverCountry}" },
-        {"trigger": "topRowHoverCountryClear", "remove": true}
+        {
+          "trigger": "topRowHoverCountry",
+          "insert": "{country: topRowHoverCountry, data: topRowHoverCountry}"
+        },
+        { "trigger": "topRowHoverCountryClear", "remove": true }
       ]
     },
     {
@@ -134,7 +137,7 @@
         },
         {
           "type": "window",
-          "sort": {"field": "month"},
+          "sort": { "field": "month" },
           "groupby": ["country"],
           "ops": ["sum"],
           "fields": ["new_sequences"],
@@ -240,7 +243,7 @@
       "values": [],
       "on": [
         { "trigger": "bottomRowLegendHover", "insert": "bottomRowLegendHover" },
-        {"trigger": "bottomRowLegendClear", "remove": true}
+        { "trigger": "bottomRowLegendClear", "remove": true }
       ],
       "transform": [
         {
@@ -252,15 +255,29 @@
     },
     {
       "name": "hover_all",
-      "source": ["hover_country", "hover_sequences", "hover_cases", "hover_turnaround", "hover_legend"]
+      "source": [
+        "hover_country",
+        "hover_sequences",
+        "hover_cases",
+        "hover_turnaround",
+        "hover_legend"
+      ]
     }
   ],
   "signals": [
     {
       "name": "topRowHoverCountry",
       "on": [
-        {"events": "@point:mouseover", "update": "datum.country", "force": true},
-        {"events": "@seqMap:mouseover", "update": "datum.country", "force": true}
+        {
+          "events": "@point:mouseover",
+          "update": "datum.country",
+          "force": true
+        },
+        {
+          "events": "@seqMap:mouseover",
+          "update": "datum.country",
+          "force": true
+        }
       ]
     },
     {
@@ -268,12 +285,12 @@
       "value": true,
       "on": [
         {
-          "events": "@point:mouseout", 
-          "update": "true", 
+          "events": "@point:mouseout",
+          "update": "true",
           "force": true
         },
         {
-          "events": "@seqMap:mouseout", 
+          "events": "@seqMap:mouseout",
           "update": "true",
           "force": true
         }
@@ -283,25 +300,25 @@
       "name": "active",
       "value": {},
       "on": [
-        {"events": "@point:mousedown", "update": "datum"},
-        {"events": "@seqMap:mousedown", "update": "datum"},
-        {"events": "window:mouseup", "update": "{}"}
+        { "events": "@point:mousedown", "update": "datum" },
+        { "events": "@seqMap:mousedown", "update": "datum" },
+        { "events": "window:mouseup", "update": "{}" }
       ]
     },
-    {"name": "topRowHeight", "update": "height * (1/2)"},
-    {"name": "bottomRowYPadding", "value": 50},
+    { "name": "topRowHeight", "update": "height * (1/2)" },
+    { "name": "bottomRowYPadding", "value": 50 },
     {
       "name": "bottomRowHeight",
       "update": "height - topRowHeight - bottomRowYPadding"
     },
-    {"name": "bottomRowY", "update": "topRowHeight + bottomRowYPadding"},
-    {"name": "bottomRowPlotPadding", "value": 75},
+    { "name": "bottomRowY", "update": "topRowHeight + bottomRowYPadding" },
+    { "name": "bottomRowPlotPadding", "value": 75 },
     {
       "name": "bottomRowPlotWidth",
       "update": "((width - (bottomRowPlotPadding * 2)) / 3)"
     },
-    {"name": "bottomRowXRange", "update": "[0, bottomRowPlotWidth]"},
-    {"name": "bottomRowYRange", "update": "[bottomRowHeight, 0]"},
+    { "name": "bottomRowXRange", "update": "[0, bottomRowPlotWidth]" },
+    { "name": "bottomRowYRange", "update": "[bottomRowHeight, 0]" },
     {
       "name": "casesPlotX",
       "update": "bottomRowPlotWidth + bottomRowPlotPadding"
@@ -310,14 +327,14 @@
       "name": "turnaroundPlotX",
       "update": "(bottomRowPlotWidth * 2) + (bottomRowPlotPadding * 2)"
     },
-    {"name": "scatterWidth", "update": "width * (0.45)"},
-    {"name": "scatterHeight", "update": "topRowHeight"},
-    {"name": "mapPadding", "value": 120},
-    {"name": "mapX", "update": "scatterWidth + mapPadding"},
-    {"name": "mapWidth", "update": "width - scatterWidth - mapPadding"},
-    {"name": "mapHeight", "update": "topRowHeight"},
-    {"name": "tx", "update": "mapWidth / 2"},
-    {"name": "ty", "update": "mapHeight / 2"},
+    { "name": "scatterWidth", "update": "width * (0.45)" },
+    { "name": "scatterHeight", "update": "topRowHeight" },
+    { "name": "mapPadding", "value": 120 },
+    { "name": "mapX", "update": "scatterWidth + mapPadding" },
+    { "name": "mapWidth", "update": "width - scatterWidth - mapPadding" },
+    { "name": "mapHeight", "update": "topRowHeight" },
+    { "name": "tx", "update": "mapWidth / 2" },
+    { "name": "ty", "update": "mapHeight / 2" },
     {
       "name": "scale",
       "value": 60,
@@ -331,17 +348,17 @@
     {
       "name": "angles",
       "value": [0, 0],
-      "on": [{"events": "mousedown", "update": "[rotateX, centerY]"}]
+      "on": [{ "events": "mousedown", "update": "[rotateX, centerY]" }]
     },
     {
       "name": "cloned",
       "value": null,
-      "on": [{"events": "mousedown", "update": "copy('projection')"}]
+      "on": [{ "events": "mousedown", "update": "copy('projection')" }]
     },
     {
       "name": "start",
       "value": null,
-      "on": [{"events": "mousedown", "update": "invert(cloned, xy())"}]
+      "on": [{ "events": "mousedown", "update": "invert(cloned, xy())" }]
     },
     {
       "name": "drag",
@@ -358,7 +375,7 @@
       "value": null,
       "on": [
         {
-          "events": {"signal": "drag"},
+          "events": { "signal": "drag" },
           "update": "[drag[0] - start[0], start[1] - drag[1]]"
         }
       ]
@@ -366,14 +383,16 @@
     {
       "name": "rotateX",
       "value": 0,
-      "on": [{"events": {"signal": "delta"}, "update": "angles[0] + delta[0]"}]
+      "on": [
+        { "events": { "signal": "delta" }, "update": "angles[0] + delta[0]" }
+      ]
     },
     {
       "name": "centerY",
       "value": 0,
       "on": [
         {
-          "events": {"signal": "delta"},
+          "events": { "signal": "delta" },
           "update": "clamp(angles[1] + delta[1], -60, 60)"
         }
       ]
@@ -446,19 +465,19 @@
       "name": "sequence_color",
       "type": "quantize",
       "domain": [0, 20],
-      "range": {"scheme": "yellowgreenblue", "count": 10}
+      "range": { "scheme": "yellowgreenblue", "count": 10 }
     },
     {
       "name": "country_color",
       "type": "ordinal",
-      "domain": {"data": "selected_sequences", "field": "country"},
-      "range": {"scheme": "tableau10"}
+      "domain": { "data": "selected_sequences", "field": "country" },
+      "range": { "scheme": "tableau10" }
     },
     {
       "name": "sequencesX",
       "type": "time",
-      "domain": {"data": "selected_sequences", "field": "month"},
-      "range": {"signal": "bottomRowXRange"}
+      "domain": { "data": "selected_sequences", "field": "month" },
+      "range": { "signal": "bottomRowXRange" }
     },
     {
       "name": "sequencesY",
@@ -466,20 +485,20 @@
       "round": true,
       "nice": true,
       "zero": true,
-      "domain": {"data": "selected_sequences", "field": "sequences"},
-      "range": {"signal": "bottomRowYRange"}
+      "domain": { "data": "selected_sequences", "field": "sequences" },
+      "range": { "signal": "bottomRowYRange" }
     },
     {
       "name": "casesX",
       "type": "time",
-      "domain": {"data": "selected_cases", "field": "month"},
-      "range": {"signal": "bottomRowXRange"}
+      "domain": { "data": "selected_cases", "field": "month" },
+      "range": { "signal": "bottomRowXRange" }
     },
     {
       "name": "casesY",
       "type": "linear",
-      "domain": {"data": "selected_cases", "field": "cumulative_cases"},
-      "range": {"signal": "bottomRowYRange"}
+      "domain": { "data": "selected_cases", "field": "cumulative_cases" },
+      "range": { "signal": "bottomRowYRange" }
     },
     {
       "name": "turnaroundX",
@@ -488,23 +507,23 @@
         "data": "selected_turnaround",
         "field": "submission_month"
       },
-      "range": {"signal": "bottomRowXRange"}
+      "range": { "signal": "bottomRowXRange" }
     },
     {
       "name": "turnaroundY",
       "type": "linear",
-      "domain": {"data": "selected_turnaround", "field": "q50"},
-      "range": {"signal": "bottomRowYRange"}
+      "domain": { "data": "selected_turnaround", "field": "q50" },
+      "range": { "signal": "bottomRowYRange" }
     }
   ],
   "projections": [
     {
       "name": "projection",
       "type": "mercator",
-      "scale": {"signal": "scale"},
-      "rotate": [{"signal": "rotateX"}, 0, 0],
-      "center": [0, {"signal": "centerY"}],
-      "translate": [{"signal": "tx"}, {"signal": "ty"}]
+      "scale": { "signal": "scale" },
+      "rotate": [{ "signal": "rotateX" }, 0, 0],
+      "center": [0, { "signal": "centerY" }],
+      "translate": [{ "signal": "tx" }, { "signal": "ty" }]
     }
   ],
   "marks": [
@@ -512,8 +531,8 @@
       "type": "group",
       "encode": {
         "update": {
-          "width": {"signal": "width"},
-          "height": {"signal": "topRowHeight"}
+          "width": { "signal": "width" },
+          "height": { "signal": "topRowHeight" }
         }
       },
       "marks": [
@@ -521,17 +540,17 @@
           "name": "scatterRect",
           "type": "group",
           "signals": [
-            {"name": "width", "update": "scatterWidth"},
-            {"name": "height", "update": "scatterHeight"}
+            { "name": "width", "update": "scatterWidth" },
+            { "name": "height", "update": "scatterHeight" }
           ],
           "encode": {
             "enter": {
-              "x": {"value": 0},
-              "y": {"value": 0}
+              "x": { "value": 0 },
+              "y": { "value": 0 }
             },
             "update": {
-              "width": {"signal": "scatterWidth"},
-              "height": {"signal": "scatterHeight"}
+              "width": { "signal": "scatterWidth" },
+              "height": { "signal": "scatterHeight" }
             }
           },
           "scales": [
@@ -542,7 +561,7 @@
               "round": true,
               "nice": true,
               "zero": true,
-              "domain": {"data": "sequences_and_cases", "field": "cases"},
+              "domain": { "data": "sequences_and_cases", "field": "cases" },
               "range": "width"
             },
             {
@@ -552,14 +571,14 @@
               "round": true,
               "nice": true,
               "zero": true,
-              "domain": {"data": "sequences_and_cases", "field": "sequences"},
+              "domain": { "data": "sequences_and_cases", "field": "sequences" },
               "range": "height"
             },
             {
               "name": "dateColor",
               "type": "linear",
-              "domain": {"data": "source", "field": "date"},
-              "range": {"scheme": "yelloworangered", "count": 10}
+              "domain": { "data": "source", "field": "date" },
+              "range": { "scheme": "yelloworangered", "count": 10 }
             }
           ],
           "axes": [
@@ -570,7 +589,9 @@
               "orient": "bottom",
               "tickCount": 8,
               "title": "Cases",
-              "values": [0, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
+              "values": [
+                0, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000
+              ]
             },
             {
               "scale": "y",
@@ -605,28 +626,28 @@
             {
               "name": "point",
               "type": "symbol",
-              "from": {"data": "sequences_and_cases"},
+              "from": { "data": "sequences_and_cases" },
               "encode": {
                 "update": {
-                  "x": {"scale": "x", "field": "cases"},
-                  "y": {"scale": "y", "field": "sequences"},
-                  "size": {"scale": "size", "field": "Population"},
-                  "shape": {"value": "circle"},
+                  "x": { "scale": "x", "field": "cases" },
+                  "y": { "scale": "y", "field": "sequences" },
+                  "size": { "scale": "size", "field": "Population" },
+                  "shape": { "value": "circle" },
                   "strokeWidth": [
                     {
                       "test": "indata('hover_all', 'country', datum.country)",
                       "value": 2
                     },
-                    {"value": 0.5}
+                    { "value": 0.5 }
                   ],
                   "opacity": [
                     {
                       "test": "indata('hover_all', 'country', datum.country)",
                       "value": 0.8
                     },
-                    {"value": 0.5}
+                    { "value": 0.5 }
                   ],
-                  "stroke": {"value": "#000"},
+                  "stroke": { "value": "#000" },
                   "fill": {
                     "scale": "sequence_color",
                     "field": "seqs_per_1k_cases"
@@ -639,26 +660,26 @@
             },
             {
               "type": "text",
-              "from": {"data": "sequences_and_cases"},
+              "from": { "data": "sequences_and_cases" },
               "interactive": false,
               "encode": {
                 "enter": {
-                  "fill": {"value": "#333"},
-                  "fontSize": {"value": 14},
-                  "fontWeight": {"value": "bold"},
-                  "text": {"field": "country"},
-                  "align": {"value": "center"},
-                  "baseline": {"value": "bottom"}
+                  "fill": { "value": "#333" },
+                  "fontSize": { "value": 14 },
+                  "fontWeight": { "value": "bold" },
+                  "text": { "field": "country" },
+                  "align": { "value": "center" },
+                  "baseline": { "value": "bottom" }
                 },
                 "update": {
-                  "x": {"scale": "x", "field": "cases"},
-                  "y": {"scale": "y", "field": "sequences", "offset": -7},
+                  "x": { "scale": "x", "field": "cases" },
+                  "y": { "scale": "y", "field": "sequences", "offset": -7 },
                   "fillOpacity": [
                     {
                       "test": "indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country)",
                       "value": 0.8
                     },
-                    {"value": 0}
+                    { "value": 0 }
                   ]
                 }
               }
@@ -669,26 +690,26 @@
           "name": "seqMapRect",
           "type": "group",
           "signals": [
-            {"name": "width", "update": "mapWidth"},
-            {"name": "height", "update": "mapHeight"}
+            { "name": "width", "update": "mapWidth" },
+            { "name": "height", "update": "mapHeight" }
           ],
           "encode": {
             "enter": {
-              "clip": {"value": true},
-              "y": {"value": 0},
-              "fill": {"value": "#fff"}
+              "clip": { "value": true },
+              "y": { "value": 0 },
+              "fill": { "value": "#fff" }
             },
             "update": {
-              "x": {"signal": "mapX"},
-              "width": {"signal": "mapWidth"},
-              "height": {"signal": "mapHeight"}
+              "x": { "signal": "mapX" },
+              "width": { "signal": "mapWidth" },
+              "height": { "signal": "mapHeight" }
             }
           },
           "marks": [
             {
               "name": "seqMap",
               "type": "shape",
-              "from": {"data": "world"},
+              "from": { "data": "world" },
               "encode": {
                 "update": {
                   "tooltip": {
@@ -699,32 +720,32 @@
                       "test": "datum.seqs_per_1k_cases === null || datum.seqs_per_1k_cases === 0",
                       "value": "#AAA"
                     },
-                    {"scale": "sequence_color", "field": "seqs_per_1k_cases"}
+                    { "scale": "sequence_color", "field": "seqs_per_1k_cases" }
                   ],
                   "strokeWidth": [
                     {
                       "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
                       "value": 1
                     },
-                    {"value": 0.5}
+                    { "value": 0.5 }
                   ],
                   "stroke": [
                     {
                       "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
                       "value": "#444"
                     },
-                    {"value": "#bbb"}
+                    { "value": "#bbb" }
                   ],
                   "zindex": [
                     {
                       "test": "datum.country !== null && (indata('hover_country', 'data', datum.country) || indata('trackCountries', 'country', datum.country))",
                       "value": 1
                     },
-                    {"value": 0}
+                    { "value": 0 }
                   ]
                 }
               },
-              "transform": [{"type": "geoshape", "projection": "projection"}]
+              "transform": [{ "type": "geoshape", "projection": "projection" }]
             }
           ],
           "legends": [
@@ -751,10 +772,10 @@
       "type": "group",
       "encode": {
         "update": {
-          "x": {"value": 0},
-          "y": {"signal": "bottomRowY"},
-          "width": {"signal": "width"},
-          "height": {"signal": "bottomRowHeight"}
+          "x": { "value": 0 },
+          "y": { "signal": "bottomRowY" },
+          "width": { "signal": "width" },
+          "height": { "signal": "bottomRowHeight" }
         }
       },
       "legends": [
@@ -777,14 +798,14 @@
               "name": "country_legend_symbol",
               "interactive": true,
               "update": {
-                "size": {"value": 50},
-                "stroke": {"value": "transparent"},
+                "size": { "value": 50 },
+                "stroke": { "value": "transparent" },
                 "opacity": [
                   {
                     "test": "!length(data('hover_all')) || indata('hover_all', 'country', datum.value)",
                     "value": 1.0
                   },
-                  {"value": 0.3}
+                  { "value": 0.3 }
                 ]
               }
             },
@@ -797,7 +818,7 @@
                     "test": "!length(data('hover_all')) || indata('hover_all', 'country', datum.value)",
                     "value": 1.0
                   },
-                  {"value": 0.3}
+                  { "value": 0.3 }
                 ]
               }
             }
@@ -810,21 +831,21 @@
           "type": "group",
           "encode": {
             "update": {
-              "x": {"value": 0},
-              "width": {"signal": "bottomRowPlotWidth"},
-              "height": {"signal": "bottomRowHeight"}
+              "x": { "value": 0 },
+              "width": { "signal": "bottomRowPlotWidth" },
+              "height": { "signal": "bottomRowHeight" }
             }
           },
           "signals": [
-            {"name": "width", "update": "bottomRowPlotWidth"},
-            {"name": "height", "update": "bottomRowHeight"}
+            { "name": "width", "update": "bottomRowPlotWidth" },
+            { "name": "height", "update": "bottomRowHeight" }
           ],
           "axes": [
             {
               "scale": "sequencesX",
               "orient": "bottom",
               "format": "%Y-%m",
-              "tickCount": "month",
+              "tickCount": { "interval": "month", "step": 3 },
               "labelAngle": 310,
               "labelAlign": "right",
               "labelBaseline": "middle",
@@ -855,19 +876,22 @@
                 {
                   "name": "sequences_over_time_line",
                   "type": "line",
-                  "from": {"data": "series"},
+                  "from": { "data": "series" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "sequencesX", "field": "month"},
-                      "y": {"scale": "sequencesY", "field": "sequences"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2},
+                      "x": { "scale": "sequencesX", "field": "month" },
+                      "y": { "scale": "sequencesY", "field": "sequences" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 },
                       "strokeOpacity": [
                         {
                           "test": "!length(data('hover_all')) || indata('hover_all', 'country', datum.country)",
                           "value": 1.0
                         },
-                        {"value": 0.2}
+                        { "value": 0.2 }
                       ]
                     }
                   }
@@ -875,15 +899,18 @@
                 {
                   "name": "sequences_over_time_point",
                   "type": "symbol",
-                  "from": {"data": "hover_sequences"},
+                  "from": { "data": "hover_sequences" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "sequencesX", "field": "month"},
-                      "y": {"scale": "sequencesY", "field": "sequences"},
-                      "size": {"value": 40},
-                      "fill": {"value": "#fff"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2}
+                      "x": { "scale": "sequencesX", "field": "month" },
+                      "y": { "scale": "sequencesY", "field": "sequences" },
+                      "size": { "value": 40 },
+                      "fill": { "value": "#fff" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 }
                     }
                   }
                 }
@@ -896,21 +923,21 @@
           "type": "group",
           "encode": {
             "update": {
-              "x": {"signal": "casesPlotX"},
-              "width": {"signal": "bottomRowPlotWidth"},
-              "height": {"signal": "bottomRowHeight"}
+              "x": { "signal": "casesPlotX" },
+              "width": { "signal": "bottomRowPlotWidth" },
+              "height": { "signal": "bottomRowHeight" }
             }
           },
           "signals": [
-            {"name": "width", "update": "bottomRowPlotWidth"},
-            {"name": "height", "update": "bottomRowHeight"}
+            { "name": "width", "update": "bottomRowPlotWidth" },
+            { "name": "height", "update": "bottomRowHeight" }
           ],
           "axes": [
             {
               "scale": "casesX",
               "orient": "bottom",
               "format": "%Y-%m",
-              "tickCount": "month",
+              "tickCount": { "interval": "month", "step": 3 },
               "labelAngle": 310,
               "labelAlign": "right",
               "labelBaseline": "middle",
@@ -942,19 +969,22 @@
                 {
                   "name": "cases_over_time_line",
                   "type": "line",
-                  "from": {"data": "series"},
+                  "from": { "data": "series" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "casesX", "field": "month"},
-                      "y": {"scale": "casesY", "field": "cumulative_cases"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2},
+                      "x": { "scale": "casesX", "field": "month" },
+                      "y": { "scale": "casesY", "field": "cumulative_cases" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 },
                       "strokeOpacity": [
                         {
                           "test": "!length(data('hover_all')) || indata('hover_all', 'country', datum.country)",
                           "value": 1.0
                         },
-                        {"value": 0.2}
+                        { "value": 0.2 }
                       ]
                     }
                   }
@@ -962,15 +992,18 @@
                 {
                   "name": "cases_over_time_point",
                   "type": "symbol",
-                  "from": {"data": "hover_cases"},
+                  "from": { "data": "hover_cases" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "casesX", "field": "month"},
-                      "y": {"scale": "casesY", "field": "cumulative_cases"},
-                      "size": {"value": 40},
-                      "fill": {"value": "#fff"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2}
+                      "x": { "scale": "casesX", "field": "month" },
+                      "y": { "scale": "casesY", "field": "cumulative_cases" },
+                      "size": { "value": 40 },
+                      "fill": { "value": "#fff" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 }
                     }
                   }
                 }
@@ -983,21 +1016,21 @@
           "type": "group",
           "encode": {
             "update": {
-              "x": {"signal": "turnaroundPlotX"},
-              "width": {"signal": "bottomRowPlotWidth"},
-              "height": {"signal": "bottomRowHeight"}
+              "x": { "signal": "turnaroundPlotX" },
+              "width": { "signal": "bottomRowPlotWidth" },
+              "height": { "signal": "bottomRowHeight" }
             }
           },
           "signals": [
-            {"name": "width", "update": "bottomRowPlotWidth"},
-            {"name": "height", "update": "bottomRowHeight"}
+            { "name": "width", "update": "bottomRowPlotWidth" },
+            { "name": "height", "update": "bottomRowHeight" }
           ],
           "axes": [
             {
               "scale": "turnaroundX",
               "orient": "bottom",
               "format": "%Y-%m",
-              "tickCount": "month",
+              "tickCount": { "interval": "month", "step": 3 },
               "labelAngle": 310,
               "labelAlign": "right",
               "labelBaseline": "middle",
@@ -1028,22 +1061,25 @@
                 {
                   "name": "turnaround_line",
                   "type": "line",
-                  "from": {"data": "series"},
+                  "from": { "data": "series" },
                   "encode": {
                     "update": {
                       "x": {
                         "scale": "turnaroundX",
                         "field": "submission_month"
                       },
-                      "y": {"scale": "turnaroundY", "field": "q50"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2},
+                      "y": { "scale": "turnaroundY", "field": "q50" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 },
                       "strokeOpacity": [
                         {
                           "test": "!length(data('hover_all')) || indata('hover_all', 'country', datum.country)",
                           "value": 1.0
                         },
-                        {"value": 0.2}
+                        { "value": 0.2 }
                       ]
                     }
                   }
@@ -1051,15 +1087,21 @@
                 {
                   "name": "turnaround_point",
                   "type": "symbol",
-                  "from": {"data": "hover_turnaround"},
+                  "from": { "data": "hover_turnaround" },
                   "encode": {
                     "update": {
-                      "x": {"scale": "turnaroundX", "field": "submission_month"},
-                      "y": {"scale": "turnaroundY", "field": "q50"},
-                      "size": {"value": 40},
-                      "fill": {"value": "#fff"},
-                      "stroke": {"scale": "country_color", "field": "country"},
-                      "strokeWidth": {"value": 2}
+                      "x": {
+                        "scale": "turnaroundX",
+                        "field": "submission_month"
+                      },
+                      "y": { "scale": "turnaroundY", "field": "q50" },
+                      "size": { "value": 40 },
+                      "fill": { "value": "#fff" },
+                      "stroke": {
+                        "scale": "country_color",
+                        "field": "country"
+                      },
+                      "strokeWidth": { "value": 2 }
                     }
                   }
                 }
