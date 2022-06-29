@@ -41,22 +41,34 @@ def process_mutations(
     # Dump all mutation chunks into a text buffer
     mutation_df_io = io.StringIO()
     for i, chunk in enumerate(mutation_files):
-        file_date = Path(chunk).name.replace("_" + mode + "_mutation.csv", "")
+        file_name = Path(chunk).name.replace("_" + mode + "_mutation.csv", "")
         with open(chunk, "r") as fp_in:
             # Write dates, so we can remove duplicate sequences
             # and default to the mutations of the latest sequence, by date
             for j, line in enumerate(fp_in):
                 # Write the header of the first file
                 if i == 0 and j == 0:
-                    mutation_df_io.write(line.strip() + ",date\n")
+                    mutation_df_io.write(line.strip() + ",file_name\n")
                 # Or write any line that's not the header
                 # (to avoid writing the header more than once)
                 elif j > 0:
-                    mutation_df_io.write(line.strip() + "," + file_date + "\n")
+                    mutation_df_io.write(line.strip() + "," + file_name + "\n")
 
     # Read the buffer into a dataframe, then discard the buffer
     mutation_df_io.seek(0)
-    mutation_df = pd.read_csv(mutation_df_io)
+
+    # For gene/protein mode, read segment as string
+    dtype_opts = {}
+    if mode == "gene_aa" or mode == "protein_aa":
+        dtype_opts["segment"] = str
+        dtype_opts["feature"] = str
+
+    # Specify only '' for null values
+    # Otherwise gene name of 'NA' will be interpreted as missing
+    mutation_df = pd.read_csv(
+        mutation_df_io, dtype=dtype_opts, keep_default_na=False, na_values=[""]
+    )
+
     mutation_df_io.close()
 
     # --------------------------
@@ -65,10 +77,12 @@ def process_mutations(
 
     # Also has the effect of adding rows for sequences without mutations
     # (pos, ref, alt, etc filled with NaNs)
-    mutation_df = manifest.set_index(["Accession ID", "reference", "date"]).join(
-        mutation_df.set_index(["Accession ID", "reference", "date"]), how="left"
+    mutation_df = manifest.merge(
+        mutation_df,
+        how="left",
+        left_on=["Accession ID", "reference", "file_name"],
+        right_on=["Accession ID", "reference", "file_name"],
     )
-    mutation_df.reset_index(inplace=True)
 
     # Remove sequences with no mutations before counting mutations
     mutation_df = mutation_df.loc[~mutation_df["pos"].isna()]
@@ -77,13 +91,13 @@ def process_mutations(
     mutation_df.fillna("-", inplace=True)
 
     groupby_cols = ["pos", "ref", "alt"]
-    if mode == "gene_aa":
-        groupby_cols.insert(0, "gene")
-    elif mode == "protein_aa":
-        groupby_cols.insert(0, "protein")
+    if mode == "dna":
+        groupby_cols.insert(0, "segment")
+    elif mode == "gene_aa" or mode == "protein_aa":
+        groupby_cols.insert(0, "feature")
 
     # Generate mutation strings for initial dataframes
-    # e.g., for DNA, its pos|ref|alt
+    # e.g., for DNA, its segment|pos|ref|alt
     # mutation_df['mutation_str'] = np.nan
     mutation_df = mutation_df.assign(
         mutation_str=(
@@ -116,7 +130,7 @@ def process_mutations(
     )["mutation_id"].agg(list)
 
     mutation_group_df = (
-        manifest.drop(columns=["date"])
+        manifest.drop(columns=["file_name", "date", "subtype", "segment"])
         .merge(
             mutation_group_df,
             left_on=["Accession ID", "reference"],

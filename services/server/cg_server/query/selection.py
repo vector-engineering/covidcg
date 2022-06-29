@@ -50,12 +50,12 @@ def build_coordinate_filters(
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
             mutation_table = "gene_aa_mutation"
             mutation_filter.append(
-                sql.SQL('"gene" = {gene}').format(gene=sql.Literal(selected_gene))
+                sql.SQL('"feature" = {gene}').format(gene=sql.Literal(selected_gene))
             )
         elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
             mutation_table = "protein_aa_mutation"
             mutation_filter.append(
-                sql.SQL('"protein" = {protein}').format(
+                sql.SQL('"feature" = {protein}').format(
                     protein=sql.Literal(selected_protein)
                 )
             )
@@ -332,7 +332,9 @@ def count_coverage(
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
             coverage_table = "gene_aa_coverage"
             coverage_filter.append(
-                sql.SQL('"feature" = {feature}').format(feature=sql.Literal(selected_gene))
+                sql.SQL('"feature" = {feature}').format(
+                    feature=sql.Literal(selected_gene)
+                )
             )
 
         elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
@@ -348,19 +350,19 @@ def count_coverage(
     coverage_query = sql.SQL(
         """
         WITH selected AS (
-            SELECT "sequence_id"
+            SELECT "isolate_id"
             FROM "metadata"
             WHERE {sequence_where_filter}
         ), start_count AS (
             SELECT {gene_or_protein_col} "range_start", COUNT(*) AS "count"
             FROM {coverage_table}
-            INNER JOIN SELECTED ON {coverage_table}."sequence_id" = selected."sequence_id"
+            INNER JOIN SELECTED ON {coverage_table}."isolate_id" = selected."isolate_id"
             WHERE {coverage_filter}
             GROUP BY {gene_or_protein_col} "range_start"
         ), end_count AS (
             SELECT {gene_or_protein_col} "range_end", COUNT(*) AS "count"
             FROM {coverage_table}
-            INNER JOIN SELECTED ON {coverage_table}."sequence_id" = selected."sequence_id"
+            INNER JOIN SELECTED ON {coverage_table}."isolate_id" = selected."isolate_id"
             WHERE {coverage_filter}
             GROUP BY {gene_or_protein_col} "range_end"
         ), start_end_count AS (
@@ -517,7 +519,7 @@ def query_and_aggregate(conn, req):
                         locdef."value" as "location",
                         EXTRACT(EPOCH FROM m."collection_date"),
                         m.{group_key},
-                        COUNT(m."sequence_id") as "count"
+                        COUNT(m."isolate_id") as "count"
                     FROM "metadata" m
                     INNER JOIN {loc_def_table} locdef ON m.{loc_level_col} = locdef."id"
                     WHERE {sequence_where_filter}

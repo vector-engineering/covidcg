@@ -111,6 +111,7 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       >
         {config.virus === 'sars2' && <span>About COVID CG</span>}
         {config.virus === 'rsv' && <span>About RSV PathMut</span>}
+        {config.virus === 'flu' && <span>About Flu PathMut</span>}
       </a>
     </TabItem>
   );

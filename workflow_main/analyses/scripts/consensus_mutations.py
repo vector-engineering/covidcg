@@ -15,9 +15,9 @@ from collections import Counter
 
 
 def get_consensus_mutations(
-    case_df,
+    isolate_df,
     group_key,
-    reference=None,
+    reference,
     consensus_fraction=0.9,
     min_reporting_fraction=0.05,
 ):
@@ -25,7 +25,7 @@ def get_consensus_mutations(
 
     Parameters
     ----------
-    case_df: pandas.DataFrame
+    isolate_df: pandas.DataFrame
     group_key: str
         - 'lineage' or 'clade'
     reference: str
@@ -34,21 +34,18 @@ def get_consensus_mutations(
         - Fraction of taxons that need to have a mutation for it to be considered 
           a consensus mutation for a lineage/clade
     min_reporting_fraction: float
-        - ...
+        - Mutations below this fractional frequency will be ignored
 
     Returns
     -------
     group_mutation_df: pandas.DataFrame
     """
 
-    if reference is not None:
-        case_dff = case_df.loc[case_df["reference"] == reference]
-    else:
-        case_dff = case_df
+    isolate_dff = isolate_df.loc[isolate_df["reference"] == reference]
 
     collapsed_mutations = (
-        case_dff.groupby(group_key)[
-            ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]
+        isolate_dff.groupby(group_key)[
+            ["dna_mutation", "gene_aa_mutation", "protein_aa_mutation"]
         ]
         # Instead of trying to flatten this list of lists
         # (and calling like 100K+ mem allocs)
@@ -81,7 +78,7 @@ def get_consensus_mutations(
 
     # Do this column-by-column because for some reason pandas applymap()
     # misses the first column. I have no idea why...
-    for col in ["dna_mutation_str", "gene_aa_mutation_str", "protein_aa_mutation_str"]:
+    for col in ["dna_mutation", "gene_aa_mutation", "protein_aa_mutation"]:
         collapsed_mutations[col] = collapsed_mutations[col].apply(count_consensus)
 
     def mutations_to_df(field):
@@ -92,9 +89,9 @@ def get_consensus_mutations(
         )
         return _df
 
-    collapsed_dna_mutations = mutations_to_df("dna_mutation_str")
-    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_mutation_str")
-    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_mutation_str")
+    collapsed_dna_mutations = mutations_to_df("dna_mutation")
+    collapsed_gene_aa_mutations = mutations_to_df("gene_aa_mutation")
+    collapsed_protein_aa_mutations = mutations_to_df("protein_aa_mutation")
 
     return (
         # CONSENSUS MUTATIONS
@@ -103,9 +100,9 @@ def get_consensus_mutations(
                 lambda x: [mut[0] for mut in x if mut[2] > consensus_fraction]
             ).rename(
                 columns={
-                    "dna_mutation_str": "dna_mutation_ids",
-                    "gene_aa_mutation_str": "gene_aa_mutation_ids",
-                    "protein_aa_mutation_str": "protein_aa_mutation_ids",
+                    "dna_mutation": "dna_mutation_ids",
+                    "gene_aa_mutation": "gene_aa_mutation_ids",
+                    "protein_aa_mutation": "protein_aa_mutation_ids",
                 }
             )
         ).to_dict(orient="index"),
@@ -141,10 +138,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Path to Case data JSON file"
+        "--isolate-data", type=str, required=True, help="Path to isolate data JSON file"
     )
     parser.add_argument(
-        "--reference-json", type=str, required=True, help="Path to Reference JSON file"
+        "--reference", type=str, required=True, help="Path to Reference JSON file"
     )
     parser.add_argument(
         "--consensus-out", type=str, required=True, help="Consensus mutations JSON file"
@@ -172,12 +169,16 @@ def main():
         with open(args.consensus_out, "w") as fp:
             fp.write(json.dumps({}))
 
-    case_df = pd.read_json(args.case_data).set_index("Accession ID")
+    isolate_df = pd.read_json(args.isolate_data).set_index("isolate_id")[
+        args.group_cols
+        + ["reference", "dna_mutation", "gene_aa_mutation", "protein_aa_mutation"]
+    ]
 
     # Get references
-    with open(args.reference_json, "rt") as fp:
+    with open(args.reference, "rt") as fp:
         references = json.load(fp)
-        reference_names = sorted(references.keys())
+
+    reference_names = sorted(list(references.keys()))
 
     consensus_dict = {}
     frequencies_dict = {}
@@ -191,7 +192,7 @@ def main():
         for reference_name in reference_names:
 
             group_consensus, group_frequencies = get_consensus_mutations(
-                case_df,
+                isolate_df,
                 group,
                 reference=reference_name,
                 consensus_fraction=args.consensus_fraction,

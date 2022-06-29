@@ -8,61 +8,94 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import datetime
 import os
 
-from analyses.scripts.az_report_generation import generate_az_reports
-from analyses.scripts.global_sequencing_efforts import global_sequencing_efforts
 from analyses.scripts.standalone_map_spec import standalone_map_spec
 
 data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-az_report_out = os.path.join(data_folder, 'az_reports')
+az_report_out = os.path.join(data_folder, "az_reports")
+report_gene = config["report_gene"]
+report_group_col = config['report_group_col']
 
-rule az_reports:
+rule az_report:
+    """Mutation reports"""
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json")
+    params:
+        report_gene = config["report_gene"],
+        report_group_col = config['report_group_col'],
+        report_group_references = (
+            ("--group-references " + " ".join(
+                [
+                    f"{group}={config['report_group_references'][group]}"
+                    for group in config['report_group_references']
+                ]
+            ))
+            if "report_group_references" in config else ""
+        ),
     output:
         report_out = directory(az_report_out),
-        spike_mutation_global = os.path.join(az_report_out, 'spike_mutation_global.csv'),
-        spike_mutation_region = os.path.join(az_report_out, 'spike_mutation_region.csv'),
-        spike_cooc_global = os.path.join(az_report_out, 'spike_cooc_global.csv'),
-        spike_cooc_region = os.path.join(az_report_out, 'spike_cooc_region.csv'),
-        lineage_global = os.path.join(az_report_out, 'lineage_global.csv'),
-        lineage_region = os.path.join(az_report_out, 'lineage_region.csv'),
-    run:
-        generate_az_reports(input.case_data, input.metadata_map, output.report_out)
+        gene_mutation_global = os.path.join(az_report_out, f"{report_gene}_mutation_global.csv"),
+        gene_mutation_region = os.path.join(az_report_out, f"{report_gene}_mutation_region.csv"),
+        gene_cooc_global = os.path.join(az_report_out, f"{report_gene}_cooc_global.csv"),
+        gene_cooc_region = os.path.join(az_report_out, f"{report_gene}_cooc_region.csv"),
+        group_global = os.path.join(az_report_out, f"{report_group_col}_global.csv"),
+        group_region = os.path.join(az_report_out, f"{report_group_col}_region.csv"),
+    shell:
+        """
+        python3 analyses/scripts/az_report.py \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
+            --report-gene {params.report_gene} \
+            --report-group-col {params.report_group_col} \
+            {params.report_group_references} \
+            --report-out {output.report_out}
+        """
 
 
 rule surveillance_data:
     input:
-        metadata = os.path.join(data_folder, "metadata.csv"),
+        isolate_data = os.path.join(data_folder, "isolate_data.csv"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json")
     params:
         group_col = config["surv_group_col"],
-        out_folder = os.path.join(data_folder, 'surveillance'),
+        group_references = (
+            ("--group-references " + " ".join(
+                [
+                    f"{group}={config['surv_group_references'][group]}"
+                    for group in config['surv_group_references']
+                ]
+            ))
+            if "surv_group_references" in config else ""
+        ),
+        out_folder = os.path.join(data_folder, "surveillance"),
         start_date = (
-            ('--start-date ' + config['surv_start_date'])
-            if 'surv_start_date' in config else ''
+            ("--start-date " + config["surv_start_date"])
+            if "surv_start_date" in config else ""
         ),
         end_date = (
-            ('--end-date ' + config['surv_end_date'])
-            if 'surv_end_date' in config else ''
+            ("--end-date " + config["surv_end_date"])
+            if "surv_end_date" in config else ""
         ),
-        start_date_days_ago = config.get('surv_start_date_days_ago', 30),
-        end_date_days_ago = config.get('surv_end_date_days_ago', 30),
-        period = config.get('surv_period', 'W'),
-        min_combo_count = config['surv_min_combo_count'],
-        min_single_count = config['surv_min_single_count']
+        start_date_days_ago = config.get("surv_start_date_days_ago", 30),
+        end_date_days_ago = config.get("surv_end_date_days_ago", 30),
+        period = config.get("surv_period", "W"),
+        min_combo_count = config["surv_min_combo_count"],
+        min_single_count = config["surv_min_single_count"]
     output:
-        group_counts = os.path.join(data_folder, 'surveillance', 'group_counts2.json'),
-        group_regression = os.path.join(data_folder, 'surveillance', 'group_regression2.json'),
+        group_counts = os.path.join(data_folder, "surveillance", "group_counts2.json"),
+        group_regression = os.path.join(data_folder, "surveillance", "group_regression2.json"),
     shell:
         """
         python3 analyses/scripts/surveillance.py \
-            --metadata {input.metadata} \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
             --group-col {params.group_col} \
+            {params.group_references} \
             {params.start_date} {params.end_date} \
             --start-date-days-ago {params.start_date_days_ago} \
             --end-date-days-ago {params.end_date_days_ago} \
@@ -78,11 +111,17 @@ rule global_sequencing_efforts:
     to produce the "Global Sequencing Effort" plot in the web app
     """
     input:
-        metadata = os.path.join(data_folder, "metadata.csv"),
+        isolate_data = os.path.join(data_folder, "isolate_data.csv"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json")
     output:
         country_score = os.path.join(data_folder, "country_score.json")
-    run:
-        global_sequencing_efforts(input.metadata, output.country_score)
+    shell:
+        """
+        python3 analyses/scripts/global_sequencing_efforts.py \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
+            --output {output.country_score}
+        """
 
 
 rule create_standalone_map_spec:
@@ -97,9 +136,10 @@ rule create_standalone_map_spec:
 
 rule global_seq_data:
     input:
-        metadata = os.path.join(data_folder, "metadata.csv"),
+        isolate_data = os.path.join(data_folder, "isolate_data.csv"),
+        metadata_map = os.path.join(data_folder, "metadata_map.json")
     params:
-        out_folder = os.path.join(data_folder, 'new_global_data')
+        out_folder = os.path.join(data_folder, "new_global_data")
     output:
         case_count = os.path.join(data_folder, "new_global_data", "case_count.json"),
         sequences_per_month = os.path.join(data_folder, "new_global_data", "sequences_per_month.json"),
@@ -107,29 +147,65 @@ rule global_seq_data:
         iso_lookup = os.path.join(data_folder, "new_global_data", "iso_lookup.json")
     shell:
         """
-        python3 analyses/scripts/global_seq_data.py --metadata {input.metadata}  -o {params.out_folder}
+        python3 analyses/scripts/global_seq_data.py \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
+            --output {params.out_folder}
+        """
+
+
+rule consensus_mutations:
+    """For each lineage and clade, get the lineage/clade-defining mutations,
+    on both the NT and AA level
+    Lineage/clade-defining mutations are defined as mutations which occur in
+    >= [consensus_fraction] of sequences within that lineage/clade.
+    [consensus_fraction] is a parameter which can be adjusted here
+    """
+    input:
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
+        reference = os.path.join(static_data_folder, "reference.json")
+    output:
+        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
+        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
+    params:
+        group_cols = list(config["group_cols"].keys()),
+        consensus_fraction = config["consensus_fraction"],
+        min_reporting_fraction = config["min_reporting_fraction"]
+    shell:
+        """
+        python3 analyses/scripts/consensus_mutations.py \
+            --isolate-data {input.isolate_data} \
+            --reference {input.reference} \
+            --consensus-out {output.group_consensus_mutations} \
+            --frequencies-out {output.group_mutation_frequencies} \
+            --group-cols {params.group_cols} \
+            --consensus-fraction {params.consensus_fraction} \
+            --min-reporting-fraction {params.min_reporting_fraction}
         """
 
 
 rule additional_analyses:
     input:
         # AZ REPORTS
-        rules.az_reports.output.spike_mutation_global,
-        rules.az_reports.output.spike_mutation_region,
-        rules.az_reports.output.spike_cooc_global,
-        rules.az_reports.output.spike_cooc_region,
-        rules.az_reports.output.lineage_global,
-        rules.az_reports.output.lineage_region,
+        rules.az_report.output.gene_mutation_global,
+        rules.az_report.output.gene_mutation_region,
+        rules.az_report.output.gene_cooc_global,
+        rules.az_report.output.gene_cooc_region,
+        rules.az_report.output.group_global,
+        rules.az_report.output.group_region,
         # Surveillance data
         rules.surveillance_data.output.group_counts,
         rules.surveillance_data.output.group_regression,
-        # Old global sequencing plot
+        # # Old global sequencing plot
         rules.create_standalone_map_spec.output.standalone_spec,
-        # New global sequencing data
+        # # New global sequencing data
         rules.global_seq_data.output.case_count,
         rules.global_seq_data.output.sequences_per_month,
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
+        # # Consensus Mutations
+        rules.consensus_mutations.output.group_consensus_mutations,
+        rules.consensus_mutations.output.group_mutation_frequencies
 
     output:
         done = touch(os.path.join(

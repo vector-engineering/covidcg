@@ -8,6 +8,8 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 
 import argparse
 import json
+from pathlib import Path
+
 import pandas as pd
 
 from process_mutations import process_mutations
@@ -23,25 +25,19 @@ def main():
         "--manifest", type=str, required=True, help="Path to manifest CSV file",
     )
     parser.add_argument(
-        "--dna-mutation-files",
-        type=str,
-        nargs="+",
-        required=True,
-        help="DNA mutation files",
+        "--dna-mutation-dir", type=str, required=True, help="DNA mutation directory",
     )
     parser.add_argument(
-        "--gene-aa-mutation-files",
+        "--gene-aa-mutation-dir",
         type=str,
-        nargs="+",
         required=True,
-        help="Gene AA mutation files",
+        help="Gene AA mutation directory",
     )
     parser.add_argument(
-        "--protein-aa-mutation-files",
+        "--protein-aa-mutation-dir",
         type=str,
-        nargs="+",
         required=True,
-        help="Protein AA mutation files",
+        help="Protein AA mutation directory",
     )
     parser.add_argument(
         "--dna-coverage", type=str, required=True, help="DNA coverage CSV file"
@@ -61,10 +57,16 @@ def main():
         "--metadata-map", type=str, required=True, help="Metadata map file output"
     )
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Case data JSON file output"
+        "--sequence-data",
+        type=str,
+        required=True,
+        help="Sequence data JSON file output",
     )
     parser.add_argument(
-        "--case-data-csv", type=str, required=True, help="Case data CSV file output"
+        "--sequence-data-csv",
+        type=str,
+        required=True,
+        help="Sequence data CSV file output",
     )
 
     # Parameters
@@ -82,19 +84,19 @@ def main():
     # Count mutations
     dna_mutation_group_df, dna_mutation_map = process_mutations(
         manifest,
-        args.dna_mutation_files,
+        sorted(Path(args.dna_mutation_dir).glob("*.csv")),
         mode="dna",
         count_threshold=args.count_threshold,
     )
     gene_aa_mutation_group_df, gene_aa_mutation_map = process_mutations(
         manifest,
-        args.gene_aa_mutation_files,
+        sorted(Path(args.gene_aa_mutation_dir).glob("*.csv")),
         mode="gene_aa",
         count_threshold=args.count_threshold,
     )
     protein_aa_mutation_group_df, protein_aa_mutation_map = process_mutations(
         manifest,
-        args.protein_aa_mutation_files,
+        sorted(Path(args.protein_aa_mutation_dir).glob("*.csv")),
         mode="protein_aa",
         count_threshold=args.count_threshold,
     )
@@ -103,11 +105,9 @@ def main():
     df = pd.read_csv(args.metadata)
 
     # Join sequence ID and reference from manifest
-    df = df.merge(
-        manifest[["Accession ID", "sequence_id", "reference"]],
-        on="Accession ID",
-        how="left",
-    )
+    df = manifest.merge(
+        df.drop(columns=["segment"]), on="Accession ID", how="left"
+    ).drop(columns=["file_name", "date"])
 
     # Exclude sequences without a group assignment
     # (i.e., lineage or clade assignment)
@@ -125,25 +125,25 @@ def main():
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "dna_mutation_str"})
+        .rename(columns={"mutation_id": "dna_mutation"})
         .merge(
             gene_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "gene_aa_mutation_str"})
+        .rename(columns={"mutation_id": "gene_aa_mutation"})
         .merge(
             protein_aa_mutation_group_df.drop(columns=["sequence_id"]),
             left_on=["Accession ID", "reference"],
             right_on=["Accession ID", "reference"],
             how="inner",
         )
-        .rename(columns={"mutation_id": "protein_aa_mutation_str"})
+        .rename(columns={"mutation_id": "protein_aa_mutation"})
     )
 
     # Join coverage data to main dataframe
-    coverage_dna = pd.read_csv(args.dna_coverage)
+    coverage_dna = pd.read_csv(args.dna_coverage, dtype={"segment": str},)
     # coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
     #     lambda x: tuple(x), axis=1
     # )
@@ -159,7 +159,12 @@ def main():
         .assign(range=lambda x: x[["start", "end"]].apply(lambda _x: tuple(_x), axis=1))
     )
 
-    coverage_gene_aa = pd.read_csv(args.gene_aa_coverage)
+    coverage_gene_aa = pd.read_csv(
+        args.gene_aa_coverage,
+        dtype={"segment": str, "feature": str},
+        keep_default_na=False,
+        na_values=[""],
+    )
     coverage_gene_aa["range"] = coverage_gene_aa[["feature", "start", "end"]].apply(
         lambda x: tuple(x), axis=1
     )
@@ -169,7 +174,12 @@ def main():
         .agg(range=("range", list))
     )
 
-    coverage_protein_aa = pd.read_csv(args.protein_aa_coverage)
+    coverage_protein_aa = pd.read_csv(
+        args.protein_aa_coverage,
+        dtype={"segment": str, "feature": str},
+        keep_default_na=False,
+        na_values=[""],
+    )
     coverage_protein_aa["range"] = coverage_protein_aa[
         ["feature", "start", "end"]
     ].apply(lambda x: tuple(x), axis=1)
@@ -203,6 +213,10 @@ def main():
         .rename(columns={"range": "protein_aa_range"})
     )
 
+    # Remove rows with null dna_range
+    # These are failed alignments with no mutation information
+    df.drop(df.index[df["dna_range"].isna()], inplace=True)
+
     # Factorize some more metadata columns
     metadata_maps = {}
 
@@ -231,8 +245,8 @@ def main():
         fp.write(json.dumps(metadata_maps))
 
     # Write final dataframe
-    df.to_csv(args.case_data_csv, index=False)
-    df.to_json(args.case_data, orient="records")
+    df.to_csv(args.sequence_data_csv, index=False)
+    df.to_json(args.sequence_data, orient="records")
 
 
 if __name__ == "__main__":

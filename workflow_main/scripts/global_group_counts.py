@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-"""Count sequences per group
+"""Count sequences per group, plus mutation frequencies per group
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
@@ -22,10 +22,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Case data JSON file"
+        "--isolate-data", type=str, required=True, help="Isolate data JSON file"
     )
     parser.add_argument(
-        "--reference-json",
+        "--reference",
         type=str,
         required=True,
         help="Path to reference sequences fasta file",
@@ -42,23 +42,23 @@ def main():
 
     args = parser.parse_args()
 
-    case_df = pd.read_json(args.case_data)
+    isolate_df = pd.read_json(args.isolate_data)
 
     # Get reference sequence names
-    with open(args.reference_json, "rt") as fp:
+    with open(args.reference, "rt") as fp:
         references = json.load(fp)
-        reference_names = sorted(references.keys())
+
+    reference_names = sorted(list(references.keys()))
 
     global_group_counts = {}
-
     for ref_name in reference_names:
         global_group_counts[ref_name] = {}
 
     # Count sequence groupings (e.g., lineages and clades)
-    for col in args.group_cols:
-        for ref_name in reference_names:
+    for ref_name in reference_names:
+        for col in args.group_cols:
             global_group_counts[ref_name][col] = (
-                case_df.drop_duplicates("Accession ID")[col].value_counts().to_dict()
+                isolate_df.drop_duplicates("isolate_id")[col].value_counts().to_dict()
             )
 
     # Count global mutation frequencies
@@ -69,8 +69,8 @@ def main():
             Counter(
                 list(
                     chain.from_iterable(
-                        case_df.loc[
-                            case_df["reference"] == ref_name, "dna_mutation_str"
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "dna_mutation"
                         ]
                     )
                 )
@@ -80,8 +80,8 @@ def main():
             Counter(
                 list(
                     chain.from_iterable(
-                        case_df.loc[
-                            case_df["reference"] == ref_name, "gene_aa_mutation_str"
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "gene_aa_mutation"
                         ]
                     )
                 )
@@ -91,8 +91,8 @@ def main():
             Counter(
                 list(
                     chain.from_iterable(
-                        case_df.loc[
-                            case_df["reference"] == ref_name, "protein_aa_mutation_str"
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "protein_aa_mutation",
                         ]
                     )
                 )

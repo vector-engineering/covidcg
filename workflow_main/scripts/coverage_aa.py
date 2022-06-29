@@ -36,11 +36,10 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
         nt_start = row["start"]
         nt_end = row["end"]
 
-        # print(row["Accession ID"], reference_name)
+        # print(row["Accession ID"], reference_name, nt_start, nt_end)
 
         # Loop through all features of the sequence's reference
         for feature_name, feature_row in feature_dfs[reference_name].iterrows():
-            # print(feature_name)
 
             # Only process genes in this segment/chromosome
             if feature_row["segment"] != active_segment:
@@ -48,6 +47,8 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
                 #     f'Feature segment {feature_row["segment"]} outside of active segment {active_segment}'
                 # )
                 continue
+
+            # print(feature_name)
 
             segments = feature_row["segments"]
             aa_ranges = feature_row["aa_ranges"]
@@ -130,10 +131,13 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
             # END FOR SEGMENT
 
             # print(aa_start, aa_end)
-            # print('')
+            # print("")
 
-            # If either start or end are undefined, something went wrong...
-            if aa_start is None or aa_end is None:
+            # If both start ane end are undefined, then no coverage for this feature
+            if aa_start is None and aa_start is None:
+                continue
+            # If only one of start or end are undefined, something went wrong...
+            elif aa_start is None or aa_end is None:
                 raise Exception("AA start/end not defined")
 
             # Push the coverage tuple
@@ -161,12 +165,16 @@ def main():
         "--coverage-dna", type=str, required=True, help="Path to coverage_dna.csv file",
     )
     parser.add_argument(
+        "--reference", type=str, required=True, help="Path to reference file"
+    )
+    parser.add_argument(
         "--gene-protein-def",
         type=str,
         required=True,
         help="Path to gene/protein definition JSON",
     )
-    parser.add_argument("--segment", type=int, required=True, help="Segment/chromosome")
+    parser.add_argument("--subtype", type=str, required=True, help="Subtype")
+    parser.add_argument("--segment", type=str, required=True, help="Segment/chromosome")
     parser.add_argument(
         "--mode", type=str, required=True, help="Mode ('gene' or 'protein')"
     )
@@ -176,10 +184,20 @@ def main():
     # Load NT coverage dataframe
     coverage_dna_df = pd.read_csv(args.coverage_dna)
 
+    # Load the reference sequences
+    with open(args.reference, "r") as fp:
+        references = json.loads(fp.read())
+
+    # Get references for this subtype
+    references = {k: v for k, v in references.items() if v["subtype"] == args.subtype}
+
     # Load gene/protein defs
     # JSON to dataframe
     with open(args.gene_protein_def, "r") as fp:
         feature_dicts = json.loads(fp.read())
+
+    # Get only features for the above references
+    feature_dicts = {k: v for k, v in feature_dicts.items() if k in references.keys()}
 
     feature_dfs = {}
     for k, v in feature_dicts.items():
@@ -198,6 +216,10 @@ def main():
         feature_dfs[k] = v
 
     coverage_aa_df = coverage_aa(coverage_dna_df, feature_dfs, args.segment)
+
+    coverage_aa_df.insert(1, "subtype", args.subtype)
+    coverage_aa_df.insert(2, "segment", args.segment)
+
     coverage_aa_df.to_csv(args.out, index=False)
 
 

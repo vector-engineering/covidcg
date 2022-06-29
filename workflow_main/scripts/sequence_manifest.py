@@ -14,7 +14,6 @@ import gzip
 from pathlib import Path
 
 import pandas as pd
-import numpy as np
 
 
 def extract_ids(fasta_file):
@@ -37,7 +36,7 @@ def extract_ids(fasta_file):
     cur_seq = ""
 
     # Get the date from the fasta file name, as a string
-    file_date = Path(fasta_file).name.replace(".fa.gz", "")
+    file_name = Path(fasta_file).name.replace(".fa.gz", "")
 
     with gzip.open(fasta_file, "rt") as fp:
         lines = fp.readlines()
@@ -58,7 +57,7 @@ def extract_ids(fasta_file):
             if line[0] == ">" or i == (len(lines) - 1):
                 # Avoid capturing the first one and pushing an empty sequence
                 if cur_entry:
-                    out.append((cur_entry, file_date,))
+                    out.append((cur_entry, file_name,))
 
                 # Clear the entry and sequence
                 cur_entry = line[1:]
@@ -85,10 +84,7 @@ def main():
         help="Path to processed FASTA file directory",
     )
     parser.add_argument(
-        "--reference-json",
-        type=str,
-        required=True,
-        help="Path to reference sequences fasta file",
+        "--reference", type=str, required=True, help="Path to reference JSON file",
     )
     parser.add_argument(
         "--out", type=str, required=True, help="Output manifest CSV file"
@@ -97,14 +93,25 @@ def main():
     args = parser.parse_args()
 
     # Get reference sequence names
-    with open(args.reference_json, "rt") as fp:
+    with open(args.reference, "rt") as fp:
         references = json.load(fp)
-        reference_names = sorted(references.keys())
+
+    # subtypes = list(sorted(references.keys()))
+    subtypes = list(set([reference["subtype"] for reference in references.values()]))
+
+    # Get references for each subtype
+    subtype_refs = {}
+    for subtype in subtypes:
+        subtype_refs[subtype] = [
+            k for k, v in references.items() if v["subtype"] == subtype
+        ]
 
     manifest = []
     for fasta_file in sorted(Path(args.fasta).glob("*.fa.gz")):
         manifest.extend(extract_ids(fasta_file))
-    manifest = pd.DataFrame.from_records(manifest, columns=["Accession ID", "date"])
+    manifest = pd.DataFrame.from_records(
+        manifest, columns=["Accession ID", "file_name"]
+    )
     pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
 
     pruned_manifest = (
@@ -114,13 +121,15 @@ def main():
     )
 
     # Add references to manifest
-    pruned_manifest[
-        "reference"
-    ] = np.nan  # Have to first assign a singular value before setting to array
-    # pruned_manifest['reference'] = pruned_manifest['reference'].apply(lambda _: ['NC_038235.1', 'NC_001781.1', 'KX858757.1', 'KX858756.1'])
-    pruned_manifest["reference"] = pruned_manifest["reference"].apply(
-        lambda _: reference_names
+    # Extract subtype and segment from file name
+    # Then map subtype references
+    pruned_manifest = pruned_manifest.assign(
+        segment=lambda x: x["file_name"].str.split("_").str.get(0),
+        subtype=lambda x: x["file_name"].str.split("_").str.get(1),
+        date=lambda x: x["file_name"].str.split("_").str.get(2),
+        reference=lambda x: x["subtype"].map(subtype_refs),
     )
+
     pruned_manifest = pruned_manifest.explode("reference")
 
     pruned_manifest.to_csv(args.out, index=False)

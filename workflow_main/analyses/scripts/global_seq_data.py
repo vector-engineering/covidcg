@@ -7,9 +7,9 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
+import json
 import pandas as pd
 import numpy as np
-import json
 
 from pathlib import Path
 
@@ -18,7 +18,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--metadata", type=str, required=True, help="Path to metadata CSV file",
+        "--isolate-data", type=str, required=True, help="Path to isolate data CSV file",
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map JSON file"
     )
     parser.add_argument(
         "-o", "--output", type=str, required=True, help="Path to output directory",
@@ -146,53 +149,68 @@ def main():
     case_count_df["month"] = case_count_df["month"].dt.start_time
     case_count_df.to_json(str(out_path / "case_count.json"), orient="records")
 
-    case_df = pd.read_csv(args.metadata, index_col="Accession ID")
-
-    case_df = case_df[
-        [
+    isolate_df = pd.read_csv(
+        args.isolate_data,
+        usecols=[
+            "isolate_id",
             "collection_date",
             "submission_date",
-            "region",
             "country",
             "division",
-            "location",
-        ]
-    ]
-
-    case_df["collection_date"] = pd.to_datetime(
-        case_df["collection_date"], errors="coerce"
+        ],
     )
-    case_df["submission_date"] = pd.to_datetime(
-        case_df["submission_date"], errors="coerce"
+
+    isolate_df.drop_duplicates("isolate_id", inplace=True)
+    isolate_df.set_index("isolate_id", inplace=True)
+
+    # Load location metadata mappings
+    with open(args.metadata_map, "r") as fp:
+        metadata_map = json.loads(fp.read())
+
+    # Join locations onto isolate_df
+    loc_levels = ["country", "division"]
+    for loc_level in loc_levels:
+        isolate_df.loc[:, loc_level] = isolate_df[loc_level].map(
+            {int(k): v for k, v in metadata_map[loc_level].items()}
+        )
+        isolate_df.loc[isolate_df[loc_level].isna(), loc_level] = None
+
+    isolate_df["collection_date"] = pd.to_datetime(
+        isolate_df["collection_date"], errors="coerce"
+    )
+    isolate_df["submission_date"] = pd.to_datetime(
+        isolate_df["submission_date"], errors="coerce"
     )
 
     # Remove failed date parsing
-    case_df = case_df.loc[
-        (~pd.isnull(case_df["collection_date"]))
-        & (~pd.isnull(case_df["submission_date"]))
+    isolate_df = isolate_df.loc[
+        (~pd.isnull(isolate_df["collection_date"]))
+        & (~pd.isnull(isolate_df["submission_date"]))
     ]
 
     # Only take dates from 2019-12-15
-    case_df = case_df.loc[case_df["collection_date"] > pd.to_datetime("2019-12-15")]
+    isolate_df = isolate_df.loc[
+        isolate_df["collection_date"] > pd.to_datetime("2019-12-15")
+    ]
 
     # Calculate time deltas
-    case_df["turnaround_days"] = (
-        case_df["submission_date"] - case_df["collection_date"]
+    isolate_df["turnaround_days"] = (
+        isolate_df["submission_date"] - isolate_df["collection_date"]
     ).dt.days
     # Extract month
-    case_df["month"] = case_df["collection_date"].dt.to_period("M")
-    case_df["submission_month"] = case_df["submission_date"].dt.to_period("M")
+    isolate_df["month"] = isolate_df["collection_date"].dt.to_period("M")
+    isolate_df["submission_month"] = isolate_df["submission_date"].dt.to_period("M")
 
     # Remove invalid submission dates (negative turnaround times)
-    case_df = case_df.loc[case_df["turnaround_days"] >= 0]
+    isolate_df = isolate_df.loc[isolate_df["turnaround_days"] >= 0]
 
     # Upgrade provinces to countries
-    upgrade_inds = case_df["division"].isin(upgrade_provinces)
-    case_df.loc[upgrade_inds, "country"] = case_df.loc[upgrade_inds, "division"]
+    upgrade_inds = isolate_df["division"].isin(upgrade_provinces)
+    isolate_df.loc[upgrade_inds, "country"] = isolate_df.loc[upgrade_inds, "division"]
 
     sequences_per_month = (
-        case_df.reset_index()
-        .groupby(["country", "month"])["Accession ID"]
+        isolate_df.reset_index()
+        .groupby(["country", "month"])["isolate_id"]
         .size()
         .rename({"Palestine": "West Bank and Gaza"})
         .rename("new_sequences")
@@ -204,7 +222,7 @@ def main():
     )
 
     turnaround_per_month = (
-        case_df.reset_index()
+        isolate_df.reset_index()
         .groupby(["country", "submission_month"])["turnaround_days"]
         .agg(
             q5=lambda x: np.quantile(x, 0.05),
