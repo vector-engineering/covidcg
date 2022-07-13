@@ -34,7 +34,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: config.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.DNA,
-          selectedGene: getGene('S'),
+          selectedGene: getGene('S', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [selectTree], // select root
           startDate: config.min_date,
@@ -59,7 +59,7 @@ export default function examples({ selectTree }) {
     //     config: {
     //       groupKey: config.group_cols.lineage.name,
     //       dnaOrAa: DNA_OR_AA.AA,
-    //       selectedGene: getGene('S'),
+    //       selectedGene: getGene('S', 'WIV04),
     //       coordinateMode: COORDINATE_MODES.COORD_GENE,
     //       selectedLocationNodes: [getLocationByNameAndLevel(selectTree, 'China', 'country')[0]],
     //     },
@@ -82,7 +82,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: config.group_cols.lineage.name,
           dnaOrAa: DNA_OR_AA.AA,
-          selectedGene: getGene('S'),
+          selectedGene: getGene('S', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'Iceland', 'country')[0],
@@ -110,7 +110,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
-          selectedGene: getGene('S'),
+          selectedGene: getGene('S', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'Washington', 'division')[0],
@@ -141,7 +141,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
-          selectedGene: getGene('S'),
+          selectedGene: getGene('S', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedGroups: [{ group: 'S|614|D|G' }],
           selectedLocationNodes: [
@@ -245,7 +245,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
-          selectedGene: getGene('N'),
+          selectedGene: getGene('N', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'USA', 'country')[0],
@@ -273,7 +273,7 @@ export default function examples({ selectTree }) {
         config: {
           groupKey: GROUP_MUTATION,
           dnaOrAa: DNA_OR_AA.AA,
-          selectedGene: getGene('S'),
+          selectedGene: getGene('S', 'WIV04'),
           coordinateMode: COORDINATE_MODES.COORD_GENE,
           selectedLocationNodes: [
             getLocationByNameAndLevel(selectTree, 'North America', 'region')[0],

@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
-"""Filter out sequences
+"""Filter out SARS2 sequences
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import gzip
 import math
 import re
@@ -12,19 +14,31 @@ import re
 from pathlib import Path
 
 
-def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
+def main():
     """Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
     2. Can't be less than 29700NT
 	3. Can't have more than 5% ambiguous NT
     """
 
-    # print("\nPreprocessing sequences")
-    # Get latest nextstrain exclusion file
-    # print("Using nextstrain exclusion list: {}".format(nextstrain_exclusion_file))
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--input", type=str, required=True, help="Input FASTA file")
+    parser.add_argument(
+        "--nextstrain-exclusion-file",
+        type=str,
+        required=True,
+        help="Path to nextstrain exclusion file",
+    )
+    parser.add_argument(
+        "--output", type=str, required=True, help="Output FASTA file",
+    )
+
+    args = parser.parse_args()
+
     # Load lines, ignoring comments and empty lines
     exclude_taxons = []
-    with Path(nextstrain_exclusion_file).open("r") as fp:
+    with Path(args.nextstrain_exclusion_file).open("r") as fp:
         for line in fp.readlines():
             # Exclude comments
             if line[0] == "#":
@@ -40,8 +54,8 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
             exclude_taxons.append(line)
 
     num_excluded = 0
-    fp_in = gzip.open(input_file, "rt")
-    fp_out = gzip.open(output_file, "wt")
+    fp_in = gzip.open(args.input, "rt")
+    fp_out = gzip.open(args.output, "wt")
 
     cur_entry = ""
     cur_seq = ""
@@ -96,3 +110,7 @@ def preprocess_sequences(input_file, nextstrain_exclusion_file, output_file):
     fp_out.close()
 
     print("Removed {:,} sequences".format(num_excluded), flush=True)
+
+
+if __name__ == "__main__":
+    main()

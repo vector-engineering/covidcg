@@ -134,8 +134,12 @@ checkpoint copy_changed_files:
         status = touch(os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ))
-    run:
-        copy_changed_files(input, data_folder)
+    params:
+        data_folder = data_folder
+    shell:
+        """
+        python3 scripts/copy_changed_files.py --files {input} --data-folder {params.data_folder}
+        """
 
 
 def get_chunks(wildcards):

@@ -7,11 +7,11 @@ virus: "sars2"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "example_data_genbank"
+data_folder: "data_custom"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
-static_data_folder: "static_data"
+static_data_folder: "static_data/sars2"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
@@ -42,16 +42,10 @@ consensus_fraction: 0.9
 min_reporting_fraction: 0.05
 
 metadata_cols:
-  database:
-    title: "Database"
+  strain:
+    title: "Strain"
   host:
     title: "Host"
-  isolation_source:
-    title: "Isolation source"
-  authors:
-    title: "Authors"
-  publications:
-    title: "Publications"
 
 group_cols:
   lineage:
@@ -69,10 +63,8 @@ surv_group_col: "lineage"
 surv_period: "W"
 surv_min_combo_count: 50
 surv_min_single_count: 50
-surv_start_date: "2020-01-01" # Overrides days ago
-surv_start_date_days_ago: 240 # Not used
-surv_end_date: "2020-03-01" # Overrides days ago
-surv_end_date_days_ago: 30 # Not used
+surv_start_date_days_ago: 90
+surv_end_date_days_ago: 30
 
 # ---------------
 #    DATABASE
@@ -96,14 +88,13 @@ mutation_partition_break: "M"
 login_required: false
 
 dev_hostname: "http://localhost:5001"
-prod_hostname: "https://genbank.covidcg.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname: "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION
 # ----------------------
 
-site_title: "COVID CG Genbank"
+site_title: "COVID CG"
 
 # Home page
 show_home_banner: false
@@ -123,7 +114,7 @@ min_date: "2019-12-01"
 
 show_logos:
   GISAID: false
-  GenBank: true
+  GenBank: false
 
 # Allow downloads of sequence metadata (before aggregation)
 allow_metadata_download: true

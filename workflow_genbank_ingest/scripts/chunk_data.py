@@ -8,7 +8,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import csv
 import datetime
 import gzip
-import json
 import multiprocessing as mp
 import pandas as pd
 import sys
@@ -73,7 +72,7 @@ def chunk_data(data_feed, out_fasta, out_metadata, chunk_size=100000, processes=
         with mp.get_context("spawn").Pool(processes=processes) as pool:
             for date, seqs in fasta_by_subm_date.items():
                 # Open the output fasta file for this date chunk
-                fasta_out_path = str(output_path / (date + ".fa.gz"))
+                fasta_out_path = str(output_path / f"1_SARS-CoV-2_{date}.fa.gz")
                 pool.apply_async(partial(write_sequences_day, fasta_out_path, seqs))
 
             pool.close()

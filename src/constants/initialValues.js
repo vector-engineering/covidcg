@@ -21,7 +21,7 @@ const lastNDays = 30;
 let _configStore, _groupDataStore, _plotSettingsStore;
 
 if (config['virus'] === 'sars2') {
-  const startingReference = '...';
+  const startingReference = 'WIV04';
 
   _configStore = {
     groupKey: GROUP_MUTATION,
@@ -31,6 +31,7 @@ if (config['virus'] === 'sars2') {
     selectedGene: getGene(config['default_gene'], startingReference),
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
+    selectedReference: startingReference,
     customCoordinates: [[8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
     residueCoordinates: [

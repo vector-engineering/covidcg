@@ -7,11 +7,11 @@ virus: "sars2"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "data_genbank"
+data_folder: "data"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
-static_data_folder: "static_data"
+static_data_folder: "static_data/sars2"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
@@ -42,16 +42,29 @@ consensus_fraction: 0.9
 min_reporting_fraction: 0.05
 
 metadata_cols:
-  database:
-    title: "Database"
   host:
     title: "Host"
-  isolation_source:
-    title: "Isolation source"
+  gender:
+    title: "Gender"
+  patient_status:
+    title: "Patient Status"
+  passage:
+    title: "Passage"
+    disabled: true
+  specimen:
+    title: "Specimen"
+  sequencing_tech:
+    title: "Sequencing"
+  assembly_method:
+    title: "Assembly"
+  comment_type:
+    title: "Flag"
   authors:
     title: "Authors"
-  publications:
-    title: "Publications"
+  originating_lab:
+    title: "Originating lab"
+  submitting_lab:
+    title: "Submitting lab"
 
 group_cols:
   lineage:
@@ -62,6 +75,14 @@ group_cols:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
     show_collapse_options: true
+  clade:
+    name: "clade"
+    title: "Clade"
+    description: "For more information about clade and lineage nomenclature, visit this:"
+    link:
+      title: "[GISAID note]"
+      href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
+    show_collapse_options: false
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
@@ -91,17 +112,17 @@ mutation_partition_break: "M"
 # Require a login for accessing the website
 # Users are provided to the app via. the "LOGINS" environment variable,
 # which is structured as "user1:pass1,user2:pass2,..."
-login_required: false
+login_required: true
 
 dev_hostname: "http://localhost:5001"
-prod_hostname: "https://genbank.covidcg.org"
+prod_hostname: "https://alpha.covidcg.org"
 # prod_hostname: "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION
 # ----------------------
 
-site_title: "COVID CG Genbank"
+site_title: "COVID CG - Alpha"
 
 # Home page
 show_home_banner: false
@@ -120,10 +141,10 @@ default_protein: nsp12 - RdRp
 min_date: "2019-12-01"
 
 show_logos:
-  GISAID: false
-  GenBank: true
+  GISAID: true
+  GenBank: false
 
 # Allow downloads of sequence metadata (before aggregation)
-allow_metadata_download: true
+allow_metadata_download: false
 # Allow downloads of raw genomes
-allow_genome_download: true
+allow_genome_download: false

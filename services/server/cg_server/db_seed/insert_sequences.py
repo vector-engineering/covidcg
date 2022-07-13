@@ -40,10 +40,13 @@ def flush_chunk(cur, buffer):
 
     cur.execute(
         """
-        INSERT INTO "sequence" ("sequence_id", "Accession ID", "sequence", "filename")
-            SELECT m."sequence_id", t."Accession ID", t."sequence", t."filename"
+        INSERT INTO "sequence" ("Accession ID", "sequence", "filename")
+            SELECT t."Accession ID", t."sequence", t."filename"
             FROM "temp_sequence" t
-            INNER JOIN "metadata" m on t."Accession ID" = m."Accession ID"
+            INNER JOIN (
+                SELECT UNNEST("accession_ids") AS "Accession ID"
+                FROM "metadata"
+            ) m ON t."Accession ID" = m."Accession ID"
         ON CONFLICT DO NOTHING;
         """
     )
@@ -85,7 +88,6 @@ def insert_sequences(conn, data_path, schema="public"):
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS "sequence" (
-                sequence_id     INTEGER    NOT NULL,
                 "Accession ID"  TEXT       NOT NULL,
                 sequence        TEXT       NOT NULL,
                 filename        TEXT       NOT NULL
@@ -169,6 +171,6 @@ def insert_sequences(conn, data_path, schema="public"):
         # Create indices
         cur.execute(
             """
-            CREATE INDEX "ix_sequence_sequence_id" ON "sequence"("sequence_id");
+            CREATE INDEX "ix_sequence_accession_id" ON "sequence"("Accession ID");
             """
         )

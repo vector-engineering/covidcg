@@ -2,6 +2,7 @@
 #       GLOBAL
 # ------------------
 
+# Virus this config is written for
 virus: "flu"
 
 # Path to folder with downloaded and processed data

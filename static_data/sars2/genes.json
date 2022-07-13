@@ -1,333 +1,351 @@
-[
-  {
-    "name": "5'UTR",
-    "segments": [[1, 265]],
-    "protein_coding": 0,
-    "domains": []
-  },
-  {
-    "name": "ORF1a",
-    "segments": [[266, 13468]],
-    "protein_coding": 1,
-    "domains": [
+{
+  "SARS-CoV-2": {
+    "WIV04": [
       {
-        "name": "nsp1",
-        "ranges": [[1, 180]]
+        "name": "5'UTR",
+        "segment": "1",
+        "segments": [[1, 265]],
+        "protein_coding": 0,
+        "domains": []
       },
       {
-        "name": "nsp2",
-        "ranges": [[181, 818]]
-      },
-      {
-        "name": "nsp3",
-        "ranges": [[819, 2763]]
-      },
-      {
-        "name": "nsp4",
-        "ranges": [[2764, 3263]]
-      },
-      {
-        "name": "nsp5 - 3C-like proteinase",
-        "ranges": [[3264, 3569]]
-      },
-      {
-        "name": "nsp6",
-        "ranges": [[3570, 3859]]
-      },
-      {
-        "abbr": "7",
-        "name": "nsp7",
-        "ranges": [[3860, 3942]]
-      },
-      {
-        "name": "nsp8",
-        "ranges": [[3943, 4140]]
-      },
-      {
-        "name": "nsp9",
-        "ranges": [[4141, 4253]]
-      },
-      {
-        "name": "nsp10",
-        "ranges": [[4254, 4392]]
-      }
-    ]
-  },
-  {
-    "name": "ORF1ab",
-    "segments": [
-      [266, 13468],
-      [13468, 21555]
-    ],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "nsp1",
-        "ranges": [[1, 180]]
-      },
-      {
-        "name": "nsp2",
-        "ranges": [[181, 818]]
-      },
-      {
-        "name": "nsp3 - PL2-PRO",
-        "ranges": [[819, 2763]]
-      },
-      {
-        "name": "nsp4",
-        "ranges": [[2764, 3263]]
-      },
-      {
-        "name": "nsp5 - 3CLp",
-        "ranges": [[3264, 3569]]
-      },
-      {
-        "name": "nsp6",
-        "ranges": [[3570, 3859]]
-      },
-      {
-        "name": "nsp7",
-        "ranges": [[3860, 3942]]
-      },
-      {
-        "name": "nsp8",
-        "ranges": [[3943, 4140]]
-      },
-      {
-        "name": "nsp9",
-        "ranges": [[4141, 4253]]
-      },
-      {
-        "name": "nsp10 - CysHis",
-        "ranges": [[4254, 4392]]
-      },
-      {
-        "name": "nsp12 - RdRp",
-        "ranges": [[4393, 5324]]
-      },
-      {
-        "name": "nsp13 - Helicase",
-        "ranges": [[5325, 5925]]
-      },
-      {
-        "name": "nsp14 - ExoN",
-        "ranges": [[5926, 6452]]
-      },
-      {
-        "name": "nsp15 - NendoU",
-        "ranges": [[6453, 6798]]
-      },
-      {
-        "name": "nsp16 - 2'-O-MT",
-        "ranges": [[6799, 7096]]
-      }
-    ]
-  },
-  {
-    "name": "S",
-    "segments": [[21563, 25384]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Receptor binding domain",
-        "ranges": [[319, 541]]
-      },
-      {
-        "name": "S1 Subunit",
-        "ranges": [[14, 685]]
-      },
-      {
-        "name": "S2 Subunit",
-        "ranges": [[686, 1273]]
-      },
-      {
-        "name": "Signal Peptide",
-        "ranges": [[1, 13]]
-      },
-      {
-        "name": "N-Terminal Domain",
-        "ranges": [[14, 305]]
-      },
-      {
-        "name": "Fusion Peptide",
-        "ranges": [[788, 806]]
-      },
-      {
-        "name": "Heptapeptide Repeat Sequence 1",
-        "ranges": [[912, 984]]
-      },
-      {
-        "name": "Heptapeptide Repeat Sequence 2",
-        "ranges": [[1163, 1213]]
-      },
-      {
-        "name": "Transmembrane Domain",
-        "ranges": [[1213, 1237]]
-      },
-      {
-        "name": "Cytoplasm Domain",
-        "ranges": [[1237, 1273]]
-      }
-    ]
-  },
-  {
-    "name": "ORF3a",
-    "segments": [[25393, 26220]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "E",
-    "segments": [[26245, 26472]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Virion Surface",
-        "ranges": [[1, 16]]
-      },
-      {
-        "name": "Transmembrane, Helical",
-        "ranges": [[17, 37]]
-      },
-      {
-        "name": "Intravirion",
-        "ranges": [[38, 75]]
-      },
-      {
-        "name": "PDZ-binding motif",
-        "ranges": [[72, 75]]
-      }
-    ]
-  },
-  {
-    "name": "M",
-    "segments": [[26523, 27191]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Transmembrane, all",
-        "ranges": [
-          [20, 40],
-          [51, 71],
-          [80, 100]
+        "name": "ORF1a",
+        "segment": "1",
+        "segments": [[266, 13468]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "nsp1",
+            "ranges": [[1, 180]]
+          },
+          {
+            "name": "nsp2",
+            "ranges": [[181, 818]]
+          },
+          {
+            "name": "nsp3",
+            "ranges": [[819, 2763]]
+          },
+          {
+            "name": "nsp4",
+            "ranges": [[2764, 3263]]
+          },
+          {
+            "name": "nsp5 - 3C-like proteinase",
+            "ranges": [[3264, 3569]]
+          },
+          {
+            "name": "nsp6",
+            "ranges": [[3570, 3859]]
+          },
+          {
+            "abbr": "7",
+            "name": "nsp7",
+            "ranges": [[3860, 3942]]
+          },
+          {
+            "name": "nsp8",
+            "ranges": [[3943, 4140]]
+          },
+          {
+            "name": "nsp9",
+            "ranges": [[4141, 4253]]
+          },
+          {
+            "name": "nsp10",
+            "ranges": [[4254, 4392]]
+          }
         ]
       },
       {
-        "name": "Virion Surface, all",
-        "ranges": [
-          [2, 19],
-          [72, 79]
+        "name": "ORF1ab",
+        "segment": "1",
+        "segments": [
+          [266, 13468],
+          [13468, 21555]
+        ],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "nsp1",
+            "ranges": [[1, 180]]
+          },
+          {
+            "name": "nsp2",
+            "ranges": [[181, 818]]
+          },
+          {
+            "name": "nsp3 - PL2-PRO",
+            "ranges": [[819, 2763]]
+          },
+          {
+            "name": "nsp4",
+            "ranges": [[2764, 3263]]
+          },
+          {
+            "name": "nsp5 - 3CLp",
+            "ranges": [[3264, 3569]]
+          },
+          {
+            "name": "nsp6",
+            "ranges": [[3570, 3859]]
+          },
+          {
+            "name": "nsp7",
+            "ranges": [[3860, 3942]]
+          },
+          {
+            "name": "nsp8",
+            "ranges": [[3943, 4140]]
+          },
+          {
+            "name": "nsp9",
+            "ranges": [[4141, 4253]]
+          },
+          {
+            "name": "nsp10 - CysHis",
+            "ranges": [[4254, 4392]]
+          },
+          {
+            "name": "nsp12 - RdRp",
+            "ranges": [[4393, 5324]]
+          },
+          {
+            "name": "nsp13 - Helicase",
+            "ranges": [[5325, 5925]]
+          },
+          {
+            "name": "nsp14 - ExoN",
+            "ranges": [[5926, 6452]]
+          },
+          {
+            "name": "nsp15 - NendoU",
+            "ranges": [[6453, 6798]]
+          },
+          {
+            "name": "nsp16 - 2'-O-MT",
+            "ranges": [[6799, 7096]]
+          }
         ]
       },
       {
-        "name": "Intravirion, all",
-        "ranges": [
-          [41, 50],
-          [101, 222]
+        "name": "S",
+        "segment": "1",
+        "segments": [[21563, 25384]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Receptor binding domain",
+            "ranges": [[319, 541]]
+          },
+          {
+            "name": "S1 Subunit",
+            "ranges": [[14, 685]]
+          },
+          {
+            "name": "S2 Subunit",
+            "ranges": [[686, 1273]]
+          },
+          {
+            "name": "Signal Peptide",
+            "ranges": [[1, 13]]
+          },
+          {
+            "name": "N-Terminal Domain",
+            "ranges": [[14, 305]]
+          },
+          {
+            "name": "Fusion Peptide",
+            "ranges": [[788, 806]]
+          },
+          {
+            "name": "Heptapeptide Repeat Sequence 1",
+            "ranges": [[912, 984]]
+          },
+          {
+            "name": "Heptapeptide Repeat Sequence 2",
+            "ranges": [[1163, 1213]]
+          },
+          {
+            "name": "Transmembrane Domain",
+            "ranges": [[1213, 1237]]
+          },
+          {
+            "name": "Cytoplasm Domain",
+            "ranges": [[1237, 1273]]
+          }
         ]
       },
       {
-        "name": "Virion Surface 1",
-        "ranges": [[2, 19]]
+        "name": "ORF3a",
+        "segment": "1",
+        "segments": [[25393, 26220]],
+        "protein_coding": 1,
+        "domains": []
       },
       {
-        "name": "Transmembrane 1, Helical",
-        "ranges": [[20, 40]]
+        "name": "E",
+        "segment": "1",
+        "segments": [[26245, 26472]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Virion Surface",
+            "ranges": [[1, 16]]
+          },
+          {
+            "name": "Transmembrane, Helical",
+            "ranges": [[17, 37]]
+          },
+          {
+            "name": "Intravirion",
+            "ranges": [[38, 75]]
+          },
+          {
+            "name": "PDZ-binding motif",
+            "ranges": [[72, 75]]
+          }
+        ]
       },
       {
-        "name": "Intravirion 1",
-        "ranges": [[41, 50]]
+        "name": "M",
+        "segment": "1",
+        "segments": [[26523, 27191]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Transmembrane, all",
+            "ranges": [
+              [20, 40],
+              [51, 71],
+              [80, 100]
+            ]
+          },
+          {
+            "name": "Virion Surface, all",
+            "ranges": [
+              [2, 19],
+              [72, 79]
+            ]
+          },
+          {
+            "name": "Intravirion, all",
+            "ranges": [
+              [41, 50],
+              [101, 222]
+            ]
+          },
+          {
+            "name": "Virion Surface 1",
+            "ranges": [[2, 19]]
+          },
+          {
+            "name": "Transmembrane 1, Helical",
+            "ranges": [[20, 40]]
+          },
+          {
+            "name": "Intravirion 1",
+            "ranges": [[41, 50]]
+          },
+          {
+            "name": "Transmembrane 2, Helical",
+            "ranges": [[51, 71]]
+          },
+          {
+            "name": "Virion Surface 2",
+            "ranges": [[72, 79]]
+          },
+          {
+            "name": "Transmembrane 3, Helical",
+            "ranges": [[80, 100]]
+          },
+          {
+            "name": "Intravirion 2",
+            "ranges": [[101, 222]]
+          }
+        ]
       },
       {
-        "name": "Transmembrane 2, Helical",
-        "ranges": [[51, 71]]
+        "name": "ORF6",
+        "segment": "1",
+        "segments": [[27202, 27387]],
+        "protein_coding": 1,
+        "domains": []
       },
       {
-        "name": "Virion Surface 2",
-        "ranges": [[72, 79]]
+        "name": "ORF7a",
+        "segment": "1",
+        "segments": [[27394, 27759]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Transmembrane, Helical",
+            "ranges": [[96, 116]]
+          },
+          {
+            "name": "Signal Peptide",
+            "ranges": [[1, 15]]
+          }
+        ]
       },
       {
-        "name": "Transmembrane 3, Helical",
-        "ranges": [[80, 100]]
+        "name": "ORF7b",
+        "segment": "1",
+        "segments": [[27756, 27887]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Transmembrane, Helical",
+            "ranges": [[9, 29]]
+          }
+        ]
       },
       {
-        "name": "Intravirion 2",
-        "ranges": [[101, 222]]
+        "name": "ORF8",
+        "segment": "1",
+        "segments": [[27894, 28259]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "Signal Peptide",
+            "ranges": [[1, 15]]
+          },
+          {
+            "name": "ORF8 Protein",
+            "ranges": [[16, 121]]
+          }
+        ]
+      },
+      {
+        "name": "N",
+        "segment": "1",
+        "segments": [[28274, 29533]],
+        "protein_coding": 1,
+        "domains": [
+          {
+            "name": "RNA-binding",
+            "ranges": [[41, 186]]
+          },
+          {
+            "name": "Dimerization",
+            "ranges": [[258, 361]]
+          }
+        ]
+      },
+      {
+        "name": "ORF10",
+        "segment": "1",
+        "segments": [[29558, 29674]],
+        "protein_coding": 1,
+        "domains": []
+      },
+      {
+        "name": "3'UTR",
+        "segment": "1",
+        "segments": [[29675, 29903]],
+        "protein_coding": 0,
+        "domains": []
       }
     ]
-  },
-  {
-    "name": "ORF6",
-    "segments": [[27202, 27387]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "ORF7a",
-    "segments": [[27394, 27759]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Transmembrane, Helical",
-        "ranges": [[96, 116]]
-      },
-      {
-        "name": "Signal Peptide",
-        "ranges": [[1, 15]]
-      }
-    ]
-  },
-  {
-    "name": "ORF7b",
-    "segments": [[27756, 27887]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Transmembrane, Helical",
-        "ranges": [[9, 29]]
-      }
-    ]
-  },
-  {
-    "name": "ORF8",
-    "segments": [[27894, 28259]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "Signal Peptide",
-        "ranges": [[1, 15]]
-      },
-      {
-        "name": "ORF8 Protein",
-        "ranges": [[16, 121]]
-      }
-    ]
-  },
-  {
-    "name": "N",
-    "segments": [[28274, 29533]],
-    "protein_coding": 1,
-    "domains": [
-      {
-        "name": "RNA-binding",
-        "ranges": [[41, 186]]
-      },
-      {
-        "name": "Dimerization",
-        "ranges": [[258, 361]]
-      }
-    ]
-  },
-  {
-    "name": "ORF10",
-    "segments": [[29558, 29674]],
-    "protein_coding": 1,
-    "domains": []
-  },
-  {
-    "name": "3'UTR",
-    "segments": [[29675, 29903]],
-    "protein_coding": 0,
-    "domains": []
   }
-]
+}

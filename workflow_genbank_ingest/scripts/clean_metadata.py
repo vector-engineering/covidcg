@@ -147,4 +147,9 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     # Fill in missing values
     df.loc[:, "lineage"] = df["lineage"].fillna("None")
 
+    # Isolate ID = same as Accession ID
+    df["isolate_id"] = df.loc[:, "Accession ID"]
+    # Segment = 1
+    df["segment"] = 1
+
     df.to_csv(metadata_out)
