@@ -32,16 +32,21 @@ def download_genomes(conn, req):
                 req.get("subm_end_date", None),
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
-                None,  # req.get("selected_reference", None),
+                req.get("selected_reference", None),
             )
 
             cur.execute(
                 sql.SQL(
                     """
-                    SELECT m."Accession ID", s."sequence"
-                    FROM metadata m
-                    INNER JOIN "sequence" s on m."sequence_id" = s."sequence_id"
-                    WHERE {sequence_where_filter};
+                    SELECT 
+                        m."Accession ID",
+                        s."sequence"
+                    FROM (
+                        SELECT UNNEST("accession_ids") AS "Accession ID"
+                        FROM "metadata"
+                        WHERE {sequence_where_filter}
+                    ) m
+                    INNER JOIN "sequence" s on m."Accession ID" = s."Accession ID";
                     """
                 ).format(sequence_where_filter=sequence_where_filter)
             )
@@ -54,7 +59,6 @@ def download_genomes(conn, req):
             counter = 0
             while seqs := cur.fetchmany(1000):
                 counter += 1
-                # print(counter)
                 for seq in seqs:
                     fasta_file.write(
                         (">" + seq[0] + "\n" + seq[1] + "\n").encode("utf-8")

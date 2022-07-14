@@ -357,6 +357,7 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_reference: rootStoreInstance.configStore.selectedReference,
         selected_group_fields: toJS(
           rootStoreInstance.configStore.selectedGroupFields
         ),
