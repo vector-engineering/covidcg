@@ -3,6 +3,7 @@ version: "3.7"
 
 services:
   server:
+    restart: always
     build:
       context: ./
       dockerfile: ./services/server/dev.Dockerfile
@@ -50,6 +51,7 @@ services:
     ports: # Expose 5432 so we can use DB administration tools
       - 5432:5432
   frontend:
+    restart: always
     build:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
