@@ -1,9 +1,9 @@
-import { getLocationByNameAndLevel } from '../utils/location';
-import { getGene } from '../utils/gene_protein';
+// import { getLocationByNameAndLevel } from '../utils/location';
+// import { getGene } from '../utils/gene_protein';
 import { todayISO } from '../utils/date';
 
 import {
-  GROUP_MUTATION,
+  // GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
   NORM_MODES,
