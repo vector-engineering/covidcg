@@ -76,13 +76,14 @@ def main():
     df = df.rename(
         columns={
             "genbank_accession": "Accession ID",
+            "strain": "virus_name",
             "submitted": "submission_date",
             "collected": "collection_date",
         }
     )
 
     # Drop duplicate accession IDs
-    df.drop_duplicates('Accession ID', keep='first', inplace=True)
+    df.drop_duplicates("Accession ID", keep="first", inplace=True)
 
     df = df.set_index("Accession ID")
 
@@ -147,7 +148,7 @@ def main():
     # metadata columns
     fill_in_cols = [
         "database",
-        "strain",
+        "virus_name",
         "host",
         "isolation_source",
         "biosample_accession",
@@ -156,6 +157,11 @@ def main():
     ]
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
+
+    # Isolate ID = same as Accession ID
+    df["isolate_id"] = df.index.values
+    # Segment = 1
+    df["segment"] = 1
 
     df.to_csv(args.metadata_out)
 
