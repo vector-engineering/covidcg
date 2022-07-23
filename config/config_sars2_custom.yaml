@@ -18,7 +18,8 @@ static_data_folder: "static_data/sars2"
 example_data_folder: "example_data_genbank"
 
 # Database for this virus
-postgres_db: "cg_dev"
+postgres_db: "cg_custom_dev"
+
 # ------------------
 #       INGEST
 # ------------------

@@ -17,15 +17,15 @@ services:
       - STATIC_DATA_PATH=/opt/static_data
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
-      - POSTGRES_DB=rsvg_dev
+      - POSTGRES_DB=rsv_genbank_dev
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
-      - FRONTEND_PORT=3000
-    # command: "gunicorn --bind :5001 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
-    command: "flask run --host 0.0.0.0 --port=5001"
+      - FRONTEND_PORT=3001
+    # command: "gunicorn --bind :5002 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    command: "flask run --host 0.0.0.0 --port=5002"
     ports:
-      - 5001:5001
+      - 5002:5002
     working_dir: /app
     volumes:
       - ./services/server:/app:cached # Mount the server python code at run-time, so that the flask development server can refresh on changes
@@ -40,7 +40,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cg
-      - POSTGRES_DB=rsvg_dev
+      - POSTGRES_DB=rsv_genbank_dev
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_MAX_CONN=20
@@ -64,7 +64,7 @@ services:
       - ./static_data:/app/static_data:cached
     command: "npm start -s"
     ports:
-      - 3000:3000
+      - 3001:3000
 
 volumes:
   postgres_data:

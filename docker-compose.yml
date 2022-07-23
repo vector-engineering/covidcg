@@ -1,0 +1,174 @@
+name: pathmut-all
+version: "3.7"
+
+services:
+  cg-frontend:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/frontend/Dockerfile
+    environment:
+      CONFIGFILE: /app/config/config_sars2_genbank.yaml
+    working_dir: /app
+    volumes:
+      - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes
+      - ./config:/app/config:cached
+      - ./static_data:/app/static_data:cached
+    command: "npm start -s"
+    ports:
+      - 3000:3000
+
+  rsv-frontend:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/frontend/Dockerfile
+    environment:
+      CONFIGFILE: /app/config/config_rsv_genbank.yaml
+    working_dir: /app
+    volumes:
+      - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes
+      - ./config:/app/config:cached
+      - ./static_data:/app/static_data:cached
+    command: "npm start -s"
+    ports:
+      - 3001:3000
+
+  flu-frontend:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/frontend/Dockerfile
+    environment:
+      CONFIGFILE: /app/config/config_flu_gisaid.yaml
+    working_dir: /app
+    volumes:
+      - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes
+      - ./config:/app/config:cached
+      - ./static_data:/app/static_data:cached
+    command: "npm start -s"
+    ports:
+      - 3002:3000
+
+  cg-server:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/server/dev.Dockerfile
+    environment:
+      - LOGINS=user1:pass1,user2:pass2
+      - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=development
+      - CONFIGFILE=/opt/config/config_sars2_genbank.yaml
+      - CONSTANTSFILE=/opt/constants/defs.json
+      - DATA_PATH=/data
+      - STATIC_DATA_PATH=/opt/static_data
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=cg_genbank_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_MAX_CONN=20
+      - FRONTEND_PORT=3000
+    # command: "gunicorn --bind :5001 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    command: "flask run --host 0.0.0.0 --port=5001"
+    ports:
+      - 5001:5001
+    working_dir: /app
+    volumes:
+      - ./services/server:/app:cached # Mount the server python code at run-time, so that the flask development server can refresh on changes
+      - ./example_data_genbank/sars2:/data:cached # Mount the data at run-time (for database seeding only). Should prevent sending all the data over unnecessarily at build-time
+      - ./src/constants:/opt/constants:cached
+      - ./config:/opt/config:cached
+      - ./static_data/sars2:/opt/static_data:cached
+    depends_on:
+      - db
+
+  rsv-server:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/server/dev.Dockerfile
+    environment:
+      - LOGINS=user1:pass1,user2:pass2
+      - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=development
+      - CONFIGFILE=/opt/config/config_rsv_genbank.yaml
+      - CONSTANTSFILE=/opt/constants/defs.json
+      - DATA_PATH=/data
+      - STATIC_DATA_PATH=/opt/static_data
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=rsv_genbank_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_MAX_CONN=20
+      - FRONTEND_PORT=3001
+    # command: "gunicorn --bind :5001 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    command: "flask run --host 0.0.0.0 --port=5002"
+    ports:
+      - 5002:5002
+    working_dir: /app
+    volumes:
+      - ./services/server:/app:cached # Mount the server python code at run-time, so that the flask development server can refresh on changes
+      - ./example_data_genbank/rsv:/data:cached # Mount the data at run-time (for database seeding only). Should prevent sending all the data over unnecessarily at build-time
+      - ./src/constants:/opt/constants:cached
+      - ./config:/opt/config:cached
+      - ./static_data/rsv:/opt/static_data:cached
+    depends_on:
+      - db
+
+  flu-server:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./services/server/dev.Dockerfile
+    environment:
+      - LOGINS=user1:pass1,user2:pass2
+      - FLASK_APP=cg_server/main.py
+      - FLASK_ENV=development
+      - CONFIGFILE=/opt/config/config_flu_gisaid.yaml
+      - CONSTANTSFILE=/opt/constants/defs.json
+      - DATA_PATH=/data
+      - STATIC_DATA_PATH=/opt/static_data
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_DB=flu_gisaid_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_MAX_CONN=20
+      - FRONTEND_PORT=3002
+    # command: "gunicorn --bind :5001 --workers 1 --threads 8 --timeout 0 cg_server.main:app"
+    command: "flask run --host 0.0.0.0 --port=5003"
+    ports:
+      - 5003:5003
+    working_dir: /app
+    volumes:
+      - ./services/server:/app:cached # Mount the server python code at run-time, so that the flask development server can refresh on changes
+      - ./data_flu_small:/data:cached # Mount the data at run-time (for database seeding only). Should prevent sending all the data over unnecessarily at build-time
+      - ./src/constants:/opt/constants:cached
+      - ./config:/opt/config:cached
+      - ./static_data/flu:/opt/static_data:cached
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./services/postgres
+      dockerfile: ./Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cg
+      - POSTGRES_MULTIPLE_DATABASES=cg_genbank_dev,rsv_genbank_dev,flu_gisaid_dev
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_MAX_CONN=20
+    command: "postgres -c 'config_file=/etc/postgresql/postgresql.conf'"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./services/postgres/postgres.conf:/etc/postgresql/postgresql.conf # Custom config
+    ports: # Expose 5432 so we can use DB administration tools
+      - 5432:5432
+
+volumes:
+  postgres_data:
