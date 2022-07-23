@@ -154,13 +154,19 @@ rule write_reference_files:
 
 
 rule preprocess_sequences:
-    """Filter out sequences (adapted from van Dorp et al, 2020)
+    """
+    FOR SARS2 ONLY:
+    Filter out sequences (adapted from van Dorp et al, 2020)
     1. Filter against nextstrain exclusion list
     2. Can't be less than 29700NT
 	3. Can't have more than 5% ambiguous NT
+
+    For other viruses, skip this QC step
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    params:
+        virus = config['virus'],
         nextstrain_exclude = os.path.join(
             static_data_folder, "nextstrain_exclude_20200520.txt"
         )
@@ -168,10 +174,14 @@ rule preprocess_sequences:
         fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     shell:
         """
-        python3 scripts/preprocess_sars2_sequences.py \
-            --input {input.fasta} \
-            --nextstrain-exclusion-file {input.nextstrain_exclude} \
-            --output {output.fasta}
+        if [[ "{params.virus}" == "sars2" ]]; then
+            python3 scripts/preprocess_sars2_sequences.py \
+                --input {input.fasta} \
+                --nextstrain-exclusion-file {params.nextstrain_exclude} \
+                --output {output.fasta}
+        else
+            cp {input.fasta} {output.fasta}
+        fi
         """
 
 
