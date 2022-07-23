@@ -18,7 +18,11 @@ import {
   COORDINATE_MODES,
 } from '../../constants/defs.json';
 import { config } from '../../config';
-import { getReferenceNames, getReferences } from '../../utils/reference';
+import {
+  getReferenceNames,
+  getReferences,
+  getSubtypes,
+} from '../../utils/reference';
 
 const GroupBySelect = observer(
   ({
@@ -28,24 +32,30 @@ const GroupBySelect = observer(
     selectedGene,
     selectedProtein,
     selectedReference,
+    selectedGroupFields,
+
     onGroupKeyChange,
     onDnaOrAaChange,
     onReferenceChange,
+    onSelectedGroupFieldsChange,
 
     showExtraGroupText,
     referenceSelectMaxWidth,
     disabled,
     direction,
   }) => {
-    let handleGroupKeyChange = (event) => {
+    const handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
     };
-
-    let handleDnaOrAaChange = (event) => {
+    const handleDnaOrAaChange = (event) => {
       onDnaOrAaChange(event.target.value);
     };
-
-    let handleReferenceChange = (event) => {
+    const handleSubtypeChange = (event) => {
+      const newSelectedGroupFields = { ...selectedGroupFields };
+      newSelectedGroupFields.subtype = [event.target.value];
+      onSelectedGroupFieldsChange(newSelectedGroupFields);
+    };
+    const handleReferenceChange = (event) => {
       onReferenceChange(event.target.value);
     };
 
@@ -160,7 +170,35 @@ const GroupBySelect = observer(
       );
     };
 
-    const renderRefSelect = () => {
+    const renderSubtypeSelect = () => {
+      const subtypeOptionItems = [];
+      getSubtypes().forEach((subtypeName) => {
+        subtypeOptionItems.push(
+          <option key={`ref-option-${subtypeName}`} value={subtypeName}>
+            {subtypeName}
+          </option>
+        );
+      });
+
+      const subtype = selectedGroupFields.subtype[0];
+
+      return (
+        <RadioForm direction={direction}>
+          <span className="form-title">Subtype</span>
+          <ReferenceSelectRow maxWidth={referenceSelectMaxWidth}>
+            <select value={subtype} onChange={handleSubtypeChange}>
+              {subtypeOptionItems}
+            </select>
+          </ReferenceSelectRow>
+        </RadioForm>
+      );
+    };
+
+    const renderReferenceSelect = () => {
+      if (groupKey !== GROUP_MUTATION) {
+        return null;
+      }
+
       const referenceOptionItems = [];
       getReferenceNames().forEach((referenceName) => {
         referenceOptionItems.push(
@@ -173,11 +211,17 @@ const GroupBySelect = observer(
       });
 
       return (
-        <ReferenceSelectRow maxWidth={referenceSelectMaxWidth}>
-          <select value={selectedReference} onChange={handleReferenceChange}>
-            {referenceOptionItems}
-          </select>
-        </ReferenceSelectRow>
+        <RadioForm direction={direction}>
+          <span className="form-title">Reference</span>
+          {/* {groupKey !== GROUP_MUTATION && (
+            <HintText>Only available in &quot;Mutation&quot; mode</HintText>
+          )} */}
+          <ReferenceSelectRow maxWidth={referenceSelectMaxWidth}>
+            <select value={selectedReference} onChange={handleReferenceChange}>
+              {referenceOptionItems}
+            </select>
+          </ReferenceSelectRow>
+        </RadioForm>
       );
     };
 
@@ -209,13 +253,8 @@ const GroupBySelect = observer(
             {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
           </RadioForm>
         )}
-        <RadioForm direction={direction}>
-          <span className="form-title">Reference</span>
-          {groupKey !== GROUP_MUTATION && (
-            <HintText>Only available in &quot;Mutation&quot; mode</HintText>
-          )}
-          {groupKey === GROUP_MUTATION && renderRefSelect()}
-        </RadioForm>
+        {renderSubtypeSelect()}
+        {renderReferenceSelect()}
       </SelectContainer>
     );
   }
@@ -228,9 +267,11 @@ GroupBySelect.propTypes = {
   selectedGene: PropTypes.object,
   selectedProtein: PropTypes.object,
   selectedReference: PropTypes.string,
+  selectedGroupFields: PropTypes.object,
   onGroupKeyChange: PropTypes.func,
   onDnaOrAaChange: PropTypes.func,
   onReferenceChange: PropTypes.func,
+  onSelectedGroupFieldsChange: PropTypes.func,
 
   showExtraGroupText: PropTypes.bool,
   referenceSelectMaxWidth: PropTypes.string,

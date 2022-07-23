@@ -43,10 +43,11 @@ export class ConfigStore {
   @observable groupKey = '';
   @observable dnaOrAa = '';
 
+  @observable selectedReference = '';
+
   @observable selectedGene = {};
   @observable selectedProtein = {};
   @observable selectedPrimers = [];
-  @observable selectedReference = '';
 
   @observable customCoordinates = [[]];
   @observable customSequences = [];

@@ -27,11 +27,13 @@ if (config['virus'] === 'sars2') {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
+    selectedReference: startingReference,
+
     // Select the Spike gene and nsp13 protein by default
     selectedGene: getGene(config['default_gene'], startingReference),
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
-    selectedReference: startingReference,
+
     customCoordinates: [[8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
     residueCoordinates: [
@@ -48,6 +50,9 @@ if (config['virus'] === 'sars2') {
     submStartDate: '',
     submEndDate: '',
 
+    selectedGroupFields: {
+      subtype: ['SARS-CoV-2'],
+    },
     selectedLocationNodes: [],
 
     hoverGroup: null,
@@ -130,11 +135,13 @@ if (config['virus'] === 'sars2') {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
+    selectedReference: startingReference,
+
     // Select the F gene and protein by default
     selectedGene: getGene(config['default_gene'], startingReference),
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
-    selectedReference: startingReference,
+
     customCoordinates: getGene(config['default_gene'], startingReference)
       .segments,
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
@@ -236,11 +243,13 @@ if (config['virus'] === 'sars2') {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
+    selectedReference: startingReference,
+
     // Select the F gene and protein by default
     selectedGene: getGene(config['default_gene'], startingReference),
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
-    selectedReference: startingReference,
+
     customCoordinates: getGene(config['default_gene'], startingReference)
       .segments,
     customSequences: ['GGTGTTGGATCTGCAATCGC'],

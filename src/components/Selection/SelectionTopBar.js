@@ -93,6 +93,7 @@ const SelectionTopBar = observer(() => {
       residueCoordinates,
     });
   };
+  const onSelectedGroupFieldsChange = () => {};
   const loading = UIStore.caseDataState === ASYNC_STATES.STARTED;
 
   let statusBox = (
@@ -125,9 +126,11 @@ const SelectionTopBar = observer(() => {
         selectedGene={configStore.selectedGene}
         selectedProtein={configStore.selectedProtein}
         selectedReference={configStore.selectedReference}
+        selectedGroupFields={configStore.selectedGroupFields}
         onGroupKeyChange={onChangeGroupKey}
         onDnaOrAaChange={onChangeDnaOrAa}
         onReferenceChange={onReferenceChange}
+        onSelectedGroupFieldsChange={onSelectedGroupFieldsChange}
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}

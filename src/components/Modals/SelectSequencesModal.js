@@ -547,6 +547,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             onGroupKeyChange={onGroupKeyChange}
             onDnaOrAaChange={onDnaOrAaChange}
             onReferenceChange={onReferenceChange}
+            onSelectedGroupFieldsChange={updateSelectedGroupFields}
           />
           <CoordinateSelect
             {...pending}

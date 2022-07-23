@@ -24,6 +24,30 @@ export function getReferenceNames() {
   return Object.keys(references);
 }
 
+const _subtypes = new Set();
+const subtypeReferenceMap = {};
+Object.keys(references).forEach((referenceName) => {
+  const reference = references[referenceName];
+  const subtype = reference.subtype;
+
+  // Add subtype to set of all subtypes
+  _subtypes.add(subtype);
+
+  // Add subtype-reference mapping
+  if (!Object.prototype.hasOwnProperty.call(subtypeReferenceMap, subtype)) {
+    subtypeReferenceMap[subtype] = [];
+  }
+  subtypeReferenceMap[subtype].push(referenceName);
+});
+const subtypes = Array.from(_subtypes);
+
+export function getSubtypes() {
+  return subtypes;
+}
+export function getSubtypeReferenceMap() {
+  return subtypeReferenceMap;
+}
+
 export function referenceSequenceIncludes(referenceName, query) {
   return (
     forRefSeqIncludes(referenceName, query) ||
