@@ -192,8 +192,11 @@ export class ConfigStore {
         if (!this.selectedGroupFields[key].includes(value)) {
           this.selectedGroupFields[key].push(value);
         }
+      } else if (key === 'subtype') {
+        this.selectedGroupFields[key] = [value];
       } else {
         // Invalid field, remove it from the url
+        // console.log('DELETE ' + key);
         this.urlParams.delete(key);
       }
     });
