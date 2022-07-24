@@ -19,8 +19,8 @@ import {
 } from '../../constants/defs.json';
 import { config } from '../../config';
 import {
-  getReferenceNames,
   getReferences,
+  getReferencesForSubtype,
   getSubtypes,
 } from '../../utils/reference';
 
@@ -171,8 +171,15 @@ const GroupBySelect = observer(
     };
 
     const renderSubtypeSelect = () => {
+      const subtypes = getSubtypes();
+
+      // If only one subtype exists, then don't show the select
+      if (subtypes.length === 1) {
+        return null;
+      }
+
       const subtypeOptionItems = [];
-      getSubtypes().forEach((subtypeName) => {
+      subtypes.forEach((subtypeName) => {
         subtypeOptionItems.push(
           <option key={`ref-option-${subtypeName}`} value={subtypeName}>
             {subtypeName}
@@ -200,7 +207,17 @@ const GroupBySelect = observer(
       }
 
       const referenceOptionItems = [];
-      getReferenceNames().forEach((referenceName) => {
+      const subtype = selectedGroupFields.subtype[0];
+      const subtypeReferences = getReferencesForSubtype(subtype);
+
+      // If only one subtype exists AND only one reference exists,
+      // then don't show this selection
+      const subtypes = getSubtypes();
+      if (subtypes.length === 1 && subtypeReferences.length === 1) {
+        return null;
+      }
+
+      subtypeReferences.forEach((referenceName) => {
         referenceOptionItems.push(
           <option key={`ref-option-${referenceName}`} value={referenceName}>
             {referenceName +

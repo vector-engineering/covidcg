@@ -47,6 +47,9 @@ export function getSubtypes() {
 export function getSubtypeReferenceMap() {
   return subtypeReferenceMap;
 }
+export function getReferencesForSubtype(subtype) {
+  return subtypeReferenceMap[subtype];
+}
 
 export function referenceSequenceIncludes(referenceName, query) {
   return (
