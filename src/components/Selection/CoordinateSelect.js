@@ -19,6 +19,7 @@ import {
   HintText,
 } from './CoordinateSelect.styles';
 
+import { coordsToText, textToCoords } from '../../utils/coordinates';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import {
   getPrimerSelectTree,
@@ -78,7 +79,7 @@ const CoordinateSelect = observer(
           disabled={gene.protein_coding === 0 && dnaOrAa === DNA_OR_AA.AA}
         >
           {gene.name}&nbsp;&nbsp;(
-          {gene.segments.map((segment) => segment.join('..')).join(';')})
+          {gene.segments.map((range) => range.join('..')).join(';')})
         </option>
       );
     });
@@ -114,7 +115,7 @@ const CoordinateSelect = observer(
       proteinOptionElements.push(
         <option key={protein.name} value={protein.name}>
           {protein.name}&nbsp;&nbsp;(
-          {protein.segments.map((segment) => segment.join('..')).join(';')})
+          {protein.segments.map((range) => range.join('..')).join(';')})
         </option>
       );
     });
@@ -151,10 +152,7 @@ const CoordinateSelect = observer(
     const [state, setState] = useState({
       primerTreeData: Object.assign(getPrimerSelectTree()),
 
-      customCoordText: customCoordinates
-        .map((range) => range.join('..'))
-        .join(';'),
-
+      customCoordText: coordsToText(customCoordinates),
       customSequences: customSequences.join(';'),
 
       residueCoordsText: residueCoordinates
@@ -175,9 +173,7 @@ const CoordinateSelect = observer(
     useEffect(() => {
       setState({
         ...state,
-        customCoordText: customCoordinates
-          .map((range) => range.join('..'))
-          .join(';'),
+        customCoordText: coordsToText(customCoordinates),
       });
     }, [customCoordinates]);
 
@@ -308,29 +304,30 @@ const CoordinateSelect = observer(
 
     const handleCustomCoordChange = (event) => {
       // Parse current custom coordinates
-      const curCustomCoords = event.target.value
-        .split(';')
-        .map((range) => range.split('..'));
-
+      const curCustomCoords = textToCoords(event.target.value);
       // Check that these are valid
-      const validCustomCoordinates = !curCustomCoords.some((range) => {
-        // Return true if invalid
-        return (
-          range.length !== 2 ||
-          numPattern.exec(range[0]) === null ||
-          numPattern.exec(range[1]) === null ||
-          parseInt(range[0]) > parseInt(range[1])
-        );
-      });
-
+      const validCustomCoordinates =
+        !curCustomCoords.some((range) => {
+          // Return true if invalid
+          return (
+            range.length !== 3 || // Each range must consist of 3 elements
+            !config.segments.includes(range[0]) || // Segment must be valid
+            numPattern.exec(range[1]) === null || // Start/end must be integers
+            numPattern.exec(range[2]) === null ||
+            parseInt(range[1]) > parseInt(range[2]) // Start cannot be greater than end
+          );
+        }) && new Set(curCustomCoords.map((range) => range[0])).size === 1; // Segment must be the same for all ranges
       setState({
         ...state,
         customCoordText: event.target.value,
       });
-
       if (validCustomCoordinates) {
         updateCustomCoordinates(
-          curCustomCoords.map((range) => range.map((coord) => parseInt(coord)))
+          curCustomCoords.map((range) => {
+            range[1] = parseInt(range[1]);
+            range[2] = parseInt(range[2]);
+            return range;
+          })
         );
       } else {
         updateValidCustomCoordinates(validCustomCoordinates);
@@ -359,8 +356,8 @@ const CoordinateSelect = observer(
       }
     };
 
+    // Check all selected primers
     useEffect(() => {
-      // Check all selected primers
       // Make a deep copy of the primer tree data - so we trigger an update
       // in the memoized primer tree element
       const primerTreeData = state.primerTreeData.slice();
@@ -693,14 +690,26 @@ const CoordinateSelect = observer(
                 />
                 <QuestionButton
                   rebuildAfterMount={true}
+                  // Show segment formatting only if this viruses has more than one segment
                   data-tip={`
                     <p>
-                      Coordinates are in the form "start..end". 
-                      Multiple ranges can be separated with ";"
+                      Coordinates are in the form ${
+                        config.segments.length > 1
+                          ? '"segment:start..end"'
+                          : '"start..end"'
+                      }. 
+                      Multiple ranges can be separated with ";".
                     </p>
-                    <p>
-                      i.e., "100..300;500..550"
-                    </p>
+                    ${
+                      config.segments.length > 1
+                        ? '<p>If no segment is defined, it will default to the first segment. Note: currently, only one segment at a time can be specified. i.e., you cannot specify ranges from or across multiple segments</p>'
+                        : ''
+                    }
+                    ${
+                      config.segments.length > 1
+                        ? '<p>i.e., "2:100..300;2:500..550"</p>'
+                        : '<p>i.e., "100..300;500..550"</p>'
+                    }
                     <p>
                       Coordinates relative to the reference genome: <b>${selectedReference}</b>
                     </p>`}

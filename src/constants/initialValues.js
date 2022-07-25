@@ -34,7 +34,7 @@ if (config['virus'] === 'sars2') {
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
 
-    customCoordinates: [[8000, 12000]],
+    customCoordinates: [['1', 8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
     residueCoordinates: [
       [1, getGene(config['default_gene'], startingReference).len_aa],
@@ -130,6 +130,11 @@ if (config['virus'] === 'sars2') {
   };
 } else if (config['virus'] === 'rsv') {
   const startingReference = 'NC_038235.1';
+  const defaultGene = getGene(config['default_gene'], startingReference);
+  const defaultProtein = getProtein(
+    config['default_protein'],
+    startingReference
+  );
 
   _configStore = {
     groupKey: GROUP_MUTATION,
@@ -138,16 +143,15 @@ if (config['virus'] === 'sars2') {
     selectedReference: startingReference,
 
     // Select the F gene and protein by default
-    selectedGene: getGene(config['default_gene'], startingReference),
-    selectedProtein: getProtein(config['default_protein'], startingReference),
+    selectedGene: defaultGene,
+    selectedProtein: defaultProtein,
     selectedPrimers: [],
 
-    customCoordinates: getGene(config['default_gene'], startingReference)
-      .segments,
+    customCoordinates: defaultGene.segments.slice().map((range) => {
+      return [defaultGene.segment, range[0], range[1]];
+    }),
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [
-      [1, getGene(config['default_gene'], startingReference).len_aa],
-    ],
+    residueCoordinates: [[1, defaultGene.len_aa]],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -238,6 +242,11 @@ if (config['virus'] === 'sars2') {
   };
 } else if (config['virus'] === 'flu') {
   const startingReference = 'A-Cambodia-e0826360-2020';
+  const defaultGene = getGene(config['default_gene'], startingReference);
+  const defaultProtein = getProtein(
+    config['default_protein'],
+    startingReference
+  );
 
   _configStore = {
     groupKey: GROUP_MUTATION,
@@ -246,16 +255,15 @@ if (config['virus'] === 'sars2') {
     selectedReference: startingReference,
 
     // Select the F gene and protein by default
-    selectedGene: getGene(config['default_gene'], startingReference),
-    selectedProtein: getProtein(config['default_protein'], startingReference),
+    selectedGene: defaultGene,
+    selectedProtein: defaultProtein,
     selectedPrimers: [],
 
-    customCoordinates: getGene(config['default_gene'], startingReference)
-      .segments,
+    customCoordinates: defaultGene.segments.slice().map((range) => {
+      return [defaultGene.segment, range[0], range[1]];
+    }),
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [
-      [1, getGene(config['default_gene'], startingReference).len_aa],
-    ],
+    residueCoordinates: [[1, defaultGene.len_aa]],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,

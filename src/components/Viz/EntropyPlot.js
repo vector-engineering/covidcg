@@ -223,6 +223,7 @@ const EntropyPlot = observer(({ width }) => {
         row: 0,
       },
     ];
+
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
       return configStore.selectedGene.domains.length > 0
         ? configStore.selectedGene.domains

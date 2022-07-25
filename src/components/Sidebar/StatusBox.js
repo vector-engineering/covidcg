@@ -9,6 +9,7 @@ import {
   ASYNC_STATES,
 } from '../../constants/defs.json';
 
+import { coordsToText } from '../../utils/coordinates';
 import { formatMutation } from '../../utils/mutationUtils';
 import { ISOToInt } from '../../utils/date';
 import { getReferences } from '../../utils/reference';
@@ -65,8 +66,7 @@ const StatusBox = observer(() => {
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
     genomeSelection = (
       <>
-        Custom coordinates:{' '}
-        <b>{serializeCoordinates(configStore.customCoordinates)}</b>
+        Custom coordinates: <b>{coordsToText(configStore.customCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
