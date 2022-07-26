@@ -6,7 +6,7 @@ import { config } from '../../config';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
 import { ISOToInt, intToISO } from '../../utils/date';
-import { getReferencesForSubtype } from '../../utils/reference';
+import { getReferencesForSubtype, getReference } from '../../utils/reference';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
@@ -152,30 +152,39 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     const selectedGroupFields = { ...pending.selectedGroupFields };
     selectedGroupFields.subtype = [subtype];
 
-    // Check the custom coordinates under the new reference
-    // If it fits, then leave it alone
-    // Otherwise, set custom coordinates to the segments of the default gene
-    let customCoordinates = pending.customCoordinates;
-    // const refSeqLength = getReference(reference).sequence.length;
-    // const customCoordMax = customCoordinates.reduce(
-    //   (acc, range) => Math.max(acc, ...range),
-    //   0
-    // );
-    // if (customCoordMax > refSeqLength) {
-    //   // The custom coordinates don't fit - reset to segments of the default gene
-    //   customCoordinates = getGene(config.default_gene, reference).segments;
-    // }
-
     // Update the selected gene/protein object
     const selectedGene = getGene(pending.selectedGene.name, reference);
     const selectedProtein = getProtein(pending.selectedProtein.name, reference);
 
     // Update residue coordinates
     let residueCoordinates;
-    if (pending.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      residueCoordinates = [[1, selectedGene.len_aa]];
-    } else if (pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+    if (pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
       residueCoordinates = [[1, selectedProtein.len_aa]];
+    } else {
+      residueCoordinates = [[1, selectedGene.len_aa]];
+    }
+
+    // Check the custom coordinates under the new reference
+    // If it fits, then leave it alone
+    // Otherwise, set custom coordinates to the segments of the default gene
+    let customCoordinates = pending.customCoordinates;
+
+    // All ranges in custom coordinates must be valid
+    const validCustomCoords = customCoordinates.every((range) => {
+      const rangeSegment = range[0];
+      // const rangeStart = range[1];
+      const rangeEnd = range[2];
+
+      const referenceObj = getReference(reference);
+      return (
+        Object.keys(referenceObj).includes(rangeSegment) &&
+        rangeEnd <= referenceObj['segments'][rangeSegment]['sequence'].length
+      );
+    });
+    if (!validCustomCoords) {
+      customCoordinates = selectedGene.segments.slice().map((range) => {
+        return [selectedGene.segment, range[0], range[1]];
+      });
     }
 
     setGroupPending({

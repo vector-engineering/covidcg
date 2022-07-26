@@ -262,7 +262,7 @@ if (config['virus'] === 'sars2') {
     customCoordinates: defaultGene.segments.slice().map((range) => {
       return [defaultGene.segment, range[0], range[1]];
     }),
-    customSequences: ['GGTGTTGGATCTGCAATCGC'],
+    customSequences: ['GAGCTACATTCTATGTCT'],
     residueCoordinates: [[1, defaultGene.len_aa]],
 
     // Selecting the gene as the coordinate range by default

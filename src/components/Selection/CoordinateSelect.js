@@ -26,7 +26,7 @@ import {
   getPrimerByName,
   getPrimersByGroup,
 } from '../../utils/primer';
-import { queryReferenceSequence } from '../../utils/reference';
+import { queryReferenceSequence, getReference } from '../../utils/reference';
 import { config } from '../../config';
 
 import {
@@ -314,7 +314,12 @@ const CoordinateSelect = observer(
             !config.segments.includes(range[0]) || // Segment must be valid
             numPattern.exec(range[1]) === null || // Start/end must be integers
             numPattern.exec(range[2]) === null ||
-            parseInt(range[1]) > parseInt(range[2]) // Start cannot be greater than end
+            parseInt(range[1]) > parseInt(range[2]) || // Start cannot be greater than end
+            // Range must be within [1, segment sequence length]
+            range[1] < 1 ||
+            range[2] >
+              getReference(selectedReference).segments[range[0]]['sequence']
+                .length
           );
         }) && new Set(curCustomCoords.map((range) => range[0])).size === 1; // Segment must be the same for all ranges
       setState({
@@ -337,10 +342,12 @@ const CoordinateSelect = observer(
     const handleCustomSequencesChange = (event) => {
       const curText = event.target.value.toUpperCase();
       const sequences = curText.split(';');
-      // Check that the reference sequence includes the sequence
+      // Check that the query sequence is not empty, and that the
+      // reference sequence includes the sequence,
       const validCustomSequences = !sequences.some((seq) => {
         return (
-          seq.length === 0 || queryReferenceSequence(seq, selectedReference)
+          seq.length === 0 ||
+          queryReferenceSequence(selectedReference, seq) === 0
         );
       });
 
@@ -772,10 +779,13 @@ const CoordinateSelect = observer(
                   coordinateMode === COORDINATE_MODES.COORD_SEQUENCE && (
                     <RangesText>
                       Coordinates:{' '}
-                      {/* {configStore
-                      .getCoordinateRanges()
-                      .map((range) => range.join('..'))
-                      .join(';')} */}
+                      {coordsToText(
+                        state.customSequences
+                          .split(';')
+                          .map((seq) =>
+                            queryReferenceSequence(selectedReference, seq)
+                          )
+                      )}
                     </RangesText>
                   )}
               </>
