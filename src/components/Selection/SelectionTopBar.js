@@ -15,6 +15,7 @@ import GroupBySelect from '../Selection/GroupBySelect';
 import DownloadDataButton from '../Sidebar/DownloadDataButton';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
+import { getReferencesForSubtype } from '../../utils/reference';
 import { configStore as initialConfigStore } from '../../constants/initialValues';
 
 import {
@@ -67,15 +68,13 @@ const SelectionTopBar = observer(() => {
   const onChangeDnaOrAa = (dnaOrAa) => {
     configStore.applyPendingChanges({ dnaOrAa });
   };
-  const onReferenceChange = (selectedReference) => {
+
+  const getFeaturesFromNewReference = (newReference) => {
     // Update the selected gene/protein object
-    const selectedGene = getGene(
-      configStore.selectedGene.name,
-      selectedReference
-    );
+    const selectedGene = getGene(configStore.selectedGene.name, newReference);
     const selectedProtein = getProtein(
       configStore.selectedProtein.name,
-      selectedReference
+      newReference
     );
 
     // Update residue coordinates
@@ -86,11 +85,29 @@ const SelectionTopBar = observer(() => {
       residueCoordinates = [[1, selectedProtein.len_aa]];
     }
 
-    configStore.applyPendingChanges({
-      selectedReference,
+    return {
       selectedGene,
       selectedProtein,
       residueCoordinates,
+    };
+  };
+
+  const onReferenceChange = (selectedReference) => {
+    configStore.applyPendingChanges({
+      selectedReference,
+      ...getFeaturesFromNewReference(selectedReference),
+    });
+  };
+  const onSelectedGroupFieldsChange = (selectedGroupFields) => {
+    // Get the first reference from the new subtype
+    const selectedReference = getReferencesForSubtype(
+      selectedGroupFields.subtype[0]
+    )[0];
+
+    configStore.applyPendingChanges({
+      selectedReference,
+      selectedGroupFields,
+      ...getFeaturesFromNewReference(selectedReference),
     });
   };
   const loading = UIStore.caseDataState === ASYNC_STATES.STARTED;
@@ -125,9 +142,11 @@ const SelectionTopBar = observer(() => {
         selectedGene={configStore.selectedGene}
         selectedProtein={configStore.selectedProtein}
         selectedReference={configStore.selectedReference}
+        selectedGroupFields={configStore.selectedGroupFields}
         onGroupKeyChange={onChangeGroupKey}
         onDnaOrAaChange={onChangeDnaOrAa}
         onReferenceChange={onReferenceChange}
+        onSelectedGroupFieldsChange={onSelectedGroupFieldsChange}
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}

@@ -25,6 +25,12 @@ import { config } from '../config';
 import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
 import { configStore as initialConfigStore } from '../constants/initialValues';
+import {
+  coordsToText,
+  residueCoordsToText,
+  textToCoords,
+  textToResidueCoords,
+} from '../utils/coordinates';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -43,10 +49,11 @@ export class ConfigStore {
   @observable groupKey = '';
   @observable dnaOrAa = '';
 
+  @observable selectedReference = '';
+
   @observable selectedGene = {};
   @observable selectedProtein = {};
   @observable selectedPrimers = [];
-  @observable selectedReference = '';
 
   @observable customCoordinates = [[]];
   @observable customSequences = [];
@@ -117,23 +124,10 @@ export class ConfigStore {
           // AgeRange is not being used currently so ignore
           // validity flags should not be set from the url
           return;
-        } else if (
-          key === 'customCoordinates' ||
-          key === 'residueCoordinates'
-        ) {
-          // If coordinates are specified, save them as an array of numbers
-          // Coordinates can stay as a string in the URL
-          let arr = [];
-          value = value.split(',');
-          value.forEach((item, i) => {
-            value[i] = parseInt(item);
-
-            if (i % 2 === 1) {
-              arr.push([value[i - 1], value[i]]);
-            }
-          });
-
-          this[key] = arr;
+        } else if (key === 'customCoordinates') {
+          this[key] = textToCoords(value);
+        } else if (key === 'residueCoordinates') {
+          this[key] = textToResidueCoords(value);
         } else if (key === 'customSequences') {
           // Store customSequences as an array of strings
           value = value.split(',');
@@ -191,8 +185,11 @@ export class ConfigStore {
         if (!this.selectedGroupFields[key].includes(value)) {
           this.selectedGroupFields[key].push(value);
         }
+      } else if (key === 'subtype') {
+        this.selectedGroupFields[key] = [value];
       } else {
         // Invalid field, remove it from the url
+        // console.log('DELETE ' + key);
         this.urlParams.delete(key);
       }
     });
@@ -348,6 +345,10 @@ export class ConfigStore {
             this.urlParams.append(groupKey, group);
           });
         });
+      } else if (field === 'customCoordinates') {
+        this.urlParams.set(field, coordsToText(pending[field]));
+      } else if (field === 'residueCoordinates') {
+        this.urlParams.set(field, residueCoordsToText(pending[field]));
       } else {
         this.urlParams.set(field, String(pending[field]));
       }
@@ -472,14 +473,24 @@ export class ConfigStore {
 
   getCoordinateRanges() {
     // Set the coordinate range based off the coordinate mode
-    if (this.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+    if (
+      this.coordinateMode === COORDINATE_MODES.COORD_GENE ||
+      this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN
+    ) {
+      const feature =
+        this.coordinateMode === COORDINATE_MODES.COORD_GENE
+          ? this.selectedGene
+          : this.selectedProtein;
+
       // Return ranges if All Genes
-      if (this.selectedGene.name === 'All Genes') {
-        return this.selectedGene.ranges;
-      }
+      // if (feature.name === 'All Genes') {
+      //   return feature.ranges;
+      // }
       // Disable residue indices for non-protein-coding genes
-      if (!this.selectedGene.protein_coding) {
-        return this.selectedGene.segments;
+      if (!feature.protein_coding) {
+        return feature.segments.slice().map((segment) => {
+          return [feature.segment, segment[0], segment[1]];
+        });
       }
       const coordinateRanges = [];
       this.residueCoordinates.forEach((range) => {
@@ -487,14 +498,15 @@ export class ConfigStore {
         const curRange = range.slice();
 
         if (this.dnaOrAa === DNA_OR_AA.DNA) {
-          for (let i = 0; i < this.selectedGene.aa_ranges.length; i++) {
-            const curAARange = this.selectedGene.aa_ranges[i];
-            const curNTRange = this.selectedGene.segments[i];
+          for (let i = 0; i < feature.aa_ranges.length; i++) {
+            const curAARange = feature.aa_ranges[i];
+            const curNTRange = feature.segments[i];
             if (
               (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
               (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
             ) {
               coordinateRanges.push([
+                feature.segment,
                 curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
                 curNTRange[0] -
                   1 +
@@ -508,39 +520,7 @@ export class ConfigStore {
             }
           }
         } else {
-          coordinateRanges.push([curRange[0], curRange[1]]);
-        }
-      });
-      return coordinateRanges;
-    } else if (this.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      const coordinateRanges = [];
-      this.residueCoordinates.forEach((range) => {
-        // Make a deep copy of the current range
-        const curRange = range.slice();
-
-        if (this.dnaOrAa === DNA_OR_AA.DNA) {
-          for (let i = 0; i < this.selectedProtein.aa_ranges.length; i++) {
-            const curAARange = this.selectedProtein.aa_ranges[i];
-            const curNTRange = this.selectedProtein.segments[i];
-            if (
-              (curRange[0] >= curAARange[0] && curRange[0] <= curAARange[1]) ||
-              (curRange[0] <= curAARange[0] && curRange[1] >= curAARange[0])
-            ) {
-              coordinateRanges.push([
-                curNTRange[0] + (curRange[0] - curAARange[0]) * 3,
-                curNTRange[0] -
-                  1 +
-                  Math.min(curRange[1] - curAARange[0] + 1, curAARange[1]) * 3,
-              ]);
-              // Push the beginning of the current range to the end of
-              // the current AA range of the gene
-              if (curAARange[1] < curRange[1]) {
-                curRange[0] = curAARange[1] + 1;
-              }
-            }
-          }
-        } else {
-          coordinateRanges.push([curRange[0], curRange[1]]);
+          coordinateRanges.push([feature.segment, curRange[0], curRange[1]]);
         }
       });
       return coordinateRanges;

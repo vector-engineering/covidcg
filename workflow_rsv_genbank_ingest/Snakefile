@@ -24,7 +24,7 @@ rule all:
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Cleaned metadata
-        os.path.join(data_folder, "metadata+subtype.csv"),
+        os.path.join(data_folder, "metadata.csv"),
         # Split sequences by subtype - for AZ internal workflows
         seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
 
@@ -49,7 +49,7 @@ rule clean_metadata:
     input:
         metadata_dirty = rules.download.output.feed,
     output:
-        metadata_clean = os.path.join(data_folder, "metadata.csv")
+        metadata_clean = os.path.join(data_folder, "metadata_no_subtype.csv")
     shell:
         """
         python3 scripts/clean_metadata.py \
@@ -91,7 +91,7 @@ rule join_subtype_assignments:
         subtype_alignment = rules.assign_subtypes.output.bam,
         metadata = rules.clean_metadata.output.metadata_clean
     output:
-        metadata_plus_subtype = os.path.join(data_folder, 'metadata+subtype.csv')
+        metadata_plus_subtype = os.path.join(data_folder, 'metadata.csv')
     shell:
         """
         python3 scripts/join_subtype_assignments.py \

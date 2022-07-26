@@ -27,7 +27,7 @@ def flush_chunk(output_path, fasta_by_month_subtype):
     for (month, subtype), seqs in fasta_by_month_subtype.items():
         # print(month, subtype)
         # Open the output fasta file for this month chunk
-        fasta_out_path = str(output_path / (subtype + "_" + month + ".fa.gz"))
+        fasta_out_path = str(output_path / ("1_" + subtype + "_" + month + ".fa.gz"))
         # Mode 'at' is append, in text mode
         with gzip.open(fasta_out_path, "at") as fp_out:
             for seq in seqs:

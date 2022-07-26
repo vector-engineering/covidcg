@@ -2,34 +2,39 @@
 
 """Main data processing workflow from ingested data
 
+$ snakemake --configfile ../config/config_sars2_genbank.yaml -j6
+$ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
+$ snakemake --configfile ../config/config_flu_genbank.yaml -j6
+$ snakemake --configfile ../config/config_flu_gisaid.yaml -j6
+
+This DAG building gets kind of complicated...
+First, sequences are split up by submission date and subtype (this is
+done in the ingest step(s)).
+Then, we need to align each sequence all references within its respective
+subtype, and not to references from other subtypes.
+Additionally, alignments to each reference within the subtype has to be done
+separately.
+
+Working backwards, we combine reference alignments per subtype-chunk at the
+combine_alignments step. The get_alignments() input function defines what
+references are used for each subtype-chunk -- and references per subtype
+are scraped into the SUBTYPE_REFS dictionary.
+
+combine_alignments() subsequently triggers an align_sequences job for each
+subtype-chunk and matching reference (1 or more references per subtype)
+
+After this alignment mess, we can proceed with extract_dna_mutations, etc.
+normally with one file per subtype-chunk.
+
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import datetime
 import os
+from pathlib import Path
 
-# Import scripts
-from scripts.assemble_data_package import assemble_data_package
-from scripts.build_full_dataframe import build_full_dataframe
-from scripts.build_location_tree import build_location_tree
-from scripts.combine_all_data import combine_all_data
-from scripts.consensus_mutations import get_all_consensus_mutations
-from scripts.extract_aa_mutations import extract_aa_mutations
-from scripts.extract_dna_mutations import extract_dna_mutations
-from scripts.global_group_counts import global_group_counts
-from scripts.preprocess_sequences import preprocess_sequences
-from scripts.write_reference_files import write_reference_files
-from scripts.update_vocs import update_vocs
-
-# Force the user to define the configfile on the CLI
-# configfile: "../config.yaml"
-
-data_folder = os.path.join("..", config["data_folder"], config["virus"])
-static_data_folder = os.path.join("..", config["static_data_folder"], config["virus"])
-
-reference_sequence_path = os.path.join(static_data_folder, "reference.fasta")
-gene_defs_path = os.path.join(static_data_folder, "genes.json")
-protein_defs_path = os.path.join(static_data_folder, "proteins.json")
+data_folder = os.path.join("..", config["data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
 
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
@@ -39,66 +44,79 @@ CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
 
-# Phylotree module
-include: "phylotree/Snakefile"
+SEGMENTS = config["segments"]
+SUBTYPES = [
+    d.name for d in sorted(
+        (Path(static_data_folder) / "mut_references").iterdir()
+    ) 
+    if d.is_dir()
+]
+
+# Get references for each subtype
+SUBTYPE_REFS = {}
+for subtype in SUBTYPES:
+    SUBTYPE_REFS[subtype] = [
+        d.name for d in sorted(
+            (Path(static_data_folder) / "mut_references" / subtype).iterdir()
+        ) 
+        if d.is_dir()
+    ]
+# print(SUBTYPE_REFS)
+
+def get_segment(wildcards, output=None):
+    return wildcards.chunk.split("_")[0]
+
+def get_subtype(wildcards, output=None):
+    return wildcards.chunk.split("_")[1]
+
+def get_alignments(wildcards):
+    subtype = get_subtype(wildcards)
+    segment = get_segment(wildcards)
+    return expand(
+        os.path.join(data_folder, "bam_ref", "{ref}_{{chunk}}.bam"),
+        ref=SUBTYPE_REFS[subtype], allow_missing=True
+    )
+
+def get_reference_file(wildcards):
+    subtype = get_subtype(wildcards)
+    segment = get_segment(wildcards)
+    return os.path.join(static_data_folder, "mut_references", subtype, "{ref}", segment + ".fa")
+
+def get_combined_reference_file(wildcards, output=None):
+    subtype = get_subtype(wildcards, output)
+    segment = get_segment(wildcards, output)    
+    return os.path.join(static_data_folder, "combined_mut_references", subtype, segment + ".fa")
 
 # Additional analyses module
 include: "analyses/Snakefile"
 
+# Phylotree module
+include: "phylotree/Snakefile"
+
+wildcard_constraints:
+    chunk="[0-9]+_[A-Za-z0-9-]+_[0-9-]+"
+
+
+def sars2_output(wildcards):
+    if config['virus'] == 'sars2':
+        return [
+            rules.build_phylotree_graph.output.graph_table,
+            os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done")
+        ]
+    else:
+        return []
+
 rule all:
     input:
-        # Generate reference-related data
         os.path.join(static_data_folder, "reference.json"),
-        os.path.join(static_data_folder, "primers.json"),
-        # Packaged data
-        os.path.join(data_folder, "data_package.json.gz"),
-        os.path.join(data_folder, 'data_complete.csv'),
-        # Webscraper data
-        os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
-        # Phylotree
-        rules.build_phylotree_graph.output.graph_table,
+        os.path.join(data_folder, "isolate_data.json"),
+        os.path.join(data_folder, "geo_select_tree.json"),
+        os.path.join(data_folder, "global_group_counts.json"),
+        os.path.join(data_folder, "data_complete.csv"),
         # Additional analyses
-        rules.additional_analyses.output.done
-
-rule preprocess_sequences:
-    """Filter out sequences (adapted from van Dorp et al, 2020)
-    1. Filter against nextstrain exclusion list
-    2. Can't be less than 29700NT
-	3. Can't have more than 5% ambiguous NT
-    """
-    input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
-        nextstrain_exclude = os.path.join(
-            static_data_folder, "nextstrain_exclude_20200520.txt"
-        )
-    output:
-        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
-    run:
-        preprocess_sequences(input.fasta, input.nextstrain_exclude, output.fasta)
-
-rule align_sequences:
-    input:
-        fasta = rules.preprocess_sequences.output.fasta
-    params:
-        ref_seq = os.path.join(static_data_folder, 'reference.fasta')
-    output:
-        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
-    shell:
-        """
-        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
-        """
-
-rule extract_dna_mutations:
-    """Find mutations on the NT level for each sequence
-    """
-    input:
-        reference = reference_sequence_path,
-        bam = rules.align_sequences.output.bam
-    output:
-        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
-    run:
-        dna_mutation_df = extract_dna_mutations(input.bam, input.reference)
-        dna_mutation_df.to_csv(output.dna_mutation, index=False)
+        rules.additional_analyses.output.done,
+        # SARS2 specific workflows (VOCs, phylotree)
+        sars2_output,
 
 
 rule process_genes_and_proteins:
@@ -106,8 +124,8 @@ rule process_genes_and_proteins:
     genes.json and proteins.json annotations file
     """
     input:
-        genes = gene_defs_path,
-        proteins = protein_defs_path
+        genes = os.path.join(static_data_folder, "genes.json"),
+        proteins = os.path.join(static_data_folder, "proteins.json")
     output:
         genes = os.path.join(static_data_folder, "genes_processed.json"),
         proteins = os.path.join(static_data_folder, "proteins_processed.json")
@@ -118,15 +136,127 @@ rule process_genes_and_proteins:
         """
 
 
+rule write_reference_files:
+    """Write some of the reference sequence data as JSON
+    files that can be easily loaded by the front-end
+    """
+    input:
+        primers = os.path.join(static_data_folder, "primers.csv")
+    params:
+        reference_path = os.path.join(static_data_folder, "mut_references"),
+        subtypes = SUBTYPES,
+        segments = SEGMENTS
+    output:
+        # Write data to JSON for the JS/UI to handle
+        reference = os.path.join(static_data_folder, "reference.json"),
+        primers = os.path.join(static_data_folder, "primers.json")
+    shell:
+        """
+        python3 scripts/write_reference_files.py \
+            --reference-path {params.reference_path} \
+            --subtypes {params.subtypes} \
+            --segments {params.segments} \
+            --primers-csv {input.primers} \
+            --reference-json {output.reference} \
+            --primers-json {output.primers}
+        """
+
+
+rule preprocess_sequences:
+    """
+    FOR SARS2 ONLY:
+    Filter out sequences (adapted from van Dorp et al, 2020)
+    1. Filter against nextstrain exclusion list
+    2. Can't be less than 29700NT
+	3. Can't have more than 5% ambiguous NT
+
+    For RSV, only filter out sequences with more than 5% ambiguous NT
+
+    For Flu, skip this QC step
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    params:
+        virus = config['virus'],
+        nextstrain_exclude = os.path.join(
+            static_data_folder, "nextstrain_exclude_20200520.txt"
+        )
+    output:
+        fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
+    shell:
+        """
+        if [[ "{params.virus}" == "sars2" ]]; then
+            python3 scripts/preprocess_sars2_sequences.py \
+                --input {input.fasta} \
+                --nextstrain-exclusion-file {params.nextstrain_exclude} \
+                --output {output.fasta}
+        elif [[ "{params.virus}" == "rsv" ]]; then
+            python3 scripts/preprocess_rsv_sequences.py \
+                --input {input.fasta} \
+                --output {output.fasta}
+        else
+            cp {input.fasta} {output.fasta}
+        fi
+        """
+
+
+rule align_sequences:
+    input:
+        fasta = rules.preprocess_sequences.output.fasta,
+        ref_seq = get_reference_file
+    output:
+        bam = os.path.join(data_folder, "bam_ref", "{ref}_{chunk}.bam")
+    shell:
+        """
+        minimap2 -a --eqx --MD -Q --score-N 0 --sam-hit-only \
+            {input.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+
+rule combine_alignments:
+    input: get_alignments
+    output:
+        bam = os.path.join(data_folder, "bam", "{chunk}.bam")
+    shell:
+        """
+        samtools merge -o {output.bam} {input}
+        """
+
+
+rule extract_dna_mutations:
+    """Find mutations on the NT level for each sequence
+    """
+    input:
+        bam = rules.combine_alignments.output.bam,
+        reference = rules.write_reference_files.output.reference
+    params:
+        subtype = get_subtype,
+        segment = get_segment
+    output:
+        dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
+    shell:
+        """
+        python3 scripts/extract_dna_mutations.py \
+            --bam {input.bam} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --out {output.dna_mutation}
+        """
+
+
 rule extract_aa_mutations:
     """Using the NT mutations, translate genes/proteins and find mutations
     on the AA level, for genes
     """
     input:
         dna_mutation = rules.extract_dna_mutations.output.dna_mutation,
-        reference = reference_sequence_path,
         genes_file = rules.process_genes_and_proteins.output.genes,
-        proteins_file = rules.process_genes_and_proteins.output.proteins
+        proteins_file = rules.process_genes_and_proteins.output.proteins,
+        reference = rules.write_reference_files.output.reference
+    params:
+        subtype = get_subtype,
+        segment = get_segment
     output:
         gene_aa_mutation = os.path.join(
             data_folder, "gene_aa_mutation", "{chunk}_gene_aa_mutation.csv"
@@ -134,20 +264,154 @@ rule extract_aa_mutations:
         protein_aa_mutation = os.path.join(
             data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"
         )
-    run:
-        extract_aa_mutations(
-            input.dna_mutation,
-            input.genes_file,
-            input.reference,
-            mode="gene"
-        ).to_csv(output.gene_aa_mutation, index=False)
+    shell:
+        """
+        python3 scripts/extract_aa_mutations.py \
+            --dna-mutation {input.dna_mutation} \
+            --gene-protein-def {input.genes_file} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode gene \
+            --out {output.gene_aa_mutation}
 
-        extract_aa_mutations(
-            input.dna_mutation,
-            input.proteins_file,
-            input.reference,
-            mode="protein"
-        ).to_csv(output.protein_aa_mutation, index=False)
+        python3 scripts/extract_aa_mutations.py \
+            --dna-mutation {input.dna_mutation} \
+            --gene-protein-def {input.proteins_file} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode protein \
+            --out {output.protein_aa_mutation}
+        """
+
+
+rule coverage_dna:
+    """Get each sequence's coverage on the NT level
+    """
+    input:
+        bam = rules.combine_alignments.output.bam,
+        reference = rules.write_reference_files.output.reference
+    params:
+        subtype = get_subtype,
+        segment = get_segment
+    output:
+        coverage_dna = os.path.join(data_folder, "coverage_dna", "{chunk}_coverage_dna.csv")
+    shell:
+        """
+        python3 scripts/coverage_dna.py \
+            --bam {input.bam} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --out {output.coverage_dna}
+        """
+
+
+rule coverage_aa:
+    """Get each sequence's coverage for all gene/protein features, on the AA level
+    """
+    input:
+        coverage_dna = rules.coverage_dna.output.coverage_dna,
+        reference = rules.write_reference_files.output.reference,
+        genes_def = rules.process_genes_and_proteins.output.genes,
+        proteins_def = rules.process_genes_and_proteins.output.proteins
+    params:
+        subtype = get_subtype,
+        segment = get_segment
+    output:
+        coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+        coverage_protein_aa = os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv")
+    shell:
+        """
+        python3 scripts/coverage_aa.py \
+            --coverage-dna {input.coverage_dna} \
+            --reference {input.reference} \
+            --gene-protein-def {input.genes_def} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode gene \
+            --out {output.coverage_gene_aa}
+
+        python3 scripts/coverage_aa.py \
+            --coverage-dna {input.coverage_dna} \
+            --reference {input.reference} \
+            --gene-protein-def {input.proteins_def} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --mode protein \
+            --out {output.coverage_protein_aa}
+        """
+
+
+rule sequence_manifest:
+    """Generate sequence manifest (all sequence-reference pairs)
+    Used as the left side for joining mutation/coverage data
+    """
+    input:
+        # Include metadata so this triggers every run
+        metadata = os.path.join(data_folder, "metadata.csv"),
+        reference = rules.write_reference_files.output.reference
+    output:
+        manifest = os.path.join(data_folder, "sequence_manifest.csv")
+    params:
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed")
+    shell:
+        """
+        python3 scripts/sequence_manifest.py \
+            --reference {input.reference} \
+            --fasta {params.processed_fasta_files} \
+            --out {output.manifest}
+        """
+
+
+rule combine_coverage:
+    """Combine coverage data from all chunks
+    """
+    input:
+        manifest = rules.sequence_manifest.output.manifest,
+        # Include files here to trigger upstream DAG, but don't include in
+        # the actual command call
+        coverage_dna_files = expand(
+            os.path.join(data_folder, "coverage_dna", "{chunk}_coverage_dna.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_gene_aa_files = expand(
+            os.path.join(data_folder, "coverage_gene_aa", "{chunk}_coverage_gene_aa.csv"),
+            chunk=CHUNKS
+        ),
+        coverage_protein_aa_files = expand(
+            os.path.join(data_folder, "coverage_protein_aa", "{chunk}_coverage_protein_aa.csv"),
+            chunk=CHUNKS
+        ),
+    params:
+        dna_coverage_dir = os.path.join(data_folder, "coverage_dna"),
+        gene_aa_coverage_dir = os.path.join(data_folder, "coverage_gene_aa"),
+        protein_aa_coverage_dir = os.path.join(data_folder, "coverage_protein_aa")
+    output:
+        coverage_dna = os.path.join(data_folder, "coverage_dna.csv"),
+        coverage_gene_aa = os.path.join(data_folder, "coverage_gene_aa.csv"),
+        coverage_protein_aa = os.path.join(data_folder, "coverage_protein_aa.csv")
+    shell:
+        """
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-dir {params.dna_coverage_dir} \
+            --mode dna \
+            --out {output.coverage_dna}
+
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-dir {params.gene_aa_coverage_dir} \
+            --mode gene_aa \
+            --out {output.coverage_gene_aa}
+
+        python3 scripts/combine_coverage.py \
+            --manifest {input.manifest} \
+            --coverage-dir {params.protein_aa_coverage_dir} \
+            --mode protein_aa \
+            --out {output.coverage_protein_aa}
+        """
 
 
 rule combine_all_data:
@@ -155,7 +419,7 @@ rule combine_all_data:
     Mostly just a bunch of joins
     """
     input:
-        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        manifest = rules.sequence_manifest.output.manifest,
         metadata = os.path.join(data_folder, "metadata.csv"),
         dna_mutation_files = expand(
             os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv"),
@@ -168,74 +432,78 @@ rule combine_all_data:
         protein_aa_mutation_files = expand(
             os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
             chunk=CHUNKS
-        )
+        ),
+        dna_coverage = rules.combine_coverage.output.coverage_dna,
+        gene_aa_coverage = rules.combine_coverage.output.coverage_gene_aa,
+        protein_aa_coverage = rules.combine_coverage.output.coverage_protein_aa,
     output:
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         # Only used to build the location tree
-        case_data = os.path.join(data_folder, "case_data.json"),
-        case_data_csv = os.path.join(data_folder, "case_data.csv")
-    run:
-        combine_all_data(
-            **input, **output,
-            count_threshold=config["mutation_count_threshold"],
-            group_cols=list(config["group_cols"].keys()),
-            metadata_cols=list(config["metadata_cols"].keys())
-        )
+        sequence_data = os.path.join(data_folder, "sequence_data.json"),
+        sequence_data_csv = os.path.join(data_folder, "sequence_data.csv")
+    params:
+        count_threshold = config["mutation_count_threshold"],
+        metadata_cols = list(config["metadata_cols"].keys()),
+        dna_mutation_dir = os.path.join(data_folder, "dna_mutation"),
+        gene_aa_mutation_dir = os.path.join(data_folder, "gene_aa_mutation"),
+        protein_aa_mutation_dir = os.path.join(data_folder, "protein_aa_mutation"),
+    shell:
+        """
+        python3 scripts/combine_all_data.py \
+            --manifest {input.manifest} \
+            --metadata {input.metadata} \
+            --dna-mutation-dir {params.dna_mutation_dir} \
+            --gene-aa-mutation-dir {params.gene_aa_mutation_dir} \
+            --protein-aa-mutation-dir {params.protein_aa_mutation_dir} \
+            --dna-coverage {input.dna_coverage} \
+            --gene-aa-coverage {input.gene_aa_coverage} \
+            --protein-aa-coverage {input.protein_aa_coverage} \
+            --metadata-map {output.metadata_map} \
+            --sequence-data {output.sequence_data} \
+            --sequence-data-csv {output.sequence_data_csv} \
+            --count-threshold {params.count_threshold} \
+            --metadata-cols {params.metadata_cols}
+        """
+
+
+rule collapse_to_isolate:
+    """Collapse sequence data by isolate"""
+    input:
+        sequence_data = rules.combine_all_data.output.sequence_data
+    params:
+        group_cols = list(config["group_cols"].keys()),
+        metadata_cols = list(config["metadata_cols"].keys())
+    output:
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
+        isolate_data_csv = os.path.join(data_folder, "isolate_data.csv")
+    shell:
+        """
+        python3 scripts/collapse_to_isolate.py \
+            --sequence-data {input.sequence_data} \
+            --group-cols {params.group_cols} \
+            --metadata-cols {params.metadata_cols} \
+            --isolate-data {output.isolate_data} \
+            --isolate-data-csv {output.isolate_data_csv}
+        """
 
 
 rule build_location_tree:
     input:
-        case_data = rules.combine_all_data.output.case_data,
+        isolate_data_csv = rules.collapse_to_isolate.output.isolate_data_csv,
         metadata_map = rules.combine_all_data.output.metadata_map,
         emoji_map_file = os.path.join(
             static_data_folder, "country_to_emoji.xls"
         )
     output:
         geo_select_tree = os.path.join(data_folder, "geo_select_tree.json")
-    run:
-        geo_select_tree = build_location_tree(
-            input.case_data, input.metadata_map, input.emoji_map_file,
-            output.geo_select_tree
-        )
-
-
-rule write_reference_files:
-    """Write some of the reference sequence data as JSON
-    files that can be easily loaded by the front-end
-    """
-    input:
-        reference = reference_sequence_path,
-        primers = os.path.join(static_data_folder, "primers.csv")
-    output:
-        # Write data to JSON for the JS/UI to handle
-        reference = os.path.join(static_data_folder, "reference.json"),
-        primers = os.path.join(static_data_folder, "primers.json")
-    run:
-        write_reference_files(
-            input.reference, input.primers,
-            output.reference, output.primers
-        )
-
-
-rule consensus_mutations:
-    """For each lineage and clade, get the lineage/clade-defining mutations,
-    on both the NT and AA level
-    Lineage/clade-defining mutations are defined as mutations which occur in
-    >= [consensus_fraction] of sequences within that lineage/clade.
-    [consensus_fraction] is a parameter which can be adjusted here
-    """
-    input:
-        case_data = rules.combine_all_data.output.case_data
-    output:
-        group_consensus_mutations = os.path.join(data_folder, "group_consensus_mutations.json"),
-        group_mutation_frequencies = os.path.join(data_folder, "group_mutation_frequencies.json")
-    run:
-        get_all_consensus_mutations(
-            input.case_data, output.group_consensus_mutations, output.group_mutation_frequencies,
-            group_cols=list(config["group_cols"].keys()),
-            consensus_fraction=config["consensus_fraction"],
-            min_reporting_fraction=config['min_reporting_fraction']
-        )
+    shell:
+        """
+        python3 scripts/build_location_tree.py \
+            --isolate-data {input.isolate_data_csv} \
+            --metadata-map {input.metadata_map} \
+            --emoji-map {input.emoji_map_file} \
+            --out {output.geo_select_tree}
+        """
 
 
 rule global_group_counts:
@@ -243,59 +511,56 @@ rule global_group_counts:
     Doing this in the pipeline just saves some work for the browser later
     """
     input:
-        case_data = rules.combine_all_data.output.case_data
+        isolate_data = rules.collapse_to_isolate.output.isolate_data,
+        reference = rules.write_reference_files.output.reference
     output:
         global_group_counts = os.path.join(
             data_folder, "global_group_counts.json"
         )
-    run:
-        global_group_counts(
-            input.case_data, output.global_group_counts,
-            group_cols=config["group_cols"]
-        )
-
-rule assemble_data_package:
-    """Assemble the complete data package, that will be downloaded
-    by the app upon initial load
-    """
-    input:
-        case_data = rules.combine_all_data.output.case_data,
-        country_score = rules.global_sequencing_efforts.output.country_score,
-        geo_select_tree = rules.build_location_tree.output.geo_select_tree,
-        global_group_counts = rules.global_group_counts.output.global_group_counts,
-        group_consensus_mutations = rules.consensus_mutations.output.group_consensus_mutations,
-        metadata_map = rules.combine_all_data.output.metadata_map
-    output:
-        data_package = os.path.join(data_folder, "data_package.json.gz")
-    run:
-        assemble_data_package(
-            **input,
-            data_package_out = output.data_package
-        )
+    params:
+        group_cols = list(config["group_cols"].keys())
+    shell:
+        """
+        python3 scripts/global_group_counts.py \
+            --isolate-data {input.isolate_data} \
+            --reference {input.reference} \
+            --out-global-group-counts {output.global_group_counts} \
+            --group-cols {params.group_cols}
+        """
 
 rule build_full_dataframe:
     input:
-        case_data = rules.combine_all_data.output.case_data,
+        isolate_data = rules.collapse_to_isolate.output.isolate_data,
         metadata_map = rules.combine_all_data.output.metadata_map
     output:
-        full_df = os.path.join(data_folder, 'data_complete.csv')
-    run:
-        build_full_dataframe(input.case_data, input.metadata_map, output.full_df)
+        full_df = os.path.join(data_folder, "data_complete.csv")
+    shell:
+        """
+        python3 scripts/build_full_dataframe.py \
+            --isolate-data {input.isolate_data} \
+            --metadata-map {input.metadata_map} \
+            --df-out {output.full_df}
+        """
 
 
 rule update_vocs:
+    """Scrape sites for new VOCs
+    Only run this for SARS2
+    """
     output:
         voc_list = os.path.join(data_folder, "vocs", "vocs.json"),
         cdc_list = os.path.join(data_folder, "vocs", "CDC.json"),
         who_list = os.path.join(data_folder, "vocs", "WHO.json"),
         ecdc_list = os.path.join(data_folder, "vocs", "ECDC.json"),
         phe_list = os.path.join(data_folder, "vocs", "PHE.json"),
-        status = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
+        done = touch(os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"))
     shell:
         """
         python3 scripts/get_cdc_vocs.py -o {output.cdc_list}
         python3 scripts/get_who_vocs.py -o {output.who_list}
         python3 scripts/get_ecdc_vocs.py -o {output.ecdc_list}
         python3 scripts/get_phe_vocs.py -o {output.phe_list}
-        python3 scripts/update_vocs.py -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} -o {output.voc_list}
+        python3 scripts/update_vocs.py \
+            -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} \
+            -o {output.voc_list}
         """

@@ -83,9 +83,10 @@ export class MutationDataStore {
 
       // Store all the parts
       // Positions are 1-indexed
-      this.intToDnaMutationMap[mutationId]['pos'] = parseInt(split[0]);
-      this.intToDnaMutationMap[mutationId]['ref'] = split[1];
-      this.intToDnaMutationMap[mutationId]['alt'] = split[2];
+      this.intToDnaMutationMap[mutationId]['segment'] = split[0];
+      this.intToDnaMutationMap[mutationId]['pos'] = parseInt(split[1]);
+      this.intToDnaMutationMap[mutationId]['ref'] = split[2];
+      this.intToDnaMutationMap[mutationId]['alt'] = split[3];
       this.intToDnaMutationMap[mutationId]['name'] = formatMutation(
         mut,
         DNA_OR_AA.DNA

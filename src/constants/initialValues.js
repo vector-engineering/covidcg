@@ -21,17 +21,20 @@ const lastNDays = 30;
 let _configStore, _groupDataStore, _plotSettingsStore;
 
 if (config['virus'] === 'sars2') {
-  const startingReference = '...';
+  const startingReference = 'WIV04';
 
   _configStore = {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
+    selectedReference: startingReference,
+
     // Select the Spike gene and nsp13 protein by default
     selectedGene: getGene(config['default_gene'], startingReference),
     selectedProtein: getProtein(config['default_protein'], startingReference),
     selectedPrimers: [],
-    customCoordinates: [[8000, 12000]],
+
+    customCoordinates: [['1', 8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
     residueCoordinates: [
       [1, getGene(config['default_gene'], startingReference).len_aa],
@@ -47,6 +50,9 @@ if (config['virus'] === 'sars2') {
     submStartDate: '',
     submEndDate: '',
 
+    selectedGroupFields: {
+      subtype: ['SARS-CoV-2'],
+    },
     selectedLocationNodes: [],
 
     hoverGroup: null,
@@ -124,22 +130,28 @@ if (config['virus'] === 'sars2') {
   };
 } else if (config['virus'] === 'rsv') {
   const startingReference = 'NC_038235.1';
+  const defaultGene = getGene(config['default_gene'], startingReference);
+  const defaultProtein = getProtein(
+    config['default_protein'],
+    startingReference
+  );
 
   _configStore = {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
-    // Select the F gene and protein by default
-    selectedGene: getGene(config['default_gene'], startingReference),
-    selectedProtein: getProtein(config['default_protein'], startingReference),
-    selectedPrimers: [],
     selectedReference: startingReference,
-    customCoordinates: getGene(config['default_gene'], startingReference)
-      .segments,
+
+    // Select the F gene and protein by default
+    selectedGene: defaultGene,
+    selectedProtein: defaultProtein,
+    selectedPrimers: [],
+
+    customCoordinates: defaultGene.segments.slice().map((range) => {
+      return [defaultGene.segment, range[0], range[1]];
+    }),
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [
-      [1, getGene(config['default_gene'], startingReference).len_aa],
-    ],
+    residueCoordinates: [[1, defaultGene.len_aa]],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -230,22 +242,28 @@ if (config['virus'] === 'sars2') {
   };
 } else if (config['virus'] === 'flu') {
   const startingReference = 'A-Cambodia-e0826360-2020';
+  const defaultGene = getGene(config['default_gene'], startingReference);
+  const defaultProtein = getProtein(
+    config['default_protein'],
+    startingReference
+  );
 
   _configStore = {
     groupKey: GROUP_MUTATION,
     dnaOrAa: DNA_OR_AA.AA,
 
-    // Select the F gene and protein by default
-    selectedGene: getGene(config['default_gene'], startingReference),
-    selectedProtein: getProtein(config['default_protein'], startingReference),
-    selectedPrimers: [],
     selectedReference: startingReference,
-    customCoordinates: getGene(config['default_gene'], startingReference)
-      .segments,
-    customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [
-      [1, getGene(config['default_gene'], startingReference).len_aa],
-    ],
+
+    // Select the F gene and protein by default
+    selectedGene: defaultGene,
+    selectedProtein: defaultProtein,
+    selectedPrimers: [],
+
+    customCoordinates: defaultGene.segments.slice().map((range) => {
+      return [defaultGene.segment, range[0], range[1]];
+    }),
+    customSequences: ['GAGCTACATTCTATGTCT'],
+    residueCoordinates: [[1, defaultGene.len_aa]],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,

@@ -2,6 +2,7 @@
 #       GLOBAL
 # ------------------
 
+# Virus this config is written for
 virus: "flu"
 
 # Path to folder with downloaded and processed data
@@ -108,7 +109,7 @@ mutation_partition_break: "M"
 # which is structured as "user1:pass1,user2:pass2,..."
 login_required: false
 
-dev_hostname: "http://localhost:5001"
+dev_hostname: "http://localhost:5003"
 prod_hostname: "https://flu.genbank.pathmut.org"
 # prod_hostname: "http://localhost:8080"
 

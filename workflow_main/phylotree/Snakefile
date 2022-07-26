@@ -25,7 +25,7 @@ today_str = datetime.date.today().isoformat()
 
 rule get_representative_sequences:
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
         metadata_map = os.path.join(data_folder, "metadata_map.json"),
         ref_seq = os.path.join(static_data_folder, "reference.json"),
     output:
@@ -34,7 +34,7 @@ rule get_representative_sequences:
         table = os.path.join(data_folder, 'lineage_representative_table.csv')
     run:
         get_representative_seqs(
-            input.case_data, input.metadata_map, input.ref_seq,
+            input.isolate_data, input.metadata_map, input.ref_seq,
             output.representatives, output.datefile, output.table
         )
 
@@ -78,7 +78,7 @@ rule treetime:
 
 rule build_phylotree_graph:
     input:
-        case_data = os.path.join(data_folder, "case_data.json"),
+        isolate_data = os.path.join(data_folder, "isolate_data.json"),
         nexus_file = rules.treetime.output.nexus_file,
         tree_dates = rules.treetime.output.tree_dates,
         representative_table = rules.get_representative_sequences.output.table
@@ -86,7 +86,7 @@ rule build_phylotree_graph:
         graph_table = os.path.join(data_folder, 'lineage_tree_graph.json')
     run:
         build_graph_table(
-            input.case_data,
+            input.isolate_data,
             input.nexus_file,
             input.tree_dates,
             input.representative_table,

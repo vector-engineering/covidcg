@@ -27,7 +27,7 @@ def build_coordinate_filters(
         - Enum of constants["DNA_OR_AA"] (DNA mode or AA mode)
     coordinate_mode: str
         - Enum of constants["COORDINATE_MODES"] (NT, GENE AA, or PROTEIN AA)
-    coordinate_ranges: list of [int, int]
+    coordinate_ranges: list of [segment (str), start (int), end (int)]
         - List of ranges, in nucleotide coordinates, for valid mutations
     selected_gene: str
         - Only used for filtering if in GENE AA mode
@@ -65,13 +65,22 @@ def build_coordinate_filters(
     pos_filter = []
     if coordinate_ranges:
         for coord_range in coordinate_ranges:
+            range_filter = []
+            # For DNA mode, also match the correct segment
+            if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
+                range_filter.append(
+                    sql.SQL('"segment" = {}').format(sql.Literal(coord_range[0]))
+                )
+            range_filter.append(
+                sql.SQL('"pos" >= {}').format(sql.Literal(coord_range[1]))
+            )
+            range_filter.append(
+                sql.SQL('"pos" <= {}').format(sql.Literal(coord_range[2]))
+            )
+
             pos_filter.append(
-                sql.SQL(
-                    """
-                    ("pos" >= {start} AND "pos" <= {end})
-                    """
-                ).format(
-                    start=sql.Literal(coord_range[0]), end=sql.Literal(coord_range[1]),
+                sql.Composed(
+                    [sql.SQL("("), sql.SQL(" AND ").join(range_filter), sql.SQL(")")]
                 )
             )
 

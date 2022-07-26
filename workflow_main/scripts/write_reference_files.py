@@ -58,6 +58,13 @@ def main():
                     records = read_fasta_file(lines)
                     ref_obj[reference]["segments"][segment] = list(records.values())[0]
 
+            # Get description
+            description = ""
+            if (reference_path / "DESCRIPTION").exists():
+                with (reference_path / "DESCRIPTION").open("r") as fp:
+                    description = fp.read()
+            ref_obj[reference]["description"] = description
+
     with open(args.reference_json, "w") as fp:
         fp.write(json.dumps(ref_obj, indent=2))
 

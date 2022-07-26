@@ -6,7 +6,7 @@ import { config } from '../../config';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
 import { ISOToInt, intToISO } from '../../utils/date';
-import { getReference } from '../../utils/reference';
+import { getReferencesForSubtype, getReference } from '../../utils/reference';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
@@ -108,14 +108,9 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (groupKey !== GROUP_MUTATION && groupKey !== pending.groupKey) {
       selectedGroupFields = {};
     }
-    // RSV MODE ONLY
     // If we're switching to mutation mode, go back to
     // default selected group fields
-    else if (
-      config.virus === 'rsv' &&
-      groupKey === GROUP_MUTATION &&
-      groupKey !== pending.groupKey
-    ) {
+    else if (groupKey === GROUP_MUTATION && groupKey !== pending.groupKey) {
       selectedGroupFields = initialConfigStore.selectedGroupFields;
     }
 
@@ -138,20 +133,58 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   const onDnaOrAaChange = (dnaOrAa) =>
     changeGrouping(pending.groupKey, dnaOrAa);
 
+  const onSubtypeChange = (selectedGroupFields) => {
+    const subtype = selectedGroupFields.subtype[0];
+    // Get the first reference from the new subtype
+    const reference = getReferencesForSubtype(subtype)[0];
+    onSubtypeOrReferenceChange({ subtype, reference });
+  };
   const onReferenceChange = (reference) => {
+    onSubtypeOrReferenceChange({ reference });
+  };
+
+  const onSubtypeOrReferenceChange = ({ subtype, reference }) => {
+    if (subtype === undefined) {
+      subtype = pending.selectedGroupFields.subtype[0];
+    }
+
+    // Change subtype
+    const selectedGroupFields = { ...pending.selectedGroupFields };
+    selectedGroupFields.subtype = [subtype];
+
+    // Update the selected gene/protein object
+    const selectedGene = getGene(pending.selectedGene.name, reference);
+    const selectedProtein = getProtein(pending.selectedProtein.name, reference);
+
+    // Update residue coordinates
+    let residueCoordinates;
+    if (pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      residueCoordinates = [[1, selectedProtein.len_aa]];
+    } else {
+      residueCoordinates = [[1, selectedGene.len_aa]];
+    }
+
     // Check the custom coordinates under the new reference
     // If it fits, then leave it alone
     // Otherwise, set custom coordinates to the segments of the default gene
     let customCoordinates = pending.customCoordinates;
-    const refSeqLength = getReference(reference).sequence.length;
 
-    const customCoordMax = customCoordinates.reduce(
-      (acc, range) => Math.max(acc, ...range),
-      0
-    );
-    if (customCoordMax > refSeqLength) {
-      // The custom coordinates don't fit - reset to segments of the default gene
-      customCoordinates = getGene(config.default_gene, reference).segments;
+    // All ranges in custom coordinates must be valid
+    const validCustomCoords = customCoordinates.every((range) => {
+      const rangeSegment = range[0];
+      // const rangeStart = range[1];
+      const rangeEnd = range[2];
+
+      const referenceObj = getReference(reference);
+      return (
+        Object.keys(referenceObj).includes(rangeSegment) &&
+        rangeEnd <= referenceObj['segments'][rangeSegment]['sequence'].length
+      );
+    });
+    if (!validCustomCoords) {
+      customCoordinates = selectedGene.segments.slice().map((range) => {
+        return [selectedGene.segment, range[0], range[1]];
+      });
     }
 
     setGroupPending({
@@ -159,7 +192,15 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
       selectedReference: reference,
     });
     setCoordPending({
+      ...coordPending,
+      selectedGene,
+      selectedProtein,
+      residueCoordinates,
       customCoordinates,
+    });
+    setMetaPending({
+      ...metaPending,
+      selectedGroupFields,
     });
   };
 
@@ -547,6 +588,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
             onGroupKeyChange={onGroupKeyChange}
             onDnaOrAaChange={onDnaOrAaChange}
             onReferenceChange={onReferenceChange}
+            onSelectedGroupFieldsChange={onSubtypeChange}
+            referenceSelectMaxWidth="200px"
           />
           <CoordinateSelect
             {...pending}

@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { DNA_OR_AA, GROUPS } from '../constants/defs.json';
 
 export const formatMutation = (mutationStr, dnaOrAa) => {
@@ -11,7 +12,13 @@ export const formatMutation = (mutationStr, dnaOrAa) => {
 
   const chunks = mutationStr.split('|');
   if (dnaOrAa === DNA_OR_AA.DNA) {
-    return `${chunks[1]}${chunks[0]}${chunks[2]}`;
+    // If the virus has more than one segment, then append the segment name
+    // to the beginning of each mutation
+    if (config.segments.length > 1) {
+      return `${chunks[0]}:${chunks[2]}${chunks[1]}${chunks[3]}`;
+    } else {
+      return `${chunks[2]}${chunks[1]}${chunks[3]}`;
+    }
   } else if (dnaOrAa === DNA_OR_AA.AA) {
     let ref = chunks[2];
     let alt = chunks[3];

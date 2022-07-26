@@ -137,4 +137,9 @@ def clean_metadata(metadata_in, metadata_out):
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
 
+    # Isolate ID = same as Accession ID
+    df["isolate_id"] = df.index.values
+    # Segment = 1
+    df["segment"] = 1
+
     df.to_csv(metadata_out)
