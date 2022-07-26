@@ -103,6 +103,10 @@ def main():
 
     # Load metadata
     df = pd.read_csv(args.metadata)
+    # If metadata contains subtype column, remove it to avoid duplicate column
+    # during merge with manifest
+    if "subtype" in df.columns:
+        df.drop(columns=["subtype"], inplace=True)
 
     # Join sequence ID and reference from manifest
     df = manifest.merge(

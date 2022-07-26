@@ -1137,6 +1137,11 @@ def main():
         ]
     ]
 
+    # Isolate ID = same as Accession ID
+    df["isolate_id"] = df.index.values
+    # Segment = 1
+    df["segment"] = 1
+
     df.to_csv(args.metadata_out)
 
 
