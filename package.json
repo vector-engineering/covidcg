@@ -1,6 +1,6 @@
 {
   "name": "covidcg",
-  "version": "2.7.0-fludev1",
+  "version": "2.7.0-dev2",
   "description": "",
   "engines": {
     "node": ">=8",
