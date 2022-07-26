@@ -170,7 +170,9 @@ rule preprocess_sequences:
     2. Can't be less than 29700NT
 	3. Can't have more than 5% ambiguous NT
 
-    For other viruses, skip this QC step
+    For RSV, only filter out sequences with more than 5% ambiguous NT
+
+    For Flu, skip this QC step
     """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
@@ -187,6 +189,10 @@ rule preprocess_sequences:
             python3 scripts/preprocess_sars2_sequences.py \
                 --input {input.fasta} \
                 --nextstrain-exclusion-file {params.nextstrain_exclude} \
+                --output {output.fasta}
+        elif [[ "{params.virus}" == "rsv" ]]; then
+            python3 scripts/preprocess_rsv_sequences.py \
+                --input {input.fasta} \
                 --output {output.fasta}
         else
             cp {input.fasta} {output.fasta}

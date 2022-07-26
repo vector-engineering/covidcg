@@ -1,4 +1,5 @@
-# docker compose -f docker-compose.flu.yml -p flu up -d
+# docker compose -f docker-compose.flu.yml up -d
+name: pathmut-flu
 version: "3.7"
 
 services:

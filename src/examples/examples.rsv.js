@@ -15,33 +15,32 @@ import {
 import { config } from '../config';
 
 export default function examples({ selectTree }) {
-  // console.log(selectTree);
   return [
-    {
-      title: 'Global Subtypes',
-      description: 'View the growth of subtypes over all locations',
-      // image:
-      //   'https://storage.googleapis.com/ve-public/example/global_lineages.png',
-      settings: {
-        plotSettings: {
-          groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
-          groupStackCountMode: COUNT_MODES.COUNT_NEW,
-          groupStackDateBin: DATE_BINS.DATE_BIN_YEAR,
-        },
-        UI: {
-          activeTab: TABS.TAB_COMPARE_GROUPS,
-        },
-        config: {
-          groupKey: config.group_cols.subtype.name,
-          dnaOrAa: DNA_OR_AA.DNA,
-          coordinateMode: COORDINATE_MODES.COORD_GENE,
-          selectedLocationNodes: selectTree.children, // select root
-          startDate: config.min_date,
-          endDate: todayISO(),
-          selectedGroupFields: {},
-        },
-      },
-    },
+    //   {
+    //     title: 'Global Subtypes',
+    //     description: 'View the growth of subtypes over all locations',
+    //     // image:
+    //     //   'https://storage.googleapis.com/ve-public/example/global_lineages.png',
+    //     settings: {
+    //       plotSettings: {
+    //         groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
+    //         groupStackCountMode: COUNT_MODES.COUNT_NEW,
+    //         groupStackDateBin: DATE_BINS.DATE_BIN_YEAR,
+    //       },
+    //       UI: {
+    //         activeTab: TABS.TAB_COMPARE_GROUPS,
+    //       },
+    //       config: {
+    //         groupKey: 'subtype',
+    //         dnaOrAa: DNA_OR_AA.DNA,
+    //         coordinateMode: COORDINATE_MODES.COORD_GENE,
+    //         selectedLocationNodes: selectTree.children, // select root
+    //         startDate: config.min_date,
+    //         endDate: todayISO(),
+    //         selectedGroupFields: {},
+    //       },
+    //     },
+    //   },
     {
       title: 'Global Genotypes',
       description: 'View the growth of genotypes over all locations',

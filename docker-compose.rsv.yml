@@ -1,4 +1,5 @@
-# docker compose -f docker-compose.rsv.yml -p rsv up -d
+# docker compose -f docker-compose.rsv.yml up -d
+name: pathmut-rsv
 version: "3.7"
 
 services:
