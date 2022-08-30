@@ -160,7 +160,7 @@ const StructuralViewer = observer(() => {
       .filter(
         (groupMutation) =>
           groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&
-          groupMutation.protein ===
+          groupMutation.feature ===
             plotSettingsStore.reportStructureActiveProtein
       )
       // Convert fractional frequencies to colors
