@@ -116,7 +116,7 @@ if (config['virus'] === 'sars2') {
     reportConsensusThreshold: 0.7,
     reportMutationListHideEmpty: true,
     reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-    reportStructureActiveProtein: config['default_protein'],
+    reportStructureActiveProtein: 'S',
     reportStructurePdbId: '6ZGG',
     reportStructureActiveGroup: 'B.1.617.2',
     reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
