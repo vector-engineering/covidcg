@@ -96,6 +96,7 @@ prod_hostname: "http://localhost:8080"
 # ----------------------
 
 site_title: "COVID CG"
+data_provider: "Custom"
 
 # Home page
 show_home_banner: false

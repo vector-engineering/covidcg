@@ -124,6 +124,7 @@ prod_hostname: "https://az.covidcg.org"
 # ----------------------
 
 site_title: "COVID CG"
+data_provider: "GISAID"
 
 # Home page
 show_home_banner: false

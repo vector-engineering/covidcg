@@ -443,21 +443,21 @@ const SurveillancePlot = observer(({ width }) => {
         submission.
       </HelpText>
       <HelpText>
-        {groupName} that do not meet the conditions defined by &quot;Displayed{' '}
+        {groupName}s that do not meet the conditions defined by &quot;Displayed{' '}
         {groupName}&quot; in all six continents are filtered out of this plot.
         &quot;Highlighted {groupName}&quot; meeting the user-defined conditions
         in at least one out of the six continents are shown in the legend to the
-        left. Hover over lineages in the legend, or near them in the plots, to
-        highlight the lineage across all plots.
+        left. Hover over {groupName}s in the legend, or near them in the plots,
+        to highlight the {groupName} across all plots.
       </HelpText>
       <WarningBox
         show={plotSettingsStore.surveillanceShowWarning}
         onDismiss={onDismissWarning}
       >
-        {config.site_title} plots reflect data contributed to GISAID and are
-        therefore impacted by the sequence coverage in each country. Increased
-        prevalence of any lineage does not, on its own, suggest an increase in
-        transmissibility.
+        {config.site_title} plots reflect data contributed to{' '}
+        {config.data_provider} and are therefore impacted by the sequence
+        coverage in each country. Increased prevalence of any {groupName} does
+        not, on its own, suggest an increase in transmissibility.
       </WarningBox>
       {/* Only show these surveillance settings for SAR2 */}
       {config.virus === 'sars2' && (

@@ -124,6 +124,7 @@ prod_hostname: "https://alpha.covidcg.org"
 # ----------------------
 
 site_title: "COVID CG - Alpha"
+data_provider: "GISAID"
 
 # Home page
 show_home_banner: false

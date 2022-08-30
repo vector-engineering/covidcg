@@ -111,6 +111,7 @@ prod_hostname: "https://genbank.covidcg.org"
 # ----------------------
 
 site_title: "COVID CG Genbank"
+data_provider: "NCBI GenBank"
 
 # Home page
 show_home_banner: false

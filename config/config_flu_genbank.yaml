@@ -118,6 +118,7 @@ prod_hostname: "https://flu.genbank.pathmut.org"
 # ----------------------
 
 site_title: "Flu PathMut"
+data_provider: "NCBI GenBank"
 
 # Home page
 show_home_banner: false

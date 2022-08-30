@@ -102,6 +102,9 @@ prod_hostname: "http://localhost:8080"
 #     VISUALIZATION
 # ----------------------
 
+site_title: "RSV PathMut"
+data_provider: "Custom"
+
 # Home page
 show_home_banner: false
 show_walkthroughs: false
