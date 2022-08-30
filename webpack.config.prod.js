@@ -36,6 +36,7 @@ export default {
 
     // Generate HTML file that contains references to generated bundles. See here for how this works: https://github.com/ampedandwired/html-webpack-plugin#basic-usage
     new HtmlWebpackPlugin({
+      title: configfile.site_title,
       template: 'src/index.ejs',
       favicon: 'src/favicon.ico',
       minify: {
@@ -58,6 +59,16 @@ export default {
   ],
   module: {
     rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'string-replace-loader',
+        options: {
+          search: /__VIRUS__/g,
+          replace: JSON.stringify(configfile.virus).replace(/"/g, ''),
+          flags: 'g',
+        },
+      },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,

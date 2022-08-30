@@ -22,3 +22,11 @@ gcloud run deploy cg-genbank \
     --image "gcr.io/${PROJECT_ID}/cg-genbank:${CG_VERSION}"
 gcloud run deploy cg-alpha \
     --image "gcr.io/${PROJECT_ID}/cg-alpha:${CG_VERSION}"
+
+# RSV
+
+gcloud run deploy rsv-genbank --image "gcr.io/${PROJECT_ID}/rsv:${CG_VERSION}"
+
+# FLU
+
+gcloud run deploy flu-gisaid --image "gcr.io/${PROJECT_ID}/flu-gisaid:${CG_VERSION}"

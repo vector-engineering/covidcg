@@ -1,3 +1,5 @@
+![](https://covidcg.org/cg_logo_v13.png)
+
 ## COVID-19 CG (CoV Genetics)
 
 **Article now up at eLife: [https://doi.org/10.7554/eLife.63409](https://doi.org/10.7554/eLife.63409)**
@@ -48,7 +50,15 @@ $ docker-compose up -d # Run all services
 $ docker-compose down # Shut down all services when finished
 ```
 
-**NOTE**: When starting from a fresh database, the server will automatically seed the database with data from the `example_data_genbank` folder. This process may take a few minutes as ~50K genomes are loaded into the database.
+The default deployment (`docker-compose.yml`) will run all 3 sites at the same time (sars2, rsv, and flu). For virus-specific sites, see `docker-compose.sars2.yml`, etc. Run a specific deployment with:
+
+```bash
+docker compose -f docker-compose.sars2.yml build
+docker compose -f docker-compose.sars2.yml up -d
+...
+```
+
+**NOTE**: When starting from a fresh database, the server will automatically seed the database with data from the `example_data_genbank` folder. Data provided with the repository is in raw/gzipped form and needs to be unarchived and processed before the data can be loaded into the database. Please see the [Analysis Pipeline](#analysis-pipeline) section for instructions on processing this data.
 
 ### Dependency changes
 
@@ -183,32 +193,40 @@ $ conda config --add channels conda-forge
 $ conda env create -f environment.yml
 ```
 
-If the conda environment is taking forever to resolve, it's probably because of `snakemake`. If so, you'll have to install packages manually (sorry for this! please let us know if this happens so we can update our environment file):
-
-```bash
-# Install python and snakemake first, let conda choose the specific snakemake version
-$ conda create -n covid-cg python=3.9 snakemake-minimal
-# Install dependencies manually
-$ conda install numpy scipy pandas bowtie2 samtools
-$ pip install pysam
-```
+For OSX M1 chips, use the alternative environment `environment_osx-arm64.yaml`. Some additional source compilation steps are required as not all ARM64 binaries are available on conda.
 
 ### Ingestion
 
-Three ingestion workflows are currently available, `workflow_genbank_ingest`, `workflow_custom_ingest`, and `workflow_gisaid_ingest`.
+Currently available ingest workflows are:
 
-**NOTE: While the GISAID ingestion pipeline is provided as open-source, it is intended only for internal use**.
+SARS2:
 
-Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to automatically download and process data from their respective data source. The `workflow_custom_ingest` can be used for analyzing and visualizing your own in-house SARS-CoV-2 data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file . i.e., `config/config_genbank.yaml` for the GenBank workflow.
+- `workflow_sars2_gisaid_ingest`
+- `workflow_sars2_genbank_ingest`
+- `workflow_sars2_custom_ingest`
 
-For example, you can run the GenBank ingestion pipeline with:
+RSV:
+
+- `workflow_rsv_genbank_ingest`
+- `workflow_rsv_custom_ingest`
+
+Flu:
+
+- `workflow_flu_genbank_ingest`
+- `workflow_flu_custom_ingest`
+
+**NOTE: While GISAID ingestion pipelines are provided as open-source, it is intended only for internal use**.
+
+GenBank ingest pipelines are designed to automatically download and process data from their respective data source.
+
+"Custom" ingest pipelines can be used for analyzing and visualizing in-house data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file. i.e., `config/config_sars2_genbank.yaml` for the SARS-CoV-2 GenBank workflow.
+
+For example, you can run the SARS-CoV-2 GenBank ingestion pipeline with:
 
 ```bash
-$ cd workflow_genbank_ingest
-$ snakemake --use-conda
+$ cd workflow_sars2_genbank_ingest
+$ snakemake --use-conda # Conda required specifically for SARS2 GenBank ingest in order to run Pangolin lineage assignments
 ```
-
-Both `workflow_genbank_ingest` and `workflow_gisaid_ingest` are designed to be run regularly, and attempt to chunk data in a way that minimizes expensive reprocessing/realignment in the downstream main analysis step. The `workflow_custom_ingest` pipeline does not attempt to chunk data to minimize expensive reprocessing but this can be accomplished outside of covidcg by dividing up your sequence data into separate FASTA files.
 
 ### Main Analysis
 
@@ -218,12 +236,25 @@ For example, if you ingested data from GenBank, run the main analysis pipeline w
 
 ```bash
 cd workflow_main
-snakemake --configfile ../config/config_genbank.yaml
+snakemake --configfile ../config/config_sars2_genbank.yaml
 ```
 
-This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information into one file: `data_package.json.gz`.
+This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information data. The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
 
-The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
+### Example data
+
+Example data from GenBank is provided for all viruses, and is located in gzipped tarballs inside the `example_data_genbank` folder. Data for some viruses is truncated by submission date in order to lighten data load and speed up development on smaller machines.
+
+To extract the data:
+
+```bash
+$ cd example_data_genbank
+$ tar -xzf sars2.tar.gz
+$ tar -xzf rsv.tar.gz
+$ tar -xzf flu.tar.gz
+```
+
+These tarballs contain only raw sequences and metadata, and mimic the output from their respective ingest pipelines. Once the files are extracted, run the main analysis workflow described above.
 
 ---
 

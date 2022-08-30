@@ -5,11 +5,12 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import datetime
 import pandas as pd
 
 
-def clean_metadata(metadata_in, metadata_out):
+def main():
     """Clean metadata from GenBank
 
     Required columns:
@@ -24,19 +25,34 @@ def clean_metadata(metadata_in, metadata_out):
         "country"
         "division"
         "location"
-
-    Parameters
-    ----------
-    metadata_in: str
-    lineages_in: str
-    metadata_out: str
-
-    Returns
-    -------
-    None
     """
 
-    df = pd.read_csv(metadata_in)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
+    parser.add_argument("--metadata-out", type=str, required=True, help="Metadata out")
+
+    args = parser.parse_args()
+
+    df = pd.read_csv(
+        args.metadata_in,
+        usecols=[
+            "genbank_accession",
+            "database",
+            "strain",
+            "region",
+            "location",
+            "collected",
+            "submitted",
+            "host",
+            "isolation_source",
+            "biosample_accession",
+            "authors",
+            "publications",
+            "protein_names",
+            # 'sequence', 'length', 'title'
+        ],
+    )
 
     # Fields:
     #   genbank_accession,
@@ -52,22 +68,27 @@ def clean_metadata(metadata_in, metadata_out):
     #   biosample_accession,
     #   title,
     #   authors,
-    #   publications
-
-    # Remove some unnecessary columns
-    df = df.drop(columns=["title", "length"])
+    #   publications,
+    #   serotype,
+    #   protein_names
 
     # Rename columns, set index
     df = df.rename(
         columns={
             "genbank_accession": "Accession ID",
+            "strain": "virus_name",
             "submitted": "submission_date",
             "collected": "collection_date",
         }
     )
+
+    # Drop duplicate accession IDs
+    df.drop_duplicates("Accession ID", keep="first", inplace=True)
+
     df = df.set_index("Accession ID")
 
     # Remove sequences without region, collection date, or submission date
+    # Remove sequences without F and G proteins
     remove_rows = (
         (df["region"].isna())
         | (df["submission_date"].isna())
@@ -127,7 +148,7 @@ def clean_metadata(metadata_in, metadata_out):
     # metadata columns
     fill_in_cols = [
         "database",
-        "strain",
+        "virus_name",
         "host",
         "isolation_source",
         "biosample_accession",
@@ -137,4 +158,13 @@ def clean_metadata(metadata_in, metadata_out):
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
 
-    df.to_csv(metadata_out)
+    # Isolate ID = same as Accession ID
+    df["isolate_id"] = df.index.values
+    # Segment = 1
+    df["segment"] = 1
+
+    df.to_csv(args.metadata_out)
+
+
+if __name__ == "__main__":
+    main()

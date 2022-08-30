@@ -12,13 +12,30 @@ from psycopg2 import sql
 
 from cg_server.config import config
 from cg_server.constants import constants
-from cg_server.query import build_sequence_location_where_filter
+from cg_server.query import build_sequence_location_where_filter, get_loc_level_ids
 
 
 def download_metadata(conn, req):
 
+    selected_reference = req.get("selected_reference", None)
+    if not selected_reference:
+        raise Exception("No reference specified")
+
     with conn.cursor() as cur:
-        sequence_where_filter = build_sequence_location_where_filter(req)
+        sequence_where_filter = build_sequence_location_where_filter(
+            # req.get("group_key", None),
+            None,  # No group key to prevent putting reference WHERE condition
+            #        on the metadata table itself
+            #        Add the reference conditions manually instead via the join condition
+            get_loc_level_ids(req),
+            req.get("start_date", None),
+            req.get("end_date", None),
+            req.get("subm_start_date", None),
+            req.get("subm_end_date", None),
+            req.get("selected_metadata_fields", None),
+            req.get("selected_group_fields", None),
+            selected_reference,
+        )
 
         # Fields that the user wants
         selected_fields = req.get("selected_fields", [])
@@ -34,6 +51,7 @@ def download_metadata(conn, req):
         sequence_cols_expr = [
             sql.SQL("m.{}").format(sql.Identifier(col)) for col in sequence_cols
         ]
+
         joins = []
 
         for grouping in config["group_cols"].keys():
@@ -63,7 +81,7 @@ def download_metadata(conn, req):
             joins.append(
                 sql.SQL(
                     """
-                    INNER JOIN {metadata_table_name} {metadata_table_name}
+                    LEFT JOIN {metadata_table_name} {metadata_table_name}
                         ON m.{field} = {metadata_table_name}."id"
                     """
                 ).format(
@@ -71,6 +89,14 @@ def download_metadata(conn, req):
                     field=sql.Identifier(field),
                 )
             )
+
+        # Reference column
+        sequence_cols.append("reference")
+        sequence_cols_expr.append(
+            sql.SQL("{} AS {}").format(
+                sql.Literal(selected_reference), sql.Identifier("reference")
+            )
+        )
 
         mutation_id_to_pos_map = {}
         mutation_id_to_name_map = {}
@@ -95,13 +121,16 @@ def download_metadata(conn, req):
                 sql.SQL(
                     """
                 INNER JOIN (
-                    SELECT "sequence_id", "mutations"
+                    SELECT "sequence_id", "reference", "mutations"
                     FROM {mutation_table}
-                ) {mutation_table_short} ON {mutation_table_short}."sequence_id" = m."sequence_id"
+                ) {mutation_table_short} ON 
+                    {mutation_table_short}."sequence_id" = m."sequence_id" AND
+                    {mutation_table_short}."reference" = {reference_name}
                 """
                 ).format(
                     mutation_table_short=sql.Identifier(mutation_field),
                     mutation_table=sql.Identifier(mutation_table),
+                    reference_name=sql.Literal(selected_reference),
                 )
             )
 

@@ -6,12 +6,28 @@ and merge in some geological data
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import numpy as np
 import pandas as pd
 
 
-def global_sequencing_efforts(case_data, metadata_map, country_score_out):
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--isolate-data", type=str, required=True, help="Path to isolate data CSV file",
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map JSON file"
+    )
+    parser.add_argument(
+        "--output", type=str, required=True, help="Path to output JSON file",
+    )
+
+    args = parser.parse_args()
+
     # Load case counts by country
     case_count_df = pd.read_csv(
         "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
@@ -76,46 +92,63 @@ def global_sequencing_efforts(case_data, metadata_map, country_score_out):
     case_count_df["date"] = pd.to_datetime(case_count_df["date"])
     case_count_df["month"] = case_count_df["date"].dt.to_period("M")
 
-    case_df = pd.read_json(case_data).set_index("Accession ID")
-    with open(metadata_map, "r") as fp:
+    isolate_df = pd.read_csv(
+        args.isolate_data,
+        usecols=[
+            "isolate_id",
+            "collection_date",
+            "submission_date",
+            "country",
+            "division",
+        ],
+    )
+
+    isolate_df.drop_duplicates("isolate_id", inplace=True)
+    isolate_df.set_index("isolate_id", inplace=True)
+
+    # Load location metadata mappings
+    with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
-    # Join locations onto case_data
-    loc_levels = ["region", "country", "division", "location"]
+
+    # Join locations onto isolate_df
+    loc_levels = ["country", "division"]
     for loc_level in loc_levels:
-        case_df.loc[:, loc_level] = case_df[loc_level].map(
+        isolate_df.loc[:, loc_level] = isolate_df[loc_level].map(
             {int(k): v for k, v in metadata_map[loc_level].items()}
         )
-        case_df.loc[case_df[loc_level].isna(), loc_level] = None
+        isolate_df.loc[isolate_df[loc_level].isna(), loc_level] = None
 
-    case_df["collection_date"] = pd.to_datetime(
-        case_df["collection_date"], errors="coerce"
+    isolate_df["collection_date"] = pd.to_datetime(
+        isolate_df["collection_date"], errors="coerce"
     )
-    case_df["submission_date"] = pd.to_datetime(
-        case_df["submission_date"], errors="coerce"
+    isolate_df["submission_date"] = pd.to_datetime(
+        isolate_df["submission_date"], errors="coerce"
     )
 
     # Remove failed date parsing
-    case_df = case_df.loc[
-        (~pd.isnull(case_df["collection_date"]))
-        & (~pd.isnull(case_df["submission_date"]))
+    isolate_df = isolate_df.loc[
+        (~pd.isnull(isolate_df["collection_date"]))
+        & (~pd.isnull(isolate_df["submission_date"]))
     ]
 
     # Only take dates from 2019-12-15
-    case_df = case_df.loc[case_df["collection_date"] > pd.to_datetime("2019-12-15")]
+    isolate_df = isolate_df.loc[
+        isolate_df["collection_date"] > pd.to_datetime("2019-12-15")
+    ]
 
     # Calculate time deltas
-    case_df["turnaround_days"] = (
-        case_df["submission_date"] - case_df["collection_date"]
+    isolate_df["turnaround_days"] = (
+        isolate_df["submission_date"] - isolate_df["collection_date"]
     ).dt.days
     # Extract month
-    case_df["year_month"] = case_df["collection_date"].dt.to_period("M")
+    isolate_df["year_month"] = isolate_df["collection_date"].dt.to_period("M")
 
     # Remove invalid submission dates (negative turnaround times)
-    case_df = case_df.loc[case_df["turnaround_days"] >= 0]
+    isolate_df = isolate_df.loc[isolate_df["turnaround_days"] >= 0]
 
     # Upgrade provinces to countries
-    upgrade_inds = case_df["division"].isin(upgrade_provinces)
-    case_df.loc[upgrade_inds, "country"] = case_df.loc[upgrade_inds, "division"]
+    upgrade_inds = isolate_df["division"].isin(upgrade_provinces)
+    isolate_df.loc[upgrade_inds, "country"] = isolate_df.loc[upgrade_inds, "division"]
 
     # Load UID ISO FIPS lookup table
     iso_lookup_df = pd.read_csv(
@@ -148,7 +181,7 @@ def global_sequencing_efforts(case_data, metadata_map, country_score_out):
 
     # Combine everything together
     country_df = (
-        case_df
+        isolate_df
         # .loc[
         #     (nextmeta_df["date"] > pd.to_datetime("2020-01-01")) &
         #     (nextmeta_df["date"] < pd.to_datetime("2020-07-01"))
@@ -161,7 +194,7 @@ def global_sequencing_efforts(case_data, metadata_map, country_score_out):
             ),
             min_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.min),
             max_turnaround_days=pd.NamedAgg(column="turnaround_days", aggfunc=np.max),
-            num_sequences=pd.NamedAgg(column="Accession ID", aggfunc="count"),
+            num_sequences=pd.NamedAgg(column="isolate_id", aggfunc="count"),
         )
         .rename({"Palestine": "West Bank and Gaza"})
         .join(
@@ -223,5 +256,9 @@ def global_sequencing_efforts(case_data, metadata_map, country_score_out):
         ',{"UID":-99,"Country_Region":"Northern Cyprus","median_turnaround_days":null,"min_turnaround_days":null,"max_turnaround_days":null,"num_sequences":null,"cases":null,"sequences_per_case":null}'
         + "]"
     )
-    with open(country_score_out, "w") as fp:
+    with open(args.output, "w") as fp:
         fp.write(country_df_str)
+
+
+if __name__ == "__main__":
+    main()

@@ -11,17 +11,18 @@ import {
 } from './GroupSearch.styles';
 
 const GroupSearch = observer(() => {
-  const { groupDataStore } = useStores();
+  const { groupDataStore, configStore } = useStores();
   const [state, setState] = useState({
     data: [],
   });
 
   useEffect(() => {
+    let data = groupDataStore.groupSelectTree[groupDataStore.activeGroupType];
     setState({
       ...state,
-      data: groupDataStore.groupSelectTree[groupDataStore.activeGroupType],
+      data: data,
     });
-  }, [groupDataStore.groupSelectTree]);
+  }, [groupDataStore.groupSelectTree, configStore.selectedReference]);
 
   const treeSelectOnChange = (_currentNode, selectedNodes) => {
     // console.log('onChange::', _currentNode, selectedNodes);

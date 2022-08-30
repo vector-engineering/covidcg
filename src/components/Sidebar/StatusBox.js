@@ -9,8 +9,10 @@ import {
   ASYNC_STATES,
 } from '../../constants/defs.json';
 
+import { coordsToText } from '../../utils/coordinates';
 import { formatMutation } from '../../utils/mutationUtils';
 import { ISOToInt } from '../../utils/date';
+import { getReferences } from '../../utils/reference';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import DownloadDataButton from './DownloadDataButton';
@@ -64,8 +66,7 @@ const StatusBox = observer(() => {
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
     genomeSelection = (
       <>
-        Custom coordinates:{' '}
-        <b>{serializeCoordinates(configStore.customCoordinates)}</b>
+        Custom coordinates: <b>{coordsToText(configStore.customCoordinates)}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_SEQUENCE) {
@@ -88,10 +89,19 @@ const StatusBox = observer(() => {
       return;
     }
 
+    const selectedGroupFieldItems = [];
+    configStore.selectedGroupFields[groupKey].forEach((group, i) => {
+      selectedGroupFieldItems.push(
+        <b key={`status-selected-group-${groupKey}-${group}}`}>{group}</b>
+      );
+      if (i < configStore.selectedGroupFields[groupKey].length - 1) {
+        selectedGroupFieldItems.push(',');
+      }
+    });
+
     selectedGroupFields.push(
       <Line key={`status-box-selected-group-fields-${groupKey}`}>
-        Selected {groupKey}s:{' '}
-        {configStore.selectedGroupFields[groupKey].join(', ')}
+        Selected {groupKey}s: {selectedGroupFieldItems}
       </Line>
     );
   });
@@ -137,11 +147,15 @@ const StatusBox = observer(() => {
       <DownloadDataButton />
       <StatusText>
         <Line>
-          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences queried in{' '}
+          <b>{dataStore.numSequencesAfterAllFiltering}</b> sequences fetched in{' '}
           {dataStore.timeToFetch} s.
         </Line>
         <Line>
           Sequences grouped by <b>{configStore.getGroupLabel()}</b>.
+        </Line>
+        <Line>
+          Reference genome: <b>{configStore.selectedReference}</b> (
+          {getReferences()[configStore.selectedReference]['description']}).
         </Line>
         <Line>
           <b>{configStore.selectedLocationNodes.length}</b> selected locations:{' '}

@@ -1,5 +1,11 @@
-import genes from '../../static_data/genes_processed.json';
-import proteins from '../../static_data/proteins_processed.json';
+//__VIRUS__ is replaced with config.virus at build time
+// eslint-disable-next-line import/no-unresolved
+import genes from '../../static_data/__VIRUS__/genes_processed.json';
+// eslint-disable-next-line import/no-unresolved
+import proteins from '../../static_data/__VIRUS__/proteins_processed.json';
+
+// import { config } from '../config';
+import { configStore as initialValues } from '../constants/initialValues';
 
 /* function processFeatures(features) {
   return features.map((feature) => {
@@ -25,45 +31,48 @@ import proteins from '../../static_data/proteins_processed.json';
   });
 } */
 
-let processedGenes = genes;
-
-export function getAllGenes() {
-  return processedGenes;
+export function getAllGenes(reference) {
+  return genes[reference];
 }
 
-export const geneMap = {
-  'All Genes': {
-    name: 'All Genes',
-    ranges: [[1, 30000]],
-    domains: [],
-  },
-};
-processedGenes.forEach((gene) => {
-  geneMap[gene.name] = gene;
-});
-
-export function getGene(gene) {
+function _getGene(gene, reference) {
+  return genes[reference].find((g) => g.name === gene);
+}
+export function getGene(gene, reference) {
   // Get the selected gene object
-  return geneMap[gene];
+  let geneObj = _getGene(gene, reference);
+  // If the gene doesn't exist for this reference, try the initial gene
+  if (geneObj === undefined) {
+    geneObj = _getGene(initialValues.selectedGene.name, reference);
+  }
+  // If that doesn't exist, then just use the first gene in the list
+  // for this reference
+  if (geneObj === undefined) {
+    geneObj = getAllGenes(reference)[0];
+  }
+
+  return geneObj;
 }
 
-let processedProteins = proteins;
-
-export function getAllProteins() {
-  return processedProteins;
+export function getAllProteins(ref) {
+  return proteins[ref];
 }
 
-export const proteinMap = {
-  'All Proteins': {
-    name: 'All Proteins',
-    ranges: [[1, 30000]],
-    domains: [],
-  },
-};
-processedProteins.forEach((protein) => {
-  proteinMap[protein.name] = protein;
-});
+function _getProtein(protein, ref) {
+  return proteins[ref].find((p) => p.name === protein);
+}
+export function getProtein(protein, ref) {
+  // Get the selected protein object
+  let proteinObj = _getProtein(protein, ref);
+  // If the protein doesn't exist for this reference, try the initial protein
+  if (proteinObj === undefined) {
+    proteinObj = _getProtein(initialValues.selectedProtein.name, ref);
+  }
+  // If that doesn't exist, then just use the first protein in the list
+  // for this reference
+  if (proteinObj === undefined) {
+    proteinObj = getAllProteins(ref)[0];
+  }
 
-export function getProtein(_protein) {
-  return proteinMap[_protein];
+  return proteinObj;
 }

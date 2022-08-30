@@ -6,7 +6,6 @@
   "padding": 5,
 
   "signals": [
-    { "name": "mode", "value": "lineage" },
     { "name": "sortField", "value": "group" },
     { "name": "sortDirection", "value": "ascending" },
     { "name": "display_min_counts", "value": 5 },
@@ -86,7 +85,7 @@
     },
     {
       "name": "time_sensitivity",
-      "update": "3.5 * 24 * 60 * 60 * 1000"
+      "value": 302400000
     },
     {
       "name": "percent_sensitivity_factor",
@@ -95,29 +94,19 @@
     {
       "name": "percent_sensitivity",
       "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
+    },
+    {
+      "name": "xLabelFormat",
+      "value": "%m-%d"
     }
   ],
 
   "data": [
     {
       "name": "group_reg",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
       "format": {
-        "type": "csv",
-        "parse": {
-          "slope": "number",
-          "r": "number",
-          "pval": "number",
-          "counts": "number",
-          "max_percent": "number"
-        }
-      },
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        }
-      ]
+        "type": "json"
+      }
     },
     {
       "name": "hide_groups",
@@ -178,21 +167,10 @@
     },
     {
       "name": "group_counts",
-      "url": "https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv",
       "format": {
-        "type": "csv",
-        "parse": {
-          "collection_week": "date",
-          "counts": "number",
-          "location_counts": "number",
-          "percent": "number"
-        }
+        "type": "json"
       },
       "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        },
         {
           "type": "lookup",
           "from": "hide_groups",
@@ -214,7 +192,7 @@
         {
           "type": "collect",
           "sort": {
-            "field": ["region", "group", "collection_week"],
+            "field": ["region", "group", "collection_period"],
             "order": ["ascending", "ascending", "ascending"]
           }
         }
@@ -253,7 +231,7 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "cur_region > -1 && datum.region == data('cur_max_percent')[0]['region'] && abs(datum.collection_week - time(cur_mouse_date)) <= time_sensitivity && abs(datum.percent - cur_mouse_percent) <= percent_sensitivity"
+          "expr": "cur_region > -1 && datum.region == data('cur_max_percent')[0]['region'] && abs(datum.collection_period - time(cur_mouse_date)) <= time_sensitivity && abs(datum.percent - cur_mouse_percent) <= percent_sensitivity"
         },
         {
           "type": "project",
@@ -292,7 +270,7 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": { "data": "group_counts", "field": "collection_week" },
+      "domain": { "data": "group_counts", "field": "collection_period" },
       "range": { "signal": "subplot_range_x" }
     },
     {
@@ -370,8 +348,7 @@
             {
               "scale": "dateX",
               "orient": "bottom",
-              "format": "%m-%d",
-              "tickCount": "week",
+              "format": { "signal": "xLabelFormat" },
               "grid": false,
               "gridColor": "#DDD",
               "labelAngle": 310,
@@ -429,7 +406,7 @@
                     {
                       "type": "aggregate",
                       "groupby": ["group"],
-                      "fields": ["collection_week"],
+                      "fields": ["collection_period"],
                       "ops": ["max"],
                       "as": ["max_date"]
                     }
@@ -441,7 +418,7 @@
                   "transform": [
                     {
                       "type": "filter",
-                      "expr": "datum.collection_week == data('max_date')[0]['max_date'] && indata('all_hover', 'group', datum.group)"
+                      "expr": "datum.collection_period == data('max_date')[0]['max_date'] && indata('all_hover', 'group', datum.group)"
                     }
                   ]
                 }
@@ -452,7 +429,7 @@
                   "from": { "data": "valid_group_date" },
                   "encode": {
                     "update": {
-                      "x": { "scale": "dateX", "field": "collection_week" },
+                      "x": { "scale": "dateX", "field": "collection_period" },
                       "y": { "scale": "percentY", "field": "percent" },
                       "stroke": { "scale": "group_color", "field": "group" },
                       "strokeWidth": { "value": 2 },
@@ -472,7 +449,7 @@
                   "from": { "data": "invalid_group_date" },
                   "encode": {
                     "update": {
-                      "x": { "scale": "dateX", "field": "collection_week" },
+                      "x": { "scale": "dateX", "field": "collection_period" },
                       "y": { "scale": "percentY", "field": "percent" },
                       "stroke": { "value": "#aaa" },
                       "strokeWidth": [
@@ -500,7 +477,7 @@
                     "update": {
                       "x": {
                         "scale": "dateX",
-                        "field": "collection_week",
+                        "field": "collection_period",
                         "offset": 3
                       },
                       "y": { "scale": "percentY", "field": "percent" },

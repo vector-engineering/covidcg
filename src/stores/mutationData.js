@@ -2,7 +2,6 @@
  * Load mutation data, and map integers -> mutation strings
  */
 
-import { getGene, getProtein } from '../utils/gene_protein';
 import { formatMutation } from '../utils/mutationUtils';
 import { memoize } from '../utils/func';
 import { mutationColorArray } from '../constants/colors';
@@ -17,6 +16,8 @@ export class MutationDataStore {
   geneAaMutationMap;
   proteinAaMutationMap;
   mutationColorMap;
+
+  coverage = [];
 
   constructor() {
     this.intToDnaMutationMap = {
@@ -37,7 +38,8 @@ export class MutationDataStore {
 
   init() {
     this.dnaMutationMap = asyncDataStoreInstance.data.metadata_map.dna_mutation;
-    this.geneAaMutationMap = asyncDataStoreInstance.data.metadata_map.gene_aa_mutation;
+    this.geneAaMutationMap =
+      asyncDataStoreInstance.data.metadata_map.gene_aa_mutation;
     this.proteinAaMutationMap =
       asyncDataStoreInstance.data.metadata_map.protein_aa_mutation;
     // debugger;
@@ -52,7 +54,8 @@ export class MutationDataStore {
       return color;
     });
 
-    this.mutationColorMap[GROUPS.REFERENCE_GROUP] = _getMutationColor('Reference');
+    this.mutationColorMap[GROUPS.REFERENCE_GROUP] =
+      _getMutationColor('Reference');
     this.mutationColorMap[GROUPS.OTHER_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.NONE_GROUP] = '#AAA';
     this.mutationColorMap[GROUPS.ALL_OTHER_GROUP] = '#AAA';
@@ -67,7 +70,7 @@ export class MutationDataStore {
     });
 
     //remap so its integer -> mutation
-    let mutationId, split, aaRangeInd;
+    let mutationId, split;
 
     Object.keys(this.dnaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.dnaMutationMap[mut]);
@@ -80,11 +83,16 @@ export class MutationDataStore {
 
       // Store all the parts
       // Positions are 1-indexed
-      this.intToDnaMutationMap[mutationId]['pos'] = parseInt(split[0]);
-      this.intToDnaMutationMap[mutationId]['ref'] = split[1];
-      this.intToDnaMutationMap[mutationId]['alt'] = split[2];
-      this.intToDnaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.DNA);
-      this.intToDnaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
+      this.intToDnaMutationMap[mutationId]['segment'] = split[0];
+      this.intToDnaMutationMap[mutationId]['pos'] = parseInt(split[1]);
+      this.intToDnaMutationMap[mutationId]['ref'] = split[2];
+      this.intToDnaMutationMap[mutationId]['alt'] = split[3];
+      this.intToDnaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.DNA
+      );
+      this.intToDnaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
     });
     Object.keys(this.geneAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.geneAaMutationMap[mut]);
@@ -100,24 +108,12 @@ export class MutationDataStore {
       this.intToGeneAaMutationMap[mutationId]['pos'] = parseInt(split[1]);
       this.intToGeneAaMutationMap[mutationId]['ref'] = split[2];
       this.intToGeneAaMutationMap[mutationId]['alt'] = split[3];
-      this.intToGeneAaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.AA);
-      this.intToGeneAaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
-
-      // Get coordinates in NT (from start of codon)
-      aaRangeInd = getGene(split[0]).aa_ranges.reduce(
-        (_aaRangeInd, range, ind) => {
-          return this.intToGeneAaMutationMap[mutationId]['pos'] >= range[0] &&
-            this.intToGeneAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        },
-        0
+      this.intToGeneAaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.AA
       );
-      this.intToGeneAaMutationMap[mutationId]['nt_pos'] =
-        getGene(split[0]).segments[aaRangeInd][0] +
-        (this.intToGeneAaMutationMap[mutationId]['pos'] -
-          getGene(split[0]).aa_ranges[aaRangeInd][0]) *
-          3;
+      this.intToGeneAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
     });
     Object.keys(this.proteinAaMutationMap).forEach((mut) => {
       mutationId = parseInt(this.proteinAaMutationMap[mut]);
@@ -133,24 +129,12 @@ export class MutationDataStore {
       this.intToProteinAaMutationMap[mutationId]['pos'] = parseInt(split[1]);
       this.intToProteinAaMutationMap[mutationId]['ref'] = split[2];
       this.intToProteinAaMutationMap[mutationId]['alt'] = split[3];
-      this.intToProteinAaMutationMap[mutationId]['name'] = formatMutation(mut, DNA_OR_AA.AA);
-      this.intToProteinAaMutationMap[mutationId]['color'] = this.mutationColorMap[mut];
-
-      // Get coordinates in NT (from start of codon)
-      aaRangeInd = getProtein(split[0]).aa_ranges.reduce(
-        (_aaRangeInd, range, ind) => {
-          return this.intToProteinAaMutationMap[mutationId]['pos'] >= range[0] &&
-            this.intToProteinAaMutationMap[mutationId]['pos'] <= range[1]
-            ? ind
-            : _aaRangeInd;
-        },
-        0
+      this.intToProteinAaMutationMap[mutationId]['name'] = formatMutation(
+        mut,
+        DNA_OR_AA.AA
       );
-      this.intToProteinAaMutationMap[mutationId]['nt_pos'] =
-        getProtein(split[0]).segments[aaRangeInd][0] +
-        (this.intToProteinAaMutationMap[mutationId]['pos'] -
-          getProtein(split[0]).aa_ranges[aaRangeInd][0]) *
-          3;
+      this.intToProteinAaMutationMap[mutationId]['color'] =
+        this.mutationColorMap[mut];
     });
   }
 
@@ -195,6 +179,49 @@ export class MutationDataStore {
         return this.geneAaMutationToInt(mut);
       } else {
         return this.proteinAaMutationToInt(mut);
+      }
+    }
+  }
+
+  // For partial sequences mode
+  // Get the genome coverage at the given position
+  getCoverageAtPosition(position, featureName = undefined) {
+    // If the coverage map is not present, return undefined
+    if (this.coverage.length === 0) {
+      return undefined;
+    }
+
+    let coverageMapSubset = this.coverage;
+    // If the feature name is defined, subset the coverage map
+    if (featureName) {
+      coverageMapSubset = coverageMapSubset.filter(
+        (row) => row.feature === featureName
+      );
+    }
+
+    // Coverage map structure:
+    // {ind: 1, count: 100},
+    // {ind: 10, count 110},
+    // ...
+    // {ind: [end], count 0} -- last row is always count = 0
+    // Scrub through each interval with the bounds [start, end)
+    for (let i = 0; i < coverageMapSubset.length - 1; i++) {
+      if (
+        position >= coverageMapSubset[i].ind &&
+        position < coverageMapSubset[i + 1].ind
+      ) {
+        return coverageMapSubset[i].count;
+      }
+      // If we're in the last interval, and the position matches the last index,
+      // Then don't use the count of 0, use the count of the interval before this
+      // For example, say all sequences had coverage from 1-500
+      // The coverage map would look like:
+      // {ind: 1, count: 100}, {ind: 500, count: 0}
+      // A position of 500 should return 100, not 0
+      else if (i === coverageMapSubset.length - 2) {
+        if (position === coverageMapSubset[i + 1].ind) {
+          return coverageMapSubset[i].count;
+        }
       }
     }
   }

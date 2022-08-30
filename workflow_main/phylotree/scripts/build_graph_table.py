@@ -11,26 +11,25 @@ Please find the attached license at LICENSE_COVIZU
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import networkx as nx
 import pandas as pd
 
 from Bio import Phylo
 
 
 def build_graph_table(
-    case_data_path,
+    isolate_data_path,
     nexus_file_path,
     tree_dates_path,
     representative_table_path,
     graph_table_out_path,
 ):
-    df = pd.read_json(case_data_path)
+    df = pd.read_json(isolate_data_path)
 
     # Load tree
     phy = Phylo.read(nexus_file_path, format="nexus")
     net = Phylo.to_networkx(phy)
 
-    reps = pd.read_csv(representative_table_path, index_col="Accession ID")
+    reps = pd.read_csv(representative_table_path, index_col="isolate_id")
 
     nodes = pd.DataFrame([(node.name,) for node in net.nodes], columns=["name",],)
     nodes = nodes.join(

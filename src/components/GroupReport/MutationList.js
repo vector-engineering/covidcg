@@ -199,8 +199,81 @@ const MutationListContent = observer(({ featureMatrix }) => {
 
   const rowItems = [];
 
-  Object.keys(featureMatrix).forEach((featureName, feature_i) => {
-    const featureMutationRecords = featureMatrix[featureName];
+  // Use genes to group NT and gene_aa mutations, and proteins for protein_aa mutations
+
+  let features = {};
+  const genes = getAllGenes(groupDataStore.activeReference);
+  const proteins = getAllProteins(groupDataStore.activeReference);
+  features =
+    groupDataStore.groupMutationType === 'protein_aa' ? proteins : genes;
+
+  features.forEach((feature, feature_i) => {
+    // Get all mutations for this gene, then sort by position/alt
+    const groupFeatureMutations = groupMutationFrequency
+      .filter((groupMutation) => {
+        if (groupDataStore.groupMutationType === 'dna') {
+          // Include NT mutations in this gene if it is contained in
+          // any of the gene's NT segments
+          // (Most genes will have one segment)
+          return feature.segments.some(
+            (featureNTRange) =>
+              groupMutation.pos >= featureNTRange[0] &&
+              groupMutation.pos <= featureNTRange[1]
+          );
+        } else if (groupDataStore.groupMutationType === 'gene_aa') {
+          return groupMutation.gene === feature.name;
+        } else if (groupDataStore.groupMutationType === 'protein_aa') {
+          return groupMutation.protein === feature.name;
+        }
+      })
+      .sort(sortByPosThenAlt);
+    // console.log(feature.name, groupFeatureMutations);
+
+    // Make list of records to insert into master "matrix"
+    const featureMutationRecords = groupFeatureMutations
+      .slice()
+      // Unique mutations
+      .filter(
+        (v, i, a) =>
+          a.findIndex((element) => element.mutation_str === v.mutation_str) ===
+          i
+      )
+      .map((featureMutation) => {
+        // Find fractional frequencies for each group
+        const freqs = [];
+        groupDataStore.selectedGroups.forEach((group) => {
+          const matchingMutation = groupFeatureMutations.find(
+            (mut) =>
+              mut.mutation_str === featureMutation.mutation_str &&
+              mut.name === group
+          );
+          // 0 if the mutation record isn't found
+          freqs.push(
+            matchingMutation === undefined ? 0 : matchingMutation.fraction
+          );
+        });
+
+        return {
+          // mutation_name: featureMutation.mutation_name,
+          mutation_name: formatMutation(
+            featureMutation.mutation_str,
+            groupDataStore.groupMutationType === 'dna'
+              ? DNA_OR_AA.DNA
+              : DNA_OR_AA.AA
+          ),
+          pos: featureMutation.pos,
+          ref: featureMutation.ref,
+          alt: featureMutation.alt,
+          frequency: freqs,
+        };
+      })
+      // Filter out mutations that have all mutation frequencies below the threshold
+      .filter((row) => {
+        return row.frequency.some(
+          (freq) => freq > plotSettingsStore.reportConsensusThreshold
+        );
+      });
+    // console.log(feature.name, featureMutationRecords);
 
     // Push empty row for segments without mutations
     if (featureMutationRecords.length === 0) {
@@ -342,6 +415,7 @@ const MutationList = observer(() => {
         group: groupDataStore.activeGroupType,
         mutationType: groupDataStore.groupMutationType,
         consensusThreshold: 0,
+        selectedReference: groupDataStore.activeReference,
       });
     } else if (option === DOWNLOAD_OPTIONS.MUTATION_DATA_MATRIX) {
       const blob = new Blob([

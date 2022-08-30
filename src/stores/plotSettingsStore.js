@@ -8,62 +8,104 @@ import {
   LOW_FREQ_FILTER_TYPES,
   LITEMOL_STYLES,
 } from '../constants/defs.json';
-
-export const initialValues = {
-  groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  groupStackLowFreqValue: 20,
-  groupStackNormMode: NORM_MODES.NORM_COUNTS,
-  groupStackCountMode: COUNT_MODES.COUNT_NEW,
-  groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
-
-  locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
-  locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-  locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
-
-  locationGroupHideReference: true,
-
-  cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
-
-  // SURVEILLANCE PLOT
-  surveillanceMode: 'lineage',
-  surveillanceShowWarning: true,
-  surveillanceShowSettings: false,
-  surveillanceSortField: 'counts', // 'group' or 'counts'
-  surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
-  surveillanceDisplayMinCounts: 5,
-  surveillanceDisplayMinPercent: 0.01,
-  surveillanceSigMinCounts: 10,
-  surveillanceSigMinPercent: 0.02,
-  surveillanceSigMinR: 0.3,
-  surveillanceLegendHover: [],
-
-  // GROUP REPORT TAB
-  reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
-  reportConsensusThreshold: 0.1,
-  reportMutationListHideEmpty: true,
-  reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-  reportStructureActiveProtein: 'S',
-  // reportStructureActiveProtein: 'nsp5 - 3CLp',
-  reportStructurePdbId: '6ZGG',
-  // reportStructurePdbId: '7RFW',
-  reportStructureActiveGroup: 'BA.1',
-  // reportStructureActiveGroup: 'B.1.351',
-  reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
-
-  reportStructureAssemblies: [],
-  reportStructureActiveAssembly: '',
-  reportStructureEntities: [],
-};
+import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
 export class PlotSettingsStore {
-  init() {}
+  initialValues = {};
 
-  @observable groupStackLowFreqFilter = initialValues.groupStackLowFreqFilter;
-  @observable groupStackLowFreqValue = initialValues.groupStackLowFreqValue;
-  @observable groupStackNormMode = initialValues.groupStackNormMode;
-  @observable groupStackCountMode = initialValues.groupStackCountMode;
-  @observable groupStackDateBin = initialValues.groupStackDateBin;
+  // LEGEND
+  @observable legendAdjustPartialSequences = true;
 
+  // ENTROPY PLOT
+  @observable entropyYMode = NORM_MODES.NORM_COUNTS;
+  @observable entropyYPow = 0.5;
+
+  // GROUP STACK PLOT
+  @observable groupStackLowFreqFilter = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
+  @observable groupStackLowFreqValue = 20;
+  @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
+  @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
+  @observable groupStackDateBin = DATE_BINS.DATE_BIN_DAY;
+
+  // MUTATION STRUCTURE VIEWER
+  @observable mutationStructurePdbId = '';
+  @observable mutationStructureProteinStyle = LITEMOL_STYLES.SURFACE;
+  @observable mutationStructureNormMode = NORM_MODES.NORM_COVERAGE_ADJUSTED;
+
+  mutationStructureAssemblies = [];
+  mutationStructureActiveAssembly = '';
+  mutationStructureEntities = [];
+
+  // LOCATION DATE PLOT
+  @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
+  @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
+  @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
+
+  // LOCATION GROUP PLOT
+  @observable locationGroupHideReference = true;
+
+  // COOCCURRENCE PLOT
+  @observable cooccurrenceNormMode = NORM_MODES.NORM_COUNTS;
+
+  // SURVEILLANCE PLOT
+  @observable surveillanceMode = '';
+  @observable surveillanceShowWarning = true;
+  @observable surveillanceShowSettings = false;
+  @observable surveillanceSortField = '';
+  @observable surveillanceSortDirection = SORT_DIRECTIONS.SORT_DESC;
+  @observable surveillanceDisplayMinCounts = 5;
+  @observable surveillanceDisplayMinPercent = 0.01;
+  @observable surveillanceSigMinCounts = 5;
+  @observable surveillanceSigMinPercent = 0.01;
+  @observable surveillanceSigMinR = 0.3;
+  @observable surveillanceLegendHover = [];
+
+  // GROUP REPORT TAB
+  @observable reportTreeColorMode = TREE_COLOR_MODES.COLOR_LATEST;
+  @observable reportConsensusThreshold = 0.7;
+  @observable reportMutationListHideEmpty = true;
+  @observable reportMutationListHidden = [];
+  @observable reportStructureActiveProtein = '';
+  @observable reportStructurePdbId = '';
+  // Actively selected group for the structural viewer
+  @observable reportStructureActiveGroup = '';
+  @observable reportStructureProteinStyle = LITEMOL_STYLES.SURFACE;
+
+  reportStructureAssemblies = [];
+  reportStructureActiveAssembly = '';
+  reportStructureEntities = [];
+
+  init() {
+    this.initialValues = initialPlotSettingsStore;
+
+    Object.keys(this.initialValues).forEach((key) => {
+      this[key] = this.initialValues[key];
+    });
+  }
+
+  // LEGEND
+  @action
+  setLegendAdjustPartialSequences = (value) => {
+    this.legendAdjustPartialSequences = value;
+  };
+
+  // ENTROPY PLOT
+  @action
+  setEntropyYMode = (mode) => {
+    this.entropyYMode = mode;
+    // Default powers
+    if (this.entropyYMode === NORM_MODES.NORM_COUNTS) {
+      this.entropyYPow = 0.5;
+    } else {
+      this.entropyYPow = 1.0;
+    }
+  };
+  @action
+  setEntropyYPow = (pow) => {
+    this.entropyYPow = pow;
+  };
+
+  // GROUP STACK PLOT
   @action
   setGroupStackLowFreqFilter = (filterType) => {
     this.groupStackLowFreqFilter = filterType;
@@ -85,10 +127,34 @@ export class PlotSettingsStore {
     this.groupStackDateBin = dateBin;
   };
 
-  @observable locationDateNormMode = initialValues.locationDateNormMode;
-  @observable locationDateCountMode = initialValues.locationDateCountMode;
-  @observable locationDateDateBin = initialValues.locationDateDateBin;
+  // MUTATION STRUCTURE VIEWER
+  @action
+  setMutationStructurePdbId = (pdbId) => {
+    this.mutationStructurePdbId = pdbId;
+  };
+  @action
+  setMutationStructureProteinStyle = (style) => {
+    this.mutationStructureProteinStyle = style;
+  };
+  @action
+  setMutationStructureNormMode = (mode) => {
+    this.mutationStructureNormMode = mode;
+  };
 
+  @action
+  setMutationStructureAssemblies = (assemblies) => {
+    this.mutationStructureAssemblies = assemblies;
+  };
+  @action
+  setMutationStructureActiveAssembly = (assembly) => {
+    this.mutationStructureActiveAssembly = assembly;
+  };
+  @action
+  setMutationStructureEntities = (entities) => {
+    this.mutationStructureEntities = entities;
+  };
+
+  // LOCATION DATE PLOT
   @action
   setLocationDateNormMode = (mode) => {
     this.locationDateNormMode = mode;
@@ -102,41 +168,19 @@ export class PlotSettingsStore {
     this.locationDateDateBin = dateBin;
   };
 
-  @observable locationGroupHideReference =
-    initialValues.locationGroupHideReference;
-
+  // LOCATION GROUP PLOT
   @action
   setLocationGroupHideReference = (hide) => {
     this.locationGroupHideReference = hide;
   };
 
-  @observable cooccurrenceNormMode = initialValues.cooccurrenceNormMode;
-
+  // COOCCURRENCE PLOT
   @action
   setCooccurrenceNormMode = (mode) => {
     this.cooccurrenceNormMode = mode;
   };
 
-  // -----------------
   // SURVEILLANCE PLOT
-  // -----------------
-
-  @observable surveillanceMode = initialValues.surveillanceMode;
-  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
-  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
-  @observable surveillanceSortField = initialValues.surveillanceSortField;
-  @observable surveillanceSortDirection =
-    initialValues.surveillanceSortDirection;
-  @observable surveillanceDisplayMinCounts =
-    initialValues.surveillanceDisplayMinCounts;
-  @observable surveillanceDisplayMinPercent =
-    initialValues.surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts = initialValues.surveillanceSigMinCounts;
-  @observable surveillanceSigMinPercent =
-    initialValues.surveillanceSigMinPercent;
-  @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
-
   @action
   setSurveillanceMode = (mode) => {
     this.surveillanceMode = mode;
@@ -182,28 +226,7 @@ export class PlotSettingsStore {
     this.surveillanceLegendHover = hover;
   };
 
-  // ----------------
   // GROUP REPORT TAB
-  // ----------------
-
-  @observable reportTreeColorMode = initialValues.reportTreeColorMode;
-  @observable reportConsensusThreshold = initialValues.reportConsensusThreshold;
-  @observable reportMutationListHideEmpty =
-    initialValues.reportMutationListHideEmpty;
-  @observable reportMutationListHidden = initialValues.reportMutationListHidden;
-  @observable reportStructureActiveProtein =
-    initialValues.reportStructureActiveProtein;
-  @observable reportStructurePdbId = initialValues.reportStructurePdbId;
-  // Actively selected group for the structural viewer
-  @observable reportStructureActiveGroup =
-    initialValues.reportStructureActiveGroup;
-  @observable reportStructureProteinStyle =
-    initialValues.reportStructureProteinStyle;
-
-  reportStructureAssemblies = initialValues.reportStructureAssemblies;
-  reportStructureActiveAssembly = initialValues.reportStructureActiveAssembly;
-  reportStructureEntities = initialValues.reportStructureEntities;
-
   @action
   setReportTreeColorMode = (mode) => {
     this.reportTreeColorMode = mode;
@@ -266,11 +289,11 @@ export class PlotSettingsStore {
 
   @action
   resetValues(values) {
-    Object.keys(initialValues).forEach((key) => {
+    Object.keys(this.initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialValues[key];
+        this[key] = this.initialValues[key];
       }
     });
   }

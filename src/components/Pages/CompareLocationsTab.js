@@ -8,10 +8,10 @@ import KBD from '../Common/KBD';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
 
-import LocationGroupPlot from '../Vega/LocationGroupPlot';
-import LocationDatePlot from '../Vega/LocationDatePlot';
-import NumSeqPerLocationBar from '../Vega/NumSeqPerLocationBar';
-import NumSeqPerLocationLine from '../Vega/NumSeqPerLocationLine';
+import LocationGroupPlot from '../Viz/LocationGroupPlot';
+import LocationDatePlot from '../Viz/LocationDatePlot';
+import NumSeqPerLocationBar from '../Viz/NumSeqPerLocationBar';
+import NumSeqPerLocationLine from '../Viz/NumSeqPerLocationLine';
 
 import { GROUP_MUTATION } from '../../constants/defs.json';
 
@@ -38,9 +38,9 @@ const CompareLocationsTab = observer(() => {
             </li>
             {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In mutation mode, matching sequences are defined as sequences having
-                the selected {configStore.getGroupLabel()}s or combination of{' '}
-                {configStore.getGroupLabel()}s.
+                In mutation mode, matching sequences are defined as sequences
+                having the selected {configStore.getGroupLabel()}s or
+                combination of {configStore.getGroupLabel()}s.
               </li>
             )}
             <li>
@@ -83,12 +83,13 @@ const CompareLocationsTab = observer(() => {
         helpText={
           <ul>
             <li>
-              This plot shows the number of sequences {' '}
+              This plot shows the number of sequences{' '}
               <b>{configStore.getGroupLabel()}s</b> per location.
             </li>
             <li>
-              This can be used to determine biases where large amounts of sequences
-              can potentially effect how certain visualizations and data will appear.
+              This can be used to determine biases where large amounts of
+              sequences can potentially effect how certain visualizations and
+              data will appear.
             </li>
           </ul>
         }
@@ -107,12 +108,14 @@ const CompareLocationsTab = observer(() => {
         helpText={
           <ul>
             <li>
-              This plot shows the number of sequences {' '}
-              <b>{configStore.getGroupLabel()}s</b> per location over the selected time frames.
+              This plot shows the number of sequences{' '}
+              <b>{configStore.getGroupLabel()}s</b> per location over the
+              selected time frames.
             </li>
             <li>
-              This can be used to determine biases where large amounts of sequences
-              can potentially effect how certain visualizations and data will appear.
+              This can be used to determine biases where large amounts of
+              sequences can potentially effect how certain visualizations and
+              data will appear.
             </li>
           </ul>
         }
@@ -136,11 +139,11 @@ const CompareLocationsTab = observer(() => {
             </li>
             {configStore.groupKey === GROUP_MUTATION && (
               <li>
-                In mutation mode, sequences are shown as counts and not proportions.
-                This is because sequences can be counted multiple times, as a
-                single sequence may have multiple mutations. The relevant data is the
-                relative difference between the mutations – the height of all bars is
-                not meaningful.
+                In mutation mode, sequences are shown as counts and not
+                proportions. This is because sequences can be counted multiple
+                times, as a single sequence may have multiple mutations. The
+                relevant data is the relative difference between the mutations –
+                the height of all bars is not meaningful.
               </li>
             )}
             <li>

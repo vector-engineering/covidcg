@@ -1,0 +1,198 @@
+# coding: utf-8
+
+import datetime
+import os
+import gzip
+
+from pathlib import Path
+
+# Import scripts
+from scripts.chunk_data import chunk_data
+from scripts.clean_metadata import clean_metadata
+from scripts.combine_lineages import combine_lineages
+from scripts.copy_changed_files import copy_changed_files
+
+configfile: "../config/config_genbank.yaml"
+
+# Get today's date in ISO format (YYYY-MM-DD)
+today_str = datetime.date.today().isoformat()
+
+data_folder = os.path.join("..", config["data_folder"], config["virus"])
+# static_data_folder = os.path.join("..", config["static_data_folder"])
+
+rule all:
+    input:
+        # Download latest data feed, process sequences
+        os.path.join(
+            data_folder, "status", "download_" + today_str + ".done"
+        ),
+        os.path.join(
+            data_folder, "status", "merge_sequences_" + today_str + ".done"
+        ),
+        # Cleaned metadata, with lineage assignments
+        os.path.join(data_folder, "metadata.csv")
+
+
+rule download:
+    """Download latest data from GenBank. The feed "JSON" is actually a file of
+    newline-delimited JSON records (the file itself is not strict JSON)
+    """
+    output:
+        feed = temp(os.path.join(data_folder, "feed.csv")),
+        status = touch(os.path.join(
+            data_folder, "status", "download_" + today_str + ".done"
+        ))
+    shell:
+        """
+        python3 scripts/download.py > {output.feed}
+        """
+
+
+checkpoint chunk_data:
+    """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
+    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
+    """
+    input:
+        feed = rules.download.output.feed
+    output:
+        fasta = directory(os.path.join(data_folder, "fasta_temp")),
+        metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv")
+    params:
+        chunk_size = config["chunk_size"]
+    run:
+        chunk_data(
+            input.feed, output.fasta, output.metadata_dirty,
+            chunk_size=params.chunk_size,
+            processes=workflow.cores
+        )
+
+
+def get_num_seqs(fasta_gz):
+    """Get the number of entries in a gzipped fasta file
+    """
+    num_seqs = 0
+    with gzip.open(fasta_gz, 'rt') as fp:
+        for line in fp:
+            # Only check the first character of each line
+            if line[0] == '>':
+                num_seqs += 1
+    return num_seqs
+
+
+def get_changed_chunks(wildcards):
+    """Helper function for detecting which chunks have changed in terms of their contents
+    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
+    isolates on GISAID, aligning them would take 1 week for the whole batch.
+    """
+
+    # Only run to trigger DAG re-evaluation
+    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
+    chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
+
+    # Keep track of which chunks have changed
+    changed_chunks = []
+
+    for chunk in chunks:
+        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
+
+        # If the current chunk doesn't exist yet, then mark it as changed
+        if (
+                not fasta_raw_path.exists() or
+                not fasta_raw_path.is_file()
+            ):
+            changed_chunks.append(chunk)
+            continue
+
+        # Count ">" characters in both the temp and raw files
+        # as a proxy for the number of sequences in each
+        # If they're different, then mark as changed
+        num_seqs_temp = get_num_seqs(str(fasta_temp_path))
+        num_seqs_raw = get_num_seqs(str(fasta_raw_path))
+
+        if num_seqs_temp != num_seqs_raw:
+            changed_chunks.append(chunk)
+
+    # Return a list of fasta_temp files that have changed, so that they can be copied
+    # over to fasta_raw by the below `copy_changed_files` rule
+    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
+
+
+checkpoint copy_changed_files:
+    """Using the `get_changed_chunks` function, only copy fasta files which have changed
+    from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
+    it will flag to snakemake that they (and only they - not the others) will need to be
+    reprocessed and realigned.
+    """
+    input:
+        get_changed_chunks
+    output:
+        # Instead of explicitly defining the fasta_raw outputs
+        # (and risking touching fasta files that haven't actually changed)
+        # Have the output be a flag instead, that the "all" rule checks for
+        # to make sure that we actually run this rule
+        status = touch(os.path.join(
+            data_folder, "status", "merge_sequences_" + today_str + ".done"
+        ))
+    params:
+        data_folder = data_folder
+    shell:
+        """
+        python3 scripts/copy_changed_files.py --files {input} --data-folder {params.data_folder}
+        """
+
+
+def get_chunks(wildcards):
+    """Get all copied chunks from copy_changed_files, as input for the
+    lineage assignments. While some of these assignments will be wasted on
+    sequences that will be filtered out downstream by the `preprocess_sequences`
+    rule in `workflow_main`, I think it's still better to do this during the
+    ingestion as the lineage/clade assignments are ingestion-specific
+    """
+
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
+
+    return expand(
+        os.path.join(data_folder, "lineages", "{chunk}.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+    )
+
+
+rule pangolin_lineages:
+    """Assign a lineage to each sequence using pangolin
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
+        lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
+    conda: "envs/pangolin.yaml"
+    shell:
+        """
+        # Pangolin can only use un-gzipped fasta files
+        gunzip -c {input.fasta} > {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta}
+        """
+
+rule combine_lineages:
+    """Combine all lineage result chunks
+    """
+    input:
+        lineages = get_chunks
+    output:
+        lineages = os.path.join(data_folder, "lineages.csv")
+    run:
+        combine_lineages(input.lineages, output.lineages)
+
+
+rule clean_metadata:
+    """Clean metadata, incorporate lineage assignments into metadata
+    """
+    input:
+        metadata_dirty = rules.chunk_data.output.metadata_dirty,
+        lineages = rules.combine_lineages.output.lineages
+    output:
+        metadata_clean = os.path.join(data_folder, "metadata.csv")
+    run:
+        clean_metadata(input.metadata_dirty, input.lineages, output.metadata_clean)
