@@ -26,8 +26,6 @@ import {
   InvalidText,
 } from './GroupStructuralViewer.styles';
 
-const proteins = getAllProteins();
-
 const numColors = reds.length;
 
 const DOWNLOAD_OPTIONS = {
@@ -255,6 +253,7 @@ const StructuralViewer = observer(() => {
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
   const proteinOptionItems = [];
+  const proteins = getAllProteins(groupDataStore.activeReference);
   proteins.forEach((protein) => {
     proteinOptionItems.push(
       <option key={`structure-protein-${protein.name}`} value={protein.name}>
