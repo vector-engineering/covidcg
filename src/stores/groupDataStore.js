@@ -10,6 +10,7 @@ import { groupDataStore as initialGroupDataStore } from '../constants/initialVal
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
+
 import { getProtein } from '../utils/gene_protein';
 import { savePymolScript } from '../utils/pymol';
 
