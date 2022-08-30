@@ -60,10 +60,11 @@ export const buildFeatureMatrix = ({
               groupMutation.pos >= featureNTRange[0] &&
               groupMutation.pos <= featureNTRange[1]
           );
-        } else if (groupMutationType === 'gene_aa') {
-          return groupMutation.gene === feature.name;
-        } else if (groupMutationType === 'protein_aa') {
-          return groupMutation.protein === feature.name;
+        } else if (
+          groupMutationType === 'gene_aa' ||
+          groupMutationType == 'protein_aa'
+        ) {
+          return groupMutation.feature === feature.name;
         }
       })
       .sort(sortByPosThenAlt);

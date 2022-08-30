@@ -35,10 +35,8 @@ def query_group_mutation_frequencies(conn, req):
             "mutation_name",
             "mutation_str",
         ]
-        if mutation_type == "gene_aa":
-            mutation_cols = ["gene",] + mutation_cols
-        elif mutation_type == "protein_aa":
-            mutation_cols = ["protein",] + mutation_cols
+        if mutation_type == "gene_aa" or mutation_type == "protein_aa":
+            mutation_cols = ["feature",] + mutation_cols
 
         mutation_cols_expr = sql.SQL(",\n").join(
             [
@@ -96,10 +94,10 @@ def query_group_mutation_frequencies_dynamic(conn, req):
         mutation_table = "dna_mutation"
     elif mutation_type == "gene_aa":
         mutation_table = "gene_aa_mutation"
-        mutation_cols = ["gene",] + mutation_cols
+        mutation_cols = ["feature",] + mutation_cols
     elif mutation_type == "protein_aa":
         mutation_table = "protein_aa_mutation"
-        mutation_cols = ["protein",] + mutation_cols
+        mutation_cols = ["feature",] + mutation_cols
 
     sequence_where_filter = build_sequence_location_where_filter(
         group_key,
