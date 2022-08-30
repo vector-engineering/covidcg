@@ -9,15 +9,15 @@ from the variant_extractor project
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-from scripts.util import reverse_complement
+from util import reverse_complement
 
 
 class ReadExtractor:
     """Extract variable regions from a pysam AlignedSegment
     """
 
-    RefSeq = ""
-    VALID_NUCLEOTIDES = ['A', 'T', 'C', 'G']
+    RefSeq = {}
+    VALID_NUCLEOTIDES = ["A", "T", "C", "G"]
 
     def __init__(self, read):
         """Build the extactor object for a read (pysam.AlignedSegment)
@@ -29,6 +29,9 @@ class ReadExtractor:
         """
 
         self.read = read
+
+        # Initialization state
+        self.valid = True
 
         # Build our own mutation string to store mutational information
         # Since both the CIGAR and MD string don't fit our needs
@@ -61,16 +64,22 @@ class ReadExtractor:
         # Nucleotide sequence of the read
         self.read_seq = self.read.get_forward_sequence()
 
+        # Don't try to do anything else if this read is unmapped
+        # or if the query sequence does not exist
+        if self.read.is_unmapped:
+            self.valid = False
+            return
+        elif self.read_seq is None:
+            print(f"EMPTY QUERY {self.read.query_name}")
+            self.valid = False
+            return
+
         # If reverse complement, flip the sequence and the quality scores
         if self.read.is_reverse:
             self.read_seq = reverse_complement(self.read_seq)
 
-        # Don't try to do anything else if this read is unmapped
-        if self.read.is_unmapped:
-            return
-
         # Get the reference sequence
-        self.reference_seq = ReadExtractor.RefSeq
+        self.reference_seq = ReadExtractor.RefSeq[self.read.reference_name]
 
         """Expand CIGAR tuples to a list of CIGAR operations on the read (query)
 
@@ -140,6 +149,9 @@ class ReadExtractor:
         """
 
         while self.ref_i < destination:
+
+            if not self.cigar_ops or not self.read_seq:
+                return
 
             # If we've reached the end of the CIGAR string, break out
             if self.cigar_i >= len(self.cigar_ops) or self.read_i >= len(self.read_seq):
@@ -271,7 +283,9 @@ class ReadExtractor:
             # If it's a mutation, then add and continue
             if ref and alt:
                 i += 1
-                self.dna_mutations.append((query_name, pos, ref, alt))
+                self.dna_mutations.append(
+                    (self.read.reference_name, query_name, pos, ref, alt)
+                )
                 continue
 
             # Check ahead for adjacent positions and the same indel type
@@ -296,15 +310,18 @@ class ReadExtractor:
 
             # For long insertions, if any base is degenerate/non-canonical,
             # then throw out the entire insertion
-            if not all([
-                    c in self.VALID_NUCLEOTIDES or c == '' 
-                    for c in list(''.join([m[3] for m in adj_muts]))
-                ]):
+            if not all(
+                [
+                    c in self.VALID_NUCLEOTIDES or c == ""
+                    for c in list("".join([m[3] for m in adj_muts]))
+                ]
+            ):
                 continue
 
             # Combine bases, but keep first position and type
             self.dna_mutations.append(
                 (
+                    self.read.reference_name,
                     query_name,
                     pos,
                     "".join([m[2] for m in adj_muts]),

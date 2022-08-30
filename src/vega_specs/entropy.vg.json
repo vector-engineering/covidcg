@@ -1,57 +1,39 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
-  "width": 650,
-  "height": 220,
+  "width": 700,
+  "height": 300,
   "padding": 5,
+
   "signals": [
+    { "name": "entropyPlotHeight", "value": 120 },
+    { "name": "entropyPlotYRange", "update": "[entropyPlotHeight, 0]" },
+
+    { "name": "domainPlotHeight", "value": 60 },
+    { "name": "domainPlotYRange", "update": "[domainPlotHeight, 0]" },
+    { "name": "domainPlotY", "update": "entropyPlotHeight + 40" },
+
+    { "name": "coveragePlotHeight", "value": 40 },
+    { "name": "coveragePlotYRange", "update": "[coveragePlotHeight, 0]" },
     {
-      "name": "entropyPlotHeight",
-      "value": 120
+      "name": "coveragePlotY",
+      "update": "domainPlotY + domainPlotHeight + 30"
     },
-    {
-      "name": "domainPlotHeight",
-      "value": 60
-    },
-    {
-      "name": "domainPlotYRange",
-      "update": "[domainPlotHeight, 0]"
-    },
-    {
-      "name": "domainPlotY",
-      "update": "height - domainPlotHeight"
-    },
-    {
-      "name": "entropyPlotYRange",
-      "update": "[entropyPlotHeight, 0]"
-    },
-    {
-      "name": "totalSequences",
-      "value": 1000
-    },
-    {
-      "name": "posField",
-      "value": 1
-    },
+
+    { "name": "yMode", "value": "percentages" },
+    { "name": "yScaleExponent", "value": 1.0 },
+    { "name": "totalSequences", "value": 474 },
+    { "name": "numDomainRows", "value": 4 },
+    { "name": "domainYScaleSignal", "update": "[0, numDomainRows * 1.5]" },
+    { "name": "posField", "value": 1 },
     {
       "name": "rectWidth",
       "update": "invert('xDetail', 3)"
     },
-    {
-      "name": "xRange",
-      "value": [0, 1200]
-    },
-    {
-      "name": "xLabel",
-      "value": "S Gene (AA)"
-    },
-    {
-      "name": "yLabel",
-      "value": "# Mutations"
-    },
-    {
-      "name": "detailDomain"
-    },
+    { "name": "xRange", "value": [0, 580] },
+    { "name": "xLabel", "value": "F Gene (AA)" },
+    { "name": "yLabel", "value": "# Mutations" },
+    { "name": "detailDomain" },
     {
       "name": "hoverGroup",
       "value": null,
@@ -102,13 +84,7 @@
     {
       "name": "clearDomain",
       "value": true,
-      "on": [
-        {
-          "events": "window:mousedown",
-          "update": "true",
-          "force": true
-        }
-      ]
+      "on": [{ "events": "window:mousedown", "update": "true", "force": true }]
     },
     {
       "name": "shiftDomain",
@@ -139,11 +115,17 @@
       "format": {
         "type": "json"
       },
+      "values": [],
       "transform": [
         {
           "type": "formula",
           "expr": "datum.counts / totalSequences",
           "as": "percent"
+        },
+        {
+          "type": "formula",
+          "expr": "((yMode == 'counts') * datum.counts) + ((yMode == 'percentages') * datum.percent) + ((yMode == 'partial_adjusted') * datum.partial_adjusted)",
+          "as": "y"
         }
       ]
     },
@@ -159,20 +141,10 @@
     },
     {
       "name": "selected",
-      "values": [
-        {
-          "group": "S|614|D|G"
-        }
-      ],
+      "values": [],
       "on": [
-        {
-          "trigger": "clearMutation",
-          "remove": true
-        },
-        {
-          "trigger": "!shiftMutation",
-          "remove": true
-        },
+        { "trigger": "clearMutation", "remove": true },
+        { "trigger": "!shiftMutation", "remove": true },
         {
           "trigger": "!shiftMutation && clickedMutation",
           "insert": "clickedMutation"
@@ -203,17 +175,14 @@
       "format": {
         "type": "json"
       },
+      "values": [],
       "transform": [
         {
           "type": "formula",
-          "expr": "(datum.row > 0 ? -datum.row - (0.5 * datum.row) : datum.row) + 5",
-          "as": "rowTop"
-        },
-        {
-          "type": "formula",
-          "expr": "(datum.rowTop - 1)",
+          "expr": "0.5 + (datum.row * 1.5)",
           "as": "rowBottom"
         },
+        { "type": "formula", "expr": "datum.rowBottom + 1", "as": "rowTop" },
         {
           "type": "formula",
           "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
@@ -224,56 +193,46 @@
           "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
           "as": "end"
         },
-        {
-          "type": "formula",
-          "expr": "datum.end - datum.start",
-          "as": "length"
-        },
-        {
-          "type": "formula",
-          "expr": "datum.rowTop - (datum.rowTop - datum.rowBottom) / 2",
-          "as": "yCenter"
-        },
-        {
-          "type": "filter",
-          "expr": "datum.start < xRange[1]"
-        },
-        {
-          "type": "filter",
-          "expr": "indexof(lower(datum.name), 'all') == -1"
-        }
+        { "type": "filter", "expr": "datum.start < xRange[1]" },
+        { "type": "filter", "expr": "indexof(lower(datum.name), 'all') == -1" }
       ]
     },
     {
       "name": "selectedDomains",
       "values": [],
       "on": [
-        {
-          "trigger": "clearDomain",
-          "remove": true
-        },
-        {
-          "trigger": "!shiftDomain",
-          "remove": true
-        },
+        { "trigger": "clearDomain", "remove": true },
+        { "trigger": "!shiftDomain", "remove": true },
         {
           "trigger": "!shiftDomain && clickedDomain",
           "insert": "clickedDomain"
         },
+        { "trigger": "shiftDomain && clickedDomain", "toggle": "clickedDomain" }
+      ]
+    },
+    {
+      "name": "coverage",
+      "values": [],
+      "transform": [
         {
-          "trigger": "shiftDomain && clickedDomain",
-          "toggle": "clickedDomain"
+          "type": "formula",
+          "expr": "datum.count / totalSequences",
+          "as": "fraction"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.fraction * 100",
+          "as": "percent"
         }
       ]
     }
   ],
+
   "scales": [
     {
       "name": "xOverview",
       "type": "linear",
-      "domain": {
-        "signal": "xRange"
-      },
+      "domain": { "signal": "xRange" },
       "range": "width",
       "padding": 0.05,
       "round": true,
@@ -283,68 +242,37 @@
     {
       "name": "xDetail",
       "type": "linear",
-      "domain": {
-        "signal": "xRange"
-      },
-      "domainRaw": {
-        "signal": "detailDomain"
-      },
+      "domain": { "signal": "xRange" },
+      "domainRaw": { "signal": "detailDomain" },
       "range": "width",
       "padding": 0.05,
       "round": true,
       "zero": false,
       "clamp": true
-    },
-    {
-      "name": "textLength",
-      "type": "linear",
-      "domain": {
-        "signal": "xRange"
-      },
-      "domainMin": 0,
-      "domainMax": {
-        "signal": "xRange[1] - xRange[0]"
-      },
-      "range": "width",
-      "padding": 0.05,
-      "round": true,
-      "zero": true,
-      "clamp": false
     }
   ],
+
   "axes": [],
+
   "marks": [
     {
       "name": "entropybarplot",
       "type": "group",
       "encode": {
         "update": {
-          "x": {
-            "value": 0
-          },
-          "y": {
-            "value": 0
-          },
-          "width": {
-            "signal": "width"
-          },
-          "height": {
-            "signal": "entropyPlotHeight"
-          }
+          "x": { "value": 0 },
+          "y": { "value": 0 },
+          "width": { "signal": "width" },
+          "height": { "signal": "entropyPlotHeight" }
         }
       },
       "scales": [
         {
           "name": "entropyYScale",
           "type": "pow",
-          "exponent": 0.5,
-          "domain": {
-            "data": "tableFiltered",
-            "field": "counts"
-          },
-          "range": {
-            "signal": "entropyPlotYRange"
-          }
+          "exponent": { "signal": "yScaleExponent" },
+          "domain": { "data": "tableFiltered", "field": "y" },
+          "range": { "signal": "entropyPlotYRange" }
         }
       ],
       "axes": [
@@ -352,106 +280,60 @@
           "orient": "bottom",
           "scale": "xDetail",
           "format": "d",
-          "title": {
-            "signal": "xLabel"
-          }
+          "title": { "signal": "xLabel" }
         },
         {
           "orient": "left",
           "scale": "entropyYScale",
           "labelOverlap": "greedy",
           "tickCount": 5,
-          "title": {
-            "signal": "yLabel"
-          }
+          "title": { "signal": "yLabel" }
         }
       ],
       "marks": [
         {
           "name": "entropymark",
           "type": "rule",
-          "from": {
-            "data": "selected"
-          },
+          "from": { "data": "selected" },
           "encode": {
-            "enter": {
-              "zindex": {
-                "value": 1
-              }
-            },
+            "enter": { "zindex": { "value": 1 } },
             "update": {
-              "x": {
-                "scale": "xDetail",
-                "field": "pos"
-              },
-              "x2": {
-                "scale": "xDetail",
-                "field": "pos"
-              },
-              "y": {
-                "value": 0
-              },
-              "y2": {
-                "signal": "entropyPlotHeight"
-              },
-              "stroke": {
-                "field": "color"
-              }
+              "x": { "scale": "xDetail", "field": "pos" },
+              "x2": { "scale": "xDetail", "field": "pos" },
+              "y": { "value": 0 },
+              "y2": { "signal": "entropyPlotHeight" },
+              "stroke": { "field": "color" }
             }
           }
         },
         {
           "name": "entropybars",
           "type": "rect",
-          "from": {
-            "data": "tableFiltered"
-          },
+          "from": { "data": "tableFiltered" },
           "encode": {
-            "enter": {
-              "stroke": {
-                "value": "#000"
-              }
-            },
+            "enter": { "stroke": { "value": "#000" } },
             "update": {
-              "xc": {
-                "scale": "xDetail",
-                "field": "pos"
-              },
-              "width": {
-                "scale": "xDetail",
-                "signal": "rectWidth"
-              },
-              "y": {
-                "scale": "entropyYScale",
-                "field": "counts"
-              },
-              "y2": {
-                "scale": "entropyYScale",
-                "value": 0
-              },
+              "xc": { "scale": "xDetail", "field": "pos" },
+              "width": { "scale": "xDetail", "signal": "rectWidth" },
+              "y": { "scale": "entropyYScale", "field": "y" },
+              "y2": { "scale": "entropyYScale", "value": 0 },
               "tooltip": {
-                "signal": "{title: datum.mutationName, 'Count': datum.counts, '%': format(datum.percent, '.1%')}"
+                "signal": "{title: datum.mutationName, 'Count': datum.counts, 'Percent': format(datum.percent, '.1%'), 'Percent (coverage adjusted)': format(datum.partial_adjusted, '.1%')}"
               },
-              "fill": {
-                "field": "color"
-              },
+              "fill": { "field": "color" },
               "strokeWidth": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 1
                 },
-                {
-                  "value": 0
-                }
+                { "value": 0 }
               ],
               "zindex": [
                 {
                   "test": "hoverGroup && hoverGroup.group == datum.mutation",
                   "value": 3
                 },
-                {
-                  "value": 2
-                }
+                { "value": 2 }
               ]
             }
           }
@@ -462,24 +344,12 @@
       "name": "domainPlot",
       "type": "group",
       "encode": {
-        "enter": {
-          "fill": {
-            "value": "transparent"
-          }
-        },
+        "enter": { "fill": { "value": "transparent" } },
         "update": {
-          "x": {
-            "value": 0
-          },
-          "y": {
-            "signal": "domainPlotY"
-          },
-          "width": {
-            "signal": "width"
-          },
-          "height": {
-            "signal": "domainPlotHeight"
-          }
+          "x": { "value": 0 },
+          "y": { "signal": "domainPlotY" },
+          "width": { "signal": "width" },
+          "height": { "signal": "domainPlotHeight" }
         }
       },
       "signals": [
@@ -487,18 +357,13 @@
           "name": "brush",
           "value": 0,
           "on": [
-            {
-              "events": "@domainPlot:mousedown",
-              "update": "[x(), x()]"
-            },
+            { "events": "@domainPlot:mousedown", "update": "[x(), x()]" },
             {
               "events": "[@domainPlot:mousedown, window:mouseup] > window:mousemove!",
               "update": "[brush[0], clamp(x(), 0, width)]"
             },
             {
-              "events": {
-                "signal": "delta"
-              },
+              "events": { "signal": "delta" },
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
             },
             {
@@ -510,22 +375,12 @@
         {
           "name": "anchor",
           "value": null,
-          "on": [
-            {
-              "events": "@brush:mousedown",
-              "update": "slice(brush)"
-            }
-          ]
+          "on": [{ "events": "@brush:mousedown", "update": "slice(brush)" }]
         },
         {
           "name": "xdown",
           "value": 0,
-          "on": [
-            {
-              "events": "@brush:mousedown",
-              "update": "x()"
-            }
-          ]
+          "on": [{ "events": "@brush:mousedown", "update": "x()" }]
         },
         {
           "name": "delta",
@@ -542,9 +397,7 @@
           "push": "outer",
           "on": [
             {
-              "events": {
-                "signal": "brush"
-              },
+              "events": { "signal": "brush" },
               "update": "span(brush) ? invert('xOverview', brush) : null"
             }
           ]
@@ -554,129 +407,62 @@
         {
           "name": "domainYScale",
           "type": "linear",
-          "domain": [0, 5],
-          "range": {
-            "signal": "domainPlotYRange"
-          }
+          "domain": { "signal": "domainYScaleSignal" },
+          "range": { "signal": "domainPlotYRange" }
         }
       ],
-      "axes": [
-        {
-          "orient": "bottom",
-          "scale": "xOverview"
-        }
-      ],
+      "axes": [{ "orient": "bottom", "scale": "xOverview" }],
       "marks": [
         {
           "name": "domain_rects",
           "type": "rect",
-          "from": {
-            "data": "domains"
-          },
+          "from": { "data": "domains" },
           "encode": {
             "enter": {
-              "y": {
-                "scale": "domainYScale",
-                "field": "rowTop"
-              },
-              "y2": {
-                "scale": "domainYScale",
-                "field": "rowBottom"
-              }
+              "y": { "scale": "domainYScale", "field": "rowTop" },
+              "y2": { "scale": "domainYScale", "field": "rowBottom" }
             },
             "update": {
-              "x": {
-                "scale": "xOverview",
-                "field": "start"
-              },
-              "x2": {
-                "scale": "xOverview",
-                "field": "end"
-              },
-              "y": {
-                "scale": "domainYScale",
-                "field": "rowTop"
-              },
-              "y2": {
-                "scale": "domainYScale",
-                "field": "rowBottom"
-              },
+              "x": { "scale": "xOverview", "field": "start" },
+              "x2": { "scale": "xOverview", "field": "end" },
               "tooltip": {
                 "signal": "{ title: datum.name, 'start': datum.start, 'end': datum.end }"
               },
-              "strokeWidth": {
-                "value": 0
-              },
+              "strokeWidth": { "value": 0 },
               "fill": [
                 {
                   "test": "indata('selectedDomains', 'name', datum.name)",
                   "value": "#34d5aa"
                 },
-                {
-                  "value": "#34d5eb"
-                }
+                { "value": "#34d5eb" }
               ]
             },
             "hover": {
-              "fill": {
-                "value": "#34eeaa"
-              },
-              "strokeWidth": {
-                "value": 1
-              },
-              "stroke": {
-                "value": "black"
-              },
-              "cursor": {
-                "value": "pointer"
-              }
+              "fill": { "value": "#34eeaa" },
+              "strokeWidth": { "value": 1 },
+              "stroke": { "value": "black" },
+              "cursor": { "value": "pointer" }
             }
           }
         },
         {
           "name": "domain_labels",
           "type": "text",
-          "from": {
-            "data": "domain_rects"
-          },
+          "from": { "data": "domain_rects" },
           "interactive": false,
           "encode": {
             "enter": {
-              "align": "left",
-              "baseline": "top",
-              "text": {
-                "field": "datum.name"
-              },
-              "yc": {
-                "scale": "domainYScale",
-                "field": "datum.yCenter"
-              },
-              "dy": {
-                "value": 3
-              }
+              "y": { "field": "y" },
+              "dy": { "field": "height", "mult": 0.5 },
+              "align": { "value": "center" },
+              "baseline": { "value": "middle" },
+              "fill": { "value": "black" }
             },
             "update": {
-              "x": {
-                "scale": "xOverview",
-                "field": "datum.start"
-              },
-              "yc": {
-                "scale": "domainYScale",
-                "field": "datum.yCenter"
-              },
-              "dy": {
-                "value": 3
-              },
-              "tooltip": {
-                "signal": "datum.tooltip"
-              },
-              "limit": {
-                "scale": "textLength",
-                "field": "datum.length"
-              },
-              "ellipsis": {
-                "value": "."
-              }
+              "x": { "field": "x" },
+              "dx": { "field": "width", "mult": 0.5 },
+              "tooltip": { "signal": "datum.tooltip" },
+              "text": { "field": "datum.abbr" }
             }
           }
         },
@@ -686,23 +472,14 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "fill": {
-                "value": "#333"
-              },
-              "fillOpacity": {
-                "value": 0.2
-              }
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "fill": { "value": "#333" },
+              "fillOpacity": { "value": 0.2 }
             },
             "update": {
-              "x": {
-                "signal": "brush[0]"
-              },
-              "x2": {
-                "signal": "brush[1]"
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              }
+              "x": { "signal": "brush[0]" },
+              "x2": { "signal": "brush[1]" }
             }
           }
         },
@@ -711,21 +488,12 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "width": {
-                "value": 0
-              },
-              "fill": {
-                "value": "firebrick"
-              }
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
             },
-            "update": {
-              "x": {
-                "signal": "brush[0]"
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              }
-            }
+            "update": { "x": { "signal": "brush[0]" } }
           }
         },
         {
@@ -733,20 +501,104 @@
           "interactive": false,
           "encode": {
             "enter": {
-              "width": {
-                "value": 0
-              },
-              "fill": {
-                "value": "firebrick"
-              }
+              "y": { "value": 0 },
+              "height": { "signal": "domainPlotHeight" },
+              "width": { "value": 0 },
+              "fill": { "value": "firebrick" }
+            },
+            "update": { "x": { "signal": "brush[1]" } }
+          }
+        }
+      ]
+    },
+    {
+      "name": "coveragePlot",
+      "type": "group",
+      "encode": {
+        "enter": {
+          "fill": { "value": "transparent" }
+        },
+        "update": {
+          "x": { "value": 0 },
+          "y": { "signal": "coveragePlotY" },
+          "width": { "signal": "width" },
+          "height": { "signal": "coveragePlotHeight" }
+        }
+      },
+      "scales": [
+        {
+          "name": "coverageYScaleCounts",
+          "domain": { "data": "coverage", "field": "count" },
+          "range": { "signal": "coveragePlotYRange" },
+          "nice": true,
+          "zero": true
+        },
+        {
+          "name": "coverageYScalePercent",
+          "domain": { "data": "coverage", "field": "percent" },
+          "range": { "signal": "coveragePlotYRange" },
+          "nice": true,
+          "zero": true
+        }
+      ],
+      "axes": [
+        {
+          "orient": "bottom",
+          "scale": "xDetail",
+          "format": "d",
+          "title": { "signal": "xLabel" }
+        },
+        {
+          "orient": "left",
+          "scale": "coverageYScalePercent",
+          "labelOverlap": "greedy",
+          "tickCount": 5,
+          "title": ["Coverage", "(%)"]
+        },
+        {
+          "orient": "right",
+          "scale": "coverageYScaleCounts",
+          "labelOverlap": "greedy",
+          "tickCount": 5,
+          "title": ["Coverage", "(Counts)"]
+        }
+      ],
+      "marks": [
+        {
+          "name": "coverageArea",
+          "type": "area",
+          "from": { "data": "coverage" },
+          "encode": {
+            "enter": {
+              "orient": { "value": "vertical" },
+              "interpolate": { "value": "step-after" },
+              "fill": { "value": "#0077bb" },
+              "strokeOpacity": { "value": 0 },
+              "fillOpacity": { "value": 1 }
             },
             "update": {
-              "x": {
-                "signal": "brush[1]"
-              },
-              "height": {
-                "signal": "domainPlotHeight"
-              }
+              "x": { "scale": "xDetail", "field": "ind" },
+              "y": { "scale": "coverageYScaleCounts", "field": "count" },
+              "y2": { "value": 0, "scale": "coverageYScaleCounts" },
+              "opacity": { "value": 0.5 }
+            },
+            "hover": {
+              "opacity": { "value": 0.4 }
+            }
+          }
+        },
+        {
+          "name": "coverageLine",
+          "type": "line",
+          "from": { "data": "coverage" },
+          "encode": {
+            "enter": {
+              "interpolate": { "value": "step-after" },
+              "stroke": { "value": "#0077bb" }
+            },
+            "update": {
+              "x": { "scale": "xDetail", "field": "ind" },
+              "y": { "scale": "coverageYScaleCounts", "field": "count" }
             }
           }
         }

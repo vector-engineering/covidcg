@@ -28,7 +28,8 @@ export class UIStore {
   // i.e., metadata key (integer) => metadata value (string)
   @observable metadataFieldState = initialValues.metadataFieldState;
 
-  @observable groupMutationFrequencyState = initialValues.groupMutationFrequencyState;
+  @observable groupMutationFrequencyState =
+    initialValues.groupMutationFrequencyState;
 
   @observable activeTab = initialValues.activeTab;
   @observable keysPressed = initialValues.keysPressed;
@@ -166,6 +167,7 @@ export class UIStore {
         group: rootStoreInstance.groupDataStore.activeGroupType,
         mutationType: rootStoreInstance.groupDataStore.groupMutationType,
         consensusThreshold: 0,
+        selectedReference: rootStoreInstance.groupDataStore.activeReference,
       });
     }
 

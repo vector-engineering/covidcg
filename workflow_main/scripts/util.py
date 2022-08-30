@@ -5,8 +5,6 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-from pathlib import Path
-
 
 def translate(seq):
     """Original source code from https://www.geeksforgeeks.org/dna-protein-python-3/
@@ -98,8 +96,11 @@ def translate(seq):
     return protein
 
 
-# Thanks to user "rtaft" from https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python
 def human_format(num):
+    """Convert a number to a human-readable format
+    Thanks to user "rtaft" from https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python
+    """
+
     num = float("{:.3g}".format(num))
     magnitude = 0
     while abs(num) >= 1000:
@@ -110,8 +111,8 @@ def human_format(num):
     )
 
 
-# Get the reverse complement of a sequence
 def reverse_complement(seq):
+    """Reverse complement a DNA sequence"""
     complement_map = {
         "A": "T",
         "C": "G",

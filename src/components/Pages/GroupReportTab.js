@@ -6,7 +6,7 @@ import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
-import GroupTreePlot from '../Vega/GroupTreePlot';
+import GroupTreePlot from '../Viz/GroupTreePlot';
 import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
 import StructuralViewer from '../GroupReport/GroupStructuralViewer';

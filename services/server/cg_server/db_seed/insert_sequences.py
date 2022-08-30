@@ -5,7 +5,6 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
-import datetime
 import io
 import gzip
 
@@ -22,8 +21,7 @@ def flush_chunk(cur, buffer):
         CREATE TEMP TABLE "temp_sequence" (
             "Accession ID"  TEXT       NOT NULL,
             sequence        TEXT       NOT NULL,
-            filename        TEXT       NOT NULL,
-            modified        TIMESTAMP  NOT NULL
+            filename        TEXT       NOT NULL
         );
         """
     )
@@ -42,10 +40,13 @@ def flush_chunk(cur, buffer):
 
     cur.execute(
         """
-        INSERT INTO "sequence" ("sequence_id", "Accession ID", "sequence", "filename", "modified")
-            SELECT m."sequence_id", t."Accession ID", t."sequence", t."filename", t."modified"
+        INSERT INTO "sequence" ("Accession ID", "sequence", "filename")
+            SELECT t."Accession ID", t."sequence", t."filename"
             FROM "temp_sequence" t
-            INNER JOIN "metadata" m on t."Accession ID" = m."Accession ID"
+            INNER JOIN (
+                SELECT UNNEST("accession_ids") AS "Accession ID"
+                FROM "metadata"
+            ) m ON t."Accession ID" = m."Accession ID"
         ON CONFLICT DO NOTHING;
         """
     )
@@ -55,7 +56,19 @@ def flush_chunk(cur, buffer):
     return buffer
 
 
-def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False):
+def insert_sequences(conn, data_path, schema="public"):
+    """Insert sequences into database
+
+    Parameters
+    ----------
+    conn: psycopg2.Connection
+    data_path: str
+    schema: str
+
+    Returns
+    -------
+    None
+    """
 
     print("INSERTING SEQUENCES")
 
@@ -75,11 +88,9 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS "sequence" (
-                sequence_id     INTEGER    NOT NULL,
                 "Accession ID"  TEXT       NOT NULL,
                 sequence        TEXT       NOT NULL,
-                filename        TEXT       NOT NULL,
-                modified        TIMESTAMP  NOT NULL
+                filename        TEXT       NOT NULL
             );
             """
         )
@@ -106,14 +117,6 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
             #     print("Skipping: ", fasta_file.name)
             #     continue
             # print("Inserting: ", fasta_file.name)
-
-            if filenames_as_dates:
-                # Get the date from the fasta file name, as a string
-                file_date = datetime.date.fromisoformat(
-                    fasta_file.name.replace(".fa.gz", "")
-                )
-            else:
-                file_date = datetime.date.fromtimestamp(fasta_file.stat().st_mtime)
 
             with gzip.open(str(fasta_file), "rt") as fp:
                 # TODO: rewrite so the entire file isn't in the buffer?
@@ -143,14 +146,7 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
                         # Avoid capturing the first one and pushing an empty sequence
                         if cur_entry:
                             buffer.write(
-                                cur_entry
-                                + ","
-                                + cur_seq
-                                + ","
-                                + fasta_file.name
-                                + ","
-                                + file_date.isoformat()
-                                + "\n"
+                                cur_entry + "," + cur_seq + "," + fasta_file.name + "\n"
                             )
 
                         # Clear the entry and sequence
@@ -175,7 +171,6 @@ def insert_sequences(conn, data_path, schema="public", filenames_as_dates=False)
         # Create indices
         cur.execute(
             """
-            CREATE INDEX "ix_sequence_sequence_id" ON "sequence"("sequence_id");
+            CREATE INDEX "ix_sequence_accession_id" ON "sequence"("Accession ID");
             """
         )
-

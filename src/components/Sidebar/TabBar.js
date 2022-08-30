@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 
+import { config } from '../../config';
 import { TABS } from '../../constants/defs.json';
 
 import DropdownButton from '../Buttons/DropdownButton';
@@ -38,18 +39,26 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
         <span>Home</span>
       </a>
     </TabItem>,
-    <TabItem
-      key={TABS.TAB_GROUP_REPORT}
-      active={activeTab === TABS.TAB_GROUP_REPORT}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+  ];
+
+  if (config['show_reports_tab']) {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GROUP_REPORT}
+        active={activeTab === TABS.TAB_GROUP_REPORT}
       >
-        <span>Lineage Reports</span>
-      </a>
-    </TabItem>,
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GROUP_REPORT)}
+        >
+          <span>Lineage Reports</span>
+        </a>
+      </TabItem>
+    );
+  }
+
+  tabs.push(
     <TabItem
       key={TABS.TAB_COMPARE_GROUPS}
       active={activeTab === TABS.TAB_COMPARE_GROUPS}
@@ -73,38 +82,64 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
       >
         <span>Compare Locations</span>
       </a>
-    </TabItem>,
-    <TabItem
-      key={TABS.TAB_GLOBAL_SEQUENCES}
-      active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
-    >
-      <a
-        href="#"
-        className="tab-link"
-        onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+    </TabItem>
+  );
+
+  if (config['show_global_sequencing_tab']) {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_GLOBAL_SEQUENCES}
+        active={activeTab === TABS.TAB_GLOBAL_SEQUENCES}
       >
-        <span>Global Sequencing Coverage</span>
-      </a>
-    </TabItem>,
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_GLOBAL_SEQUENCES)}
+        >
+          <span>Global Sequencing Coverage</span>
+        </a>
+      </TabItem>
+    );
+  }
+
+  tabs.push(
     <TabItem key={TABS.TAB_ABOUT} active={activeTab === TABS.TAB_ABOUT}>
       <a
         href="#"
         className="tab-link"
         onClick={changeTab.bind(this, TABS.TAB_ABOUT)}
       >
-        <span>About COVID CG</span>
+        {config.virus === 'sars2' && <span>About COVID CG</span>}
+        {config.virus === 'rsv' && <span>About RSV PathMut</span>}
+        {config.virus === 'flu' && <span>About Flu PathMut</span>}
       </a>
-    </TabItem>,
-    <DropdownButton
-      key="tab-dropdown"
-      button={DropdownTab}
-      text="More..."
-      options={['Methods', 'Related Projects']}
-      values={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED]}
-      onSelect={onMiscTabSelect}
-      active={[TABS.TAB_METHODOLOGY, TABS.TAB_RELATED].includes(activeTab)}
-    />,
-  ];
+    </TabItem>
+  );
+
+  const misc_tabs = [];
+  const misc_tab_titles = [];
+  if (config['show_methods_tab']) {
+    misc_tabs.push(TABS.TAB_METHODOLOGY);
+    misc_tab_titles.push('Methods');
+  }
+  if (config['show_related_projects_tab']) {
+    misc_tabs.push(TABS.TAB_RELATED);
+    misc_tab_titles.push('Related Projects');
+  }
+
+  if (misc_tabs.length > 0) {
+    tabs.push(
+      <DropdownButton
+        key="tab-dropdown"
+        button={DropdownTab}
+        text="More..."
+        options={misc_tab_titles}
+        values={misc_tabs}
+        onSelect={onMiscTabSelect}
+        active={misc_tabs.includes(activeTab)}
+      />
+    );
+  }
 
   return (
     <TabBarContainer height={tabs.length * 30}>

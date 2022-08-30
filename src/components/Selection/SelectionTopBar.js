@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 // import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
-import { ASYNC_STATES } from '../../constants/defs.json';
+import {
+  ASYNC_STATES,
+  COORDINATE_MODES,
+  GROUP_MUTATION,
+} from '../../constants/defs.json';
+import { config } from '../../config';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';
 import GroupBySelect from '../Selection/GroupBySelect';
 import DownloadDataButton from '../Sidebar/DownloadDataButton';
+
+import { getGene, getProtein } from '../../utils/gene_protein';
+import { getReferencesForSubtype } from '../../utils/reference';
+import { configStore as initialConfigStore } from '../../constants/initialValues';
 
 import {
   Container,
@@ -37,12 +46,70 @@ const SelectionTopBar = observer(() => {
   };
 
   const onChangeGroupKey = (groupKey) => {
-    configStore.applyPendingChanges({ groupKey });
+    // If we just changed from mutation to another grouping,
+    // then clear selected group fields
+    let selectedGroupFields = configStore.selectedGroupFields;
+    if (groupKey !== GROUP_MUTATION && groupKey !== configStore.groupKey) {
+      selectedGroupFields = {};
+    }
+    // RSV MODE ONLY
+    // If we're switching to mutation mode, go back to
+    // default selected group fields
+    else if (
+      config.virus === 'rsv' &&
+      groupKey === GROUP_MUTATION &&
+      groupKey !== configStore.groupKey
+    ) {
+      selectedGroupFields = initialConfigStore.selectedGroupFields;
+    }
+
+    configStore.applyPendingChanges({ groupKey, selectedGroupFields });
   };
   const onChangeDnaOrAa = (dnaOrAa) => {
     configStore.applyPendingChanges({ dnaOrAa });
   };
 
+  const getFeaturesFromNewReference = (newReference) => {
+    // Update the selected gene/protein object
+    const selectedGene = getGene(configStore.selectedGene.name, newReference);
+    const selectedProtein = getProtein(
+      configStore.selectedProtein.name,
+      newReference
+    );
+
+    // Update residue coordinates
+    let residueCoordinates;
+    if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
+      residueCoordinates = [[1, selectedGene.len_aa]];
+    } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
+      residueCoordinates = [[1, selectedProtein.len_aa]];
+    }
+
+    return {
+      selectedGene,
+      selectedProtein,
+      residueCoordinates,
+    };
+  };
+
+  const onReferenceChange = (selectedReference) => {
+    configStore.applyPendingChanges({
+      selectedReference,
+      ...getFeaturesFromNewReference(selectedReference),
+    });
+  };
+  const onSelectedGroupFieldsChange = (selectedGroupFields) => {
+    // Get the first reference from the new subtype
+    const selectedReference = getReferencesForSubtype(
+      selectedGroupFields.subtype[0]
+    )[0];
+
+    configStore.applyPendingChanges({
+      selectedReference,
+      selectedGroupFields,
+      ...getFeaturesFromNewReference(selectedReference),
+    });
+  };
   const loading = UIStore.caseDataState === ASYNC_STATES.STARTED;
 
   let statusBox = (
@@ -74,11 +141,16 @@ const SelectionTopBar = observer(() => {
         coordinateMode={configStore.coordinateMode}
         selectedGene={configStore.selectedGene}
         selectedProtein={configStore.selectedProtein}
+        selectedReference={configStore.selectedReference}
+        selectedGroupFields={configStore.selectedGroupFields}
         onGroupKeyChange={onChangeGroupKey}
         onDnaOrAaChange={onChangeDnaOrAa}
+        onReferenceChange={onReferenceChange}
+        onSelectedGroupFieldsChange={onSelectedGroupFieldsChange}
         showExtraGroupText={false}
         disabled={loading}
         direction={'row'}
+        referenceSelectMaxWidth="120px"
       />
 
       {statusBox}

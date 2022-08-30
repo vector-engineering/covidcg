@@ -20,11 +20,21 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--case-data", type=str, required=True, help="Path to case data JSON file",
+        "--isolate-data", type=str, required=True, help="Path to isolate data CSV file",
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map JSON file"
     )
 
     parser.add_argument(
-        "--metadata-map", type=str, required=True, help="Path to metadata map JSON file"
+        "--group-col", type=str, required=True, help="Column name for grouping"
+    )
+    parser.add_argument(
+        "--group-references",
+        type=str,
+        nargs="*",
+        default=None,
+        help="References to use for each group",
     )
 
     parser.add_argument(
@@ -51,6 +61,12 @@ def main():
         default=None,
         help="End date for filtering data in ISO format (YYYY-MM-DD). Overrides --end-date-days-ago if defined. Default: None",
     )
+    parser.add_argument(
+        "--period",
+        type=str,
+        default="W",
+        help="Aggregation period. W = week, M = month, Y = year. Default: W",
+    )
 
     parser.add_argument(
         "--min-combo-count",
@@ -71,36 +87,41 @@ def main():
 
     args = parser.parse_args()
 
-    case_data = pd.read_json(args.case_data)
+    isolate_df = pd.read_csv(
+        args.isolate_data,
+        usecols=[
+            "isolate_id",
+            "reference",
+            "collection_date",
+            args.group_col,
+            "region",
+        ],
+    )
+    out_path = Path(args.output)
+
     with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 
-    # Join region onto case_data
-    case_data.loc[:, "region"] = case_data["region"].map(
+    # Join locations
+    isolate_df.loc[:, "region"] = isolate_df["region"].map(
         {int(k): v for k, v in metadata_map["region"].items()}
     )
+    isolate_df.loc[isolate_df["region"].isna(), "region"] = None
 
-    out_path = Path(args.output)
+    # Filter for group references, if defined
+    if args.group_references:
+        valid_group_reference_pair = pd.Series(
+            data=False, index=isolate_df.index.values
+        )
+        for pair in args.group_references:
+            group = pair.split("=")[0]
+            reference = pair.split("=")[1]
+            valid_group_reference_pair = valid_group_reference_pair | (
+                (isolate_df[args.group_col] == group)
+                & (isolate_df["reference"] == reference)
+            )
 
-    # Get Spike mutations
-    gene_aa_mutation = pd.DataFrame.from_dict(
-        metadata_map["gene_aa_mutation"], orient="index"
-    ).reset_index()
-    gene_aa_mutation.columns = ["mutation", "mutation_id"]
-    spike_mutations = gene_aa_mutation.loc[
-        gene_aa_mutation["mutation"].str.match(r"^S")
-    ]
-    spike_mutation_map = spike_mutations["mutation"].to_dict()
-
-    df = case_data[
-        ["Accession ID", "collection_date", "lineage", "gene_aa_mutation_str", "region"]
-    ]
-
-    # Filter for only mutations in spike
-    valid_mutation_ids = spike_mutations["mutation_id"].values
-    df["spike_aa_mutation"] = df["gene_aa_mutation_str"].apply(
-        lambda x: tuple([mut for mut in x if mut in valid_mutation_ids])
-    )
+        isolate_df = isolate_df.loc[valid_group_reference_pair, :]
 
     # Filter for valid regions
     valid_regions = [
@@ -111,13 +132,15 @@ def main():
         "Oceania",
         "South America",
     ]
-    df = df.loc[df["region"].isin(valid_regions)]
+    isolate_df = isolate_df.loc[isolate_df["region"].isin(valid_regions)]
 
-    df["collection_date"] = pd.to_datetime(df["collection_date"])
-    df["collection_week"] = df["collection_date"].dt.to_period("W")
+    isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
+    isolate_df["collection_period"] = isolate_df["collection_date"].dt.to_period(
+        args.period
+    )
 
     location_counts = (
-        df.groupby(["region", "collection_week"])
+        isolate_df.groupby(["region", "collection_period"])
         .size()
         .rename("location_counts")
         .reset_index()
@@ -140,128 +163,37 @@ def main():
 
     # LINEAGE DATA
     lineage_counts = (
-        df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", "lineage", "collection_week"])
+        isolate_df.loc[isolate_df["collection_date"] >= pd.to_datetime(start_date_iso)]
+        .groupby(["region", args.group_col, "collection_period"])
         .size()
         .reset_index()
-        .rename(columns={"lineage": "group", 0: "counts"})
+        .rename(columns={args.group_col: "group", 0: "counts"})
     )
-
-    # SPIKE MUTATION COMBO DATA
-
-    spike_combo_mutation_counts = (
-        df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", "spike_aa_mutation", "collection_week"])
-        .size()
-        .reset_index()
-        .rename(columns={0: "counts", "spike_aa_mutation": "group"})
-    )
-    spike_combo_mutation_freq = (
-        df.groupby("spike_aa_mutation").size().sort_values(ascending=False)
-    )
-    spike_combo_mutation_counts = spike_combo_mutation_counts.loc[
-        spike_combo_mutation_counts["group"].isin(
-            spike_combo_mutation_freq.index[
-                spike_combo_mutation_freq >= args.min_combo_count
-            ].values
-        )
-    ]
-
-    # SPIKE SINGLE MUTATION DATA
-    spike_single_mutation_counts = (
-        df.loc[df["collection_date"] >= pd.to_datetime(start_date_iso)]
-        .groupby(["region", "spike_aa_mutation", "collection_week"])
-        .size()
-        .reset_index()
-        .rename(columns={0: "counts", "spike_aa_mutation": "group"})
-    )
-    spike_single_mutation_counts.loc[:, "group"] = spike_single_mutation_counts[
-        "group"
-    ].apply(list)
-    spike_single_mutation_counts = (
-        spike_single_mutation_counts.explode("group")
-        .assign(group=lambda x: x["group"].fillna(-1))
-        .groupby(["region", "collection_week", "group"])
-        .agg(counts=("counts", np.sum))
-        .reset_index()
-    )
-    spike_single_mutation_freq = (
-        spike_single_mutation_counts.groupby("group")["counts"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-    spike_single_mutation_counts = spike_single_mutation_counts.loc[
-        spike_single_mutation_counts["group"].isin(
-            spike_single_mutation_freq.index[
-                spike_single_mutation_freq >= args.min_single_count
-            ]
-        )
-    ]
 
     # CALCULATE PERCENTAGES
 
     def calculate_percentages(_df):
         _df = (
-            _df.set_index(["region", "collection_week"])
-            .join(location_counts.set_index(["region", "collection_week"]))
+            _df.set_index(["region", "collection_period"])
+            .join(location_counts.set_index(["region", "collection_period"]))
             .reset_index()
         )
 
         _df["percent"] = _df["counts"] / _df["location_counts"]
-        _df["collection_week"] = _df["collection_week"].dt.start_time
+        _df["collection_period"] = _df["collection_period"].dt.start_time
 
         return _df
 
     lineage_counts = calculate_percentages(lineage_counts)
-    spike_combo_mutation_counts = calculate_percentages(spike_combo_mutation_counts)
-    spike_single_mutation_counts = calculate_percentages(spike_single_mutation_counts)
 
-    # MUTATION IDS TO MUTATION NAMES
-    def mutation_ids_to_name(ids):
-        if len(ids) == 0:
-            return "Reference"
-
-        mutations = []
-        for mutation_id in ids:
-            split = spike_mutation_map[mutation_id].split("|")
-            # Tuple of position (for sorting), and the pretty mutation name
-            mutations.append((int(split[1]), split[2] + split[1] + split[3]))
-
-        # Sort by position
-        mutations = sorted(mutations, key=lambda x: x[0])
-
-        return ",".join([mut[1] for mut in mutations])
-
-    def mutation_id_to_name(mutation_id):
-        if mutation_id == -1:
-            return "Reference"
-
-        split = spike_mutation_map[mutation_id].split("|")
-        # Tuple of position (for sorting), and the pretty mutation name
-        return split[2] + split[1] + split[3]
-
-    spike_combo_mutation_counts.loc[:, "group"] = spike_combo_mutation_counts[
-        "group"
-    ].apply(mutation_ids_to_name)
-    spike_single_mutation_counts.loc[:, "group"] = spike_single_mutation_counts[
-        "group"
-    ].apply(mutation_id_to_name)
-
-    lineage_counts.insert(0, "type", "lineage")
-    spike_combo_mutation_counts.insert(0, "type", "spike_combo")
-    spike_single_mutation_counts.insert(0, "type", "spike_single")
-    all_counts = pd.concat(
-        [lineage_counts, spike_combo_mutation_counts, spike_single_mutation_counts],
-        axis=0,
-        ignore_index=True,
-    )
-    all_counts.to_csv(out_path / "group_counts2.csv", index=False)
+    # lineage_counts.insert(0, "type", "lineage")
+    lineage_counts.to_json(out_path / "group_counts2.json", orient="records", indent=2)
 
     # DO REGRESSIONS
 
     def group_regression(_df):
-        min_date = _df["collection_week"].dt.date.min().isoformat()
-        _df = _df.set_index("collection_week").reindex(
+        min_date = _df["collection_period"].dt.date.min().isoformat()
+        _df = _df.set_index("collection_period").reindex(
             pd.date_range(min_date, end_date_iso, freq="7D", closed="left"),
             fill_value=0,
         )
@@ -269,9 +201,7 @@ def main():
         if len(_df) == 0:
             return (0, 0, 1, 0, 0)
 
-        slope, intercept, r, pval, err = linregress(
-            np.arange(0, len(_df)), _df["percent"]
-        )
+        slope, _, r, pval, _ = linregress(np.arange(0, len(_df)), _df["percent"])
 
         # if r > 0.5:
         #    print(lineage, slope, r, pval, _df['counts'].sum())
@@ -280,7 +210,7 @@ def main():
 
     def calculate_trends(_df):
         regression_df = (
-            _df.groupby(["region", "group"])[["collection_week", "counts", "percent"]]
+            _df.groupby(["region", "group"])[["collection_period", "counts", "percent"]]
             .apply(group_regression)
             .rename("res")
             .reset_index()
@@ -298,22 +228,11 @@ def main():
         return regression_df
 
     lineage_regression = calculate_trends(lineage_counts)
-    spike_combo_mutation_regression = calculate_trends(spike_combo_mutation_counts)
-    spike_single_mutation_regression = calculate_trends(spike_single_mutation_counts)
 
-    lineage_regression.insert(0, "type", "lineage")
-    spike_combo_mutation_regression.insert(0, "type", "spike_combo")
-    spike_single_mutation_regression.insert(0, "type", "spike_single")
-    all_regression = pd.concat(
-        [
-            lineage_regression,
-            spike_combo_mutation_regression,
-            spike_single_mutation_regression,
-        ],
-        axis=0,
-        ignore_index=True,
+    # lineage_regression.insert(0, "type", "lineage")
+    lineage_regression.to_json(
+        out_path / "group_regression2.json", orient="records", indent=2
     )
-    all_regression.to_csv(out_path / "group_regression2.csv", index=False)
 
 
 if __name__ == "__main__":

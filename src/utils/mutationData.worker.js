@@ -47,8 +47,11 @@ function processSelectedMutations({
   aggLocationGroupDate.forEach((row) => {
     !(row.location in aggLocationSelectedMutationsDateObj) &&
       (aggLocationSelectedMutationsDateObj[row.location] = {});
-    !(row.collection_date in aggLocationSelectedMutationsDateObj[row.location]) &&
-      (aggLocationSelectedMutationsDateObj[row.location][row.collection_date] = {});
+    !(
+      row.collection_date in aggLocationSelectedMutationsDateObj[row.location]
+    ) &&
+      (aggLocationSelectedMutationsDateObj[row.location][row.collection_date] =
+        {});
 
     // Check that every mutation ID is present
     // TODO: sort and then short-circuit check, that should be more efficient
@@ -73,13 +76,15 @@ function processSelectedMutations({
     }
 
     !(
-      group in aggLocationSelectedMutationsDateObj[row.location][row.collection_date]
+      group in
+      aggLocationSelectedMutationsDateObj[row.location][row.collection_date]
     ) &&
       (aggLocationSelectedMutationsDateObj[row.location][row.collection_date][
         group
       ] = 0);
-    aggLocationSelectedMutationsDateObj[row.location][row.collection_date][group] +=
-      row.counts;
+    aggLocationSelectedMutationsDateObj[row.location][row.collection_date][
+      group
+    ] += row.counts;
   });
 
   let groupKeys = [];
@@ -87,7 +92,9 @@ function processSelectedMutations({
   Object.keys(aggLocationSelectedMutationsDateObj).forEach((location) => {
     const dates = Object.keys(aggLocationSelectedMutationsDateObj[location]);
     dates.forEach((date) => {
-      groupKeys = Object.keys(aggLocationSelectedMutationsDateObj[location][date]);
+      groupKeys = Object.keys(
+        aggLocationSelectedMutationsDateObj[location][date]
+      );
       groupKeys.forEach((group) => {
         aggLocationSelectedMutationsDate.push({
           location: location,
@@ -186,7 +193,9 @@ function processCooccurrenceData({
   const mutationCooccurrence = {};
   // Counts for each mutation combination - used to calculate fractions
   const mutationCombinationCounts = {};
-  const selectedMutationCombinations = getCombinations(Array.from(selectedGroupIds));
+  const selectedMutationCombinations = getCombinations(
+    Array.from(selectedGroupIds)
+  );
 
   selectedMutationCombinations.forEach((combi) => {
     // Make an entry for this combination
@@ -208,9 +217,16 @@ function processCooccurrenceData({
       row.group_id.forEach((mutationId) => {
         // Only check for mutations that aren't in this combination
         if (!combi.includes(mutationId)) {
-          !(intToMutationMap[mutationId].mutation_str in mutationCooccurrence[combiKey]) &&
-            (mutationCooccurrence[combiKey][intToMutationMap[mutationId].mutation_str] = 0);
-          mutationCooccurrence[combiKey][intToMutationMap[mutationId].mutation_str] += row.counts;
+          !(
+            intToMutationMap[mutationId].mutation_str in
+            mutationCooccurrence[combiKey]
+          ) &&
+            (mutationCooccurrence[combiKey][
+              intToMutationMap[mutationId].mutation_str
+            ] = 0);
+          mutationCooccurrence[combiKey][
+            intToMutationMap[mutationId].mutation_str
+          ] += row.counts;
         }
         // } else {
         //   !('None' in mutationCooccurrence[combiKey]) &&
@@ -236,7 +252,9 @@ function processCooccurrenceData({
         mutationName: formatMutation(mutation, dnaOrAa),
         color: mutationColorMap[mutation],
         count: mutationCooccurrence[combi][mutation],
-        fraction: mutationCooccurrence[combi][mutation] / mutationCombinationCounts[combi],
+        fraction:
+          mutationCooccurrence[combi][mutation] /
+          mutationCombinationCounts[combi],
         combiCount: mutationCombinationCounts[combi],
       });
     });
