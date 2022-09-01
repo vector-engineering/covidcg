@@ -183,6 +183,14 @@ export class MutationDataStore {
     }
   }
 
+  mutationStrToMutation(dnaOrAa, coordinateMode, mut) {
+    const mutationId = this.mutationToInt(dnaOrAa, coordinateMode, mut);
+    if (mutationId === undefined) {
+      return undefined;
+    }
+    return this.intToMutation(dnaOrAa, coordinateMode, mutationId);
+  }
+
   // For partial sequences mode
   // Get the genome coverage at the given position
   getCoverageAtPosition(position, featureName = undefined) {
