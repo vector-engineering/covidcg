@@ -108,7 +108,7 @@ if (config['virus'] === 'sars2') {
     surveillanceSigMinPercent: 0.02,
     surveillanceSigMinR: 0.3,
     surveillanceLegendHover: [],
-    surveillanceShowWarning: false,
+    surveillanceShowWarning: true,
     surveillanceShowSettings: false,
 
     // GROUP REPORT TAB
@@ -231,7 +231,7 @@ if (config['virus'] === 'sars2') {
     surveillanceSigMinPercent: 0.0,
     surveillanceSigMinR: -1.0,
     surveillanceLegendHover: [],
-    surveillanceShowWarning: false,
+    surveillanceShowWarning: true,
     surveillanceShowSettings: false,
 
     // GROUP REPORT TAB

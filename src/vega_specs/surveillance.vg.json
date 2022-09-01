@@ -263,6 +263,39 @@
           "as": "end"
         }
       ]
+    },
+    {
+      "name": "lower_date",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": ["collection_period"],
+          "as": ["collection_period"],
+          "ops": ["min"]
+        }
+      ]
+    },
+    {
+      "name": "upper_date",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": ["collection_period"],
+          "as": ["collection_period"],
+          "ops": ["max"]
+        },
+        {
+          "type": "formula",
+          "as": "collection_period",
+          "expr": "now()"
+        }
+      ]
+    },
+    {
+      "name": "date_range",
+      "source": ["lower_date", "upper_date"]
     }
   ],
 
@@ -270,7 +303,7 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": { "data": "group_counts", "field": "collection_period" },
+      "domain": { "data": "date_range", "field": "collection_period" },
       "range": { "signal": "subplot_range_x" }
     },
     {

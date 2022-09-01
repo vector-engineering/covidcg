@@ -421,6 +421,15 @@ const SurveillancePlot = observer(({ width }) => {
     });
   }, [plotSettingsStore.surveillanceMode]);
 
+  let survPeriodText = '';
+  if (config.surv_period === 'W') {
+    survPeriodText = 'week';
+  } else if (config.surv_period === 'M') {
+    survPeriodText = 'month';
+  } else if (config.surv_period === 'Y') {
+    survPeriodText = 'year';
+  }
+
   return (
     <PlotContainer>
       <a
@@ -436,11 +445,14 @@ const SurveillancePlot = observer(({ width }) => {
         </PlotTitle>
       </PlotOptions>
       <HelpText>
-        Only data from the last {config.surv_start_date_days_ago} days is shown,
-        and sequence counts are grouped by week to reduce noise. Please note
-        that the most recent data (most recent month marked by darker-colored
-        band) is sparser due to lags in time between sample collection and
-        submission.
+        Only data from{' '}
+        {Object.prototype.hasOwnProperty.call(config, 'surv_start_date')
+          ? config.surv_start_date
+          : `the last ${config.surv_start_date_days_ago} days`}{' '}
+        is shown, and sequence counts are grouped by {survPeriodText} to reduce
+        noise. Please note that the most recent data (most recent month marked
+        by darker-colored band) is sparser due to lags in time between sample
+        collection and submission.
       </HelpText>
       <HelpText>
         {groupName}s that do not meet the conditions defined by &quot;Displayed{' '}
