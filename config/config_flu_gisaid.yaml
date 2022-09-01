@@ -36,6 +36,10 @@ chunk_size: 10000
 
 segments: ["1", "2", "3", "4", "5", "6", "7", "8"]
 
+# Insertions or deletions with more than this difference in bases between the
+# ref and the alt will be discarded (NT level only)
+max_indel_length: 100
+
 # Mutations with less than this number of global occurrences will be ignored
 mutation_count_threshold: 3
 
@@ -128,6 +132,7 @@ prod_hostname: "https://flu.gisaid.pathmut.org"
 # ----------------------
 
 site_title: "Flu PathMut"
+data_provider: "GISAID"
 
 # Home page
 show_home_banner: false

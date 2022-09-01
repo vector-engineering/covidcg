@@ -2,9 +2,6 @@ import { DNA_OR_AA } from '../../constants/defs.json';
 import { getAllGenes, getAllProteins } from '../../utils/gene_protein';
 import { formatMutation } from '../../utils/mutationUtils';
 
-const genes = getAllGenes();
-const proteins = getAllProteins();
-
 const sortByPosThenAlt = function (a, b) {
   if (a.pos === b.pos) {
     return a.alt > b.alt;
@@ -14,6 +11,7 @@ const sortByPosThenAlt = function (a, b) {
 };
 
 export const buildFeatureMatrix = ({
+  activeReference,
   groupMutationFrequency,
   activeGroupType,
   groupMutationType,
@@ -43,6 +41,9 @@ export const buildFeatureMatrix = ({
     groupMutationType
   ]['0'].filter((groupMutation) => selectedGroups.includes(groupMutation.name));
 
+  const genes = getAllGenes(activeReference);
+  const proteins = getAllProteins(activeReference);
+
   const features = groupMutationType === 'protein_aa' ? proteins : genes;
 
   const result = {};
@@ -60,10 +61,11 @@ export const buildFeatureMatrix = ({
               groupMutation.pos >= featureNTRange[0] &&
               groupMutation.pos <= featureNTRange[1]
           );
-        } else if (groupMutationType === 'gene_aa') {
-          return groupMutation.gene === feature.name;
-        } else if (groupMutationType === 'protein_aa') {
-          return groupMutation.protein === feature.name;
+        } else if (
+          groupMutationType === 'gene_aa' ||
+          groupMutationType == 'protein_aa'
+        ) {
+          return groupMutation.feature === feature.name;
         }
       })
       .sort(sortByPosThenAlt);

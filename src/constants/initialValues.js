@@ -54,6 +54,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['SARS-CoV-2'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['USA', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],
@@ -108,7 +109,7 @@ if (config['virus'] === 'sars2') {
     surveillanceSigMinPercent: 0.02,
     surveillanceSigMinR: 0.3,
     surveillanceLegendHover: [],
-    surveillanceShowWarning: false,
+    surveillanceShowWarning: true,
     surveillanceShowSettings: false,
 
     // GROUP REPORT TAB
@@ -116,7 +117,7 @@ if (config['virus'] === 'sars2') {
     reportConsensusThreshold: 0.7,
     reportMutationListHideEmpty: true,
     reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-    reportStructureActiveProtein: config['default_protein'],
+    reportStructureActiveProtein: 'S',
     reportStructurePdbId: '6ZGG',
     reportStructureActiveGroup: 'B.1.617.2',
     reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
@@ -177,6 +178,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['A'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['USA', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],
@@ -231,7 +233,7 @@ if (config['virus'] === 'sars2') {
     surveillanceSigMinPercent: 0.0,
     surveillanceSigMinR: -1.0,
     surveillanceLegendHover: [],
-    surveillanceShowWarning: false,
+    surveillanceShowWarning: true,
     surveillanceShowSettings: false,
 
     // GROUP REPORT TAB
@@ -289,6 +291,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['H3N2'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['United States', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],

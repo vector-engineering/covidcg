@@ -15,7 +15,7 @@ from read_extractor_lite import ReadExtractor
 
 
 def extract_dna_mutations(
-    sam_file, reference_file, subtype, active_segment,
+    sam_file, reference_file, subtype, active_segment, max_indel_length
 ):
     """
     Extract DNA mutations from bowtie2 alignments
@@ -30,6 +30,9 @@ def extract_dna_mutations(
         Segment/chromosome
     subtype: str
         Subtype
+    max_indel_length: int
+        Maximum length, in NT, of indels. Insertions or deletions exceeding 
+        this difference in bases between the ref and alt will be discarded
 
     Returns
     -------
@@ -87,6 +90,12 @@ def extract_dna_mutations(
     }
     dna_mutation_df["reference"] = dna_mutation_df["reference"].map(ref_name_map)
 
+    # Post extraction filtering
+    # Remove mutations that are massive insertions or deletions, i.e., ±100 bp
+    # These should not be tolerated by the aligner but sometimes they slip through
+    length_diff = dna_mutation_df["ref"].str.len() - dna_mutation_df["alt"].str.len()
+    dna_mutation_df = dna_mutation_df.loc[length_diff.abs() <= max_indel_length]
+
     return dna_mutation_df
 
 
@@ -103,11 +112,17 @@ def main():
     )
     parser.add_argument("--subtype", type=str, required=True, help="Subtype")
     parser.add_argument("--segment", type=str, required=True, help="Segment/chromosome")
+    parser.add_argument(
+        "--max-indel-length",
+        type=int,
+        default=100,
+        help="Maximum length, in NT, of indels. Insertions or deletions exceeding this difference in bases between the ref and alt will be discarded",
+    )
     parser.add_argument("--out", type=str, required=True, help="Path to output")
     args = parser.parse_args()
 
     dna_mutation_df = extract_dna_mutations(
-        args.bam, args.reference, args.subtype, args.segment
+        args.bam, args.reference, args.subtype, args.segment, args.max_indel_length
     )
     dna_mutation_df.to_csv(args.out, index=False)
 

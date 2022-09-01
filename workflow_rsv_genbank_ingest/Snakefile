@@ -23,6 +23,10 @@ rule all:
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
+        # Force assign subtypes each day
+        os.path.join(
+            data_folder, "status", "assign_subtypes_" + today_str + ".done"
+        ),
         # Cleaned metadata
         os.path.join(data_folder, "metadata.csv"),
         # Split sequences by subtype - for AZ internal workflows
@@ -60,6 +64,7 @@ rule clean_metadata:
 rule write_all_fasta:
     input:
         feed = rules.download.output.feed,
+        download_status = rules.download.output.status, # Force this step every day
         metadata = rules.clean_metadata.output.metadata_clean
     output:
         sequences = os.path.join(data_folder, 'all_sequences.fa.gz')
@@ -78,7 +83,10 @@ rule assign_subtypes:
     params:
         ref_seq = os.path.join(static_data_folder, 'genotype_references.fasta')
     output:
-        bam = os.path.join(data_folder, "subtypes.bam")
+        bam = os.path.join(data_folder, "subtypes.bam"),
+        status = touch(os.path.join(
+            data_folder, "status", "assign_subtypes_" + today_str + ".done"
+        ))
     shell:
         """
         minimap2 -t {threads} -x map-ont -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
@@ -91,13 +99,15 @@ rule join_subtype_assignments:
         subtype_alignment = rules.assign_subtypes.output.bam,
         metadata = rules.clean_metadata.output.metadata_clean
     output:
-        metadata_plus_subtype = os.path.join(data_folder, 'metadata.csv')
+        metadata_plus_subtype = os.path.join(data_folder, 'metadata.csv'),
+        metadata_failed_subtype_assignments = os.path.join(data_folder, 'metadata_failed_subtype_assignment.csv')
     shell:
         """
         python3 scripts/join_subtype_assignments.py \
             --in-bam {input.subtype_alignment} \
             --metadata {input.metadata} \
-            --out-metadata {output.metadata_plus_subtype}
+            --out-metadata {output.metadata_plus_subtype} \
+            --out-failed {output.metadata_failed_subtype_assignments}
         """
 
 rule split_sequences_by_subtype:

@@ -19,7 +19,7 @@ const PRESET_START = 'preset-start';
 let firstDateLabel;
 if (config.virus === 'sars2') {
   firstDateLabel = 'Since pandemic start';
-} else if (config.virus === 'rsv') {
+} else {
   firstDateLabel = 'Date of first sequence';
 }
 

@@ -52,14 +52,9 @@ const SelectionTopBar = observer(() => {
     if (groupKey !== GROUP_MUTATION && groupKey !== configStore.groupKey) {
       selectedGroupFields = {};
     }
-    // RSV MODE ONLY
     // If we're switching to mutation mode, go back to
     // default selected group fields
-    else if (
-      config.virus === 'rsv' &&
-      groupKey === GROUP_MUTATION &&
-      groupKey !== configStore.groupKey
-    ) {
+    else if (groupKey === GROUP_MUTATION && groupKey !== configStore.groupKey) {
       selectedGroupFields = initialConfigStore.selectedGroupFields;
     }
 

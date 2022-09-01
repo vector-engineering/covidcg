@@ -26,8 +26,6 @@ import {
   InvalidText,
 } from './GroupStructuralViewer.styles';
 
-const proteins = getAllProteins();
-
 const numColors = reds.length;
 
 const DOWNLOAD_OPTIONS = {
@@ -162,7 +160,7 @@ const StructuralViewer = observer(() => {
       .filter(
         (groupMutation) =>
           groupMutation.name === plotSettingsStore.reportStructureActiveGroup &&
-          groupMutation.protein ===
+          groupMutation.feature ===
             plotSettingsStore.reportStructureActiveProtein
       )
       // Convert fractional frequencies to colors
@@ -255,6 +253,7 @@ const StructuralViewer = observer(() => {
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
   const proteinOptionItems = [];
+  const proteins = getAllProteins(groupDataStore.activeReference);
   proteins.forEach((protein) => {
     proteinOptionItems.push(
       <option key={`structure-protein-${protein.name}`} value={protein.name}>

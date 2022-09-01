@@ -202,10 +202,6 @@ const GroupBySelect = observer(
     };
 
     const renderReferenceSelect = () => {
-      if (groupKey !== GROUP_MUTATION) {
-        return null;
-      }
-
       const referenceOptionItems = [];
       const subtype = selectedGroupFields.subtype[0];
       const subtypeReferences = getReferencesForSubtype(subtype);
@@ -270,8 +266,8 @@ const GroupBySelect = observer(
             {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
           </RadioForm>
         )}
-        {renderSubtypeSelect()}
-        {renderReferenceSelect()}
+        {groupKey === GROUP_MUTATION && renderSubtypeSelect()}
+        {groupKey === GROUP_MUTATION && renderReferenceSelect()}
       </SelectContainer>
     );
   }

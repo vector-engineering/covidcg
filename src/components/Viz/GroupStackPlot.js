@@ -419,8 +419,9 @@ const GroupStackPlot = observer(({ width }) => {
   return (
     <div>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        {config.site_title} plots reflect data contributed to GISAID and are
-        therefore impacted by the sequence coverage in each country.
+        {config.site_title} plots reflect data contributed to{' '}
+        {config.data_provider} and are therefore impacted by the sequence
+        coverage in each country.
       </WarningBox>
       {hideDetail && (
         <EmptyPlot height={100}>

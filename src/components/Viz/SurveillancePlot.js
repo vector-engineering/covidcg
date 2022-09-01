@@ -392,7 +392,7 @@ const SurveillancePlot = observer(({ width }) => {
   const getXLabelFormat = () => {
     if (config.virus === 'sars2') {
       return '%m-%d';
-    } else if (config.virus === 'rsv') {
+    } else {
       return '%Y-%m';
     }
   };
@@ -421,6 +421,15 @@ const SurveillancePlot = observer(({ width }) => {
     });
   }, [plotSettingsStore.surveillanceMode]);
 
+  let survPeriodText = '';
+  if (config.surv_period === 'W') {
+    survPeriodText = 'week';
+  } else if (config.surv_period === 'M') {
+    survPeriodText = 'month';
+  } else if (config.surv_period === 'Y') {
+    survPeriodText = 'year';
+  }
+
   return (
     <PlotContainer>
       <a
@@ -436,28 +445,31 @@ const SurveillancePlot = observer(({ width }) => {
         </PlotTitle>
       </PlotOptions>
       <HelpText>
-        Only data from the last {config.surv_start_date_days_ago} days is shown,
-        and sequence counts are grouped by week to reduce noise. Please note
-        that the most recent data (most recent month marked by darker-colored
-        band) is sparser due to lags in time between sample collection and
-        submission.
+        Only data from{' '}
+        {Object.prototype.hasOwnProperty.call(config, 'surv_start_date')
+          ? config.surv_start_date
+          : `the last ${config.surv_start_date_days_ago} days`}{' '}
+        is shown, and sequence counts are grouped by {survPeriodText} to reduce
+        noise. Please note that the most recent data (most recent month marked
+        by darker-colored band) is sparser due to lags in time between sample
+        collection and submission.
       </HelpText>
       <HelpText>
-        {groupName} that do not meet the conditions defined by &quot;Displayed{' '}
+        {groupName}s that do not meet the conditions defined by &quot;Displayed{' '}
         {groupName}&quot; in all six continents are filtered out of this plot.
         &quot;Highlighted {groupName}&quot; meeting the user-defined conditions
         in at least one out of the six continents are shown in the legend to the
-        left. Hover over lineages in the legend, or near them in the plots, to
-        highlight the lineage across all plots.
+        left. Hover over {groupName}s in the legend, or near them in the plots,
+        to highlight the {groupName} across all plots.
       </HelpText>
       <WarningBox
         show={plotSettingsStore.surveillanceShowWarning}
         onDismiss={onDismissWarning}
       >
-        {config.site_title} plots reflect data contributed to GISAID and are
-        therefore impacted by the sequence coverage in each country. Increased
-        prevalence of any lineage does not, on its own, suggest an increase in
-        transmissibility.
+        {config.site_title} plots reflect data contributed to{' '}
+        {config.data_provider} and are therefore impacted by the sequence
+        coverage in each country. Increased prevalence of any {groupName} does
+        not, on its own, suggest an increase in transmissibility.
       </WarningBox>
       {/* Only show these surveillance settings for SAR2 */}
       {config.virus === 'sars2' && (

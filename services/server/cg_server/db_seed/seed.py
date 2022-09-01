@@ -308,6 +308,9 @@ def seed_database(conn, schema="public"):
         grouping_cols = []
         grouping_col_defs = []
         for grouping in config["group_cols"].keys():
+            # Avoid duplicate subtype column
+            if grouping == "subtype":
+                continue
             grouping_col_defs.append(sql.SQL(f"{grouping} TEXT NOT NULL"))
             grouping_cols.append(grouping)
         grouping_col_defs = sql.SQL(",\n").join(grouping_col_defs)
@@ -422,7 +425,9 @@ def seed_database(conn, schema="public"):
             ]
             + list(config["metadata_cols"].keys())
             + loc_levels
-            + list(config["group_cols"].keys())
+            + list(
+                filter(lambda x: x != "subtype", config["group_cols"].keys())
+            )  # Avoid duplicate subtype index
         ):
             cur.execute(
                 sql.SQL(
@@ -547,7 +552,9 @@ def seed_database(conn, schema="public"):
                 ]
                 + list(config["metadata_cols"].keys())
                 + loc_levels
-                + list(config["group_cols"].keys())
+                + list(
+                    filter(lambda x: x != "subtype", config["group_cols"].keys())
+                )  # Avoid duplicate subtype index
             ):
 
                 cur.execute(

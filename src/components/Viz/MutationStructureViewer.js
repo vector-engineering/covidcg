@@ -30,6 +30,7 @@ import {
   LiteMolContainer,
   InvalidText,
   ConfirmButton,
+  HighlightedMutations,
 } from './MutationStructureViewer.styles';
 
 const NUM_COLORS = reds.length;
@@ -39,7 +40,8 @@ const DOWNLOAD_OPTIONS = {
 };
 
 const MutationStructureViewer = observer(() => {
-  const { configStore, dataStore, plotSettingsStore } = useStores();
+  const { configStore, dataStore, mutationDataStore, plotSettingsStore } =
+    useStores();
   const [plugin, setPlugin] = useState(null);
   const [state, setState] = useState({
     downloadPymolScriptModalOpen: false,
@@ -175,6 +177,27 @@ const MutationStructureViewer = observer(() => {
       });
     });
 
+    // Add selected mutations
+    const selectedMutationPositions = [];
+    configStore.selectedGroups.forEach(({ group }) => {
+      const mutation = mutationDataStore.mutationStrToMutation(
+        configStore.dnaOrAa,
+        configStore.coordinateMode,
+        group
+      );
+
+      if (mutation !== undefined) {
+        selectedMutationPositions.push(mutation.pos);
+      }
+    });
+
+    if (selectedMutationPositions.length > 0) {
+      heatmapEntries.push({
+        indices: selectedMutationPositions,
+        color: hexToRgb('0000ff'),
+      });
+    }
+
     const ignoreChains = [];
     entities.forEach((entity) => {
       if (!entity.checked) {
@@ -241,7 +264,7 @@ const MutationStructureViewer = observer(() => {
           : 'model',
       entities: state.entities,
     });
-  }, [plotSettingsStore.mutationStructureNormMode]);
+  }, [plotSettingsStore.mutationStructureNormMode, configStore.selectedGroups]);
 
   const assemblyOptionItems = [];
   state.assemblies.forEach((assembly) => {
@@ -306,6 +329,31 @@ const MutationStructureViewer = observer(() => {
       );
     }
   }
+
+  // Selected mutations, sort by position
+  const selectedMutationItems = [];
+  JSON.parse(JSON.stringify(configStore.selectedGroups))
+    .map(({ group }) => {
+      const mutation = mutationDataStore.mutationStrToMutation(
+        configStore.dnaOrAa,
+        configStore.coordinateMode,
+        group
+      );
+      return mutation;
+    })
+    .filter((mutation) => mutation !== undefined)
+    .sort((a, b) => {
+      return a.pos - b.pos;
+    })
+    .forEach((mutation) => {
+      selectedMutationItems.push(
+        <li
+          key={`mutation-structure-selected-mutation-${mutation.mutation_str}`}
+        >
+          {mutation.name}
+        </li>
+      );
+    });
 
   return (
     <MutationStructureViewerContainer>
@@ -389,6 +437,12 @@ const MutationStructureViewer = observer(() => {
           setPlugin={setPlugin}
         />
       </LiteMolContainer>
+      {selectedMutationItems.length > 0 && (
+        <HighlightedMutations>
+          Highlighted mutations:
+          <ul>{selectedMutationItems}</ul>
+        </HighlightedMutations>
+      )}
     </MutationStructureViewerContainer>
   );
 });

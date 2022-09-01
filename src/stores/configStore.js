@@ -214,21 +214,23 @@ export class ConfigStore {
     // Update URL
     updateURLFromParams(this.urlParams);
 
-    const defaultSelectedLocationNodes = [
-      getLocationByNameAndLevel(
+    const defaultSelectedLocationNodes = [];
+    if (this.initialValues.defaultSelectedLocationNodes.length === 0) {
+      this.initialValues.defaultSelectedLocationNodes = ['USA', 'Canada'];
+    }
+    this.initialValues.defaultSelectedLocationNodes.forEach((country) => {
+      const countryNode = getLocationByNameAndLevel(
         rootStoreInstance.locationDataStore.selectTree,
-        'USA',
+        country,
         'country',
         true
-      )[0],
-      getLocationByNameAndLevel(
-        rootStoreInstance.locationDataStore.selectTree,
-        'Canada',
-        'country',
-        true
-      )[0],
-    ].filter((node) => node !== undefined);
-    this.initialValues['selectedLocationNodes'] = defaultSelectedLocationNodes;
+      )[0];
+
+      if (countryNode !== undefined) {
+        defaultSelectedLocationNodes.push(countryNode);
+      }
+    });
+    this.initialValues.selectedLocationNodes = defaultSelectedLocationNodes;
 
     if (this.selectedLocationNodes.length === 0) {
       // If no locations in url, set default selected locations

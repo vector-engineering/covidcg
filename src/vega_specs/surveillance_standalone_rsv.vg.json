@@ -1,537 +1,569 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "description": "A basic line chart example.",
-    "width": 1000,
-    "height": 350,
-    "padding": 5,
-  
-    "signals": [
-      { "name": "mode", "value": "lineage" },
-      { "name": "sortField", "value": "group" },
-      { "name": "sortDirection", "value": "ascending" },
-      { "name": "display_min_counts", "value": 5 },
-      { "name": "display_min_percent", "value": 0.01 },
-      { "name": "sig_min_counts", "value": 10 },
-      { "name": "sig_min_percent", "value": 0.05 },
-      { "name": "sig_min_r", "value": 0.5 },
-  
-      { "name": "facet_width", "update": "width" },
-      { "name": "facet_x", "update": "0" },
-  
-      { "name": "subplot_hpadding", "value": 90 },
-      {
-        "name": "subplot_width",
-        "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic line chart example.",
+  "width": 1000,
+  "height": 350,
+  "padding": 5,
+
+  "signals": [
+    { "name": "mode", "value": "lineage" },
+    { "name": "sortField", "value": "group" },
+    { "name": "sortDirection", "value": "ascending" },
+    { "name": "display_min_counts", "value": 5 },
+    { "name": "display_min_percent", "value": 0.01 },
+    { "name": "sig_min_counts", "value": 10 },
+    { "name": "sig_min_percent", "value": 0.05 },
+    { "name": "sig_min_r", "value": 0.5 },
+
+    { "name": "facet_width", "update": "width" },
+    { "name": "facet_x", "update": "0" },
+
+    { "name": "subplot_hpadding", "value": 90 },
+    {
+      "name": "subplot_width",
+      "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"
+    },
+    { "name": "subplot_range_x", "update": "[0, subplot_width]" },
+    { "name": "subplot_vpadding", "value": 100 },
+    { "name": "subplot_height", "update": "(height - subplot_vpadding) / 2" },
+    { "name": "subplot_range_y", "update": "[subplot_height, 0]" },
+    {
+      "name": "x_adjusted",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "x() - facet_x"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_col",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(x_adjusted >= 0 && x_adjusted <= subplot_width, 1, if(x_adjusted >= (subplot_width + (subplot_hpadding)) && (x_adjusted <= (subplot_width * 2) + (subplot_hpadding)), 2, if(x_adjusted >= (subplot_width * 2) + (subplot_hpadding * 2) && x_adjusted <= ((subplot_width * 3) + (subplot_hpadding * 2)), 3, -1)))"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_row",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(y() >= 0 && y() <= subplot_height, 1, if(y() >= subplot_height + subplot_vpadding && y() <= (subplot_height * 2) + subplot_vpadding, 2, -1))"
+        }
+      ]
+    },
+    {
+      "name": "cur_region",
+      "update": "if(cur_mouse_row == -1 || cur_mouse_col == -1, -1, ((cur_mouse_row - 1) * 3) + cur_mouse_col)"
+    },
+    {
+      "name": "cur_mouse_x",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(cur_mouse_col == -1, null, x_adjusted - ((cur_mouse_col - 1) * subplot_width) - ((cur_mouse_col - 1) * subplot_hpadding))"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_date",
+      "update": "if(cur_mouse_col == -1, null, invert('dateX', cur_mouse_x))"
+    },
+    {
+      "name": "cur_mouse_y",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(cur_mouse_row > -1, y() - ((cur_mouse_row - 1) * (subplot_height + subplot_vpadding)), null)"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_percent",
+      "update": "if(cur_region > -1, (1 - (cur_mouse_y / subplot_height)) * data('cur_max_percent')[0]['percent'], null)"
+    },
+    {
+      "name": "time_sensitivity",
+      "value": 302400000
+    },
+    {
+      "name": "percent_sensitivity_factor",
+      "value": 10
+    },
+    {
+      "name": "percent_sensitivity",
+      "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
+    },
+    {
+      "name": "xLabelFormat",
+      "value": "%m-%d"
+    }
+  ],
+
+  "data": [
+    {
+      "name": "group_reg",
+      "format": {
+        "type": "json"
       },
-      { "name": "subplot_range_x", "update": "[0, subplot_width]" },
-      { "name": "subplot_vpadding", "value": 100 },
-      { "name": "subplot_height", "update": "(height - subplot_vpadding) / 2" },
-      { "name": "subplot_range_y", "update": "[subplot_height, 0]" },
-      {
-        "name": "x_adjusted",
-        "on": [
-          {
-            "events": "mousemove",
-            "update": "x() - facet_x"
-          }
-        ]
-      },
-      {
-        "name": "cur_mouse_col",
-        "on": [
-          {
-            "events": "mousemove",
-            "update": "if(x_adjusted >= 0 && x_adjusted <= subplot_width, 1, if(x_adjusted >= (subplot_width + (subplot_hpadding)) && (x_adjusted <= (subplot_width * 2) + (subplot_hpadding)), 2, if(x_adjusted >= (subplot_width * 2) + (subplot_hpadding * 2) && x_adjusted <= ((subplot_width * 3) + (subplot_hpadding * 2)), 3, -1)))"
-          }
-        ]
-      },
-      {
-        "name": "cur_mouse_row",
-        "on": [
-          {
-            "events": "mousemove",
-            "update": "if(y() >= 0 && y() <= subplot_height, 1, if(y() >= subplot_height + subplot_vpadding && y() <= (subplot_height * 2) + subplot_vpadding, 2, -1))"
-          }
-        ]
-      },
-      {
-        "name": "cur_region",
-        "update": "if(cur_mouse_row == -1 || cur_mouse_col == -1, -1, ((cur_mouse_row - 1) * 3) + cur_mouse_col)"
-      },
-      {
-        "name": "cur_mouse_x",
-        "on": [
-          {
-            "events": "mousemove",
-            "update": "if(cur_mouse_col == -1, null, x_adjusted - ((cur_mouse_col - 1) * subplot_width) - ((cur_mouse_col - 1) * subplot_hpadding))"
-          }
-        ]
-      },
-      {
-        "name": "cur_mouse_date",
-        "update": "if(cur_mouse_col == -1, null, invert('dateX', cur_mouse_x))"
-      },
-      {
-        "name": "cur_mouse_y",
-        "on": [
-          {
-            "events": "mousemove",
-            "update": "if(cur_mouse_row > -1, y() - ((cur_mouse_row - 1) * (subplot_height + subplot_vpadding)), null)"
-          }
-        ]
-      },
-      {
-        "name": "cur_mouse_percent",
-        "update": "if(cur_region > -1, (1 - (cur_mouse_y / subplot_height)) * data('cur_max_percent')[0]['percent'], null)"
-      },
-      {
-        "name": "time_sensitivity",
-        "value": 302400000
-      },
-      {
-        "name": "percent_sensitivity_factor",
-        "value": 10
-      },
-      {
-        "name": "percent_sensitivity",
-        "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
-      },
-      {
-        "name": "xLabelFormat",
-        "value": "%m-%d"
-      }
-    ],
-  
-    "data": [
-      {
-        "name": "group_reg",
-        "format": {
-          "type": "json"
+      "values": [{"counts":2644,"group":"A","max_percent":1,"pval":0.2641554493,"r":-0.0327834395,"region":"Africa","slope":-0.0000395169},{"counts":2132,"group":"B","max_percent":1,"pval":3.706974013e-17,"r":0.2288499605,"region":"Africa","slope":0.000212345},{"counts":6009,"group":"A","max_percent":1,"pval":5.246473252e-67,"r":0.4092558186,"region":"Asia","slope":0.0003289076},{"counts":3558,"group":"B","max_percent":1,"pval":6.052750086e-40,"r":0.3129615578,"region":"Asia","slope":0.0001915539},{"counts":3130,"group":"A","max_percent":1,"pval":1.89917582e-91,"r":0.3645456714,"region":"Europe","slope":0.0001242893},{"counts":2223,"group":"B","max_percent":1,"pval":1.657705254e-81,"r":0.3393568093,"region":"Europe","slope":0.0000762401},{"counts":1106,"group":"A","max_percent":1,"pval":1.77733982e-47,"r":0.2424327505,"region":"North America","slope":0.000051754},{"counts":583,"group":"B","max_percent":1,"pval":3.004903707e-32,"r":0.2085003617,"region":"North America","slope":0.0000383902},{"counts":441,"group":"A","max_percent":1,"pval":1.569947269e-36,"r":0.2204859442,"region":"Oceania","slope":0.0000369808},{"counts":404,"group":"B","max_percent":1,"pval":2.963280539e-34,"r":0.26804609,"region":"Oceania","slope":0.0000897004},{"counts":1264,"group":"A","max_percent":1,"pval":0.0075233877,"r":-0.0782697236,"region":"South America","slope":-0.0000790847},{"counts":701,"group":"B","max_percent":1,"pval":0.7641850412,"r":-0.0092247974,"region":"South America","slope":-0.0000078107}]
+    },
+    {
+      "name": "hide_groups",
+      "source": "group_reg",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["group"],
+          "fields": ["counts", "max_percent"],
+          "ops": ["sum", "max"],
+          "as": ["counts", "max_percent"]
         },
-        "values": [{"counts":2644,"group":"A","max_percent":1,"pval":0.2641554493,"r":-0.0327834395,"region":"Africa","slope":-0.0000395169},{"counts":2132,"group":"B","max_percent":1,"pval":3.706974013e-17,"r":0.2288499605,"region":"Africa","slope":0.000212345},{"counts":6009,"group":"A","max_percent":1,"pval":5.246473252e-67,"r":0.4092558186,"region":"Asia","slope":0.0003289076},{"counts":3558,"group":"B","max_percent":1,"pval":6.052750086e-40,"r":0.3129615578,"region":"Asia","slope":0.0001915539},{"counts":3130,"group":"A","max_percent":1,"pval":1.89917582e-91,"r":0.3645456714,"region":"Europe","slope":0.0001242893},{"counts":2223,"group":"B","max_percent":1,"pval":1.657705254e-81,"r":0.3393568093,"region":"Europe","slope":0.0000762401},{"counts":1106,"group":"A","max_percent":1,"pval":1.77733982e-47,"r":0.2424327505,"region":"North America","slope":0.000051754},{"counts":583,"group":"B","max_percent":1,"pval":3.004903707e-32,"r":0.2085003617,"region":"North America","slope":0.0000383902},{"counts":441,"group":"A","max_percent":1,"pval":1.569947269e-36,"r":0.2204859442,"region":"Oceania","slope":0.0000369808},{"counts":404,"group":"B","max_percent":1,"pval":2.963280539e-34,"r":0.26804609,"region":"Oceania","slope":0.0000897004},{"counts":1264,"group":"A","max_percent":1,"pval":0.0075233877,"r":-0.0782697236,"region":"South America","slope":-0.0000790847},{"counts":701,"group":"B","max_percent":1,"pval":0.7641850412,"r":-0.0092247974,"region":"South America","slope":-0.0000078107}]
-      },
-      {
-        "name": "hide_groups",
-        "source": "group_reg",
-        "transform": [
-          {
-            "type": "aggregate",
-            "groupby": ["group"],
-            "fields": ["counts", "max_percent"],
-            "ops": ["sum", "max"],
-            "as": ["counts", "max_percent"]
-          },
-          {
-            "type": "filter",
-            "expr": "datum.counts < display_min_counts || datum.max_percent < display_min_percent"
-          },
-          {
-            "type": "formula",
-            "as": "hide",
-            "expr": "true"
-          }
-        ]
-      },
-      {
-        "name": "valid_groups",
-        "source": "group_reg",
-        "transform": [
-          {
-            "type": "filter",
-            "expr": "datum.r > sig_min_r && datum.counts > sig_min_counts && datum.max_percent > sig_min_percent"
-          },
-          {
-            "type": "aggregate",
-            "groupby": ["group"],
-            "fields": ["counts", "max_percent"],
-            "ops": ["sum", "max"],
-            "as": ["counts", "max_percent"]
-          }
-        ]
-      },
-      {
-        "name": "valid_groups_color",
-        "source": "valid_groups",
-        "transform": [
-          {
-            "type": "collect",
-            "sort": {
-              "field": { "signal": "sortField" },
-              "order": { "signal": "sortDirection" }
-            }
-          },
-          {
-            "type": "formula",
-            "expr": "scale('group_color', datum.group)",
-            "as": "color"
-          }
-        ]
-      },
-      {
-        "name": "group_counts",
-        "format": {
-          "type": "json"
+        {
+          "type": "filter",
+          "expr": "datum.counts < display_min_counts || datum.max_percent < display_min_percent"
         },
-        "values": [{"collection_period":1499644800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1500854400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1501459200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1502064000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1502668800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1503273600000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1503273600000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1504483200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1507507200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1512950400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1514764800000,"counts":13,"group":"A","location_counts":13,"percent":1,"region":"Africa"},{"collection_period":1517788800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1517788800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1519603200000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Africa"},{"collection_period":1519603200000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Africa"},{"collection_period":1520208000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1520812800000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Africa"},{"collection_period":1520812800000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Africa"},{"collection_period":1521417600000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Africa"},{"collection_period":1521417600000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Africa"},{"collection_period":1522022400000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Africa"},{"collection_period":1522022400000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Africa"},{"collection_period":1522627200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1522627200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1523232000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1523836800000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Africa"},{"collection_period":1523836800000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Africa"},{"collection_period":1524441600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1525046400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1525046400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1525651200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1526256000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1526860800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1526860800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1527465600000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1528070400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1528675200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1528675200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1529280000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1529884800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1530489600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1531699200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1531699200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1532304000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1532908800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1532908800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1533513600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1534723200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1535328000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1535932800000,"counts":4,"group":"A","location_counts":5,"percent":0.8,"region":"Africa"},{"collection_period":1535932800000,"counts":1,"group":"B","location_counts":5,"percent":0.2,"region":"Africa"},{"collection_period":1537747200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1538352000000,"counts":4,"group":"A","location_counts":5,"percent":0.8,"region":"Africa"},{"collection_period":1538352000000,"counts":1,"group":"B","location_counts":5,"percent":0.2,"region":"Africa"},{"collection_period":1539561600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1540771200000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1541376000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1543795200000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Africa"},{"collection_period":1543795200000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Africa"},{"collection_period":1545004800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1545609600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1546214400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1546819200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1547424000000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1548028800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1548633600000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Africa"},{"collection_period":1549238400000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Africa"},{"collection_period":1549843200000,"counts":11,"group":"B","location_counts":11,"percent":1,"region":"Africa"},{"collection_period":1550448000000,"counts":9,"group":"B","location_counts":9,"percent":1,"region":"Africa"},{"collection_period":1551052800000,"counts":11,"group":"B","location_counts":11,"percent":1,"region":"Africa"},{"collection_period":1551657600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1552262400000,"counts":8,"group":"B","location_counts":8,"percent":1,"region":"Africa"},{"collection_period":1552867200000,"counts":6,"group":"B","location_counts":6,"percent":1,"region":"Africa"},{"collection_period":1553472000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1554076800000,"counts":8,"group":"B","location_counts":8,"percent":1,"region":"Africa"},{"collection_period":1554681600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1555286400000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1555891200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1557705600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1571011200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1498435200000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1498435200000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1500249600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1500854400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1501459200000,"counts":5,"group":"A","location_counts":9,"percent":0.5555555556,"region":"Asia"},{"collection_period":1501459200000,"counts":4,"group":"B","location_counts":9,"percent":0.4444444444,"region":"Asia"},{"collection_period":1502064000000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1502064000000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1502668800000,"counts":7,"group":"B","location_counts":7,"percent":1,"region":"Asia"},{"collection_period":1503273600000,"counts":4,"group":"A","location_counts":11,"percent":0.3636363636,"region":"Asia"},{"collection_period":1503273600000,"counts":7,"group":"B","location_counts":11,"percent":0.6363636364,"region":"Asia"},{"collection_period":1503878400000,"counts":3,"group":"A","location_counts":12,"percent":0.25,"region":"Asia"},{"collection_period":1503878400000,"counts":9,"group":"B","location_counts":12,"percent":0.75,"region":"Asia"},{"collection_period":1504483200000,"counts":1,"group":"A","location_counts":14,"percent":0.0714285714,"region":"Asia"},{"collection_period":1504483200000,"counts":13,"group":"B","location_counts":14,"percent":0.9285714286,"region":"Asia"},{"collection_period":1505088000000,"counts":4,"group":"A","location_counts":14,"percent":0.2857142857,"region":"Asia"},{"collection_period":1505088000000,"counts":10,"group":"B","location_counts":14,"percent":0.7142857143,"region":"Asia"},{"collection_period":1505692800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1506297600000,"counts":9,"group":"A","location_counts":15,"percent":0.6,"region":"Asia"},{"collection_period":1506297600000,"counts":6,"group":"B","location_counts":15,"percent":0.4,"region":"Asia"},{"collection_period":1506902400000,"counts":9,"group":"B","location_counts":9,"percent":1,"region":"Asia"},{"collection_period":1507507200000,"counts":7,"group":"B","location_counts":7,"percent":1,"region":"Asia"},{"collection_period":1508112000000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Asia"},{"collection_period":1508112000000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Asia"},{"collection_period":1508716800000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1509321600000,"counts":12,"group":"A","location_counts":18,"percent":0.6666666667,"region":"Asia"},{"collection_period":1509321600000,"counts":6,"group":"B","location_counts":18,"percent":0.3333333333,"region":"Asia"},{"collection_period":1509926400000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Asia"},{"collection_period":1509926400000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Asia"},{"collection_period":1510531200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1510531200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1511740800000,"counts":23,"group":"A","location_counts":30,"percent":0.7666666667,"region":"Asia"},{"collection_period":1511740800000,"counts":7,"group":"B","location_counts":30,"percent":0.2333333333,"region":"Asia"},{"collection_period":1512345600000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Asia"},{"collection_period":1512345600000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Asia"},{"collection_period":1512950400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1513555200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1514160000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1514160000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1514764800000,"counts":76,"group":"A","location_counts":100,"percent":0.76,"region":"Asia"},{"collection_period":1514764800000,"counts":24,"group":"B","location_counts":100,"percent":0.24,"region":"Asia"},{"collection_period":1515369600000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1515369600000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1515974400000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1515974400000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1516579200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1517184000000,"counts":10,"group":"A","location_counts":16,"percent":0.625,"region":"Asia"},{"collection_period":1517184000000,"counts":6,"group":"B","location_counts":16,"percent":0.375,"region":"Asia"},{"collection_period":1517788800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1517788800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1518393600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1518998400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1519603200000,"counts":10,"group":"A","location_counts":23,"percent":0.4347826087,"region":"Asia"},{"collection_period":1519603200000,"counts":13,"group":"B","location_counts":23,"percent":0.5652173913,"region":"Asia"},{"collection_period":1520208000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1520812800000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1521417600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1522022400000,"counts":6,"group":"A","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1522022400000,"counts":4,"group":"B","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1522627200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1523232000000,"counts":3,"group":"A","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1523232000000,"counts":4,"group":"B","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1523836800000,"counts":1,"group":"A","location_counts":5,"percent":0.2,"region":"Asia"},{"collection_period":1523836800000,"counts":4,"group":"B","location_counts":5,"percent":0.8,"region":"Asia"},{"collection_period":1524441600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1525046400000,"counts":6,"group":"A","location_counts":7,"percent":0.8571428571,"region":"Asia"},{"collection_period":1525046400000,"counts":1,"group":"B","location_counts":7,"percent":0.1428571429,"region":"Asia"},{"collection_period":1525651200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1526256000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1526860800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1527465600000,"counts":5,"group":"A","location_counts":10,"percent":0.5,"region":"Asia"},{"collection_period":1527465600000,"counts":5,"group":"B","location_counts":10,"percent":0.5,"region":"Asia"},{"collection_period":1528070400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1528675200000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1528675200000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1529280000000,"counts":9,"group":"A","location_counts":9,"percent":1,"region":"Asia"},{"collection_period":1529884800000,"counts":9,"group":"A","location_counts":13,"percent":0.6923076923,"region":"Asia"},{"collection_period":1529884800000,"counts":4,"group":"B","location_counts":13,"percent":0.3076923077,"region":"Asia"},{"collection_period":1530489600000,"counts":6,"group":"A","location_counts":9,"percent":0.6666666667,"region":"Asia"},{"collection_period":1530489600000,"counts":3,"group":"B","location_counts":9,"percent":0.3333333333,"region":"Asia"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"Asia"},{"collection_period":1531094400000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"Asia"},{"collection_period":1531699200000,"counts":7,"group":"A","location_counts":19,"percent":0.3684210526,"region":"Asia"},{"collection_period":1531699200000,"counts":12,"group":"B","location_counts":19,"percent":0.6315789474,"region":"Asia"},{"collection_period":1532304000000,"counts":3,"group":"A","location_counts":13,"percent":0.2307692308,"region":"Asia"},{"collection_period":1532304000000,"counts":10,"group":"B","location_counts":13,"percent":0.7692307692,"region":"Asia"},{"collection_period":1532908800000,"counts":12,"group":"A","location_counts":24,"percent":0.5,"region":"Asia"},{"collection_period":1532908800000,"counts":12,"group":"B","location_counts":24,"percent":0.5,"region":"Asia"},{"collection_period":1533513600000,"counts":7,"group":"A","location_counts":12,"percent":0.5833333333,"region":"Asia"},{"collection_period":1533513600000,"counts":5,"group":"B","location_counts":12,"percent":0.4166666667,"region":"Asia"},{"collection_period":1534118400000,"counts":9,"group":"A","location_counts":15,"percent":0.6,"region":"Asia"},{"collection_period":1534118400000,"counts":6,"group":"B","location_counts":15,"percent":0.4,"region":"Asia"},{"collection_period":1534723200000,"counts":3,"group":"A","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1534723200000,"counts":4,"group":"B","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1535328000000,"counts":8,"group":"A","location_counts":22,"percent":0.3636363636,"region":"Asia"},{"collection_period":1535328000000,"counts":14,"group":"B","location_counts":22,"percent":0.6363636364,"region":"Asia"},{"collection_period":1535932800000,"counts":3,"group":"A","location_counts":12,"percent":0.25,"region":"Asia"},{"collection_period":1535932800000,"counts":9,"group":"B","location_counts":12,"percent":0.75,"region":"Asia"},{"collection_period":1536537600000,"counts":5,"group":"A","location_counts":17,"percent":0.2941176471,"region":"Asia"},{"collection_period":1536537600000,"counts":12,"group":"B","location_counts":17,"percent":0.7058823529,"region":"Asia"},{"collection_period":1537142400000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1537142400000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1537747200000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1537747200000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1538352000000,"counts":18,"group":"A","location_counts":25,"percent":0.72,"region":"Asia"},{"collection_period":1538352000000,"counts":7,"group":"B","location_counts":25,"percent":0.28,"region":"Asia"},{"collection_period":1538956800000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1538956800000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1539561600000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1539561600000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1540771200000,"counts":34,"group":"A","location_counts":44,"percent":0.7727272727,"region":"Asia"},{"collection_period":1540771200000,"counts":10,"group":"B","location_counts":44,"percent":0.2272727273,"region":"Asia"},{"collection_period":1541376000000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1541980800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1542585600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1543190400000,"counts":53,"group":"A","location_counts":64,"percent":0.828125,"region":"Asia"},{"collection_period":1543190400000,"counts":11,"group":"B","location_counts":64,"percent":0.171875,"region":"Asia"},{"collection_period":1543795200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1546214400000,"counts":35,"group":"A","location_counts":48,"percent":0.7291666667,"region":"Asia"},{"collection_period":1546214400000,"counts":13,"group":"B","location_counts":48,"percent":0.2708333333,"region":"Asia"},{"collection_period":1546819200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1547424000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1548633600000,"counts":13,"group":"A","location_counts":24,"percent":0.5416666667,"region":"Asia"},{"collection_period":1548633600000,"counts":11,"group":"B","location_counts":24,"percent":0.4583333333,"region":"Asia"},{"collection_period":1549843200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1551052800000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Asia"},{"collection_period":1551052800000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Asia"},{"collection_period":1551657600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1554076800000,"counts":5,"group":"A","location_counts":8,"percent":0.625,"region":"Asia"},{"collection_period":1554076800000,"counts":3,"group":"B","location_counts":8,"percent":0.375,"region":"Asia"},{"collection_period":1556496000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1556496000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1558915200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1558915200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1559520000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1561334400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1561939200000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1562544000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1563148800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1563753600000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1564358400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1564963200000,"counts":3,"group":"A","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1564963200000,"counts":2,"group":"B","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1565568000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1565568000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1566172800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1566777600000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Asia"},{"collection_period":1566777600000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Asia"},{"collection_period":1567382400000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Asia"},{"collection_period":1567382400000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Asia"},{"collection_period":1567987200000,"counts":3,"group":"A","location_counts":8,"percent":0.375,"region":"Asia"},{"collection_period":1567987200000,"counts":5,"group":"B","location_counts":8,"percent":0.625,"region":"Asia"},{"collection_period":1568592000000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Asia"},{"collection_period":1568592000000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Asia"},{"collection_period":1569196800000,"counts":5,"group":"A","location_counts":7,"percent":0.7142857143,"region":"Asia"},{"collection_period":1569196800000,"counts":2,"group":"B","location_counts":7,"percent":0.2857142857,"region":"Asia"},{"collection_period":1569801600000,"counts":7,"group":"A","location_counts":9,"percent":0.7777777778,"region":"Asia"},{"collection_period":1569801600000,"counts":2,"group":"B","location_counts":9,"percent":0.2222222222,"region":"Asia"},{"collection_period":1570406400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Asia"},{"collection_period":1570406400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Asia"},{"collection_period":1571011200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1571616000000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1572220800000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1572220800000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1572825600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1573430400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1573430400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1574640000000,"counts":9,"group":"A","location_counts":19,"percent":0.4736842105,"region":"Asia"},{"collection_period":1574640000000,"counts":10,"group":"B","location_counts":19,"percent":0.5263157895,"region":"Asia"},{"collection_period":1577664000000,"counts":29,"group":"A","location_counts":29,"percent":1,"region":"Asia"},{"collection_period":1584921600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1598832000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1599436800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1600041600000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1600646400000,"counts":8,"group":"A","location_counts":8,"percent":1,"region":"Asia"},{"collection_period":1601251200000,"counts":11,"group":"A","location_counts":12,"percent":0.9166666667,"region":"Asia"},{"collection_period":1601251200000,"counts":1,"group":"B","location_counts":12,"percent":0.0833333333,"region":"Asia"},{"collection_period":1601856000000,"counts":14,"group":"A","location_counts":14,"percent":1,"region":"Asia"},{"collection_period":1602460800000,"counts":13,"group":"A","location_counts":13,"percent":1,"region":"Asia"},{"collection_period":1603065600000,"counts":6,"group":"A","location_counts":6,"percent":1,"region":"Asia"},{"collection_period":1603670400000,"counts":19,"group":"A","location_counts":21,"percent":0.9047619048,"region":"Asia"},{"collection_period":1603670400000,"counts":2,"group":"B","location_counts":21,"percent":0.0952380952,"region":"Asia"},{"collection_period":1604275200000,"counts":17,"group":"A","location_counts":17,"percent":1,"region":"Asia"},{"collection_period":1604880000000,"counts":22,"group":"A","location_counts":23,"percent":0.9565217391,"region":"Asia"},{"collection_period":1604880000000,"counts":1,"group":"B","location_counts":23,"percent":0.0434782609,"region":"Asia"},{"collection_period":1605484800000,"counts":17,"group":"A","location_counts":17,"percent":1,"region":"Asia"},{"collection_period":1606089600000,"counts":10,"group":"A","location_counts":10,"percent":1,"region":"Asia"},{"collection_period":1606694400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1607299200000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"Asia"},{"collection_period":1607904000000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1609113600000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Asia"},{"collection_period":1609113600000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Asia"},{"collection_period":1619395200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1622419200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1624838400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1502064000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1505088000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1505088000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1507507200000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Europe"},{"collection_period":1508112000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1508716800000,"counts":2,"group":"A","location_counts":7,"percent":0.2857142857,"region":"Europe"},{"collection_period":1508716800000,"counts":5,"group":"B","location_counts":7,"percent":0.7142857143,"region":"Europe"},{"collection_period":1509321600000,"counts":6,"group":"A","location_counts":10,"percent":0.6,"region":"Europe"},{"collection_period":1509321600000,"counts":4,"group":"B","location_counts":10,"percent":0.4,"region":"Europe"},{"collection_period":1509926400000,"counts":4,"group":"A","location_counts":13,"percent":0.3076923077,"region":"Europe"},{"collection_period":1509926400000,"counts":9,"group":"B","location_counts":13,"percent":0.6923076923,"region":"Europe"},{"collection_period":1510531200000,"counts":8,"group":"A","location_counts":20,"percent":0.4,"region":"Europe"},{"collection_period":1510531200000,"counts":12,"group":"B","location_counts":20,"percent":0.6,"region":"Europe"},{"collection_period":1511136000000,"counts":5,"group":"A","location_counts":19,"percent":0.2631578947,"region":"Europe"},{"collection_period":1511136000000,"counts":14,"group":"B","location_counts":19,"percent":0.7368421053,"region":"Europe"},{"collection_period":1511740800000,"counts":5,"group":"A","location_counts":16,"percent":0.3125,"region":"Europe"},{"collection_period":1511740800000,"counts":11,"group":"B","location_counts":16,"percent":0.6875,"region":"Europe"},{"collection_period":1512345600000,"counts":5,"group":"A","location_counts":12,"percent":0.4166666667,"region":"Europe"},{"collection_period":1512345600000,"counts":7,"group":"B","location_counts":12,"percent":0.5833333333,"region":"Europe"},{"collection_period":1512950400000,"counts":11,"group":"A","location_counts":27,"percent":0.4074074074,"region":"Europe"},{"collection_period":1512950400000,"counts":16,"group":"B","location_counts":27,"percent":0.5925925926,"region":"Europe"},{"collection_period":1513555200000,"counts":11,"group":"A","location_counts":35,"percent":0.3142857143,"region":"Europe"},{"collection_period":1513555200000,"counts":24,"group":"B","location_counts":35,"percent":0.6857142857,"region":"Europe"},{"collection_period":1514160000000,"counts":11,"group":"A","location_counts":23,"percent":0.4782608696,"region":"Europe"},{"collection_period":1514160000000,"counts":12,"group":"B","location_counts":23,"percent":0.5217391304,"region":"Europe"},{"collection_period":1514764800000,"counts":42,"group":"A","location_counts":123,"percent":0.3414634146,"region":"Europe"},{"collection_period":1514764800000,"counts":81,"group":"B","location_counts":123,"percent":0.6585365854,"region":"Europe"},{"collection_period":1515369600000,"counts":14,"group":"A","location_counts":31,"percent":0.4516129032,"region":"Europe"},{"collection_period":1515369600000,"counts":17,"group":"B","location_counts":31,"percent":0.5483870968,"region":"Europe"},{"collection_period":1515974400000,"counts":17,"group":"A","location_counts":32,"percent":0.53125,"region":"Europe"},{"collection_period":1515974400000,"counts":15,"group":"B","location_counts":32,"percent":0.46875,"region":"Europe"},{"collection_period":1516579200000,"counts":12,"group":"A","location_counts":29,"percent":0.4137931034,"region":"Europe"},{"collection_period":1516579200000,"counts":17,"group":"B","location_counts":29,"percent":0.5862068966,"region":"Europe"},{"collection_period":1517184000000,"counts":17,"group":"A","location_counts":37,"percent":0.4594594595,"region":"Europe"},{"collection_period":1517184000000,"counts":20,"group":"B","location_counts":37,"percent":0.5405405405,"region":"Europe"},{"collection_period":1517788800000,"counts":5,"group":"A","location_counts":11,"percent":0.4545454545,"region":"Europe"},{"collection_period":1517788800000,"counts":6,"group":"B","location_counts":11,"percent":0.5454545455,"region":"Europe"},{"collection_period":1518393600000,"counts":1,"group":"A","location_counts":9,"percent":0.1111111111,"region":"Europe"},{"collection_period":1518393600000,"counts":8,"group":"B","location_counts":9,"percent":0.8888888889,"region":"Europe"},{"collection_period":1518998400000,"counts":1,"group":"A","location_counts":12,"percent":0.0833333333,"region":"Europe"},{"collection_period":1518998400000,"counts":11,"group":"B","location_counts":12,"percent":0.9166666667,"region":"Europe"},{"collection_period":1519603200000,"counts":2,"group":"A","location_counts":13,"percent":0.1538461538,"region":"Europe"},{"collection_period":1519603200000,"counts":11,"group":"B","location_counts":13,"percent":0.8461538462,"region":"Europe"},{"collection_period":1520208000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1520812800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Europe"},{"collection_period":1521417600000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"Europe"},{"collection_period":1521417600000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"Europe"},{"collection_period":1522022400000,"counts":1,"group":"A","location_counts":9,"percent":0.1111111111,"region":"Europe"},{"collection_period":1522022400000,"counts":8,"group":"B","location_counts":9,"percent":0.8888888889,"region":"Europe"},{"collection_period":1522627200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1523232000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Europe"},{"collection_period":1523232000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Europe"},{"collection_period":1523836800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1525046400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1529884800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1532908800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1535328000000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Europe"},{"collection_period":1535328000000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Europe"},{"collection_period":1538352000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1538956800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1540166400000,"counts":5,"group":"A","location_counts":12,"percent":0.4166666667,"region":"Europe"},{"collection_period":1540166400000,"counts":7,"group":"B","location_counts":12,"percent":0.5833333333,"region":"Europe"},{"collection_period":1540771200000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Europe"},{"collection_period":1541376000000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Europe"},{"collection_period":1541376000000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Europe"},{"collection_period":1541980800000,"counts":16,"group":"A","location_counts":24,"percent":0.6666666667,"region":"Europe"},{"collection_period":1541980800000,"counts":8,"group":"B","location_counts":24,"percent":0.3333333333,"region":"Europe"},{"collection_period":1542585600000,"counts":16,"group":"A","location_counts":35,"percent":0.4571428571,"region":"Europe"},{"collection_period":1542585600000,"counts":19,"group":"B","location_counts":35,"percent":0.5428571429,"region":"Europe"},{"collection_period":1543190400000,"counts":12,"group":"A","location_counts":36,"percent":0.3333333333,"region":"Europe"},{"collection_period":1543190400000,"counts":24,"group":"B","location_counts":36,"percent":0.6666666667,"region":"Europe"},{"collection_period":1543795200000,"counts":22,"group":"A","location_counts":31,"percent":0.7096774194,"region":"Europe"},{"collection_period":1543795200000,"counts":9,"group":"B","location_counts":31,"percent":0.2903225806,"region":"Europe"},{"collection_period":1544400000000,"counts":8,"group":"A","location_counts":14,"percent":0.5714285714,"region":"Europe"},{"collection_period":1544400000000,"counts":6,"group":"B","location_counts":14,"percent":0.4285714286,"region":"Europe"},{"collection_period":1545004800000,"counts":14,"group":"A","location_counts":23,"percent":0.6086956522,"region":"Europe"},{"collection_period":1545004800000,"counts":9,"group":"B","location_counts":23,"percent":0.3913043478,"region":"Europe"},{"collection_period":1545609600000,"counts":6,"group":"A","location_counts":9,"percent":0.6666666667,"region":"Europe"},{"collection_period":1545609600000,"counts":3,"group":"B","location_counts":9,"percent":0.3333333333,"region":"Europe"},{"collection_period":1546214400000,"counts":5,"group":"A","location_counts":19,"percent":0.2631578947,"region":"Europe"},{"collection_period":1546214400000,"counts":14,"group":"B","location_counts":19,"percent":0.7368421053,"region":"Europe"},{"collection_period":1546819200000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Europe"},{"collection_period":1547424000000,"counts":7,"group":"A","location_counts":14,"percent":0.5,"region":"Europe"},{"collection_period":1547424000000,"counts":7,"group":"B","location_counts":14,"percent":0.5,"region":"Europe"},{"collection_period":1548028800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Europe"},{"collection_period":1548028800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Europe"},{"collection_period":1548633600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1549238400000,"counts":5,"group":"B","location_counts":5,"percent":1,"region":"Europe"},{"collection_period":1549843200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1551052800000,"counts":13,"group":"B","location_counts":13,"percent":1,"region":"Europe"},{"collection_period":1551657600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1552262400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1554076800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1569196800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1569196800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1570406400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1571616000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1571616000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1572220800000,"counts":9,"group":"A","location_counts":13,"percent":0.6923076923,"region":"Europe"},{"collection_period":1572220800000,"counts":4,"group":"B","location_counts":13,"percent":0.3076923077,"region":"Europe"},{"collection_period":1572825600000,"counts":8,"group":"A","location_counts":21,"percent":0.380952381,"region":"Europe"},{"collection_period":1572825600000,"counts":13,"group":"B","location_counts":21,"percent":0.619047619,"region":"Europe"},{"collection_period":1573430400000,"counts":14,"group":"A","location_counts":26,"percent":0.5384615385,"region":"Europe"},{"collection_period":1573430400000,"counts":12,"group":"B","location_counts":26,"percent":0.4615384615,"region":"Europe"},{"collection_period":1574035200000,"counts":25,"group":"A","location_counts":41,"percent":0.6097560976,"region":"Europe"},{"collection_period":1574035200000,"counts":16,"group":"B","location_counts":41,"percent":0.3902439024,"region":"Europe"},{"collection_period":1574640000000,"counts":45,"group":"A","location_counts":56,"percent":0.8035714286,"region":"Europe"},{"collection_period":1574640000000,"counts":11,"group":"B","location_counts":56,"percent":0.1964285714,"region":"Europe"},{"collection_period":1575244800000,"counts":50,"group":"A","location_counts":69,"percent":0.7246376812,"region":"Europe"},{"collection_period":1575244800000,"counts":19,"group":"B","location_counts":69,"percent":0.2753623188,"region":"Europe"},{"collection_period":1575849600000,"counts":79,"group":"A","location_counts":111,"percent":0.7117117117,"region":"Europe"},{"collection_period":1575849600000,"counts":32,"group":"B","location_counts":111,"percent":0.2882882883,"region":"Europe"},{"collection_period":1576454400000,"counts":68,"group":"A","location_counts":97,"percent":0.7010309278,"region":"Europe"},{"collection_period":1576454400000,"counts":29,"group":"B","location_counts":97,"percent":0.2989690722,"region":"Europe"},{"collection_period":1577059200000,"counts":52,"group":"A","location_counts":74,"percent":0.7027027027,"region":"Europe"},{"collection_period":1577059200000,"counts":22,"group":"B","location_counts":74,"percent":0.2972972973,"region":"Europe"},{"collection_period":1577664000000,"counts":63,"group":"A","location_counts":79,"percent":0.7974683544,"region":"Europe"},{"collection_period":1577664000000,"counts":16,"group":"B","location_counts":79,"percent":0.2025316456,"region":"Europe"},{"collection_period":1578268800000,"counts":40,"group":"A","location_counts":52,"percent":0.7692307692,"region":"Europe"},{"collection_period":1578268800000,"counts":12,"group":"B","location_counts":52,"percent":0.2307692308,"region":"Europe"},{"collection_period":1578873600000,"counts":23,"group":"A","location_counts":35,"percent":0.6571428571,"region":"Europe"},{"collection_period":1578873600000,"counts":12,"group":"B","location_counts":35,"percent":0.3428571429,"region":"Europe"},{"collection_period":1579478400000,"counts":12,"group":"A","location_counts":21,"percent":0.5714285714,"region":"Europe"},{"collection_period":1579478400000,"counts":9,"group":"B","location_counts":21,"percent":0.4285714286,"region":"Europe"},{"collection_period":1580083200000,"counts":19,"group":"A","location_counts":32,"percent":0.59375,"region":"Europe"},{"collection_period":1580083200000,"counts":13,"group":"B","location_counts":32,"percent":0.40625,"region":"Europe"},{"collection_period":1580688000000,"counts":9,"group":"A","location_counts":14,"percent":0.6428571429,"region":"Europe"},{"collection_period":1580688000000,"counts":5,"group":"B","location_counts":14,"percent":0.3571428571,"region":"Europe"},{"collection_period":1581292800000,"counts":11,"group":"A","location_counts":16,"percent":0.6875,"region":"Europe"},{"collection_period":1581292800000,"counts":5,"group":"B","location_counts":16,"percent":0.3125,"region":"Europe"},{"collection_period":1581897600000,"counts":7,"group":"A","location_counts":11,"percent":0.6363636364,"region":"Europe"},{"collection_period":1581897600000,"counts":4,"group":"B","location_counts":11,"percent":0.3636363636,"region":"Europe"},{"collection_period":1582502400000,"counts":4,"group":"A","location_counts":9,"percent":0.4444444444,"region":"Europe"},{"collection_period":1582502400000,"counts":5,"group":"B","location_counts":9,"percent":0.5555555556,"region":"Europe"},{"collection_period":1583107200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1514764800000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"North America"},{"collection_period":1546214400000,"counts":7,"group":"A","location_counts":8,"percent":0.875,"region":"North America"},{"collection_period":1546214400000,"counts":1,"group":"B","location_counts":8,"percent":0.125,"region":"North America"},{"collection_period":1605484800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"North America"},{"collection_period":1498435200000,"counts":1,"group":"A","location_counts":10,"percent":0.1,"region":"Oceania"},{"collection_period":1498435200000,"counts":9,"group":"B","location_counts":10,"percent":0.9,"region":"Oceania"},{"collection_period":1499040000000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Oceania"},{"collection_period":1499040000000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Oceania"},{"collection_period":1500249600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1501459200000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1501459200000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1503878400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1504483200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1506297600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Oceania"},{"collection_period":1506902400000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1506902400000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1509321600000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1509321600000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1511740800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1512345600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1514764800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1515369600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1517184000000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1517184000000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1517788800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1519603200000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Oceania"},{"collection_period":1519603200000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Oceania"},{"collection_period":1520208000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1522022400000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Oceania"},{"collection_period":1522022400000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Oceania"},{"collection_period":1522627200000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1524441600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1525046400000,"counts":7,"group":"A","location_counts":26,"percent":0.2692307692,"region":"Oceania"},{"collection_period":1525046400000,"counts":19,"group":"B","location_counts":26,"percent":0.7307692308,"region":"Oceania"},{"collection_period":1527465600000,"counts":22,"group":"A","location_counts":51,"percent":0.431372549,"region":"Oceania"},{"collection_period":1527465600000,"counts":29,"group":"B","location_counts":51,"percent":0.568627451,"region":"Oceania"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1529884800000,"counts":16,"group":"A","location_counts":33,"percent":0.4848484848,"region":"Oceania"},{"collection_period":1529884800000,"counts":17,"group":"B","location_counts":33,"percent":0.5151515152,"region":"Oceania"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1531094400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1531699200000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1531699200000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1532908800000,"counts":10,"group":"A","location_counts":22,"percent":0.4545454545,"region":"Oceania"},{"collection_period":1532908800000,"counts":12,"group":"B","location_counts":22,"percent":0.5454545455,"region":"Oceania"},{"collection_period":1533513600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1534118400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1534723200000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1534723200000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1535328000000,"counts":5,"group":"A","location_counts":10,"percent":0.5,"region":"Oceania"},{"collection_period":1535328000000,"counts":5,"group":"B","location_counts":10,"percent":0.5,"region":"Oceania"},{"collection_period":1536537600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1537142400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1537142400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1537747200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1538352000000,"counts":5,"group":"A","location_counts":7,"percent":0.7142857143,"region":"Oceania"},{"collection_period":1538352000000,"counts":2,"group":"B","location_counts":7,"percent":0.2857142857,"region":"Oceania"},{"collection_period":1540771200000,"counts":4,"group":"A","location_counts":9,"percent":0.4444444444,"region":"Oceania"},{"collection_period":1540771200000,"counts":5,"group":"B","location_counts":9,"percent":0.5555555556,"region":"Oceania"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1543190400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1543190400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1543795200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1543795200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1546214400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1548633600000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1548633600000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1551052800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1554076800000,"counts":7,"group":"A","location_counts":7,"percent":1,"region":"Oceania"},{"collection_period":1556496000000,"counts":8,"group":"A","location_counts":15,"percent":0.5333333333,"region":"Oceania"},{"collection_period":1556496000000,"counts":7,"group":"B","location_counts":15,"percent":0.4666666667,"region":"Oceania"},{"collection_period":1558915200000,"counts":18,"group":"A","location_counts":22,"percent":0.8181818182,"region":"Oceania"},{"collection_period":1558915200000,"counts":4,"group":"B","location_counts":22,"percent":0.1818181818,"region":"Oceania"},{"collection_period":1561939200000,"counts":11,"group":"A","location_counts":17,"percent":0.6470588235,"region":"Oceania"},{"collection_period":1561939200000,"counts":6,"group":"B","location_counts":17,"percent":0.3529411765,"region":"Oceania"},{"collection_period":1564358400000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Oceania"},{"collection_period":1564358400000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Oceania"},{"collection_period":1566777600000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"Oceania"},{"collection_period":1569801600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1572220800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1577664000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1580083200000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1580083200000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1582502400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1582502400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1585526400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1587945600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1593388800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1595808000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1603670400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1498435200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1498435200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1514764800000,"counts":26,"group":"A","location_counts":26,"percent":1,"region":"South America"},{"collection_period":1517184000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1517788800000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"South America"},{"collection_period":1517788800000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"South America"},{"collection_period":1519603200000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"South America"},{"collection_period":1520208000000,"counts":1,"group":"A","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1520208000000,"counts":3,"group":"B","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1522022400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1522627200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1522627200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1525046400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"South America"},{"collection_period":1525651200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1526860800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1527465600000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1528070400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1529280000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"South America"},{"collection_period":1529884800000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"South America"},{"collection_period":1529884800000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"South America"},{"collection_period":1531094400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1531699200000,"counts":1,"group":"A","location_counts":6,"percent":0.1666666667,"region":"South America"},{"collection_period":1531699200000,"counts":5,"group":"B","location_counts":6,"percent":0.8333333333,"region":"South America"},{"collection_period":1532304000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532304000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532908800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532908800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1533513600000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"South America"},{"collection_period":1533513600000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"South America"},{"collection_period":1534118400000,"counts":1,"group":"A","location_counts":5,"percent":0.2,"region":"South America"},{"collection_period":1534118400000,"counts":4,"group":"B","location_counts":5,"percent":0.8,"region":"South America"},{"collection_period":1534723200000,"counts":1,"group":"A","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1534723200000,"counts":3,"group":"B","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1535328000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1535328000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1535932800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1537142400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1537747200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"South America"},{"collection_period":1537747200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"South America"},{"collection_period":1538352000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1538956800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1546214400000,"counts":68,"group":"A","location_counts":68,"percent":1,"region":"South America"}],
-        "transform": [
-          {
-            "type": "lookup",
-            "from": "hide_groups",
-            "key": "group",
-            "values": ["hide"],
-            "fields": ["group"],
-            "as": ["hide"],
-            "default": false
-          },
-          {
-            "type": "filter",
-            "expr": "!datum.hide"
-          },
-          {
-            "type": "formula",
-            "expr": "if(indata('valid_groups', 'group', datum.group), true, false)",
-            "as": "valid"
-          },
-          {
-            "type": "collect",
-            "sort": {
-              "field": ["region", "group", "collection_period"],
-              "order": ["ascending", "ascending", "ascending"]
-            }
-          }
-        ]
-      },
-      {
-        "name": "max_percents",
-        "source": "group_counts",
-        "transform": [
-          {
-            "type": "aggregate",
-            "groupby": ["region"],
-            "fields": ["percent"],
-            "ops": ["max"],
-            "as": ["percent"]
-          },
-          {
-            "type": "identifier",
-            "as": "index"
-          }
-        ]
-      },
-      {
-        "name": "cur_max_percent",
-        "source": "max_percents",
-        "transform": [
-          {
-            "type": "filter",
-            "expr": "datum.index == cur_region"
-          }
-        ]
-      },
-      {
-        "name": "tooltip_group",
-        "source": "group_counts",
-        "transform": [
-          {
-            "type": "filter",
-            "expr": "cur_region > -1 && datum.region == data('cur_max_percent')[0]['region'] && abs(datum.collection_period - time(cur_mouse_date)) <= time_sensitivity && abs(datum.percent - cur_mouse_percent) <= percent_sensitivity"
-          },
-          {
-            "type": "project",
-            "fields": ["group"],
-            "as": ["group"]
-          }
-        ]
-      },
-      {
-        "name": "hover_legend",
-        "values": []
-      },
-      {
-        "name": "all_hover",
-        "source": ["tooltip_group", "hover_legend"]
-      },
-      {
-        "name": "annotation",
-        "values": [{ "start": -30, "end": 0 }],
-        "transform": [
-          {
-            "type": "formula",
-            "expr": "now() + (1000 * 60 * 60 * 24 * datum.start)",
-            "as": "start"
-          },
-          {
-            "type": "formula",
-            "expr": "now() + (1000 * 60 * 60 * 24 * datum.end)",
-            "as": "end"
-          }
-        ]
-      }
-    ],
-  
-    "scales": [
-      {
-        "name": "dateX",
-        "type": "time",
-        "domain": { "data": "group_counts", "field": "collection_period" },
-        "range": { "signal": "subplot_range_x" }
-      },
-      {
-        "name": "group_color",
-        "type": "ordinal",
-        "domain": { "data": "valid_groups", "field": "group" },
-        "range": { "scheme": "tableau20" }
-      }
-    ],
-  
-    "marks": [
-      {
-        "name": "facets",
-        "type": "group",
-        "encode": {
-          "update": {
-            "x": { "signal": "facet_x" },
-            "y": { "value": 0 },
-            "width": { "signal": "facet_width" },
-            "height": { "signal": "height" }
+        {
+          "type": "formula",
+          "as": "hide",
+          "expr": "true"
+        }
+      ]
+    },
+    {
+      "name": "valid_groups",
+      "source": "group_reg",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.r > sig_min_r && datum.counts > sig_min_counts && datum.max_percent > sig_min_percent"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["group"],
+          "fields": ["counts", "max_percent"],
+          "ops": ["sum", "max"],
+          "as": ["counts", "max_percent"]
+        }
+      ]
+    },
+    {
+      "name": "valid_groups_color",
+      "source": "valid_groups",
+      "transform": [
+        {
+          "type": "collect",
+          "sort": {
+            "field": { "signal": "sortField" },
+            "order": { "signal": "sortDirection" }
           }
         },
-        "signals": [
-          { "name": "width", "update": "facet_width" },
-          { "name": "height", "update": "height" }
-        ],
-  
-        "layout": {
-          "columns": 3,
-          "padding": {
-            "row": { "signal": "subplot_vpadding" },
-            "column": { "signal": "subplot_hpadding" }
-          },
-          "bounds": "flush"
-        },
-  
-        "marks": [
-          {
-            "name": "region_grid",
-            "type": "group",
-            "encode": {
-              "update": {
-                "x": { "value": 0 },
-                "width": { "signal": "subplot_width" },
-                "height": { "signal": "subplot_height" }
-              }
-            },
-            "signals": [
-              { "name": "width", "update": "subplot_width" },
-              { "name": "height", "update": "subplot_height" }
-            ],
-            "from": {
-              "facet": {
-                "name": "group_per_region",
-                "data": "group_counts",
-                "groupby": "region"
-              }
-            },
-  
-            "title": {
-              "text": { "signal": "parent.region" },
-              "anchor": "start",
-              "frame": "group"
-            },
-  
-            "scales": [
-              {
-                "name": "percentY",
-                "type": "linear",
-                "domain": { "data": "group_per_region", "field": "percent" },
-                "range": { "signal": "subplot_range_y" }
-              }
-            ],
-            "axes": [
-              {
-                "scale": "dateX",
-                "orient": "bottom",
-                "format": { "signal": "xLabelFormat" },
-                "grid": false,
-                "gridColor": "#DDD",
-                "labelAngle": 310,
-                "labelAlign": "right",
-                "labelBaseline": "middle",
-                "labelPadding": 5,
-                "labelFontSize": 12,
-                "title": "Collection Date"
-              },
-              {
-                "scale": "percentY",
-                "orient": "left",
-                "format": "%",
-                "title": "Percent Sequences",
-                "grid": true,
-                "gridColor": "#EEE"
-              }
-            ],
-            "marks": [
-              {
-                "type": "group",
-                "from": {
-                  "facet": {
-                    "name": "group_date",
-                    "data": "group_per_region",
-                    "groupby": "group"
-                  }
-                },
-                "signals": [],
-                "data": [
-                  {
-                    "name": "valid_group_date",
-                    "source": "group_date",
-                    "transform": [
-                      {
-                        "type": "filter",
-                        "expr": "datum.valid || indata('valid_groups', 'group', datum.group)"
-                      }
-                    ]
-                  },
-                  {
-                    "name": "invalid_group_date",
-                    "source": "group_date",
-                    "transform": [
-                      {
-                        "type": "filter",
-                        "expr": "!datum.valid && !indata('valid_groups', 'group', datum.group)"
-                      }
-                    ]
-                  },
-                  {
-                    "name": "max_date",
-                    "source": "group_date",
-                    "transform": [
-                      {
-                        "type": "aggregate",
-                        "groupby": ["group"],
-                        "fields": ["collection_period"],
-                        "ops": ["max"],
-                        "as": ["max_date"]
-                      }
-                    ]
-                  },
-                  {
-                    "name": "label",
-                    "source": "group_date",
-                    "transform": [
-                      {
-                        "type": "filter",
-                        "expr": "datum.collection_period == data('max_date')[0]['max_date'] && indata('all_hover', 'group', datum.group)"
-                      }
-                    ]
-                  }
-                ],
-                "marks": [
-                  {
-                    "type": "line",
-                    "from": { "data": "valid_group_date" },
-                    "encode": {
-                      "update": {
-                        "x": { "scale": "dateX", "field": "collection_period" },
-                        "y": { "scale": "percentY", "field": "percent" },
-                        "stroke": { "scale": "group_color", "field": "group" },
-                        "strokeWidth": { "value": 2 },
-                        "strokeOpacity": [
-                          {
-                            "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
-                            "value": 1.0
-                          },
-                          { "value": 0.3 }
-                        ],
-                        "zindex": { "value": 2 }
-                      }
-                    }
-                  },
-                  {
-                    "type": "line",
-                    "from": { "data": "invalid_group_date" },
-                    "encode": {
-                      "update": {
-                        "x": { "scale": "dateX", "field": "collection_period" },
-                        "y": { "scale": "percentY", "field": "percent" },
-                        "stroke": { "value": "#aaa" },
-                        "strokeWidth": [
-                          {
-                            "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                            "value": 1.5
-                          },
-                          { "value": 1.0 }
-                        ],
-                        "strokeOpacity": [
-                          {
-                            "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                            "value": 0.8
-                          },
-                          { "value": 0.3 }
-                        ],
-                        "zindex": { "value": 1 }
-                      }
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "from": { "data": "label" },
-                    "encode": {
-                      "update": {
-                        "x": {
-                          "scale": "dateX",
-                          "field": "collection_period",
-                          "offset": 3
-                        },
-                        "y": { "scale": "percentY", "field": "percent" },
-                        "text": { "field": "group" },
-                        "fill": [
-                          {
-                            "test": "!indata('valid_groups', 'group', datum.group)",
-                            "value": "#aaa"
-                          },
-                          { "scale": "group_color", "field": "group" }
-                        ],
-                        "fontSize": { "value": 10 },
-                        "fontWeight": { "value": "500" },
-                        "baseline": { "value": "middle" }
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "rect",
-                "from": { "data": "annotation" },
-                "encode": {
-                  "update": {
-                    "x": {
-                      "scale": "dateX",
-                      "field": "start"
-                    },
-                    "x2": { "signal": "width" },
-                    "y": { "value": 0 },
-                    "y2": { "signal": "height" },
-                    "fill": { "value": "#CCC" },
-                    "opacity": { "value": 0.3 }
-                  }
-                }
-              }
-            ]
-          }
-        ]
+        {
+          "type": "formula",
+          "expr": "scale('group_color', datum.group)",
+          "as": "color"
+        }
+      ]
+    },
+    {
+      "name": "group_counts",
+      "format": {
+        "type": "json"
       },
-      {
-        "type": "group",
-        "encode": {
-          "update": {
-            "x": { "value": 900 },
-            "y": { "value": 0 },
-            "width": { "value": 100 },
-            "height": { "signal": "height" }
+      "values": [{"collection_period":1499644800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1500854400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1501459200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1502064000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1502668800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1503273600000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1503273600000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1504483200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1507507200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1512950400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1514764800000,"counts":13,"group":"A","location_counts":13,"percent":1,"region":"Africa"},{"collection_period":1517788800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1517788800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1519603200000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Africa"},{"collection_period":1519603200000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Africa"},{"collection_period":1520208000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1520812800000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Africa"},{"collection_period":1520812800000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Africa"},{"collection_period":1521417600000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Africa"},{"collection_period":1521417600000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Africa"},{"collection_period":1522022400000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Africa"},{"collection_period":1522022400000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Africa"},{"collection_period":1522627200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1522627200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1523232000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1523836800000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Africa"},{"collection_period":1523836800000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Africa"},{"collection_period":1524441600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1525046400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1525046400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Africa"},{"collection_period":1525651200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1526256000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1526860800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1526860800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1527465600000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1528070400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1528675200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1528675200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1529280000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1529884800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1530489600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1531699200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1531699200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1532304000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1532908800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1532908800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Africa"},{"collection_period":1533513600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1534723200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1535328000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1535932800000,"counts":4,"group":"A","location_counts":5,"percent":0.8,"region":"Africa"},{"collection_period":1535932800000,"counts":1,"group":"B","location_counts":5,"percent":0.2,"region":"Africa"},{"collection_period":1537747200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1538352000000,"counts":4,"group":"A","location_counts":5,"percent":0.8,"region":"Africa"},{"collection_period":1538352000000,"counts":1,"group":"B","location_counts":5,"percent":0.2,"region":"Africa"},{"collection_period":1539561600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1540771200000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1541376000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Africa"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Africa"},{"collection_period":1543795200000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Africa"},{"collection_period":1543795200000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Africa"},{"collection_period":1545004800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1545609600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1546214400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1546819200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1547424000000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1548028800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1548633600000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Africa"},{"collection_period":1549238400000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Africa"},{"collection_period":1549843200000,"counts":11,"group":"B","location_counts":11,"percent":1,"region":"Africa"},{"collection_period":1550448000000,"counts":9,"group":"B","location_counts":9,"percent":1,"region":"Africa"},{"collection_period":1551052800000,"counts":11,"group":"B","location_counts":11,"percent":1,"region":"Africa"},{"collection_period":1551657600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Africa"},{"collection_period":1552262400000,"counts":8,"group":"B","location_counts":8,"percent":1,"region":"Africa"},{"collection_period":1552867200000,"counts":6,"group":"B","location_counts":6,"percent":1,"region":"Africa"},{"collection_period":1553472000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Africa"},{"collection_period":1554076800000,"counts":8,"group":"B","location_counts":8,"percent":1,"region":"Africa"},{"collection_period":1554681600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1555286400000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1555891200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1557705600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Africa"},{"collection_period":1571011200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Africa"},{"collection_period":1498435200000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1498435200000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1500249600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1500854400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1501459200000,"counts":5,"group":"A","location_counts":9,"percent":0.5555555556,"region":"Asia"},{"collection_period":1501459200000,"counts":4,"group":"B","location_counts":9,"percent":0.4444444444,"region":"Asia"},{"collection_period":1502064000000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1502064000000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1502668800000,"counts":7,"group":"B","location_counts":7,"percent":1,"region":"Asia"},{"collection_period":1503273600000,"counts":4,"group":"A","location_counts":11,"percent":0.3636363636,"region":"Asia"},{"collection_period":1503273600000,"counts":7,"group":"B","location_counts":11,"percent":0.6363636364,"region":"Asia"},{"collection_period":1503878400000,"counts":3,"group":"A","location_counts":12,"percent":0.25,"region":"Asia"},{"collection_period":1503878400000,"counts":9,"group":"B","location_counts":12,"percent":0.75,"region":"Asia"},{"collection_period":1504483200000,"counts":1,"group":"A","location_counts":14,"percent":0.0714285714,"region":"Asia"},{"collection_period":1504483200000,"counts":13,"group":"B","location_counts":14,"percent":0.9285714286,"region":"Asia"},{"collection_period":1505088000000,"counts":4,"group":"A","location_counts":14,"percent":0.2857142857,"region":"Asia"},{"collection_period":1505088000000,"counts":10,"group":"B","location_counts":14,"percent":0.7142857143,"region":"Asia"},{"collection_period":1505692800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1506297600000,"counts":9,"group":"A","location_counts":15,"percent":0.6,"region":"Asia"},{"collection_period":1506297600000,"counts":6,"group":"B","location_counts":15,"percent":0.4,"region":"Asia"},{"collection_period":1506902400000,"counts":9,"group":"B","location_counts":9,"percent":1,"region":"Asia"},{"collection_period":1507507200000,"counts":7,"group":"B","location_counts":7,"percent":1,"region":"Asia"},{"collection_period":1508112000000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Asia"},{"collection_period":1508112000000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Asia"},{"collection_period":1508716800000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1509321600000,"counts":12,"group":"A","location_counts":18,"percent":0.6666666667,"region":"Asia"},{"collection_period":1509321600000,"counts":6,"group":"B","location_counts":18,"percent":0.3333333333,"region":"Asia"},{"collection_period":1509926400000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Asia"},{"collection_period":1509926400000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Asia"},{"collection_period":1510531200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1510531200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1511740800000,"counts":23,"group":"A","location_counts":30,"percent":0.7666666667,"region":"Asia"},{"collection_period":1511740800000,"counts":7,"group":"B","location_counts":30,"percent":0.2333333333,"region":"Asia"},{"collection_period":1512345600000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Asia"},{"collection_period":1512345600000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Asia"},{"collection_period":1512950400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1513555200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1514160000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1514160000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1514764800000,"counts":76,"group":"A","location_counts":100,"percent":0.76,"region":"Asia"},{"collection_period":1514764800000,"counts":24,"group":"B","location_counts":100,"percent":0.24,"region":"Asia"},{"collection_period":1515369600000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1515369600000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1515974400000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1515974400000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1516579200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1517184000000,"counts":10,"group":"A","location_counts":16,"percent":0.625,"region":"Asia"},{"collection_period":1517184000000,"counts":6,"group":"B","location_counts":16,"percent":0.375,"region":"Asia"},{"collection_period":1517788800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1517788800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1518393600000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1518998400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1519603200000,"counts":10,"group":"A","location_counts":23,"percent":0.4347826087,"region":"Asia"},{"collection_period":1519603200000,"counts":13,"group":"B","location_counts":23,"percent":0.5652173913,"region":"Asia"},{"collection_period":1520208000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1520812800000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1521417600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1522022400000,"counts":6,"group":"A","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1522022400000,"counts":4,"group":"B","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1522627200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1523232000000,"counts":3,"group":"A","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1523232000000,"counts":4,"group":"B","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1523836800000,"counts":1,"group":"A","location_counts":5,"percent":0.2,"region":"Asia"},{"collection_period":1523836800000,"counts":4,"group":"B","location_counts":5,"percent":0.8,"region":"Asia"},{"collection_period":1524441600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1525046400000,"counts":6,"group":"A","location_counts":7,"percent":0.8571428571,"region":"Asia"},{"collection_period":1525046400000,"counts":1,"group":"B","location_counts":7,"percent":0.1428571429,"region":"Asia"},{"collection_period":1525651200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1526256000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1526860800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1527465600000,"counts":5,"group":"A","location_counts":10,"percent":0.5,"region":"Asia"},{"collection_period":1527465600000,"counts":5,"group":"B","location_counts":10,"percent":0.5,"region":"Asia"},{"collection_period":1528070400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1528675200000,"counts":5,"group":"A","location_counts":6,"percent":0.8333333333,"region":"Asia"},{"collection_period":1528675200000,"counts":1,"group":"B","location_counts":6,"percent":0.1666666667,"region":"Asia"},{"collection_period":1529280000000,"counts":9,"group":"A","location_counts":9,"percent":1,"region":"Asia"},{"collection_period":1529884800000,"counts":9,"group":"A","location_counts":13,"percent":0.6923076923,"region":"Asia"},{"collection_period":1529884800000,"counts":4,"group":"B","location_counts":13,"percent":0.3076923077,"region":"Asia"},{"collection_period":1530489600000,"counts":6,"group":"A","location_counts":9,"percent":0.6666666667,"region":"Asia"},{"collection_period":1530489600000,"counts":3,"group":"B","location_counts":9,"percent":0.3333333333,"region":"Asia"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"Asia"},{"collection_period":1531094400000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"Asia"},{"collection_period":1531699200000,"counts":7,"group":"A","location_counts":19,"percent":0.3684210526,"region":"Asia"},{"collection_period":1531699200000,"counts":12,"group":"B","location_counts":19,"percent":0.6315789474,"region":"Asia"},{"collection_period":1532304000000,"counts":3,"group":"A","location_counts":13,"percent":0.2307692308,"region":"Asia"},{"collection_period":1532304000000,"counts":10,"group":"B","location_counts":13,"percent":0.7692307692,"region":"Asia"},{"collection_period":1532908800000,"counts":12,"group":"A","location_counts":24,"percent":0.5,"region":"Asia"},{"collection_period":1532908800000,"counts":12,"group":"B","location_counts":24,"percent":0.5,"region":"Asia"},{"collection_period":1533513600000,"counts":7,"group":"A","location_counts":12,"percent":0.5833333333,"region":"Asia"},{"collection_period":1533513600000,"counts":5,"group":"B","location_counts":12,"percent":0.4166666667,"region":"Asia"},{"collection_period":1534118400000,"counts":9,"group":"A","location_counts":15,"percent":0.6,"region":"Asia"},{"collection_period":1534118400000,"counts":6,"group":"B","location_counts":15,"percent":0.4,"region":"Asia"},{"collection_period":1534723200000,"counts":3,"group":"A","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1534723200000,"counts":4,"group":"B","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1535328000000,"counts":8,"group":"A","location_counts":22,"percent":0.3636363636,"region":"Asia"},{"collection_period":1535328000000,"counts":14,"group":"B","location_counts":22,"percent":0.6363636364,"region":"Asia"},{"collection_period":1535932800000,"counts":3,"group":"A","location_counts":12,"percent":0.25,"region":"Asia"},{"collection_period":1535932800000,"counts":9,"group":"B","location_counts":12,"percent":0.75,"region":"Asia"},{"collection_period":1536537600000,"counts":5,"group":"A","location_counts":17,"percent":0.2941176471,"region":"Asia"},{"collection_period":1536537600000,"counts":12,"group":"B","location_counts":17,"percent":0.7058823529,"region":"Asia"},{"collection_period":1537142400000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1537142400000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1537747200000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1537747200000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1538352000000,"counts":18,"group":"A","location_counts":25,"percent":0.72,"region":"Asia"},{"collection_period":1538352000000,"counts":7,"group":"B","location_counts":25,"percent":0.28,"region":"Asia"},{"collection_period":1538956800000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Asia"},{"collection_period":1538956800000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Asia"},{"collection_period":1539561600000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1539561600000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1540771200000,"counts":34,"group":"A","location_counts":44,"percent":0.7727272727,"region":"Asia"},{"collection_period":1540771200000,"counts":10,"group":"B","location_counts":44,"percent":0.2272727273,"region":"Asia"},{"collection_period":1541376000000,"counts":3,"group":"B","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1541980800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1542585600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1543190400000,"counts":53,"group":"A","location_counts":64,"percent":0.828125,"region":"Asia"},{"collection_period":1543190400000,"counts":11,"group":"B","location_counts":64,"percent":0.171875,"region":"Asia"},{"collection_period":1543795200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1546214400000,"counts":35,"group":"A","location_counts":48,"percent":0.7291666667,"region":"Asia"},{"collection_period":1546214400000,"counts":13,"group":"B","location_counts":48,"percent":0.2708333333,"region":"Asia"},{"collection_period":1546819200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1547424000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1548633600000,"counts":13,"group":"A","location_counts":24,"percent":0.5416666667,"region":"Asia"},{"collection_period":1548633600000,"counts":11,"group":"B","location_counts":24,"percent":0.4583333333,"region":"Asia"},{"collection_period":1549843200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1551052800000,"counts":4,"group":"A","location_counts":6,"percent":0.6666666667,"region":"Asia"},{"collection_period":1551052800000,"counts":2,"group":"B","location_counts":6,"percent":0.3333333333,"region":"Asia"},{"collection_period":1551657600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1554076800000,"counts":5,"group":"A","location_counts":8,"percent":0.625,"region":"Asia"},{"collection_period":1554076800000,"counts":3,"group":"B","location_counts":8,"percent":0.375,"region":"Asia"},{"collection_period":1556496000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1556496000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1558915200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1558915200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1559520000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1561334400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1561939200000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1562544000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1563148800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1563753600000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1564358400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1564963200000,"counts":3,"group":"A","location_counts":5,"percent":0.6,"region":"Asia"},{"collection_period":1564963200000,"counts":2,"group":"B","location_counts":5,"percent":0.4,"region":"Asia"},{"collection_period":1565568000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1565568000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Asia"},{"collection_period":1566172800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1566777600000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Asia"},{"collection_period":1566777600000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Asia"},{"collection_period":1567382400000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Asia"},{"collection_period":1567382400000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Asia"},{"collection_period":1567987200000,"counts":3,"group":"A","location_counts":8,"percent":0.375,"region":"Asia"},{"collection_period":1567987200000,"counts":5,"group":"B","location_counts":8,"percent":0.625,"region":"Asia"},{"collection_period":1568592000000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Asia"},{"collection_period":1568592000000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Asia"},{"collection_period":1569196800000,"counts":5,"group":"A","location_counts":7,"percent":0.7142857143,"region":"Asia"},{"collection_period":1569196800000,"counts":2,"group":"B","location_counts":7,"percent":0.2857142857,"region":"Asia"},{"collection_period":1569801600000,"counts":7,"group":"A","location_counts":9,"percent":0.7777777778,"region":"Asia"},{"collection_period":1569801600000,"counts":2,"group":"B","location_counts":9,"percent":0.2222222222,"region":"Asia"},{"collection_period":1570406400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Asia"},{"collection_period":1570406400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Asia"},{"collection_period":1571011200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1571616000000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1572220800000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Asia"},{"collection_period":1572220800000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Asia"},{"collection_period":1572825600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Asia"},{"collection_period":1573430400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Asia"},{"collection_period":1573430400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Asia"},{"collection_period":1574640000000,"counts":9,"group":"A","location_counts":19,"percent":0.4736842105,"region":"Asia"},{"collection_period":1574640000000,"counts":10,"group":"B","location_counts":19,"percent":0.5263157895,"region":"Asia"},{"collection_period":1577664000000,"counts":29,"group":"A","location_counts":29,"percent":1,"region":"Asia"},{"collection_period":1584921600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1598832000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1599436800000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1600041600000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1600646400000,"counts":8,"group":"A","location_counts":8,"percent":1,"region":"Asia"},{"collection_period":1601251200000,"counts":11,"group":"A","location_counts":12,"percent":0.9166666667,"region":"Asia"},{"collection_period":1601251200000,"counts":1,"group":"B","location_counts":12,"percent":0.0833333333,"region":"Asia"},{"collection_period":1601856000000,"counts":14,"group":"A","location_counts":14,"percent":1,"region":"Asia"},{"collection_period":1602460800000,"counts":13,"group":"A","location_counts":13,"percent":1,"region":"Asia"},{"collection_period":1603065600000,"counts":6,"group":"A","location_counts":6,"percent":1,"region":"Asia"},{"collection_period":1603670400000,"counts":19,"group":"A","location_counts":21,"percent":0.9047619048,"region":"Asia"},{"collection_period":1603670400000,"counts":2,"group":"B","location_counts":21,"percent":0.0952380952,"region":"Asia"},{"collection_period":1604275200000,"counts":17,"group":"A","location_counts":17,"percent":1,"region":"Asia"},{"collection_period":1604880000000,"counts":22,"group":"A","location_counts":23,"percent":0.9565217391,"region":"Asia"},{"collection_period":1604880000000,"counts":1,"group":"B","location_counts":23,"percent":0.0434782609,"region":"Asia"},{"collection_period":1605484800000,"counts":17,"group":"A","location_counts":17,"percent":1,"region":"Asia"},{"collection_period":1606089600000,"counts":10,"group":"A","location_counts":10,"percent":1,"region":"Asia"},{"collection_period":1606694400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Asia"},{"collection_period":1607299200000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"Asia"},{"collection_period":1607904000000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Asia"},{"collection_period":1609113600000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Asia"},{"collection_period":1609113600000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Asia"},{"collection_period":1619395200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1622419200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1624838400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Asia"},{"collection_period":1499644800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1502064000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1505088000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1505088000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1507507200000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"Europe"},{"collection_period":1508112000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1508716800000,"counts":2,"group":"A","location_counts":7,"percent":0.2857142857,"region":"Europe"},{"collection_period":1508716800000,"counts":5,"group":"B","location_counts":7,"percent":0.7142857143,"region":"Europe"},{"collection_period":1509321600000,"counts":6,"group":"A","location_counts":10,"percent":0.6,"region":"Europe"},{"collection_period":1509321600000,"counts":4,"group":"B","location_counts":10,"percent":0.4,"region":"Europe"},{"collection_period":1509926400000,"counts":4,"group":"A","location_counts":13,"percent":0.3076923077,"region":"Europe"},{"collection_period":1509926400000,"counts":9,"group":"B","location_counts":13,"percent":0.6923076923,"region":"Europe"},{"collection_period":1510531200000,"counts":8,"group":"A","location_counts":20,"percent":0.4,"region":"Europe"},{"collection_period":1510531200000,"counts":12,"group":"B","location_counts":20,"percent":0.6,"region":"Europe"},{"collection_period":1511136000000,"counts":5,"group":"A","location_counts":19,"percent":0.2631578947,"region":"Europe"},{"collection_period":1511136000000,"counts":14,"group":"B","location_counts":19,"percent":0.7368421053,"region":"Europe"},{"collection_period":1511740800000,"counts":5,"group":"A","location_counts":16,"percent":0.3125,"region":"Europe"},{"collection_period":1511740800000,"counts":11,"group":"B","location_counts":16,"percent":0.6875,"region":"Europe"},{"collection_period":1512345600000,"counts":5,"group":"A","location_counts":12,"percent":0.4166666667,"region":"Europe"},{"collection_period":1512345600000,"counts":7,"group":"B","location_counts":12,"percent":0.5833333333,"region":"Europe"},{"collection_period":1512950400000,"counts":11,"group":"A","location_counts":27,"percent":0.4074074074,"region":"Europe"},{"collection_period":1512950400000,"counts":16,"group":"B","location_counts":27,"percent":0.5925925926,"region":"Europe"},{"collection_period":1513555200000,"counts":11,"group":"A","location_counts":35,"percent":0.3142857143,"region":"Europe"},{"collection_period":1513555200000,"counts":24,"group":"B","location_counts":35,"percent":0.6857142857,"region":"Europe"},{"collection_period":1514160000000,"counts":11,"group":"A","location_counts":23,"percent":0.4782608696,"region":"Europe"},{"collection_period":1514160000000,"counts":12,"group":"B","location_counts":23,"percent":0.5217391304,"region":"Europe"},{"collection_period":1514764800000,"counts":42,"group":"A","location_counts":123,"percent":0.3414634146,"region":"Europe"},{"collection_period":1514764800000,"counts":81,"group":"B","location_counts":123,"percent":0.6585365854,"region":"Europe"},{"collection_period":1515369600000,"counts":14,"group":"A","location_counts":31,"percent":0.4516129032,"region":"Europe"},{"collection_period":1515369600000,"counts":17,"group":"B","location_counts":31,"percent":0.5483870968,"region":"Europe"},{"collection_period":1515974400000,"counts":17,"group":"A","location_counts":32,"percent":0.53125,"region":"Europe"},{"collection_period":1515974400000,"counts":15,"group":"B","location_counts":32,"percent":0.46875,"region":"Europe"},{"collection_period":1516579200000,"counts":12,"group":"A","location_counts":29,"percent":0.4137931034,"region":"Europe"},{"collection_period":1516579200000,"counts":17,"group":"B","location_counts":29,"percent":0.5862068966,"region":"Europe"},{"collection_period":1517184000000,"counts":17,"group":"A","location_counts":37,"percent":0.4594594595,"region":"Europe"},{"collection_period":1517184000000,"counts":20,"group":"B","location_counts":37,"percent":0.5405405405,"region":"Europe"},{"collection_period":1517788800000,"counts":5,"group":"A","location_counts":11,"percent":0.4545454545,"region":"Europe"},{"collection_period":1517788800000,"counts":6,"group":"B","location_counts":11,"percent":0.5454545455,"region":"Europe"},{"collection_period":1518393600000,"counts":1,"group":"A","location_counts":9,"percent":0.1111111111,"region":"Europe"},{"collection_period":1518393600000,"counts":8,"group":"B","location_counts":9,"percent":0.8888888889,"region":"Europe"},{"collection_period":1518998400000,"counts":1,"group":"A","location_counts":12,"percent":0.0833333333,"region":"Europe"},{"collection_period":1518998400000,"counts":11,"group":"B","location_counts":12,"percent":0.9166666667,"region":"Europe"},{"collection_period":1519603200000,"counts":2,"group":"A","location_counts":13,"percent":0.1538461538,"region":"Europe"},{"collection_period":1519603200000,"counts":11,"group":"B","location_counts":13,"percent":0.8461538462,"region":"Europe"},{"collection_period":1520208000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1520812800000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Europe"},{"collection_period":1521417600000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"Europe"},{"collection_period":1521417600000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"Europe"},{"collection_period":1522022400000,"counts":1,"group":"A","location_counts":9,"percent":0.1111111111,"region":"Europe"},{"collection_period":1522022400000,"counts":8,"group":"B","location_counts":9,"percent":0.8888888889,"region":"Europe"},{"collection_period":1522627200000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1523232000000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Europe"},{"collection_period":1523232000000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Europe"},{"collection_period":1523836800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1525046400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1529884800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1532908800000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1535328000000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"Europe"},{"collection_period":1535328000000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"Europe"},{"collection_period":1538352000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1538956800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1540166400000,"counts":5,"group":"A","location_counts":12,"percent":0.4166666667,"region":"Europe"},{"collection_period":1540166400000,"counts":7,"group":"B","location_counts":12,"percent":0.5833333333,"region":"Europe"},{"collection_period":1540771200000,"counts":10,"group":"B","location_counts":10,"percent":1,"region":"Europe"},{"collection_period":1541376000000,"counts":4,"group":"A","location_counts":7,"percent":0.5714285714,"region":"Europe"},{"collection_period":1541376000000,"counts":3,"group":"B","location_counts":7,"percent":0.4285714286,"region":"Europe"},{"collection_period":1541980800000,"counts":16,"group":"A","location_counts":24,"percent":0.6666666667,"region":"Europe"},{"collection_period":1541980800000,"counts":8,"group":"B","location_counts":24,"percent":0.3333333333,"region":"Europe"},{"collection_period":1542585600000,"counts":16,"group":"A","location_counts":35,"percent":0.4571428571,"region":"Europe"},{"collection_period":1542585600000,"counts":19,"group":"B","location_counts":35,"percent":0.5428571429,"region":"Europe"},{"collection_period":1543190400000,"counts":12,"group":"A","location_counts":36,"percent":0.3333333333,"region":"Europe"},{"collection_period":1543190400000,"counts":24,"group":"B","location_counts":36,"percent":0.6666666667,"region":"Europe"},{"collection_period":1543795200000,"counts":22,"group":"A","location_counts":31,"percent":0.7096774194,"region":"Europe"},{"collection_period":1543795200000,"counts":9,"group":"B","location_counts":31,"percent":0.2903225806,"region":"Europe"},{"collection_period":1544400000000,"counts":8,"group":"A","location_counts":14,"percent":0.5714285714,"region":"Europe"},{"collection_period":1544400000000,"counts":6,"group":"B","location_counts":14,"percent":0.4285714286,"region":"Europe"},{"collection_period":1545004800000,"counts":14,"group":"A","location_counts":23,"percent":0.6086956522,"region":"Europe"},{"collection_period":1545004800000,"counts":9,"group":"B","location_counts":23,"percent":0.3913043478,"region":"Europe"},{"collection_period":1545609600000,"counts":6,"group":"A","location_counts":9,"percent":0.6666666667,"region":"Europe"},{"collection_period":1545609600000,"counts":3,"group":"B","location_counts":9,"percent":0.3333333333,"region":"Europe"},{"collection_period":1546214400000,"counts":5,"group":"A","location_counts":19,"percent":0.2631578947,"region":"Europe"},{"collection_period":1546214400000,"counts":14,"group":"B","location_counts":19,"percent":0.7368421053,"region":"Europe"},{"collection_period":1546819200000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"Europe"},{"collection_period":1547424000000,"counts":7,"group":"A","location_counts":14,"percent":0.5,"region":"Europe"},{"collection_period":1547424000000,"counts":7,"group":"B","location_counts":14,"percent":0.5,"region":"Europe"},{"collection_period":1548028800000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Europe"},{"collection_period":1548028800000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Europe"},{"collection_period":1548633600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1549238400000,"counts":5,"group":"B","location_counts":5,"percent":1,"region":"Europe"},{"collection_period":1549843200000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1551052800000,"counts":13,"group":"B","location_counts":13,"percent":1,"region":"Europe"},{"collection_period":1551657600000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Europe"},{"collection_period":1552262400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1554076800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1569196800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1569196800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1570406400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1571616000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1571616000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Europe"},{"collection_period":1572220800000,"counts":9,"group":"A","location_counts":13,"percent":0.6923076923,"region":"Europe"},{"collection_period":1572220800000,"counts":4,"group":"B","location_counts":13,"percent":0.3076923077,"region":"Europe"},{"collection_period":1572825600000,"counts":8,"group":"A","location_counts":21,"percent":0.380952381,"region":"Europe"},{"collection_period":1572825600000,"counts":13,"group":"B","location_counts":21,"percent":0.619047619,"region":"Europe"},{"collection_period":1573430400000,"counts":14,"group":"A","location_counts":26,"percent":0.5384615385,"region":"Europe"},{"collection_period":1573430400000,"counts":12,"group":"B","location_counts":26,"percent":0.4615384615,"region":"Europe"},{"collection_period":1574035200000,"counts":25,"group":"A","location_counts":41,"percent":0.6097560976,"region":"Europe"},{"collection_period":1574035200000,"counts":16,"group":"B","location_counts":41,"percent":0.3902439024,"region":"Europe"},{"collection_period":1574640000000,"counts":45,"group":"A","location_counts":56,"percent":0.8035714286,"region":"Europe"},{"collection_period":1574640000000,"counts":11,"group":"B","location_counts":56,"percent":0.1964285714,"region":"Europe"},{"collection_period":1575244800000,"counts":50,"group":"A","location_counts":69,"percent":0.7246376812,"region":"Europe"},{"collection_period":1575244800000,"counts":19,"group":"B","location_counts":69,"percent":0.2753623188,"region":"Europe"},{"collection_period":1575849600000,"counts":79,"group":"A","location_counts":111,"percent":0.7117117117,"region":"Europe"},{"collection_period":1575849600000,"counts":32,"group":"B","location_counts":111,"percent":0.2882882883,"region":"Europe"},{"collection_period":1576454400000,"counts":68,"group":"A","location_counts":97,"percent":0.7010309278,"region":"Europe"},{"collection_period":1576454400000,"counts":29,"group":"B","location_counts":97,"percent":0.2989690722,"region":"Europe"},{"collection_period":1577059200000,"counts":52,"group":"A","location_counts":74,"percent":0.7027027027,"region":"Europe"},{"collection_period":1577059200000,"counts":22,"group":"B","location_counts":74,"percent":0.2972972973,"region":"Europe"},{"collection_period":1577664000000,"counts":63,"group":"A","location_counts":79,"percent":0.7974683544,"region":"Europe"},{"collection_period":1577664000000,"counts":16,"group":"B","location_counts":79,"percent":0.2025316456,"region":"Europe"},{"collection_period":1578268800000,"counts":40,"group":"A","location_counts":52,"percent":0.7692307692,"region":"Europe"},{"collection_period":1578268800000,"counts":12,"group":"B","location_counts":52,"percent":0.2307692308,"region":"Europe"},{"collection_period":1578873600000,"counts":23,"group":"A","location_counts":35,"percent":0.6571428571,"region":"Europe"},{"collection_period":1578873600000,"counts":12,"group":"B","location_counts":35,"percent":0.3428571429,"region":"Europe"},{"collection_period":1579478400000,"counts":12,"group":"A","location_counts":21,"percent":0.5714285714,"region":"Europe"},{"collection_period":1579478400000,"counts":9,"group":"B","location_counts":21,"percent":0.4285714286,"region":"Europe"},{"collection_period":1580083200000,"counts":19,"group":"A","location_counts":32,"percent":0.59375,"region":"Europe"},{"collection_period":1580083200000,"counts":13,"group":"B","location_counts":32,"percent":0.40625,"region":"Europe"},{"collection_period":1580688000000,"counts":9,"group":"A","location_counts":14,"percent":0.6428571429,"region":"Europe"},{"collection_period":1580688000000,"counts":5,"group":"B","location_counts":14,"percent":0.3571428571,"region":"Europe"},{"collection_period":1581292800000,"counts":11,"group":"A","location_counts":16,"percent":0.6875,"region":"Europe"},{"collection_period":1581292800000,"counts":5,"group":"B","location_counts":16,"percent":0.3125,"region":"Europe"},{"collection_period":1581897600000,"counts":7,"group":"A","location_counts":11,"percent":0.6363636364,"region":"Europe"},{"collection_period":1581897600000,"counts":4,"group":"B","location_counts":11,"percent":0.3636363636,"region":"Europe"},{"collection_period":1582502400000,"counts":4,"group":"A","location_counts":9,"percent":0.4444444444,"region":"Europe"},{"collection_period":1582502400000,"counts":5,"group":"B","location_counts":9,"percent":0.5555555556,"region":"Europe"},{"collection_period":1583107200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Europe"},{"collection_period":1514764800000,"counts":4,"group":"A","location_counts":4,"percent":1,"region":"North America"},{"collection_period":1546214400000,"counts":7,"group":"A","location_counts":8,"percent":0.875,"region":"North America"},{"collection_period":1546214400000,"counts":1,"group":"B","location_counts":8,"percent":0.125,"region":"North America"},{"collection_period":1605484800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"North America"},{"collection_period":1498435200000,"counts":1,"group":"A","location_counts":10,"percent":0.1,"region":"Oceania"},{"collection_period":1498435200000,"counts":9,"group":"B","location_counts":10,"percent":0.9,"region":"Oceania"},{"collection_period":1499040000000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"Oceania"},{"collection_period":1499040000000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"Oceania"},{"collection_period":1500249600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1501459200000,"counts":3,"group":"A","location_counts":9,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1501459200000,"counts":6,"group":"B","location_counts":9,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1503878400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1504483200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1506297600000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"Oceania"},{"collection_period":1506902400000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1506902400000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1509321600000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1509321600000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1511740800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1512345600000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1514764800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1515369600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1517184000000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1517184000000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1517788800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1519603200000,"counts":3,"group":"A","location_counts":6,"percent":0.5,"region":"Oceania"},{"collection_period":1519603200000,"counts":3,"group":"B","location_counts":6,"percent":0.5,"region":"Oceania"},{"collection_period":1520208000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1522022400000,"counts":4,"group":"A","location_counts":10,"percent":0.4,"region":"Oceania"},{"collection_period":1522022400000,"counts":6,"group":"B","location_counts":10,"percent":0.6,"region":"Oceania"},{"collection_period":1522627200000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1524441600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1525046400000,"counts":7,"group":"A","location_counts":26,"percent":0.2692307692,"region":"Oceania"},{"collection_period":1525046400000,"counts":19,"group":"B","location_counts":26,"percent":0.7307692308,"region":"Oceania"},{"collection_period":1527465600000,"counts":22,"group":"A","location_counts":51,"percent":0.431372549,"region":"Oceania"},{"collection_period":1527465600000,"counts":29,"group":"B","location_counts":51,"percent":0.568627451,"region":"Oceania"},{"collection_period":1528070400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1529884800000,"counts":16,"group":"A","location_counts":33,"percent":0.4848484848,"region":"Oceania"},{"collection_period":1529884800000,"counts":17,"group":"B","location_counts":33,"percent":0.5151515152,"region":"Oceania"},{"collection_period":1531094400000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1531094400000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1531699200000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1531699200000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1532908800000,"counts":10,"group":"A","location_counts":22,"percent":0.4545454545,"region":"Oceania"},{"collection_period":1532908800000,"counts":12,"group":"B","location_counts":22,"percent":0.5454545455,"region":"Oceania"},{"collection_period":1533513600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1534118400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1534723200000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1534723200000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1535328000000,"counts":5,"group":"A","location_counts":10,"percent":0.5,"region":"Oceania"},{"collection_period":1535328000000,"counts":5,"group":"B","location_counts":10,"percent":0.5,"region":"Oceania"},{"collection_period":1536537600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1537142400000,"counts":2,"group":"A","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1537142400000,"counts":2,"group":"B","location_counts":4,"percent":0.5,"region":"Oceania"},{"collection_period":1537747200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1538352000000,"counts":5,"group":"A","location_counts":7,"percent":0.7142857143,"region":"Oceania"},{"collection_period":1538352000000,"counts":2,"group":"B","location_counts":7,"percent":0.2857142857,"region":"Oceania"},{"collection_period":1540771200000,"counts":4,"group":"A","location_counts":9,"percent":0.4444444444,"region":"Oceania"},{"collection_period":1540771200000,"counts":5,"group":"B","location_counts":9,"percent":0.5555555556,"region":"Oceania"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1543190400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1543190400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1543795200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1543795200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1546214400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1548633600000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1548633600000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"Oceania"},{"collection_period":1551052800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1554076800000,"counts":7,"group":"A","location_counts":7,"percent":1,"region":"Oceania"},{"collection_period":1556496000000,"counts":8,"group":"A","location_counts":15,"percent":0.5333333333,"region":"Oceania"},{"collection_period":1556496000000,"counts":7,"group":"B","location_counts":15,"percent":0.4666666667,"region":"Oceania"},{"collection_period":1558915200000,"counts":18,"group":"A","location_counts":22,"percent":0.8181818182,"region":"Oceania"},{"collection_period":1558915200000,"counts":4,"group":"B","location_counts":22,"percent":0.1818181818,"region":"Oceania"},{"collection_period":1561939200000,"counts":11,"group":"A","location_counts":17,"percent":0.6470588235,"region":"Oceania"},{"collection_period":1561939200000,"counts":6,"group":"B","location_counts":17,"percent":0.3529411765,"region":"Oceania"},{"collection_period":1564358400000,"counts":6,"group":"A","location_counts":8,"percent":0.75,"region":"Oceania"},{"collection_period":1564358400000,"counts":2,"group":"B","location_counts":8,"percent":0.25,"region":"Oceania"},{"collection_period":1566777600000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"Oceania"},{"collection_period":1569801600000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1572220800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1577664000000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"Oceania"},{"collection_period":1580083200000,"counts":2,"group":"A","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1580083200000,"counts":1,"group":"B","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1582502400000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"Oceania"},{"collection_period":1582502400000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"Oceania"},{"collection_period":1585526400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1587945600000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1593388800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1595808000000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1603670400000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"Oceania"},{"collection_period":1498435200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1498435200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1514764800000,"counts":26,"group":"A","location_counts":26,"percent":1,"region":"South America"},{"collection_period":1517184000000,"counts":1,"group":"A","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1517788800000,"counts":2,"group":"A","location_counts":5,"percent":0.4,"region":"South America"},{"collection_period":1517788800000,"counts":3,"group":"B","location_counts":5,"percent":0.6,"region":"South America"},{"collection_period":1519603200000,"counts":5,"group":"A","location_counts":5,"percent":1,"region":"South America"},{"collection_period":1520208000000,"counts":1,"group":"A","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1520208000000,"counts":3,"group":"B","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1522022400000,"counts":2,"group":"A","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1522627200000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1522627200000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1525046400000,"counts":3,"group":"A","location_counts":3,"percent":1,"region":"South America"},{"collection_period":1525651200000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1526860800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1527465600000,"counts":3,"group":"A","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1527465600000,"counts":1,"group":"B","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1528070400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1529280000000,"counts":4,"group":"B","location_counts":4,"percent":1,"region":"South America"},{"collection_period":1529884800000,"counts":2,"group":"A","location_counts":9,"percent":0.2222222222,"region":"South America"},{"collection_period":1529884800000,"counts":7,"group":"B","location_counts":9,"percent":0.7777777778,"region":"South America"},{"collection_period":1531094400000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1531699200000,"counts":1,"group":"A","location_counts":6,"percent":0.1666666667,"region":"South America"},{"collection_period":1531699200000,"counts":5,"group":"B","location_counts":6,"percent":0.8333333333,"region":"South America"},{"collection_period":1532304000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532304000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532908800000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1532908800000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1533513600000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"South America"},{"collection_period":1533513600000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"South America"},{"collection_period":1534118400000,"counts":1,"group":"A","location_counts":5,"percent":0.2,"region":"South America"},{"collection_period":1534118400000,"counts":4,"group":"B","location_counts":5,"percent":0.8,"region":"South America"},{"collection_period":1534723200000,"counts":1,"group":"A","location_counts":4,"percent":0.25,"region":"South America"},{"collection_period":1534723200000,"counts":3,"group":"B","location_counts":4,"percent":0.75,"region":"South America"},{"collection_period":1535328000000,"counts":1,"group":"A","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1535328000000,"counts":1,"group":"B","location_counts":2,"percent":0.5,"region":"South America"},{"collection_period":1535932800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1537142400000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1537747200000,"counts":1,"group":"A","location_counts":3,"percent":0.3333333333,"region":"South America"},{"collection_period":1537747200000,"counts":2,"group":"B","location_counts":3,"percent":0.6666666667,"region":"South America"},{"collection_period":1538352000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1538956800000,"counts":1,"group":"B","location_counts":1,"percent":1,"region":"South America"},{"collection_period":1541376000000,"counts":2,"group":"B","location_counts":2,"percent":1,"region":"South America"},{"collection_period":1546214400000,"counts":68,"group":"A","location_counts":68,"percent":1,"region":"South America"}],
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "hide_groups",
+          "key": "group",
+          "values": ["hide"],
+          "fields": ["group"],
+          "as": ["hide"],
+          "default": false
+        },
+        {
+          "type": "filter",
+          "expr": "!datum.hide"
+        },
+        {
+          "type": "formula",
+          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)",
+          "as": "valid"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": ["region", "group", "collection_period"],
+            "order": ["ascending", "ascending", "ascending"]
           }
         }
+      ]
+    },
+    {
+      "name": "max_percents",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["region"],
+          "fields": ["percent"],
+          "ops": ["max"],
+          "as": ["percent"]
+        },
+        {
+          "type": "identifier",
+          "as": "index"
+        }
+      ]
+    },
+    {
+      "name": "cur_max_percent",
+      "source": "max_percents",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.index == cur_region"
+        }
+      ]
+    },
+    {
+      "name": "tooltip_group",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "cur_region > -1 && datum.region == data('cur_max_percent')[0]['region'] && abs(datum.collection_period - time(cur_mouse_date)) <= time_sensitivity && abs(datum.percent - cur_mouse_percent) <= percent_sensitivity"
+        },
+        {
+          "type": "project",
+          "fields": ["group"],
+          "as": ["group"]
+        }
+      ]
+    },
+    {
+      "name": "hover_legend",
+      "values": []
+    },
+    {
+      "name": "all_hover",
+      "source": ["tooltip_group", "hover_legend"]
+    },
+    {
+      "name": "annotation",
+      "values": [{ "start": -30, "end": 0 }],
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "now() + (1000 * 60 * 60 * 24 * datum.start)",
+          "as": "start"
+        },
+        {
+          "type": "formula",
+          "expr": "now() + (1000 * 60 * 60 * 24 * datum.end)",
+          "as": "end"
+        }
+      ]
+    },
+    {
+      "name": "lower_date",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": ["collection_period"],
+          "as": ["collection_period"],
+          "ops": ["min"]
+        }
+      ]
+    },
+    {
+      "name": "upper_date",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": ["collection_period"],
+          "as": ["collection_period"],
+          "ops": ["max"]
+        },
+        {
+          "type": "formula",
+          "as": "collection_period",
+          "expr": "now()"
+        }
+      ]
+    },
+    {
+      "name": "date_range",
+      "source": ["lower_date", "upper_date"]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "dateX",
+      "type": "time",
+      "domain": { "data": "date_range", "field": "collection_period" },
+      "range": { "signal": "subplot_range_x" }
+    },
+    {
+      "name": "group_color",
+      "type": "ordinal",
+      "domain": { "data": "valid_groups", "field": "group" },
+      "range": { "scheme": "tableau20" }
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "facets",
+      "type": "group",
+      "encode": {
+        "update": {
+          "x": { "signal": "facet_x" },
+          "y": { "value": 0 },
+          "width": { "signal": "facet_width" },
+          "height": { "signal": "height" }
+        }
+      },
+      "signals": [
+        { "name": "width", "update": "facet_width" },
+        { "name": "height", "update": "height" }
+      ],
+
+      "layout": {
+        "columns": 3,
+        "padding": {
+          "row": { "signal": "subplot_vpadding" },
+          "column": { "signal": "subplot_hpadding" }
+        },
+        "bounds": "flush"
+      },
+
+      "marks": [
+        {
+          "name": "region_grid",
+          "type": "group",
+          "encode": {
+            "update": {
+              "x": { "value": 0 },
+              "width": { "signal": "subplot_width" },
+              "height": { "signal": "subplot_height" }
+            }
+          },
+          "signals": [
+            { "name": "width", "update": "subplot_width" },
+            { "name": "height", "update": "subplot_height" }
+          ],
+          "from": {
+            "facet": {
+              "name": "group_per_region",
+              "data": "group_counts",
+              "groupby": "region"
+            }
+          },
+
+          "title": {
+            "text": { "signal": "parent.region" },
+            "anchor": "start",
+            "frame": "group"
+          },
+
+          "scales": [
+            {
+              "name": "percentY",
+              "type": "linear",
+              "domain": { "data": "group_per_region", "field": "percent" },
+              "range": { "signal": "subplot_range_y" }
+            }
+          ],
+          "axes": [
+            {
+              "scale": "dateX",
+              "orient": "bottom",
+              "format": { "signal": "xLabelFormat" },
+              "grid": false,
+              "gridColor": "#DDD",
+              "labelAngle": 310,
+              "labelAlign": "right",
+              "labelBaseline": "middle",
+              "labelPadding": 5,
+              "labelFontSize": 12,
+              "title": "Collection Date"
+            },
+            {
+              "scale": "percentY",
+              "orient": "left",
+              "format": "%",
+              "title": "Percent Sequences",
+              "grid": true,
+              "gridColor": "#EEE"
+            }
+          ],
+          "marks": [
+            {
+              "type": "group",
+              "from": {
+                "facet": {
+                  "name": "group_date",
+                  "data": "group_per_region",
+                  "groupby": "group"
+                }
+              },
+              "signals": [],
+              "data": [
+                {
+                  "name": "valid_group_date",
+                  "source": "group_date",
+                  "transform": [
+                    {
+                      "type": "filter",
+                      "expr": "datum.valid || indata('valid_groups', 'group', datum.group)"
+                    }
+                  ]
+                },
+                {
+                  "name": "invalid_group_date",
+                  "source": "group_date",
+                  "transform": [
+                    {
+                      "type": "filter",
+                      "expr": "!datum.valid && !indata('valid_groups', 'group', datum.group)"
+                    }
+                  ]
+                },
+                {
+                  "name": "max_date",
+                  "source": "group_date",
+                  "transform": [
+                    {
+                      "type": "aggregate",
+                      "groupby": ["group"],
+                      "fields": ["collection_period"],
+                      "ops": ["max"],
+                      "as": ["max_date"]
+                    }
+                  ]
+                },
+                {
+                  "name": "label",
+                  "source": "group_date",
+                  "transform": [
+                    {
+                      "type": "filter",
+                      "expr": "datum.collection_period == data('max_date')[0]['max_date'] && indata('all_hover', 'group', datum.group)"
+                    }
+                  ]
+                }
+              ],
+              "marks": [
+                {
+                  "type": "line",
+                  "from": { "data": "valid_group_date" },
+                  "encode": {
+                    "update": {
+                      "x": { "scale": "dateX", "field": "collection_period" },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "stroke": { "scale": "group_color", "field": "group" },
+                      "strokeWidth": { "value": 2 },
+                      "strokeOpacity": [
+                        {
+                          "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
+                          "value": 1.0
+                        },
+                        { "value": 0.3 }
+                      ],
+                      "zindex": { "value": 2 }
+                    }
+                  }
+                },
+                {
+                  "type": "line",
+                  "from": { "data": "invalid_group_date" },
+                  "encode": {
+                    "update": {
+                      "x": { "scale": "dateX", "field": "collection_period" },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "stroke": { "value": "#aaa" },
+                      "strokeWidth": [
+                        {
+                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
+                          "value": 1.5
+                        },
+                        { "value": 1.0 }
+                      ],
+                      "strokeOpacity": [
+                        {
+                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
+                          "value": 0.8
+                        },
+                        { "value": 0.3 }
+                      ],
+                      "zindex": { "value": 1 }
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "from": { "data": "label" },
+                  "encode": {
+                    "update": {
+                      "x": {
+                        "scale": "dateX",
+                        "field": "collection_period",
+                        "offset": 3
+                      },
+                      "y": { "scale": "percentY", "field": "percent" },
+                      "text": { "field": "group" },
+                      "fill": [
+                        {
+                          "test": "!indata('valid_groups', 'group', datum.group)",
+                          "value": "#aaa"
+                        },
+                        { "scale": "group_color", "field": "group" }
+                      ],
+                      "fontSize": { "value": 10 },
+                      "fontWeight": { "value": "500" },
+                      "baseline": { "value": "middle" }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "rect",
+              "from": { "data": "annotation" },
+              "encode": {
+                "update": {
+                  "x": {
+                    "scale": "dateX",
+                    "field": "start"
+                  },
+                  "x2": { "signal": "width" },
+                  "y": { "value": 0 },
+                  "y2": { "signal": "height" },
+                  "fill": { "value": "#CCC" },
+                  "opacity": { "value": 0.3 }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "encode": {
+        "update": {
+          "x": { "value": 900 },
+          "y": { "value": 0 },
+          "width": { "value": 100 },
+          "height": { "signal": "height" }
+        }
       }
-    ]
-  }
-  
+    }
+  ]
+}

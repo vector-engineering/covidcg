@@ -314,7 +314,7 @@ export class GroupDataStore {
       (groupMutation) =>
         groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
-        groupMutation.protein ===
+        groupMutation.feature ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveProtein
     );
   }

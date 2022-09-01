@@ -381,8 +381,9 @@ const LocationDatePlot = observer(({ width }) => {
   return (
     <PlotContainer>
       <WarningBox show={state.showWarning} onDismiss={onDismissWarning}>
-        {config.site_title} plots reflect data contributed to GISAID and are
-        therefore impacted by the sequence coverage in each country.
+        {config.site_title} plots reflect data contributed to{' '}
+        {config.data_provider} and are therefore impacted by the sequence
+        coverage in each country.
       </WarningBox>
       <PlotOptions>
         <span className="plot-title">{plotTitle}</span>
@@ -446,7 +447,7 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
-            dateRangeStart: new Date(config.min_date).getTime() / 1000,
+            dateRangeStart: new Date(config.min_date).getTime(),
             percentages:
               plotSettingsStore.locationDateNormMode ===
               NORM_MODES.NORM_PERCENTAGES,
