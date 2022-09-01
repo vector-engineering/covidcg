@@ -392,7 +392,7 @@ const SurveillancePlot = observer(({ width }) => {
   const getXLabelFormat = () => {
     if (config.virus === 'sars2') {
       return '%m-%d';
-    } else if (config.virus === 'rsv') {
+    } else {
       return '%Y-%m';
     }
   };
