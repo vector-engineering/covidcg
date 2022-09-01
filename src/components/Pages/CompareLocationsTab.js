@@ -166,6 +166,7 @@ const CompareLocationsTab = observer(() => {
       {renderLocationGroupPlot()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
+      <div style={{ height: '50px' }} />
     </CompareLocationsTabContainer>
   );
 });

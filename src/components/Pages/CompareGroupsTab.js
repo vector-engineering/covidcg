@@ -244,7 +244,7 @@ const CompareGroupsTab = observer(() => {
       <AccordionWrapper
         title="Number of Sequences Per Location Over Time"
         defaultCollapsed={false}
-        maxHeight={'500px'}
+        maxHeight={'600px'}
         helpText={
           <ul>
             <li>
@@ -274,6 +274,7 @@ const CompareGroupsTab = observer(() => {
         renderMutationStructureViewer()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
+      <div style={{ height: '50px' }} />
     </CompareGroupsTabContainer>
   );
 });
