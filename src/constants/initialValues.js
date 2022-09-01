@@ -54,6 +54,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['SARS-CoV-2'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['USA', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],
@@ -177,6 +178,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['A'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['USA', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],
@@ -289,6 +291,7 @@ if (config['virus'] === 'sars2') {
       subtype: ['H3N2'],
     },
     selectedLocationNodes: [],
+    defaultSelectedLocationNodes: ['United States', 'Canada'],
 
     hoverGroup: null,
     selectedGroups: [],
