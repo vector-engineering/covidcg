@@ -60,6 +60,11 @@ metadata_cols:
     title: "Publications"
 
 group_cols:
+  subtype:
+    name: "subtype"
+    title: "Subtype"
+    description: ""
+    show_collapse_options: false
   genotype:
     name: "genotype"
     title: "Genotype"
