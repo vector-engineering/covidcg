@@ -29,10 +29,6 @@ const CompareGroupsTab = observer(() => {
   const [ref, { width }] = useDimensions();
 
   const renderEntropyPlot = () => {
-    if (configStore.groupKey !== GROUP_MUTATION) {
-      return null;
-    }
-
     return (
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Frequencies`}
@@ -70,10 +66,6 @@ const CompareGroupsTab = observer(() => {
   };
 
   const renderCooccurrencePlot = () => {
-    if (configStore.groupKey !== GROUP_MUTATION) {
-      return null;
-    }
-
     return (
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Co-occurrence`}
@@ -275,10 +267,11 @@ const CompareGroupsTab = observer(() => {
 
   return (
     <CompareGroupsTabContainer ref={ref}>
-      {renderEntropyPlot()}
-      {renderCooccurrencePlot()}
+      {configStore.groupKey === GROUP_MUTATION && renderEntropyPlot()}
+      {configStore.groupKey === GROUP_MUTATION && renderCooccurrencePlot()}
       {renderGroupStackPlot()}
-      {renderMutationStructureViewer()}
+      {configStore.groupKey === GROUP_MUTATION &&
+        renderMutationStructureViewer()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
     </CompareGroupsTabContainer>
