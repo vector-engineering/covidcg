@@ -231,7 +231,8 @@ rule extract_dna_mutations:
         reference = rules.write_reference_files.output.reference
     params:
         subtype = get_subtype,
-        segment = get_segment
+        segment = get_segment,
+        max_indel_length = config["max_indel_length"],
     output:
         dna_mutation = os.path.join(data_folder, "dna_mutation", "{chunk}_dna_mutation.csv")
     shell:
@@ -241,6 +242,7 @@ rule extract_dna_mutations:
             --reference {input.reference} \
             --subtype {params.subtype} \
             --segment {params.segment} \
+            --max-indel-length {params.max_indel_length} \
             --out {output.dna_mutation}
         """
 
