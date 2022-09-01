@@ -270,7 +270,7 @@ const GroupBySelect = observer(
             {groupKey === GROUP_MUTATION && renderDnaOrAaSelect()}
           </RadioForm>
         )}
-        {renderSubtypeSelect()}
+        {groupKey === GROUP_MUTATION && renderSubtypeSelect()}
         {renderReferenceSelect()}
       </SelectContainer>
     );
