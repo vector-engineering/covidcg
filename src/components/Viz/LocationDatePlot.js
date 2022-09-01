@@ -447,7 +447,7 @@ const LocationDatePlot = observer(({ width }) => {
           dataListeners={state.dataListeners}
           width={width}
           signals={{
-            dateRangeStart: new Date(config.min_date).getTime() / 1000,
+            dateRangeStart: new Date(config.min_date).getTime(),
             percentages:
               plotSettingsStore.locationDateNormMode ===
               NORM_MODES.NORM_PERCENTAGES,

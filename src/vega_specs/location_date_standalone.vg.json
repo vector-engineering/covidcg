@@ -26,8 +26,8 @@
     },
     {
       "name": "yearStart",
-      "value": 1546300800000,
-      "comment": "January 1st, 2019 in milliseconds, unix epoch time. Used to demarcate years"
+      "value": -631152000000,
+      "comment": "January 1st, 1950 in milliseconds, unix epoch time. Used to demarcate years"
     },
     {
       "name": "yearBin",
