@@ -9,7 +9,7 @@
         "description": "Human respiratory syncytial virus A isolate 13-005275 fusion protein (F) gene, complete cds"
       }
     },
-    "description": "Human respiratory syncytial virus A isolate 13-005275 fusion protein (F) gene, complete cds"
+    "description": "Human respiratory syncytial virus A isolate 13-005275 fusion protein (F) gene"
   },
   "NC_038235.1": {
     "name": "NC_038235.1",
@@ -21,7 +21,7 @@
         "description": "Human orthopneumovirus Subgroup A, complete cds"
       }
     },
-    "description": "Human orthopneumovirus Subgroup A, complete cds"
+    "description": "Human orthopneumovirus Subgroup A"
   },
   "KX858756.1": {
     "name": "KX858756.1",
@@ -33,7 +33,7 @@
         "description": "Human respiratory syncytial virus B isolate 13-001273 fusion protein (F) gene, complete cds"
       }
     },
-    "description": "Human respiratory syncytial virus B isolate 13-001273 fusion protein (F) gene, complete cds"
+    "description": "Human respiratory syncytial virus B isolate 13-001273 fusion protein (F) gene"
   },
   "NC_001781.1": {
     "name": "NC_001781.1",
@@ -45,6 +45,6 @@
         "description": "Human orthopneumovirus Subgroup B, complete genome"
       }
     },
-    "description": "Human orthopneumovirus Subgroup B, complete genome"
+    "description": "Human orthopneumovirus Subgroup B"
   }
 }
