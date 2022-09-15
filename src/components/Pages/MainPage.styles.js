@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const HomePageDiv = styled.div`
+export const MainPageDiv = styled.div`
   display: grid;
   grid-template-columns: [col1] 250px [col2] 180px [col3] auto [col4];
   grid-template-rows: [row1] 50px [row2] auto [row3];
