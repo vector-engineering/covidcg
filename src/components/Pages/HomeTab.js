@@ -8,6 +8,7 @@ import WalkthroughList from '../Example/WalkthroughList';
 import SurveillancePlot from '../Viz/SurveillancePlot';
 import GlobalSeqPlot from '../Viz/GlobalSeqPlot';
 import ExampleList from '../Example/ExampleList';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import { config } from '../../config';
 
@@ -48,6 +49,7 @@ const HomeTab = observer(() => {
         )}
         <ExampleList />
       </HomeTabContent>
+      <AcknowledgementFooter />
     </HomeTabContainer>
   );
 });

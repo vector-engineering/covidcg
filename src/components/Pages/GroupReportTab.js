@@ -10,6 +10,7 @@ import GroupTreePlot from '../Viz/GroupTreePlot';
 import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
 import StructuralViewer from '../GroupReport/GroupStructuralViewer';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import {
   GroupReportTabContainer,
@@ -123,6 +124,7 @@ const GroupReportTab = observer(() => {
       <StructuralViewerContainer>
         {renderStructuralViewer()}
       </StructuralViewerContainer>
+      <AcknowledgementFooter style={{ gridColumn: '1/3' }} />
     </GroupReportTabContainer>
   );
 });

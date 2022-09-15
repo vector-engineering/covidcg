@@ -10,6 +10,7 @@ import KBD from '../Common/KBD';
 import TabIndicator from '../Common/TabIndicator';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import VegaStackedBars from '../Viz/GroupStackPlot';
 import LocationGroupPlot from '../Viz/LocationGroupPlot';
@@ -33,7 +34,7 @@ const CompareGroupsTab = observer(() => {
       <AccordionWrapper
         title={`${configStore.getGroupLabel()} Frequencies`}
         defaultCollapsed={false}
-        maxHeight={'500px'}
+        maxHeight={'600px'}
         helpText={
           <ul>
             <li>
@@ -274,7 +275,8 @@ const CompareGroupsTab = observer(() => {
         renderMutationStructureViewer()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
-      <div style={{ height: '50px' }} />
+      <div style={{ height: '30px' }} />
+      <AcknowledgementFooter />
     </CompareGroupsTabContainer>
   );
 });

@@ -7,6 +7,7 @@ import useDimensions from 'react-use-dimensions';
 import KBD from '../Common/KBD';
 import SelectBoxText from '../Common/SelectBoxText';
 import AccordionWrapper from '../Common/AccordionWrapper';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import LocationGroupPlot from '../Viz/LocationGroupPlot';
 import LocationDatePlot from '../Viz/LocationDatePlot';
@@ -166,7 +167,8 @@ const CompareLocationsTab = observer(() => {
       {renderLocationGroupPlot()}
       {renderNumSeqPerLocationBarPlot()}
       {renderNumSeqPerLocationLinePlot()}
-      <div style={{ height: '50px' }} />
+      <div style={{ height: '30px' }} />
+      <AcknowledgementFooter />
     </CompareLocationsTabContainer>
   );
 });

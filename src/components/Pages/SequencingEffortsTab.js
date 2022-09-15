@@ -9,6 +9,7 @@ import ExternalLink from '../Common/ExternalLink';
 import SequencingMapPlot from '../Viz/SequencingMapPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import WarningBox from '../Common/WarningBox';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import { Container, Header, Title } from './SequencingEffortsTab.styles';
 
@@ -103,6 +104,8 @@ const SequencingEffortsTab = observer(() => {
       </Header>
 
       <SequencingMapPlot width={width - 250} />
+
+      <AcknowledgementFooter />
     </Container>
   );
 });
