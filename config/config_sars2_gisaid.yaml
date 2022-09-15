@@ -91,6 +91,10 @@ group_cols:
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
     show_collapse_options: false
 
+# AZ report options
+report_gene: S
+report_group_col: lineage
+
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
 surv_group_col: "lineage"
