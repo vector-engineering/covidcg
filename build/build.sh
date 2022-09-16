@@ -1,4 +1,7 @@
 #!/bin/bash
+# Build application in Google Cloud's docker context
+# !! RUN FROM REPO ROOT !!
+# TODO: run these builds in parallel?
 
 if [[ -z "${CG_VERSION}" ]]; then
     echo "CG_VERSION undefined"

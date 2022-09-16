@@ -133,7 +133,7 @@ def main():
 
     # Exclude today's file from the manifest
     # Get today's date in ISO format (YYYY-MM-DD)
-    today_str = datetime.date.today().isoformat()
+    today_str = "1_SARS-CoV-2_" + datetime.date.today().isoformat()
     fasta_files = [f for f in fasta_files if f.name != today_str + ".fa.gz"]
 
     # Store sequence manifest as a list of tuples
