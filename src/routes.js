@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Route } from 'mobx-router';
-import HomePage from './components/Pages/HomePage';
+import MainPage from './components/Pages/MainPage';
 import NotFoundPage from './components/Pages/NotFoundPage';
 // import { rootStoreInstance } from './stores/rootStore';
 
@@ -10,11 +10,11 @@ export const publicPath = '/';
 const routes = {
   home: new Route({
     path: publicPath,
-    component: <HomePage />,
+    component: <MainPage />,
   }),
   home_index: new Route({
     path: publicPath + 'index.html',
-    component: <HomePage />,
+    component: <MainPage />,
   }),
   notFound: new Route({
     path: '*',

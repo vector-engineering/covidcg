@@ -652,7 +652,7 @@ const CoordinateSelect = observer(
               </ModeLabel>
               {coordinateMode === COORDINATE_MODES.COORD_PRIMER && (
                 <ExternalLink
-                  href="https://github.com/vector-engineering/covidcg/blob/master/static_data/primers.csv"
+                  href="https://github.com/vector-engineering/covidcg/blob/master/static_data/sars2/primers.csv"
                   style={{ marginLeft: '20px' }}
                 >
                   Primer/probe definitions

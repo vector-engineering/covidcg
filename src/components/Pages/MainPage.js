@@ -25,9 +25,9 @@ const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
 
-import { HomePageDiv, LegendContainer, PlotContainer } from './HomePage.styles';
+import { MainPageDiv, LegendContainer, PlotContainer } from './MainPage.styles';
 
-const HomePage = observer(() => {
+const MainPage = observer(() => {
   const { UIStore } = useStores();
   const [showAsyncError, setShowAsyncError] = useState(false);
 
@@ -118,7 +118,7 @@ const HomePage = observer(() => {
         onAfterOpen={() => {}}
         onRequestClose={hideFetchErrorModal}
       />
-      <HomePageDiv>
+      <MainPageDiv>
         <ReactTooltip
           className="main-tooltip"
           id="main-tooltip"
@@ -137,10 +137,10 @@ const HomePage = observer(() => {
         <PlotContainer showDefaultSidebar={showDefaultSidebar}>
           <React.Suspense fallback={<div />}>{renderTab()}</React.Suspense>
         </PlotContainer>
-      </HomePageDiv>
+      </MainPageDiv>
     </>
   );
 });
 
 // eslint-disable-next-line react/display-name
-export default HomePage;
+export default MainPage;
