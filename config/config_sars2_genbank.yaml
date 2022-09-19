@@ -119,7 +119,7 @@ data_provider: "NCBI GenBank"
 
 # Home page
 show_home_banner: false
-show_walkthroughs: false
+show_walkthroughs: true
 show_surveillance: true
 show_global_seq_plot: false
 

@@ -133,15 +133,15 @@ site_title: "COVID CG - Alpha"
 data_provider: "GISAID"
 
 # Home page
-show_home_banner: false
-show_walkthroughs: false
+show_home_banner: true
+show_walkthroughs: true
 show_surveillance: true
-show_global_seq_plot: false
+show_global_seq_plot: true
 
-show_reports_tab: false
-show_global_sequencing_tab: false
-show_methods_tab: false
-show_related_projects_tab: false
+show_reports_tab: true
+show_global_sequencing_tab: true
+show_methods_tab: true
+show_related_projects_tab: true
 
 default_gene: S
 default_protein: nsp12 - RdRp
