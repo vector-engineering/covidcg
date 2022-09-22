@@ -16,7 +16,7 @@ configfile: "../config/config_sars2_genbank.yaml"
 # Get today's date in ISO format (YYYY-MM-DD)
 today_str = datetime.date.today().isoformat()
 
-data_folder = os.path.join("..", config["data_folder"], config["virus"])
+data_folder = os.path.join("..", config["data_folder"])
 # static_data_folder = os.path.join("..", config["static_data_folder"])
 
 rule all:
