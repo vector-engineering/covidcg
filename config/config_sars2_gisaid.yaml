@@ -92,8 +92,8 @@ group_cols:
     show_collapse_options: false
 
 # AZ report options
-report_gene: S
-report_group_col: lineage
+report_gene: "S"
+report_group_col: "lineage"
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
