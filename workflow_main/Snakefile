@@ -162,6 +162,27 @@ rule write_reference_files:
         """
 
 
+rule sequence_manifest:
+    """Generate sequence manifest (all sequence-reference pairs)
+    Used as the left side for joining mutation/coverage data
+    """
+    input:
+        # Include metadata so this triggers every run
+        metadata = os.path.join(data_folder, "metadata.csv"),
+        reference = rules.write_reference_files.output.reference
+    output:
+        manifest = os.path.join(data_folder, "sequence_manifest.csv")
+    params:
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed")
+    shell:
+        """
+        python3 scripts/sequence_manifest.py \
+            --reference {input.reference} \
+            --fasta {params.processed_fasta_files} \
+            --out {output.manifest}
+        """
+
+
 rule preprocess_sequences:
     """
     FOR SARS2 ONLY:
@@ -175,7 +196,8 @@ rule preprocess_sequences:
     For Flu, skip this QC step
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
+        manifest = rules.sequence_manifest.output.manifest # Trigger manifest construction first
     params:
         virus = config['virus'],
         nextstrain_exclude = os.path.join(
@@ -343,27 +365,6 @@ rule coverage_aa:
             --segment {params.segment} \
             --mode protein \
             --out {output.coverage_protein_aa}
-        """
-
-
-rule sequence_manifest:
-    """Generate sequence manifest (all sequence-reference pairs)
-    Used as the left side for joining mutation/coverage data
-    """
-    input:
-        # Include metadata so this triggers every run
-        metadata = os.path.join(data_folder, "metadata.csv"),
-        reference = rules.write_reference_files.output.reference
-    output:
-        manifest = os.path.join(data_folder, "sequence_manifest.csv")
-    params:
-        processed_fasta_files = os.path.join(data_folder, "fasta_processed")
-    shell:
-        """
-        python3 scripts/sequence_manifest.py \
-            --reference {input.reference} \
-            --fasta {params.processed_fasta_files} \
-            --out {output.manifest}
         """
 
 
