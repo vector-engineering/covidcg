@@ -116,9 +116,9 @@ def get_representative_seqs(
 
         for mut in dna_mutations:
             mut = id_to_dna_mutation[mut].split("|")
-            pos = int(mut[0])
-            ref = mut[1]
-            alt = mut[2]
+            pos = int(mut[1])
+            ref = mut[2]
+            alt = mut[3]
 
             # Skip insertions
             if ref == "-" or len(alt) > len(ref):
