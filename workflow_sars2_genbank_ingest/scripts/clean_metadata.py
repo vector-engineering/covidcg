@@ -13,7 +13,7 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     """Clean metadata from GenBank
 
     Required columns:
-        "Accession ID": index
+        "genbank_accession": index
 
         # date information
         "collection_date"
@@ -148,7 +148,7 @@ def clean_metadata(metadata_in, lineages_in, metadata_out):
     df.loc[:, "lineage"] = df["lineage"].fillna("None")
 
     # Isolate ID = same as Accession ID
-    df["isolate_id"] = df.index.values
+    df["isolate_id"] = df.index.values 
     # Segment = 1
     df["segment"] = 1
 

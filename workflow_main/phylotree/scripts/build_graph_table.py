@@ -30,6 +30,8 @@ def build_graph_table(
     net = Phylo.to_networkx(phy)
 
     reps = pd.read_csv(representative_table_path, index_col="isolate_id")
+    # Convert isolate_id index to string type for merging
+    reps.index = reps.index.astype(str)
 
     nodes = pd.DataFrame([(node.name,) for node in net.nodes], columns=["name",],)
     nodes = nodes.join(

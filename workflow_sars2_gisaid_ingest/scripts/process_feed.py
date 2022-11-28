@@ -159,7 +159,7 @@ def main():
         pool.join()
 
     manifest = pd.DataFrame(entries, columns=["Accession ID", "sequence_hash", "date"])
-    manifest["date"] = pd.to_datetime(manifest["date"])
+    #manifest["date"] = pd.to_datetime(manifest["date"])
     # Sort by date, and drop duplicate Accession IDs, by keeping the last copy
     # (i.e., the latest copy)
     manifest = manifest.sort_values("date", ascending=True).drop_duplicates(
