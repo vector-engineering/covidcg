@@ -124,7 +124,7 @@ if (config['virus'] === 'sars2') {
   };
 
   _groupDataStore = {
-    activeGroupType: Object.keys(config['group_cols'])[0],
+    activeGroupType: 'lineage',
     selectedGroups: [
       'BA.1',
       'BA.2',
