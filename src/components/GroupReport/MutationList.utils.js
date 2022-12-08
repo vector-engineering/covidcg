@@ -36,6 +36,11 @@ export const buildFeatureMatrix = ({
   ]
   */
 
+  // Abort if mutation frequency data empty
+  if (Object.keys(groupMutationFrequency).length === 0) {
+    return {};
+  }
+
   // Select group mutations from the selected groups
   groupMutationFrequency = groupMutationFrequency[activeGroupType][
     groupMutationType
