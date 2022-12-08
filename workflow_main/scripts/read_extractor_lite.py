@@ -186,6 +186,7 @@ class ReadExtractor:
             """
 
             # Add query base to query sequence, if we're storing it
+            # Only do this for the CIGAR ops of 1) match/mismatch or 2) query insertion
             if store_query_sequence and op in [0, 7, 8, 1, 4]:
                 self.query_seq += self.read_seq[self.read_i]
 
