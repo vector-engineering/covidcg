@@ -54,6 +54,11 @@ class ReadExtractor:
         # Store mutations
         self.dna_mutations = []
 
+        # Stored query sequence
+        # Only for when read_extractor is used to extract regions of query sequences
+        # **NOT** for mutation extraction mode (usual use case)
+        self.query_seq = ""
+
         # Read data from the pysam.AlignedSegment object into python variables
         self.load_read()
 
@@ -137,7 +142,7 @@ class ReadExtractor:
         # using read.query_alignment_start
         self.read_i = 0
 
-    def crawl_to(self, destination):
+    def crawl_to(self, destination, store_query_sequence=False):
         """Iterate (consume bases) through both the read and the reference
         Use the CIGAR operations and other stats to stay on the same
         "aligned" base (as if we did a multiple sequence alignment on the read and ref)
@@ -146,6 +151,8 @@ class ReadExtractor:
         ----------
         destination: int
             - Index on the reference of where we want to crawl to
+        store_query_sequence: bool
+            - If True, store the query sequence in self.query_seq for this crawl operation
         """
 
         while self.ref_i < destination:
@@ -177,6 +184,10 @@ class ReadExtractor:
             | B   | 9     | ?             | ?                 |
             ---------------------------------------------------
             """
+
+            # Add query base to query sequence, if we're storing it
+            if store_query_sequence and op in [0, 7, 8, 1, 4]:
+                self.query_seq += self.read_seq[self.read_i]
 
             # MATCH - can be match or mismatch
             if op == 0 or op == 7 or op == 8:
