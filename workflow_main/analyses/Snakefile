@@ -8,8 +8,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 import datetime
 import os
 
-from analyses.scripts.standalone_map_spec import standalone_map_spec
-
 data_folder = os.path.join("..", config["data_folder"])
 static_data_folder = os.path.join("..", config["static_data_folder"])
 
@@ -127,11 +125,16 @@ rule global_sequencing_efforts:
 rule create_standalone_map_spec:
     input:
         spec = os.path.join("../src", "vega_specs", "map_combined.vg.json"),
-        data = rules.global_sequencing_efforts.output.country_score
+        country_score = rules.global_sequencing_efforts.output.country_score
     output:
         standalone_spec = os.path.join(data_folder, "map_combined_standalone.vg.json")
-    run:
-        standalone_map_spec(input.spec, input.data, output.standalone_spec)
+    shell:
+        """
+        python3 analyses/scripts/standalone_map_spec.py \
+            --in-spec {input.spec} \
+            --out-spec {output.standalone_spec} \
+            --country-score {input.country_score}
+        """
 
 
 rule global_seq_data:
