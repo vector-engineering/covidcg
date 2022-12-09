@@ -2,7 +2,7 @@
 
 """Main data processing workflow from ingested data
 
-$ snakemake --configfile ../config/config_sars2_genbank.yaml -j6
+$ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_gisaid.yaml -j6
@@ -101,7 +101,9 @@ def sars2_output(wildcards):
     if config['virus'] == 'sars2':
         return [
             rules.build_phylotree_graph.output.graph_table,
-            os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done")
+            os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
+            os.path.join(data_folder, "spikenuc.fa.gz"),
+            os.path.join(data_folder, "spikeaa.fa.gz")
         ]
     else:
         return []
@@ -566,4 +568,62 @@ rule update_vocs:
         python3 scripts/update_vocs.py \
             -i {output.cdc_list} {output.who_list} {output.ecdc_list} {output.phe_list} \
             -o {output.voc_list}
+        """
+
+
+rule spikenuc_extract:
+    """Extract spike sequences from each sequence"""
+
+    input:
+        bam = rules.combine_alignments.output.bam,
+        reference = rules.write_reference_files.output.reference
+    params:
+        subtype = get_subtype,
+        segment = get_segment,
+        start = 21563,
+        end = 25384
+    output:
+        spikenuc_fasta = os.path.join(data_folder, "spikenuc", "{chunk}_spikenuc.fa.gz"),
+        spikeaa_fasta = os.path.join(data_folder, "spikeaa", "{chunk}_spikeaa.fa.gz")
+    shell:
+        """
+        python3 scripts/bam_subseq.py \
+            --bam {input.bam} \
+            --reference {input.reference} \
+            --subtype {params.subtype} \
+            --segment {params.segment} \
+            --start {params.start} --end {params.end} \
+            --output-dna {output.spikenuc_fasta} \
+            --output-aa {output.spikeaa_fasta}
+        """
+
+rule collapse_spikenuc:
+    """Collapse all spikenuc chunks"""
+
+    input:
+        spikenuc_fasta = expand(
+            os.path.join(data_folder, "spikenuc", "{chunk}_spikenuc.fa.gz"),
+            chunk = CHUNKS
+        )
+    output:
+        spikenuc_fasta = os.path.join(data_folder, "spikenuc.fa.gz")
+    shell:
+        """
+        cat {input.spikenuc_fasta} > {output.spikenuc_fasta}
+        """
+
+
+rule collapse_spikeaa:
+    """Collapse all spikeaa chunks"""
+
+    input:
+        spikeaa_fasta = expand(
+            os.path.join(data_folder, "spikeaa", "{chunk}_spikeaa.fa.gz"),
+            chunk = CHUNKS
+        )
+    output:
+        spikeaa_fasta = os.path.join(data_folder, "spikeaa.fa.gz")
+    shell:
+        """
+        cat {input.spikeaa_fasta} > {output.spikeaa_fasta}
         """

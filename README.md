@@ -236,7 +236,7 @@ For example, if you ingested data from GenBank, run the main analysis pipeline w
 
 ```bash
 cd workflow_main
-snakemake --configfile ../config/config_sars2_genbank.yaml
+snakemake --configfile ../config/config_sars2_genbank_dev.yaml
 ```
 
 This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information data. The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
