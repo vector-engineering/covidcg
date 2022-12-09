@@ -13,24 +13,31 @@
         "segment": "2",
         "segments": [[13, 2286]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [[95, 358]]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PB1-F2",
+        "segment": "2",
+        "segments": [[107, 370]],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "PA",
         "segment": "3",
         "segments": [[13, 2163]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [[1, 760]]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PA-X",
+        "segment": "3",
+        "segments": [
+          [13, 582],
+          [584, 772]
+        ],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "HA",
@@ -40,15 +47,15 @@
         "domains": [
           {
             "name": "signal peptide",
-            "ranges": [[1, 51]]
+            "ranges": [[1, 17]]
           },
           {
             "name": "HA1",
-            "ranges": [[52, 1032]]
+            "ranges": [[18, 344]]
           },
           {
             "name": "HA2",
-            "ranges": [[1033, 1698]]
+            "ranges": [[345, 566]]
           }
         ]
       },
@@ -116,27 +123,31 @@
         "segment": "2",
         "segments": [[15, 2288]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [[109, 381]]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PB1-F2",
+        "segment": "2",
+        "segments": [[109, 381]],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "PA",
         "segment": "3",
         "segments": [[11, 2161]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [
-              [11, 583],
-              [585, 770]
-            ]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PA-X",
+        "segment": "3",
+        "segments": [
+          [11, 583],
+          [585, 770]
+        ],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "HA",
@@ -146,15 +157,15 @@
         "domains": [
           {
             "name": "signal peptide",
-            "ranges": [[1, 48]]
+            "ranges": [[1, 16]]
           },
           {
             "name": "HA1",
-            "ranges": [[49, 1035]]
+            "ranges": [[17, 345]]
           },
           {
             "name": "HA2",
-            "ranges": [[1036, 1698]]
+            "ranges": [[346, 566]]
           }
         ]
       },
@@ -220,27 +231,31 @@
         "segment": "2",
         "segments": [[1, 2274]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PB1-F2",
-            "ranges": [[95, 358]]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PB1-F2",
+        "segment": "2",
+        "segments": [[95, 367]],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "PA",
         "segment": "3",
         "segments": [[1, 2151]],
         "protein_coding": 1,
-        "domains": [
-          {
-            "name": "PA-X",
-            "ranges": [
-              [1, 573],
-              [575, 760]
-            ]
-          }
-        ]
+        "domains": []
+      },
+      {
+        "name": "PA-X",
+        "segment": "3",
+        "segments": [
+          [1, 573],
+          [575, 760]
+        ],
+        "protein_coding": 1,
+        "domains": []
       },
       {
         "name": "HA",
@@ -250,15 +265,15 @@
         "domains": [
           {
             "name": "signal peptide",
-            "ranges": [[1, 48]]
+            "ranges": [[1, 16]]
           },
           {
             "name": "HA1",
-            "ranges": [[49, 1035]]
+            "ranges": [[17, 345]]
           },
           {
             "name": "HA2",
-            "ranges": [[1036, 1698]]
+            "ranges": [[346, 566]]
           }
         ]
       },
