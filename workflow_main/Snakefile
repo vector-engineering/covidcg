@@ -438,6 +438,16 @@ rule combine_all_data:
             os.path.join(data_folder, "protein_aa_mutation", "{chunk}_protein_aa_mutation.csv"),
             chunk=CHUNKS
         ),
+        # spike files not used for this rule
+        # but trigger here to run while we're using a bunch of cores
+        spikenuc_fasta = expand(
+            os.path.join(data_folder, "spikenuc", "{chunk}_spikenuc.fa.gz"),
+            chunk = CHUNKS
+        ),
+        spikeaa_fasta = expand(
+            os.path.join(data_folder, "spikeaa", "{chunk}_spikeaa.fa.gz"),
+            chunk = CHUNKS
+        ),
         dna_coverage = rules.combine_coverage.output.coverage_dna,
         gene_aa_coverage = rules.combine_coverage.output.coverage_gene_aa,
         protein_aa_coverage = rules.combine_coverage.output.coverage_protein_aa,
