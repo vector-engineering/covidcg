@@ -405,6 +405,7 @@ const EntropyPlot = observer(({ width }) => {
         coverage in each country.
         {config['virus'] === 'sars2' && (
           <>
+            {' '}
             For example, systematic errors are sometimes observed specific to
             particular labs or methods (
             <ExternalLink href="https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473/14">
