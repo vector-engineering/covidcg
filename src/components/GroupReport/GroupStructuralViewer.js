@@ -5,7 +5,7 @@ import './../../styles/litemol.min.css';
 
 import { LoadLitemolModel, colorHeatmap } from '../LiteMol/litemolutils';
 import { reds } from '../../constants/colors';
-import { LITEMOL_STYLES } from '../../constants/defs';
+import { ASYNC_STATES, LITEMOL_STYLES } from '../../constants/defs';
 import { hexToRgb } from '../../utils/color';
 import { getAllProteins } from '../../utils/gene_protein';
 // eslint-disable-next-line import/no-unresolved
@@ -13,6 +13,7 @@ import defaultStructures from '../../../static_data/__VIRUS__/default_structures
 
 import DropdownButton from '../Buttons/DropdownButton';
 import EmptyPlot from '../Common/EmptyPlot';
+import SkeletonElement from '../Common/SkeletonElement';
 import DownloadPymolScriptModal from '../Modals/DownloadPymolScriptModal';
 import LiteMolPlugin from '../LiteMol/LiteMolPlugin';
 import StructureEntities from '../LiteMol/StructureEntities';
@@ -34,7 +35,7 @@ const DOWNLOAD_OPTIONS = {
 };
 
 const StructuralViewer = observer(() => {
-  const { groupDataStore, plotSettingsStore } = useStores();
+  const { groupDataStore, plotSettingsStore, UIStore } = useStores();
   const [plugin, setPlugin] = useState(null);
   const [state, setState] = useState({
     downloadPymolScriptModalOpen: false,
@@ -287,6 +288,22 @@ const StructuralViewer = observer(() => {
       </option>
     );
   });
+
+  if (UIStore.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
+    return (
+      <div
+        style={{
+          paddingTop: '12px',
+          paddingRight: '24px',
+          paddingLeft: '12px',
+          paddingBottom: '24px',
+          overflow: 'auto',
+        }}
+      >
+        <SkeletonElement delay={2} height={400} />
+      </div>
+    );
+  }
 
   return (
     <StructuralViewerContainer>

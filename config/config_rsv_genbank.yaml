@@ -19,7 +19,7 @@ static_data_folder: "static_data/rsv"
 example_data_folder: "example_data_genbank/rsv"
 
 # Database for this virus
-postgres_db: "rsv_genbank_dev"
+postgres_db: "rsv_genbank"
 
 # ------------------
 #       INGEST
@@ -113,8 +113,9 @@ mutation_partition_break: "Y"
 login_required: false
 
 dev_hostname: "http://localhost:5002"
-prod_hostname: "https://rsv.pathmut.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "https://rsv.pathmut.org"
+  - "https://rsv.genbank.pathmut.org"
 
 # ----------------------
 #     VISUALIZATION

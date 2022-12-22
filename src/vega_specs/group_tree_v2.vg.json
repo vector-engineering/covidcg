@@ -5,7 +5,6 @@
   "height": 100,
   "padding": 5,
 
-
   "data": [
     {
       "name": "source",
@@ -43,14 +42,9 @@
         {
           "type": "tree",
           "method": "cluster",
-          "size": [{"signal": "plotHeight"}, {"signal": "width - 190"}],
+          "size": [{ "signal": "plotHeight" }, { "signal": "width - 190" }],
           "separation": false,
-          "as": [
-            "y",
-            "_x",
-            "depth",
-            "children"
-          ]
+          "as": ["y", "_x", "depth", "children"]
         }
       ]
     },
@@ -69,9 +63,7 @@
     {
       "name": "selected",
       "values": [],
-      "on": [
-        { "trigger": "nodeClick", "toggle": "nodeClick" }
-      ]
+      "on": [{ "trigger": "nodeClick", "toggle": "nodeClick" }]
     },
     {
       "name": "tips",
@@ -83,7 +75,7 @@
         },
         {
           "type": "collect",
-          "sort": {"field": "region_most_common"}
+          "sort": { "field": "region_most_common" }
         }
       ]
     }
@@ -92,7 +84,7 @@
   "signals": [
     {
       "name": "plotHeight",
-      "value": 12000
+      "value": 18000
     },
     {
       "name": "colorScale",
@@ -185,29 +177,29 @@
     {
       "name": "date_x",
       "type": "time",
-      "range": {"signal": "xRange"},
-      "domain": {"data": "source", "field": "date"}
+      "range": { "signal": "xRange" },
+      "domain": { "data": "source", "field": "date" }
     },
     {
       "name": "colorRegion",
       "type": "ordinal",
-      "range": { 
+      "range": {
         "scheme": "tableau10"
       },
-      "domain": { "data": "tips", "field": {"signal": "colorField"}}
+      "domain": { "data": "tips", "field": { "signal": "colorField" } }
     },
     {
       "name": "colorLatest",
       "type": "linear",
-      "range": {"scheme": "viridis"},
-      "domain": {"signal": "latestDomain"}
+      "range": { "scheme": "viridis" },
+      "domain": { "signal": "latestDomain" }
     },
     {
       "name": "colorNumSequences",
       "type": "log",
       "base": 10,
-      "range": {"scheme": "inferno"},
-      "domain": {"signal": "numSequencesDomain"}
+      "range": { "scheme": "inferno" },
+      "domain": { "signal": "numSequencesDomain" }
     }
   ],
 
@@ -215,11 +207,11 @@
     {
       "name": "treePath",
       "type": "path",
-      "from": {"data": "links"},
+      "from": { "data": "links" },
       "encode": {
         "enter": {
-          "path": {"field": "path"},
-          "stroke": {"value": "#ccc"},
+          "path": { "field": "path" },
+          "stroke": { "value": "#ccc" },
           "strokeWidth": {
             "value": 1
           }
@@ -234,17 +226,20 @@
     {
       "name": "treeNode",
       "type": "rect",
-      "from": {"data": "tips"},
+      "from": { "data": "tips" },
       "encode": {
         "enter": {
-          "height": {"value": 6},
-          "x": {"field": "date_min", "scale": "date_x"},
-          "x2": {"field": "date_max", "scale": "date_x"},
-          "yc": {"field": "y"},
-          "stroke": {"value": "#FF0000"}
+          "height": { "value": 6 },
+          "x": { "field": "date_min", "scale": "date_x" },
+          "x2": { "field": "date_max", "scale": "date_x" },
+          "yc": { "field": "y" },
+          "stroke": { "value": "#FF0000" }
         },
         "update": {
-          "fill": {"field": {"signal": "colorField"}, "scale": {"signal": "colorScale"}},
+          "fill": {
+            "field": { "signal": "colorField" },
+            "scale": { "signal": "colorScale" }
+          },
           "strokeWidth": [
             {
               "test": "indata('selected', 'lineage', datum.lineage)",
@@ -268,15 +263,15 @@
     {
       "name": "treeLabel",
       "type": "text",
-      "from": {"data": "tips"},
+      "from": { "data": "tips" },
       "encode": {
         "enter": {
-          "x": {"field": "date_max", "scale": "date_x"},
-          "dx": {"value": 5},
-          "y": {"field": "y"},
-          "text": {"field": "lineage"},
-          "fontSize": {"value": 9},
-          "baseline": {"value": "middle"}
+          "x": { "field": "date_max", "scale": "date_x" },
+          "dx": { "value": 5 },
+          "y": { "field": "y" },
+          "text": { "field": "lineage" },
+          "fontSize": { "value": 9 },
+          "baseline": { "value": "middle" }
         },
         "update": {
           "fontWeight": [
@@ -284,7 +279,7 @@
               "test": "indata('selected', 'lineage', datum.lineage)",
               "value": "bold"
             },
-            {"value": "normal"}
+            { "value": "normal" }
           ],
           "tooltip": {
             "signal": "{title: datum.lineage, '# Sequences': datum.num_seqs, 'Earliest sample': utcFormat(datum.date_min, '%Y-%m-%d'), 'Most recent sample': utcFormat(datum.date_max, '%Y-%m-%d'), 'Most counts in': datum.region_most_common}"

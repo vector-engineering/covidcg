@@ -8,6 +8,6 @@ export const config = Object.assign({}, _config);
 const _hostname =
   process.env.NODE_ENV == 'development'
     ? config['dev_hostname']
-    : config['prod_hostname']; // eslint-disable-line no-undef
+    : config['prod_hostname'][0]; // eslint-disable-line no-undef
 
 export const hostname = _hostname;

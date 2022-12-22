@@ -37,18 +37,7 @@
         ]
       ],
       "protein_coding": true,
-      "domains": [
-        {
-          "name": "PB1-F2",
-          "ranges": [
-            [
-              95,
-              358
-            ]
-          ],
-          "row": 0
-        }
-      ],
+      "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
       "aa_ranges": [
@@ -75,18 +64,7 @@
         ]
       ],
       "protein_coding": true,
-      "domains": [
-        {
-          "name": "PA-X",
-          "ranges": [
-            [
-              1,
-              760
-            ]
-          ],
-          "row": 0
-        }
-      ],
+      "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
       "aa_ranges": [
@@ -119,7 +97,7 @@
           "ranges": [
             [
               1,
-              51
+              17
             ]
           ],
           "row": 0
@@ -128,8 +106,8 @@
           "name": "HA1",
           "ranges": [
             [
-              52,
-              1032
+              18,
+              344
             ]
           ],
           "row": 1
@@ -138,8 +116,8 @@
           "name": "HA2",
           "ranges": [
             [
-              1033,
-              1698
+              345,
+              566
             ]
           ],
           "row": 0
@@ -386,18 +364,7 @@
         ]
       ],
       "protein_coding": true,
-      "domains": [
-        {
-          "name": "PB1-F2",
-          "ranges": [
-            [
-              109,
-              381
-            ]
-          ],
-          "row": 0
-        }
-      ],
+      "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
       "aa_ranges": [
@@ -472,7 +439,7 @@
           "ranges": [
             [
               1,
-              48
+              16
             ]
           ],
           "row": 0
@@ -481,8 +448,8 @@
           "name": "HA1",
           "ranges": [
             [
-              49,
-              1035
+              17,
+              345
             ]
           ],
           "row": 1
@@ -491,8 +458,8 @@
           "name": "HA2",
           "ranges": [
             [
-              1036,
-              1698
+              346,
+              566
             ]
           ],
           "row": 0
@@ -739,18 +706,7 @@
         ]
       ],
       "protein_coding": true,
-      "domains": [
-        {
-          "name": "PB1-F2",
-          "ranges": [
-            [
-              95,
-              358
-            ]
-          ],
-          "row": 0
-        }
-      ],
+      "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
       "aa_ranges": [
@@ -777,22 +733,7 @@
         ]
       ],
       "protein_coding": true,
-      "domains": [
-        {
-          "name": "PA-X",
-          "ranges": [
-            [
-              1,
-              573
-            ],
-            [
-              575,
-              760
-            ]
-          ],
-          "row": 0
-        }
-      ],
+      "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
       "aa_ranges": [
@@ -825,7 +766,7 @@
           "ranges": [
             [
               1,
-              48
+              16
             ]
           ],
           "row": 0
@@ -834,8 +775,8 @@
           "name": "HA1",
           "ranges": [
             [
-              49,
-              1035
+              17,
+              345
             ]
           ],
           "row": 1
@@ -844,8 +785,8 @@
           "name": "HA2",
           "ranges": [
             [
-              1036,
-              1698
+              346,
+              566
             ]
           ],
           "row": 0

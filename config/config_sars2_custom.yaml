@@ -18,7 +18,7 @@ static_data_folder: "static_data/sars2"
 example_data_folder: "example_data_genbank"
 
 # Database for this virus
-postgres_db: "cg_custom_dev"
+postgres_db: "cg_custom"
 
 # ------------------
 #       INGEST
@@ -95,7 +95,8 @@ mutation_partition_break: "M"
 login_required: false
 
 dev_hostname: "http://localhost:5001"
-prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION

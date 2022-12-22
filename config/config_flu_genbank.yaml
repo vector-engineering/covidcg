@@ -19,7 +19,7 @@ static_data_folder: "static_data/flu"
 example_data_folder: "example_data_genbank/flu"
 
 # Database for this virus
-postgres_db: "flu_genbank_dev"
+postgres_db: "flu_genbank"
 
 # ------------------
 #       INGEST
@@ -114,8 +114,8 @@ mutation_partition_break: "M"
 login_required: false
 
 dev_hostname: "http://localhost:5003"
-prod_hostname: "https://flu.genbank.pathmut.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "https://flu.genbank.pathmut.org"
 
 # ----------------------
 #     VISUALIZATION
