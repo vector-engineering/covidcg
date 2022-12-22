@@ -21,7 +21,7 @@ static_data_folder: "static_data/flu"
 example_data_folder: "data_flu_small"
 
 # Database for this virus
-postgres_db: "flu_gisaid_dev"
+postgres_db: "flu_gisaid"
 
 # ------------------
 #       INGEST

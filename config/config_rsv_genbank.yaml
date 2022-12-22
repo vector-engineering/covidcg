@@ -19,7 +19,7 @@ static_data_folder: "static_data/rsv"
 example_data_folder: "example_data_genbank/rsv"
 
 # Database for this virus
-postgres_db: "rsv_genbank_dev"
+postgres_db: "rsv_genbank"
 
 # ------------------
 #       INGEST
