@@ -200,11 +200,18 @@ const GroupTreePlot = observer(({ width }) => {
       const rangeMS = endDate - startDate;
 
       // Convert ISO strings to fractional tick locations
-      let ticks = ['2020-01-01', '2020-07-01', '2021-01-01', '2021-07-01'];
+      let ticks = [
+        '2020-01-01',
+        '2020-07-01',
+        '2021-01-01',
+        '2021-07-01',
+        '2022-01-01',
+        '2022-07-01',
+      ];
       let tickLocs = ticks.map((tick) => {
         return (ISOToInt(tick) - startDate) / rangeMS;
       });
-      let tickLabels = ['2020-01', '07', '2021-01', '07'];
+      let tickLabels = ['2020-01', '', '2021-01', '', '2022-01', ''];
 
       return (
         <GradientLegend
