@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
@@ -179,8 +179,6 @@ DeleteButtonContainer.propTypes = {
 const MutationListContent = observer(({ featureMatrix }) => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
-  // console.log(UIStore.groupMutationFrequencyState);
-
   if (UIStore.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
     return (
       <div
@@ -309,18 +307,18 @@ const DOWNLOAD_OPTIONS = {
 };
 
 const MutationList = observer(() => {
-  const { groupDataStore, plotSettingsStore } = useStores();
+  const { groupDataStore, plotSettingsStore, UIStore } = useStores();
+
   const [state, setState] = useState({
     showHelp: false,
-  });
-
-  const featureMatrix = buildFeatureMatrix({
-    activeReference: groupDataStore.activeReference,
-    groupMutationFrequency: groupDataStore.groupMutationFrequency,
-    activeGroupType: groupDataStore.activeGroupType,
-    groupMutationType: groupDataStore.groupMutationType,
-    selectedGroups: groupDataStore.selectedGroups,
-    reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
+    featureMatrix: buildFeatureMatrix({
+      activeReference: groupDataStore.activeReference,
+      groupMutationFrequency: groupDataStore.groupMutationFrequency,
+      activeGroupType: groupDataStore.activeGroupType,
+      groupMutationType: groupDataStore.groupMutationType,
+      selectedGroups: groupDataStore.selectedGroups,
+      reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
+    }),
   });
 
   // const onChangeActiveGroupType = (event) => {
@@ -346,7 +344,7 @@ const MutationList = observer(() => {
     } else if (option === DOWNLOAD_OPTIONS.MUTATION_DATA_MATRIX) {
       const blob = new Blob([
         serializeFeatureMatrix({
-          featureMatrix,
+          featureMatrix: state.featureMatrix,
           selectedGroups: groupDataStore.selectedGroups,
         }),
       ]);
@@ -358,6 +356,20 @@ const MutationList = observer(() => {
     e.preventDefault();
     setState({ ...state, showHelp: !state.showHelp });
   };
+
+  useEffect(() => {
+    setState({
+      ...state,
+      featureMatrix: buildFeatureMatrix({
+        activeReference: groupDataStore.activeReference,
+        groupMutationFrequency: groupDataStore.groupMutationFrequency,
+        activeGroupType: groupDataStore.activeGroupType,
+        groupMutationType: groupDataStore.groupMutationType,
+        selectedGroups: groupDataStore.selectedGroups,
+        reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
+      }),
+    });
+  }, [UIStore.groupMutationFrequencyState]);
 
   if (groupDataStore.selectedGroups.length === 0) {
     return (
@@ -473,7 +485,7 @@ const MutationList = observer(() => {
         </OptionCheckboxContainer>
       </MutationListHeader>
       <MutationInnerContainer>
-        <MutationListContent featureMatrix={featureMatrix} />
+        <MutationListContent featureMatrix={state.featureMatrix} />
       </MutationInnerContainer>
     </MutationListContainer>
   );
