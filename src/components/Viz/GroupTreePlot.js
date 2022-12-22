@@ -29,7 +29,7 @@ import {
 import treeSpec from '../../vega_specs/group_tree_v2.vg.json';
 
 const headerHeight = 135;
-const treePlotHeight = 12000;
+const treePlotHeight = 18000;
 
 // https://cssgradient.io/
 const VIRIDIS_GRADIENT =
