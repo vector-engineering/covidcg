@@ -67,8 +67,11 @@ const AcknowledgementFooter = ({ ...props }) => {
           this site. Plots can be downloaded as PNG or SVG files, and the data
           powering the plots and tables can be downloaded as well. Please
           attribute any data/images to{' '}
-          <ExternalLink href={config.prod_hostname} title={config.site_title}>
-            {config.prod_hostname}
+          <ExternalLink
+            href={config.prod_hostname[0]}
+            title={config.site_title}
+          >
+            {config.prod_hostname[0]}
           </ExternalLink>
           .
         </p>

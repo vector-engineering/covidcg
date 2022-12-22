@@ -15,14 +15,12 @@ from flask import Flask
 from flask_gzip import Gzip
 from flask_cors import CORS
 
-from pathlib import Path
-
 
 app = Flask(__name__, static_url_path="", static_folder="dist")
 Gzip(app)
 
 
-cors_domains = ["https://covidcg.org", config["prod_hostname"]]
+cors_domains = ["https://covidcg.org"] + config["prod_hostname"]
 # Load allowed CORS domains
 if os.getenv("FLASK_ENV", "development") == "development":
     # Allow any connections from localhost in development

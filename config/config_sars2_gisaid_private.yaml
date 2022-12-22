@@ -126,8 +126,8 @@ mutation_partition_break: "M"
 login_required: true
 
 dev_hostname: "http://localhost:5001"
-prod_hostname: "https://az.covidcg.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "https://az.covidcg.org"
 
 # ----------------------
 #     VISUALIZATION

@@ -126,8 +126,10 @@ mutation_partition_break: "M"
 login_required: false
 
 dev_hostname: "http://localhost:5001"
-prod_hostname: "https://covidcg.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "https://covidcg.org"
+  - "https://sars2.pathmut.org"
+  - "https://sars2.gisaid.pathmut.org"
 
 # ----------------------
 #     VISUALIZATION

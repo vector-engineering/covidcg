@@ -106,7 +106,8 @@ mutation_partition_break: "Y"
 login_required: false
 
 dev_hostname: "http://localhost:5002"
-prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "http://localhost:8080"
 
 # ----------------------
 #     VISUALIZATION

@@ -124,8 +124,9 @@ mutation_partition_break: "Y"
 login_required: false
 
 dev_hostname: "http://localhost:5003"
-prod_hostname: "https://flu.gisaid.pathmut.org"
-# prod_hostname: "http://localhost:8080"
+prod_hostname:
+  - "https://flu.pathmut.org"
+  - "https://flu.gisaid.pathmut.org"
 
 # ----------------------
 #     VISUALIZATION
