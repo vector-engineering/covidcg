@@ -7,7 +7,6 @@ import {
   COORDINATE_MODES,
   GROUP_MUTATION,
 } from '../../constants/defs.json';
-import { config } from '../../config';
 
 import SkeletonElement from '../Common/SkeletonElement';
 import SelectSequencesModal from '../Modals/SelectSequencesModal';

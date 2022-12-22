@@ -31,7 +31,7 @@ const AcknowledgementFooter = ({ ...props }) => {
             </p>
             <p>
               Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and
-              diplomacy: GISAID’s innovative contribution to global health.{' '}
+              diplomacy: GISAID&apos;s innovative contribution to global health.{' '}
               <i>Global Challenges</i>, 1:33-46. DOI:
               <ExternalLink
                 href="https://doi.org/10.1002/gch2.1018"
@@ -106,7 +106,7 @@ const AcknowledgementFooter = ({ ...props }) => {
               </ExternalLink>
             </p>
             <p>
-              All data in GISAID are subject to GISAID's{' '}
+              All data in GISAID are subject to GISAID&apos;s{' '}
               <ExternalLink href="https://www.gisaid.org/registration/terms-of-use/">
                 Terms and Conditions
               </ExternalLink>
