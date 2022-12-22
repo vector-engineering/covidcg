@@ -62,11 +62,11 @@ docker compose -f docker-compose.sars2.yml up -d
 
 ### Dependency changes
 
-If the dependencies for the JS change (i.e., a change in `package.json`), then you can rebuild the frontend container with:
+If the dependencies for the JS change (i.e., a change in `package.json`), then you can rebuild the `cg-frontend` container with:
 
 ```bash
 $ docker-compose down
-$ docker-compose build --no-cache frontend
+$ docker-compose build --no-cache cg-frontend
 $ docker-compose up
 ```
 
@@ -78,7 +78,7 @@ For dependency changes for the server (i.e., changes in `requirements.txt`)
 
 ```bash
 $ docker-compose down
-$ docker-compose build --no-cache server
+$ docker-compose build --no-cache cg-server
 $ docker-compose up
 ```
 
