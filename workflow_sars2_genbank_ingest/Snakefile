@@ -6,6 +6,8 @@ import gzip
 
 from pathlib import Path
 
+import pandas as pd
+
 # Import scripts
 from scripts.chunk_data import chunk_data
 from scripts.clean_metadata import clean_metadata
@@ -31,28 +33,57 @@ rule all:
         # Cleaned metadata, with lineage assignments
         os.path.join(data_folder, "metadata.csv")
 
+min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
+max_date = pd.to_datetime(datetime.date.today().isoformat())
 
-rule download:
-    """Download latest data from GenBank. The feed "JSON" is actually a file of
-    newline-delimited JSON records (the file itself is not strict JSON)
+chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
+DL_CHUNKS = [i for i in range(len(chunks))]
+
+rule download_chunk:
+    """Download the data feed in chunks, to avoid timeouts.
     """
     output:
-        feed = temp(os.path.join(data_folder, "feed.csv")),
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_download_chunks:
+    """Combine all the downloaded chunks into a single CSV file.
+    Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
+    """
+    input:
+        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'), chunk=DL_CHUNKS)
+    params:
+        chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
+    output:
+        feed = os.path.join(data_folder, 'feed.csv'),
         status = touch(os.path.join(
             data_folder, "status", "download_" + today_str + ".done"
         ))
     shell:
         """
-        python3 scripts/download.py > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
         """
 
 
 checkpoint chunk_data:
-    """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
-    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
+    """Split up the data feed's individual JSON objects into metadata and fasta files. 
+    Chunk the fasta files so that every day we only reprocess the subset of fasta files that 
+    have changed. The smaller the chunk size, the more efficient the updates, but the more 
+    files on the filesystem.
+    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, 
+    and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. 
+    We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.download.output.feed
+        feed = rules.combine_download_chunks.output.feed
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp")),
         metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv")
@@ -80,8 +111,9 @@ def get_num_seqs(fasta_gz):
 
 def get_changed_chunks(wildcards):
     """Helper function for detecting which chunks have changed in terms of their contents
-    (measured in equality by bytes of disk space occupied). Only re-process and re-align chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
-    isolates on GISAID, aligning them would take 1 week for the whole batch.
+    (measured in equality by bytes of disk space occupied). Only re-process and re-align 
+    chunks which have changed. This will save us a ton of computational time, as now that 
+    there are 200K+ isolates on GISAID, aligning them would take 1 week for the whole batch.
     """
 
     # Only run to trigger DAG re-evaluation

@@ -6,6 +6,8 @@ import gzip
 
 from pathlib import Path
 
+import pandas as pd
+
 configfile: "../config/config_rsv_genbank.yaml"
 
 # Get today's date in ISO format (YYYY-MM-DD)
@@ -13,6 +15,12 @@ today_str = datetime.date.today().isoformat()
 
 data_folder = os.path.join("..", config["data_folder"])
 static_data_folder = os.path.join("..", config["static_data_folder"])
+
+min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
+max_date = pd.to_datetime(datetime.date.today().isoformat())
+
+chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
+DL_CHUNKS = [i for i in range(len(chunks))]
 
 rule all:
     input:
@@ -33,25 +41,44 @@ rule all:
         seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
 
 
-rule download:
-    """Download latest data from GenBank. The feed "JSON" is actually a file of
-    newline-delimited JSON records (the file itself is not strict JSON)
+rule download_chunk:
+    """Download the data feed in chunks, to avoid timeouts.
     """
     output:
-        feed = os.path.join(data_folder, "feed.csv"),
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_download_chunks:
+    """Combine all the downloaded chunks into a single CSV file.
+    Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
+    """
+    input:
+        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'), chunk=DL_CHUNKS)
+    params:
+        chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
+    output:
+        feed = os.path.join(data_folder, 'feed.csv'),
         status = touch(os.path.join(
             data_folder, "status", "download_" + today_str + ".done"
         ))
     shell:
         """
-        python3 scripts/download.py > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
         """
 
 rule clean_metadata:
     """Clean metadata
     """
     input:
-        metadata_dirty = rules.download.output.feed,
+        metadata_dirty = rules.combine_download_chunks.output.feed,
     output:
         metadata_clean = os.path.join(data_folder, "metadata_no_subtype.csv")
     shell:
@@ -63,8 +90,8 @@ rule clean_metadata:
 
 rule write_all_fasta:
     input:
-        feed = rules.download.output.feed,
-        download_status = rules.download.output.status, # Force this step every day
+        feed = rules.combine_download_chunks.output.feed,
+        download_status = rules.combine_download_chunks.output.status, # Force this step every day
         metadata = rules.clean_metadata.output.metadata_clean
     output:
         sequences = os.path.join(data_folder, 'all_sequences.fa.gz')
@@ -114,7 +141,7 @@ rule split_sequences_by_subtype:
     """Split sequences by subtype
     """
     input:
-        feed = rules.download.output.feed,
+        feed = rules.combine_download_chunks.output.feed,
         metadata = rules.join_subtype_assignments.output.metadata_plus_subtype
     output:
         seq_A = os.path.join(data_folder, 'seq_by_subtype', 'sequences_A.fa.gz'),
@@ -148,7 +175,7 @@ checkpoint chunk_sequences:
     hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.download.output.feed,
+        feed = rules.combine_download_chunks.output.feed,
         metadata = rules.join_subtype_assignments.output.metadata_plus_subtype,
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp"))
