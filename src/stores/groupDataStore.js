@@ -13,12 +13,13 @@ import { downloadBlobURL } from '../utils/download';
 
 import { getProtein } from '../utils/gene_protein';
 import { savePymolScript } from '../utils/pymol';
+import { updateURLFromParams } from '../utils/updateQueryParam';
 
 export class GroupDataStore {
   initialValues = {};
   // Actively selected group type in the report tab
   @observable activeGroupType = '';
-  @observable selectedGroups = [];
+  @observable selectedReportGroups = [];
   @observable groupMutationType = '';
   @observable activeReference = '';
 
@@ -50,7 +51,7 @@ export class GroupDataStore {
     // Load all groups from the server
     asyncDataStoreInstance.data.groups.forEach((record) => {
       let groupName = record['group'];
-      delete record['group'];
+      //delete record['group'];
       this.groups[groupName].push(record);
     });
 
@@ -60,7 +61,7 @@ export class GroupDataStore {
         this.groupSelectTree[groupName].push({
           label: group.name,
           value: group.name,
-          checked: this.selectedGroups.includes(group.name),
+          checked: this.selectedReportGroups.includes(group.name),
         });
       });
     });
@@ -74,6 +75,85 @@ export class GroupDataStore {
       });
     });
   }
+
+  @action
+  applyPendingChanges = (pending, fetch = true) => {
+    // Overwrite any of our fields here with the pending ones
+    Object.keys(pending).forEach((field) => {
+      this[field] = pending[field];
+    });
+
+    // Hide ORF1a in NT/gene_aa mode by default
+    if (
+      pending.groupMutationType === 'dna' ||
+      pending.groupMutationType === 'gene_aa'
+    ) {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
+        'ORF1a',
+      ]);
+    }
+    // Otherwise clear the hidden list
+    else {
+      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
+    }
+
+    // Update the groupSelectTree as well
+    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
+    selectTree[this.activeGroupType].forEach((group) => {
+      if (this.selectedReportGroups.includes(group.value)) {
+        group.checked = true;
+      } else {
+        group.checked = false;
+      }
+    });
+    this.groupSelectTree = selectTree;
+
+    // Update the selected active group from the structural viewer
+    // if we removed the current structural active group
+    if (
+      !this.selectedReportGroups.includes(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
+      )
+    ) {
+      // Set it to the first selected group
+      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
+        this.selectedReportGroups[0]
+      );
+    }
+
+    // If we don't have the data for this combo yet, then fetch it now
+    if (fetch || !this.hasGroupFrequencyData()) {
+      this.fetchGroupMutationFrequencyData({
+        group: this.activeGroupType,
+        mutationType: this.groupMutationType,
+        consensusThreshold: 0,
+        selectedReference: this.activeReference,
+      });
+    }
+
+    this.updateURL(pending);
+  };
+
+  updateURL = (pending) => {
+    const urlParams = rootStoreInstance.urlMonitor.urlParams;
+    Object.keys(pending).forEach((field) => {
+      if (field === 'selectedReportGroups') {
+        urlParams.set(field, pending[field].join(','));
+      } else {
+        urlParams.set(field, String(pending[field]));
+      }
+
+      if (pending[field] === this.initialValues[field]) {
+        // Only display non-default fields in the url
+        urlParams.delete(field);
+      }
+    });
+
+    // Update URL
+    updateURLFromParams(urlParams);
+
+    rootStoreInstance.urlMonitor.urlParams = urlParams;
+  };
 
   hasGroupFrequencyData() {
     if (
@@ -103,81 +183,6 @@ export class GroupDataStore {
       return true;
     }
   }
-
-  @action
-  updateActiveGroupType = (activeGroupType) => {
-    this.activeGroupType = activeGroupType;
-
-    // If we don't have the data for this combo yet, then fetch it now
-    if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupMutationFrequencyData({
-        group: this.activeGroupType,
-        mutationType: this.groupMutationType,
-        consensusThreshold: 0,
-        selectedReference: this.activeReference,
-      });
-    }
-  };
-
-  @action
-  updateGroupMutationType = (groupMutationType) => {
-    this.groupMutationType = groupMutationType;
-
-    // If we don't have the data for this combo yet, then fetch it now
-    if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupMutationFrequencyData({
-        group: this.activeGroupType,
-        mutationType: this.groupMutationType,
-        consensusThreshold: 0,
-        selectedReference: this.activeReference,
-      });
-    }
-
-    // Hide ORF1a in NT/gene_aa mode by default
-    if (groupMutationType === 'dna' || groupMutationType === 'gene_aa') {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
-        'ORF1a',
-      ]);
-    }
-    // Otherwise clear the hidden list
-    else {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
-    }
-  };
-
-  @action
-  updateSelectedGroups = (selectedGroups) => {
-    this.selectedGroups = selectedGroups;
-
-    // Update the groupSelectTree as well
-    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
-    selectTree[this.activeGroupType].forEach((group) => {
-      if (this.selectedGroups.includes(group.value)) {
-        group.checked = true;
-      } else {
-        group.checked = false;
-      }
-    });
-    this.groupSelectTree = selectTree;
-
-    // Update the selected active group from the structural viewer
-    // if we removed the current structural active group
-    if (
-      !this.selectedGroups.includes(
-        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
-      )
-    ) {
-      // Set it to the first selected group
-      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
-        this.selectedGroups[0]
-      );
-    }
-  };
-
-  @action
-  updateActiveReference = (activeReference) => {
-    this.activeReference = activeReference;
-  };
 
   getActiveGroupTypePrettyName() {
     return config.group_cols[this.activeGroupType].title;

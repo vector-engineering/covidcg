@@ -11,6 +11,7 @@ import { MetadataStore } from './metadataStore';
 import { GlobalSequencingDataStore } from './globalSequencingData';
 import { GroupDataStore } from './groupDataStore';
 import { SurveillanceDataStore } from './surveillanceDataStore';
+import { URLMonitor } from './urlMonitor';
 
 class RootStore {
   UIStore;
@@ -45,6 +46,8 @@ class RootStore {
     this.groupDataStore = new GroupDataStore();
 
     this.surveillanceDataStore = new SurveillanceDataStore();
+
+    this.urlMonitor = new URLMonitor();
   }
 
   init() {
@@ -67,11 +70,7 @@ class RootStore {
 
     this.dataStore.init();
 
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get('tab')) {
-      this.UIStore.setActiveTab(urlParams.get('tab'));
-    }
+    this.urlMonitor.init();
   }
 }
 

@@ -171,8 +171,8 @@ export class UIStore {
       });
     }
 
-    rootStoreInstance.configStore.urlParams.set('tab', this.activeTab);
-    updateURLFromParams(rootStoreInstance.configStore.urlParams);
+    rootStoreInstance.urlMonitor.urlParams.set('tab', this.activeTab);
+    updateURLFromParams(rootStoreInstance.urlMonitor.urlParams);
   };
 
   @action
