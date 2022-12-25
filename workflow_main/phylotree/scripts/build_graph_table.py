@@ -60,7 +60,7 @@ def build_graph_table(
         nodes.at[node_name, "num_seqs"] = num_seqs
         return num_seqs
 
-    add_seqs_to_parent("NODE_0000001")
+    add_seqs_to_parent(phy.root.name)
 
     # Add divergence dates
     dates = pd.read_csv(tree_dates_path, sep="\t")
