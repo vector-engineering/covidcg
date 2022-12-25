@@ -125,89 +125,111 @@ Example record:
 
 """
 
+import argparse
 import requests
 
-endpoint = "https://www.ncbi.nlm.nih.gov/genomes/VirusVariation/vvsearch2/"
-params = {
-    # Search criteria
-    "fq": [
-        '{!tag=SeqType_s}SeqType_s:("Nucleotide")',  # Nucleotide sequences (as opposed to protein)
-        # NCBI Taxon id for:
-        #   Alphainfluenzavirus: 197911
-        #   Betainfluenzavirus: 197912
-        #   Gammainfluenzavirus: 197913
-        # "VirusLineageId_ss:(197911 OR 197912 OR 197913)",
-        "VirusLineageId_ss:(197911 OR 197912)",
-    ],
-    # Unclear, but seems necessary.
-    "q": "*:*",
-    # "taxresolve": "true", # Maybe necessary for taxonomy/lineage info?
-    # Response format
-    "cmd": "download",
-    "dlfmt": "csv",
-    "fl": ",".join(
-        ":".join(names)
-        for names in [
-            # Pairs of (output column name, source data field).  These are pulled
-            # from watching requests from the UI.
-            #
-            # XXX TODO: Is the full set source data fields documented
-            # somewhere?  Is there more info we could be pulling that'd be
-            # useful?
-            #   -trs, 13 May 2020
-            ("genbank_accession", "id"),
-            ("database", "SourceDB_s"),
-            ("set_id", "SetAcc_s"),
-            # Serotype info is here as well... maybe get these if the serotype field
-            # is missing for some of these
-            # ("species", "VirusSpecies_s"),
-            # ("species_id", "VirusSpeciesId_i"),
-            # ("lineage", "VirusLineage_ss"),
-            # ("lineage_id", "VirusLineageId_ss"),
-            ("genus", "VirusGenus_s"),
-            ("serotype", "Serotype_s"),
-            ("strain", "Strain_s"),
-            # Sequencing/Assembly
-            ("length", "SLen_i"),
-            ("is_segmented", "Segmented_s"),
-            ("complete", "GenomeCompleteness_s"),
-            ("segments", "Segments_ss"),
-            # ("protein_names", "ProtNames_ss"),
-            ("genome_coverage", "Genome_js"),
-            # Geographical info
-            ("region", "Region_s"),
-            ("country", "Country_s"),
-            ("location", "CountryFull_s"),
-            # Date info
-            ("collected", "CollectionDate_s"),
-            ("submitted", "CreateDate_dt"),
-            ("updated", "UpdateDate_dt"),
-            # Additional metadata
-            ("host", "Host_s"),
-            ("isolation_source", "Isolation_csv"),
-            ("biosample_accession", "BioSample_s"),
-            ("title", "Definition_s"),
-            ("authors", "Authors_csv"),
-            ("publications", "PubMed_csv"),
-            ("sequence", "Nucleotide_seq"),
-        ]
-    ),
-    # Stable sort with newest last so diffs work nicely.  Columns are source
-    # data fields, not our output columns.
-    "sort": "SourceDB_s desc, CollectionDate_s asc, id asc",
-    # This isn't Entrez, but include the same email parameter it requires just
-    # to be nice.
-    "email": "covidcg@broadinstitute.org",
-}
+def main():
 
-headers = {
-    "User-Agent": "https://github.com/vector-engineering/covid-cg (covidcg@broadinstitute.org)",
-}
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--start-time",
+        type=str,
+        required=True,
+        help="Start time in format YYYY-MM-DDTHH:MM:SS.00Z",
+    )
+    parser.add_argument(
+        "--end-time",
+        type=str,
+        required=True,
+        help="Start time in format YYYY-MM-DDTHH:MM:SS.00Z",
+    )
+    args = parser.parse_args()
 
-response = requests.get(endpoint, params=params, headers=headers, stream=True)
-response.raise_for_status()
+    endpoint = "https://www.ncbi.nlm.nih.gov/genomes/VirusVariation/vvsearch2/"
+    params = {
+        # Search criteria
+        "fq": [
+            '{!tag=SeqType_s}SeqType_s:("Nucleotide")',  # Nucleotide sequences (as opposed to protein)
+            # NCBI Taxon id for:
+            #   Alphainfluenzavirus: 197911
+            #   Betainfluenzavirus: 197912
+            #   Gammainfluenzavirus: 197913
+            # "VirusLineageId_ss:(197911 OR 197912 OR 197913)",
+            "VirusLineageId_ss:(197911 OR 197912)",
+            f"{{!tag=CreateDate_dt}}CreateDate_dt:([{args.start_time} TO {args.end_time}])",
+        ],
+        # Unclear, but seems necessary.
+        "q": "*:*",
+        # "taxresolve": "true", # Maybe necessary for taxonomy/lineage info?
+        # Response format
+        "cmd": "download",
+        "dlfmt": "csv",
+        "fl": ",".join(
+            ":".join(names)
+            for names in [
+                # Pairs of (output column name, source data field).  These are pulled
+                # from watching requests from the UI.
+                #
+                # XXX TODO: Is the full set source data fields documented
+                # somewhere?  Is there more info we could be pulling that'd be
+                # useful?
+                #   -trs, 13 May 2020
+                ("genbank_accession", "id"),
+                ("database", "SourceDB_s"),
+                ("set_id", "SetAcc_s"),
+                # Serotype info is here as well... maybe get these if the serotype field
+                # is missing for some of these
+                # ("species", "VirusSpecies_s"),
+                # ("species_id", "VirusSpeciesId_i"),
+                # ("lineage", "VirusLineage_ss"),
+                # ("lineage_id", "VirusLineageId_ss"),
+                ("genus", "VirusGenus_s"),
+                ("serotype", "Serotype_s"),
+                ("strain", "Strain_s"),
+                # Sequencing/Assembly
+                ("length", "SLen_i"),
+                ("is_segmented", "Segmented_s"),
+                ("complete", "GenomeCompleteness_s"),
+                ("segments", "Segments_ss"),
+                # ("protein_names", "ProtNames_ss"),
+                ("genome_coverage", "Genome_js"),
+                # Geographical info
+                ("region", "Region_s"),
+                ("country", "Country_s"),
+                ("location", "CountryFull_s"),
+                # Date info
+                ("collected", "CollectionDate_s"),
+                ("submitted", "CreateDate_dt"),
+                ("updated", "UpdateDate_dt"),
+                # Additional metadata
+                ("host", "Host_s"),
+                ("isolation_source", "Isolation_csv"),
+                ("biosample_accession", "BioSample_s"),
+                ("title", "Definition_s"),
+                ("authors", "Authors_csv"),
+                ("publications", "PubMed_csv"),
+                ("sequence", "Nucleotide_seq"),
+            ]
+        ),
+        # Stable sort with newest last so diffs work nicely.  Columns are source
+        # data fields, not our output columns.
+        "sort": "SourceDB_s desc, CollectionDate_s asc, id asc",
+        # This isn't Entrez, but include the same email parameter it requires just
+        # to be nice.
+        "email": "covidcg@broadinstitute.org",
+    }
 
-response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
+    headers = {
+        "User-Agent": "https://github.com/vector-engineering/covid-cg (covidcg@broadinstitute.org)",
+    }
 
-for chunk in response_content:
-    print(chunk, end="")
+    response = requests.get(endpoint, params=params, headers=headers, stream=True)
+    response.raise_for_status()
+
+    response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
+
+    for chunk in response_content:
+        print(chunk, end="")
+
+if __name__ == "__main__":
+    main()

@@ -25,6 +25,10 @@ postgres_db: "flu_genbank"
 #       INGEST
 # ------------------
 
+# Download sequences from GenBank (NCBI Virus vvsearch) in chunks of this size
+# D = day, W = week, M = month, Y = year
+dl_chunk_period: "Y"
+
 # Number of genomes to load into memory before flushing to disk
 chunk_size: 10000
 
