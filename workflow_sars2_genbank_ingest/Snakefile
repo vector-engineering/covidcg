@@ -36,7 +36,7 @@ rule all:
 min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
 max_date = pd.to_datetime(datetime.date.today().isoformat())
 
-chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq='W')]
+chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
 DL_CHUNKS = [i for i in range(len(chunks))]
 
 rule download_chunk:
