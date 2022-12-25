@@ -12,7 +12,7 @@ export const initialValues = {
   globalSequencingDataState: ASYNC_STATES.UNINITIALIZED,
   metadataFieldsState: ASYNC_STATES.UNINITIALIZED,
 
-  groupMutationFrequencyState: ASYNC_STATES.UNINITIALIZED,
+  reportGroupMutationFrequencyState: ASYNC_STATES.UNINITIALIZED,
 
   activeTab: TABS.TAB_EXAMPLE,
   keysPressed: [],
@@ -28,8 +28,8 @@ export class UIStore {
   // i.e., metadata key (integer) => metadata value (string)
   @observable metadataFieldState = initialValues.metadataFieldState;
 
-  @observable groupMutationFrequencyState =
-    initialValues.groupMutationFrequencyState;
+  @observable reportGroupMutationFrequencyState =
+    initialValues.reportGroupMutationFrequencyState;
 
   @observable activeTab = initialValues.activeTab;
   @observable keysPressed = initialValues.keysPressed;
@@ -126,16 +126,16 @@ export class UIStore {
   };
 
   @action
-  onGroupMutationFrequencyStarted = () => {
-    this.groupMutationFrequencyState = ASYNC_STATES.STARTED;
+  onReportGroupMutationFrequencyStarted = () => {
+    this.reportGroupMutationFrequencyState = ASYNC_STATES.STARTED;
   };
   @action
-  onGroupMutationFrequencyFinished = () => {
-    this.groupMutationFrequencyState = ASYNC_STATES.SUCCEEDED;
+  onReportGroupMutationFrequencyFinished = () => {
+    this.reportGroupMutationFrequencyState = ASYNC_STATES.SUCCEEDED;
   };
   @action
-  onGroupMutationFrequencyErr = () => {
-    this.groupMutationFrequencyState = ASYNC_STATES.FAILED;
+  onReportGroupMutationFrequencyErr = () => {
+    this.reportGroupMutationFrequencyState = ASYNC_STATES.FAILED;
   };
 
   @action
@@ -160,14 +160,15 @@ export class UIStore {
       rootStoreInstance.globalSequencingDataStore.fetchGlobalSequencingData();
     } else if (
       this.activeTab === TABS.TAB_GROUP_REPORT &&
-      (this.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED ||
-        this.groupMutationFrequencyState === ASYNC_STATES.STARTED)
+      (this.reportGroupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED ||
+        this.reportGroupMutationFrequencyState === ASYNC_STATES.STARTED)
     ) {
       rootStoreInstance.groupDataStore.fetchGroupMutationFrequencyData({
-        group: rootStoreInstance.groupDataStore.activeGroupType,
-        mutationType: rootStoreInstance.groupDataStore.groupMutationType,
+        group: rootStoreInstance.groupDataStore.activeReportGroupType,
+        mutationType: rootStoreInstance.groupDataStore.reportGroupMutationType,
         consensusThreshold: 0,
-        selectedReference: rootStoreInstance.groupDataStore.activeReference,
+        selectedReference:
+          rootStoreInstance.groupDataStore.reportActiveReference,
       });
     }
 

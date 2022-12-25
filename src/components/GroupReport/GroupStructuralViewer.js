@@ -155,8 +155,8 @@ const StructuralViewer = observer(() => {
   };
 
   const applyHeatmap = ({ ref, entities }) => {
-    const mutations = groupDataStore.groupMutationFrequency[
-      groupDataStore.activeGroupType
+    const mutations = groupDataStore.reportGroupMutationFrequency[
+      groupDataStore.activeReportGroupType
     ]['protein_aa']['0']
       .filter(
         (groupMutation) =>
@@ -254,7 +254,7 @@ const StructuralViewer = observer(() => {
   }, [plotSettingsStore.reportStructureActiveGroup]);
 
   const proteinOptionItems = [];
-  const proteins = getAllProteins(groupDataStore.activeReference);
+  const proteins = getAllProteins(groupDataStore.reportActiveReference);
   proteins.forEach((protein) => {
     proteinOptionItems.push(
       <option key={`structure-protein-${protein.name}`} value={protein.name}>
@@ -264,7 +264,7 @@ const StructuralViewer = observer(() => {
   });
 
   const groupOptionItems = [];
-  groupDataStore.selectedGroups.forEach((group) => {
+  groupDataStore.selectedReportGroups.forEach((group) => {
     groupOptionItems.push(
       <option key={`structure-active-group-${group}`} value={group}>
         {group}
@@ -272,10 +272,12 @@ const StructuralViewer = observer(() => {
     );
   });
 
-  if (groupDataStore.selectedGroups.length === 0) {
+  if (groupDataStore.selectedReportGroups.length === 0) {
     return (
       <EmptyPlot height={250}>
-        <p>No {groupDataStore.getActiveGroupTypePrettyName()}s selected</p>
+        <p>
+          No {groupDataStore.getActiveReportGroupTypePrettyName()}s selected
+        </p>
       </EmptyPlot>
     );
   }
@@ -289,7 +291,7 @@ const StructuralViewer = observer(() => {
     );
   });
 
-  if (UIStore.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
+  if (UIStore.reportGroupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
     return (
       <div
         style={{
@@ -316,7 +318,7 @@ const StructuralViewer = observer(() => {
         <OptionSelectContainer>
           <label>
             Displaying mutations for{' '}
-            {groupDataStore.getActiveGroupTypePrettyName()}
+            {groupDataStore.getActiveReportGroupTypePrettyName()}
             <select
               value={plotSettingsStore.reportStructureActiveGroup}
               onChange={onChangeStructureActiveGroup}

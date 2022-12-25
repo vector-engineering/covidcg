@@ -65,21 +65,23 @@ const GroupTreePlot = observer(({ width }) => {
 
     // Don't fire if the selection is the same
     if (
-      args[1].length === groupDataStore.selectedGroups.length &&
+      args[1].length === groupDataStore.selectedReportGroups.length &&
       args[1]
         .map((group) => group.lineage)
-        .every((group) => groupDataStore.selectedGroups.includes(group))
+        .every((group) => groupDataStore.selectedReportGroups.includes(group))
     ) {
       return;
     }
 
-    groupDataStore.updateSelectedGroups(args[1].map((group) => group.lineage));
+    groupDataStore.applyPendingChanges({
+      selectedReportGroups: args[1].map((group) => group.lineage),
+    });
   };
 
-  const processSelectedGroups = () => {
+  const processSelectedReportGroups = () => {
     return JSON.parse(
       JSON.stringify(
-        groupDataStore.selectedGroups.map((group) => {
+        groupDataStore.selectedReportGroups.map((group) => {
           return { lineage: group };
         })
       )
@@ -88,7 +90,7 @@ const GroupTreePlot = observer(({ width }) => {
 
   const [state, setState] = useState({
     data: {
-      selected: processSelectedGroups(),
+      selected: processSelectedReportGroups(),
     },
     dataListeners: {
       selected: handleSelected,
@@ -118,8 +120,8 @@ const GroupTreePlot = observer(({ width }) => {
       // than the store's version, that means we just selected a new group
       // from outside of the Vega plot
       // Use this to trigger a zoom to the newly selected group
-      if (selected.length < groupDataStore.selectedGroups.length) {
-        const newGroup = groupDataStore.selectedGroups.find(
+      if (selected.length < groupDataStore.selectedReportGroups.length) {
+        const newGroup = groupDataStore.selectedReportGroups.find(
           (group) => !selected.map((g) => g.lineage).includes(group)
         );
         // console.log(newGroup);
@@ -155,10 +157,10 @@ const GroupTreePlot = observer(({ width }) => {
       ...state,
       data: {
         ...state.data,
-        selected: processSelectedGroups(),
+        selected: processSelectedReportGroups(),
       },
     });
-  }, [groupDataStore.selectedGroups]);
+  }, [groupDataStore.selectedReportGroups]);
 
   const renderLegend = () => {
     if (

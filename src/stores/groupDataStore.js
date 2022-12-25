@@ -18,26 +18,26 @@ import { updateURLFromParams } from '../utils/updateQueryParam';
 export class GroupDataStore {
   initialValues = {};
   // Actively selected group type in the report tab
-  @observable activeGroupType = '';
+  @observable activeReportGroupType = '';
   @observable selectedReportGroups = [];
-  @observable groupMutationType = '';
-  @observable activeReference = '';
+  @observable reportGroupMutationType = '';
+  @observable reportActiveReference = '';
 
   groups;
-  @observable groupSelectTree;
-  groupMutationFrequency;
+  @observable reportGroupSelectTree;
+  reportGroupMutationFrequency;
 
   constructor() {
-    this.groupMutationFrequency = {};
+    this.reportGroupMutationFrequency = {};
     // Provided by the server
     // Array of records { name: string, color: string }
     this.groups = {};
-    this.groupSelectTree = {};
+    this.reportGroupSelectTree = {};
     this.groupColors = {};
 
     Object.keys(config['group_cols']).forEach((group) => {
       this.groups[group] = [];
-      this.groupSelectTree[group] = [];
+      this.reportGroupSelectTree[group] = [];
       this.groupColors[group] = {};
     });
   }
@@ -58,7 +58,7 @@ export class GroupDataStore {
     // Construct selection trees
     Object.keys(this.groups).forEach((groupName) => {
       this.groups[groupName].forEach((group) => {
-        this.groupSelectTree[groupName].push({
+        this.reportGroupSelectTree[groupName].push({
           label: group.name,
           value: group.name,
           checked: this.selectedReportGroups.includes(group.name),
@@ -85,8 +85,8 @@ export class GroupDataStore {
 
     // Hide ORF1a in NT/gene_aa mode by default
     if (
-      pending.groupMutationType === 'dna' ||
-      pending.groupMutationType === 'gene_aa'
+      pending.reportGroupMutationType === 'dna' ||
+      pending.reportGroupMutationType === 'gene_aa'
     ) {
       rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
         'ORF1a',
@@ -97,16 +97,16 @@ export class GroupDataStore {
       rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
     }
 
-    // Update the groupSelectTree as well
-    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
-    selectTree[this.activeGroupType].forEach((group) => {
+    // Update the reportGroupSelectTree as well
+    const selectTree = JSON.parse(JSON.stringify(this.reportGroupSelectTree));
+    selectTree[this.activeReportGroupType].forEach((group) => {
       if (this.selectedReportGroups.includes(group.value)) {
         group.checked = true;
       } else {
         group.checked = false;
       }
     });
-    this.groupSelectTree = selectTree;
+    this.reportGroupSelectTree = selectTree;
 
     // Update the selected active group from the structural viewer
     // if we removed the current structural active group
@@ -124,10 +124,10 @@ export class GroupDataStore {
     // If we don't have the data for this combo yet, then fetch it now
     if (fetch || !this.hasGroupFrequencyData()) {
       this.fetchGroupMutationFrequencyData({
-        group: this.activeGroupType,
-        mutationType: this.groupMutationType,
+        group: this.activeReportGroupType,
+        mutationType: this.reportGroupMutationType,
         consensusThreshold: 0,
-        selectedReference: this.activeReference,
+        selectedReference: this.reportActiveReference,
       });
     }
 
@@ -158,22 +158,22 @@ export class GroupDataStore {
   hasGroupFrequencyData() {
     if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency,
-        this.activeGroupType
+        this.reportGroupMutationFrequency,
+        this.activeReportGroupType
       )
     ) {
       return false;
     } else if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[this.activeGroupType],
-        this.groupMutationType
+        this.reportGroupMutationFrequency[this.activeReportGroupType],
+        this.reportGroupMutationType
       )
     ) {
       return false;
     } else if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[this.activeGroupType][
-          this.groupMutationType
+        this.reportGroupMutationFrequency[this.activeReportGroupType][
+          this.reportGroupMutationType
         ],
         '0'
       )
@@ -184,16 +184,16 @@ export class GroupDataStore {
     }
   }
 
-  getActiveGroupTypePrettyName() {
-    return config.group_cols[this.activeGroupType].title;
+  getActiveReportGroupTypePrettyName() {
+    return config.group_cols[this.activeReportGroupType].title;
   }
 
-  getGroupMutationTypePrettyName() {
-    if (this.groupMutationType === 'dna') {
+  getReportGroupMutationTypePrettyName() {
+    if (this.reportGroupMutationType === 'dna') {
       return 'NT';
-    } else if (this.groupMutationType === 'gene_aa') {
+    } else if (this.reportGroupMutationType === 'gene_aa') {
       return 'Gene AA';
-    } else if (this.groupMutationType === 'protein_aa') {
+    } else if (this.reportGroupMutationType === 'protein_aa') {
       return 'Protein AA';
     }
   }
@@ -212,29 +212,29 @@ export class GroupDataStore {
     // Skip the download if we already have the requested data
     if (
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency,
+        this.reportGroupMutationFrequency,
         group
       ) &&
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[group],
+        this.reportGroupMutationFrequency[group],
         mutationType
       ) &&
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[group][mutationType],
+        this.reportGroupMutationFrequency[group][mutationType],
         consensusThreshold.toString()
       )
     ) {
       // eslint-disable-next-line no-unused-vars
       return new Promise((resolve, reject) => {
         resolve(
-          this.groupMutationFrequency[group][mutationType][
+          this.reportGroupMutationFrequency[group][mutationType][
             consensusThreshold.toString()
           ]
         );
       });
     }
 
-    rootStoreInstance.UIStore.onGroupMutationFrequencyStarted();
+    rootStoreInstance.UIStore.onReportGroupMutationFrequencyStarted();
     return fetch(hostname + '/group_mutation_frequencies', {
       method: 'POST',
       headers: {
@@ -257,25 +257,25 @@ export class GroupDataStore {
       .then((pkg) => {
         if (
           !Object.prototype.hasOwnProperty.call(
-            this.groupMutationFrequency,
+            this.reportGroupMutationFrequency,
             group
           )
         ) {
-          this.groupMutationFrequency[group] = {};
+          this.reportGroupMutationFrequency[group] = {};
         }
         if (
           !Object.prototype.hasOwnProperty.call(
-            this.groupMutationFrequency[group],
+            this.reportGroupMutationFrequency[group],
             mutationType
           )
         ) {
-          this.groupMutationFrequency[group][mutationType] = {};
+          this.reportGroupMutationFrequency[group][mutationType] = {};
         }
-        this.groupMutationFrequency[group][mutationType][
+        this.reportGroupMutationFrequency[group][mutationType][
           consensusThreshold.toString()
         ] = pkg;
 
-        rootStoreInstance.UIStore.onGroupMutationFrequencyFinished();
+        rootStoreInstance.UIStore.onReportGroupMutationFrequencyFinished();
 
         return pkg;
       })
@@ -287,7 +287,7 @@ export class GroupDataStore {
             console.error(errMsg);
           });
         }
-        rootStoreInstance.UIStore.onGroupMutationFrequencyErr();
+        rootStoreInstance.UIStore.onReportGroupMutationFrequencyErr();
       });
   }
 
@@ -313,9 +313,9 @@ export class GroupDataStore {
   }
 
   getStructureMutations() {
-    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'][
-      '0'
-    ].filter(
+    return this.reportGroupMutationFrequency[this.activeReportGroupType][
+      'protein_aa'
+    ]['0'].filter(
       (groupMutation) =>
         groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&

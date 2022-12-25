@@ -122,7 +122,7 @@ export class URLMonitor {
          * GROUP DATA STORE
          * ------------ */
         if (key === 'selectedReportGroups') {
-          value = value.split(',');
+          value = decodeURIComponent(value).split(',');
           this.pendingChanges.groupDataStore[key] = value;
         } else {
           this.pendingChanges.groupDataStore[key] = value;

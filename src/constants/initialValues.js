@@ -124,8 +124,8 @@ if (config['virus'] === 'sars2') {
   };
 
   _groupDataStore = {
-    activeGroupType: 'lineage',
-    selectedGroups: [
+    activeReportGroupType: 'lineage',
+    selectedReportGroups: [
       'BA.1',
       'BA.2',
       'BA.4',
@@ -136,8 +136,8 @@ if (config['virus'] === 'sars2') {
       'B.1.351',
       'P.2',
     ],
-    groupMutationType: 'protein_aa',
-    activeReference: startingReference,
+    reportGroupMutationType: 'protein_aa',
+    reportActiveReference: startingReference,
   };
 } else if (config['virus'] === 'rsv') {
   const startingReference = 'NC_038235.1';
@@ -247,10 +247,10 @@ if (config['virus'] === 'sars2') {
     reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
   };
   _groupDataStore = {
-    activeGroupType: Object.keys(config['group_cols'])[0],
-    selectedGroups: ['ON1'],
-    groupMutationType: 'protein_aa',
-    activeReference: startingReference,
+    activeReportGroupType: Object.keys(config['group_cols'])[0],
+    selectedReportGroups: ['ON1'],
+    reportGroupMutationType: 'protein_aa',
+    reportActiveReference: startingReference,
   };
 } else if (config['virus'] === 'flu') {
   const startingReference = 'A-Cambodia-e0826360-2020';
@@ -360,10 +360,10 @@ if (config['virus'] === 'sars2') {
     reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
   };
   _groupDataStore = {
-    activeGroupType: Object.keys(config['group_cols'])[0],
-    selectedGroups: ['H3N2'],
-    groupMutationType: 'protein_aa',
-    activeReference: startingReference,
+    activeReportGroupType: Object.keys(config['group_cols'])[0],
+    selectedReportGroups: ['H3N2'],
+    reportGroupMutationType: 'protein_aa',
+    reportActiveReference: startingReference,
   };
 }
 

@@ -152,18 +152,18 @@ const DeleteButtonContainer = ({ group }) => {
   const { groupDataStore } = useStores();
 
   const onClick = () => {
-    let selectedNodes = groupDataStore.selectedGroups;
+    let selectedNodes = groupDataStore.selectedReportGroups;
     const index = selectedNodes.indexOf(group);
     if (index > -1) {
       selectedNodes.splice(index, 1);
     }
 
     // Update selectedNodes
-    groupDataStore.updateSelectedGroups(
-      selectedNodes.map((node) => {
+    groupDataStore.applyPendingChanges({
+      selectedReportGroups: selectedNodes.map((node) => {
         return node;
-      })
-    );
+      }),
+    });
   };
 
   return (
@@ -179,7 +179,7 @@ DeleteButtonContainer.propTypes = {
 const MutationListContent = observer(({ featureMatrix }) => {
   const { groupDataStore, UIStore, plotSettingsStore } = useStores();
 
-  if (UIStore.groupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
+  if (UIStore.reportGroupMutationFrequencyState !== ASYNC_STATES.SUCCEEDED) {
     return (
       <div
         style={{
@@ -215,7 +215,7 @@ const MutationListContent = observer(({ featureMatrix }) => {
             mutationColorArray[feature_i % mutationColorArray.length]
           }
           firstRow={true}
-          frequency={new Array(groupDataStore.selectedGroups.length)}
+          frequency={new Array(groupDataStore.selectedReportGroups.length)}
           emptyRow={true}
         />
       );
@@ -232,7 +232,7 @@ const MutationListContent = observer(({ featureMatrix }) => {
             mutationColorArray[feature_i % mutationColorArray.length]
           }
           firstRow={true}
-          frequency={new Array(groupDataStore.selectedGroups.length)}
+          frequency={new Array(groupDataStore.selectedReportGroups.length)}
           emptyRow={true}
           name={`${featureMutationRecords.length} mutations hidden...`}
         />
@@ -242,7 +242,7 @@ const MutationListContent = observer(({ featureMatrix }) => {
 
     featureMutationRecords.forEach((mut, i) => {
       const mutName =
-        groupDataStore.groupMutationType === 'dna'
+        groupDataStore.reportGroupMutationType === 'dna'
           ? mut.mutation_name
           : mut.mutation_name.split(':')[1];
 
@@ -264,7 +264,7 @@ const MutationListContent = observer(({ featureMatrix }) => {
 
   const headerItems = [];
   const deleteButtons = [];
-  groupDataStore.selectedGroups.forEach((group, i) => {
+  groupDataStore.selectedReportGroups.forEach((group, i) => {
     headerItems.push(
       <MutationListHeaderCell key={`mutation-list-table-head-${group}`}>
         <div>
@@ -279,7 +279,9 @@ const MutationListContent = observer(({ featureMatrix }) => {
 
   return (
     <MutationContentContainer>
-      <MutationListHeaderTable ncols={groupDataStore.selectedGroups.length}>
+      <MutationListHeaderTable
+        ncols={groupDataStore.selectedReportGroups.length}
+      >
         <thead>
           <tr>
             <GroupSearch />
@@ -291,7 +293,7 @@ const MutationListContent = observer(({ featureMatrix }) => {
           </tr>
         </thead>
       </MutationListHeaderTable>
-      <MutationListTable ncols={groupDataStore.selectedGroups.length}>
+      <MutationListTable ncols={groupDataStore.selectedReportGroups.length}>
         <tbody>{rowItems}</tbody>
       </MutationListTable>
     </MutationContentContainer>
@@ -312,20 +314,22 @@ const MutationList = observer(() => {
   const [state, setState] = useState({
     showHelp: false,
     featureMatrix: buildFeatureMatrix({
-      activeReference: groupDataStore.activeReference,
-      groupMutationFrequency: groupDataStore.groupMutationFrequency,
-      activeGroupType: groupDataStore.activeGroupType,
-      groupMutationType: groupDataStore.groupMutationType,
-      selectedGroups: groupDataStore.selectedGroups,
+      reportActiveReference: groupDataStore.reportActiveReference,
+      reportGroupMutationFrequency: groupDataStore.reportGroupMutationFrequency,
+      activeReportGroupType: groupDataStore.activeReportGroupType,
+      reportGroupMutationType: groupDataStore.reportGroupMutationType,
+      selectedReportGroups: groupDataStore.selectedReportGroups,
       reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
     }),
   });
 
-  // const onChangeActiveGroupType = (event) => {
-  //   groupDataStore.updateActiveGroupType(event.target.value);
+  // const onChangeActiveReportGroupType = (event) => {
+  //   groupDataStore.applyPendingChanges({ activeReportGroupType: event.target.value });
   // };
-  const onChangeGroupMutationType = (event) => {
-    groupDataStore.updateGroupMutationType(event.target.value);
+  const onChangeReportGroupMutationType = (event) => {
+    groupDataStore.applyPendingChanges({
+      reportGroupMutationType: event.target.value,
+    });
   };
   const onChangeConsensusThreshold = (event) => {
     plotSettingsStore.setReportConsensusThreshold(event.target.value);
@@ -336,16 +340,16 @@ const MutationList = observer(() => {
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.MUTATION_DATA) {
       groupDataStore.downloadGroupMutationFrequencyData({
-        group: groupDataStore.activeGroupType,
-        mutationType: groupDataStore.groupMutationType,
+        group: groupDataStore.activeReportGroupType,
+        mutationType: groupDataStore.reportGroupMutationType,
         consensusThreshold: 0,
-        selectedReference: groupDataStore.activeReference,
+        selectedReference: groupDataStore.reportActiveReference,
       });
     } else if (option === DOWNLOAD_OPTIONS.MUTATION_DATA_MATRIX) {
       const blob = new Blob([
         serializeFeatureMatrix({
           featureMatrix: state.featureMatrix,
-          selectedGroups: groupDataStore.selectedGroups,
+          selectedReportGroups: groupDataStore.selectedReportGroups,
         }),
       ]);
       const url = URL.createObjectURL(blob);
@@ -361,27 +365,33 @@ const MutationList = observer(() => {
     setState({
       ...state,
       featureMatrix: buildFeatureMatrix({
-        activeReference: groupDataStore.activeReference,
-        groupMutationFrequency: groupDataStore.groupMutationFrequency,
-        activeGroupType: groupDataStore.activeGroupType,
-        groupMutationType: groupDataStore.groupMutationType,
-        selectedGroups: groupDataStore.selectedGroups,
+        reportActiveReference: groupDataStore.reportActiveReference,
+        reportGroupMutationFrequency:
+          groupDataStore.reportGroupMutationFrequency,
+        activeReportGroupType: groupDataStore.activeReportGroupType,
+        reportGroupMutationType: groupDataStore.reportGroupMutationType,
+        selectedReportGroups: groupDataStore.selectedReportGroups,
         reportConsensusThreshold: plotSettingsStore.reportConsensusThreshold,
       }),
     });
-  }, [UIStore.groupMutationFrequencyState]);
+  }, [
+    UIStore.reportGroupMutationFrequencyState,
+    groupDataStore.selectedReportGroups,
+  ]);
 
-  if (groupDataStore.selectedGroups.length === 0) {
+  if (groupDataStore.selectedReportGroups.length === 0) {
     return (
       <EmptyPlot height={250}>
-        <p>No {groupDataStore.getActiveGroupTypePrettyName()}s selected</p>
+        <p>
+          No {groupDataStore.getActiveReportGroupTypePrettyName()}s selected
+        </p>
       </EmptyPlot>
     );
   }
 
-  const activeGroupTypeItems = [];
+  const activeReportGroupTypeItems = [];
   Object.keys(config.group_cols).forEach((groupType) => {
-    activeGroupTypeItems.push(
+    activeReportGroupTypeItems.push(
       <option key={`active-group-type-option-${groupType}`} value={groupType}>
         {config.group_cols[groupType].title}
       </option>
@@ -404,8 +414,8 @@ const MutationList = observer(() => {
             <li>
               &quot;Consensus Threshold&quot; hides low-prevalence mutations.
               Mutations with less than this fraction of prevalence in <i>all</i>{' '}
-              selected {groupDataStore.getGroupMutationTypePrettyName()}s will
-              be filtered out.
+              selected {groupDataStore.getReportGroupMutationTypePrettyName()}s
+              will be filtered out.
             </li>
             <li>
               Note: We define ORF1a and ORF1ab as separate genes. In
@@ -424,10 +434,10 @@ const MutationList = observer(() => {
         {/* <OptionSelectContainer>
           <label>
             <select
-              value={groupDataStore.activeGroupType}
-              onChange={onChangeActiveGroupType}
+              value={groupDataStore.activeReportGroupType}
+              onChange={onChangeActiveReportGroupType}
             >
-              {activeGroupTypeItems}
+              {activeReportGroupTypeItems}
             </select>
           </label>
         </OptionSelectContainer> */}
@@ -435,8 +445,8 @@ const MutationList = observer(() => {
           <label>
             Mutation Type
             <select
-              value={groupDataStore.groupMutationType}
-              onChange={onChangeGroupMutationType}
+              value={groupDataStore.reportGroupMutationType}
+              onChange={onChangeReportGroupMutationType}
             >
               <option value={'dna'}>NT</option>
               <option value={'gene_aa'}>Gene AA</option>
@@ -477,7 +487,7 @@ const MutationList = observer(() => {
               onChange={onChangeHideEmpty}
             />
             Hide{' '}
-            {groupDataStore.groupMutationType === 'protein_aa'
+            {groupDataStore.reportGroupMutationType === 'protein_aa'
               ? 'Proteins'
               : 'Genes'}{' '}
             without mutations
