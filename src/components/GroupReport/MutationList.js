@@ -96,7 +96,19 @@ const MutationListRow = observer(
     const { plotSettingsStore } = useStores();
 
     const toggleHiddenFeature = (featureName) => {
-      plotSettingsStore.toggleReportMutationListHiddenItem(featureName);
+      let reportMutationListHidden = plotSettingsStore.reportMutationListHidden;
+
+      // If the item is not in the list yet, then add it
+      if (reportMutationListHidden.indexOf(featureName) === -1) {
+        reportMutationListHidden.push(featureName);
+      } else {
+        // If it does exist, then make a new array without this item
+        reportMutationListHidden = reportMutationListHidden.filter(
+          (name) => name != featureName
+        );
+      }
+
+      plotSettingsStore.applyPendingChanges({ reportMutationListHidden });
     };
 
     const heatmapCells = [];
@@ -332,10 +344,14 @@ const MutationList = observer(() => {
     });
   };
   const onChangeConsensusThreshold = (event) => {
-    plotSettingsStore.setReportConsensusThreshold(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      reportConsensusThreshold: event.target.value,
+    });
   };
   const onChangeHideEmpty = (event) => {
-    plotSettingsStore.setReportMutationListHideEmpty(event.target.checked);
+    plotSettingsStore.applyPendingChanges({
+      reportMutationListHideEmpty: event.target.checked,
+    });
   };
   const handleDownloadSelect = (option) => {
     if (option === DOWNLOAD_OPTIONS.MUTATION_DATA) {

@@ -64,7 +64,9 @@ const StructuralViewer = observer(() => {
   };
 
   const onChangeStructureActiveGroup = (event) => {
-    plotSettingsStore.setReportStructureActiveGroup(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      reportStructureActiveGroup: event.target.value,
+    });
   };
 
   const onChangeReportStructureActiveProtein = (event) => {
@@ -108,11 +110,15 @@ const StructuralViewer = observer(() => {
 
   const onChangeActiveAssembly = (event) => {
     loadModel({ useAssembly: event.target.value });
-    plotSettingsStore.setReportStructureActiveAssembly(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      reportStructureActiveAssembly: event.target.value,
+    });
   };
 
   const onChangeProteinStyle = (event) => {
-    plotSettingsStore.setReportStructureProteinStyle(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      reportStructureProteinStyle: event.target.value,
+    });
   };
 
   const onChangeEntities = (entities) => {
@@ -127,12 +133,16 @@ const StructuralViewer = observer(() => {
           : 'model',
       entities,
     });
-    plotSettingsStore.setReportStructureEntities(entities);
+    plotSettingsStore.applyPendingChanges({
+      reportStructureEntities: entities,
+    });
   };
 
   const applyChanges = () => {
-    plotSettingsStore.setReportStructureActiveProtein(state.activeProtein);
-    plotSettingsStore.setReportStructurePdbId(state.pdbId);
+    plotSettingsStore.applyPendingChanges({
+      reportStructureActiveProtein: state.activeProtein,
+      reportStructurePdbId: state.pdbId,
+    });
 
     // Clear changed and error states
     setState({
@@ -225,9 +235,11 @@ const StructuralViewer = observer(() => {
         });
 
         // Update store so other components have this info
-        plotSettingsStore.setReportStructureAssemblies(assemblies);
-        plotSettingsStore.setReportStructureActiveAssembly(activeAssembly);
-        plotSettingsStore.setReportStructureEntities(entities);
+        plotSettingsStore.applyPendingChanges({
+          reportStructureAssemblies: assemblies,
+          reportStructureActiveAssembly: activeAssembly,
+          reportStructureEntities: entities,
+        });
       },
     });
   };

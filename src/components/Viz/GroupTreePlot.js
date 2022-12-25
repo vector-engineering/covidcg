@@ -98,7 +98,9 @@ const GroupTreePlot = observer(({ width }) => {
   });
 
   const onChangeTreeColorMode = (event) => {
-    plotSettingsStore.setReportTreeColorMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      reportTreeColorMode: event.target.value,
+    });
   };
 
   const handleDownloadSelect = (option) => {

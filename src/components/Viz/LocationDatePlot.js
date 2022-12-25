@@ -186,11 +186,17 @@ const LocationDatePlot = observer(({ width }) => {
   };
 
   const onChangeNormMode = (event) =>
-    plotSettingsStore.setLocationDateNormMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      locationDateNormMode: event.target.value,
+    });
   const onChangeCountMode = (event) =>
-    plotSettingsStore.setLocationDateCountMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      locationDateCountMode: event.target.value,
+    });
   const onChangeDateBin = (event) => {
-    plotSettingsStore.setLocationDateDateBin(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      locationDateDateBin: event.target.value,
+    });
   };
 
   const handleDownloadSelect = (option) => {

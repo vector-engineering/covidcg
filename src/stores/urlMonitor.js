@@ -6,6 +6,7 @@ import { config } from '../config';
 import {
   configStore as initialConfigStore,
   groupDataStore as initialGroupDataStore,
+  plotSettingsStore as initialPlotSettingsStore,
 } from '../constants/initialValues';
 
 import { updateURLFromParams } from '../utils/updateQueryParam';
@@ -24,6 +25,7 @@ export class URLMonitor {
   pendingChanges = {
     configStore: {},
     groupDataStore: {},
+    plotSettingsStore: {},
   };
 
   init() {
@@ -118,14 +120,24 @@ export class URLMonitor {
           this.pendingChanges.configStore[key] = value;
         }
       } else if (key in initialGroupDataStore) {
-        /* ------------
+        /* ----------------
          * GROUP DATA STORE
-         * ------------ */
+         * ---------------- */
         if (key === 'selectedReportGroups') {
           value = decodeURIComponent(value).split(',');
           this.pendingChanges.groupDataStore[key] = value;
         } else {
           this.pendingChanges.groupDataStore[key] = value;
+        }
+      } else if (key in initialPlotSettingsStore) {
+        /* -------------------
+         * PLOT SETTINGS STORE
+         * ------------------- */
+        if (key === 'reportMutationListHidden') {
+          value = decodeURIComponent(value).split(',');
+          this.pendingChanges.plotSettingsStore[key] = value;
+        } else {
+          this.pendingChanges.plotSettingsStore[key] = value;
         }
       }
 
@@ -252,7 +264,7 @@ export class URLMonitor {
 
   @action
   updateStore(store) {
-    console.log('updateStore', store, this.pendingChanges[store]);
+    // console.log('updateStore', store, this.pendingChanges[store]);
     // Propogate pendingChanges to store
     rootStoreInstance[store].applyPendingChanges(
       this.pendingChanges[store],

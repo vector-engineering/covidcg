@@ -77,7 +77,7 @@ export class GroupDataStore {
   }
 
   @action
-  applyPendingChanges = (pending, fetch = true) => {
+  applyPendingChanges = (pending, fetch = false) => {
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
@@ -88,13 +88,15 @@ export class GroupDataStore {
       pending.reportGroupMutationType === 'dna' ||
       pending.reportGroupMutationType === 'gene_aa'
     ) {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
-        'ORF1a',
-      ]);
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportMutationListHidden: ['ORF1a'],
+      });
     }
     // Otherwise clear the hidden list
     else {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportMutationListHidden: [],
+      });
     }
 
     // Update the reportGroupSelectTree as well
@@ -116,9 +118,9 @@ export class GroupDataStore {
       )
     ) {
       // Set it to the first selected group
-      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
-        this.selectedReportGroups[0]
-      );
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportStructureActiveGroup: this.selectedReportGroups[0],
+      });
     }
 
     // If we don't have the data for this combo yet, then fetch it now
@@ -143,7 +145,10 @@ export class GroupDataStore {
         urlParams.set(field, String(pending[field]));
       }
 
-      if (pending[field] === this.initialValues[field]) {
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
         // Only display non-default fields in the url
         urlParams.delete(field);
       }

@@ -116,7 +116,7 @@ if (config['virus'] === 'sars2') {
     reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
     reportConsensusThreshold: 0.7,
     reportMutationListHideEmpty: true,
-    reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
+    reportMutationListHidden: [],
     reportStructureActiveProtein: 'S',
     reportStructurePdbId: '6ZGG',
     reportStructureActiveGroup: 'B.1.617.2',

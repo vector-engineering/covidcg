@@ -10,6 +10,10 @@ import {
 } from '../constants/defs.json';
 import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
+import { rootStoreInstance } from './rootStore';
+
+import { updateURLFromParams } from '../utils/updateQueryParam';
+
 export class PlotSettingsStore {
   initialValues = {};
 
@@ -75,6 +79,16 @@ export class PlotSettingsStore {
   reportStructureActiveAssembly = '';
   reportStructureEntities = [];
 
+  ignoreURLProperties = [
+    'mutationStructureAssemblies',
+    'mutationStructureActiveAssembly',
+    'mutationStructureEntities',
+    'reportStructureAssemblies',
+    'reportStructureActiveAssembly',
+    'reportStructureEntities',
+    'surveillanceLegendHover',
+  ];
+
   init() {
     this.initialValues = initialPlotSettingsStore;
 
@@ -83,208 +97,51 @@ export class PlotSettingsStore {
     });
   }
 
-  // LEGEND
   @action
-  setLegendAdjustPartialSequences = (value) => {
-    this.legendAdjustPartialSequences = value;
+  applyPendingChanges = (pending) => {
+    // Overwrite any of our fields here with the pending ones
+    Object.keys(pending).forEach((field) => {
+      if (
+        field === 'reportMutationListHidden' &&
+        typeof pending[field] === String
+      ) {
+        this[field] = pending[field].split(',');
+      } else {
+        this[field] = pending[field];
+      }
+    });
+
+    this.updateURL(pending);
   };
 
-  // ENTROPY PLOT
-  @action
-  setEntropyYMode = (mode) => {
-    this.entropyYMode = mode;
-    // Default powers
-    if (this.entropyYMode === NORM_MODES.NORM_COUNTS) {
-      this.entropyYPow = 0.5;
-    } else {
-      this.entropyYPow = 1.0;
-    }
-  };
-  @action
-  setEntropyYPow = (pow) => {
-    this.entropyYPow = pow;
-  };
+  /*
+   * Serialize store state into URL params
+   */
+  updateURL = (pending) => {
+    const urlParams = rootStoreInstance.urlMonitor.urlParams;
 
-  // GROUP STACK PLOT
-  @action
-  setGroupStackLowFreqFilter = (filterType) => {
-    this.groupStackLowFreqFilter = filterType;
-  };
-  @action
-  setGroupStackLowFreqValue = (filterValue) => {
-    this.groupStackLowFreqValue = filterValue;
-  };
-  @action
-  setGroupStackNormMode = (mode) => {
-    this.groupStackNormMode = mode;
-  };
-  @action
-  setGroupStackCountMode = (mode) => {
-    this.groupStackCountMode = mode;
-  };
-  @action
-  setGroupStackDateBin = (dateBin) => {
-    this.groupStackDateBin = dateBin;
-  };
+    Object.keys(pending).forEach((field) => {
+      if (field === 'reportMutationListHidden') {
+        urlParams.set(field, pending[field].join(','));
+      } else {
+        urlParams.set(field, String(pending[field]));
+      }
 
-  // MUTATION STRUCTURE VIEWER
-  @action
-  setMutationStructurePdbId = (pdbId) => {
-    this.mutationStructurePdbId = pdbId;
-  };
-  @action
-  setMutationStructureProteinStyle = (style) => {
-    this.mutationStructureProteinStyle = style;
-  };
-  @action
-  setMutationStructureNormMode = (mode) => {
-    this.mutationStructureNormMode = mode;
-  };
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
+        // Only display non-default fields in the url
+        urlParams.delete(field);
+      } else if (this.ignoreURLProperties.includes(field)) {
+        urlParams.delete(field);
+      }
+    });
 
-  @action
-  setMutationStructureAssemblies = (assemblies) => {
-    this.mutationStructureAssemblies = assemblies;
-  };
-  @action
-  setMutationStructureActiveAssembly = (assembly) => {
-    this.mutationStructureActiveAssembly = assembly;
-  };
-  @action
-  setMutationStructureEntities = (entities) => {
-    this.mutationStructureEntities = entities;
-  };
+    // Update URL
+    updateURLFromParams(urlParams);
 
-  // LOCATION DATE PLOT
-  @action
-  setLocationDateNormMode = (mode) => {
-    this.locationDateNormMode = mode;
-  };
-  @action
-  setLocationDateCountMode = (mode) => {
-    this.locationDateCountMode = mode;
-  };
-  @action
-  setLocationDateDateBin = (dateBin) => {
-    this.locationDateDateBin = dateBin;
-  };
-
-  // LOCATION GROUP PLOT
-  @action
-  setLocationGroupHideReference = (hide) => {
-    this.locationGroupHideReference = hide;
-  };
-
-  // COOCCURRENCE PLOT
-  @action
-  setCooccurrenceNormMode = (mode) => {
-    this.cooccurrenceNormMode = mode;
-  };
-
-  // SURVEILLANCE PLOT
-  @action
-  setSurveillanceMode = (mode) => {
-    this.surveillanceMode = mode;
-  };
-  @action
-  setSurveillanceShowWarning = (show) => {
-    this.surveillanceShowWarning = show;
-  };
-  @action
-  setSurveillanceShowSettings = (show) => {
-    this.surveillanceShowSettings = show;
-  };
-  @action
-  setSurveillanceSortField = (field) => {
-    this.surveillanceSortField = field;
-  };
-  @action
-  setSurveillanceSortDirection = (direction) => {
-    this.surveillanceSortDirection = direction;
-  };
-  @action
-  setSurveillanceDisplayMinCounts = (counts) => {
-    this.surveillanceDisplayMinCounts = counts;
-  };
-  @action
-  setSurveillanceDisplayMinPercent = (percent) => {
-    this.surveillanceDisplayMinPercent = percent;
-  };
-  @action
-  setSurveillanceSigMinCounts = (counts) => {
-    this.surveillanceSigMinCounts = counts;
-  };
-  @action
-  setSurveillanceSigMinPercent = (percent) => {
-    this.surveillanceSigMinPercent = percent;
-  };
-  @action
-  setSurveillanceSigMinR = (r) => {
-    this.surveillanceSigMinR = r;
-  };
-  @action
-  setSurveillanceLegendHover = (hover) => {
-    this.surveillanceLegendHover = hover;
-  };
-
-  // GROUP REPORT TAB
-  @action
-  setReportTreeColorMode = (mode) => {
-    this.reportTreeColorMode = mode;
-  };
-  @action
-  setReportConsensusThreshold = (thresh) => {
-    this.reportConsensusThreshold = thresh;
-  };
-  @action
-  setReportMutationListHideEmpty = (hideEmpty) => {
-    this.reportMutationListHideEmpty = hideEmpty;
-  };
-  @action
-  setReportMutationListHidden = (hidden) => {
-    this.reportMutationListHidden = hidden;
-  };
-  @action
-  toggleReportMutationListHiddenItem = (itemName) => {
-    let hidden = this.reportMutationListHidden;
-
-    // If the item is not in the list yet, then add it
-    if (hidden.indexOf(itemName) === -1) {
-      hidden.push(itemName);
-    } else {
-      // If it does exist, then make a new array without this item
-      hidden = hidden.filter((name) => name != itemName);
-    }
-
-    this.reportMutationListHidden = hidden;
-  };
-  @action
-  setReportStructureActiveProtein = (proteinName) => {
-    this.reportStructureActiveProtein = proteinName;
-  };
-  @action
-  setReportStructurePdbId = (pdbId) => {
-    this.reportStructurePdbId = pdbId;
-  };
-  @action
-  setReportStructureActiveGroup = (group) => {
-    this.reportStructureActiveGroup = group;
-  };
-  @action
-  setReportStructureProteinStyle = (style) => {
-    this.reportStructureProteinStyle = style;
-  };
-
-  @action
-  setReportStructureAssemblies = (assemblies) => {
-    this.reportStructureAssemblies = assemblies;
-  };
-  @action
-  setReportStructureActiveAssembly = (assembly) => {
-    this.reportStructureActiveAssembly = assembly;
-  };
-  @action
-  setReportStructureEntities = (entities) => {
-    this.reportStructureEntities = entities;
+    rootStoreInstance.urlMonitor.urlParams = urlParams;
   };
 
   @action

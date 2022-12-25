@@ -182,7 +182,10 @@ export class ConfigStore {
         urlParams.set(field, String(pending[field]));
       }
 
-      if (pending[field] === this.initialValues[field]) {
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
         // Only display non-default fields in the url
         urlParams.delete(field);
       }

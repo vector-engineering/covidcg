@@ -92,17 +92,25 @@ const MutationStructureViewer = observer(() => {
 
   const onChangeActiveAssembly = (event) => {
     loadModel({ useAssembly: event.target.value });
-    plotSettingsStore.setMutationStructureActiveAssembly(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      mutationStructureActiveAssembly: event.target.value,
+    });
   };
   const onChangeProteinStyle = (event) => {
-    plotSettingsStore.setMutationStructureProteinStyle(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      mutationStructureProteinStyle: event.target.value,
+    });
   };
   const onChangeNormMode = (event) => {
-    plotSettingsStore.setMutationStructureNormMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      mutationStructureNormMode: event.target.value,
+    });
   };
 
   const applyChanges = () => {
-    plotSettingsStore.setMutationStructurePdbId(state.pdbId);
+    plotSettingsStore.applyPendingChanges({
+      mutationStructurePdbId: state.pdbId,
+    });
 
     // Clear changed and error states
     setState({
@@ -135,7 +143,9 @@ const MutationStructureViewer = observer(() => {
           : 'model',
       entities,
     });
-    plotSettingsStore.setMutationStructureEntities(entities);
+    plotSettingsStore.applyPendingChanges({
+      mutationStructureEntities: entities,
+    });
   };
 
   const applyHeatmap = ({ ref, entities }) => {
@@ -237,9 +247,11 @@ const MutationStructureViewer = observer(() => {
         });
 
         // Update store so other components have this info
-        plotSettingsStore.setMutationStructureAssemblies(assemblies);
-        plotSettingsStore.setMutationStructureActiveAssembly(activeAssembly);
-        plotSettingsStore.setMutationStructureEntities(entities);
+        plotSettingsStore.applyPendingChanges({
+          mutationStructureAssemblies: assemblies,
+          mutationStructureActiveAssembly: activeAssembly,
+          mutationStructureEntities: entities,
+        });
       },
     });
   };
