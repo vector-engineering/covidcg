@@ -113,7 +113,6 @@ def build_sequence_where_filter(
     selected_metadata_fields=None,
     selected_group_fields=None,
     selected_reference=None,
-    include_reference=True,
 ):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
@@ -139,9 +138,6 @@ def build_sequence_where_filter(
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
     selected_reference: str
         - Reference name (e.g., "NC_012920.1")
-    include_reference: bool
-        - Include reference filter (this flag only used to generate
-          filter for the coverage query)
 
     Returns
     -------
@@ -198,7 +194,7 @@ def build_sequence_where_filter(
         )
 
     # Only display mutations in the currently selected reference
-    if group_key == constants["GROUP_MUTATION"] and include_reference:
+    if group_key == constants["GROUP_MUTATION"]:
         metadata_filters.append(
             sql.SQL('"reference" = {reference}').format(
                 reference=sql.Literal(selected_reference)
@@ -305,7 +301,6 @@ def build_sequence_location_where_filter(group_key, loc_level_ids, *args, **kwar
 def count_coverage(
     cur,
     sequence_where_filter,
-    selected_reference,
     dna_or_aa,
     coordinate_mode,
     coordinate_ranges,
@@ -314,103 +309,72 @@ def count_coverage(
 ):
     """Get coverage stats from partial sequences"""
 
-    coverage_filter = [
-        sql.SQL('"reference" = {reference}').format(
-            reference=sql.Literal(selected_reference)
-        )
-    ]
-
     if dna_or_aa == constants["DNA_OR_AA"]["DNA"]:
         coverage_table = "dna_coverage"
-        gene_or_protein_col = sql.SQL("")
-        gene_or_protein_coalesce = sql.SQL("")
-        gene_or_protein_join = sql.SQL("")
-        gene_or_protein_partition_by = sql.SQL("")
-        gene_or_protein_df_col = []
-    else:
-        gene_or_protein_col = sql.SQL('"feature",')
-        gene_or_protein_coalesce = sql.SQL(
-            'COALESCE(start_count."feature", end_count."feature") AS "feature",'
-        )
-        gene_or_protein_join = sql.SQL(
-            'start_count."feature" = end_count."feature" AND '
-        )
-        gene_or_protein_partition_by = sql.SQL('PARTITION BY "feature"')
-        gene_or_protein_df_col = ["feature"]
 
+        segments = list(set([rng[0] for rng in coordinate_ranges]))
+        # Only allow one segment selected at once, for now
+        start_col = f"start_{segments[0]}"
+        end_col = f"end_{segments[0]}"
+    else:
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
             coverage_table = "gene_aa_coverage"
-            coverage_filter.append(
-                sql.SQL('"feature" = {feature}').format(
-                    feature=sql.Literal(selected_gene)
-                )
-            )
+            start_col = f"start_{selected_gene}"
+            end_col = f"end_{selected_gene}"
 
         elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
             coverage_table = "protein_aa_coverage"
-            coverage_filter.append(
-                sql.SQL('"feature" = {feature}').format(
-                    feature=sql.Literal(selected_protein)
-                )
-            )
+            start_col = f"start_{selected_protein}"
+            end_col = f"end_{selected_protein}"
 
-    coverage_filter = sql.SQL(" AND ").join(coverage_filter)
+    start_col = sql.Identifier(start_col)
+    end_col = sql.Identifier(end_col)
 
     coverage_query = sql.SQL(
         """
-        WITH selected AS (
-            SELECT "isolate_id"
-            FROM "metadata"
+        WITH start_count AS (
+            SELECT {start_col} as "range_start", COUNT(*) AS "count"
+            FROM {coverage_table}
             WHERE {sequence_where_filter}
-        ), start_count AS (
-            SELECT {gene_or_protein_col} "range_start", COUNT(*) AS "count"
-            FROM {coverage_table}
-            INNER JOIN SELECTED ON {coverage_table}."isolate_id" = selected."isolate_id"
-            WHERE {coverage_filter}
-            GROUP BY {gene_or_protein_col} "range_start"
+            GROUP BY "range_start"
         ), end_count AS (
-            SELECT {gene_or_protein_col} "range_end", COUNT(*) AS "count"
+            SELECT {end_col} as "range_end", COUNT(*) AS "count"
             FROM {coverage_table}
-            INNER JOIN SELECTED ON {coverage_table}."isolate_id" = selected."isolate_id"
-            WHERE {coverage_filter}
-            GROUP BY {gene_or_protein_col} "range_end"
+            WHERE {sequence_where_filter}
+            GROUP BY "range_end"
         ), start_end_count AS (
             SELECT
-                {gene_or_protein_coalesce}
                 COALESCE(start_count."range_start", end_count."range_end") AS "ind",
                 COALESCE(start_count."count", 0) AS "start",
                 COALESCE(end_count."count", 0) AS "end"
             FROM start_count
             FULL JOIN end_count ON 
-                {gene_or_protein_join}
                 start_count."range_start" = end_count."range_end"
-            ORDER BY {gene_or_protein_col} "ind" ASC
+            ORDER BY "ind" ASC
         )
         SELECT
-            {gene_or_protein_col}
             "ind",
-            (SUM("start") OVER ({gene_or_protein_partition_by} ORDER BY "ind" ASC) -
-            SUM("end") OVER ({gene_or_protein_partition_by} ORDER BY "ind" ASC))::INTEGER AS "count"
+            (SUM("start") OVER (ORDER BY "ind" ASC) -
+            SUM("end") OVER (ORDER BY "ind" ASC))::INTEGER AS "count"
         FROM start_end_count
-        ORDER BY {gene_or_protein_col} "ind" ASC
+        ORDER BY "ind" ASC
         """
     ).format(
-        sequence_where_filter=sequence_where_filter,
-        gene_or_protein_col=gene_or_protein_col,
+        start_col=start_col,
+        end_col=end_col,
         coverage_table=sql.Identifier(coverage_table),
-        coverage_filter=coverage_filter,
-        gene_or_protein_coalesce=gene_or_protein_coalesce,
-        gene_or_protein_join=gene_or_protein_join,
-        gene_or_protein_partition_by=gene_or_protein_partition_by,
+        sequence_where_filter=sequence_where_filter,
     )
 
     cur.execute(coverage_query)
 
-    coverage_df = pd.DataFrame.from_records(
-        cur.fetchall(), columns=gene_or_protein_df_col + ["ind", "count"],
-    )
+    coverage_df = pd.DataFrame.from_records(cur.fetchall(), columns=["ind", "count"],)
 
-    # print(coverage_df)
+    if dna_or_aa != constants["DNA_OR_AA"]["DNA"]:
+        if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
+            coverage_df["feature"] = selected_gene
+        elif coordinate_mode == constants["COORDINATE_MODES"]["COORD_PROTEIN"]:
+            coverage_df["feature"] = selected_protein
 
     return coverage_df
 
@@ -449,7 +413,6 @@ def query_and_aggregate(conn, req):
     coordinate_ranges = req.get("coordinate_ranges", None)
     selected_gene = req.get("selected_gene", None)
     selected_protein = req.get("selected_protein", None)
-    selected_reference = req.get("selected_reference", None)
 
     with conn.cursor() as cur:
 
@@ -571,12 +534,10 @@ def query_and_aggregate(conn, req):
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
                 req.get("selected_reference", None),
-                include_reference=False,
             )
             coverage_df = count_coverage(
                 cur,
                 sequence_location_where_filter,
-                selected_reference,
                 dna_or_aa,
                 coordinate_mode,
                 coordinate_ranges,
