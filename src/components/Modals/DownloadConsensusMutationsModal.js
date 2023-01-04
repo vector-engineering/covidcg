@@ -41,7 +41,7 @@ const DownloadConsensusMutationsContent = observer(({ onRequestClose }) => {
     group: Object.keys(config.group_cols)[0],
     mutationType: 'gene_aa',
     consensusThreshold: 0.9,
-    selectedReference: groupDataStore.activeReference,
+    selectedReference: groupDataStore.reportActiveReference,
   });
 
   useEffect(() => {

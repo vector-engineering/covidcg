@@ -40,7 +40,9 @@ const TableLegend = observer(
     const { configStore, plotSettingsStore } = useStores();
 
     const toggleLegendAdjustPartialSequences = (event) => {
-      plotSettingsStore.setLegendAdjustPartialSequences(event.target.checked);
+      plotSettingsStore.applyPendingChanges({
+        legendAdjustPartialSequences: event.target.checked,
+      });
     };
 
     const maxCounts = legendItems.reduce((prev, cur) => {

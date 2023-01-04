@@ -55,13 +55,13 @@ const GroupSelect = observer(
     const { groupDataStore } = useStores();
 
     const createGroupSelectTree = (groups) => {
-      const groupSelectTree = {};
+      const reportGroupSelectTree = {};
 
       // Construct selection trees
       Object.keys(groups).forEach((groupName) => {
-        groupSelectTree[groupName] = [];
+        reportGroupSelectTree[groupName] = [];
         groups[groupName].sort(sortGroupNames).forEach((group) => {
-          groupSelectTree[groupName].push({
+          reportGroupSelectTree[groupName].push({
             label: group.name,
             value: group.name,
             checked:
@@ -73,7 +73,7 @@ const GroupSelect = observer(
         });
       });
 
-      return groupSelectTree;
+      return reportGroupSelectTree;
     };
 
     const [state, setState] = useState({

@@ -186,11 +186,23 @@ const GroupStackPlot = observer(({ width }) => {
   };
 
   const onChangeNormMode = (event) =>
-    plotSettingsStore.setGroupStackNormMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      groupStackNormMode: event.target.value,
+    });
   const onChangeCountMode = (event) =>
-    plotSettingsStore.setGroupStackCountMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      groupStackCountMode: event.target.value,
+    });
   const onChangeDateBin = (event) =>
-    plotSettingsStore.setGroupStackDateBin(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      groupStackDateBin: event.target.value,
+    });
+  const onChangeGroupStackLowFreqFilterType = (groupStackLowFreqFilter) => {
+    plotSettingsStore.applyPendingChanges({ groupStackLowFreqFilter });
+  };
+  const onChangeGroupStackLowFreqFilterValue = (groupStackLowFreqValue) => {
+    plotSettingsStore.applyPendingChanges({ groupStackLowFreqValue });
+  };
 
   useEffect(() => {
     setState({
@@ -487,11 +499,9 @@ const GroupStackPlot = observer(({ width }) => {
                 <LowFreqFilter
                   lowFreqFilterType={plotSettingsStore.groupStackLowFreqFilter}
                   lowFreqFilterValue={plotSettingsStore.groupStackLowFreqValue}
-                  updateLowFreqFilterType={
-                    plotSettingsStore.setGroupStackLowFreqFilter
-                  }
+                  updateLowFreqFilterType={onChangeGroupStackLowFreqFilterType}
                   updateLowFreqFilterValue={
-                    plotSettingsStore.setGroupStackLowFreqValue
+                    onChangeGroupStackLowFreqFilterValue
                   }
                 ></LowFreqFilter>
               </PlotOptionsRow>
