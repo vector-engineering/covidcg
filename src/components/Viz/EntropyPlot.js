@@ -159,8 +159,11 @@ const EntropyPlot = observer(({ width }) => {
     } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
       xRange = [
-        coordRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
-        coordRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
+        coordRanges.reduce(
+          (memo, rng) => Math.min(rng[1], rng[2], memo),
+          30000
+        ),
+        coordRanges.reduce((memo, rng) => Math.max(rng[1], rng[2], memo), 0),
       ];
     } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
       // Get the extent of the selected gene/protein
