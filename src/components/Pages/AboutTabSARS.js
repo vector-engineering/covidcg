@@ -275,36 +275,42 @@ const AboutTab = () => {
               Please attribute any data/images to{' '}
               <a href="https://covidcg.org">covidcg.org</a>.
             </p>
-            <p>
-              Note: When using results from these analyses in your manuscript,
-              ensure that you acknowledge the contributors of data, i.e.{' '}
-              <i>
-                We gratefully acknowledge all the Authors from the Originating
-                laboratories responsible for obtaining the speciments and the
-                Submitting laboratories where genetic sequence data were
-                generated and shared via the GISAID Initiative, on which this
-                research is based.
-              </i>
-            </p>
-            <p>and cite the following reference(s):</p>
-            <p>
-              Shu, Y., McCauley, J. (2017) GISAID: Global initiative on sharing
-              all influenza data – from vision to reality.{' '}
-              <i>EuroSurveillance</i>, 22(13) DOI:
-              <ExternalLink
-                href="https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494"
-                showIcon={false}
-              >
-                10.2807/1560-7917.ES.2017.22.13.30494
-              </ExternalLink>{' '}
-              PMCID:{' '}
-              <ExternalLink
-                href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/"
-                showIcon={false}
-              >
-                PMC5388101
-              </ExternalLink>
-            </p>
+
+            {config['data_provider'] === 'GISAID' && (
+              <>
+                <p>
+                  Note: When using results from these analyses in your
+                  manuscript, ensure that you acknowledge the contributors of
+                  data, i.e.{' '}
+                  <i>
+                    We gratefully acknowledge all the Authors from the
+                    Originating laboratories responsible for obtaining the
+                    speciments and the Submitting laboratories where genetic
+                    sequence data were generated and shared via the GISAID
+                    Initiative, on which this research is based.
+                  </i>
+                </p>
+                <p>and cite the following reference(s):</p>
+                <p>
+                  Shu, Y., McCauley, J. (2017) GISAID: Global initiative on
+                  sharing all influenza data – from vision to reality.{' '}
+                  <i>EuroSurveillance</i>, 22(13) DOI:
+                  <ExternalLink
+                    href="https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494"
+                    showIcon={false}
+                  >
+                    10.2807/1560-7917.ES.2017.22.13.30494
+                  </ExternalLink>{' '}
+                  PMCID:{' '}
+                  <ExternalLink
+                    href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/"
+                    showIcon={false}
+                  >
+                    PMC5388101
+                  </ExternalLink>
+                </p>
+              </>
+            )}
           </div>
         </ContentSection>
       </Content>

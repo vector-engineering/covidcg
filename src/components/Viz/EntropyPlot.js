@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { config } from '../../config';
 import { throttle } from '../../utils/func';
+import { getMaxReferenceLength } from '../../utils/reference';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
@@ -162,12 +163,15 @@ const EntropyPlot = observer(({ width }) => {
     if (configStore.residueCoordinates.length === 0) {
       // If the residue coordinates are empty, then either "All Genes" or
       // "All Proteins" is selected -- so show everything
-      xRange = [1, 30000];
+      xRange = [1, getMaxReferenceLength()];
     } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
       xRange = [
-        coordRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
-        coordRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
+        coordRanges.reduce(
+          (memo, rng) => Math.min(rng[1], rng[2], memo),
+          getMaxReferenceLength()
+        ),
+        coordRanges.reduce((memo, rng) => Math.max(rng[1], rng[2], memo), 0),
       ];
     } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
       // Get the extent of the selected gene/protein
@@ -289,10 +293,10 @@ const EntropyPlot = observer(({ width }) => {
         {
           Institution: 'None',
           Name: 'No Primers Selected',
-          ranges: [[0, 30000]],
+          ranges: [[0, getMaxReferenceLength()]],
           row: 0,
           Start: 0,
-          End: 30000,
+          End: getMaxReferenceLength(),
         },
       ];
       configStore.selectedPrimers = nullDomain;

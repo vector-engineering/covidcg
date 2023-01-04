@@ -198,7 +198,7 @@ const GroupSelect = observer(
         <span className="title">
           Selected Groups
           <QuestionButton
-            data-tip="<p></p>"
+            data-tip="<p>Filter for sequences based on their assignment to specified phylogenetic groups</p>"
             data-html={true}
             data-place="left"
             data-for="main-tooltip"
