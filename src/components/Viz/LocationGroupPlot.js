@@ -62,7 +62,9 @@ const LocationGroupPlot = observer(({ width }) => {
   };
 
   const onChangeHideReference = (e) => {
-    plotSettingsStore.setLocationGroupHideReference(e.target.checked);
+    plotSettingsStore.applyPendingChanges({
+      locationGroupHideReference: e.target.checked,
+    });
   };
 
   const processLocationByGroup = () => {

@@ -5,41 +5,22 @@ import {
   //intercept, autorun
 } from 'mobx';
 
-import { getGene, getProtein } from '../utils/gene_protein';
-import { queryReferenceSequence } from '../utils/reference';
-import { getLocationByNameAndLevel } from '../utils/location';
-import { updateURLFromParams } from '../utils/updateQueryParam';
-import { queryPrimers } from '../utils/primer';
+import { coordsToText, residueCoordsToText } from '../utils/coordinates';
 import { arrayEqual } from '../utils/func';
+import { queryReferenceSequence } from '../utils/reference';
+import { updateURLFromParams } from '../utils/updateQueryParam';
 
 import {
+  GEO_LEVELS,
   GROUP_MUTATION,
   DNA_OR_AA,
   COORDINATE_MODES,
-  GEO_LEVELS,
-  TABS,
   GROUPS,
 } from '../constants/defs.json';
 import { config } from '../config';
 
-import { PARAMS_TO_TRACK } from './paramsToTrack';
 import { rootStoreInstance } from './rootStore';
 import { configStore as initialConfigStore } from '../constants/initialValues';
-import {
-  coordsToText,
-  residueCoordsToText,
-  textToCoords,
-  textToResidueCoords,
-} from '../utils/coordinates';
-
-const urlParams = new URLSearchParams(window.location.search);
-
-const defaultsFromParams = {};
-
-PARAMS_TO_TRACK.forEach((param) => {
-  // console.log('getting: ', param, urlParams.get(param));
-  defaultsFromParams[param] = urlParams.get(param);
-});
 
 export class ConfigStore {
   // Maintain a reference to the initial values
@@ -86,176 +67,7 @@ export class ConfigStore {
     Object.keys(this.initialValues).forEach((key) => {
       this[key] = this.initialValues[key];
     });
-
-    PARAMS_TO_TRACK.forEach((param) => {
-      if (defaultsFromParams[param]) {
-        // console.log('setting: ', param, urlParams.get(param));
-        this[param] = defaultsFromParams[param];
-      }
-    });
-
-    this.urlParams = new URLSearchParams(window.location.search);
-
-    // RSV EDGE CASE
-    // If any selected group fields are set in the URLs,
-    // then clear the default selected group fields
-    if (
-      Object.keys(config.group_cols).some((groupKey) =>
-        this.urlParams.has(groupKey)
-      )
-    ) {
-      this.selectedGroupFields = {};
-    }
-
-    // Check to see what's in the URL
-    this.urlParams.forEach((value, key) => {
-      value = decodeURIComponent(value);
-      if (key in this.initialValues) {
-        if (key === 'selectedReference') {
-          this.selectedReference = value;
-        }
-        // Set gene/protein from URL params
-        // Since the gene/protein object is dependent on the reference,
-        // wait til we get that first and then we'll call getGene()/getProtein()
-        // For now, set the value to a string
-        else if (key === 'selectedGene' || key === 'selectedProtein') {
-          this[key] = value;
-        } else if (key === 'ageRange' || key.includes('valid')) {
-          // AgeRange is not being used currently so ignore
-          // validity flags should not be set from the url
-          return;
-        } else if (key === 'customCoordinates') {
-          this[key] = textToCoords(value);
-        } else if (key === 'residueCoordinates') {
-          this[key] = textToResidueCoords(value);
-        } else if (key === 'customSequences') {
-          // Store customSequences as an array of strings
-          value = value.split(',');
-          this[key] = value;
-        } else if (key === 'selectedPrimers') {
-          value = value.split(',');
-          value.forEach((primerStr) => {
-            let queryObj = {
-              Institution: primerStr.split('_')[0],
-              Name: primerStr.split('_')[1],
-            };
-            const primer = queryPrimers(queryObj);
-            if (primer !== undefined) this[key].push(primer);
-          });
-        } else {
-          this[key] = value;
-        }
-      } else if (key.toUpperCase() in GEO_LEVELS) {
-        // If a location is specified, update selectedLocationNodes
-        value = value.split(',');
-
-        value.forEach((item) => {
-          const node = getLocationByNameAndLevel(
-            rootStoreInstance.locationDataStore.selectTree,
-            item,
-            key,
-            true
-          )[0];
-
-          if (
-            typeof node !== 'undefined' &&
-            !this.selectedLocationNodes.includes(node)
-          ) {
-            this.selectedLocationNodes.push(node);
-          }
-        });
-      } else if (key === 'tab') {
-        // Check if the specified tab value is valid (included in TABS)
-        // tab is read and activeTab is set from routes.js
-        if (Object.values(TABS).includes(value)) {
-          this[key] = value;
-        } else {
-          // If not valid, set to home
-          this.urlParams.set(key, TABS.TAB_EXAMPLE);
-          this[key] = TABS.TAB_EXAMPLE;
-        }
-      }
-      // selectedGroupFields
-      else if (Object.keys(config['group_cols']).includes(key)) {
-        if (
-          !Object.prototype.hasOwnProperty.call(this.selectedGroupFields, key)
-        ) {
-          this.selectedGroupFields[key] = [];
-        }
-        if (!this.selectedGroupFields[key].includes(value)) {
-          this.selectedGroupFields[key].push(value);
-        }
-      } else if (key === 'subtype') {
-        this.selectedGroupFields[key] = [value];
-      } else {
-        // Invalid field, remove it from the url
-        // console.log('DELETE ' + key);
-        this.urlParams.delete(key);
-      }
-    });
-
-    // Map gene/protein names to objects
-    if (typeof this.selectedGene === 'string') {
-      this.selectedGene = getGene(this.selectedGene, this.selectedReference);
-      if (this.selectedGene === undefined) {
-        this.selectedGene = this.initialValues.selectedGene;
-      }
-    }
-    if (typeof this.selectedProtein === 'string') {
-      this.selectedProtein = getProtein(
-        this.selectedProtein,
-        this.selectedReference
-      );
-      if (this.selectedProtein === undefined) {
-        this.selectedProtein = this.initialValues.selectedProtein;
-      }
-    }
-
-    // Update URL
-    updateURLFromParams(this.urlParams);
-
-    const defaultSelectedLocationNodes = [];
-    if (this.initialValues.defaultSelectedLocationNodes.length === 0) {
-      this.initialValues.defaultSelectedLocationNodes = ['USA', 'Canada'];
-    }
-    this.initialValues.defaultSelectedLocationNodes.forEach((country) => {
-      const countryNode = getLocationByNameAndLevel(
-        rootStoreInstance.locationDataStore.selectTree,
-        country,
-        'country',
-        true
-      )[0];
-
-      if (countryNode !== undefined) {
-        defaultSelectedLocationNodes.push(countryNode);
-      }
-    });
-    this.initialValues.selectedLocationNodes = defaultSelectedLocationNodes;
-
-    if (this.selectedLocationNodes.length === 0) {
-      // If no locations in url, set default selected locations
-      this.selectedLocationNodes = defaultSelectedLocationNodes;
-    }
-
-    // RSV EDGE CASE
-    // If we don't start out in mutation mode, and no
-    // selected group fields are specified, empty out the
-    // selected group fields selection
-    if (
-      this.groupKey !== GROUP_MUTATION &&
-      Object.keys(config.group_cols).every(
-        (groupKey) => !this.urlParams.has(groupKey)
-      )
-    ) {
-      this.selectedGroupFields = {};
-    }
   }
-
-  // modifyQueryParams = autorun(() => {
-  //   PARAMS_TO_TRACK.forEach((param) => {
-  //     updateQueryStringParam(param, JSON.stringify(this[param]));
-  //   });
-  // });
 
   @action
   resetValues = (values) => {
@@ -292,7 +104,7 @@ export class ConfigStore {
   };
 
   @action
-  applyPendingChanges = (pending) => {
+  applyPendingChanges = (pending, fetch = true) => {
     // Clear selected groups/locations
     this.hoverGroup = this.initialValues.hoverGroup;
     this.selectedGroups = this.initialValues.selectedGroups;
@@ -302,13 +114,31 @@ export class ConfigStore {
     // Overwrite any of our fields here with the pending ones
     Object.keys(pending).forEach((field) => {
       this[field] = pending[field];
+    });
 
-      // Update urlParams
-      this.urlParams.delete(field);
+    // Update the location node tree with our new selection
+    rootStoreInstance.locationDataStore.setSelectedNodes(
+      this.selectedLocationNodes
+    );
 
+    // Get the new data from the server
+    if (fetch) {
+      rootStoreInstance.dataStore.fetchData();
+    }
+
+    this.updateURL(pending);
+  };
+
+  /*
+   * Serialize store state into URL params
+   */
+  updateURL = (pending) => {
+    const urlParams = rootStoreInstance.urlMonitor.urlParams;
+
+    Object.keys(pending).forEach((field) => {
       if (field === 'selectedGene' || field === 'selectedProtein') {
         // Handle fields that return objects
-        this.urlParams.set(field, pending[field].name);
+        urlParams.set(field, pending[field].name);
       } else if (
         field === 'selectedMetadataFields' ||
         field === 'selectedLocationNodes' ||
@@ -323,13 +153,10 @@ export class ConfigStore {
         return;
       } else if (field === 'selectedPrimers') {
         pending[field].forEach((primer) => {
-          if (this.urlParams.has(field)) {
-            this.urlParams.append(
-              field,
-              primer.Institution + '_' + primer.Name
-            );
+          if (urlParams.has(field)) {
+            urlParams.append(field, primer.Institution + '_' + primer.Name);
           } else {
-            this.urlParams.set(field, primer.Institution + '_' + primer.Name);
+            urlParams.set(field, primer.Institution + '_' + primer.Name);
           }
         });
       } else if (field === 'selectedGroupFields') {
@@ -337,91 +164,99 @@ export class ConfigStore {
         // remove any lingering group keys in the URL
         Object.keys(config.group_cols).forEach((groupKey) => {
           if (!Object.keys(pending[field]).includes(groupKey)) {
-            this.urlParams.delete(groupKey);
+            urlParams.delete(groupKey);
           }
         });
 
         Object.keys(pending[field]).forEach((groupKey) => {
-          this.urlParams.delete(groupKey);
+          urlParams.delete(groupKey);
           pending[field][groupKey].forEach((group) => {
-            this.urlParams.append(groupKey, group);
+            urlParams.append(groupKey, group);
           });
         });
       } else if (field === 'customCoordinates') {
-        this.urlParams.set(field, coordsToText(pending[field]));
+        urlParams.set(field, coordsToText(pending[field]));
       } else if (field === 'residueCoordinates') {
-        this.urlParams.set(field, residueCoordsToText(pending[field]));
+        urlParams.set(field, residueCoordsToText(pending[field]));
       } else {
-        this.urlParams.set(field, String(pending[field]));
+        urlParams.set(field, String(pending[field]));
       }
 
-      if (pending[field] === this.initialValues[field]) {
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
         // Only display non-default fields in the url
-        this.urlParams.delete(field);
+        urlParams.delete(field);
       }
     });
 
     // Show only relevant coordinate info
-    const mode = this.urlParams.get('coordinateMode');
-    if (mode === 'protein') {
-      this.urlParams.delete('selectedGene');
-      this.urlParams.delete('selectedPrimers');
-      this.urlParams.delete('customCoordinates');
-      this.urlParams.delete('customSequences');
-    } else if (mode === 'gene' || !mode) {
-      // Gene is the default mode and may have been deleted so check for null
-      this.urlParams.delete('selectedProtein');
-      this.urlParams.delete('selectedPrimers');
-      this.urlParams.delete('customCoordinates');
-      this.urlParams.delete('customSequences');
-    } else if (mode === 'primer') {
-      this.urlParams.delete('selectedProtein');
-      this.urlParams.delete('selectedGene');
-      this.urlParams.delete('customCoordinates');
-      this.urlParams.delete('customSequences');
-    } else if (mode === 'custom') {
-      this.urlParams.delete('selectedProtein');
-      this.urlParams.delete('selectedPrimers');
-      this.urlParams.delete('selectedGene');
-      this.urlParams.delete('customSequences');
-    } else if (mode === 'sequence') {
-      this.urlParams.delete('selectedProtein');
-      this.urlParams.delete('selectedPrimers');
-      this.urlParams.delete('selectedGene');
-      this.urlParams.delete('customCoordinates');
+    const coordinateMode = urlParams.get('coordinateMode');
+    switch (coordinateMode) {
+      case 'protein':
+        urlParams.delete('selectedGene');
+        urlParams.delete('selectedPrimers');
+        urlParams.delete('customCoordinates');
+        urlParams.delete('customSequences');
+        break;
+      // Gene is the default coordinateMode and may have been deleted so check for null
+      case 'gene':
+      case null:
+      case undefined:
+        urlParams.delete('selectedProtein');
+        urlParams.delete('selectedPrimers');
+        urlParams.delete('customCoordinates');
+        urlParams.delete('customSequences');
+        break;
+      case 'primer':
+        urlParams.delete('selectedProtein');
+        urlParams.delete('selectedGene');
+        urlParams.delete('customCoordinates');
+        urlParams.delete('customSequences');
+        break;
+      case 'custom':
+        urlParams.delete('selectedProtein');
+        urlParams.delete('selectedPrimers');
+        urlParams.delete('selectedGene');
+        urlParams.delete('customSequences');
+        break;
+      case 'sequence':
+        urlParams.delete('selectedProtein');
+        urlParams.delete('selectedPrimers');
+        urlParams.delete('selectedGene');
+        urlParams.delete('customCoordinates');
+        break;
     }
 
     if (this.groupKey !== GROUP_MUTATION) {
-      this.urlParams.delete('residueCoordinates');
-      this.urlParams.delete('selectedGene');
-      this.urlParams.delete('selectedProtein');
-      this.urlParams.delete('selectedPrimers');
-      this.urlParams.delete('customCoordinates');
-      this.urlParams.delete('customSequences');
+      urlParams.delete('residueCoordinates');
+      urlParams.delete('selectedGene');
+      urlParams.delete('selectedProtein');
+      urlParams.delete('selectedPrimers');
+      urlParams.delete('customCoordinates');
+      urlParams.delete('customSequences');
     }
-
-    // Update the location node tree with our new selection
-    rootStoreInstance.locationDataStore.setSelectedNodes(
-      this.selectedLocationNodes
-    );
 
     // Update the location URL params
     Object.values(GEO_LEVELS).forEach((level) => {
-      this.urlParams.delete(level);
+      urlParams.delete(level);
     });
 
-    this.selectedLocationNodes.forEach((node) => {
-      if (this.urlParams.has(String(node.level))) {
-        this.urlParams.append(String(node.level), String(node.value_txt));
-      } else {
-        this.urlParams.set(String(node.level), String(node.value_txt));
-      }
-    });
+    if ('selectedLocationNodes' in pending) {
+      pending.selectedLocationNodes.forEach((node) => {
+        if (urlParams.has(String(node.level))) {
+          urlParams.append(String(node.level), String(node.value_txt));
+        } else {
+          urlParams.set(String(node.level), String(node.value_txt));
+        }
+      });
+    }
 
-    updateURLFromParams(this.urlParams);
+    // Update URL
+    updateURLFromParams(urlParams);
 
-    // Get the new data from the server
-    rootStoreInstance.dataStore.fetchData();
+    rootStoreInstance.urlMonitor.urlParams = urlParams;
   };
 
   getMutationType() {
@@ -466,7 +301,6 @@ export class ConfigStore {
       division: [],
       location: [],
     };
-    //console.log(this.selectedLocationNodes);
     this.selectedLocationNodes.forEach((node) => {
       res[node.level].push(node.value);
     });
@@ -553,7 +387,6 @@ export class ConfigStore {
 
   @action
   updateHoverGroup = (group) => {
-    // console.log('UPDATE HOVER GROUP', group);
     if (group === this.hoverGroup) {
       return;
     } else if (group === GROUPS.NONE_GROUP || GROUPS.ALL_OTHER_GROUP) {

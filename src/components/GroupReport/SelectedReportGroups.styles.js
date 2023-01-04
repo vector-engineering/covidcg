@@ -1,22 +1,22 @@
 import styled from 'styled-components';
 
-export const SelectedGroupsContainer = styled.div`
+export const SelectedReportGroupsContainer = styled.div`
   margin-bottom: 4px;
   font-weight: normal;
 `;
 
-export const SelectedGroupTitle = styled.div`
+export const SelectedReportGroupTitle = styled.div`
   font-size: 1em;
   font-weight: bold;
 `;
 
-export const SelectedGroupsList = styled.ul`
+export const SelectedReportGroupsList = styled.ul`
   margin: 0px;
   padding-left: 5px;
   list-style: none;
 `;
 
-export const SelectedGroupItemContainer = styled.li`
+export const SelectedReportGroupItemContainer = styled.li`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -24,11 +24,11 @@ export const SelectedGroupItemContainer = styled.li`
   font-size: 1em;
 `;
 
-export const SelectedGroupItemTitle = styled.span``;
+export const SelectedReportGroupItemTitle = styled.span``;
 
-export const NoGroupsSelectedContainer = styled.div``;
+export const NoReportGroupsSelectedContainer = styled.div``;
 
-export const SelectedGroupsButton = styled.button`
+export const SelectedReportGroupsButton = styled.button`
   background: none;
   border-style: none;
   color: #aaa;

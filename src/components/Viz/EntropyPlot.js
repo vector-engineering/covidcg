@@ -95,10 +95,17 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const onChangeEntropyYMode = (event) => {
-    plotSettingsStore.setEntropyYMode(event.target.value);
+    const entropyYMode = event.target.value;
+    // Default powers
+    let entropyYPow = 1.0;
+    if (entropyYMode === NORM_MODES.NORM_COUNTS) {
+      entropyYPow = 0.5;
+    }
+
+    plotSettingsStore.applyPendingChanges({ entropyYMode, entropyYPow });
   };
   const onChangeEntropyYPow = (event) => {
-    plotSettingsStore.setEntropyYPow(event.target.value);
+    plotSettingsStore.applyPendingChanges({ entropyYPow: event.target.value });
   };
 
   // Domain Plot height is calculated as the number of rows times a constant

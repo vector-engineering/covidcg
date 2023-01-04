@@ -119,7 +119,9 @@ const SurveillanceSettings = observer(
       const oldSortField = plotSettingsStore.surveillanceSortField;
       const newSortField = e.target.value;
 
-      plotSettingsStore.setSurveillanceSortField(newSortField);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceSortField: newSortField,
+      });
 
       // Manually trigger a refresh on the legend data
       if (oldSortField !== newSortField) {
@@ -130,7 +132,9 @@ const SurveillanceSettings = observer(
       const oldSortDirection = plotSettingsStore.surveillanceSortDirection;
       const newSortDirection = e.target.value;
 
-      plotSettingsStore.setSurveillanceSortDirection(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceSortDirection: e.target.value,
+      });
 
       // Manually trigger a refresh on the legend data
       // console.log(oldSortDirection, newSortDirection);
@@ -139,19 +143,29 @@ const SurveillanceSettings = observer(
       }
     };
     const onChangeDisplayMinCounts = (e) => {
-      plotSettingsStore.setSurveillanceDisplayMinCounts(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceDisplayMinCounts: e.target.value,
+      });
     };
     const onChangeDisplayMinPercent = (e) => {
-      plotSettingsStore.setSurveillanceDisplayMinPercent(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceDisplayMinPercent: e.target.value,
+      });
     };
     const onChangeSigMinCounts = (e) => {
-      plotSettingsStore.setSurveillanceSigMinCounts(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceSigMinCounts: e.target.value,
+      });
     };
     const onChangeSigMinPercent = (e) => {
-      plotSettingsStore.setSurveillanceSigMinPercent(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceSigMinPercent: e.target.value,
+      });
     };
     const onChangeSigMinR = (e) => {
-      plotSettingsStore.setSurveillanceSigMinR(e.target.value);
+      plotSettingsStore.applyPendingChanges({
+        surveillanceSigMinR: e.target.value,
+      });
     };
 
     return (
@@ -316,7 +330,9 @@ const SurveillancePlot = observer(({ width }) => {
       legendHover.push(item.group);
     });
 
-    plotSettingsStore.setSurveillanceLegendHover(legendHover);
+    plotSettingsStore.applyPendingChanges({
+      surveillanceLegendHover: legendHover,
+    });
   };
 
   const [state, setState] = useState({
@@ -334,13 +350,13 @@ const SurveillancePlot = observer(({ width }) => {
   });
 
   const onToggleShowSettings = () => {
-    plotSettingsStore.setSurveillanceShowSettings(
-      !plotSettingsStore.surveillanceShowSettings
-    );
+    plotSettingsStore.applyPendingChanges({
+      surveillanceShowSettings: !plotSettingsStore.surveillanceShowSettings,
+    });
   };
 
   const onDismissWarning = () => {
-    plotSettingsStore.setSurveillanceShowWarning(false);
+    plotSettingsStore.applyPendingChanges({ surveillanceShowWarning: false });
   };
 
   const handleDownloadSelect = (option) => {
@@ -358,7 +374,7 @@ const SurveillancePlot = observer(({ width }) => {
   };
 
   // const onChangeMode = (e) => {
-  //   plotSettingsStore.setSurveillanceMode(e.target.value);
+  //   plotSettingsStore.applyPendingChanges({ surveillanceMode: e.target.value });
   // };
 
   const setLegendHover = (group) => {
@@ -373,7 +389,9 @@ const SurveillancePlot = observer(({ width }) => {
       legendHover = [group];
     }
 
-    plotSettingsStore.setSurveillanceLegendHover(legendHover);
+    plotSettingsStore.applyPendingChanges({
+      surveillanceLegendHover: legendHover,
+    });
 
     setState({
       ...state,

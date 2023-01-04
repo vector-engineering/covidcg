@@ -11,11 +11,11 @@ const sortByPosThenAlt = function (a, b) {
 };
 
 export const buildFeatureMatrix = ({
-  activeReference,
-  groupMutationFrequency,
-  activeGroupType,
-  groupMutationType,
-  selectedGroups,
+  reportActiveReference,
+  reportGroupMutationFrequency,
+  activeReportGroupType,
+  reportGroupMutationType,
+  selectedReportGroups,
   reportConsensusThreshold,
 }) => {
   // Restructure so that we have it in a matrix-ish format
@@ -37,27 +37,39 @@ export const buildFeatureMatrix = ({
   */
 
   // Abort if mutation frequency data empty
-  if (Object.keys(groupMutationFrequency).length === 0) {
+  if (Object.keys(reportGroupMutationFrequency).length === 0) {
+    return {};
+  }
+
+  // Abort if mutation type data not fetched yet
+  if (
+    reportGroupMutationFrequency[activeReportGroupType] === undefined ||
+    reportGroupMutationFrequency[activeReportGroupType][
+      reportGroupMutationType
+    ] === undefined
+  ) {
     return {};
   }
 
   // Select group mutations from the selected groups
-  groupMutationFrequency = groupMutationFrequency[activeGroupType][
-    groupMutationType
-  ]['0'].filter((groupMutation) => selectedGroups.includes(groupMutation.name));
+  reportGroupMutationFrequency = reportGroupMutationFrequency[
+    activeReportGroupType
+  ][reportGroupMutationType]['0'].filter((groupMutation) =>
+    selectedReportGroups.includes(groupMutation.name)
+  );
 
-  const genes = getAllGenes(activeReference);
-  const proteins = getAllProteins(activeReference);
+  const genes = getAllGenes(reportActiveReference);
+  const proteins = getAllProteins(reportActiveReference);
 
-  const features = groupMutationType === 'protein_aa' ? proteins : genes;
+  const features = reportGroupMutationType === 'protein_aa' ? proteins : genes;
 
   const result = {};
 
   features.forEach((feature) => {
     // Get all mutations for this gene, then sort by position/alt
-    const groupFeatureMutations = groupMutationFrequency
+    const groupFeatureMutations = reportGroupMutationFrequency
       .filter((groupMutation) => {
-        if (groupMutationType === 'dna') {
+        if (reportGroupMutationType === 'dna') {
           // Include NT mutations in this gene if it is contained in
           // any of the gene's NT segments
           // (Most genes will have one segment)
@@ -67,8 +79,8 @@ export const buildFeatureMatrix = ({
               groupMutation.pos <= featureNTRange[1]
           );
         } else if (
-          groupMutationType === 'gene_aa' ||
-          groupMutationType == 'protein_aa'
+          reportGroupMutationType === 'gene_aa' ||
+          reportGroupMutationType == 'protein_aa'
         ) {
           return groupMutation.feature === feature.name;
         }
@@ -87,7 +99,7 @@ export const buildFeatureMatrix = ({
       .map((featureMutation) => {
         // Find fractional frequencies for each group
         const freqs = [];
-        selectedGroups.forEach((group) => {
+        selectedReportGroups.forEach((group) => {
           const matchingMutation = groupFeatureMutations.find(
             (mut) =>
               mut.mutation_str === featureMutation.mutation_str &&
@@ -103,7 +115,7 @@ export const buildFeatureMatrix = ({
           // mutation_name: featureMutation.mutation_name,
           mutation_name: formatMutation(
             featureMutation.mutation_str,
-            groupMutationType === 'dna' ? DNA_OR_AA.DNA : DNA_OR_AA.AA
+            reportGroupMutationType === 'dna' ? DNA_OR_AA.DNA : DNA_OR_AA.AA
           ),
           pos: featureMutation.pos,
           ref: featureMutation.ref,
@@ -123,9 +135,14 @@ export const buildFeatureMatrix = ({
   return result;
 };
 
-export const serializeFeatureMatrix = ({ featureMatrix, selectedGroups }) => {
+export const serializeFeatureMatrix = ({
+  featureMatrix,
+  selectedReportGroups,
+}) => {
   let csvOut =
-    'feature,mutation_name,ref,pos,alt,' + selectedGroups.join(',') + '\n';
+    'feature,mutation_name,ref,pos,alt,' +
+    selectedReportGroups.join(',') +
+    '\n';
 
   Object.keys(featureMatrix).forEach((featureName) => {
     const featureMutationRecords = featureMatrix[featureName];
