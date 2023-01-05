@@ -336,11 +336,13 @@ def count_coverage(
             SELECT {start_col} as "range_start", COUNT(*) AS "count"
             FROM {coverage_table}
             WHERE {sequence_where_filter}
+                AND {start_col} IS NOT NULL
             GROUP BY "range_start"
         ), end_count AS (
             SELECT {end_col} as "range_end", COUNT(*) AS "count"
             FROM {coverage_table}
             WHERE {sequence_where_filter}
+                AND {end_col} IS NOT NULL
             GROUP BY "range_end"
         ), start_end_count AS (
             SELECT
