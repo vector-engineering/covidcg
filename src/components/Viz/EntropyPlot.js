@@ -336,6 +336,17 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
+    // Slightly modify coverage data before we feed it into Vega
+    // Since the last data point in the coverage array is set to 0,
+    // this will create a glitch in the coverage plot that will show coverage
+    // dropping off right at the end
+    // Fix this by setting the last coverage data point to the immediate previous
+    // coverage data point
+    const coverage = mutationDataStore.coverage.slice();
+    if (coverage.length >= 2 && coverage[coverage.length - 1].count === 0) {
+      coverage[coverage.length - 1].count = coverage[coverage.length - 2].count;
+    }
+
     setState({
       ...state,
       xRange: getXRange(),
@@ -344,7 +355,7 @@ const EntropyPlot = observer(({ width }) => {
         ...state.data,
         domains: domainsToShow(),
         table: processData(),
-        coverage: mutationDataStore.coverage,
+        coverage,
       },
     });
   };
