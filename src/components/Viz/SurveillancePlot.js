@@ -8,6 +8,7 @@ import { config } from '../../config';
 import {
   SORT_DIRECTIONS,
   PLOT_DOWNLOAD_OPTIONS,
+  SURV_GRAPH_MODE,
 } from '../../constants/defs.json';
 
 import ReactTooltip from 'react-tooltip';
@@ -22,6 +23,7 @@ import QuestionButton from '../Buttons/QuestionButton';
 import WarningBox from '../Common/WarningBox';
 
 import initialSpec from '../../vega_specs/surveillance.vg.json';
+import stackedSpec from '../../vega_specs/surveillance_stacked.vg.json';
 
 import {
   PlotContainer,
@@ -345,6 +347,7 @@ const SurveillancePlot = observer(({ width }) => {
       group_counts: surveillanceDataStore.surv_group_counts,
       hover_legend: [],
     },
+    vegaSpec: stackedSpec,
     signalListeners: {},
     legendItems: [],
   });
@@ -376,6 +379,12 @@ const SurveillancePlot = observer(({ width }) => {
   // const onChangeMode = (e) => {
   //   plotSettingsStore.applyPendingChanges({ surveillanceMode: e.target.value });
   // };
+
+  const onChangeGraphMode = (e) => {
+    plotSettingsStore.applyPendingChanges({
+      surveillanceGraphMode: e.target.value,
+    });
+  };
 
   const setLegendHover = (group) => {
     // console.log('legend hover', group);
@@ -447,6 +456,17 @@ const SurveillancePlot = observer(({ width }) => {
   } else if (config.surv_period === 'Y') {
     survPeriodText = 'year';
   }
+
+  let vegaSpec;
+  if (plotSettingsStore.surveillanceGraphMode === SURV_GRAPH_MODE.LINE) {
+    vegaSpec = initialSpec;
+  } else if (
+    plotSettingsStore.surveillanceGraphMode === SURV_GRAPH_MODE.STACK
+  ) {
+    vegaSpec = stackedSpec;
+  }
+
+  console.log(state.data);
 
   return (
     <PlotContainer>
@@ -521,6 +541,21 @@ const SurveillancePlot = observer(({ width }) => {
           </OptionsColumn>
         </PlotOptions>
       )}
+      <PlotOptions>
+        <OptionsColumn>
+          <OptionSelectContainer>
+            <label>
+              <select
+                value={plotSettingsStore.surveillanceGraphMode}
+                onChange={onChangeGraphMode}
+              >
+                <option value={SURV_GRAPH_MODE.LINE}>Line</option>
+                <option value={SURV_GRAPH_MODE.STACK}>Stacked Bar</option>
+              </select>
+            </label>
+          </OptionSelectContainer>
+        </OptionsColumn>
+      </PlotOptions>
       <PlotAndLegend>
         <SurveillanceLegend
           legendItems={state.legendItems}
@@ -529,7 +564,7 @@ const SurveillancePlot = observer(({ width }) => {
         />
         <VegaEmbed
           ref={vegaRef}
-          spec={initialSpec}
+          spec={vegaSpec}
           data={state.data}
           signals={{
             sortField: plotSettingsStore.surveillanceSortField,

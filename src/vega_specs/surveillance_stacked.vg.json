@@ -1,11 +1,24 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "A basic line chart example.",
+  "description": "Stacked bar chart for different regions of the world.",
   "width": 1000,
   "height": 350,
   "padding": 5,
-
   "signals": [
+    {
+      "name": "hoverGroup",
+      "value": null,
+      "on": [
+        {
+          "events": "rect:mouseover!",
+          "update": "{location: datum.group}"
+        },
+        {
+          "events": "rect:mouseout!",
+          "update": "null"
+        }
+      ]
+    },
     { "name": "sortField", "value": "group" },
     { "name": "sortDirection", "value": "ascending" },
     { "name": "display_min_counts", "value": 5 },
@@ -22,7 +35,7 @@
       "name": "subplot_width",
       "update": "(facet_width - (subplot_hpadding * 2.4)) / 3"
     },
-    { "name": "subplot_range_x", "update": "[0, subplot_width]" },
+    { "name": "subplot_range_x", "update": "[15, subplot_width - 15]" },
     { "name": "subplot_vpadding", "value": 100 },
     { "name": "subplot_height", "update": "(height - subplot_vpadding) / 2" },
     { "name": "subplot_range_y", "update": "[subplot_height, 0]" },
@@ -104,8 +117,9 @@
   "data": [
     {
       "name": "group_reg",
+      "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
       "format": {
-        "type": "json"
+        "type": "csv"
       }
     },
     {
@@ -167,8 +181,15 @@
     },
     {
       "name": "group_counts",
+      "url": "https://storage.googleapis.com/ve-public/surveillance/group_counts2.csv",
       "format": {
-        "type": "json"
+        "type": "csv",
+        "parse": {
+          "collection_week": "date",
+          "counts": "number",
+          "location_counts": "number",
+          "percent": "number"
+        }
       },
       "transform": [
         {
@@ -185,16 +206,21 @@
           "expr": "!datum.hide"
         },
         {
-          "type": "formula",
-          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)",
-          "as": "valid"
+          "type": "filter",
+          "expr": "if(indata('valid_groups', 'group', datum.group), true, false)"
         },
         {
           "type": "collect",
           "sort": {
-            "field": ["region", "group", "collection_period"],
+            "field": ["region", "group", "collection_week"],
             "order": ["ascending", "ascending", "ascending"]
           }
+        },
+        {
+          "type": "stack",
+          "groupby": ["collection_week", "region"],
+          "sort": { "field": "group" },
+          "field": "percent"
         }
       ]
     },
@@ -263,39 +289,6 @@
           "as": "end"
         }
       ]
-    },
-    {
-      "name": "lower_date",
-      "source": "group_counts",
-      "transform": [
-        {
-          "type": "aggregate",
-          "fields": ["collection_period"],
-          "as": ["collection_period"],
-          "ops": ["min"]
-        }
-      ]
-    },
-    {
-      "name": "upper_date",
-      "source": "group_counts",
-      "transform": [
-        {
-          "type": "aggregate",
-          "fields": ["collection_period"],
-          "as": ["collection_period"],
-          "ops": ["max"]
-        },
-        {
-          "type": "formula",
-          "as": "collection_period",
-          "expr": "now()"
-        }
-      ]
-    },
-    {
-      "name": "date_range",
-      "source": ["lower_date", "upper_date"]
     }
   ],
 
@@ -303,7 +296,7 @@
     {
       "name": "dateX",
       "type": "time",
-      "domain": { "data": "date_range", "field": "collection_period" },
+      "domain": { "data": "group_counts", "field": "collection_week" },
       "range": { "signal": "subplot_range_x" }
     },
     {
@@ -373,7 +366,9 @@
             {
               "name": "percentY",
               "type": "linear",
-              "domain": { "data": "group_per_region", "field": "percent" },
+              "domain": { "data": "group_per_region", "field": "y1" },
+              "domainMin": 0,
+              "domainMax": 1,
               "range": { "signal": "subplot_range_y" }
             }
           ],
@@ -382,6 +377,7 @@
               "scale": "dateX",
               "orient": "bottom",
               "format": { "signal": "xLabelFormat" },
+              "tickCount": "week",
               "grid": false,
               "gridColor": "#DDD",
               "labelAngle": 310,
@@ -439,7 +435,7 @@
                     {
                       "type": "aggregate",
                       "groupby": ["group"],
-                      "fields": ["collection_period"],
+                      "fields": ["collection_week"],
                       "ops": ["max"],
                       "as": ["max_date"]
                     }
@@ -451,55 +447,42 @@
                   "transform": [
                     {
                       "type": "filter",
-                      "expr": "datum.collection_period == data('max_date')[0]['max_date'] && indata('all_hover', 'group', datum.group)"
+                      "expr": "datum.collection_week == data('max_date')[0]['max_date']"
                     }
                   ]
                 }
               ],
               "marks": [
                 {
-                  "type": "line",
+                  "type": "rect",
                   "from": { "data": "valid_group_date" },
                   "encode": {
                     "update": {
-                      "x": { "scale": "dateX", "field": "collection_period" },
-                      "y": { "scale": "percentY", "field": "percent" },
+                      "x": { "scale": "dateX", "field": "collection_week" },
+                      "y": { "scale": "percentY", "field": "y0" },
+                      "y2": { "scale": "percentY", "field": "y1" },
                       "stroke": { "scale": "group_color", "field": "group" },
-                      "strokeWidth": { "value": 2 },
+                      "on": [
+                        {
+                          "trigger": "mouseover",
+                          "modify": {
+                            "signal": "hoverGroup",
+                            "value": "datum.group"
+                          }
+                        }
+                      ],
+                      "strokeWidth": { "value": 20 },
                       "strokeOpacity": [
                         {
-                          "test": "!length(data('all_hover')) || indata('all_hover', 'group', datum.group)",
-                          "value": 1.0
+                          "test": "hoverGroup === null || hoverGroup.location === datum.group",
+                          "value": 1
                         },
                         { "value": 0.3 }
                       ],
-                      "zindex": { "value": 2 }
-                    }
-                  }
-                },
-                {
-                  "type": "line",
-                  "from": { "data": "invalid_group_date" },
-                  "encode": {
-                    "update": {
-                      "x": { "scale": "dateX", "field": "collection_period" },
-                      "y": { "scale": "percentY", "field": "percent" },
-                      "stroke": { "value": "#aaa" },
-                      "strokeWidth": [
-                        {
-                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                          "value": 1.5
-                        },
-                        { "value": 1.0 }
-                      ],
-                      "strokeOpacity": [
-                        {
-                          "test": "length(data('all_hover')) && indata('all_hover', 'group', datum.group)",
-                          "value": 0.8
-                        },
-                        { "value": 0.3 }
-                      ],
-                      "zindex": { "value": 1 }
+                      "zindex": { "value": 1 },
+                      "tooltip": {
+                        "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p'), 'Date': datetime(datum.collection_week)}"
+                      }
                     }
                   }
                 },
@@ -510,8 +493,8 @@
                     "update": {
                       "x": {
                         "scale": "dateX",
-                        "field": "collection_period",
-                        "offset": 3
+                        "field": "collection_week",
+                        "offset": 12
                       },
                       "y": { "scale": "percentY", "field": "percent" },
                       "text": { "field": "group" },
@@ -531,19 +514,25 @@
               ]
             },
             {
-              "type": "rect",
+              "type": "rule",
               "from": { "data": "annotation" },
               "encode": {
+                "enter": {
+                  "stroke": { "value": "#FF0000" }
+                },
                 "update": {
                   "x": {
                     "scale": "dateX",
                     "field": "start"
                   },
+                  "y": { "value": -5 },
                   "x2": { "signal": "width" },
-                  "y": { "value": 0 },
-                  "y2": { "signal": "height" },
-                  "fill": { "value": "#CCC" },
-                  "opacity": { "value": 0.3 }
+                  "y2": { "value": -5 },
+                  "strokeWidth": { "value": 2 },
+                  "opacity": { "value": 1 }
+                },
+                "hover": {
+                  "opacity": { "value": 0.5 }
                 }
               }
             }

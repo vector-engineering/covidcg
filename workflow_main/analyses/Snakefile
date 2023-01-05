@@ -186,7 +186,6 @@ rule consensus_mutations:
             --min-reporting-fraction {params.min_reporting_fraction}
         """
 
-
 rule additional_analyses:
     input:
         # AZ REPORTS

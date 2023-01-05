@@ -120,5 +120,9 @@
   "PYMOL_SCRIPT_TYPES": {
     "COMMANDS": "commands",
     "SCRIPT": "script"
+  },
+  "SURV_GRAPH_MODE": {
+    "LINE": "Line",
+    "STACK": "Stacked Bar"
   }
 }

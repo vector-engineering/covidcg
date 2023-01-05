@@ -7,6 +7,7 @@ import {
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
   LITEMOL_STYLES,
+  SURV_GRAPH_MODE,
 } from '../constants/defs.json';
 import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
@@ -53,6 +54,7 @@ export class PlotSettingsStore {
 
   // SURVEILLANCE PLOT
   @observable surveillanceMode = '';
+  @observable surveillanceGraphMode = SURV_GRAPH_MODE.LINE;
   @observable surveillanceShowWarning = true;
   @observable surveillanceShowSettings = false;
   @observable surveillanceSortField = '';

@@ -13,6 +13,7 @@ import {
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
   LITEMOL_STYLES,
+  SURV_GRAPH_MODE,
 } from './defs.json';
 
 const today = intToISO(new Date().getTime());
@@ -101,6 +102,7 @@ if (config['virus'] === 'sars2') {
 
     // SURVEILLANCE PLOT
     surveillanceMode: 'lineage',
+    surveillanceGraphMode: SURV_GRAPH_MODE.LINE,
     surveillanceSortField: 'counts', // 'group' or 'counts'
     surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
     surveillanceDisplayMinCounts: 5,
@@ -225,6 +227,7 @@ if (config['virus'] === 'sars2') {
 
     // SURVEILLANCE PLOT
     surveillanceMode: 'subtype',
+    surveillanceGraphMode: SURV_GRAPH_MODE.LINE,
     surveillanceSortField: 'counts', // 'group' or 'counts'
     surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
     surveillanceDisplayMinCounts: 0,
@@ -338,6 +341,7 @@ if (config['virus'] === 'sars2') {
 
     // SURVEILLANCE PLOT
     surveillanceMode: 'subtype',
+    surveillanceGraphMode: SURV_GRAPH_MODE.LINE,
     surveillanceSortField: 'counts', // 'group' or 'counts'
     surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
     surveillanceDisplayMinCounts: 0,
