@@ -17,7 +17,7 @@
     { "name": "overviewHeight", "value": 60 },
     {
       "name": "dateRangeStart",
-      "value": 1575158400000,
+      "value": -631152000000,
       "comment": "Along with dateRangeEnd, these are hard limits on the dates shown. May need to update when we hit 2021. Dates are in milliseconds, unix epoch"
     },
     {
@@ -146,11 +146,6 @@
     {
       "name": "cases_by_date_and_group",
       "comment": "Main data object, same as caseData in store",
-      "format": {
-        "parse": {
-          "collection_date": "date:'%Q'"
-        }
-      },
       "transform": [
         {
           "comment": "this creates the group_sum field on each item, which is a total sum of all cases for that group across all dates",

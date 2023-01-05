@@ -11,25 +11,29 @@ import {
 } from './GroupSearch.styles';
 
 const GroupSearch = observer(() => {
-  const { groupDataStore } = useStores();
+  const { groupDataStore, configStore } = useStores();
   const [state, setState] = useState({
     data: [],
   });
 
   useEffect(() => {
+    let data =
+      groupDataStore.reportGroupSelectTree[
+        groupDataStore.activeReportGroupType
+      ];
     setState({
       ...state,
-      data: groupDataStore.groupSelectTree[groupDataStore.activeGroupType],
+      data: data,
     });
-  }, [groupDataStore.groupSelectTree]);
+  }, [groupDataStore.reportGroupSelectTree, configStore.selectedReference]);
 
   const treeSelectOnChange = (_currentNode, selectedNodes) => {
     // console.log('onChange::', _currentNode, selectedNodes);
-    groupDataStore.updateSelectedGroups(
-      selectedNodes.map((node) => {
+    groupDataStore.applyPendingChanges({
+      selectedReportGroups: selectedNodes.map((node) => {
         return node.value;
-      })
-    );
+      }),
+    });
   };
   // const treeSelectOnAction = (node, action) => {
   //   console.log('onAction::', action, node);
@@ -62,7 +66,7 @@ const GroupSearch = observer(() => {
     <GroupSearchContainer>
       <GroupSearchHeader>
         <GroupSearchTitle>
-          Select {groupDataStore.getActiveGroupTypePrettyName()}s
+          Select {groupDataStore.getActiveReportGroupTypePrettyName()}s
         </GroupSearchTitle>
       </GroupSearchHeader>
       {dropdownContainer}

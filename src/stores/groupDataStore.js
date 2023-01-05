@@ -6,60 +6,62 @@ import { action, observable } from 'mobx';
 import { config, hostname } from '../config';
 import { rootStoreInstance } from './rootStore';
 import { asyncDataStoreInstance } from '../components/App';
+import { groupDataStore as initialGroupDataStore } from '../constants/initialValues';
 import { GROUPS, PYMOL_SCRIPT_TYPES } from '../constants/defs.json';
 
 import { downloadBlobURL } from '../utils/download';
-import {
-  mutationHeatmapToPymolScript,
-  mutationHeatmapToPymolCommands,
-} from '../utils/pymol';
 
-export const initialValues = {
-  activeGroupType: Object.keys(config['group_cols'])[0],
-  selectedGroups: ['BA.1', 'AY.4', 'B.1.617.2', 'B.1.1.7', 'B.1.351', 'P.2'],
-  groupMutationType: 'protein_aa',
-};
+import { getProtein } from '../utils/gene_protein';
+import { savePymolScript } from '../utils/pymol';
+import { updateURLFromParams } from '../utils/updateQueryParam';
 
 export class GroupDataStore {
+  initialValues = {};
   // Actively selected group type in the report tab
-  @observable activeGroupType = initialValues.activeGroupType;
-  @observable selectedGroups = initialValues.selectedGroups;
-  @observable groupMutationType = initialValues.groupMutationType;
+  @observable activeReportGroupType = '';
+  @observable selectedReportGroups = [];
+  @observable reportGroupMutationType = '';
+  @observable reportActiveReference = '';
 
   groups;
-  @observable groupSelectTree;
-  groupMutationFrequency;
+  @observable reportGroupSelectTree;
+  reportGroupMutationFrequency;
 
   constructor() {
-    this.groupMutationFrequency = {};
+    this.reportGroupMutationFrequency = {};
     // Provided by the server
     // Array of records { name: string, color: string }
     this.groups = {};
-    this.groupSelectTree = {};
+    this.reportGroupSelectTree = {};
     this.groupColors = {};
 
     Object.keys(config['group_cols']).forEach((group) => {
       this.groups[group] = [];
-      this.groupSelectTree[group] = [];
+      this.reportGroupSelectTree[group] = [];
       this.groupColors[group] = {};
     });
   }
 
   init() {
+    // Load intial values
+    this.initialValues = initialGroupDataStore;
+    Object.keys(this.initialValues).forEach((key) => {
+      this[key] = this.initialValues[key];
+    });
     // Load all groups from the server
     asyncDataStoreInstance.data.groups.forEach((record) => {
       let groupName = record['group'];
-      delete record['group'];
+      //delete record['group'];
       this.groups[groupName].push(record);
     });
 
     // Construct selection trees
     Object.keys(this.groups).forEach((groupName) => {
       this.groups[groupName].forEach((group) => {
-        this.groupSelectTree[groupName].push({
+        this.reportGroupSelectTree[groupName].push({
           label: group.name,
           value: group.name,
-          checked: this.selectedGroups.includes(group.name),
+          checked: this.selectedReportGroups.includes(group.name),
         });
       });
     });
@@ -74,25 +76,109 @@ export class GroupDataStore {
     });
   }
 
+  @action
+  applyPendingChanges = (pending, fetch = false) => {
+    // Overwrite any of our fields here with the pending ones
+    Object.keys(pending).forEach((field) => {
+      this[field] = pending[field];
+    });
+
+    // Hide ORF1a in NT/gene_aa mode by default
+    if (
+      pending.reportGroupMutationType === 'dna' ||
+      pending.reportGroupMutationType === 'gene_aa'
+    ) {
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportMutationListHidden: ['ORF1a'],
+      });
+    }
+    // Otherwise clear the hidden list
+    else {
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportMutationListHidden: [],
+      });
+    }
+
+    // Update the reportGroupSelectTree as well
+    const selectTree = JSON.parse(JSON.stringify(this.reportGroupSelectTree));
+    selectTree[this.activeReportGroupType].forEach((group) => {
+      if (this.selectedReportGroups.includes(group.value)) {
+        group.checked = true;
+      } else {
+        group.checked = false;
+      }
+    });
+    this.reportGroupSelectTree = selectTree;
+
+    // Update the selected active group from the structural viewer
+    // if we removed the current structural active group
+    if (
+      !this.selectedReportGroups.includes(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
+      )
+    ) {
+      // Set it to the first selected group
+      rootStoreInstance.plotSettingsStore.applyPendingChanges({
+        reportStructureActiveGroup: this.selectedReportGroups[0],
+      });
+    }
+
+    // If we don't have the data for this combo yet, then fetch it now
+    if (fetch || !this.hasGroupFrequencyData()) {
+      this.fetchGroupMutationFrequencyData({
+        group: this.activeReportGroupType,
+        mutationType: this.reportGroupMutationType,
+        consensusThreshold: 0,
+        selectedReference: this.reportActiveReference,
+      });
+    }
+
+    this.updateURL(pending);
+  };
+
+  updateURL = (pending) => {
+    const urlParams = rootStoreInstance.urlMonitor.urlParams;
+    Object.keys(pending).forEach((field) => {
+      if (field === 'selectedReportGroups') {
+        urlParams.set(field, pending[field].join(','));
+      } else {
+        urlParams.set(field, String(pending[field]));
+      }
+
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
+        // Only display non-default fields in the url
+        urlParams.delete(field);
+      }
+    });
+
+    // Update URL
+    updateURLFromParams(urlParams);
+
+    rootStoreInstance.urlMonitor.urlParams = urlParams;
+  };
+
   hasGroupFrequencyData() {
     if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency,
-        this.activeGroupType
+        this.reportGroupMutationFrequency,
+        this.activeReportGroupType
       )
     ) {
       return false;
     } else if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[this.activeGroupType],
-        this.groupMutationType
+        this.reportGroupMutationFrequency[this.activeReportGroupType],
+        this.reportGroupMutationType
       )
     ) {
       return false;
     } else if (
       !Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[this.activeGroupType][
-          this.groupMutationType
+        this.reportGroupMutationFrequency[this.activeReportGroupType][
+          this.reportGroupMutationType
         ],
         '0'
       )
@@ -103,84 +189,16 @@ export class GroupDataStore {
     }
   }
 
-  @action
-  updateActiveGroupType = (activeGroupType) => {
-    this.activeGroupType = activeGroupType;
-
-    // If we don't have the data for this combo yet, then fetch it now
-    if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupMutationFrequencyData({
-        group: this.activeGroupType,
-        mutationType: this.groupMutationType,
-        consensusThreshold: 0,
-      });
-    }
-  };
-
-  @action
-  updateGroupMutationType = (groupMutationType) => {
-    this.groupMutationType = groupMutationType;
-
-    // If we don't have the data for this combo yet, then fetch it now
-    if (!this.hasGroupFrequencyData()) {
-      this.fetchGroupMutationFrequencyData({
-        group: this.activeGroupType,
-        mutationType: this.groupMutationType,
-        consensusThreshold: 0,
-      });
-    }
-
-    // Hide ORF1a in NT/gene_aa mode by default
-    if (groupMutationType === 'dna' || groupMutationType === 'gene_aa') {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([
-        'ORF1a',
-      ]);
-    }
-    // Otherwise clear the hidden list
-    else {
-      rootStoreInstance.plotSettingsStore.setReportMutationListHidden([]);
-    }
-  };
-
-  @action
-  updateSelectedGroups = (selectedGroups) => {
-    this.selectedGroups = selectedGroups;
-
-    // Update the groupSelectTree as well
-    const selectTree = JSON.parse(JSON.stringify(this.groupSelectTree));
-    selectTree[this.activeGroupType].forEach((group) => {
-      if (this.selectedGroups.includes(group.value)) {
-        group.checked = true;
-      } else {
-        group.checked = false;
-      }
-    });
-    this.groupSelectTree = selectTree;
-
-    // Update the selected active group from the structural viewer
-    // if we removed the current structural active group
-    if (
-      !this.selectedGroups.includes(
-        rootStoreInstance.plotSettingsStore.reportStructureActiveGroup
-      )
-    ) {
-      // Set it to the first selected group
-      rootStoreInstance.plotSettingsStore.setReportStructureActiveGroup(
-        this.selectedGroups[0]
-      );
-    }
-  };
-
-  getActiveGroupTypePrettyName() {
-    return config.group_cols[this.activeGroupType].title;
+  getActiveReportGroupTypePrettyName() {
+    return config.group_cols[this.activeReportGroupType].title;
   }
 
-  getGroupMutationTypePrettyName() {
-    if (this.groupMutationType === 'dna') {
+  getReportGroupMutationTypePrettyName() {
+    if (this.reportGroupMutationType === 'dna') {
       return 'NT';
-    } else if (this.groupMutationType === 'gene_aa') {
+    } else if (this.reportGroupMutationType === 'gene_aa') {
       return 'Gene AA';
-    } else if (this.groupMutationType === 'protein_aa') {
+    } else if (this.reportGroupMutationType === 'protein_aa') {
       return 'Protein AA';
     }
   }
@@ -194,33 +212,34 @@ export class GroupDataStore {
     group,
     mutationType,
     consensusThreshold,
+    selectedReference,
   }) {
     // Skip the download if we already have the requested data
     if (
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency,
+        this.reportGroupMutationFrequency,
         group
       ) &&
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[group],
+        this.reportGroupMutationFrequency[group],
         mutationType
       ) &&
       Object.prototype.hasOwnProperty.call(
-        this.groupMutationFrequency[group][mutationType],
+        this.reportGroupMutationFrequency[group][mutationType],
         consensusThreshold.toString()
       )
     ) {
       // eslint-disable-next-line no-unused-vars
       return new Promise((resolve, reject) => {
         resolve(
-          this.groupMutationFrequency[group][mutationType][
+          this.reportGroupMutationFrequency[group][mutationType][
             consensusThreshold.toString()
           ]
         );
       });
     }
 
-    rootStoreInstance.UIStore.onGroupMutationFrequencyStarted();
+    rootStoreInstance.UIStore.onReportGroupMutationFrequencyStarted();
     return fetch(hostname + '/group_mutation_frequencies', {
       method: 'POST',
       headers: {
@@ -228,9 +247,10 @@ export class GroupDataStore {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        group,
+        group_key: group,
         mutation_type: mutationType,
         consensus_threshold: consensusThreshold,
+        selected_reference: selectedReference,
       }),
     })
       .then((res) => {
@@ -242,25 +262,25 @@ export class GroupDataStore {
       .then((pkg) => {
         if (
           !Object.prototype.hasOwnProperty.call(
-            this.groupMutationFrequency,
+            this.reportGroupMutationFrequency,
             group
           )
         ) {
-          this.groupMutationFrequency[group] = {};
+          this.reportGroupMutationFrequency[group] = {};
         }
         if (
           !Object.prototype.hasOwnProperty.call(
-            this.groupMutationFrequency[group],
+            this.reportGroupMutationFrequency[group],
             mutationType
           )
         ) {
-          this.groupMutationFrequency[group][mutationType] = {};
+          this.reportGroupMutationFrequency[group][mutationType] = {};
         }
-        this.groupMutationFrequency[group][mutationType][
+        this.reportGroupMutationFrequency[group][mutationType][
           consensusThreshold.toString()
         ] = pkg;
 
-        rootStoreInstance.UIStore.onGroupMutationFrequencyFinished();
+        rootStoreInstance.UIStore.onReportGroupMutationFrequencyFinished();
 
         return pkg;
       })
@@ -272,7 +292,7 @@ export class GroupDataStore {
             console.error(errMsg);
           });
         }
-        rootStoreInstance.UIStore.onGroupMutationFrequencyErr();
+        rootStoreInstance.UIStore.onReportGroupMutationFrequencyErr();
       });
   }
 
@@ -281,12 +301,14 @@ export class GroupDataStore {
     group,
     mutationType,
     consensusThreshold,
+    selectedReference,
   }) {
     rootStoreInstance.UIStore.onDownloadStarted();
     this.fetchGroupMutationFrequencyData({
       group,
       mutationType,
       consensusThreshold,
+      selectedReference,
     }).then((pkg) => {
       rootStoreInstance.UIStore.onDownloadFinished();
       const blob = new Blob([JSON.stringify(pkg)]);
@@ -296,13 +318,13 @@ export class GroupDataStore {
   }
 
   getStructureMutations() {
-    return this.groupMutationFrequency[this.activeGroupType]['protein_aa'][
-      '0'
-    ].filter(
+    return this.reportGroupMutationFrequency[this.activeReportGroupType][
+      'protein_aa'
+    ]['0'].filter(
       (groupMutation) =>
         groupMutation.name ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveGroup &&
-        groupMutation.protein ===
+        groupMutation.feature ===
           rootStoreInstance.plotSettingsStore.reportStructureActiveProtein
     );
   }
@@ -317,44 +339,29 @@ export class GroupDataStore {
   }
 
   downloadStructurePymolScript(opts) {
-    let script, outfile;
+    let filename;
     if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
-      script = mutationHeatmapToPymolCommands({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.txt`;
     } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
-      script = mutationHeatmapToPymolScript({
-        activeProtein:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
-        activeGroup:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveGroup,
-        pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
-        proteinStyle:
-          rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
-        assemblies:
-          rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
-        activeAssembly:
-          rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
-        entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
-        mutations: this.getStructureMutations(),
-        ...opts,
-      });
-      outfile = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
+      filename = `heatmap_${rootStoreInstance.plotSettingsStore.reportStructureActiveProtein}_${rootStoreInstance.plotSettingsStore.reportStructureActiveGroup}.py`;
     }
-    const blob = new Blob([script]);
-    const url = URL.createObjectURL(blob);
-    downloadBlobURL(url, outfile);
+
+    savePymolScript({
+      opts,
+      filename,
+      activeProtein: getProtein(
+        rootStoreInstance.plotSettingsStore.reportStructureActiveProtein,
+        rootStoreInstance.configStore.selectedReference // TODO: track reference for report in plotSettingsStore?
+      ),
+      pdbId: rootStoreInstance.plotSettingsStore.reportStructurePdbId,
+      proteinStyle:
+        rootStoreInstance.plotSettingsStore.reportStructureProteinStyle,
+      assemblies: rootStoreInstance.plotSettingsStore.reportStructureAssemblies,
+      activeAssembly:
+        rootStoreInstance.plotSettingsStore.reportStructureActiveAssembly,
+      entities: rootStoreInstance.plotSettingsStore.reportStructureEntities,
+      mutations: this.getStructureMutations(),
+      mutationColorField: 'fraction',
+    });
   }
 }

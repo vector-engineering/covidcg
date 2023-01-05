@@ -6,10 +6,7 @@ import gzip
 
 from pathlib import Path
 
-# Import scripts
-from scripts.chunk_data import chunk_data
-from scripts.clean_metadata import clean_metadata
-from scripts.copy_changed_files import copy_changed_files
+import pandas as pd
 
 configfile: "../config/config_rsv_genbank.yaml"
 
@@ -17,7 +14,13 @@ configfile: "../config/config_rsv_genbank.yaml"
 today_str = datetime.date.today().isoformat()
 
 data_folder = os.path.join("..", config["data_folder"])
-# static_data_folder = os.path.join("..", config["static_data_folder"])
+static_data_folder = os.path.join("..", config["static_data_folder"])
+
+min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
+max_date = pd.to_datetime(datetime.date.today().isoformat())
+
+chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
+DL_CHUNKS = [i for i in range(len(chunks))]
 
 rule all:
     input:
@@ -28,43 +31,164 @@ rule all:
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
+        # Force assign subtypes each day
+        os.path.join(
+            data_folder, "status", "assign_subtypes_" + today_str + ".done"
+        ),
         # Cleaned metadata
-        os.path.join(data_folder, "metadata.csv")
+        os.path.join(data_folder, "metadata.csv"),
+        # Split sequences by subtype - for AZ internal workflows
+        seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
 
 
-rule download:
-    """Download latest data from GenBank. The feed "JSON" is actually a file of
-    newline-delimited JSON records (the file itself is not strict JSON)
+rule download_chunk:
+    """Download the data feed in chunks, to avoid timeouts.
     """
     output:
-        feed = os.path.join(data_folder, "feed.csv"),
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_download_chunks:
+    """Combine all the downloaded chunks into a single CSV file.
+    Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
+    """
+    input:
+        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.csv'), chunk=DL_CHUNKS)
+    params:
+        chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
+    output:
+        feed = os.path.join(data_folder, 'feed.csv'),
         status = touch(os.path.join(
             data_folder, "status", "download_" + today_str + ".done"
         ))
     shell:
         """
-        python3 scripts/download.py > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
+        """
+
+rule clean_metadata:
+    """Clean metadata
+    """
+    input:
+        metadata_dirty = rules.combine_download_chunks.output.feed,
+    output:
+        metadata_clean = os.path.join(data_folder, "metadata_no_subtype.csv")
+    shell:
+        """
+        python3 scripts/clean_metadata.py \
+            --metadata-in {input.metadata_dirty} \
+            --metadata-out {output.metadata_clean}
+        """
+
+rule write_all_fasta:
+    input:
+        feed = rules.combine_download_chunks.output.feed,
+        download_status = rules.combine_download_chunks.output.status, # Force this step every day
+        metadata = rules.clean_metadata.output.metadata_clean
+    output:
+        sequences = os.path.join(data_folder, 'all_sequences.fa.gz')
+    shell:
+        """
+        python3 scripts/write_all_fasta.py \
+            --feed {input.feed} --metadata-in {input.metadata} --out {output.sequences}
         """
 
 
-checkpoint chunk_data:
-    """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
-    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
+rule assign_subtypes:
+    """Assign a subtype to each sequences
     """
     input:
-        feed = rules.download.output.feed
+        fasta = rules.write_all_fasta.output.sequences
+    params:
+        ref_seq = os.path.join(static_data_folder, 'genotype_references.fasta')
     output:
-        fasta = directory(os.path.join(data_folder, "fasta_temp")),
-        metadata_dirty = temp(os.path.join(data_folder, "metadata_dirty.csv")),
-        status = touch(os.path.join(data_folder, "status", "finished_chunks_" + today_str + ".done"))
+        bam = os.path.join(data_folder, "subtypes.bam"),
+        status = touch(os.path.join(
+            data_folder, "status", "assign_subtypes_" + today_str + ".done"
+        ))
+    shell:
+        """
+        minimap2 -t {threads} -x map-ont -a --sam-hit-only {params.ref_seq} {input.fasta} | samtools view -b > {output.bam}
+        """
+
+rule join_subtype_assignments:
+    """Join subtype assignments to main virus dataframe
+    """
+    input:
+        subtype_alignment = rules.assign_subtypes.output.bam,
+        metadata = rules.clean_metadata.output.metadata_clean
+    output:
+        metadata_plus_subtype = os.path.join(data_folder, 'metadata.csv'),
+        metadata_failed_subtype_assignments = os.path.join(data_folder, 'metadata_failed_subtype_assignment.csv')
+    shell:
+        """
+        python3 scripts/join_subtype_assignments.py \
+            --in-bam {input.subtype_alignment} \
+            --metadata {input.metadata} \
+            --out-metadata {output.metadata_plus_subtype} \
+            --out-failed {output.metadata_failed_subtype_assignments}
+        """
+
+rule split_sequences_by_subtype:
+    """Split sequences by subtype
+    """
+    input:
+        feed = rules.combine_download_chunks.output.feed,
+        metadata = rules.join_subtype_assignments.output.metadata_plus_subtype
+    output:
+        seq_A = os.path.join(data_folder, 'seq_by_subtype', 'sequences_A.fa.gz'),
+        seq_B = os.path.join(data_folder, 'seq_by_subtype', 'sequences_B.fa.gz'),
+        metadata_A = os.path.join(data_folder, 'seq_by_subtype', 'metadata_A.csv'),
+        metadata_B = os.path.join(data_folder, 'seq_by_subtype', 'metadata_B.csv'),
+        seq_by_subtype_tar = os.path.join(data_folder, 'seq_by_subtype.tar.gz')
+    params:
+        seq_by_subtype_folder = os.path.join(data_folder, 'seq_by_subtype')
+    shell:
+        """
+        python3 scripts/split_sequences_by_subtype.py \
+            --feed {input.feed} \
+            --metadata {input.metadata} \
+            --out-A {output.seq_A} \
+            --out-B {output.seq_B} \
+            --out-metadata-A {output.metadata_A} \
+            --out-metadata-B {output.metadata_B}
+
+        # Compress folder
+        tar -czvf {output.seq_by_subtype_tar} {params.seq_by_subtype_folder}
+        """
+    
+
+checkpoint chunk_sequences:
+    """Split up the data feed's individual JSON objects into metadata and fasta files. 
+    Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. 
+    The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
+    On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this 
+    is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with 
+    hundreds of files, but the filesystem seems to be handling it well.
+    """
+    input:
+        feed = rules.combine_download_chunks.output.feed,
+        metadata = rules.join_subtype_assignments.output.metadata_plus_subtype,
+    output:
+        fasta = directory(os.path.join(data_folder, "fasta_temp"))
     params:
         chunk_size = config["chunk_size"]
-    run:
-        chunk_data(
-            input.feed, output.fasta, output.metadata_dirty,
-            chunk_size=params.chunk_size,
-            processes=workflow.cores
-        )
+    shell:
+        """
+        python3 scripts/chunk_sequences.py \
+            --feed {input.feed} \
+            --metadata-in {input.metadata} \
+            --out-fasta {output.fasta} \
+            --chunk-size {params.chunk_size}
+        """
 
 
 def get_num_seqs(fasta_gz):
@@ -79,54 +203,54 @@ def get_num_seqs(fasta_gz):
     return num_seqs
 
 
-rule get_changed_chunks:
-    input:
-        rules.chunk_data.output.status
-    output:
-        changed_chunks = os.path.join(data_folder, "chunks", "changed_chunks.txt")
-    run:
-        chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
+def get_changed_chunks(wildcards):
+    """Helper function for detecting which chunks have changed in terms of their contents 
+    (measured in equality by bytes of disk space occupied). Only re-process and re-align 
+    chunks which have changed. This will save us a ton of computational time, as now that there are 200K+
+    isolates on GISAID, aligning them would take 1 week for the whole batch.
+    """
+    
+    # Only run to trigger DAG re-evaluation
+    checkpoint_output = checkpoints.chunk_sequences.get(**wildcards)
+    chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
 
-        # Keep track of which chunks have changed
-        changed_chunks = []
+    # Keep track of which chunks have changed
+    changed_chunks = []
 
-        for chunk in chunks:
-            fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
-            fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
+    for chunk in chunks:
+        fasta_temp_path = Path(data_folder) / "fasta_temp" / (chunk + ".fa.gz")
+        fasta_raw_path = Path(data_folder) / "fasta_raw" / (chunk + ".fa.gz")
 
-            # If the current chunk doesn't exist yet, then mark it as changed
-            if (
-                    not fasta_raw_path.exists() or
-                    not fasta_raw_path.is_file()
-                ):
-                changed_chunks.append(chunk)
-                continue
+        # If the current chunk doesn't exist yet, then mark it as changed
+        if (
+                not fasta_raw_path.exists() or 
+                not fasta_raw_path.is_file()
+            ):
+            changed_chunks.append(chunk)
+            continue
 
-            # Count ">" characters in both the temp and raw files
-            # as a proxy for the number of sequences in each
-            # If they're different, then mark as changed
-            num_seqs_temp = get_num_seqs(str(fasta_temp_path))
-            num_seqs_raw = get_num_seqs(str(fasta_raw_path))
+        # Count ">" characters in both the temp and raw files
+        # as a proxy for the number of sequences in each
+        # If they're different, then mark as changed
+        num_seqs_temp = get_num_seqs(str(fasta_temp_path))
+        num_seqs_raw = get_num_seqs(str(fasta_raw_path))
 
-            if num_seqs_temp != num_seqs_raw:
-                changed_chunks.append(chunk)
+        if num_seqs_temp != num_seqs_raw:
+            changed_chunks.append(chunk)
 
-        # Return a list of fasta_temp files that have changed, so that they can be copied
-        # over to fasta_raw by the below `copy_changed_files` rule
-
-        filenames = expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz\n"), i=changed_chunks)
-        with open(output.changed_chunks, 'w') as f:
-            f.writelines(filenames)
+    # Return a list of fasta_temp files that have changed, so that they can be copied
+    # over to fasta_raw by the below `copy_changed_files` rule
+    return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
 
 
-rule copy_changed_files:
+checkpoint copy_changed_files:
     """Using the `get_changed_chunks` function, only copy fasta files which have changed
     from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
     it will flag to snakemake that they (and only they - not the others) will need to be
     reprocessed and realigned.
     """
     input:
-        changed_chunks = rules.get_changed_chunks.output.changed_chunks
+        get_changed_chunks
     output:
         # Instead of explicitly defining the fasta_raw outputs
         # (and risking touching fasta files that haven't actually changed)
@@ -135,16 +259,9 @@ rule copy_changed_files:
         status = touch(os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ))
-    run:
-        copy_changed_files(input.changed_chunks, data_folder)
-
-
-rule clean_metadata:
-    """Clean metadata
-    """
-    input:
-        metadata_dirty = rules.chunk_data.output.metadata_dirty,
-    output:
-        metadata_clean = os.path.join(data_folder, "metadata.csv")
-    run:
-        clean_metadata(input.metadata_dirty, output.metadata_clean)
+    params:
+        data_folder = data_folder
+    shell:
+        """
+        python3 scripts/copy_changed_files.py --files {input} --data-folder {params.data_folder}
+        """

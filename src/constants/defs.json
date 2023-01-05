@@ -15,7 +15,6 @@
     "COORD_CUSTOM": "custom",
     "COORD_SEQUENCE": "sequence"
   },
-  "MIN_DATE": "2019-12-15",
   "PLOT_DOWNLOAD_OPTIONS": {
     "DOWNLOAD_DATA": "Plot Data",
     "DOWNLOAD_PNG": "PNG",
@@ -31,7 +30,8 @@
   },
   "NORM_MODES": {
     "NORM_COUNTS": "counts",
-    "NORM_PERCENTAGES": "percentages"
+    "NORM_PERCENTAGES": "percentages",
+    "NORM_COVERAGE_ADJUSTED": "partial_adjusted"
   },
   "COUNT_MODES": {
     "COUNT_NEW": "new",
@@ -40,7 +40,8 @@
   "DATE_BINS": {
     "DATE_BIN_DAY": "day",
     "DATE_BIN_WEEK": "week",
-    "DATE_BIN_MONTH": "month"
+    "DATE_BIN_MONTH": "month",
+    "DATE_BIN_YEAR": "year"
   },
   "COLOR_MODES": {
     "COLOR_MODE_COMPARE": "compare",
@@ -95,56 +96,17 @@
     "LOCATION": "location"
   },
   "DEGENERATES": {
-    "R": [
-      "A",
-      "G"
-    ],
-    "Y": [
-      "C",
-      "T"
-    ],
-    "S": [
-      "G",
-      "C"
-    ],
-    "W": [
-      "A",
-      "T"
-    ],
-    "K": [
-      "G",
-      "T"
-    ],
-    "M": [
-      "A",
-      "C"
-    ],
-    "B": [
-      "C",
-      "G",
-      "T"
-    ],
-    "D": [
-      "A",
-      "G",
-      "T"
-    ],
-    "H": [
-      "A",
-      "C",
-      "T"
-    ],
-    "V": [
-      "A",
-      "C",
-      "G"
-    ],
-    "N": [
-      "A",
-      "C",
-      "G",
-      "T"
-    ]
+    "R": ["A", "G"],
+    "Y": ["C", "T"],
+    "S": ["G", "C"],
+    "W": ["A", "T"],
+    "K": ["G", "T"],
+    "M": ["A", "C"],
+    "B": ["C", "G", "T"],
+    "D": ["A", "G", "T"],
+    "H": ["A", "C", "T"],
+    "V": ["A", "C", "G"],
+    "N": ["A", "C", "G", "T"]
   },
   "TREE_COLOR_MODES": {
     "COLOR_REGION": "colorRegion",
@@ -158,5 +120,9 @@
   "PYMOL_SCRIPT_TYPES": {
     "COMMANDS": "commands",
     "SCRIPT": "script"
+  },
+  "SURV_GRAPH_MODE": {
+    "LINE": "Line",
+    "STACK": "Stacked Bar"
   }
 }

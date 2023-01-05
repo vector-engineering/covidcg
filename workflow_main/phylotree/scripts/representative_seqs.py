@@ -16,7 +16,6 @@ import numpy as np
 import json
 
 from datetime import date
-from tempfile import NamedTemporaryFile
 
 
 def date2float(isodate):
@@ -29,7 +28,7 @@ def date2float(isodate):
 
 
 def get_representative_seqs(
-    case_data_path,
+    isolate_data_path,
     metadata_map_path,
     ref_seq_path,
     fasta_out_path,
@@ -45,7 +44,7 @@ def get_representative_seqs(
 
     # Load data and select a representative sequence for each lineage
     # by choosing the last seen sequence from each lineage
-    df = pd.read_json(case_data_path)
+    df = pd.read_json(isolate_data_path)
     df["collection_date"] = pd.to_datetime(df["collection_date"])
 
     # Join region string
@@ -71,9 +70,9 @@ def get_representative_seqs(
             )
         ]
         .drop_duplicates("lineage", keep="first")[
-            ["Accession ID", "collection_date", "lineage", "dna_mutation_str"]
+            ["isolate_id", "collection_date", "lineage", "dna_mutation"]
         ]
-        .set_index("Accession ID")
+        .set_index("isolate_id")
         # Join first and last collection dates
         .join(
             (
@@ -92,10 +91,10 @@ def get_representative_seqs(
         # Join region with the most counts of this lineage
         .join(
             (
-                df.groupby(["lineage", "region"], as_index=False)[["Accession ID"]]
+                df.groupby(["lineage", "region"], as_index=False)[["isolate_id"]]
                 .agg("count")
                 .groupby("lineage")
-                .apply(lambda x: x["region"].values[np.argmax(x["Accession ID"])])
+                .apply(lambda x: x["region"].values[np.argmax(x["isolate_id"])])
                 .rename("region_most_common")
             ),
             on="lineage",
@@ -105,21 +104,21 @@ def get_representative_seqs(
     # Load reference sequence
     with open(ref_seq_path, "r") as fp:
         ref = json.loads(fp.read())
-    ref_seq = ref["ref_seq"]
+    ref_seq = ref["WIV04"]["segments"]["1"]["sequence"]
 
     # For each representative sequence, use its DNA mutations to reconstruct its
     # "MSA" genome from the reference genome
     # Ignore insertions, since this would require a true MSA
     reps["sequence"] = ref_seq
     for accession_id, row in reps.iterrows():
-        dna_mutations = row["dna_mutation_str"]
+        dna_mutations = row["dna_mutation"]
         seq = list(ref_seq)
 
         for mut in dna_mutations:
             mut = id_to_dna_mutation[mut].split("|")
-            pos = int(mut[0])
-            ref = mut[1]
-            alt = mut[2]
+            pos = int(mut[1])
+            ref = mut[2]
+            alt = mut[3]
 
             # Skip insertions
             if ref == "-" or len(alt) > len(ref):
@@ -150,4 +149,4 @@ def get_representative_seqs(
         fp.close()
 
     # Write dataframe for future
-    reps.drop(columns=["dna_mutation_str"]).to_csv(table_out_path)
+    reps.drop(columns=["dna_mutation"]).to_csv(table_out_path)

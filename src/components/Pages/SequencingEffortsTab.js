@@ -6,9 +6,10 @@ import useDimensions from 'react-use-dimensions';
 import { ASYNC_STATES } from '../../constants/defs.json';
 
 import ExternalLink from '../Common/ExternalLink';
-import SequencingMapPlot from '../Vega/SequencingMapPlot';
+import SequencingMapPlot from '../Viz/SequencingMapPlot';
 import SkeletonElement from '../Common/SkeletonElement';
 import WarningBox from '../Common/WarningBox';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import { Container, Header, Title } from './SequencingEffortsTab.styles';
 
@@ -20,7 +21,11 @@ const SequencingEffortsTab = observer(() => {
     return (
       <>
         <div style={{ height: '20px' }} />
-        <WarningBox title={'Failed to load data'} showDismissButton={false}>
+        <WarningBox
+          show={true}
+          title={'Failed to load data'}
+          showDismissButton={false}
+        >
           Failed to load sequencing data. Please try again by refreshing the
           page. If this error persists, please contact us at{' '}
           <ExternalLink href="mailto:covidcg@broadinstitute.org">
@@ -99,6 +104,8 @@ const SequencingEffortsTab = observer(() => {
       </Header>
 
       <SequencingMapPlot width={width - 250} />
+
+      <AcknowledgementFooter />
     </Container>
   );
 });

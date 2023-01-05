@@ -5,9 +5,14 @@ Flask-gzip == 0.2
 Flask-HTTPAuth == 4.2.0
 gunicorn == 20.0.4
 
-psycopg2-binary==2.8.4
+psycopg2-binary==2.9.3
 
+itsdangerous==2.0.1
 pandas == 1.4.1
-numpy == 1.21.0
-pyyaml == 5.4
+numpy == 1.22.0
+pyyaml == 6.0
 openpyxl == 3.0.7
+jinja2 == 3.0.3
+itsdangerous == 2.0.1
+# markupsafe == 2.0.1
+werkzeug == 2.0.2

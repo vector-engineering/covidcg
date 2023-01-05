@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
-"""Count sequences per group
+"""Count sequences per group, plus mutation frequencies per group
 
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import pandas as pd
 
@@ -12,41 +14,94 @@ from itertools import chain
 from collections import Counter
 
 
-def global_group_counts(case_data, out_global_group_counts, group_cols=[]):
+def main():
     """Get the number of sequences in each group
     Doing this in the pipeline just saves some work for the browser later
-
-    Parameters
-    ----------
-    case_data: str
-    out_global_group_counts: str
-    group_cols: list of str
-        - List of sequence groupings (e.g., "lineage", "clade")
-
-    Returns
-    -------
-    None
     """
 
-    case_df = pd.read_json(case_data).set_index("Accession ID")
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--isolate-data", type=str, required=True, help="Isolate data JSON file"
+    )
+    parser.add_argument(
+        "--reference",
+        type=str,
+        required=True,
+        help="Path to reference sequences fasta file",
+    )
+    parser.add_argument(
+        "--out-global-group-counts",
+        type=str,
+        required=True,
+        help="Global group counts output file",
+    )
+    parser.add_argument(
+        "--group-cols", type=str, nargs="+", default=[], help="Group columns"
+    )
+
+    args = parser.parse_args()
+
+    isolate_df = pd.read_json(args.isolate_data)
+
+    # Get reference sequence names
+    with open(args.reference, "rt") as fp:
+        references = json.load(fp)
+
+    reference_names = sorted(list(references.keys()))
 
     global_group_counts = {}
+    for ref_name in reference_names:
+        global_group_counts[ref_name] = {}
+
     # Count sequence groupings (e.g., lineages and clades)
-    for col in group_cols:
-        global_group_counts[col] = case_df[col].value_counts().to_dict()
+    for ref_name in reference_names:
+        for col in args.group_cols:
+            global_group_counts[ref_name][col] = (
+                isolate_df.drop_duplicates("isolate_id")[col].value_counts().to_dict()
+            )
 
     # Count global mutation frequencies
     # Collapse list of lists into one list, then count individual
     # occurrences, then cast to a regular dict
-    global_group_counts["dna_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["dna_mutation_str"])))
-    )
-    global_group_counts["gene_aa_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["gene_aa_mutation_str"])))
-    )
-    global_group_counts["protein_aa_mutation"] = dict(
-        Counter(list(chain.from_iterable(case_df["protein_aa_mutation_str"])))
-    )
+    for ref_name in reference_names:
+        global_group_counts[ref_name]["dna_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "dna_mutation"
+                        ]
+                    )
+                )
+            )
+        )
+        global_group_counts[ref_name]["gene_aa_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "gene_aa_mutation"
+                        ]
+                    )
+                )
+            )
+        )
+        global_group_counts[ref_name]["protein_aa_mutation"] = dict(
+            Counter(
+                list(
+                    chain.from_iterable(
+                        isolate_df.loc[
+                            isolate_df["reference"] == ref_name, "protein_aa_mutation",
+                        ]
+                    )
+                )
+            )
+        )
 
-    with open(out_global_group_counts, "w") as fp:
+    with open(args.out_global_group_counts, "w") as fp:
         fp.write(json.dumps(global_group_counts))
+
+
+if __name__ == "__main__":
+    main()

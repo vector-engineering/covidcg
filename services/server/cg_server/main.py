@@ -11,4 +11,3 @@ from cg_server.app import app
 from cg_server.auth import *
 
 from cg_server.routes import *
-

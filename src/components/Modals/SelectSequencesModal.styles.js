@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-import { lighten } from 'polished';
-
-import Button from '../Buttons/Button';
 
 const FOLD_WIDTH = '1000px';
 
@@ -48,23 +45,4 @@ Column.defaultProps = {
   minWidth: 300,
   collapseRow: 1,
   collapseCol: 1,
-};
-
-export const ApplyButton = styled(Button)`
-  background-image: none;
-  font-size: 1rem;
-  font-weight: normal;
-
-  background-color: ${({ invalid }) => (invalid ? '#DDD' : '#28a745')};
-  color: ${({ invalid }) => (invalid ? '#888' : '#FFF')};
-
-  transition: 0.1s all ease-in-out;
-
-  &:hover {
-    background-color: ${({ invalid }) =>
-      invalid ? '#DDD' : lighten(0.1, '#28a745')};
-  }
-`;
-ApplyButton.defaultProps = {
-  invalid: false,
 };

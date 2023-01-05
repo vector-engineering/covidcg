@@ -10,7 +10,7 @@ import ReactTooltip from 'react-tooltip';
 import QuestionButton from '../Buttons/QuestionButton';
 import TableLegendItem from './TableLegendItem';
 
-import { SORT_DIRECTIONS } from '../../constants/defs.json';
+import { SORT_DIRECTIONS, GROUP_MUTATION } from '../../constants/defs.json';
 import { COLUMN_NAMES } from './legendUtils';
 
 import {
@@ -37,7 +37,13 @@ const TableLegend = observer(
     sortDir,
     onClickColumnHeader,
   }) => {
-    const { configStore } = useStores();
+    const { configStore, plotSettingsStore } = useStores();
+
+    const toggleLegendAdjustPartialSequences = (event) => {
+      plotSettingsStore.applyPendingChanges({
+        legendAdjustPartialSequences: event.target.checked,
+      });
+    };
 
     const maxCounts = legendItems.reduce((prev, cur) => {
       return cur.counts > prev ? cur.counts : prev;
@@ -82,9 +88,47 @@ const TableLegend = observer(
       width: '50%',
     };
 
+    // Header height offset, in pixels
+    // Each header row is 24 px tall
+    let headerHeightOffset = 48;
+    // If we're in mutation mode, show the partial sequences toggle
+    const showPartialSequencesToggle = configStore.groupKey === GROUP_MUTATION;
+    if (showPartialSequencesToggle) {
+      headerHeightOffset += 24;
+    }
+
     return (
       <StyledContainer>
         <Header>
+          {showPartialSequencesToggle && (
+            <HeaderRow>
+              <input
+                id="legend-adjust-partial-sequences-checkbox"
+                type="checkbox"
+                checked={plotSettingsStore.legendAdjustPartialSequences}
+                onChange={toggleLegendAdjustPartialSequences}
+              ></input>
+              <label htmlFor="legend-adjust-partial-sequences-checkbox">
+                Adjust for coverage
+              </label>
+              <QuestionButton
+                data-tip={`
+              <ul>
+                <li>
+                  Some isolates are not sequenced across the entire genome, 
+                  i.e., partial sequences of just one gene
+                </li>
+                <li>
+                  This option adjusts the percentages to reflect the coverage 
+                  of the genome at each position
+                </li>
+              </ul>
+              `}
+                data-html="true"
+                data-for="legend-sidebar-tooltip"
+              />
+            </HeaderRow>
+          )}
           <HeaderRow>
             <ColumnHeader columnName={COLUMN_NAMES.GROUP} width="100%">
               <ReactTooltip
@@ -116,6 +160,7 @@ const TableLegend = observer(
               />
             </ColumnHeader>
           </HeaderRow>
+
           <HeaderRow>
             <ColumnHeader columnName="spacer" width="40%"></ColumnHeader>
             <ColumnHeader columnName={COLUMN_NAMES.COUNTS} width="30%">
@@ -130,7 +175,7 @@ const TableLegend = observer(
           {({ height, width }) => (
             <List
               className="List"
-              height={height - 48}
+              height={height - headerHeightOffset} // 24 px per header row * 3 rows
               itemCount={legendItems ? legendItems.length : 0}
               itemSize={35}
               width={width}

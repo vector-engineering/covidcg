@@ -7,276 +7,152 @@ import {
   TREE_COLOR_MODES,
   LOW_FREQ_FILTER_TYPES,
   LITEMOL_STYLES,
+  SURV_GRAPH_MODE,
 } from '../constants/defs.json';
+import { plotSettingsStore as initialPlotSettingsStore } from '../constants/initialValues';
 
-export const initialValues = {
-  groupStackLowFreqFilter: LOW_FREQ_FILTER_TYPES.GROUP_COUNTS,
-  groupStackLowFreqValue: 20,
-  groupStackNormMode: NORM_MODES.NORM_COUNTS,
-  groupStackCountMode: COUNT_MODES.COUNT_NEW,
-  groupStackDateBin: DATE_BINS.DATE_BIN_DAY,
+import { rootStoreInstance } from './rootStore';
 
-  locationDateNormMode: NORM_MODES.NORM_PERCENTAGES,
-  locationDateCountMode: COUNT_MODES.COUNT_CUMULATIVE,
-  locationDateDateBin: DATE_BINS.DATE_BIN_DAY,
-
-  locationGroupHideReference: true,
-
-  cooccurrenceNormMode: NORM_MODES.NORM_COUNTS,
-
-  // SURVEILLANCE PLOT
-  surveillanceMode: 'lineage',
-  surveillanceShowWarning: true,
-  surveillanceShowSettings: false,
-  surveillanceSortField: 'counts', // 'group' or 'counts'
-  surveillanceSortDirection: SORT_DIRECTIONS.SORT_DESC,
-  surveillanceDisplayMinCounts: 5,
-  surveillanceDisplayMinPercent: 0.01,
-  surveillanceSigMinCounts: 10,
-  surveillanceSigMinPercent: 0.02,
-  surveillanceSigMinR: 0.3,
-  surveillanceLegendHover: [],
-  surveillanceGraphMode: 'line',
-
-  // GROUP REPORT TAB
-  reportTreeColorMode: TREE_COLOR_MODES.COLOR_LATEST,
-  reportConsensusThreshold: 0.1,
-  reportMutationListHideEmpty: true,
-  reportMutationListHidden: ['ORF1a'], // By default, hide ORF1a
-  reportStructureActiveProtein: 'S',
-  // reportStructureActiveProtein: 'nsp5 - 3CLp',
-  reportStructurePdbId: '6ZGG',
-  // reportStructurePdbId: '7RFW',
-  reportStructureActiveGroup: 'BA.1',
-  // reportStructureActiveGroup: 'B.1.351',
-  reportStructureProteinStyle: LITEMOL_STYLES.SURFACE,
-
-  reportStructureAssemblies: [],
-  reportStructureActiveAssembly: '',
-  reportStructureEntities: [],
-};
+import { updateURLFromParams } from '../utils/updateQueryParam';
 
 export class PlotSettingsStore {
-  init() {}
+  initialValues = {};
 
-  @observable groupStackLowFreqFilter = initialValues.groupStackLowFreqFilter;
-  @observable groupStackLowFreqValue = initialValues.groupStackLowFreqValue;
-  @observable groupStackNormMode = initialValues.groupStackNormMode;
-  @observable groupStackCountMode = initialValues.groupStackCountMode;
-  @observable groupStackDateBin = initialValues.groupStackDateBin;
+  // LEGEND
+  @observable legendAdjustPartialSequences = true;
 
-  @action
-  setGroupStackLowFreqFilter = (filterType) => {
-    this.groupStackLowFreqFilter = filterType;
-  };
-  @action
-  setGroupStackLowFreqValue = (filterValue) => {
-    this.groupStackLowFreqValue = filterValue;
-  };
-  @action
-  setGroupStackNormMode = (mode) => {
-    this.groupStackNormMode = mode;
-  };
-  @action
-  setGroupStackCountMode = (mode) => {
-    this.groupStackCountMode = mode;
-  };
-  @action
-  setGroupStackDateBin = (dateBin) => {
-    this.groupStackDateBin = dateBin;
-  };
+  // ENTROPY PLOT
+  @observable entropyYMode = NORM_MODES.NORM_COUNTS;
+  @observable entropyYPow = 0.5;
 
-  @observable locationDateNormMode = initialValues.locationDateNormMode;
-  @observable locationDateCountMode = initialValues.locationDateCountMode;
-  @observable locationDateDateBin = initialValues.locationDateDateBin;
+  // GROUP STACK PLOT
+  @observable groupStackLowFreqFilter = LOW_FREQ_FILTER_TYPES.GROUP_COUNTS;
+  @observable groupStackLowFreqValue = 20;
+  @observable groupStackNormMode = NORM_MODES.NORM_COUNTS;
+  @observable groupStackCountMode = COUNT_MODES.COUNT_NEW;
+  @observable groupStackDateBin = DATE_BINS.DATE_BIN_DAY;
 
-  @action
-  setLocationDateNormMode = (mode) => {
-    this.locationDateNormMode = mode;
-  };
-  @action
-  setLocationDateCountMode = (mode) => {
-    this.locationDateCountMode = mode;
-  };
-  @action
-  setLocationDateDateBin = (dateBin) => {
-    this.locationDateDateBin = dateBin;
-  };
+  // MUTATION STRUCTURE VIEWER
+  @observable mutationStructurePdbId = '';
+  @observable mutationStructureProteinStyle = LITEMOL_STYLES.SURFACE;
+  @observable mutationStructureNormMode = NORM_MODES.NORM_COVERAGE_ADJUSTED;
 
-  @observable locationGroupHideReference =
-    initialValues.locationGroupHideReference;
+  mutationStructureAssemblies = [];
+  mutationStructureActiveAssembly = '';
+  mutationStructureEntities = [];
 
-  @action
-  setLocationGroupHideReference = (hide) => {
-    this.locationGroupHideReference = hide;
-  };
+  // LOCATION DATE PLOT
+  @observable locationDateNormMode = NORM_MODES.NORM_PERCENTAGES;
+  @observable locationDateCountMode = COUNT_MODES.COUNT_CUMULATIVE;
+  @observable locationDateDateBin = DATE_BINS.DATE_BIN_DAY;
 
-  @observable cooccurrenceNormMode = initialValues.cooccurrenceNormMode;
+  // LOCATION GROUP PLOT
+  @observable locationGroupHideReference = true;
 
-  @action
-  setCooccurrenceNormMode = (mode) => {
-    this.cooccurrenceNormMode = mode;
-  };
+  // COOCCURRENCE PLOT
+  @observable cooccurrenceNormMode = NORM_MODES.NORM_COUNTS;
 
-  // -----------------
   // SURVEILLANCE PLOT
-  // -----------------
+  @observable surveillanceMode = '';
+  @observable surveillanceGraphMode = SURV_GRAPH_MODE.LINE;
+  @observable surveillanceShowWarning = true;
+  @observable surveillanceShowSettings = false;
+  @observable surveillanceSortField = '';
+  @observable surveillanceSortDirection = SORT_DIRECTIONS.SORT_DESC;
+  @observable surveillanceDisplayMinCounts = 5;
+  @observable surveillanceDisplayMinPercent = 0.01;
+  @observable surveillanceSigMinCounts = 5;
+  @observable surveillanceSigMinPercent = 0.01;
+  @observable surveillanceSigMinR = 0.3;
+  @observable surveillanceLegendHover = [];
 
-  @observable surveillanceMode = initialValues.surveillanceMode;
-  @observable surveillanceShowWarning = initialValues.surveillanceShowWarning;
-  @observable surveillanceShowSettings = initialValues.surveillanceShowSettings;
-  @observable surveillanceSortField = initialValues.surveillanceSortField;
-  @observable surveillanceSortDirection =
-    initialValues.surveillanceSortDirection;
-  @observable surveillanceDisplayMinCounts =
-    initialValues.surveillanceDisplayMinCounts;
-  @observable surveillanceDisplayMinPercent =
-    initialValues.surveillanceDisplayMinPercent;
-  @observable surveillanceSigMinCounts = initialValues.surveillanceSigMinCounts;
-  @observable surveillanceSigMinPercent =
-    initialValues.surveillanceSigMinPercent;
-  @observable surveillanceSigMinR = initialValues.surveillanceSigMinR;
-  @observable surveillanceLegendHover = initialValues.surveillanceLegendHover;
-  @observable surveillanceGraphMode = initialValues.surveillanceGraphMode;
-
-  @action
-  setSurveillanceMode = (mode) => {
-    this.surveillanceMode = mode;
-  };
-  @action
-  setSurveillanceShowWarning = (show) => {
-    this.surveillanceShowWarning = show;
-  };
-  @action
-  setSurveillanceShowSettings = (show) => {
-    this.surveillanceShowSettings = show;
-  };
-  @action
-  setSurveillanceSortField = (field) => {
-    this.surveillanceSortField = field;
-  };
-  @action
-  setSurveillanceSortDirection = (direction) => {
-    this.surveillanceSortDirection = direction;
-  };
-  @action
-  setSurveillanceDisplayMinCounts = (counts) => {
-    this.surveillanceDisplayMinCounts = counts;
-  };
-  @action
-  setSurveillanceDisplayMinPercent = (percent) => {
-    this.surveillanceDisplayMinPercent = percent;
-  };
-  @action
-  setSurveillanceSigMinCounts = (counts) => {
-    this.surveillanceSigMinCounts = counts;
-  };
-  @action
-  setSurveillanceSigMinPercent = (percent) => {
-    this.surveillanceSigMinPercent = percent;
-  };
-  @action
-  setSurveillanceSigMinR = (r) => {
-    this.surveillanceSigMinR = r;
-  };
-  @action
-  setSurveillanceLegendHover = (hover) => {
-    this.surveillanceLegendHover = hover;
-  };
-  @action
-  setSurveillanceGraphMode = (m) => {
-    this.surveillanceGraphMode = m;
-  };
-
-  // ----------------
   // GROUP REPORT TAB
-  // ----------------
-
-  @observable reportTreeColorMode = initialValues.reportTreeColorMode;
-  @observable reportConsensusThreshold = initialValues.reportConsensusThreshold;
-  @observable reportMutationListHideEmpty =
-    initialValues.reportMutationListHideEmpty;
-  @observable reportMutationListHidden = initialValues.reportMutationListHidden;
-  @observable reportStructureActiveProtein =
-    initialValues.reportStructureActiveProtein;
-  @observable reportStructurePdbId = initialValues.reportStructurePdbId;
+  @observable reportTreeColorMode = TREE_COLOR_MODES.COLOR_LATEST;
+  @observable reportConsensusThreshold = 0.7;
+  @observable reportMutationListHideEmpty = true;
+  @observable reportMutationListHidden = [];
+  @observable reportStructureActiveProtein = '';
+  @observable reportStructurePdbId = '';
   // Actively selected group for the structural viewer
-  @observable reportStructureActiveGroup =
-    initialValues.reportStructureActiveGroup;
-  @observable reportStructureProteinStyle =
-    initialValues.reportStructureProteinStyle;
+  @observable reportStructureActiveGroup = '';
+  @observable reportStructureProteinStyle = LITEMOL_STYLES.SURFACE;
 
-  reportStructureAssemblies = initialValues.reportStructureAssemblies;
-  reportStructureActiveAssembly = initialValues.reportStructureActiveAssembly;
-  reportStructureEntities = initialValues.reportStructureEntities;
+  reportStructureAssemblies = [];
+  reportStructureActiveAssembly = '';
+  reportStructureEntities = [];
 
-  @action
-  setReportTreeColorMode = (mode) => {
-    this.reportTreeColorMode = mode;
-  };
-  @action
-  setReportConsensusThreshold = (thresh) => {
-    this.reportConsensusThreshold = thresh;
-  };
-  @action
-  setReportMutationListHideEmpty = (hideEmpty) => {
-    this.reportMutationListHideEmpty = hideEmpty;
-  };
-  @action
-  setReportMutationListHidden = (hidden) => {
-    this.reportMutationListHidden = hidden;
-  };
-  @action
-  toggleReportMutationListHiddenItem = (itemName) => {
-    let hidden = this.reportMutationListHidden;
+  ignoreURLProperties = [
+    'mutationStructureAssemblies',
+    'mutationStructureActiveAssembly',
+    'mutationStructureEntities',
+    'reportStructureAssemblies',
+    'reportStructureActiveAssembly',
+    'reportStructureEntities',
+    'surveillanceLegendHover',
+  ];
 
-    // If the item is not in the list yet, then add it
-    if (hidden.indexOf(itemName) === -1) {
-      hidden.push(itemName);
-    } else {
-      // If it does exist, then make a new array without this item
-      hidden = hidden.filter((name) => name != itemName);
-    }
+  init() {
+    this.initialValues = initialPlotSettingsStore;
 
-    this.reportMutationListHidden = hidden;
-  };
-  @action
-  setReportStructureActiveProtein = (proteinName) => {
-    this.reportStructureActiveProtein = proteinName;
-  };
-  @action
-  setReportStructurePdbId = (pdbId) => {
-    this.reportStructurePdbId = pdbId;
-  };
-  @action
-  setReportStructureActiveGroup = (group) => {
-    this.reportStructureActiveGroup = group;
-  };
-  @action
-  setReportStructureProteinStyle = (style) => {
-    this.reportStructureProteinStyle = style;
-  };
+    Object.keys(this.initialValues).forEach((key) => {
+      this[key] = this.initialValues[key];
+    });
+  }
 
   @action
-  setReportStructureAssemblies = (assemblies) => {
-    this.reportStructureAssemblies = assemblies;
+  applyPendingChanges = (pending) => {
+    // Overwrite any of our fields here with the pending ones
+    Object.keys(pending).forEach((field) => {
+      if (
+        field === 'reportMutationListHidden' &&
+        typeof pending[field] === String
+      ) {
+        this[field] = pending[field].split(',');
+      } else {
+        this[field] = pending[field];
+      }
+    });
+
+    this.updateURL(pending);
   };
-  @action
-  setReportStructureActiveAssembly = (assembly) => {
-    this.reportStructureActiveAssembly = assembly;
-  };
-  @action
-  setReportStructureEntities = (entities) => {
-    this.reportStructureEntities = entities;
+
+  /*
+   * Serialize store state into URL params
+   */
+  updateURL = (pending) => {
+    const urlParams = rootStoreInstance.urlMonitor.urlParams;
+
+    Object.keys(pending).forEach((field) => {
+      if (field === 'reportMutationListHidden') {
+        urlParams.set(field, pending[field].join(','));
+      } else {
+        urlParams.set(field, String(pending[field]));
+      }
+
+      if (
+        JSON.stringify(pending[field]) ===
+        JSON.stringify(this.initialValues[field])
+      ) {
+        // Only display non-default fields in the url
+        urlParams.delete(field);
+      } else if (this.ignoreURLProperties.includes(field)) {
+        urlParams.delete(field);
+      }
+    });
+
+    // Update URL
+    updateURLFromParams(urlParams);
+
+    rootStoreInstance.urlMonitor.urlParams = urlParams;
   };
 
   @action
   resetValues(values) {
-    Object.keys(initialValues).forEach((key) => {
+    Object.keys(this.initialValues).forEach((key) => {
       if (key in values) {
         this[key] = values[key];
       } else {
-        this[key] = initialValues[key];
+        this[key] = this.initialValues[key];
       }
     });
   }

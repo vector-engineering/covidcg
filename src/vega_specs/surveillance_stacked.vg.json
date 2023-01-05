@@ -19,7 +19,6 @@
         }
       ]
     },
-    { "name": "mode", "value": "lineage" },
     { "name": "sortField", "value": "group" },
     { "name": "sortDirection", "value": "ascending" },
     { "name": "display_min_counts", "value": 5 },
@@ -48,6 +47,70 @@
           "update": "x() - facet_x"
         }
       ]
+    },
+    {
+      "name": "cur_mouse_col",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(x_adjusted >= 0 && x_adjusted <= subplot_width, 1, if(x_adjusted >= (subplot_width + (subplot_hpadding)) && (x_adjusted <= (subplot_width * 2) + (subplot_hpadding)), 2, if(x_adjusted >= (subplot_width * 2) + (subplot_hpadding * 2) && x_adjusted <= ((subplot_width * 3) + (subplot_hpadding * 2)), 3, -1)))"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_row",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(y() >= 0 && y() <= subplot_height, 1, if(y() >= subplot_height + subplot_vpadding && y() <= (subplot_height * 2) + subplot_vpadding, 2, -1))"
+        }
+      ]
+    },
+    {
+      "name": "cur_region",
+      "update": "if(cur_mouse_row == -1 || cur_mouse_col == -1, -1, ((cur_mouse_row - 1) * 3) + cur_mouse_col)"
+    },
+    {
+      "name": "cur_mouse_x",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(cur_mouse_col == -1, null, x_adjusted - ((cur_mouse_col - 1) * subplot_width) - ((cur_mouse_col - 1) * subplot_hpadding))"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_date",
+      "update": "if(cur_mouse_col == -1, null, invert('dateX', cur_mouse_x))"
+    },
+    {
+      "name": "cur_mouse_y",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "if(cur_mouse_row > -1, y() - ((cur_mouse_row - 1) * (subplot_height + subplot_vpadding)), null)"
+        }
+      ]
+    },
+    {
+      "name": "cur_mouse_percent",
+      "update": "if(cur_region > -1, (1 - (cur_mouse_y / subplot_height)) * data('cur_max_percent')[0]['percent'], null)"
+    },
+    {
+      "name": "time_sensitivity",
+      "value": 302400000
+    },
+    {
+      "name": "percent_sensitivity_factor",
+      "value": 10
+    },
+    {
+      "name": "percent_sensitivity",
+      "update": "if(cur_region > -1, data('cur_max_percent')[0]['percent'] / percent_sensitivity_factor, null)"
+    },
+    {
+      "name": "xLabelFormat",
+      "value": "%m-%d"
     }
   ],
 
@@ -56,21 +119,8 @@
       "name": "group_reg",
       "url": "https://storage.googleapis.com/ve-public/surveillance/group_regression2.csv",
       "format": {
-        "type": "csv",
-        "parse": {
-          "slope": "number",
-          "r": "number",
-          "pval": "number",
-          "counts": "number",
-          "max_percent": "number"
-        }
-      },
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        }
-      ]
+        "type": "csv"
+      }
     },
     {
       "name": "hide_groups",
@@ -143,10 +193,6 @@
       },
       "transform": [
         {
-          "type": "filter",
-          "expr": "datum.type === mode"
-        },
-        {
           "type": "lookup",
           "from": "hide_groups",
           "key": "group",
@@ -171,11 +217,11 @@
           }
         },
         {
-                      "type": "stack",
-                      "groupby": ["collection_week", "region"],
-                      "sort": {"field": "group"},
-                      "field": "percent"
-                    }
+          "type": "stack",
+          "groupby": ["collection_week", "region"],
+          "sort": { "field": "group" },
+          "field": "percent"
+        }
       ]
     },
     {
@@ -194,6 +240,39 @@
           "as": "index"
         }
       ]
+    },
+    {
+      "name": "cur_max_percent",
+      "source": "max_percents",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.index == cur_region"
+        }
+      ]
+    },
+    {
+      "name": "tooltip_group",
+      "source": "group_counts",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "cur_region > -1 && datum.region == data('cur_max_percent')[0]['region'] && abs(datum.collection_period - time(cur_mouse_date)) <= time_sensitivity && abs(datum.percent - cur_mouse_percent) <= percent_sensitivity"
+        },
+        {
+          "type": "project",
+          "fields": ["group"],
+          "as": ["group"]
+        }
+      ]
+    },
+    {
+      "name": "hover_legend",
+      "values": []
+    },
+    {
+      "name": "all_hover",
+      "source": ["tooltip_group", "hover_legend"]
     },
     {
       "name": "annotation",
@@ -275,7 +354,6 @@
               "data": "group_counts",
               "groupby": "region"
             }
-            
           },
 
           "title": {
@@ -298,7 +376,7 @@
             {
               "scale": "dateX",
               "orient": "bottom",
-              "format": "%m-%d",
+              "format": { "signal": "xLabelFormat" },
               "tickCount": "week",
               "grid": false,
               "gridColor": "#DDD",
@@ -382,23 +460,29 @@
                     "update": {
                       "x": { "scale": "dateX", "field": "collection_week" },
                       "y": { "scale": "percentY", "field": "y0" },
-                      "y2": {"scale": "percentY", "field": "y1"},
+                      "y2": { "scale": "percentY", "field": "y1" },
                       "stroke": { "scale": "group_color", "field": "group" },
                       "on": [
-                        {"trigger": "mouseover", "modify": {"signal": "hoverGroup", "value": "datum.group"}}
+                        {
+                          "trigger": "mouseover",
+                          "modify": {
+                            "signal": "hoverGroup",
+                            "value": "datum.group"
+                          }
+                        }
                       ],
-                      "strokeWidth": { "value":20},
+                      "strokeWidth": { "value": 20 },
                       "strokeOpacity": [
                         {
                           "test": "hoverGroup === null || hoverGroup.location === datum.group",
                           "value": 1
                         },
-                        {"value": 0.3}
+                        { "value": 0.3 }
                       ],
                       "zindex": { "value": 1 },
                       "tooltip": {
-                                "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p'), 'Date': datetime(datum.collection_week)}"
-                            }
+                        "signal": "{title: datum.group, 'Percent': format(datum.percent,'~p'), 'Date': datetime(datum.collection_week)}"
+                      }
                     }
                   }
                 },
@@ -431,24 +515,24 @@
             },
             {
               "type": "rule",
-              "from": {"data": "annotation"},
+              "from": { "data": "annotation" },
               "encode": {
                 "enter": {
-                  "stroke": {"value": "#FF0000"}
+                  "stroke": { "value": "#FF0000" }
                 },
                 "update": {
                   "x": {
                     "scale": "dateX",
                     "field": "start"
                   },
-                  "y": {"value": -5},
+                  "y": { "value": -5 },
                   "x2": { "signal": "width" },
-                  "y2": {"value": -5},
-                  "strokeWidth": {"value": 2},
-                  "opacity": {"value": 1}
+                  "y2": { "value": -5 },
+                  "strokeWidth": { "value": 2 },
+                  "opacity": { "value": 1 }
                 },
                 "hover": {
-                  "opacity": {"value": 0.5}
+                  "opacity": { "value": 0.5 }
                 }
               }
             }

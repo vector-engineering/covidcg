@@ -47,10 +47,10 @@ const VOCItem = observer(({ name, orgArr }) => {
 
   // See if container should be selected
   let selected =
-    groupDataStore.selectedGroups.indexOf(name) > -1 ? true : false;
+    groupDataStore.selectedReportGroups.indexOf(name) > -1 ? true : false;
 
   const onClick = (event) => {
-    let selectedNodes = groupDataStore.selectedGroups;
+    let selectedNodes = groupDataStore.selectedReportGroups;
 
     // If the container is selected, add to selectedNodes
     if (!event.target.selected) {
@@ -64,11 +64,11 @@ const VOCItem = observer(({ name, orgArr }) => {
     }
 
     // Update selectedNodes
-    groupDataStore.updateSelectedGroups(
-      selectedNodes.map((node) => {
+    groupDataStore.applyPendingChanges({
+      selectedReportGroups: selectedNodes.map((node) => {
         return node;
-      })
-    );
+      }),
+    });
   };
 
   return (
@@ -196,7 +196,10 @@ const VOCTable = observer(() => {
           )}
         </div>
       </VOCTableRow>
-      <p>* The WHO, CDC, and ECDC classify all descendents of VOCs as VOCs</p>
+      <p>
+        * The CDC classifies all descendents of B.1.617.2 (all AY lineages) as
+        VOCs.
+      </p>
     </VOCTableContainer>
   );
 });

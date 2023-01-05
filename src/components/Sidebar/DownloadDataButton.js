@@ -11,6 +11,7 @@ import SkeletonElement from '../Common/SkeletonElement';
 import DownloadConsensusMutationsModal from '../Modals/DownloadConsensusMutationsModal';
 import DownloadMetadataModal from '../Modals/DownloadMetadataModal';
 import DownloadGenomesModal from '../Modals/DownloadGenomesModal';
+import DownloadVariantTableModal from '../Modals/DownloadVariantTableModal';
 
 import { ButtonContainer, DownloadButton } from './DownloadDataButton.styles';
 
@@ -18,17 +19,19 @@ const DOWNLOAD_OPTIONS = {
   AGGREGATE_DATA: 'Aggregate Data',
   GROUP_COUNTS: 'Group Counts',
   CONSENSUS_MUTATIONS: 'Consensus Mutations',
+  VARIANT_TABLE: 'Variant Table',
   SELECTED_SEQUENCE_METADATA: 'Sequence Metadata',
   SELECTED_GENOMES: 'Selected Genomes',
 };
 
-const DownloadDataButton = observer(({ disabled, direction }) => {
+const DownloadDataButton = observer(({ disabled, direction, style }) => {
   const { dataStore, UIStore } = useStores();
 
   const [activeModals, setActiveModals] = useState({
     downloadConsensusMutations: false,
     downloadMetadata: false,
     downloadGenomes: false,
+    downloadVariantTable: false,
   });
 
   const showModal = (modal) => {
@@ -52,6 +55,8 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
       dataStore.downloadAggGroup();
     } else if (option === DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS) {
       showModal('downloadConsensusMutations');
+    } else if (option === DOWNLOAD_OPTIONS.VARIANT_TABLE) {
+      showModal('downloadVariantTable');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA) {
       showModal('downloadMetadata');
     } else if (option === DOWNLOAD_OPTIONS.SELECTED_GENOMES) {
@@ -63,6 +68,7 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
     DOWNLOAD_OPTIONS.AGGREGATE_DATA,
     DOWNLOAD_OPTIONS.GROUP_COUNTS,
     DOWNLOAD_OPTIONS.CONSENSUS_MUTATIONS,
+    DOWNLOAD_OPTIONS.VARIANT_TABLE,
   ];
   if (config.allow_metadata_download) {
     downloadOptions.push(DOWNLOAD_OPTIONS.SELECTED_SEQUENCE_METADATA);
@@ -87,7 +93,7 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
   }
 
   return (
-    <ButtonContainer>
+    <ButtonContainer style={style}>
       <DownloadConsensusMutationsModal
         isOpen={activeModals.downloadConsensusMutations}
         onRequestClose={hideModal.bind(this, 'downloadConsensusMutations')}
@@ -99,6 +105,10 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
       <DownloadGenomesModal
         isOpen={activeModals.downloadGenomes}
         onRequestClose={hideModal.bind(this, 'downloadGenomes')}
+      />
+      <DownloadVariantTableModal
+        isOpen={activeModals.downloadVariantTable}
+        onRequestClose={hideModal.bind(this, 'downloadVariantTable')}
       />
       <DropdownButton
         button={DownloadButton}
@@ -115,10 +125,12 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
 DownloadDataButton.propTypes = {
   disabled: PropTypes.bool,
   direction: PropTypes.string,
+  style: PropTypes.object,
 };
 DownloadDataButton.defaultProps = {
   disabled: false,
   direction: 'left',
+  style: {},
 };
 
 export default DownloadDataButton;

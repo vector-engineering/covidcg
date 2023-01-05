@@ -26,8 +26,8 @@
     },
     {
       "name": "yearStart",
-      "value": 1546300800000,
-      "comment": "January 1st, 2019 in milliseconds, unix epoch time. Used to demarcate years"
+      "value": -631152000000,
+      "comment": "January 1st, 1950 in milliseconds, unix epoch time. Used to demarcate years"
     },
     {
       "name": "yearBin",
@@ -216,29 +216,25 @@
     },
     {
       "name": "years",
-      "comment": "Groups cases by year, used to color the background of this plot by year",
-      "source": "location_data",
+      "values": [],
       "transform": [
         {
-          "comment": "Bin observations by year. The start of extent is set to 01/01/2019",
-          "type": "bin",
-          "field": "day_start",
-          "extent": [{ "signal": "yearStart" }, { "signal": "dateRangeEnd" }],
-          "step": { "signal": "yearBin" },
-          "as": ["year_start", "year_end"]
+          "type": "sequence",
+          "start": {"signal": "yearStart"},
+          "stop": {"signal": "dateRangeEnd"},
+          "step": {"signal": "yearBin"}
         },
         {
-          "comment": "Collapse to just year_starts and ends",
-          "type": "aggregate",
-          "groupby": ["year_start", "year_end"]
+          "type": "project",
+          "fields": ["data"],
+          "as": ["year_start"]
         },
         {
-          "comment": "Sort by year_start",
-          "type": "collect",
-          "sort": { "field": "year_start" }
+          "type": "formula",
+          "as": "year_end",
+          "expr": "datum.year_start + yearBin"
         },
         {
-          "comment": "Assign each year an id",
           "type": "identifier",
           "as": "id"
         }
@@ -278,7 +274,14 @@
     {
       "orient": "bottom",
       "scale": "xscale",
-      "format": "%m-%d",
+      "format": {
+        "year": "%Y",
+        "quarter": "%m-%d",
+        "month": "%m-%d",
+        "week": "%m-%d",
+        "date": "%m-%d",
+        "hours": " "
+      },
       "zindex": 0,
 
       "grid": true,

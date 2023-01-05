@@ -13,6 +13,7 @@ import {
   metadataFields,
   metadataFieldNiceNameMap,
 } from '../../constants/metadata';
+import { getReferenceNames, getReferences } from '../../utils/reference';
 import { config } from '../../config';
 
 import Modal from 'react-modal';
@@ -20,7 +21,10 @@ import Modal from 'react-modal';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
+  Wrapper,
   Overlay,
+  Content,
+  Row,
   ProgressContainer,
   ProgressText,
   TitleContainer,
@@ -29,19 +33,15 @@ import {
   HeaderButtons,
   CancelButton,
   InvalidText,
-} from './Modal.styles';
-import {
-  Wrapper,
-  Content,
-  Row,
+  SelectInput,
   Info,
   RadioForm,
   Radio,
   CheckboxForm,
-  FormTitle,
   Checkbox,
   ApplyButton,
-} from './DownloadMetadataModal.styles';
+  FormTitle,
+} from './Modal.styles';
 
 Modal.setAppElement('#app');
 const NOOP = () => {};
@@ -62,7 +62,7 @@ Object.values(GEO_LEVELS).forEach((field) => {
 });
 
 const DownloadMetadataContent = observer(({ onRequestClose }) => {
-  const { UIStore, dataStore } = useStores();
+  const { UIStore, dataStore, configStore } = useStores();
   const sentRequest = useRef();
 
   const [state, setState] = useState({
@@ -76,6 +76,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
       initialSelectedGroupings,
       initialSelectedLocationFields
     ),
+    selectedReference: configStore.selectedReference,
     mutationFormat: MUTATION_FORMAT.POS_REF_ALT,
   });
 
@@ -100,6 +101,13 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     setState({
       ...state,
       mutationFormat: event.target.value,
+    });
+  };
+
+  const handleReferenceChange = (e) => {
+    setState({
+      ...state,
+      selectedReference: e.target.value,
     });
   };
 
@@ -165,6 +173,18 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
     );
   });
 
+  const referenceOptionItems = [];
+  getReferenceNames().forEach((referenceName) => {
+    let name =
+      referenceName + ' ' + getReferences()[referenceName]['description'];
+
+    referenceOptionItems.push(
+      <option key={`ref-option-${referenceName}`} value={referenceName}>
+        {name}
+      </option>
+    );
+  });
+
   let invalid = false;
   let invalidReason = '';
 
@@ -174,7 +194,7 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
   }
 
   return (
-    <Wrapper>
+    <Wrapper width={600} height={400}>
       <Overlay visible={UIStore.downloadState === ASYNC_STATES.STARTED}>
         <ProgressContainer>
           <LoadingSpinner size={'3rem'} color={'#026cb6'} />
@@ -232,6 +252,20 @@ const DownloadMetadataContent = observer(({ onRequestClose }) => {
               &lt;Reference&gt;&lt;Position&gt;&lt;Alternate&gt; (i.e.,
               &quot;S:D614G&quot;)
             </Radio>
+          </RadioForm>
+        </Row>
+        <Row>
+          <RadioForm>
+            <FormTitle>Reference:</FormTitle>
+            <SelectInput>
+              <select
+                onChange={handleReferenceChange}
+                value={state.selectedReference}
+                style={{ width: '100%' }}
+              >
+                {referenceOptionItems}
+              </select>
+            </SelectInput>
           </RadioForm>
         </Row>
         <Row>

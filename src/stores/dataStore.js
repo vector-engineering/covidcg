@@ -1,19 +1,16 @@
 import { action, toJS } from 'mobx';
 import { hostname } from '../config';
-import {
-  processSelectedMutations,
-  processCooccurrenceData,
-} from '../utils/mutationDataWorkerWrapper';
-import { downloadBlobURL } from '../utils/download';
-import { intToISO } from '../utils/date';
 import { asyncDataStoreInstance } from '../components/App';
 import { rootStoreInstance } from './rootStore';
+
 import {
   GROUP_MUTATION,
   GROUPS,
   DNA_OR_AA,
   COORDINATE_MODES,
   TABS,
+  PYMOL_SCRIPT_TYPES,
+  NORM_MODES,
 } from '../constants/defs.json';
 
 import {
@@ -23,6 +20,14 @@ import {
   getLocationCounts,
   expandSingleMutationData,
 } from '../utils/data';
+import { intToISO } from '../utils/date';
+import { downloadBlobURL } from '../utils/download';
+import { getProtein } from '../utils/gene_protein';
+import {
+  processSelectedMutations,
+  processCooccurrenceData,
+} from '../utils/mutationDataWorkerWrapper';
+import { savePymolScript } from '../utils/pymol';
 
 export class DataStore {
   dataDate;
@@ -62,32 +67,35 @@ export class DataStore {
 
     const startTime = Date.now();
 
+    const pkg = {
+      group_key: toJS(rootStoreInstance.configStore.groupKey),
+      dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
+      coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
+      coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
+      selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
+      selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
+        .name,
+      ...rootStoreInstance.configStore.getSelectedLocations(),
+      selected_reference: toJS(rootStoreInstance.configStore.selectedReference),
+      selected_metadata_fields:
+        rootStoreInstance.configStore.getSelectedMetadataFields(),
+      selected_group_fields: toJS(
+        rootStoreInstance.configStore.selectedGroupFields
+      ),
+      ageRange: toJS(rootStoreInstance.configStore.ageRange),
+      start_date: toJS(rootStoreInstance.configStore.startDate),
+      end_date: toJS(rootStoreInstance.configStore.endDate),
+      subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+      subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+    };
+
     fetch(hostname + '/data', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        group_key: toJS(rootStoreInstance.configStore.groupKey),
-        dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
-        coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
-        coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
-        selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
-        selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
-          .name,
-        ...rootStoreInstance.configStore.getSelectedLocations(),
-        selected_group_fields: toJS(
-          rootStoreInstance.configStore.selectedGroupFields
-        ),
-        selected_metadata_fields:
-          rootStoreInstance.configStore.getSelectedMetadataFields(),
-        ageRange: toJS(rootStoreInstance.configStore.ageRange),
-        start_date: toJS(rootStoreInstance.configStore.startDate),
-        end_date: toJS(rootStoreInstance.configStore.endDate),
-        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
-        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
-      }),
+      body: JSON.stringify(pkg),
     })
       .then((res) => {
         if (!res.ok) {
@@ -100,9 +108,16 @@ export class DataStore {
         const endTime = Date.now();
         this.timeToFetch = (endTime - startTime) / 1000;
 
-        this.aggLocationGroupDate = res;
+        this.aggLocationGroupDate = res['records'];
+        // Convert time from unix epoch (seconds) to milliseconds
+        this.aggLocationGroupDate.forEach((row) => {
+          row.collection_date = row.collection_date * 1000;
+        });
 
-        // console.log(this.aggLocationGroupDate);
+        // Pass coverage object onto mutationDataStore
+        if (Object.prototype.hasOwnProperty.call(res, 'coverage')) {
+          rootStoreInstance.mutationDataStore.coverage = res['coverage'];
+        }
 
         // Create copy of the data with subset locations removed
         this.aggSequencesUniqueLocationGroupDate = removeSubsetLocations({
@@ -125,20 +140,49 @@ export class DataStore {
           groupKey: toJS(rootStoreInstance.configStore.groupKey),
         });
 
-        // Collapse low frequency groups
-        // Identify groups to collapse into the "Other" group
-        // this.validGroups = getValidGroups({
-        //   aggSequencesGroup: this.aggSequencesGroup,
-        //   lowFreqFilterType: toJS(rootStoreInstance.configStore.lowFreqFilterType),
-        //   lowFreqFilterParams: {
-        //     maxGroupCounts: toJS(rootStoreInstance.configStore.maxGroupCounts),
-        //     minLocalCounts: toJS(rootStoreInstance.configStore.minLocalCounts),
-        //   },
-        // });
-        // Make a copy of the data which has collapsed data
+        // Add some additional information to group counts, if we're in mutation mode
+        if (rootStoreInstance.configStore.groupKey === GROUP_MUTATION) {
+          // [{ group_id: mutation_id, counts: int }]
+          this.groupCounts.forEach((record) => {
+            let mutation = rootStoreInstance.mutationDataStore.intToMutation(
+              rootStoreInstance.configStore.dnaOrAa,
+              rootStoreInstance.configStore.coordinateMode,
+              record.group_id
+            );
 
-        // console.log(this.groupCounts.sort((a, b) => a.group_id - b.group_id));
+            record.mutation = mutation.mutation_str;
+            record.color = rootStoreInstance.mutationDataStore.getMutationColor(
+              mutation.mutation_str
+            );
+            record.mutationName = mutation.name;
+            record.ref = mutation.ref;
+            record.alt = mutation.alt;
+            record.pos = mutation.pos;
 
+            if (
+              rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA &&
+              rootStoreInstance.configStore.coordinateMode ===
+                COORDINATE_MODES.COORD_GENE
+            ) {
+              record.feature = mutation.gene;
+            } else if (
+              rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA &&
+              rootStoreInstance.configStore.coordinateMode ===
+                COORDINATE_MODES.COORD_PROTEIN
+            ) {
+              record.feature = mutation.protein;
+            }
+
+            record.partial_adjusted =
+              record.counts /
+              rootStoreInstance.mutationDataStore.getCoverageAtPosition(
+                record.pos,
+                record.feature
+              );
+          });
+        }
+
+        // Aggregate, collapse locations
         ({ aggGroupDate: this.aggGroupDate, aggGroup: this.aggSequencesGroup } =
           aggregateGroupDate({
             aggSequencesUniqueLocationGroupDate:
@@ -238,7 +282,11 @@ export class DataStore {
   };
 
   @action
-  downloadSelectedSequenceMetadata = ({ selectedFields, mutationFormat }) => {
+  downloadSelectedSequenceMetadata = ({
+    selectedFields,
+    mutationFormat,
+    selectedReference,
+  }) => {
     rootStoreInstance.UIStore.onDownloadStarted();
 
     fetch(hostname + '/download_metadata', {
@@ -249,6 +297,10 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_reference: selectedReference,
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -305,6 +357,10 @@ export class DataStore {
       },
       body: JSON.stringify({
         ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_reference: rootStoreInstance.configStore.selectedReference,
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
         ageRange: toJS(rootStoreInstance.configStore.ageRange),
@@ -457,24 +513,24 @@ export class DataStore {
 
   downloadMutationFrequencies() {
     let csvString = 'mutation,';
-    let fields = [];
+    let mutationFields = [];
     if (rootStoreInstance.configStore.dnaOrAa === DNA_OR_AA.AA) {
       if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_GENE
       ) {
         csvString += 'gene,';
-        fields.push('gene');
+        mutationFields.push('gene');
       } else if (
         rootStoreInstance.configStore.coordinateMode ===
         COORDINATE_MODES.COORD_PROTEIN
       ) {
         csvString += 'protein,';
-        fields.push('protein');
+        mutationFields.push('protein');
       }
     }
-    csvString += 'pos,ref,alt,counts\n';
-    fields.push('pos', 'ref', 'alt');
+    csvString += 'pos,ref,alt,counts,percent,percent_coverage_adjusted\n';
+    mutationFields.push('pos', 'ref', 'alt');
 
     let mutation;
 
@@ -489,18 +545,29 @@ export class DataStore {
           record.group_id
         );
 
-        // Add mutation fields
+        // Add mutation mutationFields
         if (mutation.mutation_str === GROUPS.REFERENCE_GROUP) {
           csvString += mutation.mutation_str + ',';
-          csvString += fields.slice().fill('').join(',');
+          csvString += mutationFields.slice().fill('').join(',');
         } else {
           csvString +=
             mutation.name +
             ',' +
-            fields.map((field) => mutation[field]).join(',');
+            mutationFields.map((field) => mutation[field]).join(',');
         }
-        // Add counts
-        csvString += `,${record.counts}\n`;
+        // Add counts, percent
+        csvString += `,${record.counts},${
+          record.counts / this.numSequencesAfterAllFiltering
+        }`;
+        // Add coverage-adjusted percent
+        let feature = record.gene || record.protein;
+        csvString += `,${
+          record.counts /
+          rootStoreInstance.mutationDataStore.getCoverageAtPosition(
+            record.pos,
+            feature
+          )
+        }\n`;
       });
     // console.log(csvString);
 
@@ -574,6 +641,119 @@ export class DataStore {
     const url = URL.createObjectURL(blob);
 
     downloadBlobURL(url, 'global_sequencing_coverage.json');
+  }
+
+  downloadMutationStructurePymolScript(opts) {
+    let activeProtein;
+    if (
+      rootStoreInstance.configStore.coordinateMode ===
+      COORDINATE_MODES.COORD_PROTEIN
+    ) {
+      activeProtein = rootStoreInstance.configStore.selectedProtein;
+    } else if (
+      rootStoreInstance.configStore.coordinateMode ===
+      COORDINATE_MODES.COORD_GENE
+    ) {
+      activeProtein = getProtein(
+        rootStoreInstance.configStore.selectedGene.name,
+        rootStoreInstance.configStore.selectedReference
+      );
+    }
+
+    let filename;
+    if (opts.scriptType === PYMOL_SCRIPT_TYPES.COMMANDS) {
+      filename = `heatmap_${activeProtein.name}.txt`;
+    } else if (opts.scriptType === PYMOL_SCRIPT_TYPES.SCRIPT) {
+      filename = `heatmap_${activeProtein.name}.py`;
+    }
+
+    let colorField;
+    if (
+      rootStoreInstance.plotSettingsStore.mutationStructureNormMode ===
+      NORM_MODES.NORM_PERCENTAGES
+    ) {
+      colorField = 'percent';
+    } else if (
+      rootStoreInstance.plotSettingsStore.mutationStructureNormMode ===
+      NORM_MODES.NORM_COVERAGE_ADJUSTED
+    ) {
+      colorField = 'partial_adjusted';
+    }
+
+    savePymolScript({
+      opts,
+      filename,
+      activeProtein,
+      pdbId: rootStoreInstance.plotSettingsStore.mutationStructurePdbId,
+      proteinStyle:
+        rootStoreInstance.plotSettingsStore.mutationStructureProteinStyle,
+      assemblies:
+        rootStoreInstance.plotSettingsStore.mutationStructureAssemblies,
+      activeAssembly:
+        rootStoreInstance.plotSettingsStore.mutationStructureActiveAssembly,
+      entities: rootStoreInstance.plotSettingsStore.mutationStructureEntities,
+      mutations: this.groupCounts,
+      mutationColorField: colorField,
+    });
+  }
+
+  downloadVariantTable({ selectedFields, mutationFormat, selectedReference }) {
+    rootStoreInstance.UIStore.onDownloadStarted();
+
+    fetch(hostname + '/variant_table', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/octet-stream',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        group_key: toJS(rootStoreInstance.configStore.groupKey),
+        dna_or_aa: toJS(rootStoreInstance.configStore.dnaOrAa),
+        coordinate_mode: toJS(rootStoreInstance.configStore.coordinateMode),
+        coordinate_ranges: rootStoreInstance.configStore.getCoordinateRanges(),
+        selected_gene: toJS(rootStoreInstance.configStore.selectedGene).name,
+        selected_protein: toJS(rootStoreInstance.configStore.selectedProtein)
+          .name,
+        ...rootStoreInstance.configStore.getSelectedLocations(),
+        selected_reference: selectedReference,
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
+        selected_metadata_fields:
+          rootStoreInstance.configStore.getSelectedMetadataFields(),
+        start_date: toJS(rootStoreInstance.configStore.startDate),
+        end_date: toJS(rootStoreInstance.configStore.endDate),
+        subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
+        subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+        // Pass an array of only the fields that were selected
+        selected_fields: Object.keys(selectedFields).filter(
+          (field) => selectedFields[field]
+        ),
+        mutation_format: mutationFormat,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadBlobURL(url, 'variant_table.xlsx');
+        rootStoreInstance.UIStore.onDownloadFinished();
+      })
+      .catch((err) => {
+        let prefix = 'Error downloading variant table';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
+          });
+        }
+        rootStoreInstance.UIStore.onDownloadErr();
+      });
   }
 }
 

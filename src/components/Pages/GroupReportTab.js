@@ -6,10 +6,11 @@ import ReactTooltip from 'react-tooltip';
 
 import AccordionWrapper from '../Common/AccordionWrapper';
 import ExternalLink from '../Common/ExternalLink';
-import GroupTreePlot from '../Vega/GroupTreePlot';
+import GroupTreePlot from '../Viz/GroupTreePlot';
 import GroupReportHeader from '../GroupReport/GroupReportHeader';
 import MutationList from '../GroupReport/MutationList';
 import StructuralViewer from '../GroupReport/GroupStructuralViewer';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
 
 import {
   GroupReportTabContainer,
@@ -29,18 +30,18 @@ const GroupReportTab = observer(() => {
   const renderHeader = () => {
     return (
       <AccordionWrapper
-        title={`${groupDataStore.getActiveGroupTypePrettyName()} Report`}
+        title={`${groupDataStore.getActiveReportGroupTypePrettyName()} Report`}
         defaultCollapsed={false}
         maxHeight={'600px'}
         helpText={
           <ul>
             <li>
-              Select {groupDataStore.getActiveGroupTypePrettyName()}s to analyze
-              in the plots below as well as the tree on the left.
+              Select {groupDataStore.getActiveReportGroupTypePrettyName()}s to
+              analyze in the plots below as well as the tree on the left.
             </li>
             <li>
               Use the search function to look for specific{' '}
-              {groupDataStore.getActiveGroupTypePrettyName()}s
+              {groupDataStore.getActiveReportGroupTypePrettyName()}s
             </li>
             <li>
               Variants of Concern are being most closely monitored, followed by
@@ -90,8 +91,8 @@ const GroupReportTab = observer(() => {
             <li>
               Residues are colored by the mutation frequencies in the selected
               Protein, for the selected{' '}
-              {groupDataStore.getGroupMutationTypePrettyName()}, projected onto
-              the given PDB ID
+              {groupDataStore.getReportGroupMutationTypePrettyName()}, projected
+              onto the given PDB ID
             </li>
             <li>
               It is up to the user to ensure that the given Protein and its
@@ -123,6 +124,7 @@ const GroupReportTab = observer(() => {
       <StructuralViewerContainer>
         {renderStructuralViewer()}
       </StructuralViewerContainer>
+      <AcknowledgementFooter style={{ gridColumn: '1/3' }} />
     </GroupReportTabContainer>
   );
 });

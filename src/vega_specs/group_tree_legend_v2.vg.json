@@ -15,7 +15,6 @@
     }
   },
 
-
   "data": [
     {
       "name": "source",
@@ -43,7 +42,7 @@
   "signals": [
     {
       "name": "plotHeight",
-      "value": 12000
+      "value": 18000
     },
     {
       "name": "colorScale",
@@ -70,27 +69,27 @@
     {
       "name": "date_x",
       "type": "time",
-      "range": {"signal": "xRange"},
-      "domain": {"data": "source", "field": "date"}
+      "range": { "signal": "xRange" },
+      "domain": { "data": "source", "field": "date" }
     },
     {
       "name": "colorRegion",
       "type": "ordinal",
       "range": { "scheme": "category10" },
-      "domain": { "data": "tips", "field": "region_most_common"}
+      "domain": { "data": "tips", "field": "region_most_common" }
     },
     {
       "name": "colorLatest",
       "type": "linear",
-      "range": {"scheme": "viridis"},
-      "domain": {"data": "tips", "field": "date_max"}
+      "range": { "scheme": "viridis" },
+      "domain": { "data": "tips", "field": "date_max" }
     },
     {
       "name": "colorNumSequences",
       "type": "log",
       "base": 10,
-      "range": {"scheme": "inferno"},
-      "domain": {"data": "tips", "field": "num_seqs"}
+      "range": { "scheme": "inferno" },
+      "domain": { "data": "tips", "field": "num_seqs" }
     }
   ],
 
@@ -100,7 +99,7 @@
       "scale": "date_x",
       "offset": 0,
       "format": "%Y-%m",
-      "tickCount": {"interval": "month", "step": 4},
+      "tickCount": { "interval": "month", "step": 4 },
       "labelAngle": 270,
       "labelAlign": "left",
       "labelBaseline": "middle",
@@ -122,7 +121,7 @@
       "encode": {
         "symbols": {
           "enter": {
-            "shape": {"value": "square"}
+            "shape": { "value": "square" }
           }
         }
       }
@@ -140,8 +139,7 @@
       "labelOffset": 2,
       "gradientThickness": 6,
       "encode": {
-        "legend": {
-        }
+        "legend": {}
       }
     },
     {
@@ -157,12 +155,10 @@
       "gradientThickness": 6,
       "tickCount": 6,
       "encode": {
-        "legend": {
-        }
+        "legend": {}
       }
     }
   ],
 
-  "marks": [
-  ]
+  "marks": []
 }

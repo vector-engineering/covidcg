@@ -6,14 +6,13 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import gzip
-import pandas as pd
 import psycopg2
 import tempfile
 
 from flask import make_response, send_file
 from psycopg2 import sql
 
-from cg_server.query import build_sequence_location_where_filter
+from cg_server.query import build_sequence_location_where_filter, get_loc_level_ids
 
 
 def download_genomes(conn, req):
@@ -24,15 +23,30 @@ def download_genomes(conn, req):
 
     try:
         with conn.cursor() as cur:
-            sequence_where_filter = build_sequence_location_where_filter(req)
+            sequence_where_filter = build_sequence_location_where_filter(
+                None,  # req.get("group_key", None),
+                get_loc_level_ids(req),
+                req.get("start_date", None),
+                req.get("end_date", None),
+                req.get("subm_start_date", None),
+                req.get("subm_end_date", None),
+                req.get("selected_metadata_fields", None),
+                req.get("selected_group_fields", None),
+                req.get("selected_reference", None),
+            )
 
             cur.execute(
                 sql.SQL(
                     """
-                    SELECT m."Accession ID", s."sequence"
-                    FROM metadata m
-                    INNER JOIN "sequence" s on m."sequence_id" = s."sequence_id"
-                    WHERE {sequence_where_filter};
+                    SELECT 
+                        m."Accession ID",
+                        s."sequence"
+                    FROM (
+                        SELECT UNNEST("accession_ids") AS "Accession ID"
+                        FROM "metadata"
+                        WHERE {sequence_where_filter}
+                    ) m
+                    INNER JOIN "sequence" s on m."Accession ID" = s."Accession ID";
                     """
                 ).format(sequence_where_filter=sequence_where_filter)
             )
@@ -45,7 +59,6 @@ def download_genomes(conn, req):
             counter = 0
             while seqs := cur.fetchmany(1000):
                 counter += 1
-                # print(counter)
                 for seq in seqs:
                     fasta_file.write(
                         (">" + seq[0] + "\n" + seq[1] + "\n").encode("utf-8")

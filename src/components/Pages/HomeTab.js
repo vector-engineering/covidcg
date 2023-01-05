@@ -5,9 +5,12 @@ import useDimensions from 'react-use-dimensions';
 import ExternalLink from '../Common/ExternalLink';
 
 import WalkthroughList from '../Example/WalkthroughList';
-import SurveillancePlot from '../Vega/SurveillancePlot';
-import GlobalSeqPlot from '../Vega/GlobalSeqPlot';
+import SurveillancePlot from '../Viz/SurveillancePlot';
+import GlobalSeqPlot from '../Viz/GlobalSeqPlot';
 import ExampleList from '../Example/ExampleList';
+import AcknowledgementFooter from '../Common/AcknowledgementFooter';
+
+import { config } from '../../config';
 
 import {
   HomeTabContainer,
@@ -18,7 +21,7 @@ import {
 
 const HomeTab = observer(() => {
   const [ref, { width }] = useDimensions();
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(config['show_home_banner']);
 
   return (
     <HomeTabContainer ref={ref}>
@@ -36,12 +39,17 @@ const HomeTab = observer(() => {
         </PubBanner>
       )}
       <HomeTabContent>
-        <WalkthroughList />
-        <SurveillancePlot width={width - 150} />
+        {config['show_walkthroughs'] && <WalkthroughList />}
+        {config['show_surveillance'] && (
+          <SurveillancePlot width={width - 150} />
+        )}
         <div style={{ height: '15px' }} />
-        <GlobalSeqPlot width={width - 120} />
+        {config['show_global_seq_plot'] && (
+          <GlobalSeqPlot width={width - 120} />
+        )}
         <ExampleList />
       </HomeTabContent>
+      <AcknowledgementFooter />
     </HomeTabContainer>
   );
 });

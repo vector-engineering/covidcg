@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # coding: utf-8
 
 """Build tree for ReactDropdownTreeSelect
@@ -5,13 +6,14 @@
 Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
+import argparse
 import json
 import pandas as pd
 
-from scripts.util import human_format
+from util import human_format
 
 
-def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree_out):
+def main():
     """Build tree for ReactDropdownTreeSelect
 
     data
@@ -63,11 +65,25 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
     }
     """
 
-    loc_levels = ["region", "country", "division", "location"]
-    df = pd.read_json(case_data)
-    df = df[["Accession ID"] + loc_levels]
+    parser = argparse.ArgumentParser()
 
-    with open(metadata_map, "r") as fp:
+    parser.add_argument(
+        "--isolate-data", type=str, required=True, help="Isolate data CSV file"
+    )
+    parser.add_argument(
+        "--metadata-map", type=str, required=True, help="Metadata map file"
+    )
+    parser.add_argument("--emoji-map", type=str, required=True, help="Emoji map file")
+    parser.add_argument("--out", type=str, required=True, help="Output file")
+
+    args = parser.parse_args()
+
+    loc_levels = ["region", "country", "division", "location"]
+    df = pd.read_csv(
+        args.isolate_data, usecols=["isolate_id"] + loc_levels
+    ).drop_duplicates("isolate_id")
+
+    with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 
     loc_level_id_cols = [col + "_id" for col in loc_levels]
@@ -84,21 +100,19 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
     unique_locations_df = df.drop_duplicates(loc_level_id_cols)
 
     # Count sequences per grouping level
-    region_counts = dict(df.groupby("region_id")["Accession ID"].count())
-    country_counts = dict(
-        df.groupby(["region_id", "country_id"])["Accession ID"].count()
-    )
+    region_counts = dict(df.groupby("region_id")["isolate_id"].count())
+    country_counts = dict(df.groupby(["region_id", "country_id"])["isolate_id"].count())
     division_counts = dict(
-        df.groupby(["region_id", "country_id", "division_id"])["Accession ID"].count()
+        df.groupby(["region_id", "country_id", "division_id"])["isolate_id"].count()
     )
     location_counts = dict(
         df.groupby(["region_id", "country_id", "division_id", "location_id"])[
-            "Accession ID"
+            "isolate_id"
         ].count()
     )
 
     # Load country -> emoji map
-    emoji_map = pd.read_excel(emoji_map_file, skiprows=1)
+    emoji_map = pd.read_excel(args.emoji_map, skiprows=1)
     # Expand country aliases, remove whitespace from each alias
     emoji_map["aliases"] = (
         emoji_map["aliases"].str.split(",").apply(lambda x: [y.strip() for y in x])
@@ -269,5 +283,9 @@ def build_location_tree(case_data, metadata_map, emoji_map_file, geo_select_tree
             }
             division_node["children"].append(location_node)
 
-    with open(geo_select_tree_out, "w") as fp:
+    with open(args.out, "w") as fp:
         fp.write(json.dumps(select_tree))
+
+
+if __name__ == "__main__":
+    main()

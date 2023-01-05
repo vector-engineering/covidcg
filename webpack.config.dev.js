@@ -19,8 +19,8 @@ export default {
   devtool: 'cheap-module-eval-source-map',
   entry: [
     // must be first entry to properly set public path
-    './src/webpack-public-path',
-    'webpack-hot-middleware/client?reload=true',
+    //'./src/webpack-public-path',
+    //'webpack-hot-middleware/client?reload=true',
     // Defining path seems necessary for this to work consistently on Windows machines.
     path.resolve(__dirname, 'src/index.js'),
   ],
@@ -38,6 +38,7 @@ export default {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new HtmlWebpackPlugin({
+      title: configfile.site_title,
       // Create HTML file that includes references to bundled CSS and JS.
       template: 'src/index.ejs',
       minify: {
@@ -49,6 +50,16 @@ export default {
   ],
   module: {
     rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'string-replace-loader',
+        options: {
+          search: /__VIRUS__/g,
+          replace: JSON.stringify(configfile.virus).replace(/"/g, ''),
+          flags: 'g',
+        },
+      },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
