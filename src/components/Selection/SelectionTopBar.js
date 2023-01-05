@@ -145,13 +145,18 @@ const SelectionTopBar = observer(() => {
         disabled={loading}
         direction={'row'}
         referenceSelectMaxWidth="120px"
+        style={{ flexShrink: 0 }}
       />
 
       {statusBox}
 
       <div className="spacer"></div>
 
-      <DownloadDataButton disabled={loading} direction={'right'} />
+      <DownloadDataButton
+        disabled={loading}
+        direction={'right'}
+        style={{ flexShrink: 0 }}
+      />
     </Container>
   );
 });

@@ -24,7 +24,7 @@ const DOWNLOAD_OPTIONS = {
   SELECTED_GENOMES: 'Selected Genomes',
 };
 
-const DownloadDataButton = observer(({ disabled, direction }) => {
+const DownloadDataButton = observer(({ disabled, direction, style }) => {
   const { dataStore, UIStore } = useStores();
 
   const [activeModals, setActiveModals] = useState({
@@ -93,7 +93,7 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
   }
 
   return (
-    <ButtonContainer>
+    <ButtonContainer style={style}>
       <DownloadConsensusMutationsModal
         isOpen={activeModals.downloadConsensusMutations}
         onRequestClose={hideModal.bind(this, 'downloadConsensusMutations')}
@@ -125,10 +125,12 @@ const DownloadDataButton = observer(({ disabled, direction }) => {
 DownloadDataButton.propTypes = {
   disabled: PropTypes.bool,
   direction: PropTypes.string,
+  style: PropTypes.object,
 };
 DownloadDataButton.defaultProps = {
   disabled: false,
   direction: 'left',
+  style: {},
 };
 
 export default DownloadDataButton;
