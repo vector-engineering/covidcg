@@ -7,8 +7,7 @@ virus: "flu"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-# data_folder: "data_gisaid_flu"
-data_folder: "data_flu_small"
+data_folder: "data_gisaid_flu"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
@@ -17,7 +16,6 @@ static_data_folder: "static_data/flu"
 # Path to folder with data to use in development
 # This path is relative to the project root
 # Only used for database seeding in development
-# example_data_folder: "data_gisaid_flu"
 example_data_folder: "data_flu_small"
 
 # Database for this virus
