@@ -207,6 +207,9 @@ def clean_df(df):
         df["collection_date"]
     )
 
+    # Remove rows without collection dates
+    df = df.loc[~pd.isna(df["collection_date"]), :]
+
     # Enforce column order for easier concatenation later
     df = df[
         [
