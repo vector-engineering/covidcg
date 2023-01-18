@@ -212,8 +212,8 @@ RSV:
 
 Flu:
 
+- `workflow_flu_gisaid_ingest`
 - `workflow_flu_genbank_ingest`
-- `workflow_flu_custom_ingest`
 
 **NOTE: While GISAID ingestion pipelines are provided as open-source, it is intended only for internal use**.
 
