@@ -21,5 +21,7 @@ dependencies:
   - scikit-learn=1.0
   - pip:
       - pysam==0.15.4
+      # Email updates
+      - sendgrid==6.0.5
   # For pushing to database
   - psycopg2==2.9.3

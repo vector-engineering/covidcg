@@ -1,4 +1,4 @@
-# samtools, FastTree, and minimap2 not yet available on conda repositories as native arm64 binaries, 
+# samtools, FastTree, and minimap2 not yet available on conda repositories as native arm64 binaries,
 # so these need to be installed from source
 #
 # Additionally, install htslib from source, then run:
@@ -30,5 +30,7 @@ dependencies:
   - openblas=0.3.18
   - pip:
       - pysam==0.18.0
+      # Email updates
+      - sendgrid==6.0.5
   # For pushing to database
   - psycopg2==2.9.3
