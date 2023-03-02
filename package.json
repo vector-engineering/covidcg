@@ -54,7 +54,7 @@
     "@sentry/react": "6.2.3",
     "@sentry/tracing": "6.2.3",
     "@sentry/webpack-plugin": "1.14.2",
-    "vega": "5.22.1",
+    "vega": "5.23.0",
     "vega-embed": "6.10.0",
     "vega-lite": "4.12.2"
   },
