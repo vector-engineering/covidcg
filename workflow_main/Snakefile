@@ -199,7 +199,6 @@ rule preprocess_sequences:
     """
     input:
         fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
-        manifest = rules.sequence_manifest.output.manifest # Trigger manifest construction first
     params:
         virus = config['virus'],
         nextstrain_exclude = os.path.join(

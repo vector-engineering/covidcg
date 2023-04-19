@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
 import { config } from '../../config';
 import { throttle } from '../../utils/func';
+import { getMaxReferenceLength } from '../../utils/reference';
 
 import VegaEmbed from '../../react_vega/VegaEmbed';
 import WarningBox from '../Common/WarningBox';
@@ -95,10 +96,17 @@ const EntropyPlot = observer(({ width }) => {
   };
 
   const onChangeEntropyYMode = (event) => {
-    plotSettingsStore.setEntropyYMode(event.target.value);
+    const entropyYMode = event.target.value;
+    // Default powers
+    let entropyYPow = 1.0;
+    if (entropyYMode === NORM_MODES.NORM_COUNTS) {
+      entropyYPow = 0.5;
+    }
+
+    plotSettingsStore.applyPendingChanges({ entropyYMode, entropyYPow });
   };
   const onChangeEntropyYPow = (event) => {
-    plotSettingsStore.setEntropyYPow(event.target.value);
+    plotSettingsStore.applyPendingChanges({ entropyYPow: event.target.value });
   };
 
   // Domain Plot height is calculated as the number of rows times a constant
@@ -155,12 +163,15 @@ const EntropyPlot = observer(({ width }) => {
     if (configStore.residueCoordinates.length === 0) {
       // If the residue coordinates are empty, then either "All Genes" or
       // "All Proteins" is selected -- so show everything
-      xRange = [1, 30000];
+      xRange = [1, getMaxReferenceLength()];
     } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
       xRange = [
-        coordRanges.reduce((memo, rng) => Math.min(...rng, memo), 30000),
-        coordRanges.reduce((memo, rng) => Math.max(...rng, memo), 0),
+        coordRanges.reduce(
+          (memo, rng) => Math.min(rng[1], rng[2], memo),
+          getMaxReferenceLength()
+        ),
+        coordRanges.reduce((memo, rng) => Math.max(rng[1], rng[2], memo), 0),
       ];
     } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
       // Get the extent of the selected gene/protein
@@ -282,10 +293,10 @@ const EntropyPlot = observer(({ width }) => {
         {
           Institution: 'None',
           Name: 'No Primers Selected',
-          ranges: [[0, 30000]],
+          ranges: [[0, getMaxReferenceLength()]],
           row: 0,
           Start: 0,
-          End: 30000,
+          End: getMaxReferenceLength(),
         },
       ];
       configStore.selectedPrimers = nullDomain;
@@ -336,6 +347,17 @@ const EntropyPlot = observer(({ width }) => {
       return;
     }
 
+    // Slightly modify coverage data before we feed it into Vega
+    // Since the last data point in the coverage array is set to 0,
+    // this will create a glitch in the coverage plot that will show coverage
+    // dropping off right at the end
+    // Fix this by setting the last coverage data point to the immediate previous
+    // coverage data point
+    const coverage = mutationDataStore.coverage.slice();
+    if (coverage.length >= 2 && coverage[coverage.length - 1].count === 0) {
+      coverage[coverage.length - 1].count = coverage[coverage.length - 2].count;
+    }
+
     setState({
       ...state,
       xRange: getXRange(),
@@ -344,7 +366,7 @@ const EntropyPlot = observer(({ width }) => {
         ...state.data,
         domains: domainsToShow(),
         table: processData(),
-        coverage: mutationDataStore.coverage,
+        coverage,
       },
     });
   };

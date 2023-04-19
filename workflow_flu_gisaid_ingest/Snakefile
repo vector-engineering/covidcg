@@ -29,7 +29,7 @@ METADATA_CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "metadata", "{metadata_chunk}.xls"
 ))
 SEQUENCE_CHUNKS, = glob_wildcards(os.path.join(
-    data_folder, "sequences", "{sequence_chunk}.dnas"
+    data_folder, "sequences", "{sequence_chunk}.fasta"
 ))
 
 rule clean_metadata:
@@ -62,7 +62,7 @@ checkpoint chunk_sequences:
     """
     input:
         sequences = expand(
-            os.path.join(data_folder, "sequences", "{sequence_chunk}.dnas"),
+            os.path.join(data_folder, "sequences", "{sequence_chunk}.fasta"),
             sequence_chunk=SEQUENCE_CHUNKS
         ),
         metadata = rules.clean_metadata.output.metadata_clean

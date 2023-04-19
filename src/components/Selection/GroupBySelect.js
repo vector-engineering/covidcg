@@ -43,6 +43,7 @@ const GroupBySelect = observer(
     referenceSelectMaxWidth,
     disabled,
     direction,
+    style,
   }) => {
     const handleGroupKeyChange = (event) => {
       onGroupKeyChange(event.target.value);
@@ -239,7 +240,7 @@ const GroupBySelect = observer(
     };
 
     return (
-      <SelectContainer direction={direction}>
+      <SelectContainer direction={direction} style={style}>
         <RadioForm direction={direction}>
           <span className="form-title">
             Group sequences by
@@ -290,6 +291,7 @@ GroupBySelect.propTypes = {
   referenceSelectMaxWidth: PropTypes.string,
   disabled: PropTypes.bool,
   direction: PropTypes.oneOf(['row', 'column']),
+  style: PropTypes.object,
 };
 GroupBySelect.defaultProps = {
   showExtraGroupText: true,
@@ -297,6 +299,7 @@ GroupBySelect.defaultProps = {
   disabled: false,
   direction: 'column',
   onReferenceChange: PropTypes.func,
+  style: {},
 };
 
 export default GroupBySelect;

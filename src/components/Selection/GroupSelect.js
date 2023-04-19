@@ -55,13 +55,13 @@ const GroupSelect = observer(
     const { groupDataStore } = useStores();
 
     const createGroupSelectTree = (groups) => {
-      const groupSelectTree = {};
+      const reportGroupSelectTree = {};
 
       // Construct selection trees
       Object.keys(groups).forEach((groupName) => {
-        groupSelectTree[groupName] = [];
+        reportGroupSelectTree[groupName] = [];
         groups[groupName].sort(sortGroupNames).forEach((group) => {
-          groupSelectTree[groupName].push({
+          reportGroupSelectTree[groupName].push({
             label: group.name,
             value: group.name,
             checked:
@@ -73,7 +73,7 @@ const GroupSelect = observer(
         });
       });
 
-      return groupSelectTree;
+      return reportGroupSelectTree;
     };
 
     const [state, setState] = useState({
@@ -198,7 +198,7 @@ const GroupSelect = observer(
         <span className="title">
           Selected Groups
           <QuestionButton
-            data-tip="<p></p>"
+            data-tip="<p>Filter for sequences based on their assignment to specified phylogenetic groups</p>"
             data-html={true}
             data-place="left"
             data-for="main-tooltip"

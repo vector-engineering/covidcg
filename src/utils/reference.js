@@ -23,6 +23,22 @@ export function getReferenceNames() {
   return Object.keys(references);
 }
 
+const seqLengths = [];
+Object.keys(references).forEach((referenceName) => {
+  Object.keys(references[referenceName]['segments']).forEach((segment) => {
+    seqLengths.push(
+      references[referenceName]['segments'][segment]['sequence'].length
+    );
+  });
+});
+
+export function getReferenceLengths() {
+  return seqLengths;
+}
+export function getMaxReferenceLength() {
+  return Math.max(...seqLengths);
+}
+
 const _subtypes = new Set();
 const subtypeReferenceMap = {};
 Object.keys(references).forEach((referenceName) => {

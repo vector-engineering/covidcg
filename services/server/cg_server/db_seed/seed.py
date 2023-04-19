@@ -575,32 +575,61 @@ def seed_database(conn, schema="public"):
         for mutation_field in mutation_fields:
             table_name = f"{mutation_field}_coverage"
 
-            coverage_cols = ["isolate_id", "subtype", "reference", "start", "end"]
-
+            # Build list of all feature columns
+            # For DNA mode - columns are just the possible segments
+            # For AA mode - all possible ORFs across all references
+            feature_cols_start = set()
+            feature_cols_end = set()
             if mutation_field == "dna":
-                feature_name_col = sql.SQL("segment TEXT NOT NULL,")
-                coverage_cols.insert(3, "segment")
+                for reference in references.keys():
+                    for segment in references[reference]["segments"].keys():
+                        feature_cols_start.add(f"start_{segment}")
+                        feature_cols_end.add(f"end_{segment}")
             else:
-                feature_name_col = sql.SQL("feature TEXT NOT NULL,")
-                coverage_cols.insert(3, "feature")
+                if mutation_field == "gene_aa":
+                    feature_dicts = genes
+                else:
+                    feature_dicts = proteins
+
+                for reference in feature_dicts.keys():
+                    for feature in feature_dicts[reference]:
+                        if feature["protein_coding"]:
+                            feature_cols_start.add(f"start_{feature['name']}")
+                            feature_cols_end.add(f"end_{feature['name']}")
+
+            feature_cols_start = list(sorted(feature_cols_start))
+            feature_cols_end = list(sorted(feature_cols_end))
+            feature_cols = feature_cols_start + feature_cols_end
+
+            feature_col_defs = []
+            for field in feature_cols:
+                feature_col_defs.append(
+                    sql.SQL(" ").join([sql.Identifier(field), sql.SQL("INTEGER")])
+                )
+            feature_col_defs = sql.SQL(",\n").join(feature_col_defs)
 
             cur.execute(
                 sql.SQL(
                     """
                 DROP TABLE IF EXISTS {table_name};
                 CREATE TABLE {table_name} (
-                    isolate_id   INTEGER  NOT NULL,
-                    subtype      TEXT     NOT NULL,
-                    reference    TEXT     NOT NULL,
-                    {feature_name_col}
-                    range_start  INTEGER  NOT NULL,
-                    range_end    INTEGER  NOT NULL
+                    isolate_id       INTEGER  NOT NULL,
+                    virus_name       TEXT       NOT NULL,
+                    collection_date  TIMESTAMP  NOT NULL,
+                    submission_date  TIMESTAMP  NOT NULL,
+                    subtype          TEXT     NOT NULL,
+                    {metadata_col_defs},
+                    {grouping_col_defs},
+                    reference        TEXT     NOT NULL,
+                    {feature_col_defs}
                 )
                 PARTITION BY LIST(reference);
                 """
                 ).format(
                     table_name=sql.Identifier(table_name),
-                    feature_name_col=feature_name_col,
+                    feature_col_defs=feature_col_defs,
+                    metadata_col_defs=metadata_col_defs,
+                    grouping_col_defs=grouping_col_defs,
                 )
             )
 
@@ -611,11 +640,6 @@ def seed_database(conn, schema="public"):
                 # Clean up the reference name as a SQL ident - no dots
                 reference_name_sql = reference_name.replace(".", "_")
 
-                # For gene/protein, additionally partition by gene/protein name
-                additional_partition = ""
-                if mutation_field == "gene_aa" or mutation_field == "protein_aa":
-                    additional_partition = "PARTITION BY LIST(feature)"
-
                 reference_partition_name = f"{table_name}_{reference_name_sql}"
 
                 cur.execute(
@@ -623,7 +647,7 @@ def seed_database(conn, schema="public"):
                         """
                     CREATE TABLE {reference_partition_name} PARTITION OF {table_name}
                     FOR VALUES IN ({reference_name})
-                    {additional_partition}
+                    PARTITION BY RANGE(collection_date);
                     ;
                     """
                     ).format(
@@ -632,70 +656,103 @@ def seed_database(conn, schema="public"):
                         ),
                         table_name=sql.Identifier(table_name),
                         reference_name=sql.Literal(reference_name),
-                        additional_partition=sql.SQL(additional_partition),
                     )
                 )
 
-                # Create gene/protein name partitions
-                if mutation_field in ["gene_aa", "protein_aa"]:
-                    if mutation_field == "gene_aa":
-                        features = genes[reference_name]
-                    elif mutation_field == "protein_aa":
-                        features = proteins[reference_name]
-
-                    for feature in features:
-                        cur.execute(
-                            sql.SQL(
-                                """
-                            CREATE TABLE {gene_protein_partition_name} PARTITION OF {reference_partition_name}
-                            FOR VALUES IN ({gene_protein})
-                            WITH (parallel_workers = 4);
+                for i in range(len(partition_dates) - 1):
+                    date_start = partition_dates[i]
+                    date_end = partition_dates[i + 1]
+                    cur.execute(
+                        sql.SQL(
                             """
-                            ).format(
-                                gene_protein_partition_name=sql.Identifier(
-                                    f'{reference_partition_name}_{feature["name"]}'
-                                ),
-                                reference_partition_name=sql.Identifier(
-                                    reference_partition_name
-                                ),
-                                gene_protein=sql.Literal(feature["name"]),
-                            )
+                        CREATE TABLE {date_partition_name} PARTITION OF {reference_partition_name}
+                        FOR VALUES FROM ({date_start}) TO ({date_end})
+                        WITH (parallel_workers = 4);
+                        """
+                        ).format(
+                            date_partition_name=sql.Identifier(
+                                f"{table_name}_{reference_name_sql}_{i}"
+                            ),
+                            reference_partition_name=sql.Identifier(
+                                reference_partition_name
+                            ),
+                            date_start=sql.Literal(date_start),
+                            date_end=sql.Literal(date_end),
                         )
+                    )
 
             if mutation_field == "dna":
-                coverage_df = isolate_df[
-                    ["isolate_id", "subtype", "reference", "segments", "dna_range"]
-                ].explode(["segments", "dna_range"])
-                coverage_df.rename(columns={"segments": "segment"}, inplace=True)
-                coverage_df["start"] = coverage_df["dna_range"].str.get(0).astype(int)
-                coverage_df["end"] = coverage_df["dna_range"].str.get(1).astype(int)
+                range_cols = ["segments", "dna_range"]
+                start_df = isolate_df[range_cols].apply(
+                    lambda x: {
+                        "start_" + str(segment): rng[0]
+                        for segment, rng in zip(x["segments"], x["dna_range"])
+                    },
+                    axis=1,
+                    result_type="expand",
+                )
+                end_df = isolate_df[range_cols].apply(
+                    lambda x: {
+                        "end_" + str(segment): rng[1]
+                        for segment, rng in zip(x["segments"], x["dna_range"])
+                    },
+                    axis=1,
+                    result_type="expand",
+                )
             else:
                 range_col = f"{mutation_field}_range"
-                coverage_df = isolate_df[
-                    ["isolate_id", "subtype", "reference", range_col]
-                ].explode(range_col)
-                coverage_df["feature"] = coverage_df[range_col].str.get(0)
-                coverage_df["start"] = coverage_df[range_col].str.get(1).astype(int)
-                coverage_df["end"] = coverage_df[range_col].str.get(2).astype(int)
+                start_df = isolate_df[[range_col]].apply(
+                    lambda x: {"start_" + rng[0]: rng[1] for rng in x[range_col]},
+                    axis=1,
+                    result_type="expand",
+                )
+                end_df = isolate_df[[range_col]].apply(
+                    lambda x: {"end_" + rng[0]: rng[2] for rng in x[range_col]},
+                    axis=1,
+                    result_type="expand",
+                )
 
             df_to_sql(
-                cur, coverage_df[coverage_cols], table_name,
+                cur,
+                pd.concat(
+                    [
+                        isolate_df[
+                            [
+                                "isolate_id",
+                                "virus_name",
+                                "collection_date",
+                                "submission_date",
+                                "subtype",
+                            ]
+                            + metadata_cols
+                            + grouping_cols
+                            + ["reference"]
+                        ],
+                        start_df[feature_cols_start].astype(pd.Int64Dtype()),
+                        end_df[feature_cols_end].astype(pd.Int64Dtype()),
+                    ],
+                    axis=1,
+                ),
+                table_name,
             )
 
             # Create indices
-            index_fields = [
-                "isolate_id",
-                "subtype",
-                "reference",
-                "range_start",
-                "range_end",
-            ]
-            if mutation_field == "dna":
-                index_fields.append("segment")
-            else:
-                index_fields.append("feature")
+            for field in (
+                [
+                    "isolate_id",
+                    "virus_name",
+                    "collection_date",
+                    "submission_date",
+                    "subtype",
+                    "reference",
+                ]
+                + list(config["metadata_cols"].keys())
+                + loc_levels
+                + list(
+                    filter(lambda x: x != "subtype", config["group_cols"].keys())
+                )  # Avoid duplicate subtype index
+            ):
 
-            for field in index_fields:
                 cur.execute(
                     sql.SQL(
                         "CREATE INDEX {index_name} ON {table_name}({field});"

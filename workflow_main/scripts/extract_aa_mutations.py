@@ -294,6 +294,7 @@ def extract_aa_mutations(
 
     # Combine AA mutations
     # Merge AA mutations only if:
+    # - Reference is the same
     # - Accession ID is the same
     # - gene/protein is the same
     # - position is the same
@@ -311,9 +312,10 @@ def extract_aa_mutations(
                 cur_mutation[0] == next_mutation[0]
                 and cur_mutation[1] == next_mutation[1]
                 and cur_mutation[2] == next_mutation[2]
+                and cur_mutation[3] == next_mutation[3]
                 and (
-                    (cur_mutation[3] == "" or cur_mutation[4] == "")
-                    or (next_mutation[3] == "" or next_mutation[4] == "")
+                    (cur_mutation[4] == "" or cur_mutation[5] == "")
+                    or (next_mutation[4] == "" or next_mutation[5] == "")
                 )
             ):
 
@@ -324,8 +326,9 @@ def extract_aa_mutations(
                     cur_mutation[0],
                     cur_mutation[1],
                     cur_mutation[2],
-                    cur_mutation[3] + next_mutation[3],
+                    cur_mutation[3],
                     cur_mutation[4] + next_mutation[4],
+                    cur_mutation[5] + next_mutation[5],
                 )
 
                 # Pop both cur_mutation and next_mutation from the list

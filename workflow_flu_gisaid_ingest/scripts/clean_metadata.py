@@ -196,12 +196,19 @@ def clean_df(df):
     )
 
     # Convert dates to datetime
-    df.loc[:, "collection_date"] = pd.to_datetime(df["collection_date"], yearfirst=True)
-    df.loc[:, "submission_date"] = pd.to_datetime(df["submission_date"], yearfirst=True)
+    df.loc[:, "collection_date"] = pd.to_datetime(
+        df["collection_date"], yearfirst=True, errors="coerce"
+    )
+    df.loc[:, "submission_date"] = pd.to_datetime(
+        df["submission_date"], yearfirst=True, errors="coerce"
+    )
     # Backfill submission date with collection date
     df.loc[:, "submission_date"] = df["submission_date"].combine_first(
         df["collection_date"]
     )
+
+    # Remove rows without collection dates
+    df = df.loc[~pd.isna(df["collection_date"]), :]
 
     # Enforce column order for easier concatenation later
     df = df[

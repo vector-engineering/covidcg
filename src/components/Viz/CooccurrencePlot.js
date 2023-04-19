@@ -47,7 +47,9 @@ const CooccurrencePlot = observer(({ width }) => {
   };
 
   const onChangeNormMode = (event) =>
-    plotSettingsStore.setCooccurrenceNormMode(event.target.value);
+    plotSettingsStore.applyPendingChanges({
+      cooccurrenceNormMode: event.target.value,
+    });
 
   const handleHoverGroup = (...args) => {
     configStore.updateHoverGroup(args[1] === null ? null : args[1]['group']);

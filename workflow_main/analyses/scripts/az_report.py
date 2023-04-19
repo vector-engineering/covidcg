@@ -85,7 +85,7 @@ def main():
 
         isolate_df = isolate_df.loc[valid_group_reference_pair, :]
 
-    # Load DNA mutation ID map
+    # Load mutation ID maps
     with open(args.metadata_map, "r") as fp:
         metadata_map = json.loads(fp.read())
 

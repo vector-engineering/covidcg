@@ -600,7 +600,7 @@
               "orient": "left",
               "titlePadding": 5,
               "title": "Sequences",
-              "values": [0, 100, 1000, 10000, 100000]
+              "values": [0, 100, 1000, 10000, 100000, 1000000]
             }
           ],
           "legends": [

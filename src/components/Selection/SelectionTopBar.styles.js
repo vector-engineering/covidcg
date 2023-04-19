@@ -21,8 +21,13 @@ export const Container = styled.div`
 export const SelectSequencesButton = styled(Button)`
   font-size: 1rem;
   margin-right: 1rem;
+  flex-shrink: 0;
 `;
 
-export const StatusBox = styled.div``;
+export const StatusBox = styled.div`
+  flex-shrink: 1;
+`;
 
-export const StatusBlock = styled.div``;
+export const StatusBlock = styled.div`
+  font-size: 0.8rem;
+`;
