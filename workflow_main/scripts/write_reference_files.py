@@ -71,9 +71,9 @@ def main():
     # Load primers, write to JSON
     primers_df = pd.read_csv(args.primers_csv, comment="#")
     # Only take a subset of the data to kee file sizes down
-    primers_df[["Institution", "Name", "Sequence", "Reverse", "Start", "End"]].to_json(
-        args.primers_json, orient="records"
-    )
+    primers_df[
+        ["Institution", "Name", "Sequence", "Reverse", "Segment", "Start", "End"]
+    ].to_json(args.primers_json, orient="records")
 
 
 if __name__ == "__main__":

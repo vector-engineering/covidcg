@@ -362,7 +362,7 @@ export class ConfigStore {
       return coordinateRanges;
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
       return this.selectedPrimers.map((primer) => {
-        return [primer.Start, primer.End];
+        return [primer.Segment.toString(), primer.Start, primer.End];
       });
     } else if (this.coordinateMode === COORDINATE_MODES.COORD_CUSTOM) {
       return toJS(this.customCoordinates);
