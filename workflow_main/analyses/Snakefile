@@ -187,6 +187,27 @@ rule consensus_mutations:
         """
 
 
+rule mutation_frequency_report:
+    input:
+        metadata_map = os.path.join(data_folder, "metadata_map.json"),
+        group_mutation_frequencies = rules.consensus_mutations.output.group_mutation_frequencies
+    output:
+        mutation_frequency_json = os.path.join(data_folder, "group_mutation_frequencies_annotated.json"),
+        mutation_frequency_dna_csv = os.path.join(data_folder, "group_dna_mutation_frequencies.csv"),
+        mutation_frequency_gene_aa_csv = os.path.join(data_folder, "group_gene_aa_mutation_frequencies.csv"),
+        mutation_frequency_protein_aa_csv = os.path.join(data_folder, "group_protein_aa_mutation_frequencies.csv")
+    shell:
+        """
+        python3 analyses/scripts/mutation_frequency_report.py \
+            --group-mutation-frequencies {input.group_mutation_frequencies} \
+            --metadata-map {input.metadata_map} \
+            --output-json {output.mutation_frequency_json} \
+            --output-dna-csv {output.mutation_frequency_dna_csv} \
+            --output-gene-aa-csv {output.mutation_frequency_gene_aa_csv} \
+            --output-protein-aa-csv {output.mutation_frequency_protein_aa_csv}
+        """
+
+
 rule additional_analyses:
     input:
         # AZ REPORTS
@@ -199,16 +220,21 @@ rule additional_analyses:
         # Surveillance data
         rules.surveillance_data.output.group_counts,
         rules.surveillance_data.output.group_regression,
-        # # Old global sequencing plot
+        # Old global sequencing plot
         rules.create_standalone_map_spec.output.standalone_spec,
-        # # New global sequencing data
+        # New global sequencing data
         rules.global_seq_data.output.case_count,
         rules.global_seq_data.output.sequences_per_month,
         rules.global_seq_data.output.turnaround_per_month,
         rules.global_seq_data.output.iso_lookup,
-        # # Consensus Mutations
+        # Consensus Mutations
         rules.consensus_mutations.output.group_consensus_mutations,
-        rules.consensus_mutations.output.group_mutation_frequencies
+        rules.consensus_mutations.output.group_mutation_frequencies,
+        # Annotated mutation frequencies
+        rules.mutation_frequency_report.output.mutation_frequency_json,
+        rules.mutation_frequency_report.output.mutation_frequency_dna_csv,
+        rules.mutation_frequency_report.output.mutation_frequency_gene_aa_csv,
+        rules.mutation_frequency_report.output.mutation_frequency_protein_aa_csv
 
     output:
         done = touch(os.path.join(
