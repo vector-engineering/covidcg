@@ -105,6 +105,10 @@ server/htpasswd
 # Ignore site deployment scripts
 push_data.sh
 daily_update.sh
+daily_update_new.sh
+daily_update_rsv.sh
+daily_update_sars2_genbank.sh
+daily_update_sars2_gisaid.sh
 update_gisaid.sh
 update_genbank.sh
 filter_list.txt
