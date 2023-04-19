@@ -46,15 +46,18 @@ export class URLMonitor {
       }
     });
 
-    // RSV EDGE CASE
-    // If any selected group fields are set in the URLs,
-    // then clear the default selected group fields
+    // FOR ANY ARRAY FIELDS -----
+    // If the names of any array fields are in the URL params
+    // then clear the array and set it to empty so we can add items later
     if (
       Object.keys(config.group_cols).some((groupKey) =>
         this.urlParams.has(groupKey)
       )
     ) {
-      this.pending.configStore.selectedGroupFields = {};
+      this.pendingChanges.configStore.selectedGroupFields = {};
+    }
+    if (this.urlParams.has('selectedPrimers')) {
+      this.pendingChanges.configStore['selectedPrimers'] = [];
     }
 
     this.urlParams.forEach((value, key) => {
@@ -113,7 +116,7 @@ export class URLMonitor {
               Name: primerStr.split('_')[1],
             };
             const primer = queryPrimers(queryObj);
-            if (primer !== undefined)
+            if (primer !== undefined && primer !== null)
               this.pendingChanges.configStore[key].push(primer);
           });
         } else {
