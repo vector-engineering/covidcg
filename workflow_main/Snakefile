@@ -101,7 +101,7 @@ def sars2_output(wildcards):
     if config['virus'] == 'sars2':
         return [
             rules.build_phylotree_graph.output.graph_table,
-            os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
+            #os.path.join(data_folder, "status", "update_vocs_" + today_str + ".done"),
             os.path.join(data_folder, "spikenuc.fa.gz"),
             os.path.join(data_folder, "spikeaa.fa.gz")
         ]
