@@ -10,6 +10,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
@@ -37,6 +38,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
@@ -64,6 +66,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
@@ -91,6 +94,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 17,
       "domains": [
         {
           "name": "signal peptide",
@@ -149,6 +153,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
@@ -176,6 +181,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
@@ -203,6 +209,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
@@ -234,6 +241,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 294,
       "len_aa": 98,
@@ -273,6 +281,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
@@ -308,6 +317,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
@@ -337,6 +347,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
@@ -364,6 +375,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
@@ -391,6 +403,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "PA-X",
@@ -433,6 +446,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 16,
       "domains": [
         {
           "name": "signal peptide",
@@ -491,6 +505,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
@@ -518,6 +533,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
@@ -545,6 +561,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
@@ -576,6 +593,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 294,
       "len_aa": 98,
@@ -615,6 +633,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
@@ -650,6 +669,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
@@ -679,6 +699,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
@@ -706,6 +727,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
@@ -733,6 +755,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
@@ -760,6 +783,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 16,
       "domains": [
         {
           "name": "signal peptide",
@@ -818,6 +842,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
@@ -845,6 +870,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
@@ -872,6 +898,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
@@ -903,6 +930,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 291,
       "len_aa": 97,
@@ -942,6 +970,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
@@ -977,6 +1006,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
@@ -1006,6 +1036,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
@@ -1033,6 +1064,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
@@ -1060,6 +1092,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
@@ -1087,6 +1120,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1755,
       "len_aa": 585,
@@ -1114,6 +1148,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
@@ -1141,6 +1176,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
@@ -1168,6 +1204,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
@@ -1195,6 +1232,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
@@ -1222,6 +1260,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
@@ -1253,6 +1292,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 369,
       "len_aa": 123,
@@ -1288,6 +1328,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 846,
       "len_aa": 282,
@@ -1317,6 +1358,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
@@ -1344,6 +1386,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
@@ -1371,6 +1414,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
@@ -1398,6 +1442,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1749,
       "len_aa": 583,
@@ -1425,6 +1470,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
@@ -1452,6 +1498,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
@@ -1479,6 +1526,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
@@ -1506,6 +1554,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
@@ -1533,6 +1582,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
@@ -1564,6 +1614,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 372,
       "len_aa": 124,
@@ -1599,6 +1650,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 849,
       "len_aa": 283,
@@ -1628,6 +1680,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
@@ -1655,6 +1708,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
@@ -1682,6 +1736,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
@@ -1709,6 +1764,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1749,
       "len_aa": 583,
@@ -1736,6 +1792,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
@@ -1763,6 +1820,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
@@ -1790,6 +1848,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
@@ -1817,6 +1876,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
@@ -1844,6 +1904,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
@@ -1875,6 +1936,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 372,
       "len_aa": 124,
@@ -1910,6 +1972,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 849,
       "len_aa": 283,

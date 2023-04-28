@@ -47,8 +47,32 @@ def bars_overlap(df, bar_row, segments):
 
 def load_genes_or_proteins(file):
 
-    with open(file, "r") as fp:
-        file = json.loads(fp.read())
+    feature_df = pd.read_csv(file, na_values=[""], keep_default_na=False)
+    feature_df["domains"] = feature_df["domains"].apply(json.loads)
+    feature_df["segments"] = feature_df["segments"].apply(
+        lambda x: [list([int(y) for y in z.split("..")]) for z in x.split(";")]
+    )
+    feature_df["segment"] = feature_df["segment"].apply(str)
+
+    if "notes" in feature_df.columns:
+        feature_df["notes"] = feature_df["notes"].fillna("").apply(str)
+
+    file = {}
+    subtypes = feature_df["subtype"].unique()
+    for subtype in subtypes:
+        file[subtype] = {}
+        references = feature_df.loc[
+            feature_df["subtype"] == subtype, "reference"
+        ].unique()
+        for reference in references:
+            file[subtype][reference] = (
+                feature_df.loc[
+                    (feature_df["subtype"] == subtype)
+                    & (feature_df["reference"] == reference)
+                ]
+                .drop(columns=["subtype", "reference"])
+                .to_dict(orient="records")
+            )
 
     out = dict()
 
