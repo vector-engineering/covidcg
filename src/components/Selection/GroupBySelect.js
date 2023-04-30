@@ -82,7 +82,7 @@ const GroupBySelect = observer(
       aaDisabledMessage = ' (please select one protein)';
     } else if (
       coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      selectedGene.protein_coding === 0
+      !selectedGene.protein_coding
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select protein-coding gene)';
