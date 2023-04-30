@@ -152,7 +152,7 @@ const GroupBySelect = observer(
               onChange={handleDnaOrAaChange}
               disabled={disabled}
             ></input>
-            <label htmlFor="dnaChoice">NT</label>
+            <label>NT</label>
           </div>
           <div className="radio-item">
             <input
@@ -164,7 +164,7 @@ const GroupBySelect = observer(
               disabled={disabled || aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
-            <label htmlFor="aaChoice">AA</label>
+            <label>AA</label>
             <span className="disabled-text">{aaDisabledMessage}</span>
           </div>
         </div>
