@@ -35,7 +35,7 @@ if (config['virus'] === 'sars2') {
     selectedReference: startingReference,
 
     // Select the Spike gene and nsp13 protein by default
-    selectedGene: defaultGene.residue_coord_range,
+    selectedGene: defaultGene,
     selectedProtein: defaultProtein,
     selectedPrimers: [],
 
