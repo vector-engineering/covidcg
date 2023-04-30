@@ -74,9 +74,9 @@ const SelectionTopBar = observer(() => {
     // Update residue coordinates
     let residueCoordinates;
     if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
-      residueCoordinates = [[1, selectedGene.len_aa]];
+      residueCoordinates = [selectedGene.residue_offset_range];
     } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      residueCoordinates = [[1, selectedProtein.len_aa]];
+      residueCoordinates = [selectedProtein.residue_offset_range];
     }
 
     return {

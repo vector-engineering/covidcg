@@ -22,6 +22,11 @@ let _configStore, _groupDataStore, _plotSettingsStore;
 
 if (config['virus'] === 'sars2') {
   const startingReference = 'WIV04';
+  const defaultGene = getGene(config['default_gene'], startingReference);
+  const defaultProtein = getProtein(
+    config['default_protein'],
+    startingReference
+  );
 
   _configStore = {
     groupKey: GROUP_MUTATION,
@@ -30,15 +35,13 @@ if (config['virus'] === 'sars2') {
     selectedReference: startingReference,
 
     // Select the Spike gene and nsp13 protein by default
-    selectedGene: getGene(config['default_gene'], startingReference),
-    selectedProtein: getProtein(config['default_protein'], startingReference),
+    selectedGene: defaultGene.residue_coord_range,
+    selectedProtein: defaultProtein,
     selectedPrimers: [],
 
     customCoordinates: [['1', 8000, 12000]],
     customSequences: ['GACCCCAAAATCAGCGAAAT'],
-    residueCoordinates: [
-      [1, getGene(config['default_gene'], startingReference).len_aa],
-    ],
+    residueCoordinates: [defaultGene.residue_offset_range],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -162,7 +165,7 @@ if (config['virus'] === 'sars2') {
       return [defaultGene.segment, range[0], range[1]];
     }),
     customSequences: ['GGTGTTGGATCTGCAATCGC'],
-    residueCoordinates: [[1, defaultGene.len_aa]],
+    residueCoordinates: [defaultGene.residue_offset_range],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,
@@ -275,7 +278,7 @@ if (config['virus'] === 'sars2') {
       return [defaultGene.segment, range[0], range[1]];
     }),
     customSequences: ['GAGCTACATTCTATGTCT'],
-    residueCoordinates: [[1, defaultGene.len_aa]],
+    residueCoordinates: [defaultGene.residue_offset_range],
 
     // Selecting the gene as the coordinate range by default
     coordinateMode: COORDINATE_MODES.COORD_GENE,

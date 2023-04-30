@@ -87,6 +87,8 @@ def load_genes_or_proteins(file):
                 lambda x: sum([rng[1] - rng[0] + 1 for rng in x], 0)
             )
             df["len_aa"] = df["len_nt"] // 3
+            df["residue_offset_range"] = None
+            df["nt_range"] = None
             df.loc[~df["protein_coding"], "len_aa"] = -1
             df.loc[:, "len_aa"] = df["len_aa"].astype(int)
 
@@ -127,11 +129,64 @@ def load_genes_or_proteins(file):
                 df.at[name, "aa_ranges"] = aa_segments
                 df.at[name, "nt_ranges"] = nt_segments
 
+                # Get the maximal NT extent of this feature on the linear segment
+                min_nt = min([x[0] for x in df.at[name, "segments"]])
+                max_nt = max([x[1] for x in df.at[name, "segments"]])
+                df.at[name, "nt_range"] = [int(min_nt), int(max_nt)]
+
+                # Get the AA extent of this feature, modified by the residue offset
+                residue_offset = df.at[name, "residue_offset"]
+                df.at[name, "residue_offset_range"] = [
+                    int(1 - residue_offset),
+                    int(df.at[name, "len_aa"] - residue_offset),
+                ]
+
                 # Determine rows for entropy plots for domains
                 # All genes/proteins that get here will be protein coding
                 domain_df = pd.DataFrame.from_records(row["domains"])
                 domain_df["row"] = None
+                domain_df["nt_ranges"] = None
                 for [index, domain] in domain_df.iterrows():
+
+                    # Domain ranges, in the nucleotide space
+                    # TODO: support for domains spanning more than one segment
+                    ranges = domain_df.at[index, "ranges"]
+                    # domain_df.at[index, "nt_ranges"] = [
+                    #     [((start - 1) * 3) + 1, end * 3] for start, end in ranges
+                    # ]
+                    nt_ranges = []
+                    for rng in ranges:
+                        # Find the corresponding segment
+                        segment_i = -1
+                        for i, segment in enumerate(aa_segments):
+                            if rng[0] >= segment[0] and rng[1] <= segment[1]:
+                                segment_i = i
+                                break
+
+                        if segment_i == -1:
+                            raise ValueError(
+                                f"Range {rng} does not overlap any segments in {aa_segments}"
+                            )
+
+                        # Adjust with the corresponding segment
+                        nt_ranges.append(
+                            [
+                                row["segments"][segment_i][0]
+                                + ((rng[0] - aa_segments[segment_i][0]) * 3),
+                                row["segments"][segment_i][0]
+                                + ((rng[1] - aa_segments[segment_i][0] + 1) * 3)
+                                - 1,
+                            ]
+                        )
+                    domain_df.at[index, "nt_ranges"] = nt_ranges
+
+                    # Adjust domain ranges with feature residue offset
+                    ranges = [
+                        [start - residue_offset, end - residue_offset]
+                        for start, end in ranges
+                    ]
+                    domain_df.at[index, "ranges"] = ranges
+
                     domain_row = 0
                     if (
                         "all" in domain_df.at[index, "name"]

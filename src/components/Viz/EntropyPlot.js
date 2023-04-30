@@ -166,6 +166,7 @@ const EntropyPlot = observer(({ width }) => {
       xRange = [1, getMaxReferenceLength()];
     } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
+      // Get the extent of the selected gene/protein
       xRange = [
         coordRanges.reduce(
           (memo, rng) => Math.min(rng[1], rng[2], memo),
@@ -189,11 +190,11 @@ const EntropyPlot = observer(({ width }) => {
       // from the selected residue coordinates
       const minResidueIndex = residueCoordinates.reduce(
         (minIndex, rng) => Math.min(...rng, minIndex),
-        geneOrProteinObj.len_aa
+        geneOrProteinObj.len_aa // - geneOrProteinObj.residue_offset
       );
       const maxResidueIndex = residueCoordinates.reduce(
         (minIndex, rng) => Math.max(...rng, minIndex),
-        1
+        1 // - geneOrProteinObj.residue_offset
       );
 
       if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
@@ -205,14 +206,16 @@ const EntropyPlot = observer(({ width }) => {
             // Get the matching NT range, add residues * 3
             startNTInd =
               geneOrProteinObj.ranges[ind][0] +
-              (minResidueIndex - aaRange[0]) * 3;
+              (minResidueIndex - aaRange[0]) * 3 +
+              geneOrProteinObj.residue_offset * 3;
           }
           if (maxResidueIndex >= aaRange[0] && maxResidueIndex <= aaRange[1]) {
             // Get the matching NT range, add residues * 3 (to end of codon)
             endNTInd =
               geneOrProteinObj.ranges[ind][0] +
               2 +
-              (maxResidueIndex - aaRange[0]) * 3;
+              (maxResidueIndex - aaRange[0]) * 3 +
+              geneOrProteinObj.residue_offset * 3;
           }
         });
         xRange = [startNTInd, endNTInd];
@@ -231,6 +234,7 @@ const EntropyPlot = observer(({ width }) => {
         name: 'No Domains Available',
         abbr: 'No Domains Available',
         ranges: [xRange],
+        nt_ranges: [xRange],
         row: 0,
       },
     ];

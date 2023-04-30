@@ -185,12 +185,12 @@
         { "type": "formula", "expr": "datum.rowBottom + 1", "as": "rowTop" },
         {
           "type": "formula",
-          "expr": "if(posField, datum.ranges[0][0], (datum.ranges[0][0] * 3 - 2) + xRange[0] - 1)",
+          "expr": "if(posField, datum.ranges[0][0], datum.nt_ranges[0][0])",
           "as": "start"
         },
         {
           "type": "formula",
-          "expr": "if(posField, datum.ranges[0][1], datum.start + (datum.ranges[0][1] - datum.ranges[0][0]) * 3 + 2)",
+          "expr": "if(posField, datum.ranges[0][1], datum.nt_ranges[0][1])",
           "as": "end"
         },
         { "type": "filter", "expr": "datum.start < xRange[1]" },

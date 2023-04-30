@@ -14,6 +14,14 @@
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        16,
+        2295
+      ],
       "aa_ranges": [
         [
           1,
@@ -42,6 +50,14 @@
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        13,
+        2286
+      ],
       "aa_ranges": [
         [
           1,
@@ -70,6 +86,14 @@
       "domains": [],
       "len_nt": 264,
       "len_aa": 88,
+      "residue_offset_range": [
+        1,
+        88
+      ],
+      "nt_range": [
+        107,
+        370
+      ],
       "aa_ranges": [
         [
           1,
@@ -98,6 +122,14 @@
       "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        13,
+        2163
+      ],
       "aa_ranges": [
         [
           1,
@@ -130,6 +162,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        13,
+        772
+      ],
       "aa_ranges": [
         [
           1,
@@ -168,35 +208,61 @@
           "name": "signal peptide",
           "ranges": [
             [
-              1,
-              17
+              -16,
+              0
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              51
+            ]
+          ]
         },
         {
           "name": "HA1",
           "ranges": [
             [
-              18,
-              344
+              1,
+              327
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              52,
+              1032
+            ]
+          ]
         },
         {
           "name": "HA2",
           "ranges": [
             [
-              345,
-              566
+              328,
+              549
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1033,
+              1698
+            ]
+          ]
         }
       ],
       "len_nt": 1701,
       "len_aa": 567,
+      "residue_offset_range": [
+        -16,
+        550
+      ],
+      "nt_range": [
+        1,
+        1701
+      ],
       "aa_ranges": [
         [
           1,
@@ -225,6 +291,14 @@
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        34,
+        1530
+      ],
       "aa_ranges": [
         [
           1,
@@ -253,6 +327,14 @@
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        10,
+        1419
+      ],
       "aa_ranges": [
         [
           1,
@@ -281,6 +363,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
       "aa_ranges": [
         [
           1,
@@ -313,6 +403,14 @@
       "domains": [],
       "len_nt": 294,
       "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
       "aa_ranges": [
         [
           1,
@@ -353,6 +451,14 @@
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        27,
+        864
+      ],
       "aa_ranges": [
         [
           1,
@@ -389,6 +495,14 @@
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        27,
+        719
+      ],
       "aa_ranges": [
         [
           1,
@@ -419,6 +533,14 @@
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        18,
+        2297
+      ],
       "aa_ranges": [
         [
           1,
@@ -447,6 +569,14 @@
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        15,
+        2288
+      ],
       "aa_ranges": [
         [
           1,
@@ -475,6 +605,14 @@
       "domains": [],
       "len_nt": 273,
       "len_aa": 91,
+      "residue_offset_range": [
+        1,
+        91
+      ],
+      "nt_range": [
+        109,
+        381
+      ],
       "aa_ranges": [
         [
           1,
@@ -503,6 +641,14 @@
       "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        11,
+        2161
+      ],
       "aa_ranges": [
         [
           1,
@@ -535,6 +681,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        11,
+        770
+      ],
       "aa_ranges": [
         [
           1,
@@ -573,35 +727,61 @@
           "name": "signal peptide",
           "ranges": [
             [
-              1,
-              16
+              -15,
+              0
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              48
+            ]
+          ]
         },
         {
           "name": "HA1",
           "ranges": [
             [
-              17,
-              345
+              1,
+              329
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              49,
+              1035
+            ]
+          ]
         },
         {
           "name": "HA2",
           "ranges": [
             [
-              346,
-              566
+              330,
+              550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1036,
+              1698
+            ]
+          ]
         }
       ],
       "len_nt": 1701,
       "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        1,
+        1701
+      ],
       "aa_ranges": [
         [
           1,
@@ -630,6 +810,14 @@
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        37,
+        1533
+      ],
       "aa_ranges": [
         [
           1,
@@ -658,6 +846,14 @@
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        1,
+        1410
+      ],
       "aa_ranges": [
         [
           1,
@@ -686,6 +882,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
       "aa_ranges": [
         [
           1,
@@ -718,6 +922,14 @@
       "domains": [],
       "len_nt": 294,
       "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
       "aa_ranges": [
         [
           1,
@@ -758,6 +970,14 @@
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        23,
+        860
+      ],
       "aa_ranges": [
         [
           1,
@@ -794,6 +1014,14 @@
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        23,
+        715
+      ],
       "aa_ranges": [
         [
           1,
@@ -824,6 +1052,14 @@
       "domains": [],
       "len_nt": 2280,
       "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        1,
+        2280
+      ],
       "aa_ranges": [
         [
           1,
@@ -852,6 +1088,14 @@
       "domains": [],
       "len_nt": 2274,
       "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        1,
+        2274
+      ],
       "aa_ranges": [
         [
           1,
@@ -880,6 +1124,14 @@
       "domains": [],
       "len_nt": 273,
       "len_aa": 91,
+      "residue_offset_range": [
+        1,
+        91
+      ],
+      "nt_range": [
+        95,
+        367
+      ],
       "aa_ranges": [
         [
           1,
@@ -908,6 +1160,14 @@
       "domains": [],
       "len_nt": 2151,
       "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        1,
+        2151
+      ],
       "aa_ranges": [
         [
           1,
@@ -940,6 +1200,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        1,
+        760
+      ],
       "aa_ranges": [
         [
           1,
@@ -978,35 +1246,61 @@
           "name": "signal peptide",
           "ranges": [
             [
-              1,
-              16
+              -15,
+              0
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              48
+            ]
+          ]
         },
         {
           "name": "HA1",
           "ranges": [
             [
-              17,
-              345
+              1,
+              329
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              49,
+              1035
+            ]
+          ]
         },
         {
           "name": "HA2",
           "ranges": [
             [
-              346,
-              566
+              330,
+              550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1036,
+              1698
+            ]
+          ]
         }
       ],
       "len_nt": 1701,
       "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        1,
+        1701
+      ],
       "aa_ranges": [
         [
           1,
@@ -1035,6 +1329,14 @@
       "domains": [],
       "len_nt": 1497,
       "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        1,
+        1497
+      ],
       "aa_ranges": [
         [
           1,
@@ -1063,6 +1365,14 @@
       "domains": [],
       "len_nt": 1410,
       "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        8,
+        1417
+      ],
       "aa_ranges": [
         [
           1,
@@ -1091,6 +1401,14 @@
       "domains": [],
       "len_nt": 759,
       "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        1,
+        759
+      ],
       "aa_ranges": [
         [
           1,
@@ -1123,6 +1441,14 @@
       "domains": [],
       "len_nt": 291,
       "len_aa": 97,
+      "residue_offset_range": [
+        1,
+        97
+      ],
+      "nt_range": [
+        1,
+        979
+      ],
       "aa_ranges": [
         [
           1,
@@ -1163,6 +1489,14 @@
       "domains": [],
       "len_nt": 366,
       "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        1,
+        838
+      ],
       "aa_ranges": [
         [
           1,
@@ -1199,6 +1533,14 @@
       "domains": [],
       "len_nt": 693,
       "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        1,
+        693
+      ],
       "aa_ranges": [
         [
           1,
@@ -1229,6 +1571,14 @@
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
+      "residue_offset_range": [
+        1,
+        771
+      ],
+      "nt_range": [
+        1,
+        2313
+      ],
       "aa_ranges": [
         [
           1,
@@ -1257,6 +1607,14 @@
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
+      "residue_offset_range": [
+        1,
+        753
+      ],
+      "nt_range": [
+        1,
+        2259
+      ],
       "aa_ranges": [
         [
           1,
@@ -1285,6 +1643,14 @@
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
+      "residue_offset_range": [
+        1,
+        727
+      ],
+      "nt_range": [
+        1,
+        2181
+      ],
       "aa_ranges": [
         [
           1,
@@ -1313,6 +1679,14 @@
       "domains": [],
       "len_nt": 1755,
       "len_aa": 585,
+      "residue_offset_range": [
+        1,
+        585
+      ],
+      "nt_range": [
+        1,
+        1755
+      ],
       "aa_ranges": [
         [
           1,
@@ -1341,6 +1715,14 @@
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
+      "residue_offset_range": [
+        1,
+        561
+      ],
+      "nt_range": [
+        1,
+        1683
+      ],
       "aa_ranges": [
         [
           1,
@@ -1369,6 +1751,14 @@
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        34,
+        1434
+      ],
       "aa_ranges": [
         [
           1,
@@ -1397,6 +1787,14 @@
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
+      "residue_offset_range": [
+        1,
+        101
+      ],
+      "nt_range": [
+        27,
+        329
+      ],
       "aa_ranges": [
         [
           1,
@@ -1425,6 +1823,14 @@
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
+      "residue_offset_range": [
+        1,
+        249
+      ],
+      "nt_range": [
+        1,
+        747
+      ],
       "aa_ranges": [
         [
           1,
@@ -1453,6 +1859,14 @@
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
+      "residue_offset_range": [
+        1,
+        110
+      ],
+      "nt_range": [
+        747,
+        1076
+      ],
       "aa_ranges": [
         [
           1,
@@ -1485,6 +1899,14 @@
       "domains": [],
       "len_nt": 369,
       "len_aa": 123,
+      "residue_offset_range": [
+        1,
+        123
+      ],
+      "nt_range": [
+        1,
+        1024
+      ],
       "aa_ranges": [
         [
           1,
@@ -1521,6 +1943,14 @@
       "domains": [],
       "len_nt": 846,
       "len_aa": 282,
+      "residue_offset_range": [
+        1,
+        282
+      ],
+      "nt_range": [
+        1,
+        846
+      ],
       "aa_ranges": [
         [
           1,
@@ -1551,6 +1981,14 @@
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
+      "residue_offset_range": [
+        1,
+        771
+      ],
+      "nt_range": [
+        1,
+        2313
+      ],
       "aa_ranges": [
         [
           1,
@@ -1579,6 +2017,14 @@
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
+      "residue_offset_range": [
+        1,
+        753
+      ],
+      "nt_range": [
+        1,
+        2259
+      ],
       "aa_ranges": [
         [
           1,
@@ -1607,6 +2053,14 @@
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
+      "residue_offset_range": [
+        1,
+        727
+      ],
+      "nt_range": [
+        1,
+        2181
+      ],
       "aa_ranges": [
         [
           1,
@@ -1635,6 +2089,14 @@
       "domains": [],
       "len_nt": 1749,
       "len_aa": 583,
+      "residue_offset_range": [
+        1,
+        583
+      ],
+      "nt_range": [
+        1,
+        1749
+      ],
       "aa_ranges": [
         [
           1,
@@ -1663,6 +2125,14 @@
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
+      "residue_offset_range": [
+        1,
+        561
+      ],
+      "nt_range": [
+        1,
+        1683
+      ],
       "aa_ranges": [
         [
           1,
@@ -1691,6 +2161,14 @@
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        8,
+        1408
+      ],
       "aa_ranges": [
         [
           1,
@@ -1719,6 +2197,14 @@
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
+      "residue_offset_range": [
+        1,
+        101
+      ],
+      "nt_range": [
+        1,
+        303
+      ],
       "aa_ranges": [
         [
           1,
@@ -1747,6 +2233,14 @@
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
+      "residue_offset_range": [
+        1,
+        249
+      ],
+      "nt_range": [
+        1,
+        747
+      ],
       "aa_ranges": [
         [
           1,
@@ -1775,6 +2269,14 @@
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
+      "residue_offset_range": [
+        1,
+        110
+      ],
+      "nt_range": [
+        747,
+        1076
+      ],
       "aa_ranges": [
         [
           1,
@@ -1807,6 +2309,14 @@
       "domains": [],
       "len_nt": 372,
       "len_aa": 124,
+      "residue_offset_range": [
+        1,
+        124
+      ],
+      "nt_range": [
+        1,
+        1027
+      ],
       "aa_ranges": [
         [
           1,
@@ -1843,6 +2353,14 @@
       "domains": [],
       "len_nt": 849,
       "len_aa": 283,
+      "residue_offset_range": [
+        1,
+        283
+      ],
+      "nt_range": [
+        1,
+        849
+      ],
       "aa_ranges": [
         [
           1,
@@ -1873,6 +2391,14 @@
       "domains": [],
       "len_nt": 2313,
       "len_aa": 771,
+      "residue_offset_range": [
+        1,
+        771
+      ],
+      "nt_range": [
+        10,
+        2322
+      ],
       "aa_ranges": [
         [
           1,
@@ -1901,6 +2427,14 @@
       "domains": [],
       "len_nt": 2259,
       "len_aa": 753,
+      "residue_offset_range": [
+        1,
+        753
+      ],
+      "nt_range": [
+        8,
+        2266
+      ],
       "aa_ranges": [
         [
           1,
@@ -1929,6 +2463,14 @@
       "domains": [],
       "len_nt": 2181,
       "len_aa": 727,
+      "residue_offset_range": [
+        1,
+        727
+      ],
+      "nt_range": [
+        16,
+        2196
+      ],
       "aa_ranges": [
         [
           1,
@@ -1957,6 +2499,14 @@
       "domains": [],
       "len_nt": 1749,
       "len_aa": 583,
+      "residue_offset_range": [
+        1,
+        583
+      ],
+      "nt_range": [
+        20,
+        1768
+      ],
       "aa_ranges": [
         [
           1,
@@ -1985,6 +2535,14 @@
       "domains": [],
       "len_nt": 1683,
       "len_aa": 561,
+      "residue_offset_range": [
+        1,
+        561
+      ],
+      "nt_range": [
+        47,
+        1729
+      ],
       "aa_ranges": [
         [
           1,
@@ -2013,6 +2571,14 @@
       "domains": [],
       "len_nt": 1401,
       "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        40,
+        1440
+      ],
       "aa_ranges": [
         [
           1,
@@ -2041,6 +2607,14 @@
       "domains": [],
       "len_nt": 303,
       "len_aa": 101,
+      "residue_offset_range": [
+        1,
+        101
+      ],
+      "nt_range": [
+        33,
+        335
+      ],
       "aa_ranges": [
         [
           1,
@@ -2069,6 +2643,14 @@
       "domains": [],
       "len_nt": 747,
       "len_aa": 249,
+      "residue_offset_range": [
+        1,
+        249
+      ],
+      "nt_range": [
+        8,
+        754
+      ],
       "aa_ranges": [
         [
           1,
@@ -2097,6 +2679,14 @@
       "domains": [],
       "len_nt": 330,
       "len_aa": 110,
+      "residue_offset_range": [
+        1,
+        110
+      ],
+      "nt_range": [
+        754,
+        1083
+      ],
       "aa_ranges": [
         [
           1,
@@ -2129,6 +2719,14 @@
       "domains": [],
       "len_nt": 372,
       "len_aa": 124,
+      "residue_offset_range": [
+        1,
+        124
+      ],
+      "nt_range": [
+        29,
+        1055
+      ],
       "aa_ranges": [
         [
           1,
@@ -2165,6 +2763,14 @@
       "domains": [],
       "len_nt": 849,
       "len_aa": 283,
+      "residue_offset_range": [
+        1,
+        283
+      ],
+      "nt_range": [
+        29,
+        877
+      ],
       "aa_ranges": [
         [
           1,
