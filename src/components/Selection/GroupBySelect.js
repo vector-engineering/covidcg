@@ -82,7 +82,7 @@ const GroupBySelect = observer(
       aaDisabledMessage = ' (please select one protein)';
     } else if (
       coordinateMode === COORDINATE_MODES.COORD_GENE &&
-      selectedGene.protein_coding === 0
+      !selectedGene.protein_coding
     ) {
       aaDisabled = true;
       aaDisabledMessage = ' (please select protein-coding gene)';
@@ -152,7 +152,7 @@ const GroupBySelect = observer(
               onChange={handleDnaOrAaChange}
               disabled={disabled}
             ></input>
-            <label htmlFor="dnaChoice">NT</label>
+            <label>NT</label>
           </div>
           <div className="radio-item">
             <input
@@ -164,7 +164,7 @@ const GroupBySelect = observer(
               disabled={disabled || aaDisabled}
               onChange={handleDnaOrAaChange}
             ></input>
-            <label htmlFor="aaChoice">AA</label>
+            <label>AA</label>
             <span className="disabled-text">{aaDisabledMessage}</span>
           </div>
         </div>

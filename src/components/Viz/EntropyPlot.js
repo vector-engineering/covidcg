@@ -166,6 +166,7 @@ const EntropyPlot = observer(({ width }) => {
       xRange = [1, getMaxReferenceLength()];
     } else if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
       const coordRanges = toJS(configStore.getCoordinateRanges());
+      // Get the extent of the selected gene/protein
       xRange = [
         coordRanges.reduce(
           (memo, rng) => Math.min(rng[1], rng[2], memo),
@@ -196,29 +197,7 @@ const EntropyPlot = observer(({ width }) => {
         1
       );
 
-      if (configStore.dnaOrAa === DNA_OR_AA.DNA) {
-        // Find the AA range that the minimum and maximum AA index fall in,
-        // and then get the NT coordinates (from the start of the codon)
-        let startNTInd, endNTInd;
-        geneOrProteinObj.aa_ranges.forEach((aaRange, ind) => {
-          if (minResidueIndex >= aaRange[0] && minResidueIndex <= aaRange[1]) {
-            // Get the matching NT range, add residues * 3
-            startNTInd =
-              geneOrProteinObj.ranges[ind][0] +
-              (minResidueIndex - aaRange[0]) * 3;
-          }
-          if (maxResidueIndex >= aaRange[0] && maxResidueIndex <= aaRange[1]) {
-            // Get the matching NT range, add residues * 3 (to end of codon)
-            endNTInd =
-              geneOrProteinObj.ranges[ind][0] +
-              2 +
-              (maxResidueIndex - aaRange[0]) * 3;
-          }
-        });
-        xRange = [startNTInd, endNTInd];
-      } else if (configStore.dnaOrAa === DNA_OR_AA.AA) {
-        xRange = [minResidueIndex, maxResidueIndex];
-      }
+      xRange = [minResidueIndex, maxResidueIndex];
     }
     return xRange;
   };
@@ -231,6 +210,7 @@ const EntropyPlot = observer(({ width }) => {
         name: 'No Domains Available',
         abbr: 'No Domains Available',
         ranges: [xRange],
+        nt_ranges: [xRange],
         row: 0,
       },
     ];

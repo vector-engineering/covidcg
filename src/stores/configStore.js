@@ -90,13 +90,13 @@ export class ConfigStore {
       !('residueCoordinates' in values) &&
       this.selectedGene.name !== 'All Genes'
     ) {
-      this.residueCoordinates = [[1, this.selectedGene.len_aa]];
+      this.residueCoordinates = [this.selectedGene.residue_offset_range];
     } else if (
       'selectedProtein' in values &&
       !('residueCoordinates' in values) &&
       this.selectedProtein.name !== 'All Proteins'
     ) {
-      this.residueCoordinates = [[1, this.selectedProtein.len_aa]];
+      this.residueCoordinates = [this.selectedProtein.residue_offset_range];
     }
 
     // Trigger data re-run
@@ -334,6 +334,10 @@ export class ConfigStore {
         const curRange = range.slice();
 
         if (this.dnaOrAa === DNA_OR_AA.DNA) {
+          // Un-apply residue offset
+          curRange[0] += feature.residue_offset;
+          curRange[1] += feature.residue_offset;
+
           for (let i = 0; i < feature.aa_ranges.length; i++) {
             const curAARange = feature.aa_ranges[i];
             const curNTRange = feature.segments[i];

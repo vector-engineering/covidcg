@@ -78,8 +78,7 @@ export class URLMonitor {
           const selectedReference = this.urlParams.has('selectedReference')
             ? this.urlParams.get('selectedReference')
             : rootStoreInstance.configStore.selectedReference;
-
-          let selectedGene = getGene(key, selectedReference);
+          let selectedGene = getGene(value, selectedReference);
           if (selectedGene === undefined) {
             selectedGene = initialConfigStore.selectedGene;
           }
@@ -90,7 +89,7 @@ export class URLMonitor {
             ? this.urlParams.get('selectedReference')
             : rootStoreInstance.configStore.selectedReference;
 
-          let selectedProtein = getProtein(key, selectedReference);
+          let selectedProtein = getProtein(value, selectedReference);
           if (selectedProtein === undefined) {
             selectedProtein = initialConfigStore.selectedProtein;
           }

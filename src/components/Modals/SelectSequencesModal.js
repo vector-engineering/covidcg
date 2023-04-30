@@ -159,9 +159,9 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     // Update residue coordinates
     let residueCoordinates;
     if (pending.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
-      residueCoordinates = [[1, selectedProtein.len_aa]];
+      residueCoordinates = [selectedProtein.residue_offset_range];
     } else {
-      residueCoordinates = [[1, selectedGene.len_aa]];
+      residueCoordinates = [selectedGene.residue_offset_range];
     }
 
     // Check the custom coordinates under the new reference
@@ -208,8 +208,10 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     let residueCoordinates = pending.residueCoordinates;
     if (selectedGene.name === 'All Genes') {
       residueCoordinates = [];
+    } else if (!selectedGene.protein_coding) {
+      residueCoordinates = [];
     } else {
-      residueCoordinates = [[1, selectedGene.len_aa]];
+      residueCoordinates = [selectedGene.residue_offset_range];
     }
     return residueCoordinates;
   };
@@ -219,7 +221,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     if (selectedProtein.name === 'All Proteins') {
       residueCoordinates = [];
     } else {
-      residueCoordinates = [[1, selectedProtein.len_aa]];
+      residueCoordinates = [selectedProtein.residue_offset_range];
     }
     return residueCoordinates;
   };

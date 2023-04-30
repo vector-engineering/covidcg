@@ -76,7 +76,7 @@ const CoordinateSelect = observer(
         <option
           key={gene.name}
           value={gene.name}
-          disabled={gene.protein_coding === 0 && dnaOrAa === DNA_OR_AA.AA}
+          disabled={!gene.protein_coding && dnaOrAa === DNA_OR_AA.AA}
         >
           {gene.name}&nbsp;&nbsp;(
           {gene.segments.map((range) => range.join('..')).join(';')})
@@ -87,6 +87,9 @@ const CoordinateSelect = observer(
     // GENE DOMAINS
     let geneDomainOptionElements = {};
     genes.forEach((gene) => {
+      if (!gene.protein_coding) {
+        return;
+      }
       geneDomainOptionElements[gene.name] = [
         <option
           key={`${gene.name}-default`}
@@ -96,7 +99,7 @@ const CoordinateSelect = observer(
           - select an option -
         </option>,
         <option key={`${gene.name}-all`} value={`${gene.name}-all`}>
-          Entire {gene.name} Gene (1..{gene.len_aa})
+          Entire {gene.name} Gene ({gene.residue_offset_range.join('..')})
         </option>,
       ];
       gene.domains.forEach((domain, j) => {
@@ -133,7 +136,8 @@ const CoordinateSelect = observer(
           - select an option -
         </option>,
         <option key={`${protein.name}-all`} value={`${protein.name}-all`}>
-          Entire {protein.name} Protein (1..{protein.len_aa})
+          Entire {protein.name} Protein (
+          {protein.residue_offset_range.join('..')})
         </option>,
       ];
       protein.domains.forEach((domain, j) => {
@@ -199,7 +203,7 @@ const CoordinateSelect = observer(
 
     // Use a regex to match numbers, since just because JS
     // can parse an integer, doesn't mean it should...
-    const numPattern = /^([0-9]+)$/;
+    const numPattern = /^([0-9-]+)$/;
 
     const handleResidueCoordsChange = (event) => {
       // Parse current custom coordinates
@@ -214,7 +218,9 @@ const CoordinateSelect = observer(
           range.length !== 2 ||
           numPattern.exec(range[0]) === null ||
           numPattern.exec(range[1]) === null ||
-          parseInt(range[0]) > parseInt(range[1])
+          parseInt(range[0]) > parseInt(range[1]) ||
+          parseInt(range[0]) < 1 - selectedGene.residue_offset ||
+          parseInt(range[1]) > selectedGene.len_aa - selectedGene.residue_offset
         );
       });
 
@@ -239,8 +245,8 @@ const CoordinateSelect = observer(
       let newResidueCoordsText;
 
       if (event.target.value === selectedGene.name + '-all') {
-        newResidueCoordsText = `1..${selectedGene.len_aa}`;
-        newResidueCoords.push([1, selectedGene.len_aa]);
+        newResidueCoordsText = `${selectedGene.residue_offset_range[0]}..${selectedGene.residue_offset_range[1]}`;
+        newResidueCoords.push(selectedGene.residue_offset_range);
       } else {
         const domainObj = selectedGene.domains.find(
           (domain) => domain.name === domainName
@@ -268,8 +274,8 @@ const CoordinateSelect = observer(
       let newResidueCoordsText;
 
       if (event.target.value === selectedProtein.name + '-all') {
-        newResidueCoordsText = `1..${selectedProtein.len_aa}`;
-        newResidueCoords.push([1, selectedProtein.len_aa]);
+        newResidueCoordsText = `${selectedProtein.residue_offset_range[0]}..${selectedProtein.residue_offset_range[1]}`;
+        newResidueCoords.push(selectedProtein.residue_offset_range);
       } else {
         const domainObj = selectedProtein.domains.find(
           (domain) => domain.name === domainName
@@ -497,7 +503,8 @@ const CoordinateSelect = observer(
               </SelectForm>
             </ModeLabel>
             {coordinateMode === COORDINATE_MODES.COORD_GENE &&
-              selectedGene.name !== 'All Genes' && (
+              selectedGene.name !== 'All Genes' &&
+              selectedGene.protein_coding && (
                 <>
                   <CoordForm>
                     <span className="coord-prefix">Residue indices:</span>

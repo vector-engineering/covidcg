@@ -47,8 +47,32 @@ def bars_overlap(df, bar_row, segments):
 
 def load_genes_or_proteins(file):
 
-    with open(file, "r") as fp:
-        file = json.loads(fp.read())
+    feature_df = pd.read_csv(file, na_values=[""], keep_default_na=False)
+    feature_df["domains"] = feature_df["domains"].apply(json.loads)
+    feature_df["segments"] = feature_df["segments"].apply(
+        lambda x: [list([int(y) for y in z.split("..")]) for z in x.split(";")]
+    )
+    feature_df["segment"] = feature_df["segment"].apply(str)
+
+    if "notes" in feature_df.columns:
+        feature_df["notes"] = feature_df["notes"].fillna("").apply(str)
+
+    file = {}
+    subtypes = feature_df["subtype"].unique()
+    for subtype in subtypes:
+        file[subtype] = {}
+        references = feature_df.loc[
+            feature_df["subtype"] == subtype, "reference"
+        ].unique()
+        for reference in references:
+            file[subtype][reference] = (
+                feature_df.loc[
+                    (feature_df["subtype"] == subtype)
+                    & (feature_df["reference"] == reference)
+                ]
+                .drop(columns=["subtype", "reference"])
+                .to_dict(orient="records")
+            )
 
     out = dict()
 
@@ -63,6 +87,8 @@ def load_genes_or_proteins(file):
                 lambda x: sum([rng[1] - rng[0] + 1 for rng in x], 0)
             )
             df["len_aa"] = df["len_nt"] // 3
+            df["residue_offset_range"] = None
+            df["nt_range"] = None
             df.loc[~df["protein_coding"], "len_aa"] = -1
             df.loc[:, "len_aa"] = df["len_aa"].astype(int)
 
@@ -103,11 +129,79 @@ def load_genes_or_proteins(file):
                 df.at[name, "aa_ranges"] = aa_segments
                 df.at[name, "nt_ranges"] = nt_segments
 
+                # Get the maximal NT extent of this feature on the linear segment
+                min_nt = min([x[0] for x in df.at[name, "segments"]])
+                max_nt = max([x[1] for x in df.at[name, "segments"]])
+                df.at[name, "nt_range"] = [int(min_nt), int(max_nt)]
+
+                # Get the AA extent of this feature, modified by the residue offset
+                residue_offset = df.at[name, "residue_offset"]
+                df.at[name, "residue_offset_range"] = [
+                    int(1 - residue_offset),
+                    int(df.at[name, "len_aa"] - residue_offset),
+                ]
+
                 # Determine rows for entropy plots for domains
                 # All genes/proteins that get here will be protein coding
                 domain_df = pd.DataFrame.from_records(row["domains"])
                 domain_df["row"] = None
+                domain_df["nt_ranges"] = None
                 for [index, domain] in domain_df.iterrows():
+
+                    # Domain ranges, in the nucleotide space
+                    ranges = domain_df.at[index, "ranges"]
+                    nt_ranges = []
+                    for rng in ranges:
+
+                        for i, segment in enumerate(aa_segments):
+                            # Range is wholly contained within this segment
+                            if rng[0] >= segment[0] and rng[1] <= segment[1]:
+                                # Adjust with the corresponding segment
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0]
+                                        + ((rng[0] - segment[0]) * 3),
+                                        row["segments"][i][0]
+                                        + ((rng[1] - segment[0] + 1) * 3)
+                                        - 1,
+                                    ]
+                                )
+                            # Segment is wholly contained within this range
+                            elif rng[0] <= segment[0] and rng[1] >= segment[1]:
+                                nt_ranges.append(row["segments"][i])
+                            # Middle --> end of segment
+                            elif (
+                                rng[0] >= segment[0] and rng[0] <= segment[1]
+                            ) and rng[1] >= segment[1]:
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0]
+                                        + ((rng[0] - segment[0]) * 3),
+                                        row["segments"][i][1],
+                                    ]
+                                )
+                            # Beginning --> middle of segment
+                            elif rng[0] <= segment[0] and (
+                                rng[1] >= segment[0] and rng[1] <= segment[1]
+                            ):
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0],
+                                        row["segments"][i][0]
+                                        + ((rng[1] - segment[0] + 1) * 3)
+                                        - 1,
+                                    ]
+                                )
+
+                    domain_df.at[index, "nt_ranges"] = nt_ranges
+
+                    # Adjust domain ranges with feature residue offset
+                    ranges = [
+                        [start - residue_offset, end - residue_offset]
+                        for start, end in ranges
+                    ]
+                    domain_df.at[index, "ranges"] = ranges
+
                     domain_row = 0
                     if (
                         "all" in domain_df.at[index, "name"]

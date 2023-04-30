@@ -10,6 +10,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "DLNP; interaction with MAP1B",
@@ -20,12 +21,26 @@
               139
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              504,
+              515
+            ]
+          ]
         }
       ],
       "notes": "non-structural protein 1",
       "len_nt": 420,
       "len_aa": 140,
+      "residue_offset_range": [
+        1,
+        140
+      ],
+      "nt_range": [
+        99,
+        518
+      ],
       "aa_ranges": [
         [
           1,
@@ -50,6 +65,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "DLNP; interaction with MAP1B",
@@ -60,12 +76,26 @@
               124
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              988,
+              999
+            ]
+          ]
         }
       ],
       "notes": "non-structural protein 2",
       "len_nt": 375,
       "len_aa": 125,
+      "residue_offset_range": [
+        1,
+        125
+      ],
+      "nt_range": [
+        628,
+        1002
+      ],
       "aa_ranges": [
         [
           1,
@@ -90,6 +120,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Phosphoprotein interaction",
@@ -100,7 +131,13 @@
               252
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1230,
+              1895
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein interaction",
@@ -111,7 +148,13 @@
               290
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              1869,
+              2009
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein interaction",
@@ -122,12 +165,26 @@
               364
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2151,
+              2231
+            ]
+          ]
         }
       ],
       "notes": "nucleoprotein",
       "len_nt": 1176,
       "len_aa": 392,
+      "residue_offset_range": [
+        1,
+        392
+      ],
+      "nt_range": [
+        1140,
+        2315
+      ],
       "aa_ranges": [
         [
           1,
@@ -152,6 +209,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Binding to monomeric RNA-free nucleoprotein",
@@ -162,7 +220,13 @@
               30
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2346,
+              2435
+            ]
+          ]
         },
         {
           "name": "Viral particle assembly",
@@ -173,7 +237,13 @@
               57
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2460,
+              2516
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -184,7 +254,13 @@
               78
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2517,
+              2579
+            ]
+          ]
         },
         {
           "name": "Binding to host PP1",
@@ -195,7 +271,13 @@
               87
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2586,
+              2606
+            ]
+          ]
         },
         {
           "name": "Binding to M2-1",
@@ -206,7 +288,13 @@
               110
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2613,
+              2675
+            ]
+          ]
         },
         {
           "name": "Oligomerization, binding to RdRp L",
@@ -217,7 +305,13 @@
               160
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2703,
+              2825
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -228,7 +322,13 @@
               241
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2946,
+              3068
+            ]
+          ]
         },
         {
           "name": "Binding to RdRp L",
@@ -239,7 +339,13 @@
               232
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2991,
+              3041
+            ]
+          ]
         },
         {
           "name": "Binding to N-RNA complex",
@@ -250,12 +356,26 @@
               241
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              3039,
+              3068
+            ]
+          ]
         }
       ],
       "notes": "phosphoprotein",
       "len_nt": 726,
       "len_aa": 242,
+      "residue_offset_range": [
+        1,
+        242
+      ],
+      "nt_range": [
+        2346,
+        3071
+      ],
       "aa_ranges": [
         [
           1,
@@ -280,6 +400,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Interaction with M2-1",
@@ -290,7 +411,13 @@
               110
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              3261,
+              3590
+            ]
+          ]
         },
         {
           "name": "Nuclear targeting/binding to host importin KPNB1",
@@ -301,7 +428,13 @@
               183
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              3588,
+              3809
+            ]
+          ]
         },
         {
           "name": "Nuclear export signal",
@@ -312,12 +445,26 @@
               206
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              3840,
+              3878
+            ]
+          ]
         }
       ],
       "notes": "matrix protein",
       "len_nt": 771,
       "len_aa": 257,
+      "residue_offset_range": [
+        1,
+        257
+      ],
+      "nt_range": [
+        3261,
+        4031
+      ],
       "aa_ranges": [
         [
           1,
@@ -342,6 +489,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Intravirion",
@@ -352,7 +500,13 @@
               20
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4303,
+              4362
+            ]
+          ]
         },
         {
           "name": "Helical; Signal-anchor for M2",
@@ -363,7 +517,13 @@
               44
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4363,
+              4434
+            ]
+          ]
         },
         {
           "name": "Virion surface",
@@ -374,7 +534,13 @@
               64
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4435,
+              4494
+            ]
+          ]
         },
         {
           "name": "Interaction with host BCAP31",
@@ -385,7 +551,13 @@
               15
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4318,
+              4347
+            ]
+          ]
         },
         {
           "name": "Interaction with small-molecule inhibitor",
@@ -396,12 +568,26 @@
               43
             ]
           ],
-          "row": null
+          "row": null,
+          "nt_ranges": [
+            [
+              4414,
+              4431
+            ]
+          ]
         }
       ],
       "notes": "small hydrophobic protein",
       "len_nt": 195,
       "len_aa": 65,
+      "residue_offset_range": [
+        1,
+        65
+      ],
+      "nt_range": [
+        4303,
+        4497
+      ],
       "aa_ranges": [
         [
           1,
@@ -426,6 +612,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Cytoplasmic",
@@ -436,7 +623,13 @@
               42
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4688,
+              4813
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -447,7 +640,13 @@
               63
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4814,
+              4876
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -458,7 +657,13 @@
               298
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4877,
+              5581
+            ]
+          ]
         },
         {
           "name": "Mature secreted glycoprotein",
@@ -469,7 +674,13 @@
               298
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              4883,
+              5581
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -480,7 +691,13 @@
               161
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              5060,
+              5170
+            ]
+          ]
         },
         {
           "name": "Binding to host heparan sulfate",
@@ -491,7 +708,13 @@
               198
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              5246,
+              5281
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -502,12 +725,26 @@
               298
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              5255,
+              5581
+            ]
+          ]
         }
       ],
       "notes": "attachment glycoprotein",
       "len_nt": 897,
       "len_aa": 299,
+      "residue_offset_range": [
+        1,
+        299
+      ],
+      "nt_range": [
+        4688,
+        5584
+      ],
       "aa_ranges": [
         [
           1,
@@ -532,6 +769,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Signal peptide",
@@ -542,7 +780,13 @@
               25
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              5661,
+              5735
+            ]
+          ]
         },
         {
           "name": "F0",
@@ -553,7 +797,13 @@
               574
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              5736,
+              7382
+            ]
+          ]
         },
         {
           "name": "F2",
@@ -564,7 +814,13 @@
               109
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              5736,
+              5987
+            ]
+          ]
         },
         {
           "name": "p27",
@@ -575,7 +831,13 @@
               136
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              5988,
+              6068
+            ]
+          ]
         },
         {
           "name": "F1",
@@ -586,7 +848,13 @@
               574
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              6069,
+              7382
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -597,7 +865,13 @@
               524
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              5736,
+              7232
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -608,7 +882,13 @@
               550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7233,
+              7310
+            ]
+          ]
         },
         {
           "name": "Cytoplasmic",
@@ -619,12 +899,26 @@
               574
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              7311,
+              7382
+            ]
+          ]
         }
       ],
       "notes": "fusion glycoprotein",
       "len_nt": 1725,
       "len_aa": 575,
+      "residue_offset_range": [
+        1,
+        575
+      ],
+      "nt_range": [
+        5661,
+        7385
+      ],
       "aa_ranges": [
         [
           1,
@@ -649,6 +943,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Zinc finger",
@@ -659,7 +954,13 @@
               28
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7606,
+              7689
+            ]
+          ]
         },
         {
           "name": "Oligomerization",
@@ -670,7 +971,13 @@
               49
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              7699,
+              7752
+            ]
+          ]
         },
         {
           "name": "Globular core",
@@ -681,7 +988,13 @@
               171
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7831,
+              8118
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein binding",
@@ -692,7 +1005,13 @@
               163
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              7981,
+              8094
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -703,12 +1022,26 @@
               194
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              8119,
+              8187
+            ]
+          ]
         }
       ],
       "notes": "ORF 1, matrix protein 2",
       "len_nt": 585,
       "len_aa": 195,
+      "residue_offset_range": [
+        1,
+        195
+      ],
+      "nt_range": [
+        7606,
+        8190
+      ],
       "aa_ranges": [
         [
           1,
@@ -733,10 +1066,19 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "notes": "ORF 2, RNA processivity factor",
       "len_nt": 273,
       "len_aa": 91,
+      "residue_offset_range": [
+        1,
+        91
+      ],
+      "nt_range": [
+        8159,
+        8431
+      ],
       "aa_ranges": [
         [
           1,
@@ -761,6 +1103,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "RdRp catalytic",
@@ -771,7 +1114,13 @@
               877
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              10574,
+              11128
+            ]
+          ]
         },
         {
           "name": "Mononegavirus-type SAM-dependent 2'-O-MTase",
@@ -782,7 +1131,13 @@
               2008
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              13955,
+              14521
+            ]
+          ]
         },
         {
           "name": "GDP polyribonucleotidyltransferase",
@@ -793,7 +1148,13 @@
               1460
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              11399,
+              12877
+            ]
+          ]
         },
         {
           "name": "Substrate binding for mRNA (nucleoside-2'-O-)-methyltransferase 2",
@@ -804,12 +1165,26 @@
               1857
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              14054,
+              14068
+            ]
+          ]
         }
       ],
       "notes": "polymerase protein",
       "len_nt": 6498,
       "len_aa": 2166,
+      "residue_offset_range": [
+        1,
+        2166
+      ],
+      "nt_range": [
+        8498,
+        14995
+      ],
       "aa_ranges": [
         [
           1,
@@ -836,6 +1211,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Signal peptide",
@@ -846,7 +1222,13 @@
               25
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              75
+            ]
+          ]
         },
         {
           "name": "F0",
@@ -857,7 +1239,13 @@
               574
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              76,
+              1722
+            ]
+          ]
         },
         {
           "name": "F2",
@@ -868,7 +1256,13 @@
               109
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              76,
+              327
+            ]
+          ]
         },
         {
           "name": "p27",
@@ -879,7 +1273,13 @@
               136
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              328,
+              408
+            ]
+          ]
         },
         {
           "name": "F1",
@@ -890,7 +1290,13 @@
               574
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              409,
+              1722
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -901,7 +1307,13 @@
               524
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              76,
+              1572
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -912,7 +1324,13 @@
               550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1573,
+              1650
+            ]
+          ]
         },
         {
           "name": "Cytoplasmic",
@@ -923,11 +1341,26 @@
               574
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              1651,
+              1722
+            ]
+          ]
         }
       ],
+      "notes": "",
       "len_nt": 1725,
       "len_aa": 575,
+      "residue_offset_range": [
+        1,
+        575
+      ],
+      "nt_range": [
+        1,
+        1725
+      ],
       "aa_ranges": [
         [
           1,
@@ -954,6 +1387,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "DLNP; interaction with MAP1B",
@@ -964,12 +1398,26 @@
               139
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              504,
+              515
+            ]
+          ]
         }
       ],
       "notes": "non-structural protein 1",
       "len_nt": 420,
       "len_aa": 140,
+      "residue_offset_range": [
+        1,
+        140
+      ],
+      "nt_range": [
+        99,
+        518
+      ],
       "aa_ranges": [
         [
           1,
@@ -994,6 +1442,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "DLNP; interaction with MAP1B",
@@ -1004,12 +1453,26 @@
               124
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              986,
+              997
+            ]
+          ]
         }
       ],
       "notes": "non-structural protein 2",
       "len_nt": 375,
       "len_aa": 125,
+      "residue_offset_range": [
+        1,
+        125
+      ],
+      "nt_range": [
+        626,
+        1000
+      ],
       "aa_ranges": [
         [
           1,
@@ -1034,6 +1497,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Phosphoprotein interaction",
@@ -1044,7 +1508,13 @@
               252
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1230,
+              1895
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein interaction",
@@ -1055,7 +1525,13 @@
               290
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              1869,
+              2009
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein interaction",
@@ -1066,12 +1542,26 @@
               364
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2151,
+              2231
+            ]
+          ]
         }
       ],
       "notes": "nucleoprotein",
       "len_nt": 1176,
       "len_aa": 392,
+      "residue_offset_range": [
+        1,
+        392
+      ],
+      "nt_range": [
+        1140,
+        2315
+      ],
       "aa_ranges": [
         [
           1,
@@ -1096,6 +1586,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Binding to monomeric RNA-free nucleoprotein",
@@ -1106,7 +1597,13 @@
               30
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2348,
+              2437
+            ]
+          ]
         },
         {
           "name": "Viral particle assembly",
@@ -1117,7 +1614,13 @@
               57
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2462,
+              2518
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -1128,7 +1631,13 @@
               79
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2504,
+              2584
+            ]
+          ]
         },
         {
           "name": "Binding to host PP1",
@@ -1139,7 +1648,13 @@
               87
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2588,
+              2608
+            ]
+          ]
         },
         {
           "name": "Binding to M2-1",
@@ -1150,7 +1665,13 @@
               110
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2615,
+              2677
+            ]
+          ]
         },
         {
           "name": "Oligomerization, binding to RdRp L",
@@ -1161,7 +1682,13 @@
               160
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2705,
+              2827
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -1172,7 +1699,13 @@
               241
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2945,
+              3070
+            ]
+          ]
         },
         {
           "name": "Binding to RdRp L",
@@ -1183,7 +1716,13 @@
               232
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              2993,
+              3043
+            ]
+          ]
         },
         {
           "name": "Binding to N-RNA complex",
@@ -1194,12 +1733,26 @@
               241
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              3041,
+              3070
+            ]
+          ]
         }
       ],
       "notes": "phosphoprotein",
       "len_nt": 726,
       "len_aa": 242,
+      "residue_offset_range": [
+        1,
+        242
+      ],
+      "nt_range": [
+        2348,
+        3073
+      ],
       "aa_ranges": [
         [
           1,
@@ -1224,6 +1777,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Interaction with M2-1",
@@ -1234,7 +1788,13 @@
               110
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              3263,
+              3592
+            ]
+          ]
         },
         {
           "name": "Nuclear targeting/binding to host importin KPNB1",
@@ -1245,7 +1805,13 @@
               183
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              3590,
+              3811
+            ]
+          ]
         },
         {
           "name": "Nuclear export signal",
@@ -1256,12 +1822,26 @@
               206
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              3842,
+              3880
+            ]
+          ]
         }
       ],
       "notes": "matrix protein",
       "len_nt": 771,
       "len_aa": 257,
+      "residue_offset_range": [
+        1,
+        257
+      ],
+      "nt_range": [
+        3263,
+        4033
+      ],
       "aa_ranges": [
         [
           1,
@@ -1286,6 +1866,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Intravirion",
@@ -1296,7 +1877,13 @@
               20
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4303,
+              4362
+            ]
+          ]
         },
         {
           "name": "Helical; Signal-anchor for M2",
@@ -1307,7 +1894,13 @@
               44
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4363,
+              4434
+            ]
+          ]
         },
         {
           "name": "Virion surface",
@@ -1318,7 +1911,13 @@
               64
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4435,
+              4494
+            ]
+          ]
         },
         {
           "name": "Interaction with host BCAP31",
@@ -1329,7 +1928,13 @@
               15
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4318,
+              4347
+            ]
+          ]
         },
         {
           "name": "Interaction with small-molecule inhibitor",
@@ -1340,12 +1945,26 @@
               43
             ]
           ],
-          "row": null
+          "row": null,
+          "nt_ranges": [
+            [
+              4414,
+              4431
+            ]
+          ]
         }
       ],
       "notes": "small hydrophobic protein",
       "len_nt": 198,
       "len_aa": 66,
+      "residue_offset_range": [
+        1,
+        66
+      ],
+      "nt_range": [
+        4303,
+        4500
+      ],
       "aa_ranges": [
         [
           1,
@@ -1370,6 +1989,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Cytoplasmic",
@@ -1380,7 +2000,13 @@
               37
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4690,
+              4800
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -1391,7 +2017,13 @@
               66
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4801,
+              4887
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -1402,7 +2034,13 @@
               299
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              4888,
+              5586
+            ]
+          ]
         },
         {
           "name": "Mature secreted glycoprotein",
@@ -1413,7 +2051,13 @@
               299
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              4885,
+              5586
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -1424,7 +2068,13 @@
               160
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              4954,
+              5169
+            ]
+          ]
         },
         {
           "name": "Binding to host heparan sulfate",
@@ -1435,7 +2085,13 @@
               198
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              5248,
+              5283
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -1446,12 +2102,26 @@
               299
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              5254,
+              5586
+            ]
+          ]
         }
       ],
       "notes": "attachment glycoprotein",
       "len_nt": 900,
       "len_aa": 300,
+      "residue_offset_range": [
+        1,
+        300
+      ],
+      "nt_range": [
+        4690,
+        5589
+      ],
       "aa_ranges": [
         [
           1,
@@ -1476,6 +2146,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Signal peptide",
@@ -1486,7 +2157,13 @@
               25
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              5666,
+              5740
+            ]
+          ]
         },
         {
           "name": "F0",
@@ -1497,7 +2174,13 @@
               574
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              5741,
+              7387
+            ]
+          ]
         },
         {
           "name": "F2",
@@ -1508,7 +2191,13 @@
               109
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              5741,
+              5992
+            ]
+          ]
         },
         {
           "name": "p27",
@@ -1519,7 +2208,13 @@
               136
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              5993,
+              6073
+            ]
+          ]
         },
         {
           "name": "F1",
@@ -1530,7 +2225,13 @@
               574
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              6074,
+              7387
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -1541,7 +2242,13 @@
               524
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              5741,
+              7237
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -1552,7 +2259,13 @@
               550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7238,
+              7315
+            ]
+          ]
         },
         {
           "name": "Cytoplasmic",
@@ -1563,12 +2276,26 @@
               574
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              7316,
+              7387
+            ]
+          ]
         }
       ],
       "notes": "fusion glycoprotein",
       "len_nt": 1725,
       "len_aa": 575,
+      "residue_offset_range": [
+        1,
+        575
+      ],
+      "nt_range": [
+        5666,
+        7390
+      ],
       "aa_ranges": [
         [
           1,
@@ -1593,6 +2320,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Zinc finger",
@@ -1603,7 +2331,13 @@
               28
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7618,
+              7701
+            ]
+          ]
         },
         {
           "name": "Oligomerization",
@@ -1614,7 +2348,13 @@
               49
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              7711,
+              7764
+            ]
+          ]
         },
         {
           "name": "Globular core",
@@ -1625,7 +2365,13 @@
               171
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              7843,
+              8130
+            ]
+          ]
         },
         {
           "name": "Phosphoprotein binding",
@@ -1636,7 +2382,13 @@
               163
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              7993,
+              8106
+            ]
+          ]
         },
         {
           "name": "Disordered",
@@ -1647,12 +2399,26 @@
               194
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              8131,
+              8199
+            ]
+          ]
         }
       ],
       "notes": "ORF 1, matrix protein 2",
       "len_nt": 588,
       "len_aa": 196,
+      "residue_offset_range": [
+        1,
+        196
+      ],
+      "nt_range": [
+        7618,
+        8205
+      ],
       "aa_ranges": [
         [
           1,
@@ -1677,10 +2443,19 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "notes": "ORF 2, RNA processivity factor",
       "len_nt": 273,
       "len_aa": 91,
+      "residue_offset_range": [
+        1,
+        91
+      ],
+      "nt_range": [
+        8171,
+        8443
+      ],
       "aa_ranges": [
         [
           1,
@@ -1705,6 +2480,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "RdRp catalytic",
@@ -1715,7 +2491,13 @@
               877
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              10585,
+              11139
+            ]
+          ]
         },
         {
           "name": "Mononegavirus-type SAM-dependent 2'-O-MTase",
@@ -1726,7 +2508,13 @@
               2008
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              13966,
+              14532
+            ]
+          ]
         },
         {
           "name": "GDP polyribonucleotidyltransferase",
@@ -1737,7 +2525,13 @@
               1460
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              11410,
+              12888
+            ]
+          ]
         },
         {
           "name": "Substrate binding for mRNA (nucleoside-2'-O-)-methyltransferase 2",
@@ -1748,12 +2542,26 @@
               1857
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              14065,
+              14079
+            ]
+          ]
         }
       ],
       "notes": "polymerase protein",
       "len_nt": 6501,
       "len_aa": 2167,
+      "residue_offset_range": [
+        1,
+        2167
+      ],
+      "nt_range": [
+        8509,
+        15009
+      ],
       "aa_ranges": [
         [
           1,
@@ -1780,6 +2588,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Signal peptide",
@@ -1790,7 +2599,13 @@
               25
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              75
+            ]
+          ]
         },
         {
           "name": "F0",
@@ -1801,7 +2616,13 @@
               574
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              76,
+              1722
+            ]
+          ]
         },
         {
           "name": "F2",
@@ -1812,7 +2633,13 @@
               109
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              76,
+              327
+            ]
+          ]
         },
         {
           "name": "p27",
@@ -1823,7 +2650,13 @@
               136
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              328,
+              408
+            ]
+          ]
         },
         {
           "name": "F1",
@@ -1834,7 +2667,13 @@
               574
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              409,
+              1722
+            ]
+          ]
         },
         {
           "name": "Extracellular",
@@ -1845,7 +2684,13 @@
               524
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              76,
+              1572
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -1856,7 +2701,13 @@
               550
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              1573,
+              1650
+            ]
+          ]
         },
         {
           "name": "Cytoplasmic",
@@ -1867,11 +2718,26 @@
               574
             ]
           ],
-          "row": 3
+          "row": 3,
+          "nt_ranges": [
+            [
+              1651,
+              1722
+            ]
+          ]
         }
       ],
+      "notes": "",
       "len_nt": 1725,
       "len_aa": 575,
+      "residue_offset_range": [
+        1,
+        575
+      ],
+      "nt_range": [
+        1,
+        1725
+      ],
       "aa_ranges": [
         [
           1,

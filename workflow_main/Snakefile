@@ -6,6 +6,7 @@ $ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_gisaid.yaml -j6
+$ snakemake --configfile ../config/config_flu_gisaid_dev.yaml -j6
 
 This DAG building gets kind of complicated...
 First, sequences are split up by submission date and subtype (this is
@@ -123,11 +124,11 @@ rule all:
 
 rule process_genes_and_proteins:
     """Calculate some additional columns on top of the human-generated
-    genes.json and proteins.json annotations file
+    genes.csv and proteins.csv annotations file
     """
     input:
-        genes = os.path.join(static_data_folder, "genes.json"),
-        proteins = os.path.join(static_data_folder, "proteins.json")
+        genes = os.path.join(static_data_folder, "genes.csv"),
+        proteins = os.path.join(static_data_folder, "proteins.csv")
     output:
         genes = os.path.join(static_data_folder, "genes_processed.json"),
         proteins = os.path.join(static_data_folder, "proteins_processed.json")
