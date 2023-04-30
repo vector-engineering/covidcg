@@ -1,4 +1,996 @@
 {
+  "A-Brisbane-02-2018": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          33,
+          1733
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 17,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -16,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              33,
+              83
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              327
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              84,
+              1064
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              328,
+              549
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1065,
+              1730
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -16,
+        550
+      ],
+      "nt_range": [
+        33,
+        1733
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          21,
+          1430
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        21,
+        1430
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 3
+    }
+  ],
+  "A-California-07-2009": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          33,
+          1733
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 17,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -16,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              33,
+              83
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              327
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              84,
+              1064
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              328,
+              549
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1065,
+              1730
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -16,
+        550
+      ],
+      "nt_range": [
+        33,
+        1733
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          21,
+          1430
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        21,
+        1430
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    }
+  ],
+  "A-Guangdong-Maonan-SWL1536-2019": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          28,
+          2307
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2280,
+      "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        28,
+        2307
+      ],
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          25,
+          2298
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2274,
+      "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        25,
+        2298
+      ],
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          25,
+          2175
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2151,
+      "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        25,
+        2175
+      ],
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          33,
+          1733
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 17,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -16,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              33,
+              83
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              327
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              84,
+              1064
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              328,
+              549
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1065,
+              1730
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -16,
+        550
+      ],
+      "nt_range": [
+        33,
+        1733
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          46,
+          1542
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1497,
+      "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        46,
+        1542
+      ],
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          21,
+          1430
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        21,
+        1430
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          27,
+          56
+        ],
+        [
+          529,
+          864
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 366,
+      "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        27,
+        864
+      ],
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          27,
+          740
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 714,
+      "len_aa": 238,
+      "residue_offset_range": [
+        1,
+        238
+      ],
+      "nt_range": [
+        27,
+        740
+      ],
+      "aa_ranges": [
+        [
+          1,
+          238
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          714
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Michigan-45-2015": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          34,
+          1734
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 17,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -16,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              34,
+              84
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              327
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              85,
+              1065
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              328,
+              549
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1066,
+              1731
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -16,
+        550
+      ],
+      "nt_range": [
+        34,
+        1734
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          21,
+          1430
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        21,
+        1430
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 3
+    }
+  ],
   "A-Victoria-2570-2019": [
     {
       "name": "PB2",
@@ -12,6 +1004,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2280,
       "len_aa": 760,
       "residue_offset_range": [
@@ -48,6 +1041,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2274,
       "len_aa": 758,
       "residue_offset_range": [
@@ -84,6 +1078,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2151,
       "len_aa": 717,
       "residue_offset_range": [
@@ -169,6 +1164,7 @@
           ]
         }
       ],
+      "notes": "",
       "len_nt": 1701,
       "len_aa": 567,
       "residue_offset_range": [
@@ -205,6 +1201,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1497,
       "len_aa": 499,
       "residue_offset_range": [
@@ -241,6 +1238,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1410,
       "len_aa": 470,
       "residue_offset_range": [
@@ -277,6 +1275,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 759,
       "len_aa": 253,
       "residue_offset_range": [
@@ -317,6 +1316,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 294,
       "len_aa": 98,
       "residue_offset_range": [
@@ -365,6 +1365,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 366,
       "len_aa": 122,
       "residue_offset_range": [
@@ -409,6 +1410,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 693,
       "len_aa": 231,
       "residue_offset_range": [
@@ -447,6 +1449,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2280,
       "len_aa": 760,
       "residue_offset_range": [
@@ -483,6 +1486,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2274,
       "len_aa": 758,
       "residue_offset_range": [
@@ -519,6 +1523,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2151,
       "len_aa": 717,
       "residue_offset_range": [
@@ -604,6 +1609,7 @@
           ]
         }
       ],
+      "notes": "",
       "len_nt": 1701,
       "len_aa": 567,
       "residue_offset_range": [
@@ -640,6 +1646,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1497,
       "len_aa": 499,
       "residue_offset_range": [
@@ -676,6 +1683,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1410,
       "len_aa": 470,
       "residue_offset_range": [
@@ -712,6 +1720,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 759,
       "len_aa": 253,
       "residue_offset_range": [
@@ -752,6 +1761,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 294,
       "len_aa": 98,
       "residue_offset_range": [
@@ -800,6 +1810,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 366,
       "len_aa": 122,
       "residue_offset_range": [
@@ -844,6 +1855,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 693,
       "len_aa": 231,
       "residue_offset_range": [
@@ -882,6 +1894,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2280,
       "len_aa": 760,
       "residue_offset_range": [
@@ -918,6 +1931,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2274,
       "len_aa": 758,
       "residue_offset_range": [
@@ -954,6 +1968,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2151,
       "len_aa": 717,
       "residue_offset_range": [
@@ -1039,6 +2054,7 @@
           ]
         }
       ],
+      "notes": "",
       "len_nt": 1701,
       "len_aa": 567,
       "residue_offset_range": [
@@ -1075,6 +2091,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1497,
       "len_aa": 499,
       "residue_offset_range": [
@@ -1111,6 +2128,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1410,
       "len_aa": 470,
       "residue_offset_range": [
@@ -1147,6 +2165,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 759,
       "len_aa": 253,
       "residue_offset_range": [
@@ -1187,6 +2206,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 291,
       "len_aa": 97,
       "residue_offset_range": [
@@ -1235,6 +2255,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 366,
       "len_aa": 122,
       "residue_offset_range": [
@@ -1279,6 +2300,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 693,
       "len_aa": 231,
       "residue_offset_range": [
@@ -1304,6 +2326,2495 @@
       "row": 9
     }
   ],
+  "A-Hong-Kong-4801-2014": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          16,
+          2295
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2280,
+      "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        16,
+        2295
+      ],
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          13,
+          2286
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2274,
+      "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        13,
+        2286
+      ],
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          13,
+          2163
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2151,
+      "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        13,
+        2163
+      ],
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          18,
+          1718
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              18,
+              65
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              66,
+              1052
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1053,
+              1715
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        18,
+        1718
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          34,
+          1530
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1497,
+      "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        34,
+        1530
+      ],
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          8,
+          1417
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        8,
+        1417
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          14,
+          772
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        14,
+        772
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          14,
+          39
+        ],
+        [
+          728,
+          995
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        14,
+        995
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          15,
+          44
+        ],
+        [
+          517,
+          852
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 366,
+      "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        15,
+        852
+      ],
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          15,
+          707
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 693,
+      "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        15,
+        707
+      ],
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Kansas-14-2017": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          30,
+          1730
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              30,
+              77
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              78,
+              1064
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1065,
+              1727
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        30,
+        1730
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          20,
+          1429
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        20,
+        1429
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 3
+    }
+  ],
+  "A-Perth-16-2009": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          22,
+          2301
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2280,
+      "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        22,
+        2301
+      ],
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          1,
+          2232
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "Single NT deletion and frameshift at 2117. This is probably sequencing error, but basing this range on premature nonsense codon after frameshift (treating data as true)",
+      "len_nt": 2232,
+      "len_aa": 744,
+      "residue_offset_range": [
+        1,
+        744
+      ],
+      "nt_range": [
+        1,
+        2232
+      ],
+      "aa_ranges": [
+        [
+          1,
+          744
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2232
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          4,
+          2154
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2151,
+      "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        4,
+        2154
+      ],
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          26,
+          1726
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              26,
+              73
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              74,
+              1060
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1061,
+              1723
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        26,
+        1726
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          46,
+          1542
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1497,
+      "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        46,
+        1542
+      ],
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          20,
+          1429
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        20,
+        1429
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          16,
+          45
+        ],
+        [
+          518,
+          853
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 366,
+      "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        16,
+        853
+      ],
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          16,
+          708
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 693,
+      "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        16,
+        708
+      ],
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Singapore-INFIMH-16-0019-2016": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          30,
+          1730
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              30,
+              77
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              78,
+              1064
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1065,
+              1727
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        30,
+        1730
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          20,
+          1429
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        20,
+        1429
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          784
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        26,
+        784
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          26,
+          51
+        ],
+        [
+          740,
+          1007
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        26,
+        1007
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 3
+    }
+  ],
+  "A-Switzerland-9715293-2013": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          16,
+          2295
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2280,
+      "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        16,
+        2295
+      ],
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          13,
+          2286
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2274,
+      "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        13,
+        2286
+      ],
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          18,
+          1718
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              18,
+              65
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              66,
+              1052
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1053,
+              1715
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        18,
+        1718
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          34,
+          1530
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1497,
+      "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        34,
+        1530
+      ],
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          8,
+          1417
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        8,
+        1417
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          14,
+          772
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        14,
+        772
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          14,
+          39
+        ],
+        [
+          728,
+          995
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        14,
+        995
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          15,
+          44
+        ],
+        [
+          517,
+          852
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 366,
+      "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        15,
+        852
+      ],
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          15,
+          707
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 693,
+      "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        15,
+        707
+      ],
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 8
+    }
+  ],
+  "A-Texas-50-2012": [
+    {
+      "name": "PB2",
+      "segment": "1",
+      "segments": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2280,
+      "len_aa": 760,
+      "residue_offset_range": [
+        1,
+        760
+      ],
+      "nt_range": [
+        1,
+        2280
+      ],
+      "aa_ranges": [
+        [
+          1,
+          760
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2280
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "PB1",
+      "segment": "2",
+      "segments": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2274,
+      "len_aa": 758,
+      "residue_offset_range": [
+        1,
+        758
+      ],
+      "nt_range": [
+        1,
+        2274
+      ],
+      "aa_ranges": [
+        [
+          1,
+          758
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2274
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "PA",
+      "segment": "3",
+      "segments": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 2151,
+      "len_aa": 717,
+      "residue_offset_range": [
+        1,
+        717
+      ],
+      "nt_range": [
+        1,
+        2151
+      ],
+      "aa_ranges": [
+        [
+          1,
+          717
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          2151
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              48
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              49,
+              1035
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1036,
+              1698
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        1,
+        1701
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NP",
+      "segment": "5",
+      "segments": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1497,
+      "len_aa": 499,
+      "residue_offset_range": [
+        1,
+        499
+      ],
+      "nt_range": [
+        1,
+        1497
+      ],
+      "aa_ranges": [
+        [
+          1,
+          499
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1497
+        ]
+      ],
+      "row": 4
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        1,
+        1410
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 5
+    },
+    {
+      "name": "M1",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          759
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 759,
+      "len_aa": 253,
+      "residue_offset_range": [
+        1,
+        253
+      ],
+      "nt_range": [
+        1,
+        759
+      ],
+      "aa_ranges": [
+        [
+          1,
+          253
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          759
+        ]
+      ],
+      "row": 6
+    },
+    {
+      "name": "M2",
+      "segment": "7",
+      "segments": [
+        [
+          1,
+          26
+        ],
+        [
+          715,
+          982
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        1,
+        982
+      ],
+      "aa_ranges": [
+        [
+          1,
+          8
+        ],
+        [
+          9,
+          97
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          24
+        ],
+        [
+          25,
+          291
+        ]
+      ],
+      "row": 7
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          30
+        ],
+        [
+          503,
+          838
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 366,
+      "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        1,
+        838
+      ],
+      "aa_ranges": [
+        [
+          1,
+          10
+        ],
+        [
+          11,
+          122
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          30
+        ],
+        [
+          31,
+          366
+        ]
+      ],
+      "row": 8
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          693
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 693,
+      "len_aa": 231,
+      "residue_offset_range": [
+        1,
+        231
+      ],
+      "nt_range": [
+        1,
+        693
+      ],
+      "aa_ranges": [
+        [
+          1,
+          231
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "row": 9
+    }
+  ],
+  "A-Victoria-361-2011": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              48
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              329
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              49,
+              1035
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              330,
+              550
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1036,
+              1698
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1701,
+      "len_aa": 567,
+      "residue_offset_range": [
+        -15,
+        551
+      ],
+      "nt_range": [
+        1,
+        1701
+      ],
+      "aa_ranges": [
+        [
+          1,
+          567
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1701
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1410,
+      "len_aa": 470,
+      "residue_offset_range": [
+        1,
+        470
+      ],
+      "nt_range": [
+        1,
+        1410
+      ],
+      "aa_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "row": 1
+    }
+  ],
+  "B-Massachusetts-02-2012": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1755,
+      "len_aa": 585,
+      "residue_offset_range": [
+        1,
+        585
+      ],
+      "nt_range": [
+        1,
+        1755
+      ],
+      "aa_ranges": [
+        [
+          1,
+          585
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1401,
+      "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        1,
+        1401
+      ],
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          3,
+          296
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        3,
+        296
+      ],
+      "aa_ranges": [
+        [
+          1,
+          98
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          294
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          33
+        ],
+        [
+          689,
+          1024
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 369,
+      "len_aa": 123,
+      "residue_offset_range": [
+        1,
+        123
+      ],
+      "nt_range": [
+        1,
+        1024
+      ],
+      "aa_ranges": [
+        [
+          1,
+          11
+        ],
+        [
+          12,
+          123
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          33
+        ],
+        [
+          34,
+          369
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          846
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 846,
+      "len_aa": 282,
+      "residue_offset_range": [
+        1,
+        282
+      ],
+      "nt_range": [
+        1,
+        846
+      ],
+      "aa_ranges": [
+        [
+          1,
+          282
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          846
+        ]
+      ],
+      "row": 4
+    }
+  ],
   "B-Phuket-3073-2013": [
     {
       "name": "PB2",
@@ -1317,6 +4828,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2313,
       "len_aa": 771,
       "residue_offset_range": [
@@ -1353,6 +4865,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2259,
       "len_aa": 753,
       "residue_offset_range": [
@@ -1389,6 +4902,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2181,
       "len_aa": 727,
       "residue_offset_range": [
@@ -1425,6 +4939,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1755,
       "len_aa": 585,
       "residue_offset_range": [
@@ -1461,6 +4976,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1683,
       "len_aa": 561,
       "residue_offset_range": [
@@ -1497,6 +5013,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1401,
       "len_aa": 467,
       "residue_offset_range": [
@@ -1533,6 +5050,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 303,
       "len_aa": 101,
       "residue_offset_range": [
@@ -1569,6 +5087,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 747,
       "len_aa": 249,
       "residue_offset_range": [
@@ -1605,6 +5124,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 330,
       "len_aa": 110,
       "residue_offset_range": [
@@ -1645,6 +5165,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 369,
       "len_aa": 123,
       "residue_offset_range": [
@@ -1689,6 +5210,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 846,
       "len_aa": 282,
       "residue_offset_range": [
@@ -1714,6 +5236,205 @@
       "row": 9
     }
   ],
+  "B-Wisconsin-01-2010": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1755,
+      "len_aa": 585,
+      "residue_offset_range": [
+        1,
+        585
+      ],
+      "nt_range": [
+        1,
+        1755
+      ],
+      "aa_ranges": [
+        [
+          1,
+          585
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1755
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1401,
+      "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        1,
+        1401
+      ],
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          3,
+          296
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 294,
+      "len_aa": 98,
+      "residue_offset_range": [
+        1,
+        98
+      ],
+      "nt_range": [
+        3,
+        296
+      ],
+      "aa_ranges": [
+        [
+          1,
+          98
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          294
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "NEP",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          33
+        ],
+        [
+          689,
+          1024
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 369,
+      "len_aa": 123,
+      "residue_offset_range": [
+        1,
+        123
+      ],
+      "nt_range": [
+        1,
+        1024
+      ],
+      "aa_ranges": [
+        [
+          1,
+          11
+        ],
+        [
+          12,
+          123
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          33
+        ],
+        [
+          34,
+          369
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "NS1",
+      "segment": "8",
+      "segments": [
+        [
+          1,
+          846
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 846,
+      "len_aa": 282,
+      "residue_offset_range": [
+        1,
+        282
+      ],
+      "nt_range": [
+        1,
+        846
+      ],
+      "aa_ranges": [
+        [
+          1,
+          282
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          846
+        ]
+      ],
+      "row": 4
+    }
+  ],
   "B-Austria-1359417-2021": [
     {
       "name": "PB2",
@@ -1727,6 +5448,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2313,
       "len_aa": 771,
       "residue_offset_range": [
@@ -1763,6 +5485,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2259,
       "len_aa": 753,
       "residue_offset_range": [
@@ -1799,6 +5522,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2181,
       "len_aa": 727,
       "residue_offset_range": [
@@ -1835,6 +5559,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1749,
       "len_aa": 583,
       "residue_offset_range": [
@@ -1871,6 +5596,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1683,
       "len_aa": 561,
       "residue_offset_range": [
@@ -1907,6 +5633,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1401,
       "len_aa": 467,
       "residue_offset_range": [
@@ -1943,6 +5670,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 303,
       "len_aa": 101,
       "residue_offset_range": [
@@ -1979,6 +5707,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 747,
       "len_aa": 249,
       "residue_offset_range": [
@@ -2015,6 +5744,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 330,
       "len_aa": 110,
       "residue_offset_range": [
@@ -2055,6 +5785,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 372,
       "len_aa": 124,
       "residue_offset_range": [
@@ -2099,6 +5830,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 849,
       "len_aa": 283,
       "residue_offset_range": [
@@ -2124,6 +5856,232 @@
       "row": 9
     }
   ],
+  "B-Brisbane-60-2008": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          34,
+          1791
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1758,
+      "len_aa": 586,
+      "residue_offset_range": [
+        1,
+        586
+      ],
+      "nt_range": [
+        34,
+        1791
+      ],
+      "aa_ranges": [
+        [
+          1,
+          586
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1758
+        ]
+      ],
+      "row": 0
+    }
+  ],
+  "B-Colorado-06-2017": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          34,
+          1785
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1752,
+      "len_aa": 584,
+      "residue_offset_range": [
+        1,
+        584
+      ],
+      "nt_range": [
+        34,
+        1785
+      ],
+      "aa_ranges": [
+        [
+          1,
+          584
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1752
+        ]
+      ],
+      "row": 0
+    },
+    {
+      "name": "NA",
+      "segment": "6",
+      "segments": [
+        [
+          54,
+          1454
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 1401,
+      "len_aa": 467,
+      "residue_offset_range": [
+        1,
+        467
+      ],
+      "nt_range": [
+        54,
+        1454
+      ],
+      "aa_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1401
+        ]
+      ],
+      "row": 1
+    },
+    {
+      "name": "NB",
+      "segment": "6",
+      "segments": [
+        [
+          47,
+          349
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 303,
+      "len_aa": 101,
+      "residue_offset_range": [
+        1,
+        101
+      ],
+      "nt_range": [
+        47,
+        349
+      ],
+      "aa_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          303
+        ]
+      ],
+      "row": 2
+    },
+    {
+      "name": "M",
+      "segment": "7",
+      "segments": [
+        [
+          25,
+          771
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 747,
+      "len_aa": 249,
+      "residue_offset_range": [
+        1,
+        249
+      ],
+      "nt_range": [
+        25,
+        771
+      ],
+      "aa_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          747
+        ]
+      ],
+      "row": 3
+    },
+    {
+      "name": "BM2",
+      "segment": "7",
+      "segments": [
+        [
+          771,
+          1100
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 0,
+      "domains": [],
+      "notes": "",
+      "len_nt": 330,
+      "len_aa": 110,
+      "residue_offset_range": [
+        1,
+        110
+      ],
+      "nt_range": [
+        771,
+        1100
+      ],
+      "aa_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "row": 2
+    }
+  ],
   "B-Washington-02-2019": [
     {
       "name": "PB2",
@@ -2137,6 +6095,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2313,
       "len_aa": 771,
       "residue_offset_range": [
@@ -2173,6 +6132,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2259,
       "len_aa": 753,
       "residue_offset_range": [
@@ -2209,6 +6169,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 2181,
       "len_aa": 727,
       "residue_offset_range": [
@@ -2245,6 +6206,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1749,
       "len_aa": 583,
       "residue_offset_range": [
@@ -2281,6 +6243,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1683,
       "len_aa": 561,
       "residue_offset_range": [
@@ -2317,6 +6280,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 1401,
       "len_aa": 467,
       "residue_offset_range": [
@@ -2353,6 +6317,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 303,
       "len_aa": 101,
       "residue_offset_range": [
@@ -2389,6 +6354,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 747,
       "len_aa": 249,
       "residue_offset_range": [
@@ -2425,6 +6391,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 330,
       "len_aa": 110,
       "residue_offset_range": [
@@ -2465,6 +6432,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 372,
       "len_aa": 124,
       "residue_offset_range": [
@@ -2509,6 +6477,7 @@
       "protein_coding": true,
       "residue_offset": 0,
       "domains": [],
+      "notes": "",
       "len_nt": 849,
       "len_aa": 283,
       "residue_offset_range": [
