@@ -208,6 +208,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     let residueCoordinates = pending.residueCoordinates;
     if (selectedGene.name === 'All Genes') {
       residueCoordinates = [];
+    } else if (!selectedGene.protein_coding) {
+      residueCoordinates = [];
     } else {
       residueCoordinates = [selectedGene.residue_offset_range];
     }

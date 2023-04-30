@@ -76,7 +76,7 @@ const CoordinateSelect = observer(
         <option
           key={gene.name}
           value={gene.name}
-          disabled={gene.protein_coding === 0 && dnaOrAa === DNA_OR_AA.AA}
+          disabled={!gene.protein_coding && dnaOrAa === DNA_OR_AA.AA}
         >
           {gene.name}&nbsp;&nbsp;(
           {gene.segments.map((range) => range.join('..')).join(';')})
@@ -87,6 +87,9 @@ const CoordinateSelect = observer(
     // GENE DOMAINS
     let geneDomainOptionElements = {};
     genes.forEach((gene) => {
+      if (!gene.protein_coding) {
+        return;
+      }
       geneDomainOptionElements[gene.name] = [
         <option
           key={`${gene.name}-default`}
@@ -500,7 +503,8 @@ const CoordinateSelect = observer(
               </SelectForm>
             </ModeLabel>
             {coordinateMode === COORDINATE_MODES.COORD_GENE &&
-              selectedGene.name !== 'All Genes' && (
+              selectedGene.name !== 'All Genes' &&
+              selectedGene.protein_coding && (
                 <>
                   <CoordForm>
                     <span className="coord-prefix">Residue indices:</span>
