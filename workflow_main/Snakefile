@@ -64,6 +64,25 @@ for subtype in SUBTYPES:
     ]
 # print(SUBTYPE_REFS)
 
+# Which segments each reference has
+REF_SEGMENTS = {}
+for subtype in SUBTYPES:
+    for ref in SUBTYPE_REFS[subtype]:
+        REF_SEGMENTS[ref] = [
+            d.stem for d in sorted(
+                (Path(static_data_folder) / "mut_references" / subtype / ref).iterdir()
+            ) 
+            if d.is_file() and d.name.endswith(".fa")
+        ]
+
+# Get references for the given subtype and segment
+def get_references(subtype, segment):
+    return [
+        ref
+        for ref in SUBTYPE_REFS[subtype]
+        if segment in REF_SEGMENTS[ref]
+    ]
+
 def get_segment(wildcards, output=None):
     return wildcards.chunk.split("_")[0]
 
@@ -75,7 +94,7 @@ def get_alignments(wildcards):
     segment = get_segment(wildcards)
     return expand(
         os.path.join(data_folder, "bam_ref", "{ref}_{{chunk}}.bam"),
-        ref=SUBTYPE_REFS[subtype], allow_missing=True
+        ref=get_references(subtype, segment)
     )
 
 def get_reference_file(wildcards):

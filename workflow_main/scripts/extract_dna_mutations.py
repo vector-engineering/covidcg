@@ -53,6 +53,7 @@ def extract_dna_mutations(
             "sequence"
         ]
         for ref in references.values()
+        if active_segment in ref["segments"]
     }
 
     ReadExtractor.RefSeq = ref_seqs
@@ -87,6 +88,7 @@ def extract_dna_mutations(
     ref_name_map = {
         ref["segments"][active_segment]["name"]: ref["name"]
         for ref in references.values()
+        if active_segment in ref["segments"]
     }
     dna_mutation_df["reference"] = dna_mutation_df["reference"].map(ref_name_map)
 
