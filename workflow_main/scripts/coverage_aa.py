@@ -142,7 +142,15 @@ def coverage_aa(coverage_dna_df, feature_dfs, active_segment):
 
             # Push the coverage tuple
             coverage_aa_df.append(
-                (row["Accession ID"], reference_name, feature_name, aa_start, aa_end)
+                (
+                    row["Accession ID"],
+                    reference_name,
+                    feature_name,
+                    # Apply feature residue offset here
+                    # for renumbering residues off of, e.g., signal peptide
+                    aa_start - feature_row["residue_offset"],
+                    aa_end - feature_row["residue_offset"],
+                )
             )
         # END FOR FEATURE
     # END FOR NT COVERAGE ROW

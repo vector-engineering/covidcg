@@ -281,7 +281,9 @@ def extract_aa_mutations(
                             cur_mutation["reference"],
                             cur_mutation["Accession ID"],
                             feature_name,
-                            pos,
+                            # Apply feature residue offset here
+                            # for renumbering residues off of, e.g., signal peptide
+                            pos - feature_row["residue_offset"],
                             "".join(ref_aa),
                             "".join(alt_aa),
                         )
