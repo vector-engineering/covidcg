@@ -10,9 +10,12 @@
         ]
       ],
       "protein_coding": false,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 265,
       "len_aa": -1,
+      "residue_offset_range": null,
+      "nt_range": null,
       "aa_ranges": null,
       "nt_ranges": null,
       "row": 0
@@ -27,6 +30,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "nsp1",
@@ -37,7 +41,13 @@
             ]
           ],
           "abbr": null,
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              266,
+              805
+            ]
+          ]
         },
         {
           "name": "nsp2",
@@ -48,7 +58,13 @@
             ]
           ],
           "abbr": null,
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              806,
+              2719
+            ]
+          ]
         },
         {
           "name": "nsp3",
@@ -59,7 +75,13 @@
             ]
           ],
           "abbr": null,
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2720,
+              8554
+            ]
+          ]
         },
         {
           "name": "nsp4",
@@ -70,7 +92,13 @@
             ]
           ],
           "abbr": null,
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              8555,
+              10054
+            ]
+          ]
         },
         {
           "name": "nsp5 - 3C-like proteinase",
@@ -81,7 +109,13 @@
             ]
           ],
           "abbr": null,
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              10055,
+              10972
+            ]
+          ]
         },
         {
           "name": "nsp6",
@@ -92,7 +126,13 @@
             ]
           ],
           "abbr": null,
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              10973,
+              11842
+            ]
+          ]
         },
         {
           "name": "nsp7",
@@ -103,7 +143,13 @@
             ]
           ],
           "abbr": "7",
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              11843,
+              12091
+            ]
+          ]
         },
         {
           "name": "nsp8",
@@ -114,7 +160,13 @@
             ]
           ],
           "abbr": null,
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              12092,
+              12685
+            ]
+          ]
         },
         {
           "name": "nsp9",
@@ -125,7 +177,13 @@
             ]
           ],
           "abbr": null,
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              12686,
+              13024
+            ]
+          ]
         },
         {
           "name": "nsp10",
@@ -136,11 +194,25 @@
             ]
           ],
           "abbr": null,
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              13025,
+              13441
+            ]
+          ]
         }
       ],
       "len_nt": 13203,
       "len_aa": 4401,
+      "residue_offset_range": [
+        1,
+        4401
+      ],
+      "nt_range": [
+        266,
+        13468
+      ],
       "aa_ranges": [
         [
           1,
@@ -169,6 +241,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "nsp1",
@@ -178,7 +251,13 @@
               180
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              266,
+              805
+            ]
+          ]
         },
         {
           "name": "nsp2",
@@ -188,7 +267,13 @@
               818
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              806,
+              2719
+            ]
+          ]
         },
         {
           "name": "nsp3 - PL2-PRO",
@@ -198,7 +283,13 @@
               2763
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              2720,
+              8554
+            ]
+          ]
         },
         {
           "name": "nsp4",
@@ -208,7 +299,13 @@
               3263
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              8555,
+              10054
+            ]
+          ]
         },
         {
           "name": "nsp5 - 3CLp",
@@ -218,7 +315,13 @@
               3569
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              10055,
+              10972
+            ]
+          ]
         },
         {
           "name": "nsp6",
@@ -228,7 +331,13 @@
               3859
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              10973,
+              11842
+            ]
+          ]
         },
         {
           "name": "nsp7",
@@ -238,7 +347,13 @@
               3942
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              11843,
+              12091
+            ]
+          ]
         },
         {
           "name": "nsp8",
@@ -248,7 +363,13 @@
               4140
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              12092,
+              12685
+            ]
+          ]
         },
         {
           "name": "nsp9",
@@ -258,7 +379,13 @@
               4253
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              12686,
+              13024
+            ]
+          ]
         },
         {
           "name": "nsp10 - CysHis",
@@ -268,7 +395,13 @@
               4392
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              13025,
+              13441
+            ]
+          ]
         },
         {
           "name": "nsp12 - RdRp",
@@ -278,7 +411,17 @@
               5324
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              13442,
+              13468
+            ],
+            [
+              13468,
+              16236
+            ]
+          ]
         },
         {
           "name": "nsp13 - Helicase",
@@ -288,7 +431,13 @@
               5925
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              16237,
+              18039
+            ]
+          ]
         },
         {
           "name": "nsp14 - ExoN",
@@ -298,7 +447,13 @@
               6452
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              18040,
+              19620
+            ]
+          ]
         },
         {
           "name": "nsp15 - NendoU",
@@ -308,7 +463,13 @@
               6798
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              19621,
+              20658
+            ]
+          ]
         },
         {
           "name": "nsp16 - 2'-O-MT",
@@ -318,11 +479,25 @@
               7096
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              20659,
+              21552
+            ]
+          ]
         }
       ],
       "len_nt": 21291,
       "len_aa": 7097,
+      "residue_offset_range": [
+        1,
+        7097
+      ],
+      "nt_range": [
+        266,
+        21555
+      ],
       "aa_ranges": [
         [
           1,
@@ -355,6 +530,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Receptor binding domain",
@@ -364,7 +540,13 @@
               541
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              22517,
+              23185
+            ]
+          ]
         },
         {
           "name": "S1 Subunit",
@@ -374,7 +556,13 @@
               685
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              21602,
+              23617
+            ]
+          ]
         },
         {
           "name": "S2 Subunit",
@@ -384,7 +572,13 @@
               1273
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              23618,
+              25381
+            ]
+          ]
         },
         {
           "name": "Signal Peptide",
@@ -394,7 +588,13 @@
               13
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              21563,
+              21601
+            ]
+          ]
         },
         {
           "name": "N-Terminal Domain",
@@ -404,7 +604,13 @@
               305
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              21602,
+              22477
+            ]
+          ]
         },
         {
           "name": "Fusion Peptide",
@@ -414,7 +620,13 @@
               806
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              23924,
+              23980
+            ]
+          ]
         },
         {
           "name": "Heptapeptide Repeat Sequence 1",
@@ -424,7 +636,13 @@
               984
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              24296,
+              24514
+            ]
+          ]
         },
         {
           "name": "Heptapeptide Repeat Sequence 2",
@@ -434,7 +652,13 @@
               1213
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              25049,
+              25201
+            ]
+          ]
         },
         {
           "name": "Transmembrane Domain",
@@ -444,7 +668,13 @@
               1237
             ]
           ],
-          "row": 2
+          "row": 2,
+          "nt_ranges": [
+            [
+              25199,
+              25273
+            ]
+          ]
         },
         {
           "name": "Cytoplasm Domain",
@@ -454,11 +684,25 @@
               1273
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              25271,
+              25381
+            ]
+          ]
         }
       ],
       "len_nt": 3822,
       "len_aa": 1274,
+      "residue_offset_range": [
+        1,
+        1274
+      ],
+      "nt_range": [
+        21563,
+        25384
+      ],
       "aa_ranges": [
         [
           1,
@@ -483,9 +727,18 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 828,
       "len_aa": 276,
+      "residue_offset_range": [
+        1,
+        276
+      ],
+      "nt_range": [
+        25393,
+        26220
+      ],
       "aa_ranges": [
         [
           1,
@@ -510,6 +763,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Virion Surface",
@@ -519,7 +773,13 @@
               16
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26245,
+              26292
+            ]
+          ]
         },
         {
           "name": "Transmembrane, Helical",
@@ -529,7 +789,13 @@
               37
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              26293,
+              26355
+            ]
+          ]
         },
         {
           "name": "Intravirion",
@@ -539,7 +805,13 @@
               75
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26356,
+              26469
+            ]
+          ]
         },
         {
           "name": "PDZ-binding motif",
@@ -549,11 +821,25 @@
               75
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              26458,
+              26469
+            ]
+          ]
         }
       ],
       "len_nt": 228,
       "len_aa": 76,
+      "residue_offset_range": [
+        1,
+        76
+      ],
+      "nt_range": [
+        26245,
+        26472
+      ],
       "aa_ranges": [
         [
           1,
@@ -578,6 +864,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Transmembrane, all",
@@ -595,7 +882,21 @@
               100
             ]
           ],
-          "row": null
+          "row": null,
+          "nt_ranges": [
+            [
+              26580,
+              26642
+            ],
+            [
+              26673,
+              26735
+            ],
+            [
+              26760,
+              26822
+            ]
+          ]
         },
         {
           "name": "Virion Surface, all",
@@ -609,7 +910,17 @@
               79
             ]
           ],
-          "row": null
+          "row": null,
+          "nt_ranges": [
+            [
+              26526,
+              26579
+            ],
+            [
+              26736,
+              26759
+            ]
+          ]
         },
         {
           "name": "Intravirion, all",
@@ -623,7 +934,17 @@
               222
             ]
           ],
-          "row": null
+          "row": null,
+          "nt_ranges": [
+            [
+              26643,
+              26672
+            ],
+            [
+              26823,
+              27188
+            ]
+          ]
         },
         {
           "name": "Virion Surface 1",
@@ -633,7 +954,13 @@
               19
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26526,
+              26579
+            ]
+          ]
         },
         {
           "name": "Transmembrane 1, Helical",
@@ -643,7 +970,13 @@
               40
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              26580,
+              26642
+            ]
+          ]
         },
         {
           "name": "Intravirion 1",
@@ -653,7 +986,13 @@
               50
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26643,
+              26672
+            ]
+          ]
         },
         {
           "name": "Transmembrane 2, Helical",
@@ -663,7 +1002,13 @@
               71
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              26673,
+              26735
+            ]
+          ]
         },
         {
           "name": "Virion Surface 2",
@@ -673,7 +1018,13 @@
               79
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26736,
+              26759
+            ]
+          ]
         },
         {
           "name": "Transmembrane 3, Helical",
@@ -683,7 +1034,13 @@
               100
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              26760,
+              26822
+            ]
+          ]
         },
         {
           "name": "Intravirion 2",
@@ -693,11 +1050,25 @@
               222
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              26823,
+              27188
+            ]
+          ]
         }
       ],
       "len_nt": 669,
       "len_aa": 223,
+      "residue_offset_range": [
+        1,
+        223
+      ],
+      "nt_range": [
+        26523,
+        27191
+      ],
       "aa_ranges": [
         [
           1,
@@ -722,9 +1093,18 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 186,
       "len_aa": 62,
+      "residue_offset_range": [
+        1,
+        62
+      ],
+      "nt_range": [
+        27202,
+        27387
+      ],
       "aa_ranges": [
         [
           1,
@@ -749,6 +1129,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Transmembrane, Helical",
@@ -758,7 +1139,13 @@
               116
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              27679,
+              27741
+            ]
+          ]
         },
         {
           "name": "Signal Peptide",
@@ -768,11 +1155,25 @@
               15
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              27394,
+              27438
+            ]
+          ]
         }
       ],
       "len_nt": 366,
       "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        27394,
+        27759
+      ],
       "aa_ranges": [
         [
           1,
@@ -797,6 +1198,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Transmembrane, Helical",
@@ -806,11 +1208,25 @@
               29
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              27780,
+              27842
+            ]
+          ]
         }
       ],
       "len_nt": 132,
       "len_aa": 44,
+      "residue_offset_range": [
+        1,
+        44
+      ],
+      "nt_range": [
+        27756,
+        27887
+      ],
       "aa_ranges": [
         [
           1,
@@ -835,6 +1251,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "Signal Peptide",
@@ -844,7 +1261,13 @@
               15
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              27894,
+              27938
+            ]
+          ]
         },
         {
           "name": "ORF8 Protein",
@@ -854,11 +1277,25 @@
               121
             ]
           ],
-          "row": 1
+          "row": 1,
+          "nt_ranges": [
+            [
+              27939,
+              28256
+            ]
+          ]
         }
       ],
       "len_nt": 366,
       "len_aa": 122,
+      "residue_offset_range": [
+        1,
+        122
+      ],
+      "nt_range": [
+        27894,
+        28259
+      ],
       "aa_ranges": [
         [
           1,
@@ -883,6 +1320,7 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [
         {
           "name": "RNA-binding",
@@ -892,7 +1330,13 @@
               186
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              28394,
+              28831
+            ]
+          ]
         },
         {
           "name": "Dimerization",
@@ -902,11 +1346,25 @@
               361
             ]
           ],
-          "row": 0
+          "row": 0,
+          "nt_ranges": [
+            [
+              29045,
+              29356
+            ]
+          ]
         }
       ],
       "len_nt": 1260,
       "len_aa": 420,
+      "residue_offset_range": [
+        1,
+        420
+      ],
+      "nt_range": [
+        28274,
+        29533
+      ],
       "aa_ranges": [
         [
           1,
@@ -931,9 +1389,18 @@
         ]
       ],
       "protein_coding": true,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 117,
       "len_aa": 39,
+      "residue_offset_range": [
+        1,
+        39
+      ],
+      "nt_range": [
+        29558,
+        29674
+      ],
       "aa_ranges": [
         [
           1,
@@ -958,9 +1425,12 @@
         ]
       ],
       "protein_coding": false,
+      "residue_offset": 0,
       "domains": [],
       "len_nt": 229,
       "len_aa": -1,
+      "residue_offset_range": null,
+      "nt_range": null,
       "aa_ranges": null,
       "nt_ranges": null,
       "row": 1

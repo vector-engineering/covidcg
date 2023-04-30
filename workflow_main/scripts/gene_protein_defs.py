@@ -149,35 +149,50 @@ def load_genes_or_proteins(file):
                 for [index, domain] in domain_df.iterrows():
 
                     # Domain ranges, in the nucleotide space
-                    # TODO: support for domains spanning more than one segment
                     ranges = domain_df.at[index, "ranges"]
-                    # domain_df.at[index, "nt_ranges"] = [
-                    #     [((start - 1) * 3) + 1, end * 3] for start, end in ranges
-                    # ]
                     nt_ranges = []
                     for rng in ranges:
-                        # Find the corresponding segment
-                        segment_i = -1
+
                         for i, segment in enumerate(aa_segments):
+                            # Range is wholly contained within this segment
                             if rng[0] >= segment[0] and rng[1] <= segment[1]:
-                                segment_i = i
-                                break
+                                # Adjust with the corresponding segment
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0]
+                                        + ((rng[0] - segment[0]) * 3),
+                                        row["segments"][i][0]
+                                        + ((rng[1] - segment[0] + 1) * 3)
+                                        - 1,
+                                    ]
+                                )
+                            # Segment is wholly contained within this range
+                            elif rng[0] <= segment[0] and rng[1] >= segment[1]:
+                                nt_ranges.append(row["segments"][i])
+                            # Middle --> end of segment
+                            elif (
+                                rng[0] >= segment[0] and rng[0] <= segment[1]
+                            ) and rng[1] >= segment[1]:
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0]
+                                        + ((rng[0] - segment[0]) * 3),
+                                        row["segments"][i][1],
+                                    ]
+                                )
+                            # Beginning --> middle of segment
+                            elif rng[0] <= segment[0] and (
+                                rng[1] >= segment[0] and rng[1] <= segment[1]
+                            ):
+                                nt_ranges.append(
+                                    [
+                                        row["segments"][i][0],
+                                        row["segments"][i][0]
+                                        + ((rng[1] - segment[0] + 1) * 3)
+                                        - 1,
+                                    ]
+                                )
 
-                        if segment_i == -1:
-                            raise ValueError(
-                                f"Range {rng} does not overlap any segments in {aa_segments}"
-                            )
-
-                        # Adjust with the corresponding segment
-                        nt_ranges.append(
-                            [
-                                row["segments"][segment_i][0]
-                                + ((rng[0] - aa_segments[segment_i][0]) * 3),
-                                row["segments"][segment_i][0]
-                                + ((rng[1] - aa_segments[segment_i][0] + 1) * 3)
-                                - 1,
-                            ]
-                        )
                     domain_df.at[index, "nt_ranges"] = nt_ranges
 
                     # Adjust domain ranges with feature residue offset
