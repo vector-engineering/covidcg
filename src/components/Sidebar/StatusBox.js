@@ -19,7 +19,12 @@ import DownloadDataButton from './DownloadDataButton';
 
 import { Container, StatusText, Line, Sequence } from './StatusBox.styles';
 
-const serializeCoordinates = (coordinateRanges) => {
+const serializeNTCoordinates = (coordinateRanges) => {
+  return coordinateRanges
+    .map((coordRange) => `${coordRange[0]}:${coordRange[1]}..${coordRange[2]}`)
+    .join(', ');
+};
+const serializeAACoordinates = (coordinateRanges) => {
   return coordinateRanges.map((coordRange) => coordRange.join('..')).join(', ');
 };
 
@@ -29,18 +34,22 @@ const StatusBox = observer(() => {
   let genomeSelection = '';
   const residuesOrBases =
     configStore.dnaOrAa === DNA_OR_AA.DNA ? 'Bases' : 'Residues';
+  const coordRange =
+    configStore.dnaOrAa === DNA_OR_AA.DNA
+      ? serializeNTCoordinates(configStore.getCoordinateRanges())
+      : serializeAACoordinates(configStore.residueCoordinates);
   if (configStore.coordinateMode === COORDINATE_MODES.COORD_GENE) {
     genomeSelection = (
       <>
         Gene: <b>{configStore.selectedGene.name}</b>. {residuesOrBases}:{' '}
-        <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
+        <b>{coordRange}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PROTEIN) {
     genomeSelection = (
       <>
         Protein: <b>{configStore.selectedProtein.name}</b>. {residuesOrBases}:{' '}
-        <b>{serializeCoordinates(configStore.residueCoordinates)}</b>
+        <b>{coordRange}</b>
       </>
     );
   } else if (configStore.coordinateMode === COORDINATE_MODES.COORD_PRIMER) {
@@ -59,7 +68,7 @@ const StatusBox = observer(() => {
         <b>
           {configStore.selectedPrimers.length === 0
             ? ''
-            : serializeCoordinates(configStore.getCoordinateRanges())}
+            : serializeNTCoordinates(configStore.getCoordinateRanges())}
         </b>
       </>
     );
@@ -78,7 +87,7 @@ const StatusBox = observer(() => {
     genomeSelection = (
       <>
         Matching sequence(s): {sequenceList}. {residuesOrBases}:{' '}
-        <b>{serializeCoordinates(configStore.getCoordinateRanges())}</b>
+        <b>{serializeNTCoordinates(configStore.getCoordinateRanges())}</b>
       </>
     );
   }
