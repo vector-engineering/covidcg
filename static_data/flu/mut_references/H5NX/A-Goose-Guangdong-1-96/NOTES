@@ -1,0 +1,29 @@
+See: https://apps.who.int/iris/bitstream/handle/10665/366577/WER9812-111-125.pdf
+
+GISAID entry:
+
+|-----------|---------------------------|-----------|---------------|---------------|
+|   segment |	identifier              |   length  |   accession # |	INSDC       |
+|-----------|---------------------------|-----------|---------------|---------------|
+|   PB2     |   A/Goose/Guangdong/1/96  |   2341    |   EPI5779     |   AF144300    |
+|   PB1     |   A/Goose/Guangdong/1/96  |   2341    |   EPI5781     |   AF144301    |
+|   PA      |   A/Goose/Guangdong/1/96  |   2233    |   EPI5783     |   AF144302    |
+|   HA      |   A/Goose/Guangdong/1/96  |   1760    |   EPI5789     |   AF144305    |
+|   HA      |   A/Goose/Guangdong/1/96  |   1707    |   EPI5797     |   AF148678    |
+|   NP      |   A/Goose/Guangdong/1/96  |   1565    |   EPI5785     |   AF144303    |
+|   NA      |   A/Goose/Guangdong/1/96  |   1458    |   EPI5787     |   AF144304    |
+|   MP      |   A/Goose/Guangdong/1/96  |   1027    |   EPI5791     |   AF144306    |
+|   NS      |   A/Goose/Guangdong/1/96  |   865     |   EPI5794     |   AF144307    |
+|-----------|---------------------------|-----------|---------------|---------------|
+
+Features from:
+Taxid 93838 on NCBI Virus:
+
+NC_007361   NA
+NC_007357   PB2
+NC_007358   PB1, PB1-F2
+NC_007359   PA, PA-X
+NC_007360   NP
+NC_007362   HA
+NC_007363   MP (7)
+NC_007364   NS (8)

@@ -1,0 +1,30 @@
+RefSeq:
+
+NC_004907   MP      Derived from AJ278646   EPI11556
+NC_004905   NP      Derived from AJ289871   EPI11567
+NC_004906   NS      Derived from AJ278649   EPI11562
+NC_004908   HA      Identical to AJ404626   EPI12024
+NC_004909   NA      Identical to AJ404629   EPI12030
+NC_004910   PB2     Identical to AJ404630   EPI12032
+NC_004911   PB1     Identical to AJ404634   EPI12039
+NC_004912   PA      Identical to AJ404637   EPI12042
+
+GISAID:
+
+segment     identifier              length      accession #     INSDC   
+PB2         A/Hong_Kong/1073/99     2341        EPI7911         AF258835
+PB2         A/Hong_Kong/1073/99     2341        EPI12032        AJ404630
+PB1         A/Hong_Kong/1073/99     2341        EPI7873         AF258816
+PB1         A/Hong_Kong/1073/99     2328        EPI12039        AJ404634
+PA          A/Hong_Kong/1073/99     2233        EPI7811         AF257191
+PA          A/Hong_Kong/1073/99     2225        EPI12042        AJ404637
+HA          A/Hong_Kong/1073/99     960         EPI451          AB080226
+HA          A/Hong_Kong/1073/99     1714        EPI12024        AJ404626
+NP          A/Hong_Kong/1073/99     1565        EPI7702         AF255742
+NP          A/Hong_Kong/1073/99     1557        EPI11567        AJ289871
+NA          A/Hong_Kong/1073/99     1418        EPI12030        AJ404629
+MP          A/Hong_Kong/1073/99     1027        EPI7640         AF255363
+MP          A/Hong_Kong/1073/99     1025        EPI11556        AJ278646
+MP          A/Hong_Kong/1073/99     1026        EPI11557        AJ278647
+NS          A/Hong_Kong/1073/99     890         EPI7754         AF256176
+NS          A/Hong_Kong/1073/99     890         EPI11562        AJ278649
