@@ -142,6 +142,7 @@ rule global_seq_data:
         isolate_data = os.path.join(data_folder, "isolate_data.csv"),
         metadata_map = os.path.join(data_folder, "metadata_map.json")
     params:
+        min_date = config['min_date'],
         out_folder = os.path.join(data_folder, "new_global_data")
     output:
         case_count = os.path.join(data_folder, "new_global_data", "case_count.json"),
@@ -153,6 +154,7 @@ rule global_seq_data:
         python3 analyses/scripts/global_seq_data.py \
             --isolate-data {input.isolate_data} \
             --metadata-map {input.metadata_map} \
+            --min-date {params.min_date} \
             --output {params.out_folder}
         """
 

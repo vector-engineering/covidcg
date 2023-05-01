@@ -6970,14 +6970,14 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 16,
+      "residue_offset": 18,
       "domains": [
         {
           "name": "signal peptide",
           "ranges": [
             [
-              -15,
-              2
+              -17,
+              0
             ]
           ],
           "row": 0,
@@ -6992,8 +6992,8 @@
           "name": "HA1",
           "ranges": [
             [
-              3,
-              323
+              1,
+              321
             ]
           ],
           "row": 1,
@@ -7008,8 +7008,8 @@
           "name": "HA2",
           "ranges": [
             [
-              324,
-              544
+              322,
+              542
             ]
           ],
           "row": 0,
@@ -7025,8 +7025,8 @@
       "len_nt": 1683,
       "len_aa": 561,
       "residue_offset_range": [
-        -15,
-        545
+        -17,
+        543
       ],
       "nt_range": [
         1,
@@ -7452,14 +7452,14 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 16,
+      "residue_offset": 18,
       "domains": [
         {
           "name": "signal peptide",
           "ranges": [
             [
-              -15,
-              2
+              -17,
+              0
             ]
           ],
           "row": 0,
@@ -7474,8 +7474,8 @@
           "name": "HA1",
           "ranges": [
             [
-              3,
-              322
+              1,
+              320
             ]
           ],
           "row": 1,
@@ -7490,8 +7490,8 @@
           "name": "HA2",
           "ranges": [
             [
-              323,
-              544
+              321,
+              542
             ]
           ],
           "row": 0,
@@ -7507,8 +7507,8 @@
       "len_nt": 1714,
       "len_aa": 571,
       "residue_offset_range": [
-        -15,
-        555
+        -17,
+        553
       ],
       "nt_range": [
         1,
@@ -7786,14 +7786,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              45
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              346
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              46,
+              1083
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              347,
+              569
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1084,
+              1752
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1755,
       "len_aa": 585,
       "residue_offset_range": [
-        1,
-        585
+        -14,
+        570
       ],
       "nt_range": [
         1,
@@ -8096,14 +8145,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              45
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              346
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              46,
+              1083
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              347,
+              569
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1084,
+              1752
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1755,
       "len_aa": 585,
       "residue_offset_range": [
-        1,
-        585
+        -14,
+        570
       ],
       "nt_range": [
         1,
@@ -8406,14 +8504,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              45
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              346
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              46,
+              1083
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              347,
+              569
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1084,
+              1752
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1755,
       "len_aa": 585,
       "residue_offset_range": [
-        1,
-        585
+        -14,
+        570
       ],
       "nt_range": [
         1,
@@ -8716,14 +8863,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              45
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              344
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              46,
+              1077
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              345,
+              567
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1078,
+              1746
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1749,
       "len_aa": 583,
       "residue_offset_range": [
-        1,
-        583
+        -14,
+        568
       ],
       "nt_range": [
         1,
@@ -9026,14 +9222,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              34,
+              78
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              347
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              79,
+              1119
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              348,
+              570
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1120,
+              1788
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1758,
       "len_aa": 586,
       "residue_offset_range": [
-        1,
-        586
+        -14,
+        571
       ],
       "nt_range": [
         34,
@@ -9065,14 +9310,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              34,
+              78
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              345
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              79,
+              1113
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              346,
+              568
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1114,
+              1782
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1752,
       "len_aa": 584,
       "residue_offset_range": [
-        1,
-        584
+        -14,
+        569
       ],
       "nt_range": [
         34,
@@ -9363,14 +9657,63 @@
         ]
       ],
       "protein_coding": true,
-      "residue_offset": 0,
-      "domains": [],
+      "residue_offset": 15,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -14,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              20,
+              64
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              344
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              65,
+              1096
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              345,
+              567
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1097,
+              1765
+            ]
+          ]
+        }
+      ],
       "notes": "",
       "len_nt": 1749,
       "len_aa": 583,
       "residue_offset_range": [
-        1,
-        583
+        -14,
+        568
       ],
       "nt_range": [
         20,

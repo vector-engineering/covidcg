@@ -24,6 +24,9 @@ def main():
         "--metadata-map", type=str, required=True, help="Metadata map JSON file"
     )
     parser.add_argument(
+        "--min-date", type=str, required=True, help="Minimum date for data"
+    )
+    parser.add_argument(
         "-o", "--output", type=str, required=True, help="Path to output directory",
     )
 
@@ -190,7 +193,7 @@ def main():
 
     # Only take dates from 2019-12-15
     isolate_df = isolate_df.loc[
-        isolate_df["collection_date"] > pd.to_datetime("2019-12-15")
+        isolate_df["collection_date"] > pd.to_datetime(args.min_date)
     ]
 
     # Calculate time deltas
