@@ -441,11 +441,12 @@ def seed_database(conn, schema="public"):
             )
         print("done")
 
-        print("Writing sequence mutations...", end="", flush=True)
+        print("Writing sequence mutations:", flush=True)
 
         # Sequence mutation data
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for mutation_field in mutation_fields:
+            print(f"  {mutation_field}...", end="", flush=True)
             mutation_col = mutation_field + "_mutation"
             table_name = f"sequence_{mutation_field}_mutation"
             cur.execute(
@@ -540,6 +541,10 @@ def seed_database(conn, schema="public"):
 
             df_to_sql(cur, mutation_df, table_name)
 
+            print("done", flush=True)
+
+            print("  Creating indices...", end="", flush=True)
+
             # Create indices
             for field in (
                 [
@@ -567,12 +572,13 @@ def seed_database(conn, schema="public"):
                     )
                 )
 
-        print("done")
+            print("done", flush=True)
 
-        print("Writing coverage tables...", end="", flush=True)
+        print("Writing coverage tables:", flush=True)
 
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for mutation_field in mutation_fields:
+            print(f"  {mutation_field}...", end="", flush=True)
             table_name = f"{mutation_field}_coverage"
 
             # Build list of all feature columns
@@ -736,6 +742,10 @@ def seed_database(conn, schema="public"):
                 table_name,
             )
 
+            print("done")
+
+            print("  Creating indices...", end="", flush=True)
+
             # Create indices
             for field in (
                 [
@@ -763,7 +773,7 @@ def seed_database(conn, schema="public"):
                     )
                 )
 
-        print("done")
+            print("done")
 
         print("Writing JSONs...", end="", flush=True)
 

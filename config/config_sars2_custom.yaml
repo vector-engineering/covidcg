@@ -105,6 +105,10 @@ prod_hostname:
 site_title: "COVID CG"
 data_provider: "Custom"
 
+# Default references for each subtype
+default_references:
+  SARS-CoV-2: WIV04
+
 # Home page
 show_home_banner: false
 show_walkthroughs: false

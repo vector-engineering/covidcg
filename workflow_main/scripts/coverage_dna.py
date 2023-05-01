@@ -80,6 +80,7 @@ def main():
     ref_name_map = {
         ref["segments"][args.segment]["name"]: ref["name"]
         for ref in references.values()
+        if args.segment in ref["segments"]
     }
     coverage_df["reference"] = coverage_df["reference"].map(ref_name_map)
 

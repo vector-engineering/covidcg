@@ -53,7 +53,10 @@ def main():
             ref_obj[reference]["subtype"] = subtype
             ref_obj[reference]["segments"] = {}
             for segment in args.segments:
-                with (reference_path / f"{segment}.fa").open("r") as fp:
+                segment_file = reference_path / f"{segment}.fa"
+                if not segment_file.exists():
+                    continue
+                with segment_file.open("r") as fp:
                     lines = fp.readlines()
                     records = read_fasta_file(lines)
                     ref_obj[reference]["segments"][segment] = list(records.values())[0]

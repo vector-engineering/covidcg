@@ -52,6 +52,7 @@ def extract_aa_mutations(
     ref_seqs = {
         ref["name"]: ref["segments"][active_segment]["sequence"]
         for ref in references.values()
+        if active_segment in ref["segments"]
     }
 
     # Load gene/protein defs

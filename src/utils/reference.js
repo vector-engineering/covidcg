@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { DEGENERATES } from '../constants/defs.json';
 import { reverseComplement } from './string';
 // eslint-disable-next-line import/no-unresolved
@@ -64,6 +65,9 @@ export function getSubtypeReferenceMap() {
 }
 export function getReferencesForSubtype(subtype) {
   return subtypeReferenceMap[subtype];
+}
+export function getDefaultReferenceForSubtype(subtype) {
+  return config['default_references'][subtype];
 }
 
 export const queryReferenceSequence = (referenceName, query) => {

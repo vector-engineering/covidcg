@@ -116,6 +116,11 @@ prod_hostname:
 site_title: "RSV PathMut"
 data_provider: "Custom"
 
+# Default references for each subtype
+default_references:
+  A: KX858757.1
+  B: KX858756.1
+
 # Home page
 show_home_banner: false
 show_walkthroughs: false

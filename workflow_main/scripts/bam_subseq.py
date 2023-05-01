@@ -56,6 +56,7 @@ def extract_subseqs(bam_file, reference_file, subtype, active_segment, start, en
             "sequence"
         ]
         for ref in references.values()
+        if active_segment in ref["segments"]
     }
 
     ReadExtractor.RefSeq = ref_seqs
