@@ -78,8 +78,8 @@ report_group_col: serotype
 report_group_references:
   B-vic: B-Austria-1359417-2021
   B-yam: B-Phuket-3073-2013
-  H1N1: A-Victoria-2570-2019
-  H3N2: A-Cambodia-e0826360-2020
+  H1N1: A-Wisconsin-67-2022
+  H3N2: A-Darwin-6-2021
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
@@ -93,8 +93,8 @@ surv_end_date_days_ago: 30
 surv_group_references:
   B-vic: B-Austria-1359417-2021
   B-yam: B-Phuket-3073-2013
-  H1N1: A-Victoria-2570-2019
-  H3N2: A-Cambodia-e0826360-2020
+  H1N1: A-Wisconsin-67-2022
+  H3N2: A-Darwin-6-2021
 
 # ---------------
 #    DATABASE

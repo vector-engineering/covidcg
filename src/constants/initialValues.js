@@ -256,7 +256,7 @@ if (config['virus'] === 'sars2') {
     reportActiveReference: startingReference,
   };
 } else if (config['virus'] === 'flu') {
-  const startingReference = 'A-Cambodia-e0826360-2020';
+  const startingReference = 'A-Darwin-6-2021';
   const defaultGene = getGene(config['default_gene'], startingReference);
   const defaultProtein = getProtein(
     config['default_protein'],
