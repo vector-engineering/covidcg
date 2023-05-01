@@ -6,7 +6,10 @@ import { config } from '../../config';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
 import { ISOToInt, intToISO } from '../../utils/date';
-import { getReferencesForSubtype, getReference } from '../../utils/reference';
+import {
+  getDefaultReferenceForSubtype,
+  getReference,
+} from '../../utils/reference';
 import {
   COORDINATE_MODES,
   ASYNC_STATES,
@@ -136,7 +139,7 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
   const onSubtypeChange = (selectedGroupFields) => {
     const subtype = selectedGroupFields.subtype[0];
     // Get the first reference from the new subtype
-    const reference = getReferencesForSubtype(subtype)[0];
+    const reference = getDefaultReferenceForSubtype(subtype);
     onSubtypeOrReferenceChange({ subtype, reference });
   };
   const onReferenceChange = (reference) => {

@@ -122,6 +122,10 @@ prod_hostname:
 site_title: "COVID CG Genbank"
 data_provider: "NCBI GenBank"
 
+# Default references for each subtype
+default_references:
+  SARS-CoV-2: WIV04
+
 # Home page
 show_home_banner: false
 show_walkthroughs: true

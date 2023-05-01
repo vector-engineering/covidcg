@@ -14,7 +14,7 @@ import GroupBySelect from '../Selection/GroupBySelect';
 import DownloadDataButton from '../Sidebar/DownloadDataButton';
 
 import { getGene, getProtein } from '../../utils/gene_protein';
-import { getReferencesForSubtype } from '../../utils/reference';
+import { getDefaultReferenceForSubtype } from '../../utils/reference';
 import { configStore as initialConfigStore } from '../../constants/initialValues';
 
 import {
@@ -94,9 +94,9 @@ const SelectionTopBar = observer(() => {
   };
   const onSelectedGroupFieldsChange = (selectedGroupFields) => {
     // Get the first reference from the new subtype
-    const selectedReference = getReferencesForSubtype(
+    const selectedReference = getDefaultReferenceForSubtype(
       selectedGroupFields.subtype[0]
-    )[0];
+    );
 
     configStore.applyPendingChanges({
       selectedReference,

@@ -133,6 +133,13 @@ prod_hostname:
 site_title: "Flu PathMut"
 data_provider: "GISAID"
 
+# Default references for each subtype
+default_references:
+  B-vic: B-Austria-1359417-2021
+  B-yam: B-Phuket-3073-2013
+  H1N1: A-Wisconsin-67-2022
+  H3N2: A-Darwin-6-2021
+
 # Home page
 show_home_banner: false
 show_walkthroughs: false

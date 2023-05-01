@@ -132,6 +132,10 @@ prod_hostname:
 site_title: "COVID CG - Alpha"
 data_provider: "GISAID"
 
+# Default references for each subtype
+default_references:
+  SARS-CoV-2: WIV04
+
 # Home page
 show_home_banner: true
 show_walkthroughs: true
