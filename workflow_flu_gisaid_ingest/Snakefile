@@ -1,5 +1,9 @@
 # coding: utf-8
 
+"""GISAID ingestion for Flu PathMut
+$ snakemake -j6
+"""
+
 import datetime
 import os
 import gzip
@@ -26,10 +30,10 @@ rule all:
 
 # Find input chunks
 METADATA_CHUNKS, = glob_wildcards(os.path.join(
-    data_folder, "metadata", "{metadata_chunk}.xls"
+    data_folder, "raw_data", "{metadata_chunk}.xls"
 ))
 SEQUENCE_CHUNKS, = glob_wildcards(os.path.join(
-    data_folder, "sequences", "{sequence_chunk}.fasta"
+    data_folder, "raw_data", "{sequence_chunk}.fasta"
 ))
 
 rule clean_metadata:
@@ -37,7 +41,7 @@ rule clean_metadata:
     """
     input:
         metadata_chunks = expand(
-            os.path.join(data_folder, "metadata", "{metadata_chunk}.xls"),
+            os.path.join(data_folder, "raw_data", "{metadata_chunk}.xls"),
             metadata_chunk=METADATA_CHUNKS
         )
     output:
@@ -62,7 +66,7 @@ checkpoint chunk_sequences:
     """
     input:
         sequences = expand(
-            os.path.join(data_folder, "sequences", "{sequence_chunk}.fasta"),
+            os.path.join(data_folder, "raw_data", "{sequence_chunk}.fasta"),
             sequence_chunk=SEQUENCE_CHUNKS
         ),
         metadata = rules.clean_metadata.output.metadata_clean

@@ -137,6 +137,14 @@ def clean_df(df):
     df.loc[~b_serotype, "serotype"] = (
         df.loc[~b_serotype, "serotype"].str.split("/").apply(lambda x: x[1]).str.strip()
     )
+    # Generalize H5, H7, H9, H10 serotypes
+    # But first save the original serotype
+    df["original_serotype"] = df["serotype"]
+    df.loc[df["serotype"].str.startswith("H5"), "serotype"] = "H5NX"
+    df.loc[df["serotype"].str.startswith("H7"), "serotype"] = "H7NX"
+    # df['serotype'].str.replace(r'^H7N?[1-9]?$', 'H7NX', regex=True)
+    df.loc[df["serotype"].str.startswith("H9"), "serotype"] = "H9NX"
+    df.loc[df["serotype"].str.startswith("H10"), "serotype"] = "H10NX"
 
     # Remove rows without segments
     df = df.loc[df["segments"].apply(len) > 0, :]
