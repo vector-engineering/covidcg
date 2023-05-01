@@ -480,7 +480,7 @@ def seed_database(conn, schema="public"):
                 # Clean up the reference name as a SQL ident - no dots
                 reference_name_sql = reference_name.replace(".", "_")
 
-                reference_partition_name = f"{table_name}_{reference_name_sql}"
+                reference_partition_name = f"seqmut_{mutation_field}_{reference_name_sql}"
 
                 # Create reference partition
                 cur.execute(
@@ -511,7 +511,7 @@ def seed_database(conn, schema="public"):
                         """
                         ).format(
                             date_partition_name=sql.Identifier(
-                                f"{table_name}_{reference_name_sql}_{i}"
+                                f"seqmut_{mutation_field}_{reference_name_sql}_{i}"
                             ),
                             reference_partition_name=sql.Identifier(
                                 reference_partition_name
