@@ -5469,6 +5469,94 @@
       "row": 1
     }
   ],
+  "A-Viet-Nam-1203-2004": [
+    {
+      "name": "HA",
+      "segment": "4",
+      "segments": [
+        [
+          1,
+          1707
+        ]
+      ],
+      "protein_coding": true,
+      "residue_offset": 16,
+      "domains": [
+        {
+          "name": "signal peptide",
+          "ranges": [
+            [
+              -15,
+              0
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1,
+              48
+            ]
+          ]
+        },
+        {
+          "name": "HA1",
+          "ranges": [
+            [
+              1,
+              330
+            ]
+          ],
+          "row": 1,
+          "nt_ranges": [
+            [
+              49,
+              1038
+            ]
+          ]
+        },
+        {
+          "name": "HA2",
+          "ranges": [
+            [
+              331,
+              552
+            ]
+          ],
+          "row": 0,
+          "nt_ranges": [
+            [
+              1039,
+              1704
+            ]
+          ]
+        }
+      ],
+      "notes": "",
+      "len_nt": 1707,
+      "len_aa": 569,
+      "residue_offset_range": [
+        -15,
+        553
+      ],
+      "nt_range": [
+        1,
+        1707
+      ],
+      "aa_ranges": [
+        [
+          1,
+          569
+        ]
+      ],
+      "nt_ranges": [
+        [
+          1,
+          1707
+        ]
+      ],
+      "row": 0
+    }
+  ],
   "A-Goose-Guangdong-1-96": [
     {
       "name": "PB2",
