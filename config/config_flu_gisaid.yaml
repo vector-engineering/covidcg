@@ -84,7 +84,7 @@ report_group_references:
   B-yam: B-Phuket-3073-2013
   H1N1: A-Wisconsin-67-2022
   H3N2: A-Darwin-6-2021
-  H5NX: A-Goose-Guangdong-1-96
+  H5NX: A-Viet-Nam-1203-2004
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
 
@@ -102,7 +102,7 @@ surv_group_references:
   B-yam: B-Phuket-3073-2013
   H1N1: A-Wisconsin-67-2022
   H3N2: A-Darwin-6-2021
-  H5NX: A-Goose-Guangdong-1-96
+  H5NX: A-Viet-Nam-1203-2004
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
 
@@ -145,7 +145,7 @@ default_references:
   B-yam: B-Phuket-3073-2013
   H1N1: A-Wisconsin-67-2022
   H3N2: A-Darwin-6-2021
-  H5NX: A-Goose-Guangdong-1-96
+  H5NX: A-Viet-Nam-1203-2004
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
 
