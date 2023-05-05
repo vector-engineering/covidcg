@@ -173,7 +173,7 @@ def main():
 
     # Get fields for each isolate
     fields = []
-    with lzma.open(args.data_feed, "rt") as fp_in:
+    with lzma.open(args.data_feed, "xt") as fp_in:
         isolate = json.loads(fp_in.readline().strip())
         for i, key in enumerate(isolate.keys()):
             # Skip the special sequence column
