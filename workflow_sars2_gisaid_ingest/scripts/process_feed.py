@@ -14,6 +14,7 @@ import datetime
 import gzip
 import hashlib
 import json
+import lzma
 import multiprocessing as mp
 import os
 import pandas as pd
@@ -172,7 +173,7 @@ def main():
 
     # Get fields for each isolate
     fields = []
-    with open(args.data_feed, "r") as fp_in:
+    with lzma.open(args.data_feed, "rt") as fp_in:
         isolate = json.loads(fp_in.readline().strip())
         for i, key in enumerate(isolate.keys()):
             # Skip the special sequence column
