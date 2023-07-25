@@ -72,6 +72,7 @@ checkpoint chunk_sequences:
         metadata = rules.clean_metadata.output.metadata_clean
     output:
         fasta = directory(os.path.join(data_folder, "fasta_temp"))
+    threads: workflow.cores
     params:
         chunk_size = config["chunk_size"]
     shell:
@@ -80,7 +81,8 @@ checkpoint chunk_sequences:
             --sequences {input.sequences} \
             --metadata-in {input.metadata} \
             --out-fasta {output.fasta} \
-            --chunk-size {params.chunk_size}
+            --chunk-size {params.chunk_size} \
+            --processes {threads}
         """
 
 
