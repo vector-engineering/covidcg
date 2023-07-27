@@ -50,6 +50,12 @@ consensus_fraction: 0.9
 min_reporting_fraction: 0.05
 
 metadata_cols:
+  clade:
+    title: "Clade"
+  lineage:
+    title: "Lineage"
+  subtype:
+    title: "Subtype"
   passage:
     title: "Passage"
   host:
@@ -64,6 +70,26 @@ metadata_cols:
     title: "Authors"
   publication:
     title: "Publication"
+  adamantanes_resistance_geno:
+    title: "Adamantanes Resistance Genotype"
+  oseltamivir_resistance_geno:
+    title: "Oseltamivir Resistance Genotype"
+  zanamivir_resistance_geno:
+    title: "Zanamivir Resistance Genotype"
+  peramivir_resistance_geno:
+    title: "Peramivir Resistance Genotype"
+  other_resistance_geno:
+    title: "Other Resistance Genotype"
+  adamantanes_resistance_pheno:
+    title: "Adamantanes Resistance Phenotype"
+  oseltamivir_resistance_pheno:
+    title: "Oseltamivir Resistance Phenotype"
+  zanamivir_resistance_pheno:
+    title: "Zanamivir Resistance Phenotype"
+  peramivir_resistance_pheno:
+    title: "Peramivir Resistance Phenotype"
+  other_resistance_pheno:
+    title: "Other Resistance Phenotype"
   gender:
     title: "Gender"
   patient_status:

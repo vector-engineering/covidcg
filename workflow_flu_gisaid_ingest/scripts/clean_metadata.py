@@ -10,6 +10,74 @@ import argparse
 import numpy as np
 import pandas as pd
 
+"""All columns:
+
+Isolate_Id
+PB2 Segment_Id
+PB1 Segment_Id
+PA Segment_Id
+HA Segment_Id
+NP Segment_Id
+NA Segment_Id
+MP Segment_Id
+NS Segment_Id
+HE Segment_Id
+P3 Segment_Id
+Isolate_Name
+Subtype
+Lineage -- sometimes this column doesn't exist
+Clade -- sometimes this column doesn't exist
+Passage_History
+Location
+Host
+Isolate_Submitter
+Submitting_Lab
+Submitting_Sample_Id
+Authors
+Publication
+Originating_Lab
+Originating_Sample_Id
+Collection_Date
+Note
+Update_Date
+Submission_Date
+Antigen_Character
+Animal_Vaccin_Product
+Adamantanes_Resistance_geno
+Oseltamivir_Resistance_geno
+Zanamivir_Resistance_geno
+Peramivir_Resistance_geno
+Other_Resistance_geno
+Adamantanes_Resistance_pheno
+Oseltamivir_Resistance_pheno
+Zanamivir_Resistance_pheno
+Peramivir_Resistance_pheno
+Other_Resistance_pheno
+Host_Age
+Host_Age_Unit
+Host_Gender
+Patient_Status
+Zip_Code
+Outbreak
+Pathogen_Test_Info
+Is_Vaccinated
+Human_Specimen_Source
+Animal_Specimen_Source
+Animal_Health_Status
+Domestic_Status
+PMID
+PB2 INSDC_Upload
+PB1 INSDC_Upload
+PA INSDC_Upload
+HA INSDC_Upload
+NP INSDC_Upload
+NA INSDC_Upload
+MP INSDC_Upload
+NS INSDC_Upload
+HE INSDC_Upload
+P3 INSDC_Upload
+"""
+
 
 def clean_df(df):
     df.drop(
@@ -41,16 +109,16 @@ def clean_df(df):
             # Include these later?
             "Submitting_Sample_Id",
             "Originating_Sample_Id",
-            "Adamantanes_Resistance_geno",
-            "Oseltamivir_Resistance_geno",
-            "Zanamivir_Resistance_geno",
-            "Peramivir_Resistance_geno",
-            "Other_Resistance_geno",
-            "Adamantanes_Resistance_pheno",
-            "Oseltamivir_Resistance_pheno",
-            "Zanamivir_Resistance_pheno",
-            "Peramivir_Resistance_pheno",
-            "Other_Resistance_pheno",
+            # "Adamantanes_Resistance_geno",
+            # "Oseltamivir_Resistance_geno",
+            # "Zanamivir_Resistance_geno",
+            # "Peramivir_Resistance_geno",
+            # "Other_Resistance_geno",
+            # "Adamantanes_Resistance_pheno",
+            # "Oseltamivir_Resistance_pheno",
+            # "Zanamivir_Resistance_pheno",
+            # "Peramivir_Resistance_pheno",
+            # "Other_Resistance_pheno",
             "Host_Age",
             "Host_Age_Unit",
             "Outbreak",
@@ -62,12 +130,23 @@ def clean_df(df):
         inplace=True,
     )
 
+    # Add columns if they don't exist yet
+    if "Clade" not in df.columns:
+        df.insert(3, "Clade", np.nan)
+
+    if "Lineage" not in df.columns:
+        df.insert(3, "Lineage", np.nan)
+
+    # Add serotype column
+    df["serotype"] = df["Subtype"]
     # Rename columns
     df.rename(
         columns={
             "Isolate_Id": "isolate_id",
             "Isolate_Name": "virus_name",
-            "Subtype": "serotype",
+            "Subtype": "subtype",
+            "Clade": "clade",
+            "Lineage": "lineage",
             "Passage_History": "passage",
             "Host": "host",
             "Isolate_Submitter": "isolate_submitter",
@@ -80,6 +159,16 @@ def clean_df(df):
             # 'Update_Date': 'update_date',
             "Host_Gender": "gender",
             "Patient_Status": "patient_status",
+            "Adamantanes_Resistance_geno": "adamantanes_resistance_geno",
+            "Oseltamivir_Resistance_geno": "oseltamivir_resistance_geno",
+            "Zanamivir_Resistance_geno": "zanamivir_resistance_geno",
+            "Peramivir_Resistance_geno": "peramivir_resistance_geno",
+            "Other_Resistance_geno": "other_resistance_geno",
+            "Adamantanes_Resistance_pheno": "adamantanes_resistance_pheno",
+            "Oseltamivir_Resistance_pheno": "oseltamivir_resistance_pheno",
+            "Zanamivir_Resistance_pheno": "zanamivir_resistance_pheno",
+            "Peramivir_Resistance_pheno": "peramivir_resistance_pheno",
+            "Other_Resistance_pheno": "other_resistance_pheno",
         },
         inplace=True,
     )
@@ -130,7 +219,7 @@ def clean_df(df):
     # Clean up subtype
     # Replace B serotypes with the lineage, if exists
     b_serotype = df["serotype"] == "B"
-    df.loc[b_serotype, "serotype"] = df.loc[b_serotype, "Lineage"].map(
+    df.loc[b_serotype, "serotype"] = df.loc[b_serotype, "lineage"].map(
         {"Victoria": "B-vic", "Yamagata": "B-yam"}
     )
     # Clean A serotypes
@@ -181,8 +270,11 @@ def clean_df(df):
     # Do an inner join... but none of the rows should've been filtered out
     # so this doesn't really matter
     df = df.join(location_df, how="inner")
+
     # Drop original column
-    df.drop(columns=["Location"], inplace=True)
+    # df.drop(columns=["Location"], inplace=True)
+    # Rename original column
+    df.rename(columns={"Location": "location_original"}, inplace=True)
 
     # Fill in "Unknown" in sparse cols
     df.loc[:, "isolate_submitter"] = (
@@ -226,6 +318,9 @@ def clean_df(df):
             "isolate_id",
             "virus_name",
             "serotype",
+            "subtype",
+            "lineage",
+            "clade",
             "passage",
             "host",
             "isolate_submitter",
@@ -235,37 +330,38 @@ def clean_df(df):
             "originating_lab",
             "collection_date",
             "submission_date",
+            "adamantanes_resistance_geno",
+            "oseltamivir_resistance_geno",
+            "zanamivir_resistance_geno",
+            "peramivir_resistance_geno",
+            "other_resistance_geno",
+            "adamantanes_resistance_pheno",
+            "oseltamivir_resistance_pheno",
+            "zanamivir_resistance_pheno",
+            "peramivir_resistance_pheno",
+            "other_resistance_pheno",
             "gender",
             "patient_status",
             "region",
             "country",
             "division",
             "location",
+            "location_original",
         ]
     ]
 
     # Collapse by isolate
-    df = df.groupby("isolate_id").agg(
-        accession_ids=("accession_ids", sum),
-        segments=("segments", sum),
-        virus_name=("virus_name", "first"),
-        serotype=("serotype", "first"),
-        passage=("passage", "first"),
-        host=("host", "first"),
-        isolate_submitter=("isolate_submitter", "first"),
-        submitting_lab=("submitting_lab", "first"),
-        authors=("authors", "first"),
-        publication=("publication", "first"),
-        originating_lab=("originating_lab", "first"),
-        collection_date=("collection_date", "first"),
-        submission_date=("submission_date", "first"),
-        gender=("gender", "first"),
-        patient_status=("patient_status", "first"),
-        region=("region", "first"),
-        country=("country", "first"),
-        division=("division", "first"),
-        location=("location", "first"),
-    )
+
+    # For these columns, create a list of values for each isolate
+    agg_dict = {
+        "accession_ids": ("accession_ids", sum),
+        "segments": ("segments", sum),
+    }
+    # For all other columns, take the first value
+    for col in df.columns[3:]:
+        agg_dict[col] = (col, "first")
+
+    df = df.groupby("isolate_id").agg(**agg_dict)
 
     return df
 
