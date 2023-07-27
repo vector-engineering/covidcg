@@ -34,14 +34,12 @@ rule all:
 
 
 rule download:
-    """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
-    """
+    """Download the data feed JSON object from the GISAID database, using our data feed credentials."""
     output:
-        feed = temp(os.path.join(data_folder, "feed.json")),
+        feed = temp(os.path.join(data_folder, "feed.json.xz")),
         status = touch(rules.all.input.download_status)
-    threads: workflow.cores
     shell:
-        "scripts/download.sh | unxz --threads={threads} -c - > {output.feed}"
+        "scripts/download.sh > {output.feed}"
 
 
 rule process_feed:
