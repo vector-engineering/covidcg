@@ -54,8 +54,6 @@ metadata_cols:
     title: "Clade"
   lineage:
     title: "Lineage"
-  subtype:
-    title: "Subtype"
   passage:
     title: "Passage"
   host:
