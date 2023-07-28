@@ -137,14 +137,12 @@ def clean_df(df):
     if "Lineage" not in df.columns:
         df.insert(3, "Lineage", np.nan)
 
-    # Add serotype column
-    df["serotype"] = df["Subtype"]
     # Rename columns
     df.rename(
         columns={
             "Isolate_Id": "isolate_id",
             "Isolate_Name": "virus_name",
-            "Subtype": "subtype",
+            "Subtype": "serotype",
             "Clade": "clade",
             "Lineage": "lineage",
             "Passage_History": "passage",
@@ -318,7 +316,6 @@ def clean_df(df):
             "isolate_id",
             "virus_name",
             "serotype",
-            "subtype",
             "lineage",
             "clade",
             "passage",
