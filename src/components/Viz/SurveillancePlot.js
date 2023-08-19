@@ -468,17 +468,29 @@ const SurveillancePlot = observer(({ width }) => {
           ? config.surv_start_date
           : `the last ${config.surv_start_date_days_ago} days`}{' '}
         is shown, and sequence counts are grouped by {survPeriodText} to reduce
-        noise. Please note that the most recent data (most recent month marked
-        by darker-colored band) is sparser due to lags in time between sample
-        collection and submission.
+        noise.{' '}
+        {/* Only specify meaning of dark band if data is grouped in months or more frequent bins */}
+        {config.surv_period !== 'Y' && (
+          <>
+            Please note that the most recent data (most recent month marked by
+            darker-colored band) is sparser due to lags in time between sample
+            collection and submission.
+          </>
+        )}
       </HelpText>
+      {/* Only show the help text for surveillance settings for SAR2 */}
+      {config.virus === 'sars2' && (
+        <HelpText>
+          {groupName}s that do not meet the conditions defined by
+          &quot;Displayed {groupName}&quot; in all six continents are filtered
+          out of this plot. &quot;Highlighted {groupName}&quot; meeting the
+          user-defined conditions in at least one out of the six continents are
+          shown in the legend to the left.
+        </HelpText>
+      )}
       <HelpText>
-        {groupName}s that do not meet the conditions defined by &quot;Displayed{' '}
-        {groupName}&quot; in all six continents are filtered out of this plot.
-        &quot;Highlighted {groupName}&quot; meeting the user-defined conditions
-        in at least one out of the six continents are shown in the legend to the
-        left. Hover over {groupName}s in the legend, or near them in the plots,
-        to highlight the {groupName} across all plots.
+        Hover over {groupName}s in the legend, or near them in the plots, to
+        highlight the {groupName} across all plots.
       </HelpText>
       <WarningBox
         show={plotSettingsStore.surveillanceShowWarning}
