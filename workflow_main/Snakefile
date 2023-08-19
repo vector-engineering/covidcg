@@ -128,6 +128,21 @@ def sars2_output(wildcards):
     else:
         return []
 
+def sars2_spikenuc_input(wildcards):
+    if config['virus'] == 'sars2':
+        return (
+            expand(
+                os.path.join(data_folder, "spikenuc", "{chunk}_spikenuc.fa.gz"),
+                chunk = CHUNKS
+            ) +
+            expand(
+                os.path.join(data_folder, "spikeaa", "{chunk}_spikeaa.fa.gz"),
+                chunk = CHUNKS
+            )
+        )
+    else:
+        return []
+
 rule all:
     input:
         os.path.join(static_data_folder, "reference.json"),
@@ -459,14 +474,7 @@ rule combine_all_data:
         ),
         # spike files not used for this rule
         # but trigger here to run while we're using a bunch of cores
-        spikenuc_fasta = expand(
-            os.path.join(data_folder, "spikenuc", "{chunk}_spikenuc.fa.gz"),
-            chunk = CHUNKS
-        ),
-        spikeaa_fasta = expand(
-            os.path.join(data_folder, "spikeaa", "{chunk}_spikeaa.fa.gz"),
-            chunk = CHUNKS
-        ),
+        spikenuc = sars2_spikenuc_input,
         dna_coverage = rules.combine_coverage.output.coverage_dna,
         gene_aa_coverage = rules.combine_coverage.output.coverage_gene_aa,
         protein_aa_coverage = rules.combine_coverage.output.coverage_protein_aa,

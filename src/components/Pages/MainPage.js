@@ -21,6 +21,7 @@ const CompareLocationsTab = React.lazy(() => import('./CompareLocationsTab'));
 const GroupReportTab = React.lazy(() => import('./GroupReportTab'));
 const AboutTabSARS = React.lazy(() => import('./AboutTabSARS'));
 const AboutTabRSV = React.lazy(() => import('./AboutTabRSV'));
+const AboutTabFlu = React.lazy(() => import('./AboutTabFlu'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
@@ -61,6 +62,8 @@ const MainPage = observer(() => {
         return <AboutTabSARS />;
       } else if (config['virus'] === 'rsv') {
         return <AboutTabRSV />;
+      } else if (config['virus'] === 'flu') {
+        return <AboutTabFlu />;
       }
     } else if (UIStore.activeTab === TABS.TAB_METHODOLOGY) {
       return <MethodologyTab />;

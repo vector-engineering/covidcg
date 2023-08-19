@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { Transition } from 'react-transition-group';
 import { asyncDataStoreInstance } from './App';
 
+import { config } from '../config';
 import { ASYNC_STATES } from '../constants/defs.json';
 
 import ExternalLink from './Common/ExternalLink';
@@ -15,6 +16,8 @@ import {
 } from './LoadingScreen.styles';
 
 import CGLogo from '../assets/images/cg_logo_v13@4x.png';
+import FluLogo from '../assets/images/flu_pathmut_logo_v1@4x.png';
+import RSVLogo from '../assets/images/rsv_pathmut_logo_v1@4x.png';
 
 const duration = 1000;
 
@@ -42,6 +45,12 @@ const loadingTransitionStyles = {
   entered: { opacity: 1, transform: 'scale(1, 1)' },
   exiting: { opacity: 0 },
   exited: { opacity: 0 },
+};
+
+const siteLogos = {
+  sars2: CGLogo,
+  flu: FluLogo,
+  rsv: RSVLogo,
 };
 
 const LoadingScreen = observer(() => {
@@ -94,7 +103,7 @@ const LoadingScreen = observer(() => {
               ...transitionStyles[state],
             }}
           >
-            <img src={CGLogo}></img>
+            <img src={siteLogos[config['virus']]}></img>
           </LogoContainer>
         )}
       </Transition>

@@ -25,7 +25,7 @@ const AboutTab = () => {
       <Content>
         <ContentSection>
           <a id="about"></a>
-          <span className="section-title">About RSV PathMut</span>
+          <span className="section-title">About Flu PathMut</span>
 
           <div className="content-text">
             <p>...</p>
@@ -33,7 +33,7 @@ const AboutTab = () => {
         </ContentSection>
         <ContentSection>
           <a id="contributors"></a>
-          <span className="section-title">RSV PathMut is developed by</span>
+          <span className="section-title">Flu PathMut is developed by</span>
 
           <div className="content-text">
             <p>
@@ -53,14 +53,14 @@ const AboutTab = () => {
             </p>
 
             <p>
-              <b>Albert Tian Chen</b> is an associate computational biologist in
+              <b>Albert Tian Chen</b>, an associate computational biologist in
               the Deverman group who designed, built, and will continue to
-              expand the COVID-19 CoV Genetics browser. Albert has previous
-              experience building websites for startups and interactive data
-              visualization tools for research groups.
+              expand the PathMut browser. Albert has previous experience
+              building websites for startups and interactive data visualization
+              tools for research groups.
             </p>
             <p>
-              <b>Kevin Altschuler</b> is an experienced web developer with
+              <b>Kevin Altschuler</b>, an experienced web developer with
               previous positions at Google and Uber Advanced Technologies Group
               (ATG). Kevin has architected the application to streamline
               development and improve performance. (
@@ -70,16 +70,16 @@ const AboutTab = () => {
               )
             </p>
             <p>
-              <b>David Favela</b> is an associate software engineer in the
+              <b>David Favela</b>, an associate software engineer in the
               Deverman group.
             </p>
             <p>
-              <b>Dr. Alina Chan</b> is a postdoc in the Deverman group who asked
+              <b>Dr. Alina Chan</b>, a postdoc in the Deverman group who asked
               too many questions about SARS-CoV-2 and realized that we needed a
-              browser like COVID-19 CG.
+              browser like COVID-19 CG / PathMut.
             </p>
             <p>
-              <b>Dr. Shing Hei Zhan</b> is a recent graduate from the University
+              <b>Dr. Shing Hei Zhan</b>, a recent graduate from the University
               of British Columbia&apos;s Department of Zoology &amp; the
               Biodiversity Research Centre. Shing is also co-founder and lead
               bioinformatics scientist at Fusion Genomics Corporation, which
@@ -89,8 +89,8 @@ const AboutTab = () => {
             <p>
               <ExternalLink href="https://www.broadinstitute.org/bios/ben-deverman">
                 Dr. Benjamin Deverman
-              </ExternalLink>{' '}
-              is the director of the vector engineering research group at the
+              </ExternalLink>
+              , the director of the vector engineering research group at the
               Stanley Center for Psychiatric Research at the Broad Institute of
               MIT and Harvard, where he is also an Institute Scientist. The
               Deverman Lab develops innovative gene delivery solutions to expand
@@ -189,7 +189,7 @@ const AboutTab = () => {
 
         <ContentSection>
           <a id="citing-covid-cg"></a>
-          <span className="section-title">Citing RSV PathMut:</span>
+          <span className="section-title">Citing Flu PathMut:</span>
           <div className="content-text">
             <p>COVID-19 CG is published in eLife:</p>
             <p>
@@ -208,6 +208,7 @@ const AboutTab = () => {
               <a href={config['prod_hostname'][0]}>
                 {config['prod_hostname'][0]}
               </a>
+              .
             </p>
             {config['data_provider'] === 'GISAID' && (
               <>
