@@ -21,7 +21,7 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
+data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
 static_data_path = Path(
     os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
 )
@@ -480,7 +480,9 @@ def seed_database(conn, schema="public"):
                 # Clean up the reference name as a SQL ident - no dots
                 reference_name_sql = reference_name.replace(".", "_")
 
-                reference_partition_name = f"seqmut_{mutation_field}_{reference_name_sql}"
+                reference_partition_name = (
+                    f"seqmut_{mutation_field}_{reference_name_sql}"
+                )
 
                 # Create reference partition
                 cur.execute(

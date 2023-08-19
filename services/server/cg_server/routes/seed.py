@@ -21,8 +21,6 @@ def force_seed(conn):
 
     print("Seeding DB from /force_seed")
     seed_database(conn)
-    insert_sequences(
-        conn, os.getenv("DATA_PATH", project_root / config["example_data_folder"])
-    )
+    insert_sequences(conn, os.getenv("DATA_PATH", project_root / config["data_folder"]))
 
     return "Done!"
