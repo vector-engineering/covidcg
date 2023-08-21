@@ -76,6 +76,21 @@ rule pangolin_lineages:
         pangolin --outfile {output.lineages} {output.fasta}
         """
 
+def get_chunks(wildcards):
+    """Get all copied chunks from copy_changed_files, as input for the
+    lineage assignments. While some of these assignments will be wasted on
+    sequences that will be filtered out downstream by the `preprocess_sequences`
+    rule in `workflow_main`, I think it's still better to do this during the
+    ingestion as the lineage/clade assignments are ingestion-specific
+    """
+
+    # Only do this to trigger the DAG recalculation
+    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
+
+    return expand(
+        os.path.join(data_folder, "lineages", "{chunk}.csv"),
+        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+    )
 
 rule combine_lineages:
     """Combine all lineage result chunks
