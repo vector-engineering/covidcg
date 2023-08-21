@@ -72,6 +72,8 @@ metadata_cols:
     title: "Originating lab"
   submitting_lab:
     title: "Submitting lab"
+  gisaid_lineage:
+    title: "GISAID lineage"
 
 group_cols:
   lineage:
