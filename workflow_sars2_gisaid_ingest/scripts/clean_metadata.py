@@ -1074,6 +1074,10 @@ def main():
     )
 
     parser.add_argument(
+        "--lineages", type=str, required=True, help="Path to lineages CSV file",
+    )
+
+    parser.add_argument(
         "-o",
         "--metadata-out",
         type=str,
@@ -1141,6 +1145,17 @@ def main():
     df["isolate_id"] = df.index.values
     # Segment = 1
     df["segment"] = 1
+
+    # Load lineages and join to dataframe
+    lineages_df = pd.read_csv(args.lineages)
+    lineages_df = lineages_df.rename(columns={"taxon": "Accession ID"}).set_index(
+        "Accession ID"
+    )
+    df = df.rename(columns={"lineage": "gisaid_lineage"}).join(
+        lineages_df[["lineage"]], how="left"
+    )
+    # Fill in missing values with GISAID lineages
+    df.loc[:, "lineage"] = df["lineage"].combine_first(df['gisaid_lineage'])
 
     df.to_csv(args.metadata_out)
 

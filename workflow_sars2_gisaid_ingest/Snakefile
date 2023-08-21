@@ -60,6 +60,38 @@ rule process_feed:
         """
 
 
+rule pangolin_lineages:
+    """Assign a lineage to each sequence using pangolin
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
+        lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
+    conda: "envs/pangolin.yaml"
+    shell:
+        """
+        # Pangolin can only use un-gzipped fasta files
+        gunzip -c {input.fasta} > {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta}
+        """
+
+
+rule combine_lineages:
+    """Combine all lineage result chunks
+    """
+    input:
+        lineages = get_chunks
+    params:
+        chunk_glob = os.path.join(data_folder, "lineages", "*.csv")
+    output:
+        lineages = os.path.join(data_folder, "lineages.csv")
+    shell:
+        """
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.lineages}
+        """
+
+
 rule clean_metadata:
     """Clean up metadata from GISAID
     """
@@ -68,9 +100,14 @@ rule clean_metadata:
         location_corrections = os.path.join(
             static_data_folder, "location_corrections.csv"
         ),
+        lineages = rules.combine_lineages.output.lineages
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv")
     shell:
         """
-        python3 scripts/clean_metadata.py -i {input.metadata_dirty} -l {input.location_corrections} -o {output.metadata_clean}
+        python3 scripts/clean_metadata.py \
+            --metadata-in {input.metadata_dirty} \
+            --location-corrections {input.location_corrections} \
+            --lineages {input.lineages} \
+            --metadata-out {output.metadata_clean}
         """
