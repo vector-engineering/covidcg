@@ -90,16 +90,19 @@ def main():
     )
 
     # Rename some serotypes
-    serotype_rename_map = {
-        'Yamagata': 'B-yam',
-        'Yamagata-like': 'B-yam',
-        'Victoria': 'B-vic'
-    }
-    metadata_virus['serotype'] = metadata_virus['serotype'].replace(serotype_rename_map)
+    # serotype_rename_map = {
+    #     'Yamagata': 'B-yam',
+    #     'Yamagata-like': 'B-yam',
+    #     'Victoria': 'B-vic'
+    # }
+    # metadata_virus['serotype'] = metadata_virus['serotype'].replace(serotype_rename_map)
 
     # Drop serotypes not in approved list
-    valid_serotypes = ['H1N1', 'H3N2', 'B-vic', 'B-yam']
-    metadata_virus.drop(metadata_virus.index[~metadata_virus['serotype'].isin(valid_serotypes)], inplace=True)
+    valid_serotypes = ["H1N1", "H3N2", "H5NX", "H7NX", "H9NX", "B-yam", "B-vic"]
+    metadata_virus.drop(
+        metadata_virus.index[~metadata_virus["serotype"].isin(valid_serotypes)],
+        inplace=True,
+    )
 
     # Save to disk
     # First reserialize accession IDs
