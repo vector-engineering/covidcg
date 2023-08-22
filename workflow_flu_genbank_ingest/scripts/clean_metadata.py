@@ -383,20 +383,25 @@ def main():
     )
     df.set_index("Accession ID", inplace=True)
 
+    # Backfill set_id with strain
+    df["isolate_id"].fillna(df["virus_name"], inplace=True)
+    # Backfill more with Accession ID
+    df["isolate_id"].fillna(pd.Series(df.index.values, index=df.index), inplace=True)
+
     # Remove sequences without isolate_id, virus_name, region, collection date, or submission date
     # TODO: fill in missing isolate_ids with accession IDs?
     # TODO: investigate whether missing isolate IDs are biased towards
     #       certain segments. i.e., if they're all 4 (HA), then they
     #       can probably be treated as standalone isolates
-    print(f"Missing isolate_id: {df['isolate_id'].isna().sum()}")
-    print(f"Missing virus_name: {df['virus_name'].isna().sum()}")
+    # print(f"Missing isolate_id: {df['isolate_id'].isna().sum()}")
+    # print(f"Missing virus_name: {df['virus_name'].isna().sum()}")
     print(f"Missing region: {df['region'].isna().sum()}")
     print(f"Missing submission_date: {df['submission_date'].isna().sum()}")
     print(f"Missing collection_date: {df['collection_date'].isna().sum()}")
 
     remove_rows = (
-        (df["isolate_id"].isna())
-        | (df["virus_name"].isna())
+        (df["isolate_id"].isna())  # Shouldn't happen
+        # | (df["virus_name"].isna())
         | (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
