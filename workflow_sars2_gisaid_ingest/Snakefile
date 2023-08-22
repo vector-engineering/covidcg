@@ -56,6 +56,7 @@ rule process_feed:
     threads: workflow.cores
     shell:
         """
+        mkdir -p {params.fasta}
         python3 scripts/process_feed.py -d {input.feed} -f {params.fasta} -m {output.metadata_dirty} -p {threads}
         """
 
