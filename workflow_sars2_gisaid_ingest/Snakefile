@@ -65,45 +65,36 @@ rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
+        status = rules.all.input.copy_status
     output:
         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
     conda: "envs/pangolin.yaml"
+    threads: workflow.cores
     shell:
         """
         # Pangolin can only use un-gzipped fasta files
         gunzip -c {input.fasta} > {output.fasta}
-        pangolin --outfile {output.lineages} {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta} -t {workflow.cores} # --analysis-mode fast
         """
 
-def get_chunks(wildcards):
-    """Get all copied chunks from copy_changed_files, as input for the
-    lineage assignments. While some of these assignments will be wasted on
-    sequences that will be filtered out downstream by the `preprocess_sequences`
-    rule in `workflow_main`, I think it's still better to do this during the
-    ingestion as the lineage/clade assignments are ingestion-specific
-    """
 
-    # Only do this to trigger the DAG recalculation
-    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
-
-    return expand(
-        os.path.join(data_folder, "lineages", "{chunk}.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-    )
-
-rule combine_lineages:
+checkpoint combine_lineages:
     """Combine all lineage result chunks
     """
     input:
-        lineages = get_chunks
+        lineages = expand(
+            os.path.join(data_folder, "lineages", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        )
     params:
         chunk_glob = os.path.join(data_folder, "lineages", "*.csv")
     output:
         lineages = os.path.join(data_folder, "lineages.csv")
     shell:
         """
+        echo {input.lineages}
         awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.lineages}
         """
 
