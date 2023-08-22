@@ -17,8 +17,12 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--in-bam", type=str, required=True, help="Input BAM file")
+    parser.add_argument("--metadata", type=str, required=True, help="Metadata CSV file")
     parser.add_argument(
         "--metadata-virus", type=str, required=True, help="Metadata virus CSV file"
+    )
+    parser.add_argument(
+        "--out-metadata", type=str, required=True, help="Output metadata CSV file"
     )
     parser.add_argument(
         "--out-metadata-virus",
@@ -51,6 +55,7 @@ def main():
         all_serotypes, columns=["Accession ID", "genus", "serotype"]
     ).set_index("Accession ID")
 
+    metadata = pd.read_csv(args.metadata, index_col="Accession ID")
     metadata_virus = pd.read_csv(args.metadata_virus, index_col="virus_name")
 
     # Read Accession ID JSONs
@@ -78,6 +83,15 @@ def main():
         ),
         how="inner",
     )
+    # Join assignments onto sequence DF
+    metadata["assign_serotype"] = metadata["isolate_id"].map(
+        metadata_virus["assign_serotype"]
+    )
+    metadata["assign_genus"] = metadata["isolate_id"].map(
+        metadata_virus["assign_genus"]
+    )
+    metadata["serotype"] = metadata["serotype"].fillna(metadata["assign_serotype"])
+    metadata.drop(columns=["assign_serotype", "assign_genus"], inplace=True)
 
     metadata_virus.loc[:, "serotype"] = metadata_virus["serotype"].combine_first(
         metadata_virus["assign_serotype"]
@@ -88,6 +102,7 @@ def main():
     metadata_virus.drop(
         metadata_virus.index[metadata_virus["serotype"].isna()], inplace=True
     )
+    metadata.drop(metadata.index[metadata["serotype"].isna()], inplace=True)
 
     # Rename some serotypes
     # serotype_rename_map = {
@@ -103,6 +118,9 @@ def main():
         metadata_virus.index[~metadata_virus["serotype"].isin(valid_serotypes)],
         inplace=True,
     )
+    metadata.drop(
+        metadata.index[~metadata["serotype"].isin(valid_serotypes)], inplace=True
+    )
 
     # Save to disk
     # First reserialize accession IDs
@@ -110,6 +128,7 @@ def main():
         json.dumps
     )
     metadata_virus.to_csv(args.out_metadata_virus)
+    metadata.to_csv(args.out_metadata)
 
 
 if __name__ == "__main__":
