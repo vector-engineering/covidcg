@@ -42,7 +42,7 @@ rule download:
         "scripts/download.sh > {output.feed}"
 
 
-rule process_feed:
+checkpoint process_feed:
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
@@ -65,8 +65,7 @@ rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
-        status = rules.all.input.copy_status
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
     output:
         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
@@ -87,7 +86,8 @@ checkpoint combine_lineages:
         lineages = expand(
             os.path.join(data_folder, "lineages", "{chunk}.csv"),
             chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-        )
+        ),
+        status = rules.all.input.copy_status
     params:
         chunk_glob = os.path.join(data_folder, "lineages", "*.csv")
     output:
