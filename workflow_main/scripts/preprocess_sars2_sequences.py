@@ -11,7 +11,7 @@ import gzip
 import math
 import re
 
-from pathlib import Path
+import pandas as pd
 
 
 def main():
@@ -37,21 +37,14 @@ def main():
     args = parser.parse_args()
 
     # Load lines, ignoring comments and empty lines
-    exclude_taxons = []
-    with Path(args.nextstrain_exclusion_file).open("r") as fp:
-        for line in fp.readlines():
-            # Exclude comments
-            if line[0] == "#":
-                continue
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/nextstrain/ncov/master/defaults/exclude.txt",
+        comment="#",
+        header=None,
+        skip_blank_lines=True,
+    )
 
-            # Strip whitespace
-            line = re.sub(r"\s+", "", line).strip()
-
-            # Exclude empty lines
-            if not line:
-                continue
-
-            exclude_taxons.append(line)
+    exclude_taxons = list(set(df[0].tolist()))
 
     num_excluded = 0
     fp_in = gzip.open(args.input, "rt")
