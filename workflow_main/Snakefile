@@ -246,11 +246,12 @@ rule preprocess_sequences:
     shell:
         """
         if [[ "{params.virus}" == "sars2" ]]; then
-            python3 scripts/preprocess_sars2_sequences.py \
-                --input {input.fasta} \
-                --nextstrain-exclusion-file {params.nextstrain_exclude} \
-                --exclude-list {params.exclude_list} \
-                --output {output.fasta}
+            #python3 scripts/preprocess_sars2_sequences.py \
+            #    --input {input.fasta} \
+            #    --nextstrain-exclusion-file {params.nextstrain_exclude} \
+            #    --exclude-list {params.exclude_list} \
+            #    --output {output.fasta}
+            cp {input.fasta} {output.fasta}
         elif [[ "{params.virus}" == "rsv" ]]; then
             python3 scripts/preprocess_rsv_sequences.py \
                 --input {input.fasta} \
