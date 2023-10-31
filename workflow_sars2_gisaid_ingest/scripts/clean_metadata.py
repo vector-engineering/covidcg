@@ -1064,7 +1064,6 @@ def clean_submitting_lab_metadata(df):
 
 
 def main():
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -1084,7 +1083,16 @@ def main():
     )
 
     parser.add_argument(
-        "--lineages", type=str, required=True, help="Path to lineages CSV file",
+        "--lineages",
+        type=str,
+        required=True,
+        help="Path to lineages CSV file",
+    )
+    parser.add_argument(
+        "--quality",
+        type=str,
+        required=True,
+        help="Path to quality CSV file",
     )
 
     parser.add_argument(
@@ -1165,7 +1173,11 @@ def main():
         lineages_df[["lineage"]], how="left"
     )
     # Fill in missing values with GISAID lineages
-    df.loc[:, "lineage"] = df["lineage"].combine_first(df['gisaid_lineage'])
+    df.loc[:, "lineage"] = df["lineage"].combine_first(df["gisaid_lineage"])
+
+    # Load quality and join to dataframe
+    quality_df = pd.read_csv(args.quality, index_col="Accession ID")
+    df = df.join(quality_df, how="left")
 
     df.to_csv(args.metadata_out)
 

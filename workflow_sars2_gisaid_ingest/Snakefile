@@ -99,6 +99,40 @@ checkpoint combine_lineages:
         """
 
 
+rule sequence_quality:
+    """Collect statistics about sequence quality
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        quality = os.path.join(data_folder, "quality", "{chunk}.csv")
+    shell:
+        """
+        python3 scripts/sequence_quality.py \
+            --input {input.fasta} \
+            --output {output.quality}
+        """
+
+checkpoint combine_quality:
+    """Combine all quality result chunks
+    """
+    input:
+        quality = expand(
+            os.path.join(data_folder, "quality", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "quality", "*.csv")
+    output:
+        quality = os.path.join(data_folder, "quality.csv")
+    shell:
+        """
+        echo {input.quality}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.quality}
+        """
+
+
 rule clean_metadata:
     """Clean up metadata from GISAID
     """
@@ -107,7 +141,8 @@ rule clean_metadata:
         location_corrections = os.path.join(
             static_data_folder, "location_corrections.csv"
         ),
-        lineages = rules.combine_lineages.output.lineages
+        lineages = rules.combine_lineages.output.lineages,
+        quality = rules.combine_quality.output.quality
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv")
     shell:
@@ -116,5 +151,6 @@ rule clean_metadata:
             --metadata-in {input.metadata_dirty} \
             --location-corrections {input.location_corrections} \
             --lineages {input.lineages} \
+            --quality {input.quality} \
             --metadata-out {output.metadata_clean}
         """
