@@ -1170,7 +1170,33 @@ def main():
         "Accession ID"
     )
     df = df.rename(columns={"lineage": "gisaid_lineage"}).join(
-        lineages_df[["lineage"]], how="left"
+        lineages_df[
+            [
+                "lineage",
+                "conflict",
+                "ambiguity_score",
+                "scorpio_call",
+                "scorpio_support",
+                "scorpio_conflict",
+                "scorpio_notes",
+                # "version",
+                # "pangolin_version",
+                # "scorpio_version",
+                # "constellation_version",
+                "is_designated",
+                "qc_status",
+                "qc_notes",
+                "note",
+            ]
+        ].rename(
+            columns={
+                "is_designated": "pangolin_is_designated",
+                "qc_status": "pangolin_qc_status",
+                "qc_notes": "pangolin_qc_notes",
+                "note": "pangolin_note",
+            }
+        ),
+        how="left",
     )
     # Fill in missing values with GISAID lineages
     df.loc[:, "lineage"] = df["lineage"].combine_first(df["gisaid_lineage"])
