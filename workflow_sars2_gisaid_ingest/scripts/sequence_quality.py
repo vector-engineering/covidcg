@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
 
     fp_in = gzip.open(args.input, "rt")
-    fp_out = gzip.open(args.output, "wt")
+    fp_out = open(args.output, "wt")
 
     fp_out.write("Accession ID,length,num_ambiguous\n")
 
