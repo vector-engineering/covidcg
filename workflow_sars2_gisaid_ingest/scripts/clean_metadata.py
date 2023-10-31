@@ -1209,6 +1209,9 @@ def main():
     df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
     df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
 
+    # Filter out entries without any sequence
+    df = df.loc[df["length"] > 0]
+
     df.to_csv(args.metadata_out)
 
 
