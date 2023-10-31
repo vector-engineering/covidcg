@@ -76,12 +76,19 @@ metadata_cols:
 group_cols:
   lineage:
     name: "lineage"
-    title: "Lineage"
+    title: "PANGO Lineage"
     description: ""
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
     show_collapse_options: true
+  gisaid_lineage:
+    name: "gisaid_lineage"
+    title: "PANGO Lineage (GISAID)"
+    description: "PANGO assignments from GISAID"
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
   clade:
     name: "clade"
     title: "Clade"

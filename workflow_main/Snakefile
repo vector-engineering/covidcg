@@ -2,6 +2,7 @@
 
 """Main data processing workflow from ingested data
 
+$ snakemake --configfile ../config/config_sars2_gisaid.yaml -j6
 $ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
@@ -238,7 +239,8 @@ rule preprocess_sequences:
         virus = config['virus'],
         nextstrain_exclude = os.path.join(
             static_data_folder, "nextstrain_exclude_20200520.txt"
-        )
+        ),
+        exclude_list = os.path.join(data_folder, "exclude_list.txt")
     output:
         fasta = os.path.join(data_folder, "fasta_processed", "{chunk}.fa.gz")
     shell:
@@ -247,6 +249,7 @@ rule preprocess_sequences:
             python3 scripts/preprocess_sars2_sequences.py \
                 --input {input.fasta} \
                 --nextstrain-exclusion-file {params.nextstrain_exclude} \
+                --exclude-list {params.exclude_list} \
                 --output {output.fasta}
         elif [[ "{params.virus}" == "rsv" ]]; then
             python3 scripts/preprocess_rsv_sequences.py \

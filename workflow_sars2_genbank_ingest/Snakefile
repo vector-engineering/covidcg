@@ -199,11 +199,12 @@ rule pangolin_lineages:
         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
     conda: "envs/pangolin.yaml"
+    threads: workflow.cores
     shell:
         """
         # Pangolin can only use un-gzipped fasta files
         gunzip -c {input.fasta} > {output.fasta}
-        pangolin --outfile {output.lineages} {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta} -t {workflow.cores} # --analysis-mode fast
         """
 
 rule combine_lineages:
