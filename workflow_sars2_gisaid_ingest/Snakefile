@@ -72,7 +72,7 @@ rule pangolin_lineages:
     conda: "envs/pangolin.yaml"
     params:
         cores = int(workflow.cores / 10),
-        tempdir = os.getenv(["PANGOLIN_TEMPDIR"], '/var/tmp')
+        tempdir = os.getenv("PANGOLIN_TEMPDIR", "/var/tmp")
     threads: workflow.cores / 10
     shell:
         """
