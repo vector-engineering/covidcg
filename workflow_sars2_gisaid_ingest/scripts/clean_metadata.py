@@ -22,8 +22,7 @@ def clean_name_metadata(df):
 
 
 def clean_host_metadata(df):
-    """Clean host metadata
-    """
+    """Clean host metadata"""
     # print("Cleaning host metadata", end="", flush=True)
     df["host"] = df["covv_host"].astype(str).str.strip()
     # In the future - collapse common + taxonomy names?
@@ -33,8 +32,7 @@ def clean_host_metadata(df):
 
 
 def clean_gender_metadata(df):
-    """Clean patient gender metadata
-    """
+    """Clean patient gender metadata"""
 
     # print("Cleaning patient gender metadata...", end="", flush=True)
 
@@ -91,9 +89,9 @@ def clean_age_metadata(df):
 
     For each age value we want to define an age range that the value
     corresponds to. This is necessary since the metadata is provided in
-    various different specificities. 
+    various different specificities.
 
-    i.e., exact age (72.343), year (42), or age range (20-30) 
+    i.e., exact age (72.343), year (42), or age range (20-30)
 
     Define a range [start, end), for each age
     This ranges can then be filtered over in a way that includes as much data
@@ -277,7 +275,6 @@ def clean_age_metadata(df):
 
 
 def clean_patient_status_metadata(df):
-
     # print("Cleaning patient status metadata...", end="", flush=True)
 
     # Strip whitespace
@@ -358,8 +355,7 @@ def clean_patient_status_metadata(df):
 
 
 def clean_passage_metadata(df):
-    """Clean cell passage metadata
-    """
+    """Clean cell passage metadata"""
 
     print("Cleaning cell passage metadata...", end="", flush=True)
 
@@ -414,6 +410,24 @@ def clean_passage_metadata(df):
             "origina",
             "Human",
             "direct sequencing",
+            "e.g. Original",
+            "Original isolate isolate",
+            "Original swab",
+            "Originalo",
+            "joriginal",
+            "originale",
+            "Original sample in syrian hamster_P2",
+            "Original sample in syrian hamster_P1",
+            "Originjal",
+            "New variant",
+            "Priginal",
+            "Criblage sauvage",
+            "Original.",
+            "Oriignal",
+            "originall",
+            "isolate",
+            "Oiriginal",
+            "Nasal swab",
         ]
         # "Vero": ["Vero cells"],
         # "Vero P1": [
@@ -512,7 +526,6 @@ def clean_passage_metadata(df):
 
 
 def clean_specimen_metadata(df):
-
     # print("Cleaning specimen metadata...", end="", flush=True)
 
     # Basic cleanup
@@ -795,8 +808,7 @@ def clean_specimen_metadata(df):
 
 
 def clean_date_metadata(df):
-    """Clean the collection and submission date metadata
-    """
+    """Clean the collection and submission date metadata"""
 
     df.loc[:, "collection_date"] = df["covv_collection_date"].astype(str).str.strip()
     df.loc[:, "submission_date"] = df["covv_subm_date"].astype(str).str.strip()
@@ -837,8 +849,7 @@ def clean_clade_metadata(df):
 
 
 def clean_seq_tech_metadata(df):
-    """Clean "Sequencing Technology" values
-    """
+    """Clean "Sequencing Technology" values"""
 
     # print("Cleaning sequencing technology metadata...", end="", flush=True)
 
@@ -946,8 +957,7 @@ def clean_seq_tech_metadata(df):
 
 
 def clean_assembly_metadata(df):
-    """Clean "Assembly Method" column
-    """
+    """Clean "Assembly Method" column"""
 
     print("Cleaning assembly method metadata...", end="", flush=True)
 
