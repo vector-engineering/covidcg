@@ -70,12 +70,19 @@ rule pangolin_lineages:
         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
     conda: "envs/pangolin.yaml"
-    threads: workflow.cores
+    params:
+        cores = int(workflow.cores / 10),
+        tempdir = os.getenv(["PANGOLIN_TEMPDIR"], '/var/tmp')
+    threads: workflow.cores / 10
     shell:
         """
+        pangolin --update
+        pangolin --update-data 
         # Pangolin can only use un-gzipped fasta files
         gunzip -c {input.fasta} > {output.fasta}
-        pangolin --outfile {output.lineages} {output.fasta} -t {workflow.cores} # --analysis-mode fast
+        pangolin --outfile {output.lineages} {output.fasta} \
+            --tempdir {params.tempdir} \
+            -t {workflow.cores} # --analysis-mode fast
         """
 
 
