@@ -836,9 +836,9 @@ def clean_lineage_metadata(df):
     df["lineage"] = df["covv_lineage"].astype(str).str.strip()
 
     # Filter out "None" lineages
-    #remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
-    #df = df.loc[~remove_seqs, :]
-    #print("Removed {} sequences without a lineage assignment".format(remove_seqs.sum()))
+    # remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
+    # df = df.loc[~remove_seqs, :]
+    # print("Removed {} sequences without a lineage assignment".format(remove_seqs.sum()))
 
     return df
 
@@ -1204,10 +1204,9 @@ def main():
     # Load quality and join to dataframe
     quality_df = pd.read_csv(args.quality, index_col="Accession ID")
     df = df.join(quality_df, how="left")
+    df["length"] = df["length"].fillna(0).astype(int)
     # Calculate percent ambiguous, drop the num_ambiguous column
-    df["num_ambiguous"] = (
-        ((df["num_ambiguous"] / df["length"]) * 100).fillna(0).astype(int)
-    )
+    df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
     df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
 
     df.to_csv(args.metadata_out)

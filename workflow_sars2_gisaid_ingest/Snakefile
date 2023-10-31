@@ -82,7 +82,7 @@ rule pangolin_lineages:
         gunzip -c {input.fasta} > {output.fasta}
         pangolin --outfile {output.lineages} {output.fasta} \
             --tempdir {params.tempdir} \
-            -t {workflow.cores} # --analysis-mode fast
+            -t {params.cores} # --analysis-mode fast
         """
 
 

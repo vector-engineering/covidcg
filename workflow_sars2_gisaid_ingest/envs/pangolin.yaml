@@ -9,7 +9,7 @@ dependencies:
   - biopython=1.74
   - minimap2>=2.16
   - pip=19.3.1
-  - python=3.7
+  - python>=3.7
   - snakemake-minimal<=7.24.0
   - gofasta
   - ucsc-fatovcf>=426
