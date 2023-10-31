@@ -1204,6 +1204,11 @@ def main():
     # Load quality and join to dataframe
     quality_df = pd.read_csv(args.quality, index_col="Accession ID")
     df = df.join(quality_df, how="left")
+    # Calculate percent ambiguous, drop the num_ambiguous column
+    df["num_ambiguous"] = (
+        ((df["num_ambiguous"] / df["length"]) * 100).fillna(0).astype(int)
+    )
+    df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
 
     df.to_csv(args.metadata_out)
 
