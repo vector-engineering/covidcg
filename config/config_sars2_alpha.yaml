@@ -92,9 +92,9 @@ metadata_cols:
     title: "scorpio notes"
   pangolin_is_designated:
     title: "PANGO is_designated"
-  qc_status:
+  pangolin_qc_status:
     title: "PANGO QC status"
-  qc_notes:
+  pangolin_qc_notes:
     title: "PANGO QC notes"
   pangolin_note:
     title: "pangolin note"
