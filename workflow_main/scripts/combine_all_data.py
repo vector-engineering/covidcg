@@ -22,10 +22,16 @@ def main():
     parser.add_argument("--metadata", type=str, required=True, help="Metadata file")
 
     parser.add_argument(
-        "--manifest", type=str, required=True, help="Path to manifest CSV file",
+        "--manifest",
+        type=str,
+        required=True,
+        help="Path to manifest CSV file",
     )
     parser.add_argument(
-        "--dna-mutation-dir", type=str, required=True, help="DNA mutation directory",
+        "--dna-mutation-dir",
+        type=str,
+        required=True,
+        help="DNA mutation directory",
     )
     parser.add_argument(
         "--gene-aa-mutation-dir",
@@ -147,7 +153,10 @@ def main():
     )
 
     # Join coverage data to main dataframe
-    coverage_dna = pd.read_csv(args.dna_coverage, dtype={"segment": str},)
+    coverage_dna = pd.read_csv(
+        args.dna_coverage,
+        dtype={"segment": str},
+    )
     # coverage_dna["range"] = coverage_dna[["start", "end"]].apply(
     #     lambda x: tuple(x), axis=1
     # )
@@ -216,6 +225,20 @@ def main():
         )
         .rename(columns={"range": "protein_aa_range"})
     )
+
+    # Some sequences won't have feature (gene, protein) coverage
+    # Fill these with empty lists
+    missing_gene_coverage_inds = df.loc[df["gene_aa_range"].isna()].index.values
+    if len(missing_gene_coverage_inds) > 0:
+        df.loc[missing_gene_coverage_inds, "gene_aa_range"] = df.loc[
+            missing_gene_coverage_inds, "gene_aa_range"
+        ].apply(lambda x: [])
+
+    missing_protein_coverage_inds = df.loc[df["protein_aa_range"].isna()].index.values
+    if len(missing_protein_coverage_inds) > 0:
+        df.loc[missing_protein_coverage_inds, "protein_aa_range"] = df.loc[
+            missing_protein_coverage_inds, "protein_aa_range"
+        ].apply(lambda x: [])
 
     # Remove rows with null dna_range
     # These are failed alignments with no mutation information
