@@ -72,11 +72,6 @@ metadata_cols:
     title: "Originating lab"
   submitting_lab:
     title: "Submitting lab"
-  # Sequence quality
-  length:
-    title: "Sequence length"
-  percent_ambiguous:
-    title: "Percentage of ambiguous (N) bases"
   # PANGO metadata
   conflict:
     title: "PANGO conflict"

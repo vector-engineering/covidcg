@@ -254,6 +254,12 @@ def main():
         df.loc[:, col] = factor
         metadata_maps[col] = pd.Series(labels).to_dict()
 
+    # Special processing for sequence quality columns
+    if "length" in df.columns:
+        df.loc[:, "length"] = df["length"].fillna(0).astype(int)
+    if "percent_ambiguous" in df.columns:
+        df.loc[:, "percent_ambiguous"] = df["percent_ambiguous"].fillna(0).astype(int)
+
     # Special processing for locations - leave missing data as -1
     for col in ["region", "country", "division", "location"]:
         missing_inds = df[col] == "-1"
