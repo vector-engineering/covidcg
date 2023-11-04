@@ -66,6 +66,9 @@ if (config['virus'] === 'sars2') {
     selectedMetadataFields: {},
     ageRange: [null, null],
 
+    sequenceLengthRange: [29000, null],
+    percentAmbiguousRange: [null, 5],
+
     // Location tab
     hoverLocation: null,
     focusedLocations: [],

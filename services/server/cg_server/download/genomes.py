@@ -33,6 +33,8 @@ def download_genomes(conn, req):
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
                 req.get("selected_reference", None),
+                req.get("sequence_length", None),
+                req.get("percent_ambiguous", None),
             )
 
             cur.execute(
