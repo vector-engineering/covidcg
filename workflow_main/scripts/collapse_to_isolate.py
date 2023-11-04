@@ -77,6 +77,12 @@ def main():
     for col in args.group_cols + args.metadata_cols:
         column_aggs[col] = (col, "first")
 
+    # Sequence quality data
+    if "length" in sequence_df.columns:
+        column_aggs["length"] = ("length", "first")
+    if "percent_ambiguous" in sequence_df.columns:
+        column_aggs["percent_ambiguous"] = ("percent_ambiguous", "first")
+
     isolate_df = sequence_df.groupby(["isolate_id", "reference"], as_index=False).agg(
         **column_aggs
     )

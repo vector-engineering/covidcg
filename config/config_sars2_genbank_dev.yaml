@@ -64,11 +64,6 @@ metadata_cols:
     title: "Authors"
   publications:
     title: "Publications"
-  # Sequence quality
-  length:
-    title: "Sequence length"
-  percent_ambiguous:
-    title: "Percentage of ambiguous (N) bases"
 
 group_cols:
   lineage:
