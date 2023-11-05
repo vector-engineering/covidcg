@@ -833,7 +833,7 @@ def clean_date_metadata(df):
 
 
 def clean_lineage_metadata(df):
-    df["lineage"] = df["covv_lineage"].astype(str).str.strip()
+    df["lineage"] = df["covv_lineage"].fillna("Unassigned").astype(str).str.strip()
 
     # Filter out "None" lineages
     # remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
