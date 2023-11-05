@@ -4,6 +4,7 @@ data
 data_genbank
 data_flu
 data_flu_small
+data_flu_genbank
 data_gisaid_flu
 data_gisaid_rsv
 data_genbank_rsv

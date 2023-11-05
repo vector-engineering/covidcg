@@ -26,6 +26,7 @@ import CoordinateSelect from '../Selection/CoordinateSelect';
 import DateSelect from '../Selection/DateSelect';
 import GroupSelect from '../Selection/GroupSelect';
 import MetaFieldSelect from '../Selection/MetaFieldSelect';
+import QualitySelect from '../Selection/QualitySelect';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 import {
@@ -81,6 +82,8 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
     submEndDate: configStore.submEndDate,
     selectedGroupFields: configStore.selectedGroupFields,
     selectedMetadataFields: configStore.selectedMetadataFields,
+    sequenceLengthRange: configStore.sequenceLengthRange,
+    percentAmbiguousRange: configStore.percentAmbiguousRange,
     ageRange: configStore.ageRange,
   });
 
@@ -443,6 +446,23 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
       selectedMetadataFields,
     });
   };
+
+  const updateQualityFilters = (field, range) => {
+    const { sequenceLengthRange, percentAmbiguousRange } = metaPending;
+    if (field === 'sequenceLengthRange') {
+      sequenceLengthRange[0] = range[0];
+      sequenceLengthRange[1] = range[1];
+    } else if (field === 'percentAmbiguousRange') {
+      percentAmbiguousRange[0] = range[0];
+      percentAmbiguousRange[1] = range[1];
+    }
+    setMetaPending({
+      ...metaPending,
+      sequenceLengthRange,
+      percentAmbiguousRange,
+    });
+  };
+
   // const updateAgeRange = (ageRange) => {
   //   setPending({
   //     ...pending,
@@ -635,6 +655,11 @@ const SelectSequencesContent = observer(({ onRequestClose }) => {
           <GroupSelect
             {...pending}
             updateSelectedGroupFields={updateSelectedGroupFields}
+          />
+
+          <QualitySelect
+            {...pending}
+            updateQualityFilters={updateQualityFilters}
           />
 
           <MetaFieldSelect

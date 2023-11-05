@@ -258,7 +258,7 @@ def main():
     if "length" in df.columns:
         df.loc[:, "length"] = df["length"].fillna(0).astype(int)
     if "percent_ambiguous" in df.columns:
-        df.loc[:, "percent_ambiguous"] = df["percent_ambiguous"].fillna(0).astype(int)
+        df.loc[:, "percent_ambiguous"] = df["percent_ambiguous"].fillna(0).astype(float)
 
     # Special processing for locations - leave missing data as -1
     for col in ["region", "country", "division", "location"]:
