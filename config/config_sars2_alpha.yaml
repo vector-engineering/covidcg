@@ -15,10 +15,10 @@ static_data_folder: "static_data/sars2"
 
 # Path to folder with data to use in development
 # This path is relative to the project root
-example_data_folder: "example_data_genbank"
+example_data_folder: "data"
 
 # Database for this virus
-postgres_db: "cg_alpha"
+postgres_db: "cg_gisaid"
 
 # ------------------
 #       INGEST
@@ -97,12 +97,19 @@ metadata_cols:
 group_cols:
   lineage:
     name: "lineage"
-    title: "Lineage"
+    title: "PANGO Lineage"
     description: ""
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
     show_collapse_options: true
+  gisaid_lineage:
+    name: "gisaid_lineage"
+    title: "PANGO Lineage (GISAID)"
+    description: "PANGO assignments from GISAID"
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
   clade:
     name: "clade"
     title: "Clade"
@@ -111,6 +118,10 @@ group_cols:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
     show_collapse_options: false
+
+# AZ report options
+report_gene: "S"
+report_group_col: "lineage"
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
