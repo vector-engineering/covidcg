@@ -844,7 +844,7 @@ def clean_lineage_metadata(df):
 
 
 def clean_clade_metadata(df):
-    df["clade"] = df["covv_clade"].astype(str).str.strip()
+    df["clade"] = df["covv_clade"].fillna("Unassigned").astype(str).str.strip()
     return df
 
 
