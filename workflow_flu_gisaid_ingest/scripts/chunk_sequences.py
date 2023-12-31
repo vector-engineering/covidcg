@@ -61,7 +61,7 @@ def process_fasta_file(fasta_file, metadata, output_path, chunk_size=10_000):
     # Get the date from the fasta file name, as a string
     # file_date = Path(fasta_file).name.replace(".fa.gz", "")
 
-    with open(fasta_file, "rt") as fp:
+    with open(fasta_file, "rt", encoding="latin-1") as fp:
         lines = fp.readlines()
         for i, line in enumerate(lines):
             # Strip whitespace
@@ -114,7 +114,6 @@ def process_fasta_file(fasta_file, metadata, output_path, chunk_size=10_000):
     date_lookup = dict(zip(metadata.index, metadata["submission_date"]))
 
     for name, seq in entries:
-
         # Flush results if chunk is full
         if chunk_i == chunk_size:
             print("Writing {} sequences".format(chunk_i))
