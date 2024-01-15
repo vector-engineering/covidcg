@@ -118,6 +118,18 @@ export class URLMonitor {
             if (primer !== undefined && primer !== null)
               this.pendingChanges.configStore[key].push(primer);
           });
+        } else if (
+          key === 'sequenceLengthRange' ||
+          key === 'percentAmbiguousRange'
+        ) {
+          // Parse ranges
+          value = value
+            .split(',')
+            .map((x) => (x === '' ? null : parseFloat(x)));
+          if (key === 'sequenceLengthRange') {
+            value = value.map((x) => (x === null ? null : Math.round(x)));
+          }
+          this.pendingChanges.configStore[key] = value;
         } else {
           this.pendingChanges.configStore[key] = value;
         }

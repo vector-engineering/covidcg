@@ -48,6 +48,10 @@ def extract_ids(fasta_file):
             if not line and i < (len(lines) - 1):
                 continue
 
+            # If we're on the last line, but the entry is empty, then skip
+            if not line and i == (len(lines) - 1) and not cur_seq:
+                continue
+
             # If not the name of an entry, add this line to the current sequence
             # (some FASTA files will have multiple lines per sequence)
             if line[0] != ">":
@@ -57,7 +61,12 @@ def extract_ids(fasta_file):
             if line[0] == ">" or i == (len(lines) - 1):
                 # Avoid capturing the first one and pushing an empty sequence
                 if cur_entry:
-                    out.append((cur_entry, file_name,))
+                    out.append(
+                        (
+                            cur_entry,
+                            file_name,
+                        )
+                    )
 
                 # Clear the entry and sequence
                 cur_entry = line[1:]
@@ -72,8 +81,7 @@ def extract_ids(fasta_file):
 
 
 def main():
-    """Get all sequence-reference pairs
-    """
+    """Get all sequence-reference pairs"""
 
     parser = argparse.ArgumentParser()
 
@@ -84,7 +92,10 @@ def main():
         help="Path to processed FASTA file directory",
     )
     parser.add_argument(
-        "--reference", type=str, required=True, help="Path to reference JSON file",
+        "--reference",
+        type=str,
+        required=True,
+        help="Path to reference JSON file",
     )
     parser.add_argument(
         "--out", type=str, required=True, help="Output manifest CSV file"

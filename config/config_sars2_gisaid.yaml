@@ -72,6 +72,27 @@ metadata_cols:
     title: "Originating lab"
   submitting_lab:
     title: "Submitting lab"
+  # PANGO metadata
+  conflict:
+    title: "PANGO conflict"
+  ambiguity_score:
+    title: "PANGO ambiguity score"
+  scorpio_call:
+    title: "scorpio call"
+  scorpio_support:
+    title: "scorpio support"
+  scorpio_conflict:
+    title: "scorpio conflict"
+  scorpio_notes:
+    title: "scorpio notes"
+  pangolin_is_designated:
+    title: "PANGO is_designated"
+  pangolin_qc_status:
+    title: "PANGO QC status"
+  pangolin_qc_notes:
+    title: "PANGO QC notes"
+  pangolin_note:
+    title: "pangolin note"
 
 group_cols:
   lineage:

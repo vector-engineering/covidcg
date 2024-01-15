@@ -76,7 +76,6 @@ def insert_sequences(conn, data_path, schema="public"):
     fasta_path = Path(data_path) / "fasta_processed"
 
     with conn.cursor() as cur:
-
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
 
         # The SARS-CoV-2 genomes are ~30kb, which seems like it
@@ -112,7 +111,6 @@ def insert_sequences(conn, data_path, schema="public"):
         chunk_size = 10_000
 
         for i, fasta_file in enumerate(sorted(fasta_path.iterdir())):
-
             # if fasta_file.name in loaded_files:
             #     print("Skipping: ", fasta_file.name)
             #     continue
@@ -136,6 +134,10 @@ def insert_sequences(conn, data_path, schema="public"):
                     if not line and i < (len(lines) - 1):
                         continue
 
+                    # If we're on the last line, but the entry is empty, then skip
+                    if not line and i == (len(lines) - 1) and not cur_seq:
+                        continue
+
                     # If not the name of an entry, add this line to the current sequence
                     # (some FASTA files will have multiple lines per sequence)
                     if line[0] != ">":
@@ -144,7 +146,7 @@ def insert_sequences(conn, data_path, schema="public"):
                     # Start of another entry = end of the previous entry
                     if line[0] == ">" or i == (len(lines) - 1):
                         # Avoid capturing the first one and pushing an empty sequence
-                        if cur_entry:
+                        if cur_entry and cur_seq:
                             buffer.write(
                                 cur_entry + "," + cur_seq + "," + fasta_file.name + "\n"
                             )

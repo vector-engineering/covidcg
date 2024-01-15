@@ -113,6 +113,8 @@ def build_sequence_where_filter(
     selected_metadata_fields=None,
     selected_group_fields=None,
     selected_reference=None,
+    sequence_length=None,
+    percent_ambiguous=None,
 ):
     """Build query for filtering sequences based on user's location/date
     selection and selected metadata fields
@@ -138,6 +140,10 @@ def build_sequence_where_filter(
         - Values are a list of group values, i.e., ["B.1.617.2", "BA.1"]
     selected_reference: str
         - Reference name (e.g., "NC_012920.1")
+    sequence_length: pair of integers
+        - (min_length, max_length)
+    percent_ambiguous: pair of floats
+        - (min_percent, max_percent)
 
     Returns
     -------
@@ -230,12 +236,50 @@ def build_sequence_where_filter(
     else:
         group_filters = sql.SQL("")
 
+    if sequence_length:
+        sequence_length_filter = []
+        if sequence_length[0] is not None:
+            sequence_length_filter.append(
+                sql.SQL('"length" >= {}').format(sql.Literal(sequence_length[0]))
+            )
+        if sequence_length[1] is not None:
+            sequence_length_filter.append(
+                sql.SQL('"length" <= {}').format(sql.Literal(sequence_length[1]))
+            )
+        sequence_length_filter = sql.Composed(
+            [sql.SQL(" AND "), sql.SQL(" AND ").join(sequence_length_filter)]
+        )
+    else:
+        sequence_length_filter = sql.SQL("")
+
+    if percent_ambiguous:
+        percent_ambiguous_filter = []
+        if percent_ambiguous[0] is not None:
+            percent_ambiguous_filter.append(
+                sql.SQL('"percent_ambiguous" >= {}').format(
+                    sql.Literal(percent_ambiguous[0])
+                )
+            )
+        if percent_ambiguous[1] is not None:
+            percent_ambiguous_filter.append(
+                sql.SQL('"percent_ambiguous" <= {}').format(
+                    sql.Literal(percent_ambiguous[1])
+                )
+            )
+        percent_ambiguous_filter = sql.Composed(
+            [sql.SQL(" AND "), sql.SQL(" AND ").join(percent_ambiguous_filter)]
+        )
+    else:
+        percent_ambiguous_filter = sql.SQL("")
+
     sequence_where_filter = sql.SQL(
         """
         {metadata_filters}
         {group_filters}
         "collection_date" >= {start_date} AND "collection_date" <= {end_date}
         {submission_date_filter}
+        {sequence_length_filter}
+        {percent_ambiguous_filter}
         """
     ).format(
         metadata_filters=metadata_filters,
@@ -243,6 +287,8 @@ def build_sequence_where_filter(
         start_date=sql.Literal(pd.to_datetime(start_date)),
         end_date=sql.Literal(pd.to_datetime(end_date)),
         submission_date_filter=submission_date_filter,
+        sequence_length_filter=sequence_length_filter,
+        percent_ambiguous_filter=percent_ambiguous_filter,
     )
 
     return sequence_where_filter
@@ -283,7 +329,8 @@ def build_sequence_location_where_filter(group_key, loc_level_ids, *args, **kwar
             continue
         loc_where.append(
             sql.SQL("({loc_level_col} = ANY({loc_ids}))").format(
-                loc_level_col=sql.Identifier(loc_level), loc_ids=sql.Literal(loc_ids),
+                loc_level_col=sql.Identifier(loc_level),
+                loc_ids=sql.Literal(loc_ids),
             )
         )
 
@@ -370,7 +417,10 @@ def count_coverage(
 
     cur.execute(coverage_query)
 
-    coverage_df = pd.DataFrame.from_records(cur.fetchall(), columns=["ind", "count"],)
+    coverage_df = pd.DataFrame.from_records(
+        cur.fetchall(),
+        columns=["ind", "count"],
+    )
 
     if dna_or_aa != constants["DNA_OR_AA"]["DNA"]:
         if coordinate_mode == constants["COORDINATE_MODES"]["COORD_GENE"]:
@@ -417,7 +467,6 @@ def query_and_aggregate(conn, req):
     selected_protein = req.get("selected_protein", None)
 
     with conn.cursor() as cur:
-
         main_query = []
         for loc_level in constants["GEO_LEVELS"].values():
             loc_ids = req.get(loc_level, None)
@@ -433,6 +482,8 @@ def query_and_aggregate(conn, req):
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
                 req.get("selected_reference", None),
+                req.get("sequence_length", None),
+                req.get("percent_ambiguous", None),
             )
             sequence_where_filter = sql.SQL(
                 "{prior} AND {loc_level_col} = ANY({loc_ids})"
@@ -536,6 +587,8 @@ def query_and_aggregate(conn, req):
                 req.get("selected_metadata_fields", None),
                 req.get("selected_group_fields", None),
                 req.get("selected_reference", None),
+                req.get("sequence_length", None),
+                req.get("percent_ambiguous", None),
             )
             coverage_df = count_coverage(
                 cur,
