@@ -3,6 +3,7 @@
 """Main data processing workflow from ingested data
 
 $ snakemake --configfile ../config/config_sars2_gisaid.yaml -j6
+$ snakemake --configfile ../config/config_sars2_gisaid_6month.yaml -j6 -R sequence_manifest
 $ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
@@ -35,6 +36,8 @@ import datetime
 import os
 from pathlib import Path
 
+import pandas as pd
+
 data_folder = os.path.join("..", config["data_folder"])
 static_data_folder = os.path.join("..", config["static_data_folder"])
 
@@ -45,6 +48,34 @@ today_str = datetime.date.today().isoformat()
 CHUNKS, = glob_wildcards(os.path.join(
     data_folder, "fasta_raw", "{chunk}.fa.gz"
 ))
+
+start_date_cutoff = None
+end_date_cutoff = None
+
+if config["start_date_cutoff"] is not None:
+    start_date_cutoff = pd.to_datetime(config["start_date_cutoff"])
+elif config["start_date_cutoff_days_ago"] is not None:
+    start_date_cutoff = (
+        pd.to_datetime(today_str) - 
+        pd.Timedelta(days=config["start_date_cutoff_days_ago"])
+    )
+
+if config["end_date_cutoff"] is not None:
+    end_date_cutoff = pd.to_datetime(config["end_date_cutoff"])
+elif config["end_date_cutoff_days_ago"] is not None:
+    end_date_cutoff = (
+        pd.to_datetime(today_str) - 
+        pd.Timedelta(days=config["end_date_cutoff_days_ago"])
+    )
+
+# Filter chunks by date
+if start_date_cutoff is not None:
+    print(f"Filtering out sequences from before {start_date_cutoff.isoformat()}")
+    CHUNKS = [c for c in CHUNKS if pd.to_datetime(c.split('_')[2]) > start_date_cutoff]
+
+if end_date_cutoff is not None:
+    print(f"Filtering out sequences from after {end_date_cutoff.isoformat()}")
+    CHUNKS = [c for c in CHUNKS if pd.to_datetime(c.split('_')[2]) < end_date_cutoff]
 
 SEGMENTS = config["segments"]
 SUBTYPES = [
@@ -211,13 +242,17 @@ rule sequence_manifest:
     output:
         manifest = os.path.join(data_folder, "sequence_manifest.csv")
     params:
-        processed_fasta_files = os.path.join(data_folder, "fasta_processed")
+        processed_fasta_files = os.path.join(data_folder, "fasta_processed"),
+        start_date_cutoff = f"--start-date-cutoff {start_date_cutoff.date().isoformat()}" if start_date_cutoff is not None else "",
+        end_date_cutoff = f"--end-date-cutoff {end_date_cutoff.date().isoformat()}" if end_date_cutoff is not None else ""
     shell:
         """
         python3 scripts/sequence_manifest.py \
             --reference {input.reference} \
             --fasta {params.processed_fasta_files} \
-            --out {output.manifest}
+            --out {output.manifest} \
+            {params.start_date_cutoff}
+            {params.end_date_cutoff}
         """
 
 
