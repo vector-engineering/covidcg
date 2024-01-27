@@ -25,6 +25,9 @@ rule all:
         os.path.join(data_folder, "metadata_virus+serotype.json"),
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
+        ),
+        os.path.join(
+            data_folder, "status", "chunk_sequences_" + today_str + ".done"
         )
 
 
@@ -71,7 +74,10 @@ checkpoint chunk_sequences:
         ),
         metadata = rules.clean_metadata.output.metadata_clean
     output:
-        fasta = directory(os.path.join(data_folder, "fasta_temp"))
+        fasta = directory(os.path.join(data_folder, "fasta_temp")),
+        status = touch(os.path.join(
+            data_folder, "status", "chunk_sequences_" + today_str + ".done"
+        ))
     threads: workflow.cores
     params:
         chunk_size = config["chunk_size"]
