@@ -114,7 +114,6 @@ def process_fasta_file(fasta_file, metadata, output_path, chunk_size=10_000):
     date_lookup = dict(zip(metadata.index, metadata["submission_date"]))
 
     for name, seq in entries:
-
         # Flush results if chunk is full
         if chunk_i == chunk_size:
             print("Writing {} sequences".format(chunk_i))
@@ -124,7 +123,10 @@ def process_fasta_file(fasta_file, metadata, output_path, chunk_size=10_000):
             # Reset sequence dictionary
             fasta_by_year_subtype_segment = defaultdict(list)
 
-        accession_id = "EPI" + name.split("|")[0]
+        # Get the accession ID
+        accession_id = name.split("|")[0]
+        if not accession_id.startswith("EPI"):
+            accession_id = "EPI" + accession_id
 
         # If this entry isn't present in the cleaned metadata, then skip
         if accession_id not in metadata.index:
