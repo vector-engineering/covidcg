@@ -24,7 +24,7 @@ export const PubBanner = styled.div`
   padding: 5px;
   border-bottom: 1px solid #aaa;
 
-  p {
+  div {
     margin: 0px;
     margin-left: auto;
   }

@@ -135,6 +135,7 @@ prod_hostname:
 
 site_title: "COVID CG Genbank"
 data_provider: "NCBI GenBank"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD_SARS2_GENBANK.html"
 
 # Default references for each subtype
 default_references:

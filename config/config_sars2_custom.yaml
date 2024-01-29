@@ -118,6 +118,7 @@ prod_hostname:
 
 site_title: "COVID CG"
 data_provider: "Custom"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD.html"
 
 # Default references for each subtype
 default_references:
