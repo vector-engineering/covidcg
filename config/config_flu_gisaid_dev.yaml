@@ -162,6 +162,7 @@ prod_hostname:
 
 site_title: "Flu PathMut"
 data_provider: "GISAID"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD_FLU_GISAID.html"
 
 # Default references for each subtype
 default_references:

@@ -165,6 +165,7 @@ prod_hostname:
 
 site_title: "COVID CG"
 data_provider: "GISAID"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD_SARS2_GISAID.html"
 
 # Default references for each subtype
 default_references:
