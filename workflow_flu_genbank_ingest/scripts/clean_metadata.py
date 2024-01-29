@@ -26,7 +26,6 @@ import pandas as pd
 
 
 def protein_to_segment(x):
-
     rename_map = {
         "pB1": "PB1",
         "Pb1": "PB1",
@@ -250,8 +249,7 @@ def protein_to_segment(x):
 
 
 def collapse_segment_list(segments):
-    """Choose consensus segment from list of derived segments
-    """
+    """Choose consensus segment from list of derived segments"""
     # Remove non-integers from this list
     segments = [x for x in segments if type(x) is int]
 
@@ -302,7 +300,6 @@ def parse_genbank_location(s):
 
 
 def main():
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
