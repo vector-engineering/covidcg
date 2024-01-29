@@ -144,3 +144,6 @@ workflow_main/notebooks/**
 
 # SnapGene - temp files
 static_data/flu/alignments/.sglock/**
+
+# MOTD
+MOTD*.html
