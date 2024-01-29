@@ -298,6 +298,12 @@ def seed_database(conn, schema="public"):
         isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
         isolate_df["submission_date"] = pd.to_datetime(isolate_df["submission_date"])
         # print(isolate_df.columns)
+        if 'gisaid_lineage' in isolate_df.columns:
+            isolate_df['gisaid_lineage'] = isolate_df['gisaid_lineage'].fillna('Unassigned')
+        if 'lineage' in isolate_df.columns:
+            isolate_df['lineage'] = isolate_df['lineage'].fillna('Unassigned')
+        if 'clade' in isolate_df.columns:
+            isolate_df['clade'] = isolate_df['clade'].fillna('Unassigned')
 
         # Make a column for each metadata field
         metadata_cols = []

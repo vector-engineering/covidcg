@@ -98,6 +98,20 @@ def main():
         help="Path to reference JSON file",
     )
     parser.add_argument(
+        "--start-date-cutoff",
+        type=str,
+        required=False,
+        default=None,
+        help="Filter out sequences prior to this date"
+    )
+    parser.add_argument(
+        "--end-date-cutoff",
+        type=str,
+        required=False,
+        default=None,
+        help="Filter out sequences after this date"
+    )
+    parser.add_argument(
         "--out", type=str, required=True, help="Output manifest CSV file"
     )
 
@@ -140,6 +154,20 @@ def main():
         date=lambda x: x["file_name"].str.split("_").str.get(2),
         reference=lambda x: x["subtype"].map(subtype_refs),
     )
+
+    # Filter by date
+    pruned_manifest["date_obj"] = pd.to_datetime(pruned_manifest["date"])
+    if args.start_date_cutoff is not None:
+        print(f"Filtering out sequences from before {args.start_date_cutoff}")
+        pruned_manifest = pruned_manifest.loc[
+            pruned_manifest["date_obj"] > pd.to_datetime(args.start_date_cutoff)
+        ]
+    if args.end_date_cutoff is not None:
+        print(f"Filtering out sequences after {args.end_date_cutoff}")
+        pruned_manifest = pruned_manifest.loc[
+            pruned_manifest["date_obj"] < pd.to_datetime(args.end_date_cutoff)
+        ]
+    pruned_manifest.drop(columns=['date_obj'], inplace=True)
 
     pruned_manifest = pruned_manifest.explode("reference")
 
