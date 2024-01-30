@@ -29,12 +29,12 @@ def main():
 
     Parameters
     ----------
-    data_feed: str
-        - Path to data feed csv file
+    metadata: str
+        - Path to metadata csv file
+    sequence_chunks: list of str
+        - List of paths to sequence FASTA files
     out_fasta: str
         - Path to fasta output directory
-    out_metadata: str
-        - Path to metadata.csv output file
     chunk_size: int
         - Number of records to hold in RAM before flushing to disk
     processes: int
@@ -58,12 +58,6 @@ def main():
     )
     parser.add_argument(
         "--out-fasta", type=str, required=True, help="Path to output fasta directory"
-    )
-    parser.add_argument(
-        "--out-metadata",
-        type=str,
-        required=True,
-        help="Path to output metadata CSV file",
     )
     parser.add_argument(
         "--chunk-size",
