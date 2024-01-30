@@ -21,6 +21,15 @@ The request this program makes is based on observing the network activity that
 performs after clicking through the download interface.  Some tweaks were made
 by comparing different download requests and guessing, which allows us to
 download the metadata + sequence in the same request instead of two.
+
+------------------
+
+Example download:
+
+https://www.ncbi.nlm.nih.gov/genomes/VirusVariation/vvsearch2/?fq=%7B!tag%3DSeqType_s%7DSeqType_s:(%22Nucleotide%22)&fq=VirusLineageId_ss:(208893)&cmd=download&sort=SourceDB_s%20desc,CreateDate_dt%20desc,id%20asc&dlfmt=fasta&fl=AccVer_s,Definition_s,Nucleotide_seq
+
+https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=Human%20respiratory%20syncytial%20virus%20A,%20taxid:208893
+
 """
 
 
@@ -29,7 +38,6 @@ import requests
 
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--start-time",
@@ -57,35 +65,8 @@ def main():
         "q": "*:*",
         # Response format
         "cmd": "download",
-        "dlfmt": "csv",
-        "fl": ",".join(
-            ":".join(names)
-            for names in [
-                # Pairs of (output column name, source data field).  These are pulled
-                # from watching requests from the UI.
-                #
-                # XXX TODO: Is the full set source data fields documented
-                # somewhere?  Is there more info we could be pulling that'd be
-                # useful?
-                #   -trs, 13 May 2020
-                ("genbank_accession", "id"),
-                ("database", "SourceDB_s"),
-                ("strain", "Isolate_s"),
-                ("region", "Region_s"),
-                ("location", "CountryFull_s"),
-                ("collected", "CollectionDate_s"),
-                ("submitted", "CreateDate_dt"),
-                ("length", "SLen_i"),
-                ("host", "Host_s"),
-                ("isolation_source", "Isolation_csv"),
-                ("biosample_accession", "BioSample_s"),
-                ("title", "Definition_s"),
-                ("authors", "Authors_csv"),
-                ("publications", "PubMed_csv"),
-                ("sequence", "Nucleotide_seq"),
-                ("protein_names", "ProtNames_ss"),
-            ]
-        ),
+        "dlfmt": "fasta",
+        "fl": ",".join(["id", "AccVer_s", "Definition_s", "Nucleotide_seq"]),
         # Stable sort with newest last so diffs work nicely.  Columns are source
         # data fields, not our output columns.
         "sort": "SourceDB_s desc, CollectionDate_s asc, id asc",
