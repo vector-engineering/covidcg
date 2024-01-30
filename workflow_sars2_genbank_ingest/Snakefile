@@ -112,7 +112,6 @@ checkpoint chunk_data:
             --metadata {input.metadata} \
             --sequence-chunks {input.sequence_chunks} \
             --out-fasta {params.fasta} \
-            --out-metadata {output.metadata_dirty} \
             --chunk-size {params.chunk_size} \
             --processes {workflow.cores}
         """
@@ -276,7 +275,7 @@ rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.chunk_data.output.metadata_dirty,
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata_dirty,
         lineages = rules.combine_lineages.output.lineages,
         quality = rules.combine_quality.output.quality
     output:
