@@ -2,12 +2,8 @@
 # coding: utf-8
 
 import argparse
-import csv
 import gzip
 import pandas as pd
-import sys
-
-csv.field_size_limit(sys.maxsize)
 
 
 def main():

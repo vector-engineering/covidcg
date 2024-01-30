@@ -11,16 +11,11 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import csv
 import gzip
 import pandas as pd
-import sys
 
 from collections import defaultdict
 from pathlib import Path
-
-
-csv.field_size_limit(sys.maxsize)
 
 
 def flush_chunk(output_path, fasta_by_month_subtype):
