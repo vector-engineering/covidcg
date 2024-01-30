@@ -6,19 +6,14 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import csv
 import datetime
 import gzip
 import multiprocessing as mp
 import pandas as pd
-import sys
 
 from collections import defaultdict
 from functools import partial
 from pathlib import Path
-
-
-csv.field_size_limit(sys.maxsize)
 
 
 def write_sequences_day(fasta_out_path, seqs):
@@ -52,7 +47,14 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data-feed", type=str, required=True, help="Path to data feed CSV file"
+        "--metadata", type=str, required=True, help="Path to metadata CSV file"
+    )
+    parser.add_argument(
+        "--sequence-chunks",
+        type=str,
+        nargs="+",
+        required=True,
+        help="Sequence FASTA files",
     )
     parser.add_argument(
         "--out-fasta", type=str, required=True, help="Path to output fasta directory"
@@ -93,9 +95,7 @@ def main():
     # Keep track of how far we're along the current chunk
     chunk_i = 0
 
-    # Store metadata entries as a list of dictionaries, for now
-    # We'll wrap it in a pandas DataFrame later for easier serialization
-    metadata_df = []
+    metadata = pd.read_csv(args.metadata, index_col="genbank_accession")
 
     def flush_chunk(fasta_by_subm_date):
         with mp.get_context("spawn").Pool(processes=args.processes) as pool:
@@ -107,42 +107,65 @@ def main():
             pool.close()
             pool.join()
 
-    with open(args.data_feed, "r", newline="") as fp_in:
-        # Open up the initial fasta file for the first chunk
-        fasta_by_subm_date = defaultdict(list)
+    for file in args.sequence_chunks:
+        with open(file, mode="rt", newline="") as fp_in:
+            # Open up the initial fasta file for the first chunk
+            fasta_by_subm_date = defaultdict(list)
 
-        line_counter = 0
+            # Read sequences
+            cur_entry = ""
+            cur_seq = ""
 
-        feed_reader = csv.DictReader(fp_in, delimiter=",", quotechar='"')
-        for row in feed_reader:
-            # Flush results if chunk is full
-            if chunk_i == args.chunk_size:
-                flush_chunk(fasta_by_subm_date)
-                # Reset chunk counter
-                chunk_i = 0
-                # Reset sequence dictionary
-                fasta_by_subm_date = defaultdict(list)
+            entries = []
+            lines = fp_in.readlines()
+            for i, line in enumerate(lines):
+                # Strip whitespace
+                line = line.strip()
 
-            # Add to metadata list
-            metadata_df.append({k: row[k] for k in row.keys() if k != "sequence"})
+                # Ignore empty lines that aren't the last line
+                if not line and i <= (len(lines) - 1):
+                    continue
 
-            # Store sequence in dictionary
-            # Chop off the "Z" at the end of the submission time string, then parse
-            # as an ISO datetime format, then return just the year-month-day
-            subm_date = datetime.datetime.fromisoformat(row["submitted"][:-1]).strftime(
-                "%Y-%m-%d"
-            )
-            fasta_by_subm_date[subm_date].append(
-                (row["genbank_accession"], row["sequence"])
-            )
+                # If not the name of an entry, add this line to the current sequence
+                # (some FASTA files will have multiple lines per sequence)
+                if line[0] != ">":
+                    cur_seq = cur_seq + line
 
-            # Iterate the intra-chunk counter
-            chunk_i += 1
+                # Start of another entry = end of the previous entry
+                if line[0] == ">" or i == (len(lines) - 1):
+                    # Avoid capturing the first one and pushing an empty sequence
+                    if cur_entry:
+                        entries.append((cur_entry, cur_seq))
 
-            line_counter += 1
+            for cur_entry, cur_seq in entries:
+                # Flush results if chunk is full
+                if chunk_i == args.chunk_size:
+                    flush_chunk(fasta_by_subm_date)
+                    # Reset chunk counter
+                    chunk_i = 0
+                    # Reset sequence dictionary
+                    fasta_by_subm_date = defaultdict(list)
 
-        # Flush the last chunk
-        flush_chunk(fasta_by_subm_date)
+                accession_id = cur_entry.split("|")[0].strip()
+                if accession_id not in metadata.index:
+                    continue
+
+                submitted = metadata.at[accession_id, "submitted"]
+                # Store sequence in dictionary
+                # Chop off the "Z" at the end of the submission time string, then parse
+                # as an ISO datetime format, then return just the year-month-day
+                subm_date = datetime.datetime.fromisoformat(submitted[:-1]).strftime(
+                    "%Y-%m-%d"
+                )
+                fasta_by_subm_date[subm_date].append((accession_id, cur_seq))
+
+                # Iterate the intra-chunk counter
+                chunk_i += 1
+
+                line_counter += 1
+
+            # Flush the last chunk
+            flush_chunk(fasta_by_subm_date)
 
     # Cast the list of dictionaries (list of metadata entries) into a pandas
     # DataFrame, and then serialize it to disk
