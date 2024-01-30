@@ -275,7 +275,7 @@ rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.combine_metadata_chunks.output.metadata_dirty,
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata,
         lineages = rules.combine_lineages.output.lineages,
         quality = rules.combine_quality.output.quality
     output:
