@@ -39,7 +39,7 @@ rule all:
         os.path.join(data_folder, 'metadata_virus+serotype.csv')
 
 
-rule download_chunk:
+rule download_metadata_chunk:
     """Download the data feed in chunks, to avoid timeouts.
     """
     output:
@@ -54,7 +54,22 @@ rule download_chunk:
                 > {output.feed}
         """
 
-rule combine_download_chunks:
+rule download_sequence_chunk:
+    """Download the data feed metadata in chunks, to avoid timeouts.
+    """
+    output:
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download_sequences.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_metadata_chunks:
     """Combine all the downloaded chunks into a single CSV file.
     Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
     """
@@ -63,13 +78,28 @@ rule combine_download_chunks:
     params:
         chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
     output:
-        feed = os.path.join(data_folder, 'feed.csv'),
+        metadata = os.path.join(data_folder, 'metadata_dirty.csv'),
         status = touch(os.path.join(
             data_folder, "status", "download_" + today_str + ".done"
         ))
     shell:
         """
-        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.metadata}
+        """
+
+rule combine_sequence_chunks:
+    """Combine all the downloaded chunks into a single FASTA file.
+    """
+    input:
+        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'), chunk=DL_CHUNKS),
+        download_status = rules.combine_metadata_chunks.output.status # Force this step every day
+    params:
+        chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.fasta')
+    output:
+        feed = os.path.join(data_folder, 'feed.fasta'),
+    shell:
+        """
+        cat {params.chunk_glob} > {output.feed}
         """
 
 
@@ -77,7 +107,7 @@ rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.combine_download_chunks.output.feed
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv"),
         metadata_virus = os.path.join(data_folder, "metadata_virus.csv")
@@ -92,7 +122,7 @@ rule clean_metadata:
 
 rule write_ha_fasta:
     input:
-        feed = rules.combine_download_chunks.output.feed,
+        feed = rules.combine_sequence_chunks.output.feed,
         metadata = rules.clean_metadata.output.metadata_clean
     output:
         sequences = os.path.join(data_folder, 'ha.fa.gz')
@@ -143,7 +173,7 @@ checkpoint chunk_sequences:
     We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.combine_download_chunks.output.feed,
+        feed = rules.combine_sequence_chunks.output.feed,
         metadata = rules.clean_metadata.output.metadata_clean,
         metadata_virus = rules.join_serotype_assignments.output.metadata_virus_plus_serotype,
     output:

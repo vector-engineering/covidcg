@@ -128,8 +128,8 @@ Example record:
 import argparse
 import requests
 
-def main():
 
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--start-time",
@@ -208,7 +208,7 @@ def main():
                 ("title", "Definition_s"),
                 ("authors", "Authors_csv"),
                 ("publications", "PubMed_csv"),
-                ("sequence", "Nucleotide_seq"),
+                # ("sequence", "Nucleotide_seq"),
             ]
         ),
         # Stable sort with newest last so diffs work nicely.  Columns are source
@@ -230,6 +230,7 @@ def main():
 
     for chunk in response_content:
         print(chunk, end="")
+
 
 if __name__ == "__main__":
     main()
