@@ -27,6 +27,8 @@ download the metadata + sequence in the same request instead of two.
 import argparse
 import requests
 
+RETRY_ATTEMPTS = 5
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -97,8 +99,22 @@ def main():
         "User-Agent": "https://github.com/vector-engineering/covid-cg (covidcg@broadinstitute.org)",
     }
 
-    response = requests.get(endpoint, params=params, headers=headers, stream=True)
-    response.raise_for_status()
+    for _ in range(RETRY_ATTEMPTS):
+        try:
+            response = requests.get(
+                endpoint, params=params, headers=headers, stream=True
+            )
+            response.raise_for_status()
+            break
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading metadata: {e}")
+
+        if _ == RETRY_ATTEMPTS - 1:
+            raise Exception(
+                f"Failed to download metadata after {RETRY_ATTEMPTS} attempts"
+            )
+        else:
+            print(f"Retrying download...")
 
     response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
 
