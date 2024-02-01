@@ -161,14 +161,6 @@ def main():
             # Flush the last chunk
             flush_chunk(fasta_by_subm_date)
 
-    # Cast the list of dictionaries (list of metadata entries) into a pandas
-    # DataFrame, and then serialize it to disk
-    # Do this step since pandas can handle some special serialization options
-    # that I didn't want to implement manually (such as wrapping certain strings
-    # in double quotes)
-    metadata_df = pd.DataFrame(metadata_df)
-    metadata_df.to_csv(args.out_metadata, index=False)
-
 
 if __name__ == "__main__":
     main()
