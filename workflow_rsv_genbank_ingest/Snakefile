@@ -94,7 +94,8 @@ rule combine_sequence_chunks:
     """Combine all the downloaded chunks into a single FASTA file.
     """
     input:
-        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'), chunk=DL_CHUNKS)
+        chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'), chunk=DL_CHUNKS),
+        download_status = rules.combine_metadata_chunks.output.status # Force this step every day
     params:
         chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.fasta')
     output:
@@ -121,7 +122,6 @@ rule clean_metadata:
 rule write_all_fasta:
     input:
         feed = rules.combine_sequence_chunks.output.feed,
-        download_status = rules.combine_metadata_chunks.output.status, # Force this step every day
         metadata = rules.clean_metadata.output.metadata_clean
     output:
         sequences = os.path.join(data_folder, 'all_sequences.fa.gz')
