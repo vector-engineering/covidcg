@@ -6,7 +6,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import datetime
 import pandas as pd
 
 
@@ -98,10 +97,11 @@ def main():
 
     # Remove "Z" from the end of the submission date string, and convert from
     # ISO datetime to ISO date
-    def datetime_to_date(x):
-        return datetime.datetime.fromisoformat(x[:-1]).strftime("%Y-%m-%d")
-
-    df.loc[:, "submission_date"] = df["submission_date"].apply(datetime_to_date)
+    df.loc[:, "submission_date"] = pd.to_datetime(
+        df["submission_date"], errors="coerce"
+    ).apply(lambda x: x.strftime("%Y-%m-%d"))
+    # Remove rows with invalid submission dates
+    df = df.loc[~(df["submission_date"].isna())]
 
     # Parse location data
     def parse_genbank_location(s):
