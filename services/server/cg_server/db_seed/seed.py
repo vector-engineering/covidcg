@@ -42,15 +42,15 @@ loc_levels = [
 
 
 def df_to_sql(cur, df, table, index_label=None):
-    n = 500  # chunk row size
-    list_df = [df[i : i + n] for i in range(0, df.shape[0], n)]
-
-    for chunk in list_df:
+    n = 10000  # chunk row size
+    n_chunks = df.shape[0] // n + 1
+    print(f"Writing {table} ({n_chunks}): ", end="", flush=True)
+    for i in range(0, df.shape[0], n):
         buffer = io.StringIO()
         if index_label:
-            chunk.to_csv(buffer, index_label=index_label, header=False)
+            df[i : i + n].to_csv(buffer, index_label=index_label, header=False)
         else:
-            chunk.to_csv(buffer, index=False, header=False)
+            df[i : i + n].to_csv(buffer, index=False, header=False)
 
         buffer.seek(0)
         # cur.copy_from(buffer, table, sep=",")
@@ -62,6 +62,7 @@ def df_to_sql(cur, df, table, index_label=None):
             ),
             buffer,
         )
+        print(i, end=".", flush=True)
 
 
 def seed_database(conn, schema="public"):
@@ -480,7 +481,9 @@ def seed_database(conn, schema="public"):
                 # Clean up the reference name as a SQL ident - no dots
                 reference_name_sql = reference_name.replace(".", "_")
 
-                reference_partition_name = f"seqmut_{mutation_field}_{reference_name_sql}"
+                reference_partition_name = (
+                    f"seqmut_{mutation_field}_{reference_name_sql}"
+                )
 
                 # Create reference partition
                 cur.execute(
