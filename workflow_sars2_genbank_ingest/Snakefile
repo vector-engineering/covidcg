@@ -8,11 +8,6 @@ from pathlib import Path
 
 import pandas as pd
 
-# Import scripts
-from scripts.chunk_data import chunk_data
-from scripts.clean_metadata import clean_metadata
-from scripts.combine_lineages import combine_lineages
-
 configfile: "../config/config_sars2_genbank.yaml"
 
 # Get today's date in ISO format (YYYY-MM-DD)
@@ -24,22 +19,25 @@ data_folder = os.path.join("..", config["data_folder"])
 rule all:
     input:
         # Download latest data feed, process sequences
-        os.path.join(
-            data_folder, "status", "download_" + today_str + ".done"
+        download_status = os.path.join(
+            data_folder, "status", "download_metadata_" + today_str + ".done"
         ),
-        os.path.join(
+        chunk_status = os.path.join(
+            data_folder, "status", "chunk_data_" + today_str + ".done"
+        ),
+        copy_status = os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
         ),
         # Cleaned metadata, with lineage assignments
-        os.path.join(data_folder, "metadata.csv")
+        metadata = os.path.join(data_folder, "metadata.csv")
 
 min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
-max_date = pd.to_datetime(datetime.date.today().isoformat())
+max_date = pd.to_datetime(config.get('end_date_cutoff', datetime.date.today().isoformat()))
 
 chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
 DL_CHUNKS = [i for i in range(len(chunks))]
 
-rule download_chunk:
+rule download_metadata_chunk:
     """Download the data feed in chunks, to avoid timeouts.
     """
     output:
@@ -49,12 +47,27 @@ rule download_chunk:
         end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
     shell:
         """
-        python3 scripts/download.py \
+        python3 scripts/download_metadata.py \
             --start-time {params.start_time} --end-time {params.end_time} \
                 > {output.feed}
         """
 
-rule combine_download_chunks:
+rule download_sequence_chunk:
+    """Download the data feed metadata in chunks, to avoid timeouts.
+    """
+    output:
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download_sequences.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_metadata_chunks:
     """Combine all the downloaded chunks into a single CSV file.
     Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
     """
@@ -63,13 +76,13 @@ rule combine_download_chunks:
     params:
         chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
     output:
-        feed = os.path.join(data_folder, 'feed.csv'),
+        metadata = os.path.join(data_folder, 'metadata_dirty.csv'),
         status = touch(os.path.join(
-            data_folder, "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_metadata_" + today_str + ".done"
         ))
     shell:
         """
-        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.metadata}
         """
 
 
@@ -83,18 +96,24 @@ checkpoint chunk_data:
     We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.combine_download_chunks.output.feed
+        metadata = rules.combine_metadata_chunks.output.metadata,
+        sequence_chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'), chunk=DL_CHUNKS)
     output:
-        fasta = directory(os.path.join(data_folder, "fasta_temp")),
-        metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv")
+        status = touch(os.path.join(
+            data_folder, "status", "chunk_data_" + today_str + ".done"
+        ))
     params:
+        fasta = os.path.join(data_folder, "fasta_temp"),
         chunk_size = config["chunk_size"]
-    run:
-        chunk_data(
-            input.feed, output.fasta, output.metadata_dirty,
-            chunk_size=params.chunk_size,
-            processes=workflow.cores
-        )
+    shell:
+        """
+        python3 scripts/chunk_data.py \
+            --metadata {input.metadata} \
+            --sequence-chunks {input.sequence_chunks} \
+            --out-fasta {params.fasta} \
+            --chunk-size {params.chunk_size} \
+            --processes {workflow.cores}
+        """
 
 
 def get_num_seqs(fasta_gz):
@@ -117,7 +136,7 @@ def get_changed_chunks(wildcards):
     """
 
     # Only run to trigger DAG re-evaluation
-    checkpoint_output = checkpoints.chunk_data.get(**wildcards)
+    #checkpoint_output = checkpoints.chunk_data.get(**wildcards)
     chunks, = glob_wildcards(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"))
 
     # Keep track of which chunks have changed
@@ -145,11 +164,11 @@ def get_changed_chunks(wildcards):
             changed_chunks.append(chunk)
 
     # Return a list of fasta_temp files that have changed, so that they can be copied
-    # over to fasta_raw by the below `copy_changed_files` rule
+    # over to fasta_raw by the below `copy_changed_files` rule)
     return expand(os.path.join(data_folder, "fasta_temp", "{i}.fa.gz"), i=changed_chunks)
 
 
-checkpoint copy_changed_files:
+rule copy_changed_files:
     """Using the `get_changed_chunks` function, only copy fasta files which have changed
     from the purgatory `fasta_temp` folder to the `fasta_raw` folder. By copying over the files,
     it will flag to snakemake that they (and only they - not the others) will need to be
@@ -173,23 +192,6 @@ checkpoint copy_changed_files:
         """
 
 
-def get_chunks(wildcards):
-    """Get all copied chunks from copy_changed_files, as input for the
-    lineage assignments. While some of these assignments will be wasted on
-    sequences that will be filtered out downstream by the `preprocess_sequences`
-    rule in `workflow_main`, I think it's still better to do this during the
-    ingestion as the lineage/clade assignments are ingestion-specific
-    """
-
-    # Only do this to trigger the DAG recalculation
-    checkpoint_output = checkpoints.copy_changed_files.get(**wildcards)
-
-    return expand(
-        os.path.join(data_folder, "lineages", "{chunk}.csv"),
-        chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-    )
-
-
 rule pangolin_lineages:
     """Assign a lineage to each sequence using pangolin
     """
@@ -199,31 +201,89 @@ rule pangolin_lineages:
         fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
         lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
     conda: "envs/pangolin.yaml"
+    params:
+        cores = int(workflow.cores / 10),
+        tempdir = os.getenv("PANGOLIN_TEMPDIR", "/var/tmp")
+    threads: workflow.cores / 10
     shell:
         """
+        pangolin --update
+        pangolin --update-data 
         # Pangolin can only use un-gzipped fasta files
         gunzip -c {input.fasta} > {output.fasta}
-        pangolin --outfile {output.lineages} {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta} \
+            --tempdir {params.tempdir} \
+            -t {params.cores} # --analysis-mode fast
         """
 
 rule combine_lineages:
     """Combine all lineage result chunks
     """
     input:
-        lineages = get_chunks
+        lineages = expand(
+            os.path.join(data_folder, "lineages", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "lineages", "*.csv")
     output:
         lineages = os.path.join(data_folder, "lineages.csv")
-    run:
-        combine_lineages(input.lineages, output.lineages)
+    shell:
+        """
+        echo {input.lineages}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.lineages}
+        """
+
+
+rule sequence_quality:
+    """Collect statistics about sequence quality
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        quality = os.path.join(data_folder, "quality", "{chunk}.csv")
+    shell:
+        """
+        python3 scripts/sequence_quality.py \
+            --input {input.fasta} \
+            --output {output.quality}
+        """
+
+rule combine_quality:
+    """Combine all quality result chunks
+    """
+    input:
+        quality = expand(
+            os.path.join(data_folder, "quality", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "quality", "*.csv")
+    output:
+        quality = os.path.join(data_folder, "quality.csv")
+    shell:
+        """
+        echo {input.quality}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.quality}
+        """
 
 
 rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.chunk_data.output.metadata_dirty,
-        lineages = rules.combine_lineages.output.lineages
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata,
+        lineages = rules.combine_lineages.output.lineages,
+        quality = rules.combine_quality.output.quality
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv")
-    run:
-        clean_metadata(input.metadata_dirty, input.lineages, output.metadata_clean)
+    shell:
+        """
+        python3 scripts/clean_metadata.py \
+            --metadata-in {input.metadata_dirty} \
+            --lineages {input.lineages} \
+            --quality {input.quality} \
+            --metadata-out {output.metadata_clean}
+        """

@@ -21,7 +21,7 @@ from .load_mutations import process_dna_mutations, process_aa_mutations
 
 # root/services/server/cg_server/db_seed/seed.py
 project_root = Path(__file__).parent.parent.parent.parent.parent
-data_path = Path(os.getenv("DATA_PATH", project_root / config["example_data_folder"]))
+data_path = Path(os.getenv("DATA_PATH", project_root / config["data_folder"]))
 static_data_path = Path(
     os.getenv("STATIC_DATA_PATH", project_root / config["static_data_folder"])
 )
@@ -67,7 +67,6 @@ def df_to_sql(cur, df, table, index_label=None):
 
 def seed_database(conn, schema="public"):
     with conn.cursor() as cur:
-
         cur.execute(sql.SQL("SET search_path TO {};").format(sql.Identifier(schema)))
 
         cur.execute("DROP EXTENSION IF EXISTS intarray;")
@@ -196,7 +195,6 @@ def seed_database(conn, schema="public"):
 
         mutation_fields = ["dna", "gene_aa", "protein_aa"]
         for grouping in group_mutation_frequencies.keys():
-
             # Get references
             reference_names = sorted(group_mutation_frequencies[grouping].keys())
 
@@ -261,7 +259,6 @@ def seed_database(conn, schema="public"):
 
         # Build colormaps
         for grouping in config["group_cols"].keys():
-
             # Collect unique group names
             group_names = []
             for reference in global_group_counts.keys():
@@ -301,12 +298,33 @@ def seed_database(conn, schema="public"):
         print("done")
 
         print("Writing sequence metadata...", end="", flush=True)
+
+        isolate_df = pd.read_json(data_path / "isolate_data.json")
+        isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
+        isolate_df["submission_date"] = pd.to_datetime(isolate_df["submission_date"])
+        # print(isolate_df.columns)
+        if 'gisaid_lineage' in isolate_df.columns:
+            isolate_df['gisaid_lineage'] = isolate_df['gisaid_lineage'].fillna('Unassigned')
+        if 'lineage' in isolate_df.columns:
+            isolate_df['lineage'] = isolate_df['lineage'].fillna('Unassigned')
+        if 'clade' in isolate_df.columns:
+            isolate_df['clade'] = isolate_df['clade'].fillna('Unassigned')
+
         # Make a column for each metadata field
         metadata_cols = []
         metadata_col_defs = []
         for field in list(config["metadata_cols"].keys()) + loc_levels:
             metadata_col_defs.append(sql.SQL(f"{field} INTEGER NOT NULL"))
             metadata_cols.append(field)
+
+        # Make columns for sequence metadata, if they exist
+        if "length" in isolate_df.columns:
+            metadata_cols.append("length")
+            metadata_col_defs.append(sql.SQL("length INTEGER NOT NULL"))
+        if "percent_ambiguous" in isolate_df.columns:
+            metadata_cols.append("percent_ambiguous")
+            metadata_col_defs.append(sql.SQL("percent_ambiguous REAL NOT NULL"))
+
         metadata_col_defs = sql.SQL(",\n").join(metadata_col_defs)
 
         # Make a column for each grouping
@@ -342,11 +360,6 @@ def seed_database(conn, schema="public"):
                 metadata_col_defs=metadata_col_defs, grouping_col_defs=grouping_col_defs
             )
         )
-
-        isolate_df = pd.read_json(data_path / "isolate_data.json")
-        isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
-        isolate_df["submission_date"] = pd.to_datetime(isolate_df["submission_date"])
-        # print(isolate_df.columns)
 
         # Partition settings
         min_date = isolate_df["collection_date"].min()
@@ -428,8 +441,7 @@ def seed_database(conn, schema="public"):
                 "segments",
                 "accession_ids",
             ]
-            + list(config["metadata_cols"].keys())
-            + loc_levels
+            + metadata_cols
             + list(
                 filter(lambda x: x != "subtype", config["group_cols"].keys())
             )  # Avoid duplicate subtype index
@@ -562,13 +574,11 @@ def seed_database(conn, schema="public"):
                     "subtype",
                     "reference",
                 ]
-                + list(config["metadata_cols"].keys())
-                + loc_levels
+                + metadata_cols
                 + list(
                     filter(lambda x: x != "subtype", config["group_cols"].keys())
                 )  # Avoid duplicate subtype index
             ):
-
                 cur.execute(
                     sql.SQL(
                         "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
@@ -763,13 +773,11 @@ def seed_database(conn, schema="public"):
                     "subtype",
                     "reference",
                 ]
-                + list(config["metadata_cols"].keys())
-                + loc_levels
+                + metadata_cols
                 + list(
                     filter(lambda x: x != "subtype", config["group_cols"].keys())
                 )  # Avoid duplicate subtype index
             ):
-
                 cur.execute(
                     sql.SQL(
                         "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"

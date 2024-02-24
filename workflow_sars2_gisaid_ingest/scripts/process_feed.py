@@ -14,6 +14,7 @@ import datetime
 import gzip
 import hashlib
 import json
+import lzma
 import multiprocessing as mp
 import os
 import pandas as pd
@@ -159,7 +160,7 @@ def main():
         pool.join()
 
     manifest = pd.DataFrame(entries, columns=["Accession ID", "sequence_hash", "date"])
-    #manifest["date"] = pd.to_datetime(manifest["date"])
+    # manifest["date"] = pd.to_datetime(manifest["date"])
     # Sort by date, and drop duplicate Accession IDs, by keeping the last copy
     # (i.e., the latest copy)
     manifest = manifest.sort_values("date", ascending=True).drop_duplicates(
@@ -172,7 +173,7 @@ def main():
 
     # Get fields for each isolate
     fields = []
-    with open(args.data_feed, "r") as fp_in:
+    with lzma.open(args.data_feed, "rt") as fp_in:
         isolate = json.loads(fp_in.readline().strip())
         for i, key in enumerate(isolate.keys()):
             # Skip the special sequence column
@@ -189,7 +190,7 @@ def main():
     # as list of tuples, (Accession ID, sequence)
     new_entries = []
 
-    with open(args.data_feed, "r") as fp_in:
+    with lzma.open(args.data_feed, "rt") as fp_in:
         line_counter = 0
 
         for line in fp_in:

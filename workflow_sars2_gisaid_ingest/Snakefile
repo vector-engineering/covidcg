@@ -34,17 +34,15 @@ rule all:
 
 
 rule download:
-    """Download the data feed JSON object from the GISAID database, using our data feed credentials. The resulting file will need to be decompressed by `decompress_data_feed`
-    """
+    """Download the data feed JSON object from the GISAID database, using our data feed credentials."""
     output:
-        feed = temp(os.path.join(data_folder, "feed.json")),
+        feed = temp(os.path.join(data_folder, "feed.json.xz")),
         status = touch(rules.all.input.download_status)
-    threads: workflow.cores
     shell:
-        "scripts/download.sh | unxz --threads={threads} -c - > {output.feed}"
+        "scripts/download.sh > {output.feed}"
 
 
-rule process_feed:
+checkpoint process_feed:
     """Split up the data feed's individual JSON objects into metadata and fasta files. Chunk the fasta files so that every day we only reprocess the subset of fasta files that have changed. The smaller the chunk size, the more efficient the updates, but the more files on the filesystem.
     On a 48-core workstation with 128 GB RAM, aligning 200 sequences takes about 10 minutes, and this is more acceptable than having to align 1000 sequences, which takes ~1 hour. We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
@@ -58,7 +56,87 @@ rule process_feed:
     threads: workflow.cores
     shell:
         """
+        mkdir -p {params.fasta}
         python3 scripts/process_feed.py -d {input.feed} -f {params.fasta} -m {output.metadata_dirty} -p {threads}
+        """
+
+
+rule pangolin_lineages:
+    """Assign a lineage to each sequence using pangolin
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        fasta = temp(os.path.join(data_folder, "lineages", "{chunk}.fa")),
+        lineages = os.path.join(data_folder, "lineages", "{chunk}.csv")
+    conda: "envs/pangolin.yaml"
+    params:
+        cores = int(workflow.cores / 10),
+        tempdir = os.getenv("PANGOLIN_TEMPDIR", "/var/tmp")
+    threads: workflow.cores / 10
+    shell:
+        """
+        pangolin --update
+        pangolin --update-data 
+        # Pangolin can only use un-gzipped fasta files
+        gunzip -c {input.fasta} > {output.fasta}
+        pangolin --outfile {output.lineages} {output.fasta} \
+            --tempdir {params.tempdir} \
+            -t {params.cores} # --analysis-mode fast
+        """
+
+
+checkpoint combine_lineages:
+    """Combine all lineage result chunks
+    """
+    input:
+        lineages = expand(
+            os.path.join(data_folder, "lineages", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "lineages", "*.csv")
+    output:
+        lineages = os.path.join(data_folder, "lineages.csv")
+    shell:
+        """
+        echo {input.lineages}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.lineages}
+        """
+
+
+rule sequence_quality:
+    """Collect statistics about sequence quality
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz")
+    output:
+        quality = os.path.join(data_folder, "quality", "{chunk}.csv")
+    shell:
+        """
+        python3 scripts/sequence_quality.py \
+            --input {input.fasta} \
+            --output {output.quality}
+        """
+
+checkpoint combine_quality:
+    """Combine all quality result chunks
+    """
+    input:
+        quality = expand(
+            os.path.join(data_folder, "quality", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "quality", "*.csv")
+    output:
+        quality = os.path.join(data_folder, "quality.csv")
+    shell:
+        """
+        echo {input.quality}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.quality}
         """
 
 
@@ -70,9 +148,16 @@ rule clean_metadata:
         location_corrections = os.path.join(
             static_data_folder, "location_corrections.csv"
         ),
+        lineages = rules.combine_lineages.output.lineages,
+        quality = rules.combine_quality.output.quality
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv")
     shell:
         """
-        python3 scripts/clean_metadata.py -i {input.metadata_dirty} -l {input.location_corrections} -o {output.metadata_clean}
+        python3 scripts/clean_metadata.py \
+            --metadata-in {input.metadata_dirty} \
+            --location-corrections {input.location_corrections} \
+            --lineages {input.lineages} \
+            --quality {input.quality} \
+            --metadata-out {output.metadata_clean}
         """

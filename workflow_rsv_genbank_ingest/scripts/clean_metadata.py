@@ -6,7 +6,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import datetime
 import pandas as pd
 
 
@@ -30,6 +29,9 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
+    parser.add_argument(
+        "--quality", type=str, required=True, help="Path to input quality CSV file"
+    )
     parser.add_argument("--metadata-out", type=str, required=True, help="Metadata out")
 
     args = parser.parse_args()
@@ -98,10 +100,11 @@ def main():
 
     # Remove "Z" from the end of the submission date string, and convert from
     # ISO datetime to ISO date
-    def datetime_to_date(x):
-        return datetime.datetime.fromisoformat(x[:-1]).strftime("%Y-%m-%d")
-
-    df.loc[:, "submission_date"] = df["submission_date"].apply(datetime_to_date)
+    df.loc[:, "submission_date"] = pd.to_datetime(
+        df["submission_date"], errors="coerce"
+    ).apply(lambda x: x.strftime("%Y-%m-%d"))
+    # Remove rows with invalid submission dates
+    df = df.loc[~(df["submission_date"].isna())]
 
     # Parse location data
     def parse_genbank_location(s):
@@ -162,6 +165,17 @@ def main():
     df["isolate_id"] = df.index.values
     # Segment = 1
     df["segment"] = 1
+
+    # Load quality and join to dataframe
+    quality_df = pd.read_csv(args.quality, index_col="Accession ID")
+    df = df.join(quality_df, how="left")
+    df["length"] = df["length"].fillna(0).astype(int)
+    # Calculate percent ambiguous, drop the num_ambiguous column
+    df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
+    df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
+
+    # Filter out entries without any sequence
+    df = df.loc[df["length"] > 0]
 
     df.to_csv(args.metadata_out)
 

@@ -44,8 +44,8 @@ export default function examples({ selectTree }) {
     {
       title: 'Global Genotypes',
       description: 'View the growth of genotypes over all locations',
-      // image:
-      //   'https://storage.googleapis.com/ve-public/example/global_lineages.png',
+      image:
+        'https://storage.googleapis.com/ve-public/example/rsv_global_genotypes.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -70,8 +70,8 @@ export default function examples({ selectTree }) {
       title: 'Europe: Fusion A',
       description:
         'View mutations in the fusion (F) gene in A subtypes, in Europe over all time',
-      // image:
-      //   'https://storage.googleapis.com/ve-public/example/global_lineages.png',
+      image:
+        'https://storage.googleapis.com/ve-public/example/rsv_europe_fusion_a.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,
@@ -102,8 +102,8 @@ export default function examples({ selectTree }) {
       title: 'North America: Fusion B',
       description:
         'View mutations in the fusion (F) gene in B subtypes, in North America over all time',
-      // image:
-      //   'https://storage.googleapis.com/ve-public/example/global_lineages.png',
+      image:
+        'https://storage.googleapis.com/ve-public/example/rsv_na_fusion_b.png',
       settings: {
         plotSettings: {
           groupStackNormMode: NORM_MODES.NORM_PERCENTAGES,

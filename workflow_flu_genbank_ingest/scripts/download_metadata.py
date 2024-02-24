@@ -128,8 +128,10 @@ Example record:
 import argparse
 import requests
 
-def main():
+RETRY_ATTEMPTS = 5
 
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--start-time",
@@ -175,6 +177,8 @@ def main():
                 # useful?
                 #   -trs, 13 May 2020
                 ("genbank_accession", "id"),
+                # AccNV_s - same as ID ("OR450050")
+                # AccVer_s - ID + version ("OR450050.1")
                 ("database", "SourceDB_s"),
                 ("set_id", "SetAcc_s"),
                 # Serotype info is here as well... maybe get these if the serotype field
@@ -190,6 +194,7 @@ def main():
                 ("length", "SLen_i"),
                 ("is_segmented", "Segmented_s"),
                 ("complete", "GenomeCompleteness_s"),
+                # Completeness_s - same as GenomeCompleteness_s?
                 ("segments", "Segments_ss"),
                 # ("protein_names", "ProtNames_ss"),
                 ("genome_coverage", "Genome_js"),
@@ -199,16 +204,28 @@ def main():
                 ("location", "CountryFull_s"),
                 # Date info
                 ("collected", "CollectionDate_s"),
+                # CollectionDate_dr - date range
+                # CollectionDate_dt - date as datetime
+                # CollectionYear_i - year
                 ("submitted", "CreateDate_dt"),
+                # CreateYear_i - year
                 ("updated", "UpdateDate_dt"),
                 # Additional metadata
                 ("host", "Host_s"),
                 ("isolation_source", "Isolation_csv"),
                 ("biosample_accession", "BioSample_s"),
                 ("title", "Definition_s"),
+                # AuthorsCount_i - number of authors
                 ("authors", "Authors_csv"),
+                # Authors_ss - array of authors
                 ("publications", "PubMed_csv"),
-                ("sequence", "Nucleotide_seq"),
+                # ("sequence", "Nucleotide_seq"),
+                # FastaMD5_s - MD5 of sequence
+                # BioProjectCount_i - number of BioProjects
+                # BioProject_csv - list of BioProjects - csv
+                # BioProject_s - list of BioProjects - string
+                # BioProject_ss - list of BioProjects - array
+                # Division_s - ???
             ]
         ),
         # Stable sort with newest last so diffs work nicely.  Columns are source
@@ -223,13 +240,28 @@ def main():
         "User-Agent": "https://github.com/vector-engineering/covid-cg (covidcg@broadinstitute.org)",
     }
 
-    response = requests.get(endpoint, params=params, headers=headers, stream=True)
-    response.raise_for_status()
+    for _ in range(RETRY_ATTEMPTS):
+        try:
+            response = requests.get(
+                endpoint, params=params, headers=headers, stream=True
+            )
+            response.raise_for_status()
+            break
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading metadata: {e}")
+
+        if _ == RETRY_ATTEMPTS - 1:
+            raise Exception(
+                f"Failed to download metadata after {RETRY_ATTEMPTS} attempts"
+            )
+        else:
+            print(f"Retrying download...")
 
     response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
 
     for chunk in response_content:
         print(chunk, end="")
+
 
 if __name__ == "__main__":
     main()

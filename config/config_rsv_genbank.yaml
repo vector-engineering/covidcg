@@ -13,11 +13,6 @@ data_folder: "example_data_genbank/rsv"
 # This path is relative to the project root
 static_data_folder: "static_data/rsv"
 
-# Path to folder with data to use in development
-# This path is relative to the project root
-# Only used for database seeding in development
-example_data_folder: "example_data_genbank/rsv"
-
 # Database for this virus
 postgres_db: "rsv_genbank"
 
@@ -35,6 +30,20 @@ chunk_size: 100000
 # --------------------
 #       ANALYSIS
 # --------------------
+
+# Don't process sequences prior to this date
+# Leave empty to ignore
+start_date_cutoff:
+# Don't process sequences after this date
+# Leave empty to ignore
+end_date_cutoff:
+
+# Don't process sequences after X days ago
+# Leave empty to ignore
+start_date_cutoff_days_ago:
+# Don't process sequences prior to X days ago
+# Leave empty to ignore
+end_date_cutoff_days_ago:
 
 segments: ["1"]
 
@@ -127,6 +136,7 @@ prod_hostname:
 
 site_title: "RSV PathMut"
 data_provider: "NCBI GenBank"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD.html"
 
 # Default references for each subtype
 default_references:

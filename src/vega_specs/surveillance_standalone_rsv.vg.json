@@ -193,6 +193,22 @@
           "as": "valid"
         },
         {
+          "type": "impute",
+          "groupby": ["group", "region"],
+          "key": "collection_period",
+          "field": "percent",
+          "method": "value",
+          "value": 0
+        },
+        {
+          "type": "impute",
+          "groupby": ["group", "region"],
+          "key": "collection_period",
+          "field": "count",
+          "method": "value",
+          "value": 0
+        },
+        {
           "type": "collect",
           "sort": {
             "field": ["region", "group", "collection_period"],

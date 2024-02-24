@@ -13,10 +13,6 @@ data_folder: "data_custom"
 # This path is relative to the project root
 static_data_folder: "static_data/sars2"
 
-# Path to folder with data to use in development
-# This path is relative to the project root
-example_data_folder: "example_data_genbank"
-
 # Database for this virus
 postgres_db: "cg_custom"
 
@@ -30,6 +26,20 @@ chunk_size: 100000
 # --------------------
 #       ANALYSIS
 # --------------------
+
+# Don't process sequences prior to this date
+# Leave empty to ignore
+start_date_cutoff:
+# Don't process sequences after this date
+# Leave empty to ignore
+end_date_cutoff:
+
+# Don't process sequences after X days ago
+# Leave empty to ignore
+start_date_cutoff_days_ago:
+# Don't process sequences prior to X days ago
+# Leave empty to ignore
+end_date_cutoff_days_ago:
 
 segments: ["1"]
 
@@ -104,6 +114,7 @@ prod_hostname:
 
 site_title: "COVID CG"
 data_provider: "Custom"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD.html"
 
 # Default references for each subtype
 default_references:

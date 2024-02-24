@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
+import { useStores } from '../../stores/connect';
 import useDimensions from 'react-use-dimensions';
-
-import ExternalLink from '../Common/ExternalLink';
 
 import WalkthroughList from '../Example/WalkthroughList';
 import SurveillancePlot from '../Viz/SurveillancePlot';
@@ -20,19 +19,15 @@ import {
 } from './HomeTab.styles';
 
 const HomeTab = observer(() => {
+  const { UIStore } = useStores();
   const [ref, { width }] = useDimensions();
   const [showBanner, setShowBanner] = useState(config['show_home_banner']);
 
   return (
     <HomeTabContainer ref={ref}>
-      {showBanner && (
+      {showBanner && UIStore.motd.length > 0 && (
         <PubBanner>
-          <p>
-            COVID CG is{' '}
-            <ExternalLink href="https://doi.org/10.7554/eLife.63409">
-              published in eLife
-            </ExternalLink>
-          </p>
+          <div dangerouslySetInnerHTML={{ __html: UIStore.motd }} />
           <CloseButton onClick={setShowBanner.bind(this, false)}>
             Dismiss
           </CloseButton>

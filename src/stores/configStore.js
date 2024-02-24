@@ -56,15 +56,23 @@ export class ConfigStore {
   @observable selectedMetadataFields = {};
   @observable ageRange = [];
 
+  @observable sequenceLengthRange = [null, null];
+  @observable percentAmbiguousRange = [null, null];
+
   @observable hoverLocation = null;
   @observable focusedLocations = [];
 
   constructor() {}
 
   init() {
+    // Set initial values
     this.initialValues = initialConfigStore;
 
     Object.keys(this.initialValues).forEach((key) => {
+      // Ignore fields that aren't defined in the initial values
+      if (!Object.prototype.hasOwnProperty.call(this.initialValues, key)) {
+        return;
+      }
       this[key] = this.initialValues[key];
     });
   }
@@ -178,6 +186,15 @@ export class ConfigStore {
         urlParams.set(field, coordsToText(pending[field]));
       } else if (field === 'residueCoordinates') {
         urlParams.set(field, residueCoordsToText(pending[field]));
+      } else if (
+        field === 'sequenceLengthRange' ||
+        field === 'percentAmbiguousRange'
+      ) {
+        // Store ranged values, like sequence length and percent ambiguous
+        urlParams.set(
+          field,
+          pending[field].map((x) => (x === null ? '' : x.toString())).join(',')
+        );
       } else {
         urlParams.set(field, String(pending[field]));
       }
