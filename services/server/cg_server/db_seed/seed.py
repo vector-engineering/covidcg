@@ -42,15 +42,15 @@ loc_levels = [
 
 
 def df_to_sql(cur, df, table, index_label=None):
-    n = 500  # chunk row size
-    list_df = [df[i : i + n] for i in range(0, df.shape[0], n)]
-
-    for chunk in list_df:
+    n = 10000  # chunk row size
+    n_chunks = df.shape[0] // n + 1
+    print(f"({n_chunks}) ", end="", flush=True)
+    for i in range(0, df.shape[0], n):
         buffer = io.StringIO()
         if index_label:
-            chunk.to_csv(buffer, index_label=index_label, header=False)
+            df[i : i + n].to_csv(buffer, index_label=index_label, header=False)
         else:
-            chunk.to_csv(buffer, index=False, header=False)
+            df[i : i + n].to_csv(buffer, index=False, header=False)
 
         buffer.seek(0)
         # cur.copy_from(buffer, table, sep=",")
@@ -62,6 +62,7 @@ def df_to_sql(cur, df, table, index_label=None):
             ),
             buffer,
         )
+        print(i, end=".", flush=True)
 
 
 def seed_database(conn, schema="public"):
@@ -217,6 +218,10 @@ def seed_database(conn, schema="public"):
 
                 group_mutation_frequency_df = []
                 for reference_name in reference_names:
+                    if mutation_field not in group_mutation_frequencies[grouping][
+                        reference_name
+                    ]:
+                        continue
                     group_mutation_frequency_df.append(
                         pd.DataFrame.from_records(
                             group_mutation_frequencies[grouping][reference_name][
@@ -576,7 +581,7 @@ def seed_database(conn, schema="public"):
             ):
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX {index_name} ON {table_name}({field});"
+                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),
@@ -775,7 +780,7 @@ def seed_database(conn, schema="public"):
             ):
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX {index_name} ON {table_name}({field});"
+                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),
