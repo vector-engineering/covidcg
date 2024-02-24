@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores/connect';
+import { config } from '../../config';
 
 import {
   DNA_OR_AA,
@@ -30,6 +31,93 @@ const serializeAACoordinates = (coordinateRanges) => {
 
 const StatusBox = observer(() => {
   const { configStore, dataStore, UIStore } = useStores();
+
+  let qualityFilters = '';
+  const qualityFields = ['length', 'percent_ambiguous'];
+  const qualityFieldKeys = {
+    length: 'sequenceLengthRange',
+    percent_ambiguous: 'percentAmbiguousRange',
+  };
+  const qualityFieldNames = {
+    length: 'Sequence Length',
+    percent_ambiguous: '% Ambiguous (N) Bases',
+  };
+  // Only render this if we have the quality filters available
+  if (config['virus'] === 'sars2') {
+    const qualityFilterItems = [];
+    qualityFields.forEach((field) => {
+      const rng = configStore[qualityFieldKeys[field]];
+      let suffix = ' bases';
+      if (field === 'percent_ambiguous') {
+        suffix = '%';
+      }
+      // If first value of the range undefined, then only maximum is set
+      if (rng[0] === null) {
+        qualityFilterItems.push(
+          <Line key={`quality-status-${field}`}>
+            {qualityFieldNames[field]} ≤{' '}
+            <b>
+              {rng[1]}
+              {suffix}
+            </b>
+          </Line>
+        );
+      }
+      // If second value of the range undefined, then only minimum is set
+      else if (rng[1] === null) {
+        qualityFilterItems.push(
+          <Line key={`quality-status-${field}`}>
+            {qualityFieldNames[field]} ≥{' '}
+            <b>
+              {rng[0]}
+              {suffix}
+            </b>
+          </Line>
+        );
+      }
+      // If both values of the range are defined, then both minimum and maximum are set
+      else {
+        qualityFilterItems.push(
+          <Line key={`quality-status-${field}`}>
+            {qualityFieldNames[field]}:{' '}
+            <b>
+              {rng[0]}
+              {suffix}
+            </b>{' '}
+            –{' '}
+            <b>
+              {rng[1]}
+              {suffix}
+            </b>
+          </Line>
+        );
+      }
+    });
+    qualityFilters = <>{qualityFilterItems}</>;
+  }
+
+  const selectedGroupFields = [];
+  Object.keys(configStore.selectedGroupFields).forEach((groupKey) => {
+    if (configStore.selectedGroupFields[groupKey].length === 0) {
+      return;
+    }
+
+    const selectedGroupFieldItems = [];
+    configStore.selectedGroupFields[groupKey].forEach((group, i) => {
+      selectedGroupFieldItems.push(
+        <b key={`status-selected-group-${groupKey}-${group}}`}>{group}</b>
+      );
+      if (i < configStore.selectedGroupFields[groupKey].length - 1) {
+        selectedGroupFieldItems.push(',');
+      }
+    });
+
+    selectedGroupFields.push(
+      <Line key={`status-box-selected-group-fields-${groupKey}`}>
+        Selected {groupKey}s: {selectedGroupFieldItems}
+      </Line>
+    );
+  });
 
   let genomeSelection = '';
   const residuesOrBases =
@@ -92,29 +180,6 @@ const StatusBox = observer(() => {
     );
   }
 
-  const selectedGroupFields = [];
-  Object.keys(configStore.selectedGroupFields).forEach((groupKey) => {
-    if (configStore.selectedGroupFields[groupKey].length === 0) {
-      return;
-    }
-
-    const selectedGroupFieldItems = [];
-    configStore.selectedGroupFields[groupKey].forEach((group, i) => {
-      selectedGroupFieldItems.push(
-        <b key={`status-selected-group-${groupKey}-${group}}`}>{group}</b>
-      );
-      if (i < configStore.selectedGroupFields[groupKey].length - 1) {
-        selectedGroupFieldItems.push(',');
-      }
-    });
-
-    selectedGroupFields.push(
-      <Line key={`status-box-selected-group-fields-${groupKey}`}>
-        Selected {groupKey}s: {selectedGroupFieldItems}
-      </Line>
-    );
-  });
-
   let selectedGroups = <b>None</b>;
   if (configStore.selectedGroups.length > 0) {
     if (configStore.groupKey === GROUP_MUTATION) {
@@ -166,6 +231,7 @@ const StatusBox = observer(() => {
           Reference genome: <b>{configStore.selectedReference}</b> (
           {getReferences()[configStore.selectedReference]['description']}).
         </Line>
+        {qualityFilters}
         <Line>
           <b>{configStore.selectedLocationNodes.length}</b> selected locations:{' '}
           <b>

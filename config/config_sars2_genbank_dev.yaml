@@ -32,6 +32,20 @@ chunk_size: 100000
 #       ANALYSIS
 # --------------------
 
+# Don't process sequences prior to this date
+# Leave empty to ignore
+start_date_cutoff:
+# Don't process sequences after this date
+# Leave empty to ignore
+end_date_cutoff:
+
+# Don't process sequences after X days ago
+# Leave empty to ignore
+start_date_cutoff_days_ago:
+# Don't process sequences prior to X days ago
+# Leave empty to ignore
+end_date_cutoff_days_ago:
+
 segments: ["1"]
 
 # Insertions or deletions with more than this difference in bases between the
@@ -117,6 +131,7 @@ prod_hostname:
 
 site_title: "COVID CG Genbank"
 data_provider: "NCBI GenBank"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD_SARS2_GENBANK.html"
 
 # Default references for each subtype
 default_references:

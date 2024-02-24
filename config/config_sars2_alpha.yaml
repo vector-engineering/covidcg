@@ -13,8 +13,12 @@ data_folder: "data"
 # This path is relative to the project root
 static_data_folder: "static_data/sars2"
 
+# Path to folder with data to use in development
+# This path is relative to the project root
+example_data_folder: "data"
+
 # Database for this virus
-postgres_db: "cg_alpha"
+postgres_db: "cg_gisaid"
 
 # ------------------
 #       INGEST
@@ -26,6 +30,20 @@ chunk_size: 100000
 # --------------------
 #       ANALYSIS
 # --------------------
+
+# Don't process sequences prior to this date
+# Leave empty to ignore
+start_date_cutoff:
+# Don't process sequences after this date
+# Leave empty to ignore
+end_date_cutoff:
+
+# Don't process sequences after X days ago
+# Leave empty to ignore
+start_date_cutoff_days_ago:
+# Don't process sequences prior to X days ago
+# Leave empty to ignore
+end_date_cutoff_days_ago:
 
 segments: ["1"]
 
@@ -68,16 +86,44 @@ metadata_cols:
     title: "Originating lab"
   submitting_lab:
     title: "Submitting lab"
+  # PANGO metadata
+  conflict:
+    title: "PANGO conflict"
+  ambiguity_score:
+    title: "PANGO ambiguity score"
+  scorpio_call:
+    title: "scorpio call"
+  scorpio_support:
+    title: "scorpio support"
+  scorpio_conflict:
+    title: "scorpio conflict"
+  scorpio_notes:
+    title: "scorpio notes"
+  pangolin_is_designated:
+    title: "PANGO is_designated"
+  pangolin_qc_status:
+    title: "PANGO QC status"
+  pangolin_qc_notes:
+    title: "PANGO QC notes"
+  pangolin_note:
+    title: "pangolin note"
 
 group_cols:
   lineage:
     name: "lineage"
-    title: "Lineage"
+    title: "PANGO Lineage"
     description: ""
     link:
       title: "(Lineage Descriptions)"
       href: "https://cov-lineages.org/descriptions.html"
     show_collapse_options: true
+  gisaid_lineage:
+    name: "gisaid_lineage"
+    title: "PANGO Lineage (GISAID)"
+    description: "PANGO assignments from GISAID"
+    link:
+      title: "(Lineage Descriptions)"
+      href: "https://cov-lineages.org/descriptions.html"
   clade:
     name: "clade"
     title: "Clade"
@@ -86,6 +132,10 @@ group_cols:
       title: "[GISAID note]"
       href: "https://www.gisaid.org/references/statements-clarifications/clade-and-lineage-nomenclature-aids-in-genomic-epidemiology-of-active-hcov-19-viruses/"
     show_collapse_options: false
+
+# AZ report options
+report_gene: "S"
+report_group_col: "lineage"
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
@@ -127,6 +177,7 @@ prod_hostname:
 
 site_title: "COVID CG - Alpha"
 data_provider: "GISAID"
+motd_url: "https://storage.googleapis.com/ve-public/MOTD_SARS2_GISAID.html"
 
 # Default references for each subtype
 default_references:

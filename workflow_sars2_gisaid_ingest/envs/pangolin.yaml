@@ -6,14 +6,14 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - biopython>=1.74
-  #- minimap2>=2.16
-  - pip>=19.3.1
+  - biopython=1.74
+  - minimap2>=2.16
+  - pip=19.3.1
   - python>=3.7
-  - snakemake-minimal=7.24.0
-  #- gofasta
-  #- ucsc-fatovcf>=426
-  #- usher>=0.5.4
+  - snakemake-minimal<=7.24.0
+  - gofasta
+  - ucsc-fatovcf>=426
+  - usher>=0.5.4
   - git-lfs
   - pip:
       - git+https://github.com/cov-lineages/pangolin.git@v4.3.1

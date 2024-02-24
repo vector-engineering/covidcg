@@ -14,7 +14,6 @@ from psycopg2 import sql
 
 def query_metadata(conn, req):
     with conn.cursor() as cur:
-
         sequence_where_filter = build_sequence_location_where_filter(
             req.get("group_key", None),
             get_loc_level_ids(req),
@@ -25,6 +24,8 @@ def query_metadata(conn, req):
             req.get("selected_metadata_fields", None),
             req.get("selected_group_fields", None),
             req.get("selected_reference", None),
+            req.get("sequence_length", None),
+            req.get("percent_ambiguous", None),
         )
 
         # Iterate over each metadata column, and aggregate counts

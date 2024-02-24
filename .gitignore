@@ -98,6 +98,8 @@ data_flu/**
 data_gisaid_flu/**
 data_gisaid_rsv/**
 data_genbank_rsv/**
+data_6month
+data_6month/**
 
 # Ignore server passwords
 server/htpasswd
@@ -108,7 +110,8 @@ daily_update.sh
 daily_update_new.sh
 daily_update_rsv.sh
 daily_update_sars2_genbank.sh
-daily_update_sars2_gisaid.sh
+daily_update_sars2_gisaid_full.sh
+daily_update_sars2_gisaid_6month.sh
 update_gisaid.sh
 update_genbank.sh
 filter_list.txt
@@ -133,6 +136,7 @@ example_data_genbank/*/lineage_treetime/*.pdf
 
 data
 data_genbank
+data_flu_genbank
 example_data_genbank/rsv/**
 example_data_genbank/flu/**
 example_data_genbank/sars2/**
@@ -144,3 +148,6 @@ workflow_main/notebooks/**
 
 # SnapGene - temp files
 static_data/flu/alignments/.sglock/**
+
+# MOTD
+MOTD*.html

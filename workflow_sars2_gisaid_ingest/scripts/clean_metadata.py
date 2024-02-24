@@ -22,8 +22,7 @@ def clean_name_metadata(df):
 
 
 def clean_host_metadata(df):
-    """Clean host metadata
-    """
+    """Clean host metadata"""
     # print("Cleaning host metadata", end="", flush=True)
     df["host"] = df["covv_host"].astype(str).str.strip()
     # In the future - collapse common + taxonomy names?
@@ -33,8 +32,7 @@ def clean_host_metadata(df):
 
 
 def clean_gender_metadata(df):
-    """Clean patient gender metadata
-    """
+    """Clean patient gender metadata"""
 
     # print("Cleaning patient gender metadata...", end="", flush=True)
 
@@ -91,9 +89,9 @@ def clean_age_metadata(df):
 
     For each age value we want to define an age range that the value
     corresponds to. This is necessary since the metadata is provided in
-    various different specificities. 
+    various different specificities.
 
-    i.e., exact age (72.343), year (42), or age range (20-30) 
+    i.e., exact age (72.343), year (42), or age range (20-30)
 
     Define a range [start, end), for each age
     This ranges can then be filtered over in a way that includes as much data
@@ -277,7 +275,6 @@ def clean_age_metadata(df):
 
 
 def clean_patient_status_metadata(df):
-
     # print("Cleaning patient status metadata...", end="", flush=True)
 
     # Strip whitespace
@@ -358,8 +355,7 @@ def clean_patient_status_metadata(df):
 
 
 def clean_passage_metadata(df):
-    """Clean cell passage metadata
-    """
+    """Clean cell passage metadata"""
 
     print("Cleaning cell passage metadata...", end="", flush=True)
 
@@ -414,6 +410,24 @@ def clean_passage_metadata(df):
             "origina",
             "Human",
             "direct sequencing",
+            "e.g. Original",
+            "Original isolate isolate",
+            "Original swab",
+            "Originalo",
+            "joriginal",
+            "originale",
+            "Original sample in syrian hamster_P2",
+            "Original sample in syrian hamster_P1",
+            "Originjal",
+            "New variant",
+            "Priginal",
+            "Criblage sauvage",
+            "Original.",
+            "Oriignal",
+            "originall",
+            "isolate",
+            "Oiriginal",
+            "Nasal swab",
         ]
         # "Vero": ["Vero cells"],
         # "Vero P1": [
@@ -512,7 +526,6 @@ def clean_passage_metadata(df):
 
 
 def clean_specimen_metadata(df):
-
     # print("Cleaning specimen metadata...", end="", flush=True)
 
     # Basic cleanup
@@ -795,8 +808,7 @@ def clean_specimen_metadata(df):
 
 
 def clean_date_metadata(df):
-    """Clean the collection and submission date metadata
-    """
+    """Clean the collection and submission date metadata"""
 
     df.loc[:, "collection_date"] = df["covv_collection_date"].astype(str).str.strip()
     df.loc[:, "submission_date"] = df["covv_subm_date"].astype(str).str.strip()
@@ -821,24 +833,23 @@ def clean_date_metadata(df):
 
 
 def clean_lineage_metadata(df):
-    df["lineage"] = df["covv_lineage"].astype(str).str.strip()
+    df["lineage"] = df["covv_lineage"].fillna("Unassigned").astype(str).str.strip()
 
     # Filter out "None" lineages
-    remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
-    df = df.loc[~remove_seqs, :]
-    print("Removed {} sequences without a lineage assignment".format(remove_seqs.sum()))
+    # remove_seqs = (df["lineage"] == "None") | (df["lineage"] == "nan")
+    # df = df.loc[~remove_seqs, :]
+    # print("Removed {} sequences without a lineage assignment".format(remove_seqs.sum()))
 
     return df
 
 
 def clean_clade_metadata(df):
-    df["clade"] = df["covv_clade"].astype(str).str.strip()
+    df["clade"] = df["covv_clade"].fillna("Unassigned").astype(str).str.strip()
     return df
 
 
 def clean_seq_tech_metadata(df):
-    """Clean "Sequencing Technology" values
-    """
+    """Clean "Sequencing Technology" values"""
 
     # print("Cleaning sequencing technology metadata...", end="", flush=True)
 
@@ -946,8 +957,7 @@ def clean_seq_tech_metadata(df):
 
 
 def clean_assembly_metadata(df):
-    """Clean "Assembly Method" column
-    """
+    """Clean "Assembly Method" column"""
 
     print("Cleaning assembly method metadata...", end="", flush=True)
 
@@ -1054,7 +1064,6 @@ def clean_submitting_lab_metadata(df):
 
 
 def main():
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -1071,6 +1080,19 @@ def main():
         type=str,
         required=True,
         help="Path to location corrections CSV file",
+    )
+
+    parser.add_argument(
+        "--lineages",
+        type=str,
+        required=True,
+        help="Path to lineages CSV file",
+    )
+    parser.add_argument(
+        "--quality",
+        type=str,
+        required=True,
+        help="Path to quality CSV file",
     )
 
     parser.add_argument(
@@ -1141,6 +1163,54 @@ def main():
     df["isolate_id"] = df.index.values
     # Segment = 1
     df["segment"] = 1
+
+    # Load lineages and join to dataframe
+    lineages_df = pd.read_csv(args.lineages)
+    lineages_df = lineages_df.rename(columns={"taxon": "Accession ID"}).set_index(
+        "Accession ID"
+    )
+    df = df.rename(columns={"lineage": "gisaid_lineage"}).join(
+        lineages_df[
+            [
+                "lineage",
+                "conflict",
+                "ambiguity_score",
+                "scorpio_call",
+                "scorpio_support",
+                "scorpio_conflict",
+                "scorpio_notes",
+                # "version",
+                # "pangolin_version",
+                # "scorpio_version",
+                # "constellation_version",
+                "is_designated",
+                "qc_status",
+                "qc_notes",
+                "note",
+            ]
+        ].rename(
+            columns={
+                "is_designated": "pangolin_is_designated",
+                "qc_status": "pangolin_qc_status",
+                "qc_notes": "pangolin_qc_notes",
+                "note": "pangolin_note",
+            }
+        ),
+        how="left",
+    )
+    # Fill in missing values with GISAID lineages
+    df.loc[:, "lineage"] = df["lineage"].combine_first(df["gisaid_lineage"])
+
+    # Load quality and join to dataframe
+    quality_df = pd.read_csv(args.quality, index_col="Accession ID")
+    df = df.join(quality_df, how="left")
+    df["length"] = df["length"].fillna(0).astype(int)
+    # Calculate percent ambiguous, drop the num_ambiguous column
+    df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
+    df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
+
+    # Filter out entries without any sequence
+    df = df.loc[df["length"] > 0]
 
     df.to_csv(args.metadata_out)
 

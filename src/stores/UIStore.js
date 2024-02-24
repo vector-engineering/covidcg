@@ -2,6 +2,7 @@ import { observable, action, toJS } from 'mobx';
 import { ASYNC_STATES, TABS } from '../constants/defs.json';
 import { rootStoreInstance } from './rootStore';
 import { updateURLFromParams } from '../utils/updateQueryParam';
+import { config } from '../config';
 
 export const initialValues = {
   caseDataState: ASYNC_STATES.STARTED,
@@ -34,7 +35,32 @@ export class UIStore {
   @observable activeTab = initialValues.activeTab;
   @observable keysPressed = initialValues.keysPressed;
 
-  init() {}
+  @observable motd = '';
+
+  init() {
+    // Get the MOTD
+    fetch(config.motd_url, { cache: 'no-cache' })
+      .then((res) => {
+        if (!res.ok) {
+          throw res;
+        }
+        return res.text();
+      })
+      .then((data) => {
+        this.motd = data;
+      })
+      .catch((err) => {
+        let prefix = 'Error getting MOTD';
+        if (!(typeof err.text === 'function')) {
+          console.error(prefix, err);
+        } else {
+          err.text().then((errMsg) => {
+            console.error(prefix, errMsg);
+          });
+        }
+        this.motd = '';
+      });
+  }
 
   @action
   resetValues = (values) => {

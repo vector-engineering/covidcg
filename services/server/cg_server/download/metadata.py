@@ -16,7 +16,6 @@ from cg_server.query import build_sequence_location_where_filter, get_loc_level_
 
 
 def download_metadata(conn, req):
-
     selected_reference = req.get("selected_reference", None)
     if not selected_reference:
         raise Exception("No reference specified")
@@ -34,6 +33,8 @@ def download_metadata(conn, req):
             req.get("subm_end_date", None),
             req.get("selected_metadata_fields", None),
             req.get("selected_group_fields", None),
+            req.get("sequence_length", None),
+            req.get("percent_ambiguous", None),
             selected_reference,
         )
 
@@ -179,7 +180,10 @@ def download_metadata(conn, req):
 
         cur.execute(query)
 
-        res_df = pd.DataFrame.from_records(cur.fetchall(), columns=sequence_cols,)
+        res_df = pd.DataFrame.from_records(
+            cur.fetchall(),
+            columns=sequence_cols,
+        )
 
         # Replace mutation IDs with names
         for mutation_field in ["dna", "gene_aa", "protein_aa"]:
