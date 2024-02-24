@@ -141,6 +141,7 @@ example_data_genbank/rsv/**
 example_data_genbank/flu/**
 example_data_genbank/sars2/**
 data_flu_small/**
+data_flu_genbank
 
 # scratch notebooks
 workflow_main/notebooks/**

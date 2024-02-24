@@ -383,20 +383,25 @@ def main():
     )
     df.set_index("Accession ID", inplace=True)
 
+    # Backfill set_id with strain
+    df["isolate_id"].fillna(df["virus_name"], inplace=True)
+    # Backfill more with Accession ID
+    df["isolate_id"].fillna(pd.Series(df.index.values, index=df.index), inplace=True)
+
     # Remove sequences without isolate_id, virus_name, region, collection date, or submission date
     # TODO: fill in missing isolate_ids with accession IDs?
     # TODO: investigate whether missing isolate IDs are biased towards
     #       certain segments. i.e., if they're all 4 (HA), then they
     #       can probably be treated as standalone isolates
-    print(f"Missing isolate_id: {df['isolate_id'].isna().sum()}")
-    print(f"Missing virus_name: {df['virus_name'].isna().sum()}")
+    # print(f"Missing isolate_id: {df['isolate_id'].isna().sum()}")
+    # print(f"Missing virus_name: {df['virus_name'].isna().sum()}")
     print(f"Missing region: {df['region'].isna().sum()}")
     print(f"Missing submission_date: {df['submission_date'].isna().sum()}")
     print(f"Missing collection_date: {df['collection_date'].isna().sum()}")
 
     remove_rows = (
-        (df["isolate_id"].isna())
-        | (df["virus_name"].isna())
+        (df["isolate_id"].isna())  # Shouldn't happen
+        # | (df["virus_name"].isna())
         | (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
@@ -413,16 +418,90 @@ def main():
     )
 
     # Rename serotypes
-    serotype_rename_map = {"H1N1pdm09": "H1N1", "H3N2v": "H3N2"}
+    # TODO: preserve original H and N types here?
+    """
+    All serotypes from metadata:
+    [
+    'H1', 'H1N1', 'H1N2', 'HIN2', 'H1N2v', 'H1N3', 'H1N4', 'H1N5', 'H1N6', 'H1N7', 'H1N8', 'H1N9', 'H01N2',
+    'H2', 'H2N1', 'H2N2', 'H2N3', 'H2N4', 'H2N5', 'H2N6', 'H2N7', 'H2N8', 'H2N9',
+    'H3', 'H3N-', 'H3N1', 'H3N2', 'H3N2v', 'H3N3', 'H3N4', 'H3N5', 'H3N6', 'H3N7', 'H3N8', 'H3N9', 'H3Nx',
+    'H4', 'H4N1', 'H4N2', 'H4N3', 'H4N4', 'H4N4,8', 'H4N5', 'H4N6', 'H4N7', 'H4N8', 'H4N9', 'H4Nx',
+    'H5', 'H5N1', 'h5n1', 'H5N2', 'H5N2?', 'H5N3', 'H5N4', 'H5N5', 'H5N6', 'H5N7', 'H5N8', 'H5N9', 'H5N?', 'H5Nx',
+    'H6', 'H6N', 'H6N1', 'H6N1,4', 'H6N2', 'H6N3', 'H6N4', 'H6N5', 'H6N6', 'H6N7', 'H6N8', 'H6N9', 'H6N?', 'H6Nx',
+    'H7', 'H7N1', 'H7N2', 'H7N3', 'H7N4', 'H7N5', 'H7N6', 'H7N7', 'H7N8', 'H7N9', 'H7Nx',
+    'H8', 'H8N1', 'H8N2', 'H8N3', 'H8N4', 'H8N5', 'H8N6', 'H8N7', 'H8N8', 'H8Nx',
+    'H9', 'H91', 'H9N1', 'H9N1,4', 'H9N1,9', 'H9N2', 'H9N3', 'H9N4', 'H9N5', 'H9N6', 'H9N7', 'H9N8', 'H9N9',
+    'H10', 'H10N1', 'H10N2', 'H10N3', 'H10N4', 'H10N5', 'H10N6', 'H10N7', 'H10N8', 'H10N9',
+    'H11', 'H11N1', 'H11N2', 'H11N3', 'H11N4', 'H11N5', 'H11N6', 'H11N7', 'H11N8', 'H11N9', 'H11N9/N2', 'H11N?',
+    'H12', 'H12N1', 'H12N2', 'H12N3', 'H12N4', 'H12N5', 'H12N6', 'H12N7', 'H12N8', 'H12N9',
+    'H13', 'H13N1', 'H13N2', 'H13N3', 'H13N4', 'H13N6', 'H13N8', 'H13N9', 'H13N?',
+    'H14N2', 'H14N3', 'H14N4', 'H14N5', 'H14N6', 'H14N7', 'H14N8',
+    'H15N2', 'H15N4', 'H15N5', 'H15N6', 'H15N7', 'H15N8', 'H15N9',
+    'H16', 'H16N3', 'H16N8', 'H16N9',
+    'H17N10',
+    'H18N11',
+    'H?N1', 'H?N2', 'H?N4', 'H?N6',
+    'HxN1', 'HxN3', 'HxNx',
+    'Mixed', 'mixed',
+    'N1', 'n1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9',
+    'B',
+    'Victoria',
+    'Yamagata', 'Yamagata-like',
+    'unidentified', 'unknown'
+    ]
+
+    """
+    serotype_rename_map = {
+        "H1N1pdm09": "H1N1",
+        "H3N2v": "H3N2",
+        "H5": "H5NX",
+        "H5N1": "H5NX",
+        "h5n1": "H5NX",
+        "H5N2": "H5NX",
+        "H5N2?": "H5NX",
+        "H5N3": "H5NX",
+        "H5N4": "H5NX",
+        "H5N5": "H5NX",
+        "H5N6": "H5NX",
+        "H5N7": "H5NX",
+        "H5N8": "H5NX",
+        "H5N9": "H5NX",
+        "H5N?": "H5NX",
+        "H5Nx": "H5NX",
+        "H7": "H7NX",
+        "H7N1": "H7NX",
+        "H7N2": "H7NX",
+        "H7N3": "H7NX",
+        "H7N4": "H7NX",
+        "H7N5": "H7NX",
+        "H7N6": "H7NX",
+        "H7N7": "H7NX",
+        "H7N8": "H7NX",
+        "H7N9": "H7NX",
+        "H7Nx": "H7NX",
+        "H9": "H9NX",
+        "H91": "H9NX",
+        "H9N1": "H9NX",
+        "H9N1,4": "H9NX",
+        "H9N1,9": "H9NX",
+        "H9N2": "H9NX",
+        "H9N3": "H9NX",
+        "H9N4": "H9NX",
+        "H9N5": "H9NX",
+        "H9N6": "H9NX",
+        "H9N7": "H9NX",
+        "H9N8": "H9NX",
+        "H9N9": "H9NX",
+        "Yamagata-like": "B-yam",
+        "Yamagata": "B-yam",
+        "Victoria": "B-vic",
+    }
     df["serotype"] = df["serotype"].replace(serotype_rename_map)
 
     # Filter on serotypes
     # Only do this for alpha, leave beta alone
-    valid_serotypes = ["H1N1", "H3N2"]
-    valid = df["genus"] == "Betainfluenzavirus"  # All beta is valid
-    valid = valid | (
-        (df["genus"] == "Alphainfluenzavirus") & (df["serotype"].isin(valid_serotypes))
-    )
+    valid_serotypes = ["H1N1", "H3N2", "H5NX", "H7NX", "H9NX", "B-yam", "B-vic"]
+    valid = (df["serotype"].isin(valid_serotypes)) | (df["serotype"].isna())
     df.drop(df.index[~valid], inplace=True)
 
     # Segment extraction
