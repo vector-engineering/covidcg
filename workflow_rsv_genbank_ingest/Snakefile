@@ -105,17 +105,51 @@ rule combine_sequence_chunks:
         cat {params.chunk_glob} > {output.feed}
         """
 
+rule sequence_quality:
+    """Collect statistics about sequence quality
+    """
+    input:
+        fasta = rules.download_sequence_chunk.output.feed
+    output:
+        quality = os.path.join(data_folder, "quality", "{chunk}.csv")
+    shell:
+        """
+        python3 scripts/sequence_quality.py \
+            --input {input.fasta} \
+            --output {output.quality}
+        """
+
+rule combine_quality:
+    """Combine all quality result chunks
+    """
+    input:
+        quality = expand(
+            os.path.join(data_folder, "quality", "{chunk}.csv"),
+            chunk=DL_CHUNKS
+        )
+    params:
+        chunk_glob = os.path.join(data_folder, "quality", "*.csv")
+    output:
+        quality = os.path.join(data_folder, "quality.csv")
+    shell:
+        """
+        echo {input.quality}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.quality}
+        """
+
 rule clean_metadata:
     """Clean metadata
     """
     input:
         metadata_dirty = rules.combine_metadata_chunks.output.metadata_dirty,
+        quality = rules.combine_quality.output.quality
     output:
         metadata_clean = os.path.join(data_folder, "metadata_no_subtype.csv")
     shell:
         """
         python3 scripts/clean_metadata.py \
             --metadata-in {input.metadata_dirty} \
+            --quality {input.quality} \
             --metadata-out {output.metadata_clean}
         """
 

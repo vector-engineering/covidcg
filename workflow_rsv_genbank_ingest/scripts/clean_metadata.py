@@ -29,6 +29,9 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
+    parser.add_argument(
+        "--quality", type=str, required=True, help="Path to input quality CSV file"
+    )
     parser.add_argument("--metadata-out", type=str, required=True, help="Metadata out")
 
     args = parser.parse_args()
@@ -162,6 +165,17 @@ def main():
     df["isolate_id"] = df.index.values
     # Segment = 1
     df["segment"] = 1
+
+    # Load quality and join to dataframe
+    quality_df = pd.read_csv(args.quality, index_col="Accession ID")
+    df = df.join(quality_df, how="left")
+    df["length"] = df["length"].fillna(0).astype(int)
+    # Calculate percent ambiguous, drop the num_ambiguous column
+    df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
+    df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
+
+    # Filter out entries without any sequence
+    df = df.loc[df["length"] > 0]
 
     df.to_csv(args.metadata_out)
 
