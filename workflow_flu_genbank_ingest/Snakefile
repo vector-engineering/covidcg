@@ -103,11 +103,45 @@ rule combine_sequence_chunks:
         """
 
 
+rule sequence_quality:
+    """Collect statistics about sequence quality
+    """
+    input:
+        fasta = os.path.join(data_folder, "fasta_raw", "feed_{chunk}.fasta")
+    output:
+        quality = os.path.join(data_folder, "quality", "{chunk}.csv")
+    shell:
+        """
+        python3 scripts/sequence_quality.py \
+            --input {input.fasta} \
+            --output {output.quality}
+        """
+
+checkpoint combine_quality:
+    """Combine all quality result chunks
+    """
+    input:
+        quality = expand(
+            os.path.join(data_folder, "quality", "{chunk}.csv"),
+            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
+        ),
+        status = rules.all.input.copy_status
+    params:
+        chunk_glob = os.path.join(data_folder, "quality", "*.csv")
+    output:
+        quality = os.path.join(data_folder, "quality.csv")
+    shell:
+        """
+        echo {input.quality}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.quality}
+        """
+
 rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.combine_metadata_chunks.output.metadata
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata,
+        quality = rules.combine_quality.output.quality
     output:
         metadata_clean = os.path.join(data_folder, "metadata.csv"),
         metadata_virus = os.path.join(data_folder, "metadata_virus.csv")
@@ -115,6 +149,7 @@ rule clean_metadata:
         """
         python3 scripts/clean_metadata.py \
             --metadata-in {input.metadata_dirty} \
+            --quality {input.quality} \
             --metadata-out {output.metadata_clean} \
             --metadata-virus-out {output.metadata_virus}
         """

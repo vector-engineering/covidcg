@@ -250,8 +250,7 @@ def protein_to_segment(x):
 
 
 def collapse_segment_list(segments):
-    """Choose consensus segment from list of derived segments
-    """
+    """Choose consensus segment from list of derived segments"""
     # Remove non-integers from this list
     segments = [x for x in segments if type(x) is int]
 
@@ -306,6 +305,12 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
+    parser.add_argument(
+        "--quality",
+        type=str,
+        required=True,
+        help="Path to sequence quality input CSV file",
+    )
     parser.add_argument("--metadata-out", type=str, required=True, help="Metadata out")
     parser.add_argument(
         "--metadata-virus-out", type=str, required=True, help="Aggregate metadata out"
@@ -429,9 +434,11 @@ def main():
     # Clean segments
     df["genome_coverage"] = df["genome_coverage"].apply(json.loads)
     df["proteins"] = df["genome_coverage"].apply(
-        lambda x: [p["name"] for p in x[0]["proteins"]]
-        if x[0]["proteins"] is not None
-        else []
+        lambda x: (
+            [p["name"] for p in x[0]["proteins"]]
+            if x[0]["proteins"] is not None
+            else []
+        )
     )
     segment_df = df[["segments", "proteins"]].explode("proteins")
     segment_df["protein_segment"] = protein_to_segment(segment_df["proteins"])
@@ -519,6 +526,17 @@ def main():
     # (For future minimap2 alignment, query names with spaces
     # are not correctly parsed and are cutoff when written to BAM files)
     df.loc[:, "virus_name"] = df["virus_name"].str.replace(r"\s", "-")
+
+    # Load quality and join to dataframe
+    quality_df = pd.read_csv(args.quality, index_col="Accession ID")
+    df = df.join(quality_df, how="left")
+    df["length"] = df["length"].fillna(0).astype(int)
+    # Calculate percent ambiguous, drop the num_ambiguous column
+    df["num_ambiguous"] = ((df["num_ambiguous"] / df["length"]) * 100).fillna(0)
+    df.rename(columns={"num_ambiguous": "percent_ambiguous"}, inplace=True)
+
+    # Filter out entries without any sequence
+    df = df.loc[df["length"] > 0]
 
     df.to_csv(args.metadata_out)
 
