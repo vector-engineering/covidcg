@@ -220,6 +220,10 @@ def seed_database(conn, schema="public"):
 
                 group_mutation_frequency_df = []
                 for reference_name in reference_names:
+                    if mutation_field not in group_mutation_frequencies[grouping][
+                        reference_name
+                    ]:
+                        continue
                     group_mutation_frequency_df.append(
                         pd.DataFrame.from_records(
                             group_mutation_frequencies[grouping][reference_name][
