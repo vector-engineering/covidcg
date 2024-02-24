@@ -44,7 +44,7 @@ loc_levels = [
 def df_to_sql(cur, df, table, index_label=None):
     n = 10000  # chunk row size
     n_chunks = df.shape[0] // n + 1
-    print(f"Writing {table} ({n_chunks}): ", end="", flush=True)
+    print(f"({n_chunks}) ", end="", flush=True)
     for i in range(0, df.shape[0], n):
         buffer = io.StringIO()
         if index_label:
