@@ -33,10 +33,7 @@ rule all:
         os.path.join(data_folder, "metadata_virus.csv"),
         os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
-        ),
-        # Serotype assignments
-        # os.path.join(data_folder, "serotype_assignments.csv"),
-        os.path.join(data_folder, 'metadata_virus+serotype.csv')
+        )
 
 
 rule download_metadata_chunk:
@@ -143,8 +140,8 @@ rule clean_metadata:
         metadata_dirty = rules.combine_metadata_chunks.output.metadata,
         quality = rules.combine_quality.output.quality
     output:
-        metadata_clean = os.path.join(data_folder, "metadata.csv"),
-        metadata_virus = os.path.join(data_folder, "metadata_virus.csv")
+        metadata_clean = os.path.join(data_folder, "metadata_no_serotype.csv"),
+        metadata_virus = os.path.join(data_folder, "metadata_virus_no_serotype.csv")
     shell:
         """
         python3 scripts/clean_metadata.py \
@@ -187,14 +184,18 @@ rule join_serotype_assignments:
     """
     input:
         serotype_alignment = rules.assign_serotypes.output.bam,
+        metadata = rules.clean_metadata.output.metadata_clean,
         metadata_virus = rules.clean_metadata.output.metadata_virus
     output:
-        metadata_virus_plus_serotype = os.path.join(data_folder, 'metadata_virus+serotype.csv')
+        metadata_plus_serotype = os.path.join(data_folder, 'metadata.csv'),
+        metadata_virus_plus_serotype = os.path.join(data_folder, 'metadata_virus.csv')
     shell:
         """
         python3 scripts/join_serotype_assignments.py \
             --in-bam {input.serotype_alignment} \
+            --metadata {input.metadata} \
             --metadata-virus {input.metadata_virus} \
+            --out-metadata {output.metadata_plus_serotype} \
             --out-metadata-virus {output.metadata_virus_plus_serotype}
         """
 

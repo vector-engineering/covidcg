@@ -38,7 +38,12 @@ def get_consensus_mutations(
 
     Returns
     -------
-    group_mutation_df: pandas.DataFrame
+    consensus_mutations: dict
+        - Dictionary of consensus mutations for each group
+    group_frequencies: dict
+        - Dictionary of mutation frequencies for each group
+        - Keys: 'dna', 'gene_aa', 'protein_aa'
+        - Values: List of dictionaries
     """
 
     isolate_dff = isolate_df.loc[isolate_df["reference"] == reference]
@@ -190,6 +195,12 @@ def main():
         frequencies_dict[group] = {}
 
         for reference_name in reference_names:
+
+            # First check that the reference exists in the isolate data
+            if (isolate_df["reference"] == reference_name).sum() == 0:
+                consensus_dict[group][reference_name] = {}
+                frequencies_dict[group][reference_name] = {}
+                continue
 
             group_consensus, group_frequencies = get_consensus_mutations(
                 isolate_df,

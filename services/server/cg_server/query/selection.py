@@ -236,7 +236,9 @@ def build_sequence_where_filter(
     else:
         group_filters = sql.SQL("")
 
-    if sequence_length:
+    if sequence_length and not (
+        sequence_length[0] == None and sequence_length[1] == None
+    ):
         sequence_length_filter = []
         if sequence_length[0] is not None:
             sequence_length_filter.append(
@@ -246,13 +248,16 @@ def build_sequence_where_filter(
             sequence_length_filter.append(
                 sql.SQL('"length" <= {}').format(sql.Literal(sequence_length[1]))
             )
-        sequence_length_filter = sql.Composed(
-            [sql.SQL(" AND "), sql.SQL(" AND ").join(sequence_length_filter)]
-        )
+        if sequence_length_filter:
+            sequence_length_filter = sql.Composed(
+                [sql.SQL(" AND "), sql.SQL(" AND ").join(sequence_length_filter)]
+            )
     else:
         sequence_length_filter = sql.SQL("")
 
-    if percent_ambiguous:
+    if percent_ambiguous and not (
+        sequence_length[0] == None and sequence_length[1] == None
+    ):
         percent_ambiguous_filter = []
         if percent_ambiguous[0] is not None:
             percent_ambiguous_filter.append(
@@ -266,9 +271,10 @@ def build_sequence_where_filter(
                     sql.Literal(percent_ambiguous[1])
                 )
             )
-        percent_ambiguous_filter = sql.Composed(
-            [sql.SQL(" AND "), sql.SQL(" AND ").join(percent_ambiguous_filter)]
-        )
+        if percent_ambiguous_filter:
+            percent_ambiguous_filter = sql.Composed(
+                [sql.SQL(" AND "), sql.SQL(" AND ").join(percent_ambiguous_filter)]
+            )
     else:
         percent_ambiguous_filter = sql.SQL("")
 
