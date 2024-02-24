@@ -128,9 +128,10 @@ Example record:
 import argparse
 import requests
 
+RETRY_ATTEMPTS = 5
+
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--start-time",
@@ -218,7 +219,7 @@ def main():
                 ("authors", "Authors_csv"),
                 # Authors_ss - array of authors
                 ("publications", "PubMed_csv"),
-                ("sequence", "Nucleotide_seq"),
+                # ("sequence", "Nucleotide_seq"),
                 # FastaMD5_s - MD5 of sequence
                 # BioProjectCount_i - number of BioProjects
                 # BioProject_csv - list of BioProjects - csv
@@ -239,8 +240,22 @@ def main():
         "User-Agent": "https://github.com/vector-engineering/covid-cg (covidcg@broadinstitute.org)",
     }
 
-    response = requests.get(endpoint, params=params, headers=headers, stream=True)
-    response.raise_for_status()
+    for _ in range(RETRY_ATTEMPTS):
+        try:
+            response = requests.get(
+                endpoint, params=params, headers=headers, stream=True
+            )
+            response.raise_for_status()
+            break
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading metadata: {e}")
+
+        if _ == RETRY_ATTEMPTS - 1:
+            raise Exception(
+                f"Failed to download metadata after {RETRY_ATTEMPTS} attempts"
+            )
+        else:
+            print(f"Retrying download...")
 
     response_content = response.iter_content(chunk_size=1024, decode_unicode=True)
 

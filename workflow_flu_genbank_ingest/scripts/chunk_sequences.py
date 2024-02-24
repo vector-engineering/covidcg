@@ -11,16 +11,11 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import csv
 import gzip
 import pandas as pd
-import sys
 
 from collections import defaultdict
 from pathlib import Path
-
-
-csv.field_size_limit(sys.maxsize)
 
 
 def flush_chunk(output_path, fasta_by_month_serotype_segment):
@@ -40,7 +35,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--feed", type=str, required=True, help="Path to data feed csv file"
+        "--feed", type=str, required=True, help="Path to feed FASTA file"
     )
     parser.add_argument(
         "--metadata-in", type=str, required=True, help="Path to metadata csv file"
@@ -87,13 +82,35 @@ def main():
         # Open up the initial fasta file for the first chunk
         fasta_by_month_serotype_segment = defaultdict(list)
 
+        # Read sequences
+        cur_entry = ""
+        cur_seq = ""
+        entries = []
+
+        lines = fp_in.readlines()
+        for i, line in enumerate(lines):
+            # Strip whitespace
+            line = line.strip()
+
+            # Ignore empty lines that aren't the last line
+            if not line and i <= (len(lines) - 1):
+                continue
+
+            # If not the name of an entry, add this line to the current sequence
+            # (some FASTA files will have multiple lines per sequence)
+            if line[0] != ">":
+                cur_seq = cur_seq + line
+
+            # Start of another entry = end of the previous entry
+            if line[0] == ">" or i == (len(lines) - 1):
+                # Avoid capturing the first one and pushing an empty sequence
+                if cur_entry:
+                    entries.append((cur_entry, cur_seq))
+
         line_counter = 0
         skip_counter = 0
 
-        feed_reader = csv.DictReader(fp_in, delimiter=",", quotechar='"')
-        for row in feed_reader:
-
-            # Flush results if chunk is full
+        for cur_entry, cur_seq in entries:
             if chunk_i == args.chunk_size:
                 print("Writing {} sequences".format(chunk_i))
                 flush_chunk(output_path, fasta_by_month_serotype_segment)
@@ -103,7 +120,7 @@ def main():
                 fasta_by_month_serotype_segment = defaultdict(list)
 
             # If this entry isn't present in the cleaned metadata, then skip
-            accession_id = row["genbank_accession"]
+            accession_id = cur_entry.split("|")[0].strip()
             if accession_id not in metadata.index:
                 skip_counter += 1
                 continue
@@ -126,7 +143,7 @@ def main():
 
             # Store sequence in dictionary (By month, not day)
             fasta_by_month_serotype_segment[(month, serotype, segment)].append(
-                (accession_id, row["sequence"])
+                (accession_id, cur_seq)
             )
 
             # Iterate the intra-chunk counter

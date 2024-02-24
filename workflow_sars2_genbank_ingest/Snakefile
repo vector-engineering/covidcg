@@ -20,7 +20,10 @@ rule all:
     input:
         # Download latest data feed, process sequences
         download_status = os.path.join(
-            data_folder, "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_metadata_" + today_str + ".done"
+        ),
+        chunk_status = os.path.join(
+            data_folder, "status", "chunk_data_" + today_str + ".done"
         ),
         copy_status = os.path.join(
             data_folder, "status", "merge_sequences_" + today_str + ".done"
@@ -29,13 +32,12 @@ rule all:
         metadata = os.path.join(data_folder, "metadata.csv")
 
 min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
-# max_date = pd.to_datetime(datetime.date.today().isoformat())
-max_date = pd.to_datetime('2021-03-01')
+max_date = pd.to_datetime(config.get('end_date_cutoff', datetime.date.today().isoformat()))
 
 chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
 DL_CHUNKS = [i for i in range(len(chunks))]
 
-rule download_chunk:
+rule download_metadata_chunk:
     """Download the data feed in chunks, to avoid timeouts.
     """
     output:
@@ -45,12 +47,27 @@ rule download_chunk:
         end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
     shell:
         """
-        python3 scripts/download.py \
+        python3 scripts/download_metadata.py \
             --start-time {params.start_time} --end-time {params.end_time} \
                 > {output.feed}
         """
 
-rule combine_download_chunks:
+rule download_sequence_chunk:
+    """Download the data feed metadata in chunks, to avoid timeouts.
+    """
+    output:
+        feed = os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'),
+    params:
+        start_time = lambda wildcards: chunks[int(wildcards.chunk)].start_time.strftime('%Y-%m-%dT%H:%M:%S.00Z'),
+        end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
+    shell:
+        """
+        python3 scripts/download_sequences.py \
+            --start-time {params.start_time} --end-time {params.end_time} \
+                > {output.feed}
+        """
+
+rule combine_metadata_chunks:
     """Combine all the downloaded chunks into a single CSV file.
     Combining CSV files without duplicating header: https://apple.stackexchange.com/a/348619
     """
@@ -59,13 +76,13 @@ rule combine_download_chunks:
     params:
         chunk_glob = os.path.join(data_folder, 'feed_chunks', 'feed*.csv')
     output:
-        feed = os.path.join(data_folder, 'feed.csv'),
+        metadata = os.path.join(data_folder, 'metadata_dirty.csv'),
         status = touch(os.path.join(
-            data_folder, "status", "download_" + today_str + ".done"
+            data_folder, "status", "download_metadata_" + today_str + ".done"
         ))
     shell:
         """
-        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.feed}
+        awk '(NR == 1) || (FNR > 1)' {params.chunk_glob} > {output.metadata}
         """
 
 
@@ -79,18 +96,21 @@ checkpoint chunk_data:
     We end up with hundreds of files, but the filesystem seems to be handling it well.
     """
     input:
-        feed = rules.combine_download_chunks.output.feed
+        metadata = rules.combine_metadata_chunks.output.metadata,
+        sequence_chunks = expand(os.path.join(data_folder, 'feed_chunks', 'feed_{chunk}.fasta'), chunk=DL_CHUNKS)
     output:
-        metadata_dirty = os.path.join(data_folder, "metadata_dirty.csv")
+        status = touch(os.path.join(
+            data_folder, "status", "chunk_data_" + today_str + ".done"
+        ))
     params:
         fasta = os.path.join(data_folder, "fasta_temp"),
         chunk_size = config["chunk_size"]
     shell:
         """
         python3 scripts/chunk_data.py \
-            --data-feed {input.feed} \
+            --metadata {input.metadata} \
+            --sequence-chunks {input.sequence_chunks} \
             --out-fasta {params.fasta} \
-            --out-metadata {output.metadata_dirty} \
             --chunk-size {params.chunk_size} \
             --processes {workflow.cores}
         """
@@ -254,7 +274,7 @@ rule clean_metadata:
     """Clean metadata, incorporate lineage assignments into metadata
     """
     input:
-        metadata_dirty = rules.chunk_data.output.metadata_dirty,
+        metadata_dirty = rules.combine_metadata_chunks.output.metadata,
         lineages = rules.combine_lineages.output.lineages,
         quality = rules.combine_quality.output.quality
     output:
