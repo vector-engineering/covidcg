@@ -567,7 +567,7 @@ def seed_database(conn, schema="public"):
 
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX {index_name} ON {table_name}({field});"
+                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),
@@ -768,7 +768,7 @@ def seed_database(conn, schema="public"):
 
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX {index_name} ON {table_name}({field});"
+                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),
