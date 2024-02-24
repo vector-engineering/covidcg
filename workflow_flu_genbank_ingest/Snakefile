@@ -49,7 +49,7 @@ rule download_metadata_chunk:
         end_time = lambda wildcards: chunks[int(wildcards.chunk)].end_time.strftime('%Y-%m-%dT%H:%M:%S.00Z')
     shell:
         """
-        python3 scripts/download.py \
+        python3 scripts/download_metadata.py \
             --start-time {params.start_time} --end-time {params.end_time} \
                 > {output.feed}
         """
