@@ -107,6 +107,13 @@ def main():
                 if cur_entry:
                     entries.append((cur_entry, cur_seq))
 
+                # Clear the entry and sequence
+                cur_entry = line[1:]
+                # Ignore anything past the first whitespace
+                if cur_entry:
+                    cur_entry = cur_entry.split()[0]
+                cur_seq = ""
+
         line_counter = 0
         skip_counter = 0
 
