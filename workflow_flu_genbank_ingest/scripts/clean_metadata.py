@@ -325,7 +325,7 @@ def main():
             "genus",
             "serotype",
             "strain",
-            "length",
+            # "length", # We'll get this from the sequence_quality.py script
             "segments",
             "genome_coverage",
             "region",
@@ -509,11 +509,11 @@ def main():
 
     # Segment extraction
     # Clean segments
-    df["genome_coverage"] = df["genome_coverage"].apply(json.loads)
+    df["genome_coverage"] = df["genome_coverage"].fillna('[]').apply(json.loads)
     df["proteins"] = df["genome_coverage"].apply(
         lambda x: (
             [p["name"] for p in x[0]["proteins"]]
-            if x[0]["proteins"] is not None
+            if len(x) > 0 and "proteins" in x[0] and x[0]["proteins"] is not None
             else []
         )
     )

@@ -45,7 +45,10 @@ def main():
                     if char == "N":
                         num_ambiguous += 1
 
-                fp_out.write(f"{cur_entry},{str(len(cur_seq))},{str(num_ambiguous)}\n")
+                # Clean up entry ID
+                cur_entry = cur_entry.split("|")[0].strip()
+
+                fp_out.write(f"\"{cur_entry}\",{str(len(cur_seq))},{str(num_ambiguous)}\n")
                 num_sequences += 1
 
             # If it's the end, then break out

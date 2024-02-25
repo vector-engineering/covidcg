@@ -104,7 +104,7 @@ rule sequence_quality:
     """Collect statistics about sequence quality
     """
     input:
-        fasta = os.path.join(data_folder, "fasta_raw", "feed_{chunk}.fasta")
+        fasta = os.path.join(data_folder, "feed_chunks", "feed_{chunk}.fasta")
     output:
         quality = os.path.join(data_folder, "quality", "{chunk}.csv")
     shell:
@@ -120,9 +120,8 @@ checkpoint combine_quality:
     input:
         quality = expand(
             os.path.join(data_folder, "quality", "{chunk}.csv"),
-            chunk=glob_wildcards(os.path.join(data_folder, "fasta_raw", "{i}.fa.gz")).i
-        ),
-        status = rules.all.input.copy_status
+            chunk=DL_CHUNKS
+        )
     params:
         chunk_glob = os.path.join(data_folder, "quality", "*.csv")
     output:
