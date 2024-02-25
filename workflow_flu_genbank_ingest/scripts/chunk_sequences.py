@@ -77,6 +77,7 @@ def main():
 
     # Keep track of how far we're along the current chunk
     chunk_i = 0
+    write_counter = 0
 
     with open(args.feed, "r", newline="") as fp_in:
         # Open up the initial fasta file for the first chunk
@@ -122,6 +123,7 @@ def main():
                 print("Writing {} sequences".format(chunk_i))
                 flush_chunk(output_path, fasta_by_month_serotype_segment)
                 # Reset chunk counter
+                write_counter += chunk_i
                 chunk_i = 0
                 # Reset sequence dictionary
                 fasta_by_month_serotype_segment = defaultdict(list)
@@ -160,8 +162,10 @@ def main():
 
         # Flush the last chunk
         print("Writing {} sequences".format(chunk_i))
+        write_counter += chunk_i
         flush_chunk(output_path, fasta_by_month_serotype_segment)
 
+        print("Wrote {} sequences total".format(write_counter))
         print("Skipped {} sequences".format(skip_counter))
 
 

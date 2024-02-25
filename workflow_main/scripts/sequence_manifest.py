@@ -137,8 +137,9 @@ def main():
     manifest = pd.DataFrame.from_records(
         manifest, columns=["Accession ID", "file_name"]
     )
+    print(f"Extracted {len(manifest)} records")
     pruned_manifest = manifest.drop_duplicates(["Accession ID"], keep="last")
-
+    print(f"{len(pruned_manifest)} records after pruning")
     pruned_manifest = (
         pruned_manifest.reset_index(drop=True)
         .reset_index()
@@ -168,6 +169,8 @@ def main():
             pruned_manifest["date_obj"] < pd.to_datetime(args.end_date_cutoff)
         ]
     pruned_manifest.drop(columns=['date_obj'], inplace=True)
+    if args.start_date_cutoff is not None or args.end_date_cutoff is not None:
+        print(f"{len(pruned_manifest)} records after date filtering")
 
     pruned_manifest = pruned_manifest.explode("reference")
 
