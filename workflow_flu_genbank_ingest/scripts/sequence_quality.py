@@ -7,7 +7,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import gzip
 import re
 
 
@@ -26,7 +25,7 @@ def main():
 
     args = parser.parse_args()
 
-    fp_in = gzip.open(args.input, "rt")
+    fp_in = open(args.input, "rt")
     fp_out = open(args.output, "wt")
 
     fp_out.write("Accession ID,length,num_ambiguous\n")
