@@ -24,3 +24,4 @@ gcloud builds submit --config build/cloudbuild.yaml --substitutions=_TARGET="rsv
 # FLU
 
 gcloud builds submit --config build/cloudbuild.yaml --substitutions=_TARGET="flu-gisaid",_CONFIGFILE="config/config_flu_gisaid.yaml",_TAG_NAME="${CG_VERSION}" .
+gcloud builds submit --config build/cloudbuild.yaml --substitutions=_TARGET="flu-genbank",_CONFIGFILE="config/config_flu_genbank.yaml",_TAG_NAME="${CG_VERSION}" .
