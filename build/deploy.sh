@@ -26,3 +26,4 @@ gcloud run deploy rsv-genbank --image "gcr.io/${PROJECT_ID}/rsv:${CG_VERSION}"
 # FLU
 
 gcloud run deploy flu-gisaid --image "gcr.io/${PROJECT_ID}/flu-gisaid:${CG_VERSION}"
+gcloud run deploy flu-genbank --image "gcr.io/${PROJECT_ID}/flu-genbank:${CG_VERSION}"

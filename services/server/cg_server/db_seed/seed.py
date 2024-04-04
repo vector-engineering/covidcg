@@ -218,9 +218,10 @@ def seed_database(conn, schema="public"):
 
                 group_mutation_frequency_df = []
                 for reference_name in reference_names:
-                    if mutation_field not in group_mutation_frequencies[grouping][
-                        reference_name
-                    ]:
+                    if (
+                        mutation_field
+                        not in group_mutation_frequencies[grouping][reference_name]
+                    ):
                         continue
                     group_mutation_frequency_df.append(
                         pd.DataFrame.from_records(
@@ -303,12 +304,14 @@ def seed_database(conn, schema="public"):
         isolate_df["collection_date"] = pd.to_datetime(isolate_df["collection_date"])
         isolate_df["submission_date"] = pd.to_datetime(isolate_df["submission_date"])
         # print(isolate_df.columns)
-        if 'gisaid_lineage' in isolate_df.columns:
-            isolate_df['gisaid_lineage'] = isolate_df['gisaid_lineage'].fillna('Unassigned')
-        if 'lineage' in isolate_df.columns:
-            isolate_df['lineage'] = isolate_df['lineage'].fillna('Unassigned')
-        if 'clade' in isolate_df.columns:
-            isolate_df['clade'] = isolate_df['clade'].fillna('Unassigned')
+        if "gisaid_lineage" in isolate_df.columns:
+            isolate_df["gisaid_lineage"] = isolate_df["gisaid_lineage"].fillna(
+                "Unassigned"
+            )
+        if "lineage" in isolate_df.columns:
+            isolate_df["lineage"] = isolate_df["lineage"].fillna("Unassigned")
+        if "clade" in isolate_df.columns:
+            isolate_df["clade"] = isolate_df["clade"].fillna("Unassigned")
 
         # Make a column for each metadata field
         metadata_cols = []
@@ -581,7 +584,7 @@ def seed_database(conn, schema="public"):
             ):
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
+                        "CREATE INDEX {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),
@@ -780,7 +783,7 @@ def seed_database(conn, schema="public"):
             ):
                 cur.execute(
                     sql.SQL(
-                        "CREATE INDEX CONCURRENTLY {index_name} ON {table_name}({field});"
+                        "CREATE INDEX {index_name} ON {table_name}({field});"
                     ).format(
                         index_name=sql.Identifier(f"ix_{table_name}_{field}"),
                         table_name=sql.Identifier(table_name),

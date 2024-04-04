@@ -7,7 +7,6 @@ Author: Albert Chen - Vector Engineering Team (chena@broadinstitute.org)
 """
 
 import argparse
-import gzip
 import re
 
 
@@ -26,7 +25,7 @@ def main():
 
     args = parser.parse_args()
 
-    fp_in = gzip.open(args.input, "rt")
+    fp_in = open(args.input, "rt")
     fp_out = open(args.output, "wt")
 
     fp_out.write("Accession ID,length,num_ambiguous\n")
@@ -45,7 +44,10 @@ def main():
                     if char == "N":
                         num_ambiguous += 1
 
-                fp_out.write(f"{cur_entry},{str(len(cur_seq))},{str(num_ambiguous)}\n")
+                # Clean up entry ID
+                cur_entry = cur_entry.split("|")[0].strip()
+
+                fp_out.write(f"\"{cur_entry}\",{str(len(cur_seq))},{str(num_ambiguous)}\n")
                 num_sequences += 1
 
             # If it's the end, then break out
