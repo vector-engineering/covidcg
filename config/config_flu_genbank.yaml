@@ -92,6 +92,7 @@ report_group_references:
   H5NX: A-Goose-Guangdong-1-96
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
+  H10NX: A-Jiangsu-428-2021
 
 # Surveillance plot options
 # see: workflow_main/scripts/surveillance.py
@@ -110,6 +111,7 @@ surv_group_references:
   H5NX: A-Goose-Guangdong-1-96
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
+  H10NX: A-Jiangsu-428-2021
 
 # ---------------
 #    DATABASE
@@ -151,6 +153,7 @@ default_references:
   H5NX: A-Goose-Guangdong-1-96
   H7NX: A-Shanghai-02-2013
   H9NX: A-Hong-Kong-1073-99
+  H10NX: A-Jiangsu-428-2021
 
 # Home page
 show_home_banner: false
