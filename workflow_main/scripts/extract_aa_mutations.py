@@ -334,6 +334,10 @@ def extract_aa_mutations(
                     # Translate the new region
                     alt_aa = list(translate("".join(region_seq)))
 
+                    # If synonymous mutation, then move on:
+                    if ref_aa == alt_aa:
+                        continue
+
                     # Remove matching AAs from the start of ref_aa
                     # i.e., if ref = 'FF', and alt = 'F', then:
                     #       ref = 'F' and alt = ''
