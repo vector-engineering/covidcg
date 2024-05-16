@@ -376,7 +376,7 @@ def extract_aa_mutations(
                         else:
                             break
 
-                    for ind in remove_inds:
+                    for ind in remove_inds[::-1]:
                         ref_aa.pop(-1 - ind)
                         alt_aa.pop(-1 - ind)
 
