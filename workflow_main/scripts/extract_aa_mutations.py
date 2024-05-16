@@ -387,7 +387,7 @@ def extract_aa_mutations(
 
                     pos = resi_counter + codon_ind_start + 1
 
-                    # If the positiion is outside of the segment, then skip
+                    # If the position is outside of the segment, then skip
                     # (This happens sometimes for long deletions)
                     if pos > (resi_counter + segment_len):
                         continue
