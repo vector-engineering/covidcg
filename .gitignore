@@ -145,6 +145,7 @@ data_flu_genbank
 
 # scratch notebooks
 workflow_main/notebooks/**
+workflow_main/scripts/*.csv
 
 # SnapGene - temp files
 static_data/flu/alignments/.sglock/**

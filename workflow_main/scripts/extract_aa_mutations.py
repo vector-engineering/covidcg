@@ -12,6 +12,9 @@ import pandas as pd
 
 from util import translate
 
+# Number of codons to look ahead for resolving frameshifts
+FS_LOOKAHEAD = 10
+
 
 def extract_aa_mutations(
     dna_mutation_file,
@@ -23,7 +26,7 @@ def extract_aa_mutations(
 ):
     """
     Extract AA mutations from NT mutations
-    
+
     Parameters
     ----------
     dna_mutation_file: str
@@ -79,45 +82,48 @@ def extract_aa_mutations(
 
         feature_dfs[k] = v
 
-    dna_mutation_df = pd.read_csv(dna_mutation_file).fillna("")
+    dna_mutation_df = pd.read_csv(dna_mutation_file, index_col=False).fillna("")
+
     # Filter out any big mutations in the 5' or 3' UTR
     # dna_mutation_df = dna_mutation_df.loc[
     #     (dna_mutation_df["pos"] < 29675) & (dna_mutation_df["pos"] > 265), :
     # ].reset_index(drop=True)
+
     # Filter out any frameshifting indels
-    dna_mutation_df = dna_mutation_df.loc[
-        (
-            (dna_mutation_df["ref"].str.len() == 1)
-            & (dna_mutation_df["alt"].str.len() == 1)
-        )
-        | (
-            (dna_mutation_df["ref"].str.len() > 1)
-            & (dna_mutation_df["alt"].str.len() == 0)
-            & (dna_mutation_df["ref"].str.len() % 3 == 0)
-        )
-        | (
-            (dna_mutation_df["alt"].str.len() > 1)
-            & (dna_mutation_df["ref"].str.len() == 0)
-            & (dna_mutation_df["alt"].str.len() % 3 == 0)
-        )
-    ].reset_index(drop=True)
+    # dna_mutation_df = dna_mutation_df.loc[
+    #     (
+    #         (dna_mutation_df["ref"].str.len() == 1)
+    #         & (dna_mutation_df["alt"].str.len() == 1)
+    #     )
+    #     | (
+    #         (dna_mutation_df["ref"].str.len() > 1)
+    #         & (dna_mutation_df["alt"].str.len() == 0)
+    #         & (dna_mutation_df["ref"].str.len() % 3 == 0)
+    #     )
+    #     | (
+    #         (dna_mutation_df["alt"].str.len() > 1)
+    #         & (dna_mutation_df["ref"].str.len() == 0)
+    #         & (dna_mutation_df["alt"].str.len() % 3 == 0)
+    #     )
+    # ].reset_index(drop=True)
 
     aa_mutations = []
     aa_seqs = {}
 
+    # For each reference
     for reference, feature_df in feature_dfs.items():
 
+        # For each feature (gene/protein)
         for feature_name, feature_row in feature_df.iterrows():
 
             # Only process genes in this segment/chromosome
             if feature_row["segment"] != active_segment:
                 continue
 
-            # print(feature_name)
-
             resi_counter = 0
             aa_seqs[feature_name] = []
 
+            # For each segment (ORF) in this feature:
             for segment in feature_row["segments"]:
                 # Get the region in coordinates to translate/look for mutations in
                 segment_start = segment[0]
@@ -152,17 +158,90 @@ def extract_aa_mutations(
                     - segment_start
                 ) // 3
 
+                # GROUP MUTATIONS
+                # Group together individual mutations to process them as a single mutation
+                # Criteria:
+                # - Same Accession ID
+                # - Mutations are within codon range
+
                 # For each NT mutation in this segment:
+                segment_mutations = []
                 i = 0
                 while i < len(segment_mutation_df):
                     cur_mutation = segment_mutation_df.iloc[i, :]
 
+                    # If the current mutation results in a frameshift,
+                    # then seek to resolve the frameshift by looking ahead FS_LOOKAHEAD codons
+                    # i.e., if this mutation is a single deletion, then
+                    # look ahead for a single insertion to resolve the frame
+
+                    # Number of bases off from the frame
+                    # Use a modulo of 3 later to get the # of bases off
+                    frameshift = 0
+
+                    if len(cur_mutation["alt"]) - len(cur_mutation["ref"]) % 3 != 0:
+                        frameshift += len(cur_mutation["alt"]) - len(
+                            cur_mutation["ref"]
+                        )
+
+                    # If we have a frameshift, then look ahead FS_LOOKAHEAD codons
+                    # If no frameshift resolution is possible then toss this mutation and move on
+                    # Keep track of when the indel resolves
+                    resolve_codon_ind = None
+                    if frameshift % 3 != 0 and i < len(segment_mutation_df) - 1:
+                        j = i + 1
+                        new_mutation = segment_mutation_df.iloc[j]
+                        while (
+                            new_mutation["codon_ind_start"]
+                            <= cur_mutation["codon_ind_start"] + FS_LOOKAHEAD
+                            and new_mutation["Accession ID"]
+                            == cur_mutation["Accession ID"]
+                        ):
+                            # Adjust frameshift if the new mutation is itself a frameshifting indel
+                            if (
+                                len(new_mutation["alt"]) - len(new_mutation["ref"]) % 3
+                                != 0
+                            ):
+                                frameshift += len(new_mutation["alt"]) - len(
+                                    new_mutation["ref"]
+                                )
+
+                            # If the frameshift is resolved, then flag as resolved and break
+                            if frameshift % 3 == 0:
+                                resolve_codon_ind = new_mutation["codon_ind_end"]
+                                break
+
+                            j += 1
+                            if j < len(segment_mutation_df):
+                                new_mutation = segment_mutation_df.iloc[j]
+                            else:
+                                break
+
+                        # If there's no resolution to the frameshift within FS_LOOKAHEAD codons,
+                        # then ignore this mutation and move onto the next mutation in the list
+                        if resolve_codon_ind is None:
+                            i += 1
+                            continue
+
+                    # If this was a singular frameshift mutation without a resolution,
+                    # Then no possibility to resolve the frameshift
+                    # Just ignore this mutation
+                    # TODO: process nonsense frameshifts if near the end of the ORF?
+                    if frameshift % 3 != 0 and resolve_codon_ind is None:
+                        i += 1
+                        continue
+
                     # Look ahead in the mutation list (ordered by position)
-                    # for any other mutations within this codon
+                    # for any other mutations within the codon range
                     j = i + 1
-                    mutations = [cur_mutation]
+                    mutations = [cur_mutation.to_dict()]
                     codon_ind_start = cur_mutation["codon_ind_start"]
                     codon_ind_end = cur_mutation["codon_ind_end"]
+
+                    # If we have a resolvable frameshift, then set the mutation combination window
+                    # From here til where the indel resolves
+                    if resolve_codon_ind is not None:
+                        codon_ind_end = resolve_codon_ind
 
                     if j < len(segment_mutation_df):
                         new_mutation = segment_mutation_df.iloc[j]
@@ -171,9 +250,20 @@ def extract_aa_mutations(
                             and new_mutation["Accession ID"]
                             == cur_mutation["Accession ID"]
                         ):
-                            mutations.append(new_mutation)
-                            # Update end position
-                            codon_ind_end = new_mutation["codon_ind_end"]
+                            # If we weren't expecting a frameshift and this mutation
+                            # produces a frameshift, then ignore this mutation
+                            if resolve_codon_ind is None and (
+                                len(new_mutation["alt"]) - len(new_mutation["ref"]) % 3
+                                != 0
+                            ):
+                                pass
+                            else:
+                                mutations.append(new_mutation.to_dict())
+
+                                # Update end position if beyond current end position
+                                if new_mutation["codon_ind_end"] > codon_ind_end:
+                                    codon_ind_end = new_mutation["codon_ind_end"]
+
                             j += 1
                             if j < len(segment_mutation_df):
                                 new_mutation = segment_mutation_df.iloc[j]
@@ -182,6 +272,16 @@ def extract_aa_mutations(
 
                     # Increment our counter so we don't reprocess any grouped mutations
                     i = j
+
+                    if mutations:
+                        segment_mutations.append(mutations)
+
+                # PROCESS GROUPED MUTATIONS
+                for mutations in segment_mutations:
+
+                    codon_ind_start = mutations[0]["codon_ind_start"]
+                    codon_ind_end = mutations[-1]["codon_ind_end"]
+                    cur_mutation = mutations[0]
 
                     # Get region start/end, 0-indexed
                     region_start = segment_start + (codon_ind_start * 3) - 1
@@ -197,13 +297,11 @@ def extract_aa_mutations(
                     initial_region_seq = [s for s in region_seq]
                     # Translate the reference region sequence
                     ref_aa = list(translate("".join(region_seq)))
-                    # print(region_seq, ref_aa)
 
-                    # print([mut['pos'] for mut in mutations])
-                    # print(region_seq, ref_aa)
-
-                    for k, mut in enumerate(mutations):
-
+                    # Process mutations in reverse order to preserve indexing
+                    for k, mut in zip(
+                        range(len(mutations) - 1, -1, -1), mutations[::-1]
+                    ):
                         # Make sure the reference matches
                         if len(mut["ref"]) > 0:
                             ref_mutation_seq = "".join(
@@ -215,8 +313,9 @@ def extract_aa_mutations(
                             )
                             if not ref_mutation_seq == mut["ref"]:
                                 print(
-                                    "REF MISMATCH:\n\tReference sequence:\t{}\n\tMutation sequence\t\t{}\n".format(
-                                        ref_mutation_seq, mut["ref"],
+                                    "REF MISMATCH:\n\tReference sequence:\t{}\n\tMutation sequence:\t{}\n".format(
+                                        ref_mutation_seq,
+                                        mut["ref"],
                                     )
                                 )
                                 continue
@@ -234,7 +333,10 @@ def extract_aa_mutations(
 
                     # Translate the new region
                     alt_aa = list(translate("".join(region_seq)))
-                    # print(region_seq, alt_aa)
+
+                    # If synonymous mutation, then move on:
+                    if ref_aa == alt_aa:
+                        continue
 
                     # Remove matching AAs from the start of ref_aa
                     # i.e., if ref = 'FF', and alt = 'F', then:
@@ -256,7 +358,27 @@ def extract_aa_mutations(
                     for ind in remove_inds[::-1]:
                         ref_aa.pop(ind)
                         alt_aa.pop(ind)
-                    # print(ref_aa, alt_aa)
+
+                    # Remove matching AAs from the end of ref_aa
+                    # i.e., if ref = 'SRG', and alt = 'KG', then:
+                    #          ref = 'SR' and alt = 'K'
+                    remove_inds = []
+                    for b in range(max(len(ref_aa), len(alt_aa))):
+                        if b >= len(ref_aa) or b >= len(alt_aa):
+                            break
+
+                        if ref_aa[-1 - b] == alt_aa[-1 - b]:
+                            remove_inds.append(b)
+                            # Increment the AA index end so that
+                            # we end up on the correct position
+                            # (This should only affect deletions)
+                            codon_ind_end -= 1
+                        else:
+                            break
+
+                    for ind in remove_inds[::-1]:
+                        ref_aa.pop(-1 - ind)
+                        alt_aa.pop(-1 - ind)
 
                     # If there's no mutation, or synonymous mutation,
                     # then move on
@@ -265,7 +387,7 @@ def extract_aa_mutations(
 
                     pos = resi_counter + codon_ind_start + 1
 
-                    # If the positiion is outside of the segment, then skip
+                    # If the position is outside of the segment, then skip
                     # (This happens sometimes for long deletions)
                     if pos > (resi_counter + segment_len):
                         continue
@@ -369,7 +491,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--dna-mutation", type=str, required=True, help="Path to DNA mutation CSV",
+        "--dna-mutation",
+        type=str,
+        required=True,
+        help="Path to DNA mutation CSV",
     )
     parser.add_argument(
         "--gene-protein-def",
