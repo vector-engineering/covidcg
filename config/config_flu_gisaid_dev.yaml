@@ -32,7 +32,7 @@ chunk_size: 10000
 start_date_cutoff:
 # Don't process sequences after this date
 # Leave empty to ignore
-end_date_cutoff: 2021-03-01
+end_date_cutoff: 2024-06-01
 
 # Don't process sequences after X days ago
 # Leave empty to ignore
@@ -63,6 +63,8 @@ metadata_cols:
     title: "Clade"
   lineage:
     title: "Lineage"
+  n_subtype:
+    title: "Neuraminidase subtype"
   passage:
     title: "Passage"
   host:

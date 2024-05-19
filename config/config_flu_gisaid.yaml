@@ -63,6 +63,8 @@ metadata_cols:
     title: "Clade"
   lineage:
     title: "Lineage"
+  n_subtype:
+    title: "Neuraminidase subtype"
   passage:
     title: "Passage"
   host:

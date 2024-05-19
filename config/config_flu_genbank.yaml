@@ -69,6 +69,8 @@ metadata_cols:
     title: "Host"
   isolation_source:
     title: "Isolation source"
+  n_subtype:
+    title: "Neuraminidase subtype"
   authors:
     title: "Authors"
   publications:
