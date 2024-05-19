@@ -252,7 +252,7 @@ rule sequence_manifest:
             --reference {input.reference} \
             --fasta {params.processed_fasta_files} \
             --out {output.manifest} \
-            {params.start_date_cutoff}
+            {params.start_date_cutoff} \
             {params.end_date_cutoff}
         """
 
