@@ -7,7 +7,9 @@ $ snakemake --configfile ../config/config_sars2_gisaid_6month.yaml -j6 -R sequen
 $ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
+$ snakemake --configfile ../config/config_flu_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_flu_gisaid.yaml -j6
+$ snakemake --configfile ../config/config_flu_gisaid_dev.yaml -j6
 
 This DAG building gets kind of complicated...
 First, sequences are split up by submission date and subtype (this is
