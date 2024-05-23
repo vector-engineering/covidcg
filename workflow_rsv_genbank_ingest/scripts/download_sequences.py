@@ -34,6 +34,7 @@ https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusL
 
 
 import argparse
+import datetime
 import requests
 
 RETRY_ATTEMPTS = 5
@@ -54,6 +55,12 @@ def main():
         help="Start time in format YYYY-MM-DDTHH:MM:SS.00Z",
     )
     args = parser.parse_args()
+
+    # NCBI doesn't like an end date even close to today
+    # so set the maximum end date to today minus 14 days
+    max_date = (datetime.datetime.now() - datetime.timedelta(days=14)).isoformat()
+    if args.end_time > max_date:
+        args.end_time = max_date
 
     endpoint = "https://www.ncbi.nlm.nih.gov/genomes/VirusVariation/vvsearch2/"
     params = {
