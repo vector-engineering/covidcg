@@ -33,10 +33,10 @@ chunk_size: 10000
 
 # Don't process sequences prior to this date
 # Leave empty to ignore
-start_date_cutoff:
+start_date_cutoff: 2024-02-01
 # Don't process sequences after this date
 # Leave empty to ignore
-end_date_cutoff:
+end_date_cutoff: 2024-05-01
 
 # Don't process sequences after X days ago
 # Leave empty to ignore
