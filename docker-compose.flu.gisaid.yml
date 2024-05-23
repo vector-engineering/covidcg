@@ -12,7 +12,7 @@ services:
       - LOGINS=user1:pass1,user2:pass2
       - FLASK_APP=cg_server/main.py
       - FLASK_ENV=development
-      - CONFIGFILE=/opt/config/config_flu_gisaid.yaml
+      - CONFIGFILE=/opt/config/config_flu_gisaid_dev.yaml
       - CONSTANTSFILE=/opt/constants/defs.json
       - DATA_PATH=/data
       - STATIC_DATA_PATH=/opt/static_data
@@ -57,7 +57,7 @@ services:
       context: ./
       dockerfile: ./services/frontend/Dockerfile
     environment:
-      CONFIGFILE: /app/config/config_flu_gisaid.yaml
+      CONFIGFILE: /app/config/config_flu_gisaid_dev.yaml
     working_dir: /app
     volumes:
       - ./src:/app/src:cached # Mount the JS code at run-time, so the babel server can recompile the app on file changes
