@@ -19,9 +19,12 @@ static_data_folder = os.path.join("..", config["static_data_folder"])
 min_date = pd.to_datetime(config.get('min_date', '2019-12-01'))
 if min_date is None:
     min_date = '2019-12-01'
-max_date = pd.to_datetime(datetime.date.today().isoformat())
+max_date = pd.to_datetime(
+    config.get('end_date_cutoff', 
+    (datetime.date.today() - datetime.timedelta(days=14)).isoformat()
+))
 if max_date is None:
-    max_date = datetime.date.today().isoformat()
+    max_date = (datetime.date.today() - datetime.timedelta(days=14)).isoformat()
 
 chunks = [d for d in pd.period_range(start=min_date, end=max_date, freq=config.get('dl_chunk_period', 'W'))]
 DL_CHUNKS = [i for i in range(len(chunks))]

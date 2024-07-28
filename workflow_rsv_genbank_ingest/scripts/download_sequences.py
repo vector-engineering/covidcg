@@ -56,9 +56,7 @@ def main():
     )
     args = parser.parse_args()
 
-    # NCBI doesn't like an end date even close to today
-    # so set the maximum end date to today minus 14 days
-    max_date = (datetime.datetime.now() - datetime.timedelta(days=14)).isoformat()
+    max_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.00Z")
     if args.end_time > max_date:
         args.end_time = max_date
 
