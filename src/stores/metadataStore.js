@@ -39,6 +39,9 @@ export class MetadataStore {
         ...rootStoreInstance.configStore.getSelectedLocations(),
         selected_metadata_fields:
           rootStoreInstance.configStore.getSelectedMetadataFields(),
+        selected_group_fields: toJS(
+          rootStoreInstance.configStore.selectedGroupFields
+        ),
       }),
     })
       .then((res) => {
