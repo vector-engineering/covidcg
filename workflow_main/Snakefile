@@ -7,9 +7,9 @@ $ snakemake --configfile ../config/config_sars2_gisaid_6month.yaml -j6 -R sequen
 $ snakemake --configfile ../config/config_sars2_genbank_dev.yaml -j6
 $ snakemake --configfile ../config/config_rsv_genbank.yaml -j6
 $ snakemake --configfile ../config/config_flu_genbank.yaml -j6
-$ snakemake --configfile ../config/config_flu_genbank_dev.yaml -j6
+$ snakemake --configfile ../config/config_flu_genbank_dev.yaml -j6  -R sequence_manifest
 $ snakemake --configfile ../config/config_flu_gisaid.yaml -j6
-$ snakemake --configfile ../config/config_flu_gisaid_dev.yaml -j6
+$ snakemake --configfile ../config/config_flu_gisaid_dev.yaml -j6  -R sequence_manifest
 
 This DAG building gets kind of complicated...
 First, sequences are split up by submission date and subtype (this is
@@ -239,7 +239,11 @@ rule sequence_manifest:
     input:
         # Include metadata so this triggers every run
         metadata = os.path.join(data_folder, "metadata.csv"),
-        reference = rules.write_reference_files.output.reference
+        reference = rules.write_reference_files.output.reference,
+        fasta = expand(
+            os.path.join(data_folder, "fasta_raw", "{chunk}.fa.gz"),
+            chunk=CHUNKS
+        ),
     output:
         manifest = os.path.join(data_folder, "sequence_manifest.csv")
     params:
