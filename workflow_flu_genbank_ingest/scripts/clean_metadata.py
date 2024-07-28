@@ -452,6 +452,8 @@ def main():
     'Yamagata', 'Yamagata-like',
     'unidentified', 'unknown'
     ]
+    # TODO: if serotypes not in the prior list, then throw out an error so we can detect it and
+    #       add it to the list in the future
 
     """
     serotype_rename_map = {
@@ -499,7 +501,17 @@ def main():
         "Yamagata": "B-yam",
         "Victoria": "B-vic",
     }
+    df["original_serotype"] = df["serotype"]
     df["serotype"] = df["serotype"].replace(serotype_rename_map)
+
+    # Extract N subtype
+    df["n_subtype"] = (
+        df["original_serotype"]
+        .str.extract(r".*N(\d+)$", expand=False)
+        .fillna("Unknown")
+    )
+    df.loc[df["serotype"].isin(["B-yam", "B-vic"]), "n_subtype"] = "NA"
+    df.drop(columns=["original_serotype"], inplace=True)
 
     # Filter on serotypes
     # Only do this for alpha, leave beta alone
@@ -509,7 +521,7 @@ def main():
 
     # Segment extraction
     # Clean segments
-    df["genome_coverage"] = df["genome_coverage"].fillna('[]').apply(json.loads)
+    df["genome_coverage"] = df["genome_coverage"].fillna("[]").apply(json.loads)
     df["proteins"] = df["genome_coverage"].apply(
         lambda x: (
             [p["name"] for p in x[0]["proteins"]]
@@ -626,6 +638,7 @@ def main():
             segments=("segment", list),
             genus=("genus", "first"),
             serotype=("serotype", "first"),
+            n_subtype=("n_subtype", "first"),
             region=("region", "first"),
             country=("country", "first"),
             division=("division", "first"),

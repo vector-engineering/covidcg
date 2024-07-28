@@ -233,6 +233,15 @@ def clean_df(df):
     df.loc[df["serotype"].str.startswith("H9"), "serotype"] = "H9NX"
     df.loc[df["serotype"].str.startswith("H10"), "serotype"] = "H10NX"
 
+    # Extract N subtype
+    df["n_subtype"] = "NA"
+    df.loc[~b_serotype, "n_subtype"] = (
+        df.loc[~b_serotype, "original_serotype"]
+        .str.extract(r".*N(\d+)$", expand=False)
+        .fillna("Unknown")
+    )
+    df.loc[b_serotype, "n_subtype"] = "NA"
+
     # Remove rows without segments
     df = df.loc[df["segments"].apply(len) > 0, :]
 
@@ -316,6 +325,7 @@ def clean_df(df):
             "isolate_id",
             "virus_name",
             "serotype",
+            "n_subtype",
             "lineage",
             "clade",
             "passage",
@@ -402,7 +412,10 @@ def main():
 
     # Expand by Accession ID
     df = dfs.explode(["accession_ids", "segments"]).rename(
-        columns={"accession_ids": "Accession ID", "segments": "segment",}
+        columns={
+            "accession_ids": "Accession ID",
+            "segments": "segment",
+        }
     )
     df.to_csv(args.metadata_out)
 

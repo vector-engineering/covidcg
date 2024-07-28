@@ -7,7 +7,7 @@ virus: "flu"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "data_flu_small"
+data_folder: "data_flu_genbank_small"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
@@ -33,10 +33,10 @@ chunk_size: 10000
 
 # Don't process sequences prior to this date
 # Leave empty to ignore
-start_date_cutoff:
+start_date_cutoff: 2023-01-01
 # Don't process sequences after this date
 # Leave empty to ignore
-end_date_cutoff:
+end_date_cutoff: 2023-05-01
 
 # Don't process sequences after X days ago
 # Leave empty to ignore
@@ -69,6 +69,8 @@ metadata_cols:
     title: "Host"
   isolation_source:
     title: "Isolation source"
+  n_subtype:
+    title: "Neuraminidase subtype"
   authors:
     title: "Authors"
   publications:

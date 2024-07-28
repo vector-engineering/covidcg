@@ -738,6 +738,16 @@ def seed_database(conn, schema="public"):
                     result_type="expand",
                 )
 
+            # Subset start_df and end_df columns to only include
+            # feature_cols_start and feature_cols_end
+            # Just in case any weird columns sneak through
+            # Allow for missing columns - only useful for dev environments where
+            # truncated data may be missing some segments
+            start_df = start_df[
+                [col for col in feature_cols_start if col in start_df.columns]
+            ]
+            end_df = end_df[[col for col in feature_cols_end if col in end_df.columns]]
+
             df_to_sql(
                 cur,
                 pd.concat(
@@ -754,8 +764,8 @@ def seed_database(conn, schema="public"):
                             + grouping_cols
                             + ["reference"]
                         ],
-                        start_df[feature_cols_start].astype(pd.Int64Dtype()),
-                        end_df[feature_cols_end].astype(pd.Int64Dtype()),
+                        start_df.astype(pd.Int64Dtype()),
+                        end_df.astype(pd.Int64Dtype()),
                     ],
                     axis=1,
                 ),

@@ -7,16 +7,11 @@ virus: "flu"
 
 # Path to folder with downloaded and processed data
 # This path is relative to the project root
-data_folder: "data_flu_small"
+data_folder: "data_flu_gisaid_small"
 
 # Path to folder with genome information (reference.fasta, genes.json, proteins.json)
 # This path is relative to the project root
 static_data_folder: "static_data/flu"
-
-# Path to folder with data to use in development
-# This path is relative to the project root
-# Only used for database seeding in development
-example_data_folder: "data_flu_small"
 
 # Database for this virus
 postgres_db: "flu_gisaid_dev"
@@ -37,7 +32,7 @@ chunk_size: 10000
 start_date_cutoff:
 # Don't process sequences after this date
 # Leave empty to ignore
-end_date_cutoff: 2021-03-01
+end_date_cutoff: 2024-06-01
 
 # Don't process sequences after X days ago
 # Leave empty to ignore
@@ -68,6 +63,8 @@ metadata_cols:
     title: "Clade"
   lineage:
     title: "Lineage"
+  n_subtype:
+    title: "Neuraminidase subtype"
   passage:
     title: "Passage"
   host:

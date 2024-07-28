@@ -136,12 +136,11 @@ example_data_genbank/*/lineage_treetime/*.pdf
 
 data
 data_genbank
-data_flu_genbank
 example_data_genbank/rsv/**
 example_data_genbank/flu/**
 example_data_genbank/sars2/**
-data_flu_small/**
-data_flu_genbank
+data_flu_gisaid_small/**
+data_flu_genbank_small/**
 
 # scratch notebooks
 workflow_main/notebooks/**
