@@ -19,7 +19,7 @@ def process_mutations(
     mode="dna",  # dna, gene_aa, protein_aa
 ):
     """Process mutation data
-    
+
     Parameters
     ----------
     manifest: pandas.DataFrame
@@ -30,7 +30,7 @@ def process_mutations(
         - Mutations must occur at least this many times to pass filters
     mode: string
         - dna, gene_aa, protein_aa
-    
+
     Returns
     -------
     out: tuple of pandas.DataFrames
@@ -120,10 +120,12 @@ def process_mutations(
     )
 
     # Map mutations to integer IDs
-    mutation_map = pd.Series(mutation_df["mutation_str"].unique())
+    mutation_to_id_map = pd.Series(mutation_df["mutation_str"].unique())
     # Flip index and values
-    mutation_map = pd.Series(mutation_map.index.values, index=mutation_map)
-    mutation_df["mutation_id"] = mutation_df["mutation_str"].map(mutation_map)
+    mutation_to_id_map = pd.Series(
+        mutation_to_id_map.index.values, index=mutation_to_id_map
+    )
+    mutation_df["mutation_id"] = mutation_df["mutation_str"].map(mutation_to_id_map)
 
     mutation_group_df = mutation_df.groupby(
         ["Accession ID", "reference"], as_index=False
@@ -141,11 +143,11 @@ def process_mutations(
     )
 
     # Fill NaNs with empty arrays
-    mutation_group_df.loc[
-        mutation_group_df["mutation_id"].isna(), "mutation_id"
-    ] = pd.Series(
-        [[]] * mutation_group_df["mutation_id"].isna().sum(),
-        index=mutation_group_df.index[mutation_group_df["mutation_id"].isna()],
+    mutation_group_df.loc[mutation_group_df["mutation_id"].isna(), "mutation_id"] = (
+        pd.Series(
+            [[]] * mutation_group_df["mutation_id"].isna().sum(),
+            index=mutation_group_df.index[mutation_group_df["mutation_id"].isna()],
+        )
     )
 
-    return mutation_group_df, mutation_map
+    return mutation_group_df, mutation_to_id_map
