@@ -40,6 +40,34 @@ def main():
         v: k for k, v in metadata_map["protein_aa_mutation"].items()
     }
 
+    # Affected positions map
+    gene_aa_affected_positions_map = {}
+    for k, v in metadata_map["gene_aa_mutation"].items():
+        feature = k.split("|")[0]
+        pos = int(k.split("|")[1])
+        ref = k.split("|")[2]
+        gene_aa_affected_positions_map[v] = ";".join(
+            [f"{feature}|{x}" for x in range(pos, pos + len(ref))]
+        )
+
+    protein_aa_affected_positions_map = {}
+    for k, v in metadata_map["protein_aa_mutation"].items():
+        feature = k.split("|")[0]
+        pos = int(k.split("|")[1])
+        ref = k.split("|")[2]
+        protein_aa_affected_positions_map[v] = ";".join(
+            [f"{feature}|{x}" for x in range(pos, pos + len(ref))]
+        )
+
+    # Add affected positions to dataframe
+    df.loc[:, "gene_aa_affected_positions"] = df["gene_aa_mutation"].apply(
+        lambda x: ";".join([gene_aa_affected_positions_map[i] for i in x])
+    )
+    df.loc[:, "protein_aa_affected_positions"] = df["protein_aa_mutation"].apply(
+        lambda x: ";".join([protein_aa_affected_positions_map[i] for i in x])
+    )
+
+    # Convert mutation IDs back to mutation strings
     df.loc[:, "dna_mutation"] = df["dna_mutation"].apply(
         lambda x: ";".join([dna_mutation_map[i] for i in x])
     )
@@ -50,7 +78,7 @@ def main():
         lambda x: ";".join([protein_aa_mutation_map[i] for i in x])
     )
 
-    # Serialize coverage
+    # Serialize coverage data
     df.loc[:, "dna_range"] = df["dna_range"].apply(
         lambda rngs: ";".join([f"{rng[0]}-{rng[1]}" for rng in rngs])
     )

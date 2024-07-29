@@ -20,8 +20,17 @@ export const formatMutation = (mutationStr, dnaOrAa) => {
       return `${chunks[2]}${chunks[1]}${chunks[3]}`;
     }
   } else if (dnaOrAa === DNA_OR_AA.AA) {
+    let feature = chunks[0];
+    let pos = parseInt(chunks[1]);
     let ref = chunks[2];
     let alt = chunks[3];
+
+    // For mutations with multiple reference AAs affected, display
+    // the position as a range of affected positions
+    // e.g., LPPA24S --> LPPA24/27S
+    if (ref.length > 1) {
+      pos = `${pos}/${pos + ref.length - 1}`;
+    }
 
     // Translate stop codon from "_" to more conventional "*"
     if (ref === '_') {
@@ -44,6 +53,6 @@ export const formatMutation = (mutationStr, dnaOrAa) => {
       ref = '';
     }
 
-    return `${chunks[0]}:${ref}${chunks[1]}${alt}`;
+    return `${feature}:${ref}${pos}${alt}`;
   }
 };
