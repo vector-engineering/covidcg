@@ -158,8 +158,9 @@ def extract_aa_mutations(
                     - segment_start
                 ) // 3
 
-                # GROUP MUTATIONS
-                # Group together individual mutations to process them as a single mutation
+                # GROUP DNA MUTATIONS
+                # Group together individual DNA mutations to process them
+                # as a single DNA mutation
                 # Criteria:
                 # - Same Accession ID
                 # - Mutations are within codon range
@@ -425,6 +426,7 @@ def extract_aa_mutations(
     # - position is the same
     # - one mutation is an indel, other is a substitution
 
+    """
     if len(aa_mutations) > 0:
         cur_mutation = aa_mutations[0]
         i = 1
@@ -432,7 +434,7 @@ def extract_aa_mutations(
 
             next_mutation = aa_mutations[i]
 
-            # (Accession ID, gene/protein, pos, ref, alt)
+            # (reference, Accession ID, gene/protein, pos, ref, alt)
             if (
                 cur_mutation[0] == next_mutation[0]
                 and cur_mutation[1] == next_mutation[1]
@@ -468,6 +470,86 @@ def extract_aa_mutations(
                 # No merging, move on
                 cur_mutation = aa_mutations[i]
                 i += 1
+    """
+
+    # SPLIT AA MUTATIONS
+    # ------------------
+    # Split AA mutations:
+    # 1. Split deletions of multiple residues into individual deletions
+    #    - e.g., ∆HV69 --> ∆H69, ∆V70
+    #    - Only applicable to pure deletions, i.e., no substitutions
+    # 2. Mutations will be “ungrouped” if possible
+    #    - e.g., FR157SG --> F157S, R158G
+    #    - Only applicable for substitutions of the same residue length
+
+    # 1. SPLIT DELETIONS
+    old_aa_mutation_inds = []
+    new_aa_mutations = []  # (new_mutation, insertion_index)
+    for i, aa_mutation in enumerate(aa_mutations):
+        # (reference, Accession ID, gene/protein, pos, ref, alt)
+        ref = aa_mutation[4]
+        alt = aa_mutation[5]
+        # Skip if the mutation is not a pure deletion of more than 1 residue
+        if len(alt) > 0 or len(ref) == 1:
+            continue
+
+        # Split the deletion into individual deletions
+        for j, r in enumerate(ref):
+            new_aa_mutations.append(
+                (
+                    (
+                        aa_mutation[0],
+                        aa_mutation[1],
+                        aa_mutation[2],
+                        aa_mutation[3] + j,
+                        r,
+                        "",
+                    ),
+                    i + j,
+                )
+            )
+
+        old_aa_mutation_inds.append(i)
+
+    # Remove old deletion mutations
+    for i in old_aa_mutation_inds[::-1]:
+        del aa_mutations[i]
+    # Add new mutations
+    for new_mutation, insertion_index in new_aa_mutations:
+        aa_mutations.insert(insertion_index, new_mutation)
+
+    # 2. SPLIT SUBSTITUTIONS
+    old_aa_mutation_inds = []
+    new_aa_mutations = [] # (new_mutation, insertion_index)
+    for i, aa_mutation in enumerate(aa_mutations):
+        # (reference, Accession ID, gene/protein, pos, ref, alt)
+        ref = aa_mutation[4]
+        alt = aa_mutation[5]
+        # Skip if the mutation is not a pure substitution of more than 1 residue
+        if len(alt) == 0 or len(ref) == 0 or len(ref) != len(alt) or len(ref) == 1:
+            continue
+
+        # Split the substitution into individual substitutions
+        for j, (a, b) in enumerate(zip(ref, alt)):
+            new_aa_mutations.append((
+                (
+                    aa_mutation[0],
+                    aa_mutation[1],
+                    aa_mutation[2],
+                    aa_mutation[3] + j,
+                    a,
+                    b,
+                ), i + j
+            ))
+
+        old_aa_mutation_inds.append(i)
+
+    # Remove old deletion mutations
+    for i in old_aa_mutation_inds[::-1]:
+        del aa_mutations[i]
+    # Add new mutations
+    for new_mutation, insertion_index in new_aa_mutations:
+        aa_mutations.insert(insertion_index, new_mutation)
 
     aa_mutation_df = pd.DataFrame.from_records(
         aa_mutations,
