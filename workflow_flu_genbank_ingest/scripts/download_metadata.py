@@ -216,6 +216,7 @@ def main():
                 # CreateYear_i - year
                 ("updated", "UpdateDate_dt"),
                 # Additional metadata
+                ("note", "Note_s"),
                 ("host", "Host_s"),
                 ("isolation_source", "Isolation_csv"),
                 ("biosample_accession", "BioSample_s"),
