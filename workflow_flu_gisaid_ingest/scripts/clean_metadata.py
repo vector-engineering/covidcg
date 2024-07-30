@@ -319,7 +319,7 @@ def clean_df(df):
 
     # Infer "Original", "Cell", or "Egg" passage from the "passage" field
 
-    passage_clean = df["passage"].str.lower().str.strip()
+    passage_clean = df["passage"].fillna("").str.lower().str.strip()
 
     # Get rid of nuisance terms
     replace_map = {
