@@ -317,6 +317,161 @@ def clean_df(df):
     # Remove rows without collection dates
     df = df.loc[~pd.isna(df["collection_date"]), :]
 
+    # Infer "Original", "Cell", or "Egg" passage from the "passage" field
+
+    passage_clean = df["passage"].fillna("").str.lower().str.strip()
+
+    # Get rid of nuisance terms
+    replace_map = {
+        r"passage\s?(details)?:\s?": "",
+        r".*mdck.*": "cell",
+        r".*293t.*": "cell",
+        r".*siat[123]?.*": "cell",
+        r".*qmc[12].*": "cell",
+        r".*spf[123].*": "cell",
+        r".*rhmk[123]?.*": "cell",
+        # r"p[0-9]{1}": "cell",
+        # r"s[0-9]{1}": "cell",
+        # r"C[0-9]{1}\+C[1-9]{1}": "cell",
+        r"[0-9]+ passages?.+cells?.+": "cell",
+        r"cell passage [0-9]+": "cell",
+        r".*ax-4.*": "cell",
+        # r"hCK": "cell",
+        r".*caco-2.*": "cell",
+        r".*md[123].*": "cell",
+        r".*pmk1.*": "cell",
+        r".*spfe1.*": "cell",
+        r"^[csmr][0-9x]+[\+\/].*": "cell",
+        r"^[csmr][0-9x]+[csm]{1}[0-9x]{1}.*": "cell",
+        r"^[xm][0-9x]?\/[cs].*": "cell",
+        r".*egg.*": "egg",
+        r"^e[0-9x]{1}.*": "egg",
+        r"^p[0-9]{1}\,e[0-9]+.*": "egg",
+        r"^ece.*": "egg",
+        r".*original.*": "original",
+        r".*clinical.*": "original",
+        r".*direct.*": "original",
+        r".*autopsy.*": "original",
+        r".*swab.*": "original",
+        r".*organ.*": "original",
+        r".*tissue.*": "original",
+    }
+    for k, v in replace_map.items():
+        passage_clean = passage_clean.str.replace(k, v, regex=True)
+
+    passage_map = {
+        "original": [
+            "original",
+            "origina",
+            "orginal",
+            "org",
+            "orginal_sample",
+            "p0",
+            "p0-ori",
+            "blank",
+            "cs",
+            "cs-ori",
+            "cs_ori",
+            "or_ir",
+            "or-ir",
+            "ori",
+            "sample",
+            "pooled lungs and oropharyngeal-tracheal swab",
+            "human",
+            "human, unpassaged",
+            "or",
+            "initial",
+            "primary specimen",
+            "no passage",
+            "swab",
+            "nasal swab",
+            "first",
+            "orignal",
+            "rna",
+            "tissues",
+            "isolated directly from host; no passage",
+            "ferret",
+            "op&np",
+        ],
+        "cell": [
+            "c",
+            "c0",
+            "cell",
+            "с1",
+            "c1",
+            "c1-ori",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "cx",
+            "c1 in allantoidal liquid",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "sx",
+            "c4",
+            "c2hck2/c1",
+            "p1",
+            "p-1",
+            "p2",
+            "p3",
+            "pi",
+            # "x",
+            "x1",
+            "x2",
+            "x3",
+            "r0",
+            "cxs1",
+            "i-cs",
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "c1s1",
+            "paepc1",
+            "paepc2",
+            "rmk 1st passage",
+            "gmkc1",
+        ],
+        "egg": [
+            "egg",
+            "e0",
+            "e1",
+            "e2",
+            "e3",
+            "e4",
+            "p1,e1",
+            "p2,e1",
+            "p2,e2",
+            "p2,e3",
+            "c1e1",
+            "ce1",
+        ],
+    }
+    passage_map_reverse = {}
+    for k, v in passage_map.items():
+        for vv in v:
+            passage_map_reverse[vv] = k
+
+    df["passage_category"] = passage_clean.map(passage_map_reverse)
+
+    num_unmapped = (df["passage_category"].isna() & ~df["passage"].isna()).sum()
+    print(f"Unmapped passage values: {num_unmapped} / {len(df)}")
+    print(
+        df["passage"][
+            (df["passage_category"].isna() & ~df["passage"].isna())
+        ].value_counts()
+    )
+    # print(
+    #     passage_clean[
+    #         (df["passage_category"].isna() & ~df["passage"].isna())
+    #     ].value_counts()
+    # )
+
+    df["passage_category"].fillna("unknown", inplace=True)
+
     # Enforce column order for easier concatenation later
     df = df[
         [
@@ -329,6 +484,7 @@ def clean_df(df):
             "lineage",
             "clade",
             "passage",
+            "passage_category",
             "host",
             "isolate_submitter",
             "submitting_lab",

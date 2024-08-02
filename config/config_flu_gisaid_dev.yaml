@@ -67,6 +67,8 @@ metadata_cols:
     title: "Neuraminidase subtype"
   passage:
     title: "Passage"
+  passage_category:
+    title: "Passage Type"
   host:
     title: "Host"
   isolate_submitter:

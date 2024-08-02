@@ -339,6 +339,7 @@ def main():
             "biosample_accession",
             "authors",
             "publications",
+            "note",
         ],
     )
 
@@ -366,6 +367,7 @@ def main():
     #   title: string (dropped),
     #   authors: string,
     #   publications: string
+    #   note: string
     #   sequence: string (dropped)
 
     """
