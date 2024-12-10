@@ -317,6 +317,12 @@ export class DataStore {
           (field) => selectedFields[field]
         ),
         mutation_format: mutationFormat,
+        sequence_length: toJS(
+          rootStoreInstance.configStore.sequenceLengthRange
+        ),
+        percent_ambiguous: toJS(
+          rootStoreInstance.configStore.percentAmbiguousRange
+        ),
       }),
     })
       .then((res) => {
@@ -372,6 +378,12 @@ export class DataStore {
         end_date: toJS(rootStoreInstance.configStore.endDate),
         subm_start_date: toJS(rootStoreInstance.configStore.submStartDate),
         subm_end_date: toJS(rootStoreInstance.configStore.submEndDate),
+        sequence_length: toJS(
+          rootStoreInstance.configStore.sequenceLengthRange
+        ),
+        percent_ambiguous: toJS(
+          rootStoreInstance.configStore.percentAmbiguousRange
+        ),
         compress,
       }),
     })
@@ -734,6 +746,12 @@ export class DataStore {
           (field) => selectedFields[field]
         ),
         mutation_format: mutationFormat,
+        sequence_length: toJS(
+          rootStoreInstance.configStore.sequenceLengthRange
+        ),
+        percent_ambiguous: toJS(
+          rootStoreInstance.configStore.percentAmbiguousRange
+        ),
       }),
     })
       .then((res) => {

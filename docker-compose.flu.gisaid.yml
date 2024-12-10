@@ -1,6 +1,5 @@
 # docker compose -f docker-compose.flu.gisaid.yml up -d
 name: pathmut-flu-gisaid
-version: "3.7"
 
 services:
   server:

@@ -1,6 +1,5 @@
 # docker compose -f docker-compose.flu.genbank.yml up -d
 name: pathmut-flu-genbank
-version: "3.7"
 
 services:
   server:

@@ -91,7 +91,7 @@ def generate_report(conn, req):
                 GROUP BY "region", "mutation_id"
             ),
             region_counts AS (
-                SELECT "region", COUNT("sequence_id")
+                SELECT "region", COUNT("isolate_id")
                 FROM "metadata" m
                 WHERE
                     "collection_date" >= %(start_date)s AND
@@ -195,7 +195,7 @@ def generate_report(conn, req):
                 """
             WITH seq_cooc AS (
                 SELECT
-                    seq_mut."sequence_id",
+                    seq_mut."isolate_id",
                     seq_mut."region",
                     ("mutations" & (
                         SELECT ARRAY_AGG("id")
@@ -204,7 +204,7 @@ def generate_report(conn, req):
                     )) as "mutations",
                     m.{group}
                 FROM "sequence_gene_aa_mutation" seq_mut
-                INNER JOIN "metadata" m ON seq_mut."sequence_id" = m."sequence_id"
+                INNER JOIN "metadata" m ON seq_mut."isolate_id" = m."isolate_id"
                 WHERE
                     seq_mut."collection_date" >= %(start_date)s AND
                     seq_mut."collection_date" <= %(end_date)s
@@ -218,7 +218,7 @@ def generate_report(conn, req):
                     SELECT
                         "mutations",
                         {group},
-                        COUNT("sequence_id") as "count"
+                        COUNT("isolate_id") as "count"
                     FROM seq_cooc
                     GROUP BY "mutations", {group}
                 ) cooc_group
@@ -228,14 +228,14 @@ def generate_report(conn, req):
                 SELECT
                     seq_cooc."region",
                     "mutations",
-                    COUNT(seq_cooc."sequence_id") AS "count"
+                    COUNT(seq_cooc."isolate_id") AS "count"
                 FROM seq_cooc
                 GROUP BY seq_cooc."mutations", seq_cooc."region"
             ),
             region_counts AS (
                 SELECT
                     seq_cooc."region",
-                    COUNT(seq_cooc."sequence_id") as "count"
+                    COUNT(seq_cooc."isolate_id") as "count"
                 FROM seq_cooc
                 GROUP BY seq_cooc."region"
             )
@@ -321,7 +321,7 @@ def generate_report(conn, req):
             WITH region_counts AS (
                 SELECT
                     m."region",
-                    COUNT(m."sequence_id") as "count"
+                    COUNT(m."isolate_id") as "count"
                 FROM "metadata" m
                 WHERE
                     m."collection_date" >= %(start_date)s AND
@@ -332,7 +332,7 @@ def generate_report(conn, req):
                 SELECT
                     m."region",
                     m.{group},
-                    COUNT(m."sequence_id") AS "count"
+                    COUNT(m."isolate_id") AS "count"
                 FROM "metadata" m
                 WHERE
                     m."collection_date" >= %(start_date)s AND

@@ -1,5 +1,4 @@
 name: pathmut-all
-version: "3.7"
 
 services:
   cg-frontend:

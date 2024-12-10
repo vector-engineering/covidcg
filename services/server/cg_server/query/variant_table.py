@@ -41,6 +41,7 @@ def build_variant_table(conn, req):
         raise Exception("No reference specified")
 
     with conn.cursor() as cur:
+
         sequence_where_filter = build_sequence_location_where_filter(
             constants["GROUP_MUTATION"],
             get_loc_level_ids(req),
@@ -50,10 +51,11 @@ def build_variant_table(conn, req):
             req.get("subm_end_date", None),
             req.get("selected_metadata_fields", None),
             req.get("selected_group_fields", None),
+            selected_reference,
             req.get("sequence_length", None),
             req.get("percent_ambiguous", None),
-            selected_reference,
         )
+        
 
         (mutation_filter, mutation_table) = build_coordinate_filters(
             conn,
@@ -73,7 +75,7 @@ def build_variant_table(conn, req):
 
         # Get grouping columns, metadata columns
         metadata_cols = [
-            "Accession ID",
+            "isolate_id",
             "collection_date",
             "submission_date",
         ]
@@ -126,7 +128,7 @@ def build_variant_table(conn, req):
                 sm."mutations"
             FROM (
                 SELECT
-                    sst."sequence_id",
+                    sst."isolate_id",
                     sst."reference",
                     (sst.mutations & (
                         SELECT ARRAY_AGG("id")
@@ -136,9 +138,9 @@ def build_variant_table(conn, req):
                 FROM {sequence_mutation_table} sst
                 WHERE {sequence_where_filter}
             ) sm
-            INNER JOIN "metadata" m ON sm."sequence_id" = m."sequence_id"
+            INNER JOIN "metadata" m ON sm."isolate_id" = m."isolate_id"
             {joins}
-            ORDER BY m."Accession ID" ASC
+            ORDER BY m."isolate_id" ASC
             """
         ).format(
             metadata_cols_expr=sql.SQL(",").join(metadata_cols_expr),
@@ -155,7 +157,7 @@ def build_variant_table(conn, req):
             # cur.fetchall(), columns=metadata_cols + ["mutation_name", "pos"]
             cur.fetchall(),
             columns=metadata_cols + ["reference", "mutations"],
-        ).set_index("Accession ID")
+        ).set_index("isolate_id")
 
         mutation_name_field = "mutation_str"
         if mutation_format == constants["MUTATION_FORMAT"]["POS_REF_ALT"]:
@@ -208,7 +210,7 @@ def build_variant_table(conn, req):
                         .fillna("N/A")
                     )
                 ),
-                index=["Accession ID"],
+                index=["isolate_id"],
                 columns="mutations",
                 values="val",
             )
