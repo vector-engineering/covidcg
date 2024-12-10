@@ -1,6 +1,5 @@
 # docker compose -f docker-compose.sars2.yml up -d
 name: pathmut-sars2
-version: "3.7"
 
 services:
   server:
