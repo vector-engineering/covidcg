@@ -10,6 +10,7 @@ import argparse
 import json
 import pandas as pd
 
+from collections import deque
 from util import translate
 
 # Number of codons to look ahead for resolving frameshifts
@@ -107,7 +108,7 @@ def extract_aa_mutations(
     #     )
     # ].reset_index(drop=True)
 
-    aa_mutations = []
+    aa_mutations = deque()
     aa_seqs = {}
 
     # For each reference
@@ -520,7 +521,7 @@ def extract_aa_mutations(
 
     # 2. SPLIT SUBSTITUTIONS
     old_aa_mutation_inds = []
-    new_aa_mutations = [] # (new_mutation, insertion_index)
+    new_aa_mutations = []  # (new_mutation, insertion_index)
     for i, aa_mutation in enumerate(aa_mutations):
         # (reference, Accession ID, gene/protein, pos, ref, alt)
         ref = aa_mutation[4]
@@ -531,16 +532,19 @@ def extract_aa_mutations(
 
         # Split the substitution into individual substitutions
         for j, (a, b) in enumerate(zip(ref, alt)):
-            new_aa_mutations.append((
+            new_aa_mutations.append(
                 (
-                    aa_mutation[0],
-                    aa_mutation[1],
-                    aa_mutation[2],
-                    aa_mutation[3] + j,
-                    a,
-                    b,
-                ), i + j
-            ))
+                    (
+                        aa_mutation[0],
+                        aa_mutation[1],
+                        aa_mutation[2],
+                        aa_mutation[3] + j,
+                        a,
+                        b,
+                    ),
+                    i + j,
+                )
+            )
 
         old_aa_mutation_inds.append(i)
 
