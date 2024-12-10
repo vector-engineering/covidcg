@@ -33,9 +33,9 @@ def download_metadata(conn, req):
             req.get("subm_end_date", None),
             req.get("selected_metadata_fields", None),
             req.get("selected_group_fields", None),
+            selected_reference,
             req.get("sequence_length", None),
             req.get("percent_ambiguous", None),
-            selected_reference,
         )
 
         # Fields that the user wants

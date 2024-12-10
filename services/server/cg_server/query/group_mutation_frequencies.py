@@ -114,9 +114,9 @@ def query_group_mutation_frequencies_dynamic(conn, req):
         req.get("subm_end_date", None),
         req.get("selected_metadata_fields", None),
         req.get("selected_group_fields", None),
+        selected_reference,
         req.get("sequence_length", None),
         req.get("percent_ambiguous", None),
-        selected_reference,
     )
     sequence_mutation_table = "sequence_" + mutation_table
 
