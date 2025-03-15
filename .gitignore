@@ -112,6 +112,8 @@ daily_update_rsv.sh
 daily_update_sars2_genbank.sh
 daily_update_sars2_gisaid_full.sh
 daily_update_sars2_gisaid_6month.sh
+daily_update_flu_genbank.sh
+daily_update_flu_gisaid.sh
 update_gisaid.sh
 update_genbank.sh
 filter_list.txt
@@ -141,6 +143,9 @@ example_data_genbank/flu/**
 example_data_genbank/sars2/**
 data_flu_gisaid_small/**
 data_flu_genbank_small/**
+data_flu_genbank
+data_gisaid_flu
+data_gisaid_flu_old/**
 
 # scratch notebooks
 workflow_main/notebooks/**
