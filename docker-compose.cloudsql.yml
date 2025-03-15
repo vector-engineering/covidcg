@@ -1,8 +1,6 @@
 # docker compose --env-file .cloudsql_env -f docker-compose.cloudsql.yml -p cgcloudsql build
 # docker compose --env-file .cloudsql_env -f docker-compose.cloudsql.yml -p cgcloudsql up -d
 
-version: "3.7"
-
 services:
   server:
     build:

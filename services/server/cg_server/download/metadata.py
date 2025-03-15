@@ -33,9 +33,9 @@ def download_metadata(conn, req):
             req.get("subm_end_date", None),
             req.get("selected_metadata_fields", None),
             req.get("selected_group_fields", None),
+            selected_reference,
             req.get("sequence_length", None),
             req.get("percent_ambiguous", None),
-            selected_reference,
         )
 
         # Fields that the user wants
@@ -45,7 +45,7 @@ def download_metadata(conn, req):
         )
 
         sequence_cols = [
-            "Accession ID",
+            "isolate_id",
             "collection_date",
             "submission_date",
         ]
@@ -122,10 +122,10 @@ def download_metadata(conn, req):
                 sql.SQL(
                     """
                 INNER JOIN (
-                    SELECT "sequence_id", "reference", "mutations"
+                    SELECT "isolate_id", "reference", "mutations"
                     FROM {mutation_table}
                 ) {mutation_table_short} ON 
-                    {mutation_table_short}."sequence_id" = m."sequence_id" AND
+                    {mutation_table_short}."isolate_id" = m."isolate_id" AND
                     {mutation_table_short}."reference" = {reference_name}
                 """
                 ).format(

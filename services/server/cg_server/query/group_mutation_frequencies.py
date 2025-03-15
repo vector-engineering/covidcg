@@ -114,9 +114,9 @@ def query_group_mutation_frequencies_dynamic(conn, req):
         req.get("subm_end_date", None),
         req.get("selected_metadata_fields", None),
         req.get("selected_group_fields", None),
+        selected_reference,
         req.get("sequence_length", None),
         req.get("percent_ambiguous", None),
-        selected_reference,
     )
     sequence_mutation_table = "sequence_" + mutation_table
 
@@ -129,16 +129,16 @@ def query_group_mutation_frequencies_dynamic(conn, req):
             sql.SQL(
                 """
             WITH "group_counts" AS (
-                SELECT {group_col}, COUNT("sequence_id")
+                SELECT {group_col}, COUNT("isolate_id")
                 FROM {sequence_mutation_table}
                 WHERE {sequence_where_filter}
                 GROUP BY {group_col}
             ),
             "group_muts" AS (
                 SELECT
-                    {group_col}, "mutation", COUNT("sequence_id")
+                    {group_col}, "mutation", COUNT("isolate_id")
                 FROM (
-                    SELECT "sequence_id", {group_col}, UNNEST("mutations") as "mutation"
+                    SELECT "isolate_id", {group_col}, UNNEST("mutations") as "mutation"
                     FROM {sequence_mutation_table}
                     WHERE {sequence_where_filter}
                 ) "group_muts"
