@@ -563,6 +563,10 @@ def main():
     segment_df["segment_complete"] = segment_df["segments"].combine_first(
         segment_df["protein_segment"]
     )
+    segment_df["segment_complete"] = pd.to_numeric(
+        segment_df["segment_complete"], errors="coerce", downcast="integer"
+    )
+    print(f"Removing rows with malformed segments: {segment_df["segment_complete"].isna().sum()}")
     segment_df.drop(
         segment_df.index[segment_df["segment_complete"].isna()], inplace=True
     )
