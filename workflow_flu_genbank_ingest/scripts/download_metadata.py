@@ -232,6 +232,9 @@ def main():
                 # BioProject_s - list of BioProjects - string
                 # BioProject_ss - list of BioProjects - array
                 # Division_s - ???
+                ("submitter_affiliation", "SubmitterAffilFull_s"),
+                # ("submitter_affiliation", "SubmitterAffil_s")
+                ("submitter_country", "SubmitterCountry_s"),
             ]
         ),
         # Stable sort with newest last so diffs work nicely.  Columns are source

@@ -42,7 +42,7 @@ def main():
             cur.execute('CREATE SCHEMA "new";')
 
         seed_database(conn, schema="new")
-        insert_sequences(conn, data_path, schema="new")
+        #insert_sequences(conn, data_path, schema="new")
 
         print("Committing changes...", end="", flush=True)
         conn.commit()
