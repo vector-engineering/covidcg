@@ -144,7 +144,8 @@ rule clean_metadata:
     """
     input:
         metadata_dirty = rules.combine_metadata_chunks.output.metadata,
-        quality = rules.combine_quality.output.quality
+        quality = rules.combine_quality.output.quality,
+        location_corrections = os.path.join(static_data_folder, "location_corrections.csv")
     output:
         metadata_clean = os.path.join(data_folder, "metadata_no_serotype.csv"),
         metadata_virus = os.path.join(data_folder, "metadata_virus_no_serotype.csv")
@@ -152,6 +153,7 @@ rule clean_metadata:
         """
         python3 scripts/clean_metadata.py \
             --metadata-in {input.metadata_dirty} \
+            --location-corrections {input.location_corrections} \
             --quality {input.quality} \
             --metadata-out {output.metadata_clean} \
             --metadata-virus-out {output.metadata_virus}

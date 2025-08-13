@@ -23,7 +23,8 @@ import argparse
 import datetime
 import json
 import pandas as pd
-
+import numpy as np
+from functools import reduce
 
 def protein_to_segment(x):
     rename_map = {
@@ -299,10 +300,74 @@ def parse_genbank_location(s):
     return (division, division_chunks[1].strip())
 
 
+def clean_location_data(location_df, location_corretions):
+    """Fix typos, unify nomenclature in location data
+    """
+
+    # Load rules
+    location_correction_df = pd.read_csv(location_corretions, comment="#")
+    # region_pattern,country_pattern,division_pattern,location_pattern,out_region,out_country,out_division,out_location,comment
+
+    for i, rule in location_correction_df.iterrows():
+        if i % 100 == 0:
+            print(f'running location cleaning rule {i}/{len(location_correction_df)}')
+        # print(rule)
+        input_rule = {
+            "region": rule["region_pattern"],
+            "country": rule["country_pattern"],
+            "division": rule["division_pattern"],
+            "location": rule["location_pattern"],
+        }
+        output_rule = {
+            "region": rule["out_region"],
+            "country": rule["out_country"],
+            "division": rule["out_division"],
+            "location": rule["out_location"],
+        }
+
+        # Get matching entries for the input rule
+        # by creating a logical mask
+        # Start out with matching everything
+        loc_mask = pd.Series(np.repeat(True, len(location_df)))
+        for key in input_rule.keys():
+            if type(input_rule[key]) is not str or not input_rule[key]:
+                continue
+
+            vals = input_rule[key].split("|")
+            # Make it a list if it's just a single value
+            if type(vals) is not list:
+                vals = [vals]
+            vals = [str(val) for val in vals]
+
+            # Turn each value into a logical mask
+            vals = [location_df[key] == v for v in vals]
+            # Combine logical masks with logical ORs, and merge into the master mask with AND
+            loc_mask = loc_mask & reduce(lambda x, y: (x | y), vals)
+
+        # Set the output rules on the matching entries from loc_mask
+        for out_key in output_rule.keys():
+            if (
+                type(output_rule[out_key]) is not str
+                and type(output_rule[out_key]) is not int
+            ):
+                continue
+            location_df.loc[loc_mask, out_key] = output_rule[out_key]
+
+    # Done
+    return location_df
+
+
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--metadata-in", type=str, required=True, help="Metadata in")
+    parser.add_argument(
+        "-l",
+        "--location-corrections",
+        type=str,
+        required=True,
+        help="Path to location corrections CSV file",
+    )
     parser.add_argument(
         "--quality",
         type=str,
@@ -340,6 +405,8 @@ def main():
             "authors",
             "publications",
             "note",
+            "submitter_affiliation",
+            "submitter_country",
         ],
     )
 
@@ -657,6 +724,8 @@ def main():
             biosample_accession=("biosample_accession", "first"),
             authors=("authors", "first"),
             publications=("publications", "first"),
+            submitter_affiliation=("submitter_affiliation", "first"),
+            submitter_country=("submitter_country", "first"),
         )
         .assign(
             n_segments=lambda x: x["segments"].apply(len),
@@ -668,6 +737,45 @@ def main():
     # Convert lists to JSON
     virus_df.loc[:, "accession_ids"] = virus_df["accession_ids"].apply(json.dumps)
     virus_df.loc[:, "segments"] = virus_df["segments"].apply(json.dumps)
+
+    # LOCATION CLEANUP
+    # general strategy
+    # first clean up the states and merge 2 letter abbreviations with the full state names
+    # then detect counties mislabeled as states and flip the location and division cols
+    # then re-run the state cleanup
+    location_df = virus_df[['region', 'country', 'division', 'location']].copy()
+    location_df = clean_location_data(location_df, args.location_corrections)
+
+    state_abbreviations = [
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+    ]
+    state_names = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana",
+        "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+        "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
+        "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+        "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+        "West Virginia", "Wisconsin", "Wyoming", "Washington DC"
+    ]
+    # Flip division and location for entries where division ends with "county" or "province", 
+    # or for entries where division is a state abbreviation
+    flip_mask = (
+        location_df['division'].str.match(r'.*county$', case=False) | 
+        location_df['division'].str.match(r'.*province$', case=False) |
+        location_df['location'].isin(state_abbreviations + state_names + [n + ' state' for n in state_names])
+    )
+    location_df.loc[flip_mask, ['division', 'location']] = location_df.loc[flip_mask, ['location', 'division']].values
+    location_df = clean_location_data(location_df, args.location_corrections)
+    
+    # reset main df
+    virus_df.loc[:, ['region', 'country', 'division', 'location']] = location_df
 
     virus_df.to_csv(args.metadata_virus_out)
 
