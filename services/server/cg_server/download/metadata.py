@@ -46,6 +46,7 @@ def download_metadata(conn, req):
 
         sequence_cols = [
             "isolate_id",
+            "accession_ids",
             "collection_date",
             "submission_date",
         ]
