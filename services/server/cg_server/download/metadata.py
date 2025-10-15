@@ -46,6 +46,8 @@ def download_metadata(conn, req):
 
         sequence_cols = [
             "isolate_id",
+            "accession_ids",
+            "segments",
             "collection_date",
             "submission_date",
         ]
@@ -203,6 +205,17 @@ def download_metadata(conn, req):
             # Serialize list of mutation IDs
             res_df.loc[:, mutation_field_col] = res_df[mutation_field_col].apply(
                 lambda x: ";".join([name_map[_x] for _x in x])
+            )
+
+        # Serialize accession IDs and segments
+        if "accession_ids" in res_df.columns:
+            res_df.loc[:, "accession_ids"] = res_df["accession_ids"].apply(
+                lambda x: ";".join(x) if isinstance(x, list) else ""
+            )
+
+        if "segments" in res_df.columns:
+            res_df.loc[:, "segments"] = res_df["segments"].apply(
+                lambda x: ";".join(x) if isinstance(x, list) else ""
             )
 
     return make_response(res_df.to_csv(index=False), 200, {"Content-Type": "text/csv"})
