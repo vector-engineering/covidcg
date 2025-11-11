@@ -12,11 +12,11 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python=3.8.8
-  - numpy=1.20.2
-  - scipy=1.6.2
-  - pandas=1.2.5
-  - pip=20.1.1
+  - python=3.10.9
+  - numpy=1.26.4
+  - scipy=1.15.2
+  - pandas=1.5.3
+  - pip=25.2
   - snakemake-minimal=5.20.1
   #- samtools=1.10
   - bs4=4.9.3
@@ -26,8 +26,8 @@ dependencies:
   - networkx=2.5.1
   - xlrd=2.0.1
   #- minimap2=2.21
-  - scikit-learn=1.0
-  - openblas=0.3.18
+  # - scikit-learn=1.0
+  # - openblas=0.3.18
   - pip:
       - pysam==0.18.0
       # Email updates

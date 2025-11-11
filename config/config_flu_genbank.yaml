@@ -75,6 +75,10 @@ metadata_cols:
     title: "Authors"
   publications:
     title: "Publications"
+  submitter_affiliation:
+    title: "Submitter affiliation"
+  submitter_country:
+    title: "Submitter country"
 
 group_cols:
   serotype:

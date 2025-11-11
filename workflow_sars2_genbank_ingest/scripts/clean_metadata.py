@@ -97,6 +97,7 @@ def main():
         (df["region"].isna())
         | (df["submission_date"].isna())
         | (df["collection_date"].isna())
+        | (df["submission_date"] == 'submitted') # sometimes header rows sneak through...
     )
     df = df.loc[~remove_rows]
 

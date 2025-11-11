@@ -48,7 +48,7 @@ def send_email(recipients, subject, html_content, attachments=None):
     recipients = reduce(lambda x, y: x + y.split(","), recipients, [])
 
     message = Mail(
-        from_email="data@covidcg.org",
+        from_email="vector-engineering@broadinstitute.org",
         to_emails=recipients,
         subject=subject,
         html_content=html_content,
