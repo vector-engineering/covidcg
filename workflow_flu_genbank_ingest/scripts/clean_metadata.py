@@ -633,7 +633,7 @@ def main():
     segment_df["segment_complete"] = pd.to_numeric(
         segment_df["segment_complete"], errors="coerce", downcast="integer"
     )
-    print(f"Removing rows with malformed segments: {segment_df["segment_complete"].isna().sum()}")
+    print(f"Removing rows with malformed segments: {segment_df['segment_complete'].isna().sum()}")
     segment_df.drop(
         segment_df.index[segment_df["segment_complete"].isna()], inplace=True
     )
@@ -699,6 +699,45 @@ def main():
 
     # Filter out entries without any sequence
     df = df.loc[df["length"] > 0]
+
+    # LOCATION CLEANUP
+    # general strategy
+    # first clean up the states and merge 2 letter abbreviations with the full state names
+    # then detect counties mislabeled as states and flip the location and division cols
+    # then re-run the state cleanup
+    location_df = df[['region', 'country', 'division', 'location']].copy()
+    location_df = clean_location_data(location_df, args.location_corrections)
+
+    state_abbreviations = [
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+    ]
+    state_names = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana",
+        "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+        "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
+        "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+        "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+        "West Virginia", "Wisconsin", "Wyoming", "Washington DC"
+    ]
+    # Flip division and location for entries where division ends with "county" or "province", 
+    # or for entries where division is a state abbreviation
+    flip_mask = (
+        location_df['division'].str.match(r'.*county$', case=False) | 
+        location_df['division'].str.match(r'.*province$', case=False) |
+        location_df['location'].isin(state_abbreviations + state_names + [n + ' state' for n in state_names])
+    )
+    location_df.loc[flip_mask, ['division', 'location']] = location_df.loc[flip_mask, ['location', 'division']].values
+    location_df = clean_location_data(location_df, args.location_corrections)
+
+    # reset main df
+    df.loc[:, ['region', 'country', 'division', 'location']] = location_df
 
     df.to_csv(args.metadata_out)
 
