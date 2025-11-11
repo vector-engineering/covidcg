@@ -67,6 +67,12 @@ metadata_cols:
     title: "Database"
   host:
     title: "Host"
+  detailed_host:
+    title: "Detailed host"
+  simple_host:
+    title: "Simple host"
+  mammal_or_avian:
+    title: "Mammal or Avian"
   isolation_source:
     title: "Isolation source"
   n_subtype:

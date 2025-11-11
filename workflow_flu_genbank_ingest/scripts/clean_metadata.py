@@ -24,7 +24,9 @@ import datetime
 import json
 import pandas as pd
 import numpy as np
+import re
 from functools import reduce
+
 
 def protein_to_segment(x):
     rename_map = {
@@ -301,8 +303,7 @@ def parse_genbank_location(s):
 
 
 def clean_location_data(location_df, location_corretions):
-    """Fix typos, unify nomenclature in location data
-    """
+    """Fix typos, unify nomenclature in location data"""
 
     # Load rules
     location_correction_df = pd.read_csv(location_corretions, comment="#")
@@ -310,7 +311,7 @@ def clean_location_data(location_df, location_corretions):
 
     for i, rule in location_correction_df.iterrows():
         if i % 100 == 0:
-            print(f'running location cleaning rule {i}/{len(location_correction_df)}')
+            print(f"running location cleaning rule {i}/{len(location_correction_df)}")
         # print(rule)
         input_rule = {
             "region": rule["region_pattern"],
@@ -355,6 +356,463 @@ def clean_location_data(location_df, location_corretions):
 
     # Done
     return location_df
+
+
+def regex_search(word, text):
+    # Whole word case-insensitive match
+    return re.search(rf"\b{re.escape(word)}\b", text, re.IGNORECASE) is not None
+
+
+def categorize_host_detailed(host):
+    h = host.strip().lower()
+
+    # The detailed mapping (complete as above, kept for future grouping should you wish)
+    mapping = {
+        # --- Human ---
+        "homo sapiens": "Human",
+        "human": "Human",
+        # --- Cattle/Bovine/Cow ---
+        "cow": "Cattle",
+        "dairy cow": "Cattle",
+        "bovine": "Cattle",
+        # --- Laboratory ---
+        "laboratory derived": "Laboratory derived",
+        # --- Swine ---
+        "swine": "Swine",
+        "pig": "Swine",
+        "sus scrofa": "Swine",
+        "sus scrofa scrofa": "Swine",
+        "sus scrofa domesticus": "Swine",
+        # --- Dogs, cats ---
+        "canis lupus familiaris": "Canine",
+        "canine": "Canine",
+        "dog": "Canine",
+        "feline": "Feline",
+        "felis catus": "Feline",
+        "cat": "Feline",
+        "rodent": "Rodent",
+        "mus musculus": "Rodent",
+        "mouse": "Rodent",
+        "ferret": "Ferret",
+        "mink": "Mink",
+        "seal": "Seal",
+        "primate": "Primate",
+        "bat": "Bat",
+        "camel": "Camel",
+        "equine": "Equine",
+        "horse": "Equine",
+        "meerkat": "Meerkat",
+        "panda": "Panda",
+        "animal": "Other Mammal",
+        "other mammals": "Other Mammal",
+        "mammals": "Other Mammal",
+        "other mammal": "Other Mammal",
+        "lab": "Laboratory derived",
+        # --- Environment, unknown
+        "environment": "Environment",
+        "other environment": "Environment",
+        "feces": "Environment",
+        "water sample": "Environment",
+        "surface swab": "Environment",
+        "air sample": "Environment",
+        "host": "Environment",
+        "unknown": "Unknown",
+        # --- Chicken ---
+        "chicken": "Chicken",
+        "gallus gallus": "Chicken",
+        "gallus gallus domesticus": "Chicken",
+        "gallus": "Chicken",
+        # --- Turkey ---
+        "turkey": "Turkey",
+        "meleagris gallopavo": "Turkey",
+        # --- Quail ---
+        "quail": "Quail",
+        "coturnix": "Quail",
+        "us quail": "Quail",
+        "coturnix japonica": "Quail",
+        "coturnic coturnix": "Quail",
+        # --- Pheasant ---
+        "pheasant": "Pheasant",
+        "phasanus colchicus": "Pheasant",
+        "phasanus": "Pheasant",
+        "phasianus": "Pheasant",
+        # --- Guineafowl ---
+        "guineafowl": "Guineafowl",
+        "guinea fowl": "Guineafowl",
+        "numida meleagris": "Guineafowl",
+        "numida sp.": "Guineafowl",
+        "numida": "Guineafowl",
+        # --- Partridge ---
+        "partridge": "Partridge",
+        "alectoris chukar": "Partridge",
+        # --- Peafowl ---
+        "peafowl": "Peafowl",
+        "pavo": "Peafowl",
+        "pavo cristatus": "Peafowl",
+        # --- Pigeon, dove ---
+        "pigeon": "Pigeon",
+        "columba": "Pigeon",
+        "columba guinea": "Pigeon",
+        "speckled pigeon": "Pigeon",
+        "dove": "Dove",
+        # --- Duck
+        "duck": "Duck",
+        "mallard duck": "Duck",
+        "anas platyrhynchos": "Duck",
+        "anas platyrhynchos f. domestica": "Duck",
+        "anas platyrhynchos var. domesticus": "Duck",
+        "anas platyrhynchos x anas acuta": "Duck",
+        "dabbling duck": "Duck",
+        "mulard duck": "Duck",
+        "mallard": "Duck",
+        "anas discors": "Duck",
+        "anas acuta": "Duck",
+        "blue-winged teal": "Duck",
+        "green-winged teal": "Duck",
+        "anas carolinensis": "Duck",
+        "anas crecca": "Duck",
+        "baikal teal": "Duck",
+        "anas penelope": "Duck",
+        "anas americana": "Duck",
+        "anas castanea": "Duck",
+        "anas cyanoptera": "Duck",
+        "anas rubripes": "Duck",
+        "anas formosa": "Duck",
+        "anas poecilorhyncha": "Duck",
+        "anas flavirostris": "Duck",
+        "anas querquedula": "Duck",
+        "anas georgica": "Duck",
+        "anas falcata": "Duck",
+        "anas zonorhyncha": "Duck",
+        "american black duck": "Duck",
+        "anas undalata": "Duck",
+        "anas sp.": "Duck",
+        "teal": "Duck",
+        "grey teal": "Duck",
+        "silver teal": "Duck",
+        "spatula clypeata": "Duck",
+        # Goose
+        "goose": "Goose",
+        "anser anser": "Goose",
+        "anser anser domesticus": "Goose",
+        "anser": "Goose",
+        "anser sp.": "Goose",
+        "anser fabalis": "Goose",
+        "anser albifrons": "Goose",
+        "anser caerulescens": "Goose",
+        "anser canagica": "Goose",
+        "anser cygnoides": "Goose",
+        "anser cygnoides domesticus": "Goose",
+        "anser indicus": "Goose",
+        "anser erythropus": "Goose",
+        "anser rossii": "Goose",
+        "branta leucopsis": "Goose",
+        "branta canadensis": "Goose",
+        "branta bernicla": "Goose",
+        "white-fronted goose": "Goose",
+        "greylag goose": "Goose",
+        "domestic goose": "Goose",
+        "bean goose": "Goose",
+        "emperor goose": "Goose",
+        "egyptian goose": "Goose",
+        "ruddy shelduck": "Goose",
+        "chen caerulescens": "Goose",
+        "chen canagica": "Goose",
+        # Swan
+        "swan": "Swan",
+        "whooper swan": "Swan",
+        "cygnus olor": "Swan",
+        "cygnus cygnus": "Swan",
+        "cygnus columbianus": "Swan",
+        "cygnus atratus": "Swan",
+        "cygnus": "Swan",
+        # Gull
+        "gull": "Gull",
+        "larus": "Gull",
+        "larus argentatus": "Gull",
+        "larus ridibundus": "Gull",
+        "larus marinus": "Gull",
+        "larus fuscus": "Gull",
+        "larus glaucescens": "Gull",
+        "larus smithsonianus": "Gull",
+        "larus brunnicephalus": "Gull",
+        "larus ichthyaetus": "Gull",
+        "larus canus": "Gull",
+        "larus dominicanus": "Gull",
+        "larus atricilla": "Gull",
+        "leucophaeus atricilla": "Gull",
+        "larosterna inca": "Gull",
+        "larus armenicus": "Gull",
+        "larus michahellis": "Gull",
+        "larus cachinnans": "Gull",
+        "larus melanocephalus": "Gull",
+        "chroicocephalus ridibundus": "Gull",
+        "chroicocephalus cirrocephalus": "Gull",
+        "chroicocephalus": "Gull",
+        "black-headed gull": "Gull",
+        "glaucous gull": "Gull",
+        "glaucous-winged gull": "Gull",
+        "iceland gull": "Gull",
+        "herring gull": "Gull",
+        # Wild birds
+        "wild bird": "Wild Birds",
+        "wild birds": "Wild Birds",
+        "wild waterfowl": "Wild Birds",
+        "other avian": "Wild Birds",
+        "crow": "Wild Birds",
+        "corvus": "Wild Birds",
+        "passerine": "Wild Birds",
+        "passer domesticus": "Wild Birds",
+        "passer montanus": "Wild Birds",
+        "calidris alba": "Wild Birds",
+        "calidris canutus": "Wild Birds",
+        "calidris pusilla": "Wild Birds",
+        "calidris alpina": "Wild Birds",
+        "calidris minutilla": "Wild Birds",
+        "calidris ruficollis": "Wild Birds",
+        "calidris": "Wild Birds",
+        "sandpiper": "Wild Birds",
+        "ruddy turnstone": "Wild Birds",
+        "arenaria interpres": "Wild Birds",
+        "turnstone": "Wild Birds",
+        "curlew": "Wild Birds",
+        "numenius phaeopus": "Wild Birds",
+        "numenius arquata": "Wild Birds",
+        "eastern curlew": "Wild Birds",
+        "eurasian curlew": "Wild Birds",
+        "falcon": "Wild Birds",
+        "falco": "Wild Birds",
+        "falco peregrinus": "Wild Birds",
+        "falco tinnunculus": "Wild Birds",
+        "falsco rusticolus": "Wild Birds",
+        "eagle": "Wild Birds",
+        "haliaeetus leucocephalus": "Wild Birds",
+        "halietus albicilla": "Wild Birds",
+        "halietus leucocephalus": "Wild Birds",
+        "buteo buteo": "Wild Birds",
+        "buteo jamaicensis": "Wild Birds",
+        "buteo lineatus": "Wild Birds",
+        "buteo japonicus": "Wild Birds",
+        "cormorant": "Wild Birds",
+        "phalacrocoracidae": "Wild Birds",
+        "penguin": "Wild Birds",
+        "pygoscelis antarcticus": "Wild Birds",
+        "anseriformes": "Wild Birds",
+        "anseriformes sp.": "Wild Birds",
+    }
+
+    # 1. Exact
+    if h in mapping:
+        detailed_group = mapping[h]
+    else:
+        # 2. Regex-based
+        def any_kw(words):
+            return any(regex_search(w, h) for w in words)
+
+        detailed_group = None
+
+        # Poultry (Detailed)
+        if any_kw(["chicken", "gallus"]):
+            detailed_group = "Chicken"
+        elif any_kw(["turkey", "meleagris"]):
+            detailed_group = "Turkey"
+        elif any_kw(["quail", "coturnix"]):
+            detailed_group = "Quail"
+        elif any_kw(["pheasant", "phasianus", "francolinus", "lophura"]):
+            detailed_group = "Pheasant"
+        elif any_kw(["guinea", "numida", "guineafowl"]):
+            detailed_group = "Guineafowl"
+        elif any_kw(["partridge", "alectoris"]):
+            detailed_group = "Partridge"
+        elif any_kw(["peafowl", "pavo"]):
+            detailed_group = "Peafowl"
+        elif any_kw(["pigeon", "columba"]):
+            detailed_group = "Pigeon"
+        elif regex_search("dove", h):
+            detailed_group = "Dove"
+        # Waterfowl
+        elif any_kw(["duck", "anas", "teal", "mallard"]):
+            detailed_group = "Duck"
+        elif any_kw(["goose", "anser", "chen", "branta"]):
+            detailed_group = "Goose"
+        elif any_kw(["swan", "cygnus"]):
+            detailed_group = "Swan"
+        elif any_kw(["gull", "larus", "leucophaeus", "chroicocephalus"]):
+            detailed_group = "Gull"
+        # Other Wild Birds
+        elif any_kw(["wild birds", "wild bird", "wild waterfowl", "other avian"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["falcon", "falco"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["eagle", "haliaeetus", "halietus"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["crow", "corvus"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["passerine", "passer"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["sandpiper", "calidris"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["curlew", "numenius"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["turnstone", "arenaria"]):
+            detailed_group = "Wild Birds"
+        elif any_kw(["partridge", "alectoris"]):
+            detailed_group = "Wild Birds"
+        # Mammals/Other Mammal
+        elif any_kw(["swine", "sus scrofa", "pig"]):
+            detailed_group = "Swine"
+        elif any_kw(["cow", "dairy cow", "bovine"]):
+            detailed_group = "Cattle"
+        elif any_kw(["canine", "dog", "canis"]):
+            detailed_group = "Canine"
+        elif any_kw(["feline", "cat", "felis"]):
+            detailed_group = "Feline"
+        elif any_kw(["rodent", "mouse", "mus"]):
+            detailed_group = "Rodent"
+        elif any_kw(["ferret"]):
+            detailed_group = "Ferret"
+        elif any_kw(["mink"]):
+            detailed_group = "Mink"
+        elif any_kw(["seal"]):
+            detailed_group = "Seal"
+        elif any_kw(["primate"]):
+            detailed_group = "Primate"
+        elif any_kw(["bat"]):
+            detailed_group = "Bat"
+        elif any_kw(["camel"]):
+            detailed_group = "Camel"
+        elif any_kw(["equine", "horse"]):
+            detailed_group = "Equine"
+        elif any_kw(["meerkat"]):
+            detailed_group = "Meerkat"
+        elif any_kw(["panda"]):
+            detailed_group = "Panda"
+        elif any_kw(["other mammal", "lab", "laboratory derived"]):
+            detailed_group = "Other Mammal"
+        # Human
+        elif any_kw(["human", "homo sapiens"]):
+            detailed_group = "Human"
+        # Environment/unknown
+        elif any_kw(
+            [
+                "environment",
+                "feces",
+                "water sample",
+                "surface swab",
+                "air sample",
+                "host",
+            ]
+        ):
+            detailed_group = "Other Mammal"
+        elif any_kw(["unknown"]):
+            detailed_group = "Other Mammal"
+        # Binomial fallback wild bird
+        elif len(h.split()) == 2:
+            first = h.split()[0]
+            bird_genera = set(
+                [
+                    "anas",
+                    "branta",
+                    "cygnus",
+                    "anser",
+                    "mareca",
+                    "aythya",
+                    "larus",
+                    "fulica",
+                    "sula",
+                    "podiceps",
+                    "columba",
+                    "buteo",
+                    "falco",
+                    "spatula",
+                    "gavia",
+                    "aix",
+                    "pavo",
+                    "passer",
+                    "strix",
+                    "bubo",
+                    "coturnix",
+                    "corvus",
+                    "tadorna",
+                    "pygoscelis",
+                ]
+            )
+            if first in bird_genera:
+                detailed_group = "Wild Birds"
+
+        if detailed_group is None:
+            detailed_group = "Other"
+
+    return detailed_group
+
+
+# Map detailed host groups to your 6 main host categories
+output_group_map = {
+    "human": "Human",
+    "cattle": "Cattle",
+    "cow": "Cattle",
+    "bovine": "Cattle",
+    "swine": "Swine",
+    "pig": "Swine",
+    "chicken": "Poultry",
+    "turkey": "Poultry",
+    "quail": "Poultry",
+    "pheasant": "Poultry",
+    "guineafowl": "Poultry",
+    "partridge": "Poultry",
+    "peafowl": "Poultry",
+    "pigeon": "Poultry",
+    "dove": "Poultry",
+    "duck": "Poultry",  # For many users, you'd put duck/goose/swan in 'Wild Birds', but often 'Poultry' for domestics only.
+    "goose": "Poultry",
+    "swan": "Wild Birds",
+    "gull": "Wild Birds",
+    "wild birds": "Wild Birds",
+    "wild bird": "Wild Birds",
+    "other avian": "Wild Birds",
+    "all avian": "Wild Birds",
+    "poultry": "Poultry",
+    "lab": "Other",
+    "laboratory derived": "Other",
+    "other mammal": "Other Mammal",
+    "rodent": "Other Mammal",
+    "canine": "Other Mammal",
+    "feline": "Other Mammal",
+    "dog": "Other Mammal",
+    "cat": "Other Mammal",
+    "ferret": "Other Mammal",
+    "mink": "Other Mammal",
+    "seal": "Other Mammal",
+    "primate": "Other Mammal",
+    "bat": "Other Mammal",
+    "camel": "Other Mammal",
+    "equine": "Other Mammal",
+    "horse": "Other Mammal",
+    "meerkat": "Other Mammal",
+    "panda": "Other Mammal",
+    "mouse": "Other Mammal",
+    "mus musculus": "Other Mammal",
+    "environment": "Other",  # or exclude/external
+    "unknown": "Other",  # or exclude/external
+    "other": "Other",
+}
+
+
+def categorize_host_simple(detailed_group):
+    """Map detailed host categories to 6 main host categories"""
+    # 3. Map detailed group to main output host set
+    out = output_group_map.get(detailed_group.strip().lower(), "Other")
+    return out
+
+
+def categorize_mammal_or_avian(simple_group):
+    """Map simple host categories to 'Mammal' or 'Avian'"""
+    if simple_group in ["Human", "Cattle", "Swine", "Other Mammal"]:
+        return "All Mammal"
+    elif simple_group in ["Poultry", "Wild Birds"]:
+        return "All Avian"
+    else:
+        return "Other"
 
 
 def main():
@@ -633,7 +1091,9 @@ def main():
     segment_df["segment_complete"] = pd.to_numeric(
         segment_df["segment_complete"], errors="coerce", downcast="integer"
     )
-    print(f"Removing rows with malformed segments: {segment_df["segment_complete"].isna().sum()}")
+    print(
+        f"Removing rows with malformed segments: {segment_df['segment_complete'].isna().sum()}"
+    )
     segment_df.drop(
         segment_df.index[segment_df["segment_complete"].isna()], inplace=True
     )
@@ -684,6 +1144,11 @@ def main():
     for col in fill_in_cols:
         df.loc[:, col] = df[col].fillna("Unknown")
 
+    # categorize hosts into detailed and simple categories
+    df.loc[:, "detailed_host"] = df["host"].apply(categorize_host_detailed)
+    df.loc[:, "simple_host"] = df["detailed_host"].apply(categorize_host_simple)
+    df.loc[:, "mammal_or_avian"] = df["simple_host"].apply(categorize_mammal_or_avian)
+
     # Fill in whitespace in the virus name with hyphens
     # (For future minimap2 alignment, query names with spaces
     # are not correctly parsed and are cutoff when written to BAM files)
@@ -720,6 +1185,9 @@ def main():
             submission_date=("submission_date", "first"),
             updated_date=("updated_date", "first"),
             host=("host", "first"),
+            detailed_host=("detailed_host", "first"),
+            simple_host=("simple_host", "first"),
+            mammal_or_avian=("mammal_or_avian", "first"),
             isolation_source=("isolation_source", "first"),
             biosample_accession=("biosample_accession", "first"),
             authors=("authors", "first"),
@@ -743,39 +1211,130 @@ def main():
     # first clean up the states and merge 2 letter abbreviations with the full state names
     # then detect counties mislabeled as states and flip the location and division cols
     # then re-run the state cleanup
-    location_df = virus_df[['region', 'country', 'division', 'location']].copy()
+    location_df = virus_df[["region", "country", "division", "location"]].copy()
     location_df = clean_location_data(location_df, args.location_corrections)
 
     state_abbreviations = [
-        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+        "AL",
+        "AK",
+        "AZ",
+        "AR",
+        "CA",
+        "CO",
+        "CT",
+        "DE",
+        "FL",
+        "GA",
+        "HI",
+        "ID",
+        "IL",
+        "IN",
+        "IA",
+        "KS",
+        "KY",
+        "LA",
+        "ME",
+        "MD",
+        "MA",
+        "MI",
+        "MN",
+        "MS",
+        "MO",
+        "MT",
+        "NE",
+        "NV",
+        "NH",
+        "NJ",
+        "NM",
+        "NY",
+        "NC",
+        "ND",
+        "OH",
+        "OK",
+        "OR",
+        "PA",
+        "RI",
+        "SC",
+        "SD",
+        "TN",
+        "TX",
+        "UT",
+        "VT",
+        "VA",
+        "WA",
+        "WV",
+        "WI",
+        "WY",
     ]
     state_names = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
-        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana",
-        "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
-        "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
-        "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
-        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
-        "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-        "West Virginia", "Wisconsin", "Wyoming", "Washington DC"
+        "Alabama",
+        "Alaska",
+        "Arizona",
+        "Arkansas",
+        "California",
+        "Colorado",
+        "Connecticut",
+        "Delaware",
+        "Florida",
+        "Georgia",
+        "Hawaii",
+        "Idaho",
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Louisiana",
+        "Maine",
+        "Maryland",
+        "Massachusetts",
+        "Michigan",
+        "Minnesota",
+        "Mississippi",
+        "Missouri",
+        "Montana",
+        "Nebraska",
+        "Nevada",
+        "New Hampshire",
+        "New Jersey",
+        "New Mexico",
+        "New York",
+        "North Carolina",
+        "North Dakota",
+        "Ohio",
+        "Oklahoma",
+        "Oregon",
+        "Pennsylvania",
+        "Rhode Island",
+        "South Carolina",
+        "South Dakota",
+        "Tennessee",
+        "Texas",
+        "Utah",
+        "Vermont",
+        "Virginia",
+        "Washington",
+        "West Virginia",
+        "Wisconsin",
+        "Wyoming",
+        "Washington DC",
     ]
-    # Flip division and location for entries where division ends with "county" or "province", 
+    # Flip division and location for entries where division ends with "county" or "province",
     # or for entries where division is a state abbreviation
     flip_mask = (
-        location_df['division'].str.match(r'.*county$', case=False) | 
-        location_df['division'].str.match(r'.*province$', case=False) |
-        location_df['location'].isin(state_abbreviations + state_names + [n + ' state' for n in state_names])
+        location_df["division"].str.match(r".*county$", case=False)
+        | location_df["division"].str.match(r".*province$", case=False)
+        | location_df["location"].isin(
+            state_abbreviations + state_names + [n + " state" for n in state_names]
+        )
     )
-    location_df.loc[flip_mask, ['division', 'location']] = location_df.loc[flip_mask, ['location', 'division']].values
+    location_df.loc[flip_mask, ["division", "location"]] = location_df.loc[
+        flip_mask, ["location", "division"]
+    ].values
     location_df = clean_location_data(location_df, args.location_corrections)
-    
+
     # reset main df
-    virus_df.loc[:, ['region', 'country', 'division', 'location']] = location_df
+    virus_df.loc[:, ["region", "country", "division", "location"]] = location_df
 
     virus_df.to_csv(args.metadata_virus_out)
 
