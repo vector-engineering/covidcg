@@ -1,0 +1,463 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v6.json",
+  "description": "Interactive map of U.S. airport connections in 2008.",
+  "width": 750,
+  "height": 560,
+  "padding": { "top": 25, "left": 0, "right": 0, "bottom": 0 },
+  "autosize": "none",
+
+  "signals": [
+    { "name": "mapWidth", "update": "width" },
+    { "name": "mapHeight", "update": "height" },
+    { "name": "tx", "update": "mapWidth / 2" },
+    { "name": "ty", "update": "mapHeight / 2" },
+    {
+      "name": "scale",
+      "value": 90,
+      "on": [
+        {
+          "events": "[@map:mouseover, @map:mouseout] > wheel!, [@mapRect:mouseover, @mapRect:mouseout] > wheel!",
+          "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 70, 3000)"
+        }
+      ]
+    },
+    {
+      "name": "angles",
+      "value": [0, 0],
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "[rotateX, centerY]"
+        }
+      ]
+    },
+    {
+      "name": "cloned",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "copy('projection')"
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "drag",
+      "value": null,
+      "on": [
+        {
+          "events": "[@mapRect:mousedown, window:mouseup] > window:mousemove, [@map:mousedown, window:mouseup] > window:mousemovee",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "delta",
+      "value": null,
+      "on": [
+        {
+          "events": { "signal": "drag" },
+          "update": "[drag[0] - start[0], start[1] - drag[1]]"
+        }
+      ]
+    },
+    {
+      "name": "rotateX",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "angles[0] + delta[0]"
+        }
+      ]
+    },
+    {
+      "name": "centerY",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "clamp(angles[1] + delta[1], -60, 60)"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "counts",
+      "values": [
+        { "country": "USA", "counts": 11902, "UID": 840 },
+        { "country": "Canada", "counts": 2993, "UID": 124 },
+        { "country": "Egypt", "counts": 1561, "UID": 818 },
+        { "country": "China", "counts": 1485, "UID": 156 },
+        { "country": "Bangladesh", "counts": 896, "UID": 50 },
+        { "country": "Indonesia", "counts": 665, "UID": 360 },
+        { "country": "Japan", "counts": 403, "UID": 392 },
+        { "country": "France", "counts": 336, "UID": 250 },
+        { "country": "Taiwan", "counts": 313, "UID": 158 },
+        { "country": "South Korea", "counts": 281, "UID": 410 },
+        { "country": "Nigeria", "counts": 252, "UID": 566 },
+        { "country": "Chile", "counts": 204, "UID": 152 },
+        { "country": "Cambodia", "counts": 172, "UID": 116 },
+        { "country": "India", "counts": 161, "UID": 356 },
+        { "country": "Germany", "counts": 150, "UID": 276 },
+        { "country": "Laos", "counts": 127, "UID": 418 },
+        { "country": "South Africa", "counts": 80, "UID": 710 },
+        { "country": "Hong Kong", "counts": 67, "UID": 344 },
+        { "country": "Bhutan", "counts": 67, "UID": 64 },
+        { "country": "Thailand", "counts": 64, "UID": 764 },
+        { "country": "Russia", "counts": 63, "UID": 643 },
+        { "country": "Switzerland", "counts": 52, "UID": 756 },
+        { "country": "Spain", "counts": 52, "UID": 724 },
+        { "country": "Australia", "counts": 51, "UID": 36 },
+        { "country": "Turkey", "counts": 49, "UID": 792 },
+        { "country": "Mongolia", "counts": 45, "UID": 496 },
+        { "country": "Peru", "counts": 42, "UID": 604 },
+        { "country": "Netherlands", "counts": 42, "UID": 528 },
+        { "country": "Cote d'Ivoire", "counts": 42, "UID": 384 },
+        { "country": "Romania", "counts": 41, "UID": 642 },
+        { "country": "Israel", "counts": 41, "UID": 376 },
+        { "country": "Brazil", "counts": 32, "UID": 76 },
+        { "country": "Sweden", "counts": 32, "UID": 752 },
+        { "country": "Uruguay", "counts": 32, "UID": 858 },
+        { "country": "United Kingdom", "counts": 32, "UID": 826 },
+        { "country": "Pakistan", "counts": 30, "UID": 586 },
+        { "country": "Denmark", "counts": 30, "UID": 208 },
+        { "country": "Austria", "counts": 29, "UID": 40 },
+        { "country": "Iraq", "counts": 28, "UID": 368 },
+        { "country": "Belgium", "counts": 26, "UID": 56 },
+        { "country": "Italy", "counts": 26, "UID": 380 },
+        { "country": "Myanmar", "counts": 25, "UID": 104 },
+        { "country": "Kazakhstan", "counts": 23, "UID": 398 },
+        { "country": "Nepal", "counts": 23, "UID": 524 },
+        { "country": "Argentina", "counts": 18, "UID": 32 },
+        { "country": "Ukraine", "counts": 18, "UID": 804 },
+        { "country": "Yemen", "counts": 16, "UID": 887 },
+        { "country": "Togo", "counts": 15, "UID": 768 },
+        { "country": "Saudi Arabia", "counts": 15, "UID": 682 },
+        { "country": "Algeria", "counts": 15, "UID": 12 },
+        { "country": "Burkina Faso", "counts": 15, "UID": 854 },
+        { "country": "Ghana", "counts": 15, "UID": 288 },
+        { "country": "Guatemala", "counts": 15, "UID": 320 },
+        {
+          "country": "Democratic Republic of the Congo",
+          "counts": 12,
+          "UID": 180
+        },
+        { "country": "Cameroon", "counts": 12, "UID": 120 },
+        { "country": "Mexico", "counts": 11, "UID": 484 },
+        { "country": "Niger", "counts": 11, "UID": 562 },
+        { "country": "Somalia", "counts": 10, "UID": 706 },
+        { "country": "Kuwait", "counts": 8, "UID": 414 },
+        { "country": "Iran", "counts": 8, "UID": 364 },
+        { "country": "Papua New Guinea", "counts": 8, "UID": 598 },
+        { "country": "Maldives", "counts": 8, "UID": 462 },
+        { "country": "Philippines", "counts": 8, "UID": 608 },
+        { "country": "Bulgaria", "counts": 7, "UID": 100 },
+        { "country": "Sudan", "counts": 6, "UID": 729 },
+        { "country": "Afghanistan", "counts": 6, "UID": 4 },
+        { "country": "Portugal", "counts": 6, "UID": 620 },
+        { "country": "Colombia", "counts": 6, "UID": 170 },
+        { "country": "Mozambique", "counts": 6, "UID": 508 },
+        { "country": "Hungary", "counts": 6, "UID": 348 },
+        { "country": "Serbia", "counts": 5, "UID": 688 },
+        { "country": "Azerbaijan", "counts": 5, "UID": 31 },
+        { "country": "Slovakia", "counts": 5, "UID": 703 },
+        { "country": "Benin", "counts": 5, "UID": 204 },
+        { "country": "Namibia", "counts": 5, "UID": 516 },
+        { "country": "Uganda", "counts": 4, "UID": 800 },
+        { "country": "Ireland", "counts": 4, "UID": 372 },
+        { "country": "Malaysia", "counts": 4, "UID": 458 },
+        { "country": "Madagascar", "counts": 4, "UID": 450 },
+        { "country": "Sri Lanka", "counts": 4, "UID": 144 },
+        { "country": "Lesotho", "counts": 2, "UID": 426 },
+        { "country": "Antarctica", "counts": 2, "UID": 10 },
+        { "country": "Iceland", "counts": 2, "UID": 352 },
+        { "country": "Venezuela", "counts": 2, "UID": 862 },
+        { "country": "Singapore", "counts": 2, "UID": 702 },
+        { "country": "Libya", "counts": 1, "UID": 434 },
+        { "country": "Mauritania", "counts": 1, "UID": 478 },
+        { "country": "Finland", "counts": 1, "UID": 246 },
+        { "country": "Greenland", "counts": 1, "UID": 304 },
+        { "country": "Zimbabwe", "counts": 1, "UID": 716 },
+        { "country": "Croatia", "counts": 1, "UID": 191 },
+        { "country": "New Zealand", "counts": 1, "UID": 554 },
+        { "country": "Slovenia", "counts": 1, "UID": 705 },
+        { "country": "Lebanon", "counts": 1, "UID": 422 },
+        { "country": "Albania", "counts": 0, "UID": 8 },
+        { "country": "Andorra", "counts": 0, "UID": 20 },
+        { "country": "Angola", "counts": 0, "UID": 24 },
+        { "country": "Antigua and Barbuda", "counts": 0, "UID": 28 },
+        { "country": "Armenia", "counts": 0, "UID": 51 },
+        { "country": "Bahamas", "counts": 0, "UID": 44 },
+        { "country": "Bahrain", "counts": 0, "UID": 48 },
+        { "country": "Barbados", "counts": 0, "UID": 52 },
+        { "country": "Belarus", "counts": 0, "UID": 112 },
+        { "country": "Belize", "counts": 0, "UID": 84 },
+        { "country": "Bolivia", "counts": 0, "UID": 68 },
+        { "country": "Bosnia and Herzegovina", "counts": 0, "UID": 70 },
+        { "country": "Botswana", "counts": 0, "UID": 72 },
+        { "country": "Brunei", "counts": 0, "UID": 96 },
+        { "country": "Burundi", "counts": 0, "UID": 108 },
+        { "country": "Cabo Verde", "counts": 0, "UID": 132 },
+        { "country": "Central African Republic", "counts": 0, "UID": 140 },
+        { "country": "Chad", "counts": 0, "UID": 148 },
+        { "country": "Republic of the Congo", "counts": 0, "UID": 178 },
+        { "country": "Comoros", "counts": 0, "UID": 174 },
+        { "country": "Costa Rica", "counts": 0, "UID": 188 },
+        { "country": "Cuba", "counts": 0, "UID": 192 },
+        { "country": "Cyprus", "counts": 0, "UID": 196 },
+        { "country": "Czechia", "counts": 0, "UID": 203 },
+        { "country": "Faroe Islands", "counts": 0, "UID": 234 },
+        { "country": "Diamond Princess", "counts": 0, "UID": 9999 },
+        { "country": "Djibouti", "counts": 0, "UID": 262 },
+        { "country": "Dominica", "counts": 0, "UID": 212 },
+        { "country": "Dominican Republic", "counts": 0, "UID": 214 },
+        { "country": "Ecuador", "counts": 0, "UID": 218 },
+        { "country": "El Salvador", "counts": 0, "UID": 222 },
+        { "country": "Equatorial Guinea", "counts": 0, "UID": 226 },
+        { "country": "Eritrea", "counts": 0, "UID": 232 },
+        { "country": "Estonia", "counts": 0, "UID": 233 },
+        { "country": "Eswatini", "counts": 0, "UID": 748 },
+        { "country": "Ethiopia", "counts": 0, "UID": 231 },
+        { "country": "Fiji", "counts": 0, "UID": 242 },
+        { "country": "French Guiana", "counts": 0, "UID": 254 },
+        { "country": "French Polynesia", "counts": 0, "UID": 258 },
+        { "country": "Guadeloupe", "counts": 0, "UID": 312 },
+        { "country": "Martinique", "counts": 0, "UID": 474 },
+        { "country": "Mayotte", "counts": 0, "UID": 175 },
+        { "country": "New Caledonia", "counts": 0, "UID": 540 },
+        { "country": "Reunion", "counts": 0, "UID": 638 },
+        { "country": "Saint Barthelemy", "counts": 0, "UID": 652 },
+        { "country": "Saint Pierre and Miquelon", "counts": 0, "UID": 666 },
+        { "country": "St Martin", "counts": 0, "UID": 663 },
+        { "country": "Gabon", "counts": 0, "UID": 266 },
+        { "country": "Gambia", "counts": 0, "UID": 270 },
+        { "country": "Georgia", "counts": 0, "UID": 268 },
+        { "country": "Greece", "counts": 0, "UID": 300 },
+        { "country": "Grenada", "counts": 0, "UID": 308 },
+        { "country": "Guinea", "counts": 0, "UID": 324 },
+        { "country": "Guinea-Bissau", "counts": 0, "UID": 624 },
+        { "country": "Guyana", "counts": 0, "UID": 328 },
+        { "country": "Haiti", "counts": 0, "UID": 332 },
+        { "country": "Holy See", "counts": 0, "UID": 336 },
+        { "country": "Honduras", "counts": 0, "UID": 340 },
+        { "country": "Jamaica", "counts": 0, "UID": 388 },
+        { "country": "Jordan", "counts": 0, "UID": 400 },
+        { "country": "Kenya", "counts": 0, "UID": 404 },
+        { "country": "Kiribati", "counts": 0, "UID": 296 },
+        { "country": "Korea, North", "counts": 0, "UID": 408 },
+        { "country": "Kosovo", "counts": 0, "UID": 383 },
+        { "country": "Kyrgyzstan", "counts": 0, "UID": 417 },
+        { "country": "Latvia", "counts": 0, "UID": 428 },
+        { "country": "Liberia", "counts": 0, "UID": 430 },
+        { "country": "Liechtenstein", "counts": 0, "UID": 438 },
+        { "country": "Lithuania", "counts": 0, "UID": 440 },
+        { "country": "Luxembourg", "counts": 0, "UID": 442 },
+        { "country": "Malawi", "counts": 0, "UID": 454 },
+        { "country": "Mali", "counts": 0, "UID": 466 },
+        { "country": "Malta", "counts": 0, "UID": 470 },
+        { "country": "Marshall Islands", "counts": 0, "UID": 584 },
+        { "country": "Mauritius", "counts": 0, "UID": 480 },
+        { "country": "Micronesia", "counts": 0, "UID": 583 },
+        { "country": "Moldova", "counts": 0, "UID": 498 },
+        { "country": "Monaco", "counts": 0, "UID": 492 },
+        { "country": "Montenegro", "counts": 0, "UID": 499 },
+        { "country": "Morocco", "counts": 0, "UID": 504 },
+        { "country": "MS Zaandam", "counts": 0, "UID": 8888 },
+        { "country": "Nauru", "counts": 0, "UID": 520 },
+        { "country": "Aruba", "counts": 0, "UID": 533 },
+        { "country": "Curacao", "counts": 0, "UID": 531 },
+        { "country": "Sint Maarten", "counts": 0, "UID": 534 },
+        {
+          "country": "Bonaire, Sint Eustatius and Saba",
+          "counts": 0,
+          "UID": 535
+        },
+        { "country": "Nicaragua", "counts": 0, "UID": 558 },
+        { "country": "North Macedonia", "counts": 0, "UID": 807 },
+        { "country": "Norway", "counts": 0, "UID": 578 },
+        { "country": "Summer Olympics 2020", "counts": 0, "UID": 2020 },
+        { "country": "Winter Olympics 2022", "counts": 0, "UID": 2022 },
+        { "country": "Oman", "counts": 0, "UID": 512 },
+        { "country": "Palau", "counts": 0, "UID": 585 },
+        { "country": "Panama", "counts": 0, "UID": 591 },
+        { "country": "Paraguay", "counts": 0, "UID": 600 },
+        { "country": "Poland", "counts": 0, "UID": 616 },
+        { "country": "Qatar", "counts": 0, "UID": 634 },
+        { "country": "Rwanda", "counts": 0, "UID": 646 },
+        { "country": "Saint Kitts and Nevis", "counts": 0, "UID": 659 },
+        { "country": "Saint Lucia", "counts": 0, "UID": 662 },
+        {
+          "country": "Saint Vincent and the Grenadines",
+          "counts": 0,
+          "UID": 670
+        },
+        { "country": "Samoa", "counts": 0, "UID": 882 },
+        { "country": "San Marino", "counts": 0, "UID": 674 },
+        { "country": "Sao Tome and Principe", "counts": 0, "UID": 678 },
+        { "country": "Senegal", "counts": 0, "UID": 686 },
+        { "country": "Seychelles", "counts": 0, "UID": 690 },
+        { "country": "Sierra Leone", "counts": 0, "UID": 694 },
+        { "country": "Solomon Islands", "counts": 0, "UID": 90 },
+        { "country": "South Sudan", "counts": 0, "UID": 728 },
+        { "country": "Suriname", "counts": 0, "UID": 740 },
+        { "country": "Syria", "counts": 0, "UID": 760 },
+        { "country": "Tajikistan", "counts": 0, "UID": 762 },
+        { "country": "Tanzania", "counts": 0, "UID": 834 },
+        { "country": "Timor-Leste", "counts": 0, "UID": 626 },
+        { "country": "Tonga", "counts": 0, "UID": 776 },
+        { "country": "Trinidad and Tobago", "counts": 0, "UID": 780 },
+        { "country": "Tunisia", "counts": 0, "UID": 788 },
+        { "country": "Tuvalu", "counts": 0, "UID": 798 },
+        { "country": "United Arab Emirates", "counts": 0, "UID": 784 },
+        { "country": "Bermuda", "counts": 0, "UID": 60 },
+        { "country": "British Virgin Islands", "counts": 0, "UID": 92 },
+        { "country": "Cayman Islands", "counts": 0, "UID": 136 },
+        { "country": "Channel Islands", "counts": 0, "UID": 8261 },
+        { "country": "Falkland Islands (Malvinas)", "counts": 0, "UID": 238 },
+        { "country": "Gibraltar", "counts": 0, "UID": 292 },
+        { "country": "Isle of Man", "counts": 0, "UID": 833 },
+        { "country": "Montserrat", "counts": 0, "UID": 500 },
+        { "country": "Turks and Caicos Islands", "counts": 0, "UID": 796 },
+        { "country": "Anguilla", "counts": 0, "UID": 660 },
+        { "country": "Uzbekistan", "counts": 0, "UID": 860 },
+        { "country": "Vanuatu", "counts": 0, "UID": 548 },
+        { "country": "Vietnam", "counts": 0, "UID": 704 },
+        { "country": "West Bank and Gaza", "counts": 0, "UID": 275 },
+        { "country": "Western Sahara", "counts": 0, "UID": 732 },
+        { "country": "Zambia", "counts": 0, "UID": 894 },
+        { "country": "Macau", "counts": 0, "UID": 446 },
+        { "country": "American Samoa", "counts": 0, "UID": 16 },
+        { "country": "Guam", "counts": 0, "UID": 316 },
+        { "country": "Northern Mariana Islands", "counts": 0, "UID": 580 },
+        { "country": "Virgin Islands", "counts": 0, "UID": 850 },
+        { "country": "Puerto Rico", "counts": 0, "UID": 630 }
+      ]
+    },
+    {
+      "name": "countries",
+      "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/world-110m.json",
+      "format": { "type": "topojson", "feature": "countries" },
+      "transform": [
+        {
+          "type": "geopath",
+          "projection": "projection"
+        },
+        {
+          "type": "lookup",
+          "from": "counts",
+          "key": "UID",
+          "fields": ["id"],
+          "values": ["counts", "country"],
+          "default": 0
+        },
+        {
+          "type": "formula",
+          "as": "centroid",
+          "expr": "geoCentroid('projection', datum.geometry)"
+        }
+      ]
+    }
+  ],
+
+  "projections": [
+    {
+      "name": "projection",
+      "type": "mercator",
+      "scale": { "signal": "scale" },
+      "rotate": [{ "signal": "rotateX" }, 0, 0],
+      "center": [0, { "signal": "centerY" }],
+      "translate": [{ "signal": "tx" }, { "signal": "ty" }]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "pow",
+      "exponent": 0.3,
+      "domain": { "data": "countries", "field": "counts" },
+      "range": { "scheme": "blues", "count": 10 }
+    }
+  ],
+
+  "legends": [
+    {
+      "fill": "color",
+      "orient": "bottom-right",
+      "title": "Isolate counts",
+      "format": "0d"
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "mapRect",
+      "type": "rect",
+      "encode": {
+        "enter": {
+          "x": { "value": 0 },
+          "y": { "value": 0 },
+          "fill": { "value": "#fff" }
+        },
+        "update": {
+          "width": { "signal": "mapWidth" },
+          "height": { "signal": "mapHeight" }
+        }
+      }
+    },
+    {
+      "name": "map",
+      "type": "shape",
+      "from": { "data": "countries" },
+      "encode": {
+        "enter": {
+          "tooltip": {
+            "signal": "'Country: ' + datum.country + ', ' + 'Isolates: ' + format(datum.counts, '0d')"
+          }
+        },
+        "update": {
+          "fill": {
+            "scale": "color",
+            "field": "counts"
+          },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 1 }
+        },
+        "hover": { "fill": { "value": "red" } }
+      },
+      "transform": [{ "type": "geoshape", "projection": "projection" }]
+    },
+    {
+      "name": "mapText",
+      "type": "text",
+      "interactive": false,
+      "from": { "data": "countries" },
+      "encode": {
+        "enter": {
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" },
+          "fontSize": { "value": 13 },
+          "fill": { "value": "black" },
+          "text": { "field": "counts" }
+        },
+        "update": {
+          "x": { "field": "centroid[0]" },
+          "y": { "field": "centroid[1]" }
+        }
+      }
+    }
+  ]
+}

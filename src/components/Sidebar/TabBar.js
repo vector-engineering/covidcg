@@ -102,6 +102,23 @@ const TabBar = observer(({ activeTab, onTabChange }) => {
     );
   }
 
+  if (config.virus === 'flu') {
+    tabs.push(
+      <TabItem
+        key={TABS.TAB_FLU_CASES}
+        active={activeTab === TABS.TAB_FLU_CASES}
+      >
+        <a
+          href="#"
+          className="tab-link"
+          onClick={changeTab.bind(this, TABS.TAB_FLU_CASES)}
+        >
+          <span>Flu Cases</span>
+        </a>
+      </TabItem>
+    );
+  }
+
   tabs.push(
     <TabItem key={TABS.TAB_ABOUT} active={activeTab === TABS.TAB_ABOUT}>
       <a

@@ -1,0 +1,267 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v6.json",
+  "description": "Interactive map of U.S. airport connections in 2008.",
+  "width": 750,
+  "height": 560,
+  "padding": { "top": 25, "left": 0, "right": 0, "bottom": 0 },
+  "autosize": "none",
+
+  "signals": [
+    { "name": "mapWidth", "update": "width" },
+    { "name": "mapHeight", "update": "height" },
+    { "name": "tx", "update": "mapWidth / 2" },
+    { "name": "ty", "update": "mapHeight / 2" },
+    {
+      "name": "scale",
+      "value": 1000,
+      "on": [
+        {
+          "events": "[@map:mouseover, @map:mouseout] > wheel!, [@mapRect:mouseover, @mapRect:mouseout] > wheel!",
+          "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 70, 3000)"
+        }
+      ]
+    },
+    {
+      "name": "angles",
+      "value": [0, 0],
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "[rotateX, centerY]"
+        }
+      ]
+    },
+    {
+      "name": "cloned",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "copy('projection')"
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "value": null,
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "drag",
+      "value": null,
+      "on": [
+        {
+          "events": "[@mapRect:mousedown, window:mouseup] > window:mousemove, [@map:mousedown, window:mouseup] > window:mousemovee",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "delta",
+      "value": null,
+      "on": [
+        {
+          "events": { "signal": "drag" },
+          "update": "[drag[0] - start[0], start[1] - drag[1]]"
+        }
+      ]
+    },
+    {
+      "name": "rotateX",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "angles[0] + delta[0]"
+        }
+      ]
+    },
+    {
+      "name": "centerY",
+      "value": 0,
+      "on": [
+        {
+          "events": { "signal": "delta" },
+          "update": "clamp(angles[1] + delta[1], -60, 60)"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "counts",
+      "values": [
+        { "state_fips": 1, "state": "AL", "counts": 28 },
+        { "state_fips": 2, "state": "AK", "counts": 202 },
+        { "state_fips": 4, "state": "AZ", "counts": 107 },
+        { "state_fips": 5, "state": "AR", "counts": 33 },
+        { "state_fips": 6, "state": "CA", "counts": 2947 },
+        { "state_fips": 8, "state": "CO", "counts": 565 },
+        { "state_fips": 9, "state": "CT", "counts": 23 },
+        { "state_fips": 10, "state": "DE", "counts": 28 },
+        { "state_fips": 12, "state": "FL", "counts": 312 },
+        { "state_fips": 13, "state": "GA", "counts": 71 },
+        { "state_fips": 15, "state": "HI", "counts": 14 },
+        { "state_fips": 16, "state": "ID", "counts": 680 },
+        { "state_fips": 17, "state": "IL", "counts": 87 },
+        { "state_fips": 18, "state": "IN", "counts": 126 },
+        { "state_fips": 19, "state": "IA", "counts": 284 },
+        { "state_fips": 20, "state": "KS", "counts": 123 },
+        { "state_fips": 21, "state": "KY", "counts": 26 },
+        { "state_fips": 22, "state": "LA", "counts": 65 },
+        { "state_fips": 23, "state": "ME", "counts": 63 },
+        { "state_fips": 24, "state": "MD", "counts": 107 },
+        { "state_fips": 25, "state": "MA", "counts": 105 },
+        { "state_fips": 26, "state": "MI", "counts": 401 },
+        { "state_fips": 27, "state": "MN", "counts": 832 },
+        { "state_fips": 28, "state": "MS", "counts": 104 },
+        { "state_fips": 29, "state": "MO", "counts": 148 },
+        { "state_fips": 30, "state": "MT", "counts": 101 },
+        { "state_fips": 31, "state": "NE", "counts": 70 },
+        { "state_fips": 32, "state": "NV", "counts": 39 },
+        { "state_fips": 33, "state": "NH", "counts": 35 },
+        { "state_fips": 34, "state": "NJ", "counts": 88 },
+        { "state_fips": 35, "state": "NM", "counts": 66 },
+        { "state_fips": 36, "state": "NY", "counts": 295 },
+        { "state_fips": 37, "state": "NC", "counts": 111 },
+        { "state_fips": 38, "state": "ND", "counts": 260 },
+        { "state_fips": 39, "state": "OH", "counts": 276 },
+        { "state_fips": 40, "state": "OK", "counts": 53 },
+        { "state_fips": 41, "state": "OR", "counts": 177 },
+        { "state_fips": 42, "state": "PA", "counts": 346 },
+        { "state_fips": 44, "state": "RI", "counts": 5 },
+        { "state_fips": 45, "state": "SC", "counts": 60 },
+        { "state_fips": 46, "state": "SD", "counts": 204 },
+        { "state_fips": 47, "state": "TN", "counts": 52 },
+        { "state_fips": 48, "state": "TX", "counts": 288 },
+        { "state_fips": 49, "state": "UT", "counts": 111 },
+        { "state_fips": 50, "state": "VT", "counts": 27 },
+        { "state_fips": 51, "state": "VA", "counts": 36 },
+        { "state_fips": 53, "state": "WA", "counts": 184 },
+        { "state_fips": 54, "state": "WV", "counts": 17 },
+        { "state_fips": 55, "state": "WI", "counts": 192 },
+        { "state_fips": 56, "state": "WY", "counts": 168 },
+        { "state_fips": 72, "state": "PR", "counts": 4 }
+      ]
+    },
+    {
+      "name": "states",
+      "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/us-10m.json",
+      "format": { "type": "topojson", "feature": "states" },
+      "transform": [
+        {
+          "type": "geopath",
+          "projection": "projection"
+        },
+        {
+          "type": "lookup",
+          "from": "counts",
+          "key": "state_fips",
+          "fields": ["id"],
+          "values": ["counts", "state"],
+          "default": 0
+        },
+        {
+          "type": "formula",
+          "as": "centroid",
+          "expr": "geoCentroid('projection', datum.geometry)"
+        }
+      ]
+    }
+  ],
+
+  "projections": [
+    {
+      "name": "projection",
+      "type": "albersUsa",
+      "scale": { "signal": "scale" },
+      "rotate": [{ "signal": "rotateX" }, 0, 0],
+      "center": [0, { "signal": "centerY" }],
+      "translate": [{ "signal": "tx" }, { "signal": "ty" }]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "pow",
+      "exponent": 0.3,
+      "domain": { "data": "states", "field": "counts" },
+      "range": { "scheme": "blues", "count": 10 }
+    }
+  ],
+
+  "legends": [
+    {
+      "fill": "color",
+      "orient": "bottom-right",
+      "title": "Isolate counts",
+      "format": "0d"
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "mapRect",
+      "type": "rect",
+      "encode": {
+        "enter": {
+          "x": { "value": 0 },
+          "y": { "value": 0 },
+          "fill": { "value": "#fff" }
+        },
+        "update": {
+          "width": { "signal": "mapWidth" },
+          "height": { "signal": "mapHeight" }
+        }
+      }
+    },
+    {
+      "name": "map",
+      "type": "shape",
+      "from": { "data": "states" },
+      "encode": {
+        "enter": {
+          "tooltip": {
+            "signal": "'State: ' + datum.state + ', ' + 'Isolates: ' + format(datum.counts, '0d')"
+          }
+        },
+        "update": {
+          "fill": {
+            "scale": "color",
+            "field": "counts"
+          },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 1 }
+        },
+        "hover": { "fill": { "value": "red" } }
+      },
+      "transform": [{ "type": "geoshape", "projection": "projection" }]
+    },
+    {
+      "name": "mapText",
+      "type": "text",
+      "interactive": false,
+      "from": { "data": "states" },
+      "encode": {
+        "enter": {
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" },
+          "fontSize": { "value": 13 },
+          "fill": { "value": "black" },
+          "text": { "field": "counts" }
+        },
+        "update": {
+          "x": { "field": "centroid[0]" },
+          "y": { "field": "centroid[1]" }
+        }
+      }
+    }
+  ]
+}

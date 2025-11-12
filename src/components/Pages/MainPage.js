@@ -25,6 +25,7 @@ const AboutTabFlu = React.lazy(() => import('./AboutTabFlu'));
 const MethodologyTab = React.lazy(() => import('./MethodologyTab'));
 const RelatedProjectsTab = React.lazy(() => import('./RelatedProjectsTab'));
 const SequencingEffortsTab = React.lazy(() => import('./SequencingEffortsTab'));
+const FluCasesTab = React.lazy(() => import('./FluCasesTab'));
 
 import { MainPageDiv, LegendContainer, PlotContainer } from './MainPage.styles';
 
@@ -71,6 +72,8 @@ const MainPage = observer(() => {
       return <RelatedProjectsTab />;
     } else if (UIStore.activeTab === TABS.TAB_GLOBAL_SEQUENCES) {
       return <SequencingEffortsTab />;
+    } else if (UIStore.activeTab === TABS.TAB_FLU_CASES) {
+      return <FluCasesTab />;
     }
   };
 

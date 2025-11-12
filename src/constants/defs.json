@@ -83,7 +83,8 @@
     "TAB_ABOUT": "about",
     "TAB_METHODOLOGY": "methodology",
     "TAB_RELATED": "related_projects",
-    "TAB_GLOBAL_SEQUENCES": "global_sequencing"
+    "TAB_GLOBAL_SEQUENCES": "global_sequencing",
+    "TAB_FLU_CASES": "flu_cases"
   },
   "MUTATION_FORMAT": {
     "POS_REF_ALT": "pos_ref_alt",
