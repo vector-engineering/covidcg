@@ -1,0 +1,46 @@
+// Placeholder to allow defining custom styles that override everything else.
+// (Use `_sass/minima/custom-variables.scss` to override variable defaults)
+
+.site-header {
+  a.site-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .site-logo {
+      margin-right: 0.75rem;
+
+      .logo-img {
+        width: 200px;
+        height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    }
+
+    span.title-text {
+      // color: #2a7ae2;
+    }
+  }
+}
+
+.site-footer {
+  .footer-img-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    img {
+      margin-right: 2rem;
+      height: 40px;
+    }
+  }
+
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}

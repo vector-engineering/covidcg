@@ -1,0 +1,47 @@
+<footer class="site-footer h-card">
+  <data class="u-url" href="{{ "/" | relative_url }}"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <div class="footer-img-wrapper">
+          <a href="https://www.broadinstitute.org/" target="_blank" rel="noopener noreferrer">
+            <img class="footer-img" src="{{ site.baseurl }}/assets/images/BroadLogo_RGB_forDigital.png">
+          </a>
+        </div>
+      </div>
+        {%- comment -%}
+        <p class="feed-subscribe">
+          <a href="{{ 'feed.xml' | relative_url }}">
+            <svg class="svg-icon orange">
+              <use xlink:href="{{ 'assets/minima-social-icons.svg#rss' | relative_url }}"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        {%- endcomment -%}
+      <div class="footer-col footer-links">
+        {%- comment -%}
+        <p>{{ site.description | escape }}</p>
+        {%- endcomment -%}
+
+        <a rel="me" href="https://github.com/vector-engineering" title="Vector Engineering GitHub" target="_blank" rel="noopener noreferrer">
+          <svg class="svg-icon grey">
+            <use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use>
+          </svg>
+          GitHub
+        </a>
+
+        <a rel="me" href="https://twitter.com/DevermanLab" title="Deverman Lab Twitter" target="_blank" rel="noopener noreferrer">
+          <svg class="svg-icon grey">
+            <use xlink:href="{{ '/assets/minima-social-icons.svg#twitter' | relative_url }}"></use>
+          </svg>
+          Twitter
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>

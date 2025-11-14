@@ -1,0 +1,76 @@
+title: COVID CG
+tagline: Tracking SARS-CoV-2 mutations by locations and dates of interest
+description: > # this means to ignore newlines until "show_excerpts:"
+  COVID-19 CG (covidcg.org) is a web application that tracks SARS-CoV-2 single
+  nucleotide variants (SNVs) and lineages without subsampling. COVID CG enables
+  users to select and compare trends in SARS-CoV-2 SNVs by location, date, gene,
+  and mutation of interest, and to compare trends across locations.
+url: https://covidcg.org
+author: atc3 # twitter handle
+twitter:
+  twitter:username: DevermanLab
+  twitter:card: summary
+
+logo: /assets/images/cg_short_v13@4x_square.png
+
+social:
+  name: COVID CG
+  links:
+    - https://twitter.com/DevermanLab
+    - https://github.com/vector-engineering/covidcg
+
+show_excerpts: false # set to true to show excerpts on the homepage
+
+collections:
+  people:
+    output: true
+  publications:
+    output: true
+
+# Minima date format
+# refer to https://shopify.github.io/liquid/filters/date/ if you want to customize this
+minima:
+  date_format: "%b %-d, %Y"
+
+  # generate social links in footer
+  social_links:
+    twitter: DevermanLab
+    github: vector-engineering
+    # devto: jekyll
+    # dribbble: jekyll
+    # facebook: jekyll
+    # flickr:   jekyll
+    # instagram: jekyll
+    # linkedin: jekyll
+    # pinterest: jekyll
+    # youtube: jekyll
+    # youtube_channel: UC8CXR0-3I70i1tfPg1PAE1g
+    # youtube_channel_name: CloudCannon
+    # telegram: jekyll
+    # googleplus: +jekyll
+    # microdotblog: jekyll
+    # keybase: jekyll
+    # Mastodon instances
+    # mastodon:
+    # - username: jekyll
+    #   instance: example.com
+    # - username: jekyll2
+    #   instance: example.com
+    # GitLab instances
+    # gitlab:
+    # - username: jekyll
+    #   instance: example.com
+    # - username: jekyll2
+    #   instance: example.com
+
+# If you want to link only specific pages in your header, uncomment
+# this and add the path to the pages in order as they should show up
+#header_pages:
+# - about.md
+
+# Build settings
+theme: minima
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap

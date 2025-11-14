@@ -1,293 +1,322 @@
-![](https://covidcg.org/cg_logo_v13.png)
+# minima
 
-## COVID-19 CG (CoV Genetics)
+*Minima is a one-size-fits-all Jekyll theme for writers*. It's Jekyll's default (and first) theme. It's what you get when you run `jekyll new`.
 
-**Article now up at eLife: [https://doi.org/10.7554/eLife.63409](https://doi.org/10.7554/eLife.63409)**
+***Disclaimer:** The information here may vary depending on the version you're using. Please refer to the `README.md` bundled
+within the theme-gem for information specific to your version or by pointing your browser to the Git tag corresponding to your
+version. e.g. https://github.com/jekyll/minima/blob/v2.5.0/README.md*  
+*Running `bundle show minima` will provide you with the local path to your current theme version.*
 
-Table of Contents
 
-- [COVID-19 CG (CoV Genetics)](#covid-19-cg-cov-genetics)
-- [Data enabling COVID CG](#data-enabling-covid-cg)
-- [Installation](#installation)
-  - [Dependency changes](#dependency-changes)
-  - [Database refresh](#database-refresh)
-- [Per-service installation](#per-service-installation)
-  - [Javascript](#javascript)
-  - [PostgreSQL](#postgresql)
-  - [Flask Server](#flask-server)
-- [Analysis Pipeline](#analysis-pipeline)
-  - [Pipeline Installation](#pipeline-installation)
-  - [Ingestion](#ingestion)
-  - [Main Analysis](#main-analysis)
-- [About the project](#about-the-project)
-- [Citing COVID CG](#citing-covid-cg)
-  - [License](#license)
-  - [Contributing](#contributing)
+[Theme preview](https://jekyll.github.io/minima/)
 
-## Data enabling COVID CG
-
-We are extremely grateful to the [GISAID Initiative](https://www.gisaid.org/) and all its data contributors, i.e. the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based.
-
-Elbe, S., and Buckland-Merrett, G. (2017) Data, disease and diplomacy: GISAID’s innovative contribution to global health. _Global Challenges_, 1:33-46. DOI:[10.1002/gch2.1018](https://doi.org/10.1002/gch2.1018) PMCID: [31565258](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6607375/)
-
-Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
+![minima theme preview](/screenshot.png)
 
 ## Installation
 
-The COVID-19 CG website comprises of 3 services (PostgreSQL database, Flask server, React frontend). These can be run separately (see detailed instructions at [per-service installation](#per-service-installation)) but we recommend using Docker to manage these services.
+Add this line to your Jekyll site's Gemfile:
 
-The analysis pipeline for processing raw SARS-CoV-2 genomes is a separate install, and described below in [Analysis Pipeline](#analysis-pipeline)
-
-- Install [Docker](https://docs.docker.com/get-docker/)
-- Clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
-
-```bash
-$ cd covidcg
-$ docker-compose build # Build containers
-                       # (Re-builds only necessary if packages or
-                       # dependencies have changed)
-$ docker-compose up -d # Run all services
-$ docker-compose down # Shut down all services when finished
+```ruby
+gem "minima"
 ```
 
-The default deployment (`docker-compose.yml`) will run all 3 sites at the same time (sars2, rsv, and flu). For virus-specific sites, see `docker-compose.sars2.yml`, etc. Run a specific deployment with:
+And then execute:
 
-```bash
-docker compose -f docker-compose.sars2.yml build
-docker compose -f docker-compose.sars2.yml up -d
-...
+    $ bundle
+
+
+## Contents At-A-Glance
+
+Minima has been scaffolded by the `jekyll new-theme` command and therefore has all the necessary files and directories to have a new Jekyll site up and running with zero-configuration.
+
+### Layouts
+
+Refers to files within the `_layouts` directory, that define the markup for your theme.
+
+  - `default.html` &mdash; The base layout that lays the foundation for subsequent layouts. The derived layouts inject their contents into this file at the line that says ` {{ content }} ` and are linked to this file via [FrontMatter](https://jekyllrb.com/docs/frontmatter/) declaration `layout: default`.
+  - `home.html` &mdash; The layout for your landing-page / home-page / index-page. [[More Info.](#home-layout)]
+  - `page.html` &mdash; The layout for your documents that contain FrontMatter, but are not posts.
+  - `post.html` &mdash; The layout for your posts.
+
+#### Home Layout
+
+`home.html` is a flexible HTML layout for the site's landing-page / home-page / index-page. <br/>
+
+##### *Main Heading and Content-injection*
+
+From Minima v2.2 onwards, the *home* layout will inject all content from your `index.md` / `index.html` **before** the **`Posts`** heading. This will allow you to include non-posts related content to be published on the landing page under a dedicated heading. *We recommended that you title this section with a Heading2 (`##`)*.
+
+Usually the `site.title` itself would suffice as the implicit 'main-title' for a landing-page. But, if your landing-page would like a heading to be explicitly displayed, then simply define a `title` variable in the document's front matter and it will be rendered with an `<h1>` tag.
+
+##### *Post Listing*
+
+This section is optional from Minima v2.2 onwards.<br/>
+It will be automatically included only when your site contains one or more valid posts or drafts (if the site is configured to `show_drafts`).
+
+The title for this section is `Posts` by default and rendered with an `<h2>` tag. You can customize this heading by defining a `list_title` variable in the document's front matter.
+
+
+### Includes
+
+Refers to snippets of code within the `_includes` directory that can be inserted in multiple layouts (and another include-file as well) within the same theme-gem.
+
+  - `disqus_comments.html` &mdash; Code to markup disqus comment box.
+  - `footer.html` &mdash; Defines the site's footer section.
+  - `google-analytics.html` &mdash; Inserts Google Analytics module (active only in production environment).
+  - `head.html` &mdash; Code-block that defines the `<head></head>` in *default* layout.
+  - `custom-head.html` &mdash; Placeholder to allow users to add more metadata to `<head />`.
+  - `header.html` &mdash; Defines the site's main header section. By default, pages with a defined `title` attribute will have links displayed here.
+  - `social.html` &mdash; Renders social-media icons based on the `minima:social_links` data in the config file.
+
+
+### Sass
+
+Refers to `.scss` files within the `_sass` directory that define the theme's styles.
+
+  - `minima/skins/classic.scss` &mdash; The "classic" skin of the theme. *Used by default.*
+  - `minima/initialize.scss` &mdash; A component that defines the theme's *skin-agnostic* variable defaults and sass partials.
+    It imports the following components (in the following order):
+    - `minima/custom-variables.scss` &mdash; A hook that allows overriding variable defaults and mixins. (*Note: Cannot override styles*)
+    - `minima/_base.scss` &mdash; Sass partial for resets and defines base styles for various HTML elements.
+    - `minima/_layout.scss` &mdash; Sass partial that defines the visual style for various layouts.
+    - `minima/custom-styles.scss` &mdash; A hook that allows overriding styles defined above. (*Note: Cannot override variables*)
+
+Refer the [skins](#skins) section for more details.
+
+
+### Assets
+
+Refers to various asset files within the `assets` directory.
+
+  - `assets/css/style.scss` &mdash; Imports sass files from within the `_sass` directory and gets processed into the theme's
+    stylesheet: `assets/css/styles.css`.
+  - `assets/minima-social-icons.svg` &mdash; A composite SVG file comprised of *symbols* related to various social-media icons.
+    This file is used as-is without any processing. Refer [section on social networks](#social-networks) for its usage.
+
+
+### Plugins
+
+Minima comes with [`jekyll-seo-tag`](https://github.com/jekyll/jekyll-seo-tag) plugin preinstalled to make sure your website gets the most useful meta tags. See [usage](https://github.com/jekyll/jekyll-seo-tag#usage) to know how to set it up.
+
+
+## Usage
+
+Have the following line in your config file:
+
+```yaml
+theme: minima
 ```
 
-**NOTE**: When starting from a fresh database, the server will automatically seed the database with data from the `example_data_genbank` folder. Data provided with the repository is in raw/gzipped form and needs to be unarchived and processed before the data can be loaded into the database. Please see the [Analysis Pipeline](#analysis-pipeline) section for instructions on processing this data.
 
-### Dependency changes
+### Customizing templates
 
-If the dependencies for the JS change (i.e., a change in `package.json`), then you can rebuild the `cg-frontend` container with:
+To override the default structure and style of minima, simply create the concerned directory at the root of your site, copy the file you wish to customize to that directory, and then edit the file.
+e.g., to override the [`_includes/head.html `](_includes/head.html) file to specify a custom style path, create an `_includes` directory, copy `_includes/head.html` from minima gem folder to `<yoursite>/_includes` and start editing that file.
 
-```bash
-$ docker-compose down
-$ docker-compose build --no-cache cg-frontend
-$ docker-compose up
-```
+The site's default CSS has now moved to a new place within the gem itself, [`assets/css/style.scss`](assets/css/style.scss).
 
-A rebuild will also need to be run if the toolchains change (`webpack*.js` or anything in `tools/`)
+In Minima 3.0, if you only need to customize the colors of the theme, refer to the subsequent section on skins. To have your
+*CSS overrides* in sync with upstream changes released in future versions, you can collect all your overrides for the Sass
+variables and mixins inside a sass file placed at `_sass/minima/custom-variables.scss` and all other overrides inside a sass file
+placed at path `_sass/minima/custom.scss`.
 
-For files outside of `src`, i.e., in `config/` or in `static_data/`, the container will need to be restarted but not rebuilt.
+You need not maintain entire partial(s) at the site's source just to override a few styles. However, your stylesheet's primary
+source (`assets/css/style.scss`) should contain the following:
 
-For dependency changes for the server (i.e., changes in `requirements.txt`)
+  - Front matter dashes at the very beginning (can be empty).
+  - Directive to import a skin.
+  - Directive to import the base styles (automatically loads overrides when available).
 
-```bash
-$ docker-compose down
-$ docker-compose build --no-cache cg-server
-$ docker-compose up
-```
+Therefore, your `assets/css/style.scss` should contain the following at minimum:
 
-### Database refresh
-
-To erase the local development database, delete the postgres docker volume with:
-
-```bash
-$ docker-compose down -v # -v will delete the volume
-$ docker-compose up
-```
-
-## Per-service installation
-
-We recommend developing with Docker and `docker-compose`. More details on the installation for each service can be found in their respective `Dockerfile`s in the `services/` folder, and in the `docker-compose.yml` file. Running each service separately is not recommended and not tested on our end. Since we are not actively testing per-service installations, please submit a GitHub issue if you run into any problems during installation or running.
-
-First, clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
-
-### Javascript
-
-Requirements:
-
-- curl
-- node.js > 8.0.0
-- npm
-
-This app was built from the [react-slingshot](https://github.com/coryhouse/react-slingshot) example app.
-
-1. **Install [Node 8.0.0 or greater](https://nodejs.org)**
-
-   Need to run multiple versions of Node? Use [nvm](https://github.com/creationix/nvm).
-
-2. **Install [Git](https://git-scm.com/downloads)**.
-
-3. **[Disable safe write in your editor](https://webpack.js.org/guides/development/#adjusting-your-text-editor)** to assure hot reloading works properly.
-
-4. Complete the steps below for your operating system:
-
-   macOS
-
-   - Install [watchman](https://facebook.github.io/watchman/) via `brew install watchman` to avoid [this issue](https://github.com/facebook/create-react-app/issues/871) which occurs if your macOS has no appropriate file watching service installed.
-
-   Linux
-
-   - Run this to [increase the limit](http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc) on the number of files Linux will watch. [Here's why](https://github.com/coryhouse/react-slingshot/issues/6).
-
-     `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`.
-
-5. **Install NPM packages**
-
-   `npm install`
-
-6. **Run the app**
-
-   `CONFIGFILE=config/config_genbank.yaml npm start -s`
-
-   This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development with this kit, this command will continue watching all your files. Every time you hit save the code is rebuilt, linting runs, and tests run automatically. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
-
-### PostgreSQL
-
-This development environment was tested with PostgreSQL 12
-
-Please provide DB connection information to the Flask server with the following environment variables:
-
-- POSTGRES_USER
-- POSTGRES_PASSWORD
-- POSTGRES_DB
-- POSTGRES_HOST
-- POSTGRES_PORT
-- POSTGRES_MAX_CONN (the maximum number of connections for the Postgres connection pool)
-
-### Flask Server
-
-Requirements:
-
-- Python3 (Python >= 3.8) with virtual environments. We recommend conda via. [miniconda3](https://docs.conda.io/en/latest/miniconda.html), but python3 with `virtualenv` or any other virtual environment provider should also work fine
-
-Install dependencies:
-
-```bash
-$ cd services/server
-$ pip install -r requirements.txt
-```
-
-Run server:
-
-```bash
-$ cd services/server
-$ CONFIGFILE=../../config/config_genbank.yaml ./serve.sh # Run Flask server in development mode, with GenBank settings
-                                                   # Optionally, edit the serve.sh script to set the config file
-```
-
+```sass
+---
 ---
 
-## Analysis Pipeline
-
-Data analysis is run with [Snakemake](https://snakemake.readthedocs.io/en/stable/), Python scripts, and bioinformatics tools such as `bowtie2`. Please ensure that the conda environment is configured correctly (See [Pipeline Installation](#Pipeline-Installation)).
-
-Data analysis is broken up into two snakemake pipelines: 1) ingestion and 2) main. The ingestion pipeline downloads, chunks, and prepares metadata for the main analysis, and the main pipeline analyzes sequences, extracts mutations, and compiles data for display in the web application.
-
-Configuration of the pipeline is defined in the `config/config_[workflow].yaml` files.
-
-### Pipeline Installation
-
-1. Clone this repository: `git clone https://github.com/vector-engineering/covidcg.git`
-2. Install [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
-3. Create conda environment:
-
-```bash
-$ conda config --add channels bioconda # Add package download locations
-$ conda config --add channels conda-forge
-$ conda env create -f environment.yml
+@import "minima/skins/{{ site.minima.skin | default: 'classic' }}";
+@import "minima/initialize";
 ```
 
-For OSX M1 chips, use the alternative environment `environment_osx-arm64.yaml`. Some additional source compilation steps are required as not all ARM64 binaries are available on conda.
+#### Skins
 
-### Ingestion
+Minima 3.0 supports defining and switching between multiple color-palettes (or *skins*).
 
-Currently available ingest workflows are:
-
-SARS2:
-
-- `workflow_sars2_gisaid_ingest`
-- `workflow_sars2_genbank_ingest`
-- `workflow_sars2_custom_ingest`
-
-RSV:
-
-- `workflow_rsv_genbank_ingest`
-- `workflow_rsv_custom_ingest`
-
-Flu:
-
-- `workflow_flu_gisaid_ingest`
-- `workflow_flu_genbank_ingest`
-
-**NOTE: While GISAID ingestion pipelines are provided as open-source, it is intended only for internal use**.
-
-GenBank ingest pipelines are designed to automatically download and process data from their respective data source.
-
-"Custom" ingest pipelines can be used for analyzing and visualizing in-house data. More details are available in README files within each ingestion pipeline's folder. Each ingestion workflow is parametrized by its own config file. i.e., `config/config_sars2_genbank.yaml` for the SARS-CoV-2 GenBank workflow.
-
-For example, you can run the SARS-CoV-2 GenBank ingestion pipeline with:
-
-```bash
-$ cd workflow_sars2_genbank_ingest
-$ snakemake --use-conda # Conda required specifically for SARS2 GenBank ingest in order to run Pangolin lineage assignments
+```
+.
+├── minima.scss
+└── minima
+    └── _syntax-highlighting.scss
 ```
 
-### Main Analysis
 
-The main data analysis pipeline is located in `workflow_main`. It requires data, in a data folder, from the ingestion pipeline. The data folder is defined in the `config/config_[workflow].yaml` file. The path to the config file is required for the main workflow, as it needs to know what kind of data to expect (as described in the config files).
+A skin is a Sass file placed in the directory `_sass/minima/skins` and it defines the variable defaults related to the "color"
+aspect of the theme. It also embeds the Sass rules related to syntax-highlighting since that is primarily related to color and
+has to be adjusted in harmony with the current skin.
 
-For example, if you ingested data from GenBank, run the main analysis pipeline with:
+The default color palette for Minima is defined within `_sass/minima/skins/classic.scss`. To switch to another available skin,
+simply declare it in the site's config file. For example, to activate `_sass/minima/skins/dark.scss` as the skin, the setting
+would be:
 
-```bash
-cd workflow_main
-snakemake --configfile ../config/config_sars2_genbank_dev.yaml
+```yaml
+minima:
+  skin: dark
 ```
 
-This pipeline will align sequences to the reference sequence with `minimap2`, extract mutations on both the NT and AA level, and combine all metadata and mutation information data. The output data can be uploaded to a PostgreSQL database with `workflow_main/scripts/push_to_database.py`. Or, you can use the output files directly for your own analyses.
+As part of the migration to support skins, some existing Sass variables have been retired and some **have been redefined** as
+summarized in the following table:
 
-### Example data
+Minima 2.0      | Minima 3.0
+--------------- | ----------
+`$brand-color`  | `$link-base-color`
+`$grey-*`       | `$brand-*`
+`$orange-color` | *has been removed*
 
-Example data from GenBank is provided for all viruses, and is located in gzipped tarballs inside the `example_data_genbank` folder. Data for some viruses is truncated by submission date in order to lighten data load and speed up development on smaller machines.
+##### Available skins
 
-To extract the data:
+- classic
+- dark
+- solarized
+- solarized-dark
 
-```bash
-$ cd example_data_genbank
-$ tar -xzf sars2.tar.gz
-$ tar -xzf rsv.tar.gz
-$ tar -xzf flu.tar.gz
+### Customize navigation links
+
+This allows you to set which pages you want to appear in the navigation area and configure order of the links.
+
+For instance, to only link to the `about` and the `portfolio` page, add the following to your `_config.yml`:
+
+```yaml
+header_pages:
+  - about.md
+  - portfolio.md
 ```
 
-These tarballs contain only raw sequences and metadata, and mimic the output from their respective ingest pipelines. Once the files are extracted, run the main analysis workflow described above.
 
----
+### Change default date format
 
-## About the project
+You can change the default date format by specifying `site.minima.date_format`
+in `_config.yml`.
 
-This project is developed by the [Vector Engineering Lab](https://vector.engineering/):
+```
+# Minima date format
+# refer to http://shopify.github.io/liquid/filters/date/ if you want to customize this
+minima:
+  date_format: "%b %-d, %Y"
+```
 
-- Albert Tian Chen (Broad Institute)
-- [Kevin Altschuler](https://www.linkedin.com/in/kevinaltschuler/)
-- Shing Hei Zhan, PhD (University of British Columbia)
-- Alina Yujia Chan, PhD (Broad Institute)
-- Ben Deverman, PhD (Broad Institute)
 
-Contact the authors by email: [covidcg@broadinstitute.org](mailto:covidcg@broadinstitute.org)
+### Extending the `<head />`
 
-Python/snakemake scripts were run and tested on MacOS 10.15.4 (8 threads, 16 GB RAM), Google Cloud Debian 10 (buster), (64 threads, 412 GB RAM), and Windows 10/Ubuntu 20.04 via. WSL2 (48 threads, 128 GB RAM)
+You can *add* custom metadata to the `<head />` of your layouts by creating a file `_includes/custom-head.html` in your source directory. For example, to add favicons:
 
-## Citing COVID CG
+1. Head over to [https://realfavicongenerator.net/](https://realfavicongenerator.net/) to add your own favicons.
+2. [Customize](#customization) default `_includes/custom-head.html` in your source directory and insert the given code snippet.
 
-Users are encouraged to share, download, and further analyze data from this site. Plots can be downloaded as PNG or SVG files, and the data powering the plots and tables can be downloaded as well. Please attribute any data/images to [covidcg.org](https://covidcg.org/), or cite our manuscript:
 
-Chen AT, Altschuler K, Zhan SH, Chan YA, Deverman BE. COVID-19 CG enables SARS-CoV-2 mutation and lineage tracking by locations and dates of interest. _eLife_ (2021), doi: [https://doi.org/10.7554/eLife.63409](https://doi.org/10.7554/eLife.63409)
+### Enabling comments (via Disqus)
 
-Note: When using results from these analyses in your manuscript, ensure that you acknowledge the contributors of data, i.e. _We gratefully acknowledge all the Authors from the Originating laboratories responsible for obtaining the speciments and the Submitting laboratories where genetic sequence data were generated and shared via the GISAID Initiative, on which this research is based_.
+Optionally, if you have a Disqus account, you can tell Jekyll to use it to show a comments section below each post.
 
-and cite the following reference(s):
+To enable it, add the following lines to your Jekyll site:
 
-Shu, Y., McCauley, J. (2017) GISAID: Global initiative on sharing all influenza data – from vision to reality. _EuroSurveillance_, 22(13) DOI:[10.2807/1560-7917.ES.2017.22.13.30494](https://doi.org/10.2807/1560-7917.ES.2017.22.13.30494) PMCID: [PMC5388101](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5388101/)
+```yaml
+  disqus:
+    shortname: my_disqus_shortname
+```
 
-### License
+You can find out more about Disqus' shortnames [here](https://help.disqus.com/installation/whats-a-shortname).
 
-COVID-19 CG is distributed by an [MIT license](https://github.com/vector-engineering/covidcg/blob/master/LICENSE).
+Comments are enabled by default and will only appear in production, i.e., `JEKYLL_ENV=production`
 
-### Contributing
+If you don't want to display comments for a particular post you can disable them by adding `comments: false` to that post's YAML Front Matter.
 
-Please feel free to contribute to this project by opening an issue or pull request in the [GitHub repository](https://github.com/vector-engineering/covidcg).
+:warning: `url`, e.g. `https://example.com`, must be set in you config file for Disqus to work.
+
+### Author Metadata
+
+From `Minima-3.0` onwards, `site.author` is expected to be a mapping of attributes instead of a simple scalar value:
+
+```yaml
+author:
+  name: John Smith
+  email: "john.smith@foobar.com"
+```
+
+To migrate existing metadata, update your config file and any reference to the object in your layouts and includes as summarized below:
+
+Minima 2.x    | Minima 3.0
+------------- | -------------------
+`site.author` | `site.author.name`
+`site.email`  | `site.author.email`
+
+
+### Social networks
+
+You can add links to the accounts you have on other sites, with respective icon, by adding one or more of the following options in your config.
+From `Minima-3.0` onwards, the usernames are to be nested under `minima.social_links`, with the keys being simply the social-network's name:
+
+```yaml
+minima:
+  social_links:
+    twitter: jekyllrb
+    github: jekyll
+    stackoverflow: "11111"
+    dribbble: jekyll
+    facebook: jekyll
+    flickr: jekyll
+    instagram: jekyll
+    linkedin: jekyll
+    pinterest: jekyll
+    telegram: jekyll
+    microdotblog: jekyll
+    keybase: jekyll
+
+    mastodon:
+     - username: jekyll
+       instance: example.com
+     - username: jekyll2
+       instance: example.com
+
+    gitlab:
+     - username: jekyll
+       instance: example.com
+     - username: jekyll2
+       instance: example.com
+
+    youtube: jekyll
+    youtube_channel: UC8CXR0-3I70i1tfPg1PAE1g
+    youtube_channel_name: CloudCannon
+```
+
+
+### Enabling Google Analytics
+
+To enable Google Analytics, add the following lines to your Jekyll site:
+
+```yaml
+  google_analytics: UA-NNNNNNNN-N
+```
+
+Google Analytics will only appear in production, i.e., `JEKYLL_ENV=production`
+
+### Enabling Excerpts on the Home Page
+
+To display post-excerpts on the Home Page, simply add the following to your `_config.yml`:
+
+```yaml
+show_excerpts: true
+```
+
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/jekyll/minima. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+
+## Development
+
+To set up your environment to develop this theme, run `script/bootstrap`.
+
+To test your theme, run `script/server` (or `bundle exec jekyll serve`) and open your browser at `http://localhost:4000`. This starts a Jekyll server using your theme and the contents. As you make modifications, your site will regenerate and you should see the changes in the browser after a refresh.
+
+## License
+
+The theme is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
